@@ -23,6 +23,8 @@ tags:
     description: Access to Petstore orders
   - name: list
     description: List of Biobanks and Collections in all directories
+  - name: perun
+    description: Update AAI informations
 
 paths:
   /status:
@@ -78,7 +80,82 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/List'
-    
+  /perun/users:
+    post:
+      tags:
+        - perun
+      summary: Update AAI user information
+      description: >-
+        Update AAI user information from biobanks and collections
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Query parameters"
+        required: true
+        schema:
+          $ref: '#/definitions/AAIUser'
+      responses:
+        '200':
+          description: successful operation
+  /perun/networks/users:
+    post:
+      tags:
+        - perun
+      summary: Update AAI user information for network users
+      description: >-
+        Update AAI user information from networks
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Query parameters"
+        required: true
+        schema:
+          $ref: '#/definitions/AAIUserMapping'
+      responses:
+        '200':
+          description: successful operation
+  /perun/mapping:
+    post:
+      tags:
+        - perun
+      summary: Update AAI user collection mapping
+      description: >-
+        Update AAI user collections mapping
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Query parameters"
+        required: true
+        schema:
+          $ref: '#/definitions/AAIUser'
+      responses:
+        '200':
+          description: successful operation
+  /perun/networks/mapping:
+    post:
+      tags:
+        - perun
+      summary: Update AAI user network mapping
+      description: >-
+        Update AAI user network mapping
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Query parameters"
+        required: true
+        schema:
+          $ref: '#/definitions/AAIUser'
+      responses:
+        '200':
+          description: successful operation
 definitions:
   Status:
     type: object
@@ -169,3 +246,41 @@ definitions:
                           format: int64
                         name:
                           type: string
+  AAIUser:
+    type: array
+    items:
+      type: object
+      properties:
+        organization:
+          type: string
+        id:
+          type: integer
+          format: int64
+        displayName:
+          type: string
+        status:
+          type: string
+        mail:
+          type: string
+        identities:
+          type: array
+          items:
+            type: string
+  AAIUserMapping:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        directory:
+          type: string
+        id:
+          type: string
+        members:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
