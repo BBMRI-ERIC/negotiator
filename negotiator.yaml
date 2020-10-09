@@ -31,13 +31,13 @@ paths:
     get:
       tags:
         - status
-      summary: Get overview
+      summary:  Get version and statistics of the called Negotiator instance.
       description: >-
         Listes depoyed version of the BBMRI-ERIC Negotiator service, basic
         statistic of the service.
       responses:
         '200':
-          description: successful operation
+          description: Successful operation
           schema:
             $ref: '#/definitions/Status'
         '400':
@@ -164,42 +164,51 @@ definitions:
         type: integer
         format: int64
         example: 1791
-        description: number of registered biobanks
+        description: number of registered biobanks in the Negotiator instance
       attachments:
         type: integer
         format: int64
         example: 111
+        description: TODO
       collections:
         type: integer
         format: int64
         example: 4515
+        description: number of registered collections in the Negotiator instance
       queries_with_matches:
         type: integer
         format: int64
         example: 271
+        description: TODO
       build_time:
         type: string
         pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
         example: 2020-09-10 11:25
+        description: date/time when current Negotiator version was built
       used:
         type: integer
         format: int64
         example: 49476
+        description: TODO
       free:
         type: integer
         format: int64
         example: 49173
+        description: TODO
       queries:
         type: integer
         format: int64
         example: 285
+        description: total number of queries registered in the Negotiator instance
       version:
         type: string
         example: "2.1.2-SNAPSHOT"
+        description: version of the Negotiator instance
       users:
         type: integer
         format: int64
         example: 364
+        description: number of users registered  in the Negotiator instance
   Query:
     type: object
     properties:
