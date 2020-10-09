@@ -3,14 +3,14 @@ info:
   description: >-
     BBMRI-ERIC Negotiator Service API. The Service is running at
     [https://negotiator.bbmri-eric.eu](https://negotiator.bbmri-eric.eu)
-  version: 1.0.0
+  version: 2.0.0
   title: BBMRI-ERIC Negotiator
-  termsOfService: 'https://bbmri-eric.eu'
+  termsOfService: 'https://web.bbmri-eric.eu/Policies/BBMRI-ERIC-AUP-IT-Services-1_0.pdf'
   contact:
-    email: robert.reihs@bbmri-eric.eu
+    email: negotiator@helpdesk.bbmri-eric.eu
   license:
-    name: '?????'
-    url: 'https://bbmri-eric.eu'
+    name: The GNU General Public License v3.0
+    url: 'https://www.gnu.org/licenses/gpl-3.0.en.html'
 host: negotiator.bbmri-eric.eu
 basePath: /api
 schemes:
@@ -18,13 +18,13 @@ schemes:
   
 tags:
   - name: status
-    description: Deployed BBMRI-ERIC Negotiator Version and Statistics.
+    description: Get version and statistics of the called Negotiator instance.
   - name: directory
-    description: Access to Petstore orders
+    description: Calls used by registered findability services (such as BBMRI-ERIC Directory, GBA/BBMRI-ERIC Locator, RD-Connect Finder) to create new requests or modify existing requests.
   - name: list
-    description: List of Biobanks and Collections in all directories
+    description: List of biobanks and collections from all the findability services registered in the Negotiator.
   - name: perun
-    description: Update AAI informations
+    description: Calls used by Authentication and Authorization Infrastructure (BBMRI-ERIC AAI) to update authentication and authorization information in the Negotiator.
 
 paths:
   /status:
@@ -163,32 +163,43 @@ definitions:
       biobanks:
         type: integer
         format: int64
+        example: 1791
+        description: number of registered biobanks
       attachments:
         type: integer
         format: int64
+        example: 111
       collections:
         type: integer
         format: int64
+        example: 4515
       queries_with_matches:
         type: integer
         format: int64
+        example: 271
       build_time:
         type: string
         pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
+        example: 2020-09-10 11:25
       used:
         type: integer
         format: int64
+        example: 49476
       free:
         type: integer
         format: int64
+        example: 49173
       queries:
         type: integer
         format: int64
+        example: 285
       version:
         type: string
+        example: "2.1.2-SNAPSHOT"
       users:
         type: integer
         format: int64
+        example: 364
   Query:
     type: object
     properties:
@@ -284,3 +295,4 @@ definitions:
             properties:
               userId:
                 type: string
+
