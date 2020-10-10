@@ -169,7 +169,7 @@ definitions:
         type: integer
         format: int64
         example: 111
-        description: TODO
+        description: number of attachments uploaded into the system
       collections:
         type: integer
         format: int64
@@ -179,7 +179,7 @@ definitions:
         type: integer
         format: int64
         example: 271
-        description: TODO
+        description: number of queries with at least one matching collection
       build_time:
         type: string
         pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
@@ -189,12 +189,12 @@ definitions:
         type: integer
         format: int64
         example: 49476
-        description: TODO
+        description: used diskspace on the system
       free:
         type: integer
         format: int64
         example: 49173
-        description: TODO
+        description: free diskspace on the system
       queries:
         type: integer
         format: int64
