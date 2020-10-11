@@ -1,8 +1,6 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: >-
-    BBMRI-ERIC Negotiator Service API. The Service is running at
-    [https://negotiator.bbmri-eric.eu](https://negotiator.bbmri-eric.eu)
+  description: 'BBMRI-ERIC Negotiator Service API. The Service is running at [https://negotiator.bbmri-eric.eu](https://negotiator.bbmri-eric.eu)'
   version: 2.0.0
   title: BBMRI-ERIC Negotiator
   termsOfService: 'https://web.bbmri-eric.eu/Policies/BBMRI-ERIC-AUP-IT-Services-1_0.pdf'
@@ -15,26 +13,24 @@ host: negotiator.bbmri-eric.eu
 basePath: /api
 schemes:
   - https
-  
 tags:
   - name: status
     description: Get version and statistics of the called Negotiator instance.
   - name: directory
-    description: Calls used by registered findability services (such as BBMRI-ERIC Directory, GBA/BBMRI-ERIC Locator, RD-Connect Finder) to create new requests or modify existing requests.
+    description: 'Calls used by registered findability services (such as BBMRI-ERIC Directory, GBA/BBMRI-ERIC Locator, RD-Connect Finder) to create new requests or modify existing requests.'
   - name: list
     description: List of biobanks and collections from all the findability services registered in the Negotiator.
   - name: perun
     description: Calls used by Authentication and Authorization Infrastructure (BBMRI-ERIC AAI) to update authentication and authorization information in the Negotiator.
-
+  - name: request
+    description: Import export of requests
 paths:
   /status:
     get:
       tags:
         - status
-      summary:  Get version and statistics of the called Negotiator instance.
-      description: >-
-        Listes depoyed version of the BBMRI-ERIC Negotiator service, basic
-        statistic of the service.
+      summary: Get version and statistics of the called Negotiator instance.
+      description: 'Listes depoyed version of the BBMRI-ERIC Negotiator service, basic statistic of the service.'
       responses:
         '200':
           description: Successful operation
@@ -47,22 +43,16 @@ paths:
       tags:
         - directory
       summary: Creates a new query.
-      description: >-
-        Takes a JSON query object with information of the search criteria and
-        results of the directory. Stores it temporary in the database and
-        returns a redirect URL for the directory. With this URL the directory
-        can redirect the user to the query edit page. I case of updating a
-        existing query or extending an exiting request, a token is provided for
-        identification.
+      description: 'Takes a JSON query object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the query edit page. I case of updating a existing query or extending an exiting request, a token is provided for identification.'
       consumes:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Query parameters"
-        required: true
-        schema:
-          $ref: '#/definitions/Query'
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/Query'
       responses:
         '201':
           description: successful created
@@ -73,8 +63,7 @@ paths:
       tags:
         - list
       summary: List of Biobanks and Collections in all directories
-      description: >-
-        Returns a JSON array with a hierarchical structure of all directories integrated into the \Negotiator. For each directory all biobanks registered are listed with the identifying ID of the directory. In the biobank a list of all associated collections is listed.
+      description: Returns a JSON array with a hierarchical structure of all directories integrated into the \Negotiator. For each directory all biobanks registered are listed with the identifying ID of the directory. In the biobank a list of all associated collections is listed.
       responses:
         '200':
           description: successful operation
@@ -85,17 +74,16 @@ paths:
       tags:
         - perun
       summary: Update AAI user information
-      description: >-
-        Update AAI user information from biobanks and collections
+      description: Update AAI user information from biobanks and collections
       consumes:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Query parameters"
-        required: true
-        schema:
-          $ref: '#/definitions/AAIUser'
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/AAIUser'
       responses:
         '200':
           description: successful operation
@@ -104,17 +92,16 @@ paths:
       tags:
         - perun
       summary: Update AAI user information for network users
-      description: >-
-        Update AAI user information from networks
+      description: Update AAI user information from networks
       consumes:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Query parameters"
-        required: true
-        schema:
-          $ref: '#/definitions/AAIUserMapping'
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/AAIUserMapping'
       responses:
         '200':
           description: successful operation
@@ -123,17 +110,16 @@ paths:
       tags:
         - perun
       summary: Update AAI user collection mapping
-      description: >-
-        Update AAI user collections mapping
+      description: Update AAI user collections mapping
       consumes:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Query parameters"
-        required: true
-        schema:
-          $ref: '#/definitions/AAIUser'
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/AAIUser'
       responses:
         '200':
           description: successful operation
@@ -142,20 +128,71 @@ paths:
       tags:
         - perun
       summary: Update AAI user network mapping
-      description: >-
-        Update AAI user network mapping
+      description: Update AAI user network mapping
       consumes:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Query parameters"
-        required: true
-        schema:
-          $ref: '#/definitions/AAIUser'
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/AAIUser'
       responses:
         '200':
           description: successful operation
+  /v2/io/export:
+    get:
+      tags:
+        - request
+      summary: Get request details by requestId
+      description: Get detailed data for a request by requestId
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            type: object
+            properties:
+              requestId:
+                type: integer
+                format: int64
+                example: 131
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Request'
+  /v2/io/import:
+    post:
+      tags:
+        - request
+      summary: Import a request to negotiator
+      description: Import a request to negotiator
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/Request'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              requestId:
+                type: integer
+                format: int64
+                example: 131
+              requestURL:
+                type: string
 definitions:
   Status:
     type: object
@@ -183,7 +220,7 @@ definitions:
       build_time:
         type: string
         pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
-        example: 2020-09-10 11:25
+        example: '2020-09-10 11:25'
         description: date/time when current Negotiator version was built
       used:
         type: integer
@@ -202,7 +239,7 @@ definitions:
         description: total number of queries registered in the Negotiator instance
       version:
         type: string
-        example: "2.1.2-SNAPSHOT"
+        example: 2.1.2-SNAPSHOT
         description: version of the Negotiator instance
       users:
         type: integer
@@ -222,11 +259,9 @@ definitions:
           type: object
           properties:
             biobankId:
-              type: integer
-              format: int64
+              type: string
             collectionId:
-              type: integer
-              format: int64
+              type: string
   QueryCreateResponse:
     type: object
     properties:
@@ -252,8 +287,7 @@ definitions:
                 type: object
                 properties:
                   directory_id:
-                    type: integer
-                    format: int64
+                    type: string
                   name:
                     type: string
                   collections:
@@ -262,8 +296,7 @@ definitions:
                       type: object
                       properties:
                         directory_id:
-                          type: integer
-                          format: int64
+                          type: string
                         name:
                           type: string
   AAIUser:
@@ -304,4 +337,53 @@ definitions:
             properties:
               userId:
                 type: string
-
+  Request:
+    type: object
+    properties:
+      requestId:
+        type: integer
+        format: int64
+      title:
+        type: string
+      projectDescription:
+        type: string
+      requestDescription:
+        type: string
+      ethicsVote:
+        type: string
+      testRequest:
+        type: boolean
+      creationTime:
+        type: string
+        pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
+        example: '2020-09-10 11:25'
+        description: date/time when request was created
+      collections:
+        type: array
+        description: array of collection involved in the request (optional)
+        items:
+          type: object
+          properties:
+            biobankId:
+              type: string
+            collectionId:
+              type: string
+      query:
+        type: array
+        items:
+          type: object
+          description: array of queries for the request (optional)
+          properties:
+            queryParameters:
+              type: string
+            humanReadable:
+              type: string
+              example: selected countries are AT
+              description: human readable version of the query
+            url:
+              type: string
+              description: redirect url to the directory
+            numberOfCollections:
+              type: integer
+              format: int64
+      
