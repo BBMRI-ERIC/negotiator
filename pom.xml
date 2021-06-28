@@ -25,7 +25,9 @@
     </parent>
 
     <properties>
-        <java.version>14</java.version>
+        <java.version>13</java.version>
+        <maven.compiler.source>13</maven.compiler.source>
+        <maven.compiler.target>13</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -121,6 +123,11 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
         </dependency>
     </dependencies>
 
