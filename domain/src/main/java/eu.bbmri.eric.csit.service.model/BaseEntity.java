@@ -1,6 +1,9 @@
 package eu.bbmri.eric.csit.service.model;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,6 +14,9 @@ import java.util.Date;
 //@Inheritance(strategy=InheritanceType.JOINED)
 //@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @Inheritance(strategy= InheritanceType.TABLE_PER_CLASS)
+@TypeDefs({
+        @TypeDef(name = "json", typeClass = JsonType.class)
+})
 public abstract class BaseEntity {
     @Id
     @GeneratedValue

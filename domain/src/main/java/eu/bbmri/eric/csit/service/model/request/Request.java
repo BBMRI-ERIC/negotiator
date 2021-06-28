@@ -4,10 +4,10 @@ import eu.bbmri.eric.csit.service.model.BaseEntity;
 import eu.bbmri.eric.csit.service.model.request.form.FormTemplate;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -23,7 +23,20 @@ public class Request extends BaseEntity {
     private String request_description;
     private String ethics_vote;
     private Boolean test_request;
+    private String request_token;
 
-    @OneToMany(mappedBy = "request")
-    private Set<FormTemplate> formTemplates = new HashSet<>();
+    @OneToMany(
+            mappedBy = "requestToken",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            orphanRemoval = false
+    )
+    private List<RequestQuery> requestQueries = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "requestId",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    private List<FormTemplate> formTemplates = new ArrayList<>();
 }
