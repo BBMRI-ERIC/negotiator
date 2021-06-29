@@ -10,29 +10,16 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>domain</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <version.hibernate-types-55>2.12.0</version.hibernate-types-55>
-        <java.version>13</java.version>
-        <maven.compiler.source>13</maven.compiler.source>
-        <maven.compiler.target>13</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.vladmihalcea</groupId>
