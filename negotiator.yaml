@@ -1,14 +1,14 @@
 swagger: '2.0'
 info:
-  description: 'BBMRI-ERIC Negotiator Service API. The Service is running at [https://negotiator.bbmri-eric.eu](https://negotiator.bbmri-eric.eu)'
+  description: BBMRI-ERIC Negotiator Service API. The Service is running at [https://negotiator.bbmri-eric.eu](https://negotiator.bbmri-eric.eu)
   version: 2.0.0
   title: BBMRI-ERIC Negotiator
-  termsOfService: 'https://web.bbmri-eric.eu/Policies/BBMRI-ERIC-AUP-IT-Services-1_0.pdf'
+  termsOfService: https://web.bbmri-eric.eu/Policies/BBMRI-ERIC-AUP-IT-Services-1_0.pdf
   contact:
     email: negotiator@helpdesk.bbmri-eric.eu
   license:
     name: The GNU General Public License v3.0
-    url: 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
 host: negotiator.bbmri-eric.eu
 basePath: /api
 schemes:
@@ -17,7 +17,7 @@ tags:
   - name: status
     description: Get version and statistics of the called Negotiator instance.
   - name: directory
-    description: 'Calls used by registered findability services (such as BBMRI-ERIC Directory, GBA/BBMRI-ERIC Locator, RD-Connect Finder) to create new requests or modify existing requests.'
+    description: Calls used by registered findability services (such as BBMRI-ERIC Directory, GBA/BBMRI-ERIC Locator, RD-Connect Finder) to create new requests or modify existing requests.
   - name: list
     description: List of biobanks and collections from all the findability services registered in the Negotiator.
   - name: perun
@@ -30,7 +30,7 @@ paths:
       tags:
         - status
       summary: Get version and statistics of the called Negotiator instance.
-      description: 'Listes depoyed version of the BBMRI-ERIC Negotiator service, basic statistic of the service.'
+      description: Listes depoyed version of the BBMRI-ERIC Negotiator service, basic statistic of the service.
       responses:
         '200':
           description: Successful operation
@@ -43,7 +43,7 @@ paths:
       tags:
         - directory
       summary: Creates a new query.
-      description: 'Takes a JSON query object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the query edit page. I case of updating a existing query or extending an exiting request, a token is provided for identification.'
+      description: Takes a JSON query object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the query edit page. I case of updating a existing query or extending an exiting request, a token is provided for identification.
       consumes:
         - application/json
       parameters:
@@ -193,6 +193,104 @@ paths:
                 example: 131
               requestURL:
                 type: string
+  /v3/project:
+    post:
+      tags:
+        - project
+      summary: Create a new project in the negotiator
+      description: Create a new project in the negotiator
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Project parameters
+          required: true
+          schema:
+            $ref: '#/definitions/Project'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Project'
+        "405":
+          description: "Invalid input"
+    put:
+      tags:
+        - project
+      summary: Update project in the negotiator
+      description: Update project in the negotiator
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Project parameters
+          required: true
+          schema:
+            $ref: '#/definitions/Project'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Project'
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Project not found"
+        "405":
+          description: "Validation exception"
+  /v3/project/{projectId}:
+    get:
+      tags:
+        - project
+      summary: Get a project in the negotiator by Id
+      description: Get a project in the negotiator by Id
+      operationId: "findByProjectId"
+      consumes:
+        - application/json
+      parameters:
+        - name: "projectId"
+          in: "path"
+          description: "Id of project to return"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/Project'
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Project not found"
+  /v3/project/findByUserId:
+    get:
+      tags:
+        - project
+      summary: Get a project in the negotiator 
+      description: Get a project in the negotiator
+      consumes:
+        - application/json
+      parameters:
+        - in: "query"
+          name: "userId"
+          description: "UserId to filter projects"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: "array"
+            items:
+              $ref: '#/definitions/Project'
+        "400":
+          description: "Invalid userId"
 definitions:
   Status:
     type: object
@@ -219,8 +317,8 @@ definitions:
         description: number of queries with at least one matching collection
       build_time:
         type: string
-        pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
-        example: '2020-09-10 11:25'
+        pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$
+        example: 2020-09-10 11:25
         description: date/time when current Negotiator version was built
       used:
         type: integer
@@ -355,8 +453,8 @@ definitions:
         type: boolean
       creationTime:
         type: string
-        pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$'
-        example: '2020-09-10 11:25'
+        pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$
+        example: 2020-09-10 11:25
         description: date/time when request was created
       collections:
         type: array
@@ -386,4 +484,28 @@ definitions:
             numberOfCollections:
               type: integer
               format: int64
-      
+  Project:
+    type: object
+    properties:
+      projectId:
+        type: integer
+        format: int64
+      title:
+        type: string
+      projectDescription:
+        type: string
+      ethicsVote:
+        type: string
+      creationTime:
+        type: string
+        pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$
+        example: 2020-09-10 11:25
+        description: date/time when project was created
+      expectedEndTime:
+        type: string
+        pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$
+        example: 2020-09-10 11:25
+        description: date/time when project will probably end
+      numberOfConnectedRequests:
+        type: integer
+        format: int64
