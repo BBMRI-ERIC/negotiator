@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: BBMRI-ERIC Negotiator Service API. The Service is running at [https://negotiator.bbmri-eric.eu](https://negotiator.bbmri-eric.eu)
-  version: 2.0.0
+  version: 3.0.1
   title: BBMRI-ERIC Negotiator
   termsOfService: https://web.bbmri-eric.eu/Policies/BBMRI-ERIC-AUP-IT-Services-1_0.pdf
   contact:
@@ -39,6 +39,27 @@ paths:
         '400':
           description: Invalid status value
   /directory/create_query:
+    post:
+      tags:
+        - directory
+      summary: Creates a new query.
+      description: Takes a JSON query object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the query edit page. I case of updating a existing query or extending an exiting request, a token is provided for identification.
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Query parameters
+          required: true
+          schema:
+            $ref: '#/definitions/Query'
+      responses:
+        '201':
+          description: successful created
+          schema:
+            $ref: '#/definitions/QueryCreateResponse'
+      deprecated: true
+  /v3/directory/query:
     post:
       tags:
         - directory
@@ -249,7 +270,7 @@ paths:
       summary: Get a project in the negotiator by Id
       description: Get a project in the negotiator by Id
       operationId: "findByProjectId"
-      consumes:
+      produces:
         - application/json
       parameters:
         - name: "projectId"
@@ -267,13 +288,15 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Project not found"
-  /v3/project/findByUserId:
+  /v3/project/find:
     get:
       tags:
         - project
       summary: Get a project in the negotiator 
       description: Get a project in the negotiator
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: "query"
@@ -291,6 +314,34 @@ paths:
               $ref: '#/definitions/Project'
         "400":
           description: "Invalid userId"
+  /v3/user/find:
+    get:
+      tags:
+        - perun
+        - project
+      summary: Get users representing a project
+      description: Get users representing a project
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: "query"
+          name: "projectId"
+          description: "ProjectId to filter users representig a project"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: "array"
+            items:
+              $ref: '#/definitions/User'
+        "400":
+          description: "Invalid projectId"
+      
 definitions:
   Status:
     type: object
@@ -509,3 +560,13 @@ definitions:
       numberOfConnectedRequests:
         type: integer
         format: int64
+  User:
+    type: object
+    properties:
+      userId:
+        type: integer
+        format: int64
+      name:
+        type: string
+      organisation:
+        type: string
