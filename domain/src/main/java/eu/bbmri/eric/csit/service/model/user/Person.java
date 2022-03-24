@@ -1,11 +1,14 @@
 package eu.bbmri.eric.csit.service.model.user;
 
 import eu.bbmri.eric.csit.service.model.BaseEntity;
-import lombok.*;
-
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Data
 @ToString

@@ -1,10 +1,16 @@
 package eu.bbmri.eric.csit.service.model.request;
 
 import eu.bbmri.eric.csit.service.model.BaseEntity;
-import lombok.*;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Data
 @ToString
@@ -16,14 +22,12 @@ import javax.persistence.*;
 @Table(name = "query")
 public class RequestQuery extends BaseEntity {
 
-    @Type(type = "json")
-    @Column(columnDefinition = "jsonb")
-    private RequestQueryParameters requestQueryParameters;
-    private Integer directoryId;
-    private String requestToken;
-    private String queryToken;
+  //    @Type(type = "json")
+  //    @Column(columnDefinition = "jsonb")
+  //    private RequestQueryParameters requestQueryParameters;
+  private Integer directoryId;
+  private String requestToken;
+  private String queryToken;
 
-    @ManyToOne
-    @JoinColumn
-    private Request request;
+  @ManyToOne @JoinColumn private Request request;
 }

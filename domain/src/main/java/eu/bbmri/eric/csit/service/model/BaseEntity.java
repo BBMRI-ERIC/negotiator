@@ -1,12 +1,15 @@
 package eu.bbmri.eric.csit.service.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import lombok.Getter;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-
-import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Getter

@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator;
+package negotiator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
