@@ -1,6 +1,5 @@
-package eu.bbmri.eric.csit.service.model.user;
+package eu.bbmri.eric.csit.service.model;
 
-import eu.bbmri.eric.csit.service.model.BaseEntity;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,10 +19,10 @@ import lombok.ToString;
 @Table(name = "person")
 public class Person extends BaseEntity {
 
-    private String auth_subject;
-    private String auth_name;
-    private String aut_email;
-    private String person_image;
-    private Boolean is_admin;
-    private String organization;
+  private String authSubject;
+  private String authName;
+  private String authEmail;
+  private byte[] personImage;
+  private Boolean isAdmin;
+  private String organization;
 }

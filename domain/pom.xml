@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>negotiator</artifactId>
-        <groupId>eu.bbmri.eric.csit.service</groupId>
-        <version>3.0.1</version>
-        <relativePath/>
-    </parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>domain</artifactId>
 
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>domain</artifactId>
-    <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <artifactId>jackson-annotations</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>hibernate-types-52</artifactId>
+      <groupId>com.vladmihalcea</groupId>
+      <version>${version.hibernate-types-55}</version>
+    </dependency>
+  </dependencies>
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>jar</packaging>
 
-    <properties>
-        <version.hibernate-types-55>2.14.0</version.hibernate-types-55>
-    </properties>
+  <parent>
+    <artifactId>negotiator</artifactId>
+    <groupId>eu.bbmri.eric.csit.service</groupId>
+    <relativePath/>
+    <version>3.0.1</version>
+  </parent>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-52</artifactId>
-            <version>${version.hibernate-types-55}</version>
-        </dependency>
-    </dependencies>
+  <properties>
+    <version.hibernate-types-55>2.14.0</version.hibernate-types-55>
+  </properties>
 
 </project>
