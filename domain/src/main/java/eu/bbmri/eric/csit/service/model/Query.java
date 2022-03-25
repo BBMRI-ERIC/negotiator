@@ -1,10 +1,13 @@
 package eu.bbmri.eric.csit.service.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -48,5 +51,17 @@ public class Query extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   private Datasource datasource;
+  @ManyToMany
+  @JoinTable(
+      name = "query_biobank_link",
+      joinColumns = @JoinColumn(name = "biobank_id"),
+      inverseJoinColumns = @JoinColumn(name = "query_id"))
+  Set<Biobank> biobanks ;
+  @ManyToMany
+  @JoinTable(
+      name = "query_collection_link",
+      joinColumns = @JoinColumn(name = "collection_id"),
+      inverseJoinColumns = @JoinColumn(name = "query_id"))
+  Set<Collection> collections ;
 
 }

@@ -40,6 +40,10 @@ public class Biobank extends BaseEntity {
   private String description;
   @ManyToMany(mappedBy = "biobanks")
   Set<Person> persons;
+  @ManyToMany(mappedBy = "biobanks")
+  Set<Network> networks;
+  @ManyToMany(mappedBy = "biobanks")
+  Set<Query> queries;
 
 
 }

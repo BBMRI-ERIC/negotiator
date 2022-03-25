@@ -1,9 +1,11 @@
 package eu.bbmri.eric.csit.service.model;
 
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -39,6 +41,12 @@ public class Collection extends BaseEntity {
   private String name;
   @Lob
   private String description;
+  @ManyToMany(mappedBy = "collections")
+  Set<Network> networks;
+  @ManyToMany(mappedBy = "collections")
+  Set<Person> persons;
+  @ManyToMany(mappedBy = "collections")
+  Set<Query> queries;
 
 
 }

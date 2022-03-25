@@ -35,4 +35,22 @@ public class Person extends BaseEntity {
       joinColumns = @JoinColumn(name = "biobank_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
   Set<Biobank> biobanks ;
+  @ManyToMany
+  @JoinTable(
+      name = "person_collection_link",
+      joinColumns = @JoinColumn(name = "collection_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  Set<Collection> collections ;
+  @ManyToMany
+  @JoinTable(
+      name = "person_network_link",
+      joinColumns = @JoinColumn(name = "network_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  Set<Network> networks;
+  @ManyToMany
+  @JoinTable(
+      name = "person_project_link",
+      joinColumns = @JoinColumn(name = "project_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  Set<Project> projects;
 }

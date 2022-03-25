@@ -3,10 +3,13 @@ package eu.bbmri.eric.csit.service.model;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import lombok.Getter;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -27,6 +30,10 @@ public abstract class BaseEntity {
   private Long id;
   private Date creationDate;
   private Date modifiedDate;
-  private Long createdBy;
-  private Long modifiedBy;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  private Person createdBy;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  private Person modifiedBy;
 }
