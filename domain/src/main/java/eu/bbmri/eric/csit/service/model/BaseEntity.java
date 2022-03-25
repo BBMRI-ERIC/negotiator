@@ -25,8 +25,8 @@ public abstract class BaseEntity {
   @Id
   @GeneratedValue
   private Long id;
-  private Date creation_date;
-  private Date modified_date;
-  private Long created_by;
-  private Long modified_by;
+  private Date creationDate;
+  private Date modifiedDate;
+  private Long createdBy;
+  private Long modifiedBy;
 }
