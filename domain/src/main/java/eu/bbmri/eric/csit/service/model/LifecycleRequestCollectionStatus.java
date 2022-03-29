@@ -23,6 +23,7 @@ import lombok.ToString;
 @Setter
 @Table(name = "lifecycle_request_collection_status")
 public class LifecycleRequestCollectionStatus extends BaseEntity {
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;

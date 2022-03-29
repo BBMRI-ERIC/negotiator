@@ -25,6 +25,8 @@ import lombok.ToString;
 @Table(name = "request")
 public class Request extends BaseEntity {
 
+  @ManyToMany(mappedBy = "requests")
+  Set<Attachment> attachments;
   private String title;
   @Lob
   private String requestDescription;
@@ -35,8 +37,6 @@ public class Request extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id")
   private Project project;
-  @ManyToMany(mappedBy = "requests")
-  Set<Attachment> attachments;
 
 //    @OneToMany(
 //            mappedBy = "requestToken",

@@ -21,7 +21,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "form_field")
-public class FormField extends BaseEntity{
+public class FormField extends BaseEntity {
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;

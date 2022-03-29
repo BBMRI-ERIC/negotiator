@@ -25,6 +25,12 @@ import lombok.ToString;
 @Table(name = "biobank")
 public class Biobank extends BaseEntity {
 
+  @ManyToMany(mappedBy = "biobanks")
+  Set<Person> persons;
+  @ManyToMany(mappedBy = "biobanks")
+  Set<Network> networks;
+  @ManyToMany(mappedBy = "biobanks")
+  Set<Query> queries;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -38,12 +44,6 @@ public class Biobank extends BaseEntity {
   private String name;
   @Lob
   private String description;
-  @ManyToMany(mappedBy = "biobanks")
-  Set<Person> persons;
-  @ManyToMany(mappedBy = "biobanks")
-  Set<Network> networks;
-  @ManyToMany(mappedBy = "biobanks")
-  Set<Query> queries;
 
 
 }

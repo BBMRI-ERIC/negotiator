@@ -25,6 +25,12 @@ import lombok.ToString;
 @Table(name = "collection")
 public class Collection extends BaseEntity {
 
+  @ManyToMany(mappedBy = "collections")
+  Set<Network> networks;
+  @ManyToMany(mappedBy = "collections")
+  Set<Person> persons;
+  @ManyToMany(mappedBy = "collections")
+  Set<Query> queries;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -41,12 +47,6 @@ public class Collection extends BaseEntity {
   private String name;
   @Lob
   private String description;
-  @ManyToMany(mappedBy = "collections")
-  Set<Network> networks;
-  @ManyToMany(mappedBy = "collections")
-  Set<Person> persons;
-  @ManyToMany(mappedBy = "collections")
-  Set<Query> queries;
 
 
 }

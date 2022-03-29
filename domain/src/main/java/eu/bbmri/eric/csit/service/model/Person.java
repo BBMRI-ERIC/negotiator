@@ -23,24 +23,18 @@ import lombok.ToString;
 @Table(name = "person")
 public class Person extends BaseEntity {
 
-  private String authSubject;
-  private String authName;
-  private String authEmail;
-  private byte[] personImage;
-  private Boolean isAdmin;
-  private String organization;
   @ManyToMany
   @JoinTable(
       name = "person_biobank_link",
       joinColumns = @JoinColumn(name = "biobank_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
-  Set<Biobank> biobanks ;
+  Set<Biobank> biobanks;
   @ManyToMany
   @JoinTable(
       name = "person_collection_link",
       joinColumns = @JoinColumn(name = "collection_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
-  Set<Collection> collections ;
+  Set<Collection> collections;
   @ManyToMany
   @JoinTable(
       name = "person_network_link",
@@ -53,4 +47,10 @@ public class Person extends BaseEntity {
       joinColumns = @JoinColumn(name = "project_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
   Set<Project> projects;
+  private String authSubject;
+  private String authName;
+  private String authEmail;
+  private byte[] personImage;
+  private Boolean isAdmin;
+  private String organization;
 }

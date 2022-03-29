@@ -27,6 +27,10 @@ import lombok.ToString;
 @Table(name = "project")
 public class Project extends BaseEntity {
 
+  @ManyToMany(mappedBy = "projects")
+  Set<Person> persons;
+  @ManyToMany(mappedBy = "projects")
+  Set<Attachment> attachments;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -42,8 +46,4 @@ public class Project extends BaseEntity {
   private Boolean testProject;
   private Date expectedEndDate;
   private Boolean expectedDataGeneration;
-  @ManyToMany(mappedBy = "projects")
-  Set<Person> persons;
-  @ManyToMany(mappedBy = "projects")
-  Set<Attachment> attachments;
 }

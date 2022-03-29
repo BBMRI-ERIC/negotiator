@@ -33,6 +33,18 @@ import org.hibernate.annotations.TypeDefs;
 })
 public class Query extends BaseEntity {
 
+  @ManyToMany
+  @JoinTable(
+      name = "query_biobank_link",
+      joinColumns = @JoinColumn(name = "biobank_id"),
+      inverseJoinColumns = @JoinColumn(name = "query_id"))
+  Set<Biobank> biobanks;
+  @ManyToMany
+  @JoinTable(
+      name = "query_collection_link",
+      joinColumns = @JoinColumn(name = "collection_id"),
+      inverseJoinColumns = @JoinColumn(name = "query_id"))
+  Set<Collection> collections;
   //TODO: Hibernate does not support postgres jsonb datatype; shall we implement a custom one?
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
@@ -51,17 +63,5 @@ public class Query extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   private Datasource datasource;
-  @ManyToMany
-  @JoinTable(
-      name = "query_biobank_link",
-      joinColumns = @JoinColumn(name = "biobank_id"),
-      inverseJoinColumns = @JoinColumn(name = "query_id"))
-  Set<Biobank> biobanks ;
-  @ManyToMany
-  @JoinTable(
-      name = "query_collection_link",
-      joinColumns = @JoinColumn(name = "collection_id"),
-      inverseJoinColumns = @JoinColumn(name = "query_id"))
-  Set<Collection> collections ;
 
 }

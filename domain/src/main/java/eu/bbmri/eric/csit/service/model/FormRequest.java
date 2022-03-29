@@ -20,7 +20,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "form_request")
-public class FormRequest extends BaseEntity{
+public class FormRequest extends BaseEntity {
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;

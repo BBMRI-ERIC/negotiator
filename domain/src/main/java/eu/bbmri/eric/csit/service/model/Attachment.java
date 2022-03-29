@@ -25,6 +25,30 @@ import lombok.ToString;
 @Table(name = "attachment")
 public class Attachment extends BaseEntity {
 
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_post_link",
+      joinColumns = @JoinColumn(name = "post_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Post> posts;
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_project_link",
+      joinColumns = @JoinColumn(name = "project_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Project> projects;
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_request_link",
+      joinColumns = @JoinColumn(name = "request_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Request> requests;
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_private_post_link",
+      joinColumns = @JoinColumn(name = "post_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Post> Posts;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -36,29 +60,5 @@ public class Attachment extends BaseEntity {
   private String fileSize;
   private String fileExtension;
   private String attachmentScope;
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_post_link",
-      joinColumns = @JoinColumn(name = "post_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  Set<Post> posts ;
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_project_link",
-      joinColumns = @JoinColumn(name = "project_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  Set<Project> projects ;
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_request_link",
-      joinColumns = @JoinColumn(name = "request_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  Set<Request> requests ;
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_private_post_link",
-      joinColumns = @JoinColumn(name = "post_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  Set<Post> Posts ;
 
 }

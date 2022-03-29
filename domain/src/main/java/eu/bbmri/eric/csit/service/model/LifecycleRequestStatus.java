@@ -22,7 +22,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "lifecycle_request_status")
-public class LifecycleRequestStatus extends BaseEntity{
+public class LifecycleRequestStatus extends BaseEntity {
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -40,9 +41,6 @@ public class LifecycleRequestStatus extends BaseEntity{
   private Person Person;
   @Lob //TODO: should this one be Json instead of txt blob?
   private String statusJson;
-
-
-
 
 
 }

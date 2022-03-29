@@ -26,6 +26,20 @@ import lombok.ToString;
 @Table(name = "network")
 public class Network extends BaseEntity {
 
+  @ManyToMany
+  @JoinTable(
+      name = "network_biobank_link",
+      joinColumns = @JoinColumn(name = "biobank_id"),
+      inverseJoinColumns = @JoinColumn(name = "network_id"))
+  Set<Biobank> biobanks;
+  @ManyToMany
+  @JoinTable(
+      name = "network_collection_link",
+      joinColumns = @JoinColumn(name = "collection_id"),
+      inverseJoinColumns = @JoinColumn(name = "network_id"))
+  Set<Collection> collections;
+  @ManyToMany(mappedBy = "networks")
+  Set<Person> persons;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -40,19 +54,5 @@ public class Network extends BaseEntity {
   private String acronym;
   @Lob
   private String description;
-  @ManyToMany
-  @JoinTable(
-      name = "network_biobank_link",
-      joinColumns = @JoinColumn(name = "biobank_id"),
-      inverseJoinColumns = @JoinColumn(name = "network_id"))
-  Set<Biobank> biobanks ;
-  @ManyToMany
-  @JoinTable(
-      name = "network_collection_link",
-      joinColumns = @JoinColumn(name = "collection_id"),
-      inverseJoinColumns = @JoinColumn(name = "network_id"))
-  Set<Collection> collections;
-  @ManyToMany(mappedBy = "networks")
-  Set<Person> persons;
 
 }

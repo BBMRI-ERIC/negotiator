@@ -20,7 +20,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "notification_settings")
-public class NotificationSettings extends BaseEntity{
+public class NotificationSettings extends BaseEntity {
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;

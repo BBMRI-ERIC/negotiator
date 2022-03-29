@@ -24,7 +24,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "private_post")
-public class PrivatePost extends BaseEntity{
+public class PrivatePost extends BaseEntity {
+
+  @ManyToMany(mappedBy = "posts")
+  Set<Attachment> attachments;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
@@ -44,11 +47,6 @@ public class PrivatePost extends BaseEntity{
   private String postText;
   private String postStatus;
   private Date postDate;
-  @ManyToMany(mappedBy = "posts")
-  Set<Attachment> attachments;
-
-
-
 
 
 }
