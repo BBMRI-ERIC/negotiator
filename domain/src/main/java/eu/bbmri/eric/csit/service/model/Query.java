@@ -46,7 +46,6 @@ public class Query extends BaseEntity {
   @Exclude
   Set<Collection> collections;
 
-  // TODO: Hibernate does not support postgres jsonb datatype; shall we implement a custom one?
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   @Exclude
