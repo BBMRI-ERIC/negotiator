@@ -14,8 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 
-@Data
 @ToString
 @Entity
 @NoArgsConstructor
@@ -30,35 +30,50 @@ public class Attachment extends BaseEntity {
       name = "attachment_post_link",
       joinColumns = @JoinColumn(name = "post_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @Exclude
   Set<Post> posts;
+
   @ManyToMany
   @JoinTable(
       name = "attachment_project_link",
       joinColumns = @JoinColumn(name = "project_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @Exclude
   Set<Project> projects;
+
   @ManyToMany
   @JoinTable(
       name = "attachment_request_link",
       joinColumns = @JoinColumn(name = "request_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @Exclude
   Set<Request> requests;
+
   @ManyToMany
   @JoinTable(
       name = "attachment_private_post_link",
       joinColumns = @JoinColumn(name = "post_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @Exclude
   Set<Post> Posts;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @Exclude
   private Person createdBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  @Exclude
   private Person modifiedBy;
-  private String fileName;
-  private String fileHash;
-  private String fileSize;
-  private String fileExtension;
-  private String attachmentScope;
 
+  private String fileName;
+
+  private String fileHash;
+
+  private String fileSize;
+
+  private String fileExtension;
+
+  private String attachmentScope;
 }

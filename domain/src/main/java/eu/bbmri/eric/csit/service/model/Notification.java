@@ -11,8 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 
-@Data
 @ToString
 @Entity
 @NoArgsConstructor
@@ -24,20 +24,28 @@ public class Notification extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @Exclude
   private Person createdBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  @Exclude
   private Person modifiedBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
+  @Exclude
   private Request request;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sender_id")
+  @Exclude
   private Person sender;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "post_id")
+  @Exclude
   private Post post;
+
   private String notificationType;
-
-
 }

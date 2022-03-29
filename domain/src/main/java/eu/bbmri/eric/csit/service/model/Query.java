@@ -11,16 +11,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-@Data
 @ToString
 @Entity
 @NoArgsConstructor
@@ -28,9 +27,7 @@ import org.hibernate.annotations.TypeDefs;
 @Getter
 @Setter
 @Table(name = "query")
-@TypeDefs({
-    @TypeDef(name = "json", typeClass = JsonType.class)
-})
+@TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 public class Query extends BaseEntity {
 
   @ManyToMany
@@ -38,30 +35,43 @@ public class Query extends BaseEntity {
       name = "query_biobank_link",
       joinColumns = @JoinColumn(name = "biobank_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
+  @Exclude
   Set<Biobank> biobanks;
+
   @ManyToMany
   @JoinTable(
       name = "query_collection_link",
       joinColumns = @JoinColumn(name = "collection_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
+  @Exclude
   Set<Collection> collections;
-  //TODO: Hibernate does not support postgres jsonb datatype; shall we implement a custom one?
+
+  // TODO: Hibernate does not support postgres jsonb datatype; shall we implement a custom one?
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @Exclude
   private Person createdBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  @Exclude
   private Person modifiedBy;
+
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")
   private String jsonPayload;
+
   private Integer datasourceId;
+
   private String queryToken;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
+  @Exclude
   private Request request;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
+  @Exclude
   private Datasource datasource;
-
 }

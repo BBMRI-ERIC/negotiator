@@ -11,8 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 
-@Data
 @ToString
 @Entity
 @NoArgsConstructor
@@ -24,13 +24,18 @@ public class FormTemplate extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @Exclude
   private Person createdBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  @Exclude
   private Person modifiedBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "biobank_id")
+  @Exclude
   private Biobank biobank;
-  private Boolean commercial;
 
+  private Boolean commercial;
 }

@@ -17,22 +17,20 @@ import org.hibernate.annotations.TypeDefs;
 @Entity
 @Getter
 // Choose your inheritance strategy:
-//@Inheritance(strategy=InheritanceType.JOINED)
-//@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+// @Inheritance(strategy=InheritanceType.JOINED)
+// @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@TypeDefs({
-    @TypeDef(name = "json", typeClass = JsonType.class)
-})
+@TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 public abstract class BaseEntity {
 
-  @Id
-  @GeneratedValue
-  private Long id;
+  @Id @GeneratedValue private Long id;
   private Date creationDate;
   private Date modifiedDate;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
   private Person modifiedBy;

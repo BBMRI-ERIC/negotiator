@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.model;
 
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -12,8 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 
-@Data
 @ToString
 @Entity
 @NoArgsConstructor
@@ -21,18 +20,22 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "person_request_link")
-
 public class PersonRequestLink extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "person_id")
+  @Exclude
   private Person person;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
+  @Exclude
   private Request request;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @Exclude
   private Person createdBy;
-  private Integer roleId;
 
+  private Integer roleId;
 }

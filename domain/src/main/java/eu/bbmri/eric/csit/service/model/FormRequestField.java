@@ -12,8 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 
-@Data
 @ToString
 @Entity
 @NoArgsConstructor
@@ -25,16 +25,24 @@ public class FormRequestField extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @Exclude
   private Person createdBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  @Exclude
   private Person modifiedBy;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "form_request_id")
+  @Exclude
   private FormRequest formRequest;
+
   @Column(name = "\"order\"")
   private Integer order;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "form_field_id")
+  @Exclude
   private FormField formField;
 }
