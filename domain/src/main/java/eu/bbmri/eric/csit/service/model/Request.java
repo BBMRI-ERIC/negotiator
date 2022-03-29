@@ -1,9 +1,11 @@
 package eu.bbmri.eric.csit.service.model;
 
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -33,6 +35,8 @@ public class Request extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id")
   private Project project;
+  @ManyToMany(mappedBy = "requests")
+  Set<Attachment> attachments;
 
 //    @OneToMany(
 //            mappedBy = "requestToken",

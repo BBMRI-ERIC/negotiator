@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -24,26 +23,32 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "project")
-public class Project extends BaseEntity {
-
+@Table(name = "private_post")
+public class PrivatePost extends BaseEntity{
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)
   private Person createdBy;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_by", insertable = false, updatable = false)
   private Person modifiedBy;
-  @NonNull
-  private String title;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "request_id")
+  private Request request;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "poster_id")
+  private Person person;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "biobank_id")
+  private Biobank biobank;
   @Lob
-  private String projectDescription;
-  @Lob
-  private String ethicsVote;
-  private Boolean testProject;
-  private Date expectedEndDate;
-  private Boolean expectedDataGeneration;
-  @ManyToMany(mappedBy = "projects")
-  Set<Person> persons;
-  @ManyToMany(mappedBy = "projects")
+  private String postText;
+  private String postStatus;
+  private Date postDate;
+  @ManyToMany(mappedBy = "posts")
   Set<Attachment> attachments;
+
+
+
+
+
 }

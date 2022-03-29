@@ -42,5 +42,23 @@ public class Attachment extends BaseEntity {
       joinColumns = @JoinColumn(name = "post_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id"))
   Set<Post> posts ;
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_project_link",
+      joinColumns = @JoinColumn(name = "project_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Project> projects ;
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_request_link",
+      joinColumns = @JoinColumn(name = "request_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Request> requests ;
+  @ManyToMany
+  @JoinTable(
+      name = "attachment_private_post_link",
+      joinColumns = @JoinColumn(name = "post_id"),
+      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  Set<Post> Posts ;
 
 }
