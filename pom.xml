@@ -42,46 +42,25 @@
         <groupId>org.springframework.boot</groupId>
       </plugin>
     </plugins>
-
-    <resources>
-      <resource>
-        <directory>application/src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
   </build>
 
-  <profiles>
-    <profile>
-      <id>dev</id>
-      <properties>
-        <activatedProperties>dev</activatedProperties>
-      </properties>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-          <scope>runtime</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>prod</id>
-      <properties>
-        <activatedProperties>prod</activatedProperties>
-      </properties>
-      <dependencies>
-        <dependency>
-          <artifactId>postgresql</artifactId>
-          <groupId>org.postgresql</groupId>
-          <scope>runtime</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
+<!--  <profiles>-->
+<!--    <profile>-->
+<!--      <id>dev</id>-->
+<!--      <properties>-->
+<!--        <activatedProperties>dev</activatedProperties>-->
+<!--      </properties>-->
+<!--      <activation>-->
+<!--        <activeByDefault>true</activeByDefault>-->
+<!--      </activation>-->
+<!--    </profile>-->
+<!--    <profile>-->
+<!--      <id>prod</id>-->
+<!--      <properties>-->
+<!--        <activatedProperties>prod</activatedProperties>-->
+<!--      </properties>-->
+<!--    </profile>-->
+<!--  </profiles>-->
 
   <dependencies>
     <!--        <dependency>-->
@@ -153,6 +132,16 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
+      <scope>runtime</scope>
     </dependency>
     <!--        <dependency>-->
     <!--            <groupId>io.projectreactor</groupId>-->
