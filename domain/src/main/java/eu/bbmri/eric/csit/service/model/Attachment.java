@@ -23,7 +23,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "attachment")
-public class Attachment extends BaseEntity {
+public class Attachment extends AuditEntity {
 
   @ManyToMany
   @JoinTable(

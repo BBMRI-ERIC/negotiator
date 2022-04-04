@@ -28,7 +28,7 @@ import org.hibernate.annotations.TypeDefs;
 @Setter
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
-public class Query extends BaseEntity {
+public class Query extends AuditEntity {
 
   @ManyToMany
   @JoinTable(

@@ -24,7 +24,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "project")
-public class Project extends BaseEntity {
+public class Project extends AuditEntity {
 
   @ManyToMany(mappedBy = "projects")
   @Exclude

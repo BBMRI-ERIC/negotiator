@@ -1,16 +1,15 @@
 package eu.bbmri.eric.csit.service.model;
 
+import com.sun.istack.NotNull;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 
 @ToString
 @Entity
@@ -21,26 +20,33 @@ import lombok.ToString.Exclude;
 @Table(name = "data_source")
 public class Datasource extends BaseEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
+  private enum ApiType {
+    MOLGENIS
+  }
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
+  @NotNull private String name;
 
-  private String name;
   private String description;
-  private String URL;
-  private String apiURL;
-  private String apiUsername;
-  private String apiPassword;
-  private String apiType;
+
+  @NotNull private String URL;
+
+  @NotNull private String apiUrl;
+
+  @NotNull private String apiUsername;
+
+  @NotNull private String apiPassword;
+
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  private ApiType apiType;
+
   private String resourceNetwork;
+
   private String resourceBiobank;
+
   private String resourceCollection;
-  private Boolean syncActive;
+
+  @NotNull private Boolean syncActive;
+
   private Boolean sourcePrefix;
 }

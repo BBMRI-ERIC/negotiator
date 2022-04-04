@@ -19,7 +19,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "form_field_value")
-public class FormFieldValue extends BaseEntity {
+public class FormFieldValue extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)

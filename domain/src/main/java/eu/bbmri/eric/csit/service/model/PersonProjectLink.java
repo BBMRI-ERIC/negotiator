@@ -31,10 +31,5 @@ public class PersonProjectLink extends BaseEntity {
   @Exclude
   private Project project;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
   private Integer roleId;
 }

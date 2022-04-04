@@ -21,7 +21,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "notification_mail")
-public class NotificationMail extends BaseEntity {
+public class NotificationMail extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)

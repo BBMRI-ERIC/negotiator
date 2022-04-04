@@ -22,7 +22,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "lifecycle_request_status")
-public class LifecycleRequestStatus extends BaseEntity {
+public class LifecycleRequestStatus extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", insertable = false, updatable = false)

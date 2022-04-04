@@ -23,7 +23,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "request")
-public class Request extends BaseEntity {
+public class Request extends AuditEntity {
 
   @ManyToMany(mappedBy = "requests")
   @Exclude

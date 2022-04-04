@@ -32,10 +32,5 @@ public class PersonRequestLink extends BaseEntity {
   @Exclude
   private Request request;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
   private Integer roleId;
 }

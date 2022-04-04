@@ -23,7 +23,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "network")
-public class Network extends BaseEntity {
+public class Network extends AuditEntity {
 
   @ManyToMany
   @JoinTable(
