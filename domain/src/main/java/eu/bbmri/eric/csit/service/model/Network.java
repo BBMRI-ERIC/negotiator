@@ -1,8 +1,12 @@
 package eu.bbmri.eric.csit.service.model;
 
+import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -23,45 +27,42 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "network")
-public class Network extends AuditEntity {
+public class Network extends BaseEntity {
 
   @ManyToMany
   @JoinTable(
       name = "network_biobank_link",
-      joinColumns = @JoinColumn(name = "biobank_id"),
-      inverseJoinColumns = @JoinColumn(name = "network_id"))
+      joinColumns = {@JoinColumn(name = "biobank_id")},
+      inverseJoinColumns = {@JoinColumn(name = "network_id")})
   @Exclude
-  Set<Biobank> biobanks;
+  Set<Biobank> biobanks = new HashSet<>();
 
   @ManyToMany
   @JoinTable(
       name = "network_collection_link",
-      joinColumns = @JoinColumn(name = "collection_id"),
-      inverseJoinColumns = @JoinColumn(name = "network_id"))
+      joinColumns = {@JoinColumn(name = "collection_id")},
+      inverseJoinColumns = {@JoinColumn(name = "network_id")})
   @Exclude
-  Set<Collection> collections;
+  Set<Collection> collections = new HashSet<>();
 
   @ManyToMany(mappedBy = "networks")
   @Exclude
-  Set<Person> persons;
+  private Set<Person> persons;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
+  @Id @GeneratedValue private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
-  private Datasource datasource;
+  private DataSource datasource;
 
   private String sourceId;
+
   private String name;
+
   private String acronym;
-  @Lob private String description;
+
+  @Lob
+  @Column(columnDefinition = "VARCHAR(512)")
+  private String description;
 }

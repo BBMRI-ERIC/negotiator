@@ -18,15 +18,15 @@ import lombok.ToString;
 @Getter
 @Setter
 @Table(name = "data_source")
-public class Datasource extends BaseEntity {
+public class DataSource extends BaseEntity {
 
   private enum ApiType {
     MOLGENIS
   }
 
-  @NotNull private String name;
-
   private String description;
+
+  @NotNull private String name;
 
   @NotNull private String URL;
 

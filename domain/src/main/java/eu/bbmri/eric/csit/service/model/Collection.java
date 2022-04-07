@@ -1,64 +1,56 @@
 package eu.bbmri.eric.csit.service.model;
 
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.NotNull;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.ToString.Exclude;
 
-@ToString
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Table(name = "collection")
-public class Collection extends AuditEntity {
+public class Collection extends BaseEntity {
 
-  @ManyToMany(mappedBy = "collections")
-  @Exclude
-  Set<Network> networks;
+  //  @ManyToMany(mappedBy = "collections")
+  //  @Exclude
+  //  private Set<Network> networks = new HashSet<>();
 
-  @ManyToMany(mappedBy = "collections")
-  @Exclude
-  Set<Person> persons;
+  //  @ManyToMany(mappedBy = "collections")
+  //  @Exclude
+  //  private Set<Person> persons = new HashSet<>();
 
-  @ManyToMany(mappedBy = "collections")
-  @Exclude
-  Set<Query> queries;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
+  //  @ManyToMany(mappedBy = "collections")
+  //  @Exclude
+  //  private Set<Query> queries = new HashSet<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
-  private Datasource datasource;
+  @JsonIgnore
+  private DataSource dataSource;
 
+  //  @ManyToOne(fetch = FetchType.LAZY)
+  //  @JoinColumn(name = "biobank_id")
+  //  @NotNull
+  //  @Exclude
+  //  private Biobank biobank;
+
+  @NotNull
+  @Column(name = "source_id")
   private String sourceId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "biobank_id")
-  @Exclude
-  private Biobank biobank;
+  @NotNull private String name;
 
-  private String name;
-  @Lob private String description;
+  private String description;
 }

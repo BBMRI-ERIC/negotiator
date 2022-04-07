@@ -1,6 +1,8 @@
 package eu.bbmri.eric.csit.service.model;
 
+import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -22,36 +24,30 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "biobank")
-public class Biobank extends AuditEntity {
+public class Biobank extends BaseEntity {
 
   @ManyToMany(mappedBy = "biobanks")
   @Exclude
-  Set<Person> persons;
+  private Set<Person> persons = new HashSet<>();
 
   @ManyToMany(mappedBy = "biobanks")
   @Exclude
-  Set<Network> networks;
+  private Set<Network> networks = new HashSet<>();
 
   @ManyToMany(mappedBy = "biobanks")
   @Exclude
-  Set<Query> queries;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
+  private Set<Query> queries = new HashSet<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
-  private Datasource datasource;
+  private DataSource dataSource;
 
   private String sourceId;
+
   private String name;
-  @Lob private String description;
+
+  @Lob
+  @Column(columnDefinition = "VARCHAR(512)")
+  private String description;
 }

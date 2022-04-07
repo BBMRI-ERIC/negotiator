@@ -28,7 +28,7 @@ import org.hibernate.annotations.TypeDefs;
 @Setter
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
-public class Query extends AuditEntity {
+public class Query extends BaseEntity {
 
   @ManyToMany
   @JoinTable(
@@ -36,7 +36,7 @@ public class Query extends AuditEntity {
       joinColumns = @JoinColumn(name = "biobank_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
   @Exclude
-  Set<Biobank> biobanks;
+  private Set<Biobank> biobanks;
 
   @ManyToMany
   @JoinTable(
@@ -44,23 +44,11 @@ public class Query extends AuditEntity {
       joinColumns = @JoinColumn(name = "collection_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
   @Exclude
-  Set<Collection> collections;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
+  private Set<Collection> collections;
 
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")
   private String jsonPayload;
-
-  private Integer datasourceId;
 
   private String queryToken;
 
@@ -72,5 +60,5 @@ public class Query extends AuditEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
-  private Datasource datasource;
+  private DataSource dataSource;
 }
