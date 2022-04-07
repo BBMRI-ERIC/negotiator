@@ -1,20 +1,15 @@
 package eu.bbmri.eric.csit.service.model;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
-import javax.persistence.Entity;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import lombok.Getter;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
+import javax.persistence.MappedSuperclass;
 
-@Entity
-@Getter
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
+@MappedSuperclass
 public abstract class BaseEntity {
 
-  @Id @GeneratedValue private Long id;
+  @Id
+  @GeneratedValue
+  @Column(name = "id")
+  private Long id;
 }

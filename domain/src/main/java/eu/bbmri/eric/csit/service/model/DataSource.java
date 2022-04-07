@@ -4,6 +4,8 @@ import com.sun.istack.NotNull;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,11 +14,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Entity(name = "DataSource")
 @Table(name = "data_source")
 public class DataSource extends BaseEntity {
 

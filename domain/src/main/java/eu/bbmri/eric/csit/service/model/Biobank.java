@@ -18,11 +18,11 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 
 @ToString
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Entity(name = "Biobank")
 @Table(name = "biobank")
 public class Biobank extends BaseEntity {
 

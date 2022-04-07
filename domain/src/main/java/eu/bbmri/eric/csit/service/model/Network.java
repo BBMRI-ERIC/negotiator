@@ -21,11 +21,11 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 
 @ToString
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Entity(name = "Network")
 @Table(name = "network")
 public class Network extends BaseEntity {
 
@@ -48,8 +48,6 @@ public class Network extends BaseEntity {
   @ManyToMany(mappedBy = "networks")
   @Exclude
   private Set<Person> persons;
-
-  @Id @GeneratedValue private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
