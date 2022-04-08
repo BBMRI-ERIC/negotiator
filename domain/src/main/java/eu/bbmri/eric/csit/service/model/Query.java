@@ -1,7 +1,9 @@
 package eu.bbmri.eric.csit.service.model;
 
+import com.sun.istack.NotNull;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,7 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
@@ -21,7 +22,6 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -30,12 +30,21 @@ import org.hibernate.annotations.TypeDefs;
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 public class Query extends BaseEntity {
 
+  public Query() {
+    this.setQueryToken(generateQueryToken());
+  }
+
+  private String generateQueryToken() {
+    return UUID.randomUUID().toString().replace("-", "");
+  }
+
   @ManyToMany
   @JoinTable(
       name = "query_biobank_link",
       joinColumns = @JoinColumn(name = "biobank_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
   @Exclude
+  @NotNull
   private Set<Biobank> biobanks;
 
   @ManyToMany
@@ -44,13 +53,15 @@ public class Query extends BaseEntity {
       joinColumns = @JoinColumn(name = "collection_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
   @Exclude
+  @NotNull
   private Set<Collection> collections;
 
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")
+  @NotNull
   private String jsonPayload;
 
-  private String queryToken;
+  @NotNull private String queryToken;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")

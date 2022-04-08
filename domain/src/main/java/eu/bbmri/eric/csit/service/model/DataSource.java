@@ -30,7 +30,7 @@ public class DataSource extends BaseEntity {
 
   @NotNull private String name;
 
-  @NotNull private String URL;
+  @NotNull private String url;
 
   @NotNull private String apiUrl;
 

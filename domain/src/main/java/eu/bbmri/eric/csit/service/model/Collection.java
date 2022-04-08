@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import com.sun.istack.NotNull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,19 +36,18 @@ public class Collection extends BaseEntity {
   //  @Exclude
   //  private Set<Query> queries = new HashSet<>();
 
-//  @Id @GeneratedValue private Long id;
-
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "data_source_id")
   @Exclude
   @JsonIgnore
   private DataSource dataSource;
 
-  //  @ManyToOne(fetch = FetchType.LAZY)
-  //  @JoinColumn(name = "biobank_id")
-  //  @NotNull
-  //  @Exclude
-  //  private Biobank biobank;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "biobank_id")
+  @NotNull
+  @Exclude
+  @JsonIgnore
+  private Biobank biobank;
 
   @NotNull
   @Column(name = "source_id")
@@ -57,5 +55,6 @@ public class Collection extends BaseEntity {
 
   @NotNull private String name;
 
+  @Column(columnDefinition = "VARCHAR(512)")
   private String description;
 }
