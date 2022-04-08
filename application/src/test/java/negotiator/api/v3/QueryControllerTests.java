@@ -1,13 +1,17 @@
 package negotiator.api.v3;
 
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.QueryController;
 import eu.bbmri.eric.csit.service.negotiator.service.DataService;
 import eu.bbmri.eric.csit.service.repository.QueryRepository;
-import javax.management.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,15 +89,22 @@ public class QueryControllerTests {
   @Test
   public void testCreated() throws Exception {
     String requestBody =
-        "{\"url\": \"http://datasource.dev\", "
-            + "\"humanReadable\": \"Test request\", "
-            + "\"collections\": [{\"biobankId\": \"biobank:1\", \"collectionId\": \"collection:1\"}]}";
+        "{\"url\":\"http://datasource.dev\","
+            + "\"humanReadable\":\"Test request\","
+            + "\"collections\":[{\"biobankId\":\"biobank:1\",\"collectionId\":\"collection:1\"}]}";
 
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-        .andExpect(status().isCreated());
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.jsonPayload", is(requestBody)))
+        .andExpect(jsonPath("$.dataSource.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.collections[0].sourceId", is("collection:1")))
+        .andExpect(jsonPath("$.biobanks[0].sourceId", is("biobank:1")))
+        .andExpect(jsonPath("$.request", nullValue()))
+        .andExpect(jsonPath("$.queryToken", is(not(emptyString()))))
+        .andExpect(jsonPath("$.biobanks[0].sourceId", is("biobank:1")));
   }
 }

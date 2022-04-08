@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.model.Biobank;
 import eu.bbmri.eric.csit.service.model.Collection;
 import eu.bbmri.eric.csit.service.model.DataSource;
@@ -77,7 +79,13 @@ public class DataService {
     Query queryEntity = new Query();
     checkAndSetBiobanksAndCollections(query.getCollections(), queryEntity);
     checkAndSetDataSource(query.getUrl(), queryEntity);
-    queryEntity.setJsonPayload("\"test\"");
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      String jsonPayload = mapper.writeValueAsString(query);
+      queryEntity.setJsonPayload(jsonPayload);
+    } catch (JsonProcessingException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot serialize the request");
+    }
     queryRepository.save(queryEntity);
     return queryEntity;
   }
