@@ -1,10 +1,10 @@
-package eu.bbmri.eric.csit.service.negotiator.dto;
+package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
-import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-public class QueryDTO {
+public class QueryRequest {
 
   @NotNull(message = "The url of the original query must be present")
   private String url;
@@ -14,7 +14,7 @@ public class QueryDTO {
 
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
-  private List<CollectionDTO> collections;
+  private Set<BiobankDTO> resources;
 
   public String getUrl() {
     return url;
@@ -24,7 +24,7 @@ public class QueryDTO {
     return humanReadable;
   }
 
-  public List<CollectionDTO> getCollections() {
-    return collections;
+  public Set<BiobankDTO> getResources() {
+    return resources;
   }
 }

@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.ErrorResponse;
+import eu.bbmri.eric.csit.service.negotiator.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

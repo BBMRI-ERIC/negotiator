@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.dto;
+package eu.bbmri.eric.csit.service.negotiator.dto.response;
 
 public class ErrorResponse {
 

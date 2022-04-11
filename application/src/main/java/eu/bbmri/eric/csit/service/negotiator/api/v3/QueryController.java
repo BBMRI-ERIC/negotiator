@@ -1,7 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import eu.bbmri.eric.csit.service.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.dto.QueryDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
 import eu.bbmri.eric.csit.service.negotiator.service.DataService;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
@@ -41,7 +42,7 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  Query add(@Valid @RequestBody QueryDTO query) {
+  QueryResponse add(@Valid @RequestBody QueryRequest query) {
     return dataService.createQuery(query);
   }
 }

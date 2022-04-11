@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.Set;
@@ -63,6 +64,8 @@ public class Query extends BaseEntity {
 
   @NotNull private String queryToken;
 
+  @NotNull private String url;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
   @Exclude
@@ -70,6 +73,8 @@ public class Query extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
+  @JsonIgnore
+  @NotNull
   @Exclude
   private DataSource dataSource;
 }

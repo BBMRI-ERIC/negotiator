@@ -1,11 +1,10 @@
 package eu.bbmri.eric.csit.service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,29 +25,30 @@ public class DataSource extends BaseEntity {
     MOLGENIS
   }
 
-  private String description;
+  @JsonIgnore private String description;
 
   @NotNull private String name;
 
   @NotNull private String url;
 
-  @NotNull private String apiUrl;
+  @NotNull @JsonIgnore private String apiUrl;
 
-  @NotNull private String apiUsername;
+  @NotNull @JsonIgnore private String apiUsername;
 
-  @NotNull private String apiPassword;
+  @NotNull @JsonIgnore private String apiPassword;
 
   @Enumerated(EnumType.STRING)
   @NotNull
+  @JsonIgnore
   private ApiType apiType;
 
-  private String resourceNetwork;
+  @NotNull @JsonIgnore private String resourceNetwork;
 
-  private String resourceBiobank;
+  @NotNull @JsonIgnore private String resourceBiobank;
 
-  private String resourceCollection;
+  @NotNull @JsonIgnore private String resourceCollection;
 
-  @NotNull private Boolean syncActive;
+  @NotNull @JsonIgnore private Boolean syncActive;
 
-  private Boolean sourcePrefix;
+  @JsonIgnore private Boolean sourcePrefix;
 }
