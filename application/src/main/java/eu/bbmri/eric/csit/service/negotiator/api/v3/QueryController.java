@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.QueryDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.DataService;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +41,7 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  Query add(@RequestBody QueryDTO query) {
+  Query add(@Valid @RequestBody QueryDTO query) {
     return dataService.createQuery(query);
   }
 }

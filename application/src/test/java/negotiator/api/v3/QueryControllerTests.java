@@ -40,6 +40,64 @@ public class QueryControllerTests {
   }
 
   @Test
+  public void testBadRequest_whenUrlFieldIsMissing() throws Exception {
+    String requestBody =
+        "{\"humanReadable\": \"Test request\", "
+            + "\"collections\": [{\"biobankId\": \"biobank:1\", \"collectionId\": \"unknownn\"}]}";
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/queries")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testBadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
+    String requestBody =
+        "{\"url\": \"http://datasource.dev\", "
+            + "\"collections\": [{\"biobankId\": \"biobank:1\", \"collectionId\": \"unknownn\"}]}";
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/queries")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testBadRequest_whenCollectionsFieldIsMissing() throws Exception {
+    String requestBody =
+        "{\"url\": \"http://datasource.dev\", "
+            + "\"humanReadable\": \"Test request\", "
+            + "\"collections\": [{\"biobankId\": \"biobank:1\", \"collectionId\": \"unknownn\"}]}";
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/queries")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testBadRequest_whenCollectionsFieldIsEmpty() throws Exception {
+    String requestBody =
+        "{\"url\": \"http://datasource.dev\", "
+            + "\"humanReadable\": \"Test request\", "
+            + "\"collections\": []}";
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/queries")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   public void testBadRequest_whenCollectionNotFound() throws Exception {
     String requestBody =
         "{\"url\": \"http://datasource.dev\", "
