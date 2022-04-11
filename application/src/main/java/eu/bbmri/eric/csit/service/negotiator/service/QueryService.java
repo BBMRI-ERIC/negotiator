@@ -2,15 +2,12 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri.eric.csit.service.model.Biobank;
 import eu.bbmri.eric.csit.service.model.Collection;
 import eu.bbmri.eric.csit.service.model.DataSource;
 import eu.bbmri.eric.csit.service.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.BiobankDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
-import eu.bbmri.eric.csit.service.repository.BiobankRepository;
 import eu.bbmri.eric.csit.service.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.repository.QueryRepository;
@@ -32,46 +29,43 @@ public class QueryService {
   public QueryService(
       QueryRepository queryRepository,
       CollectionRepository collectionRepository,
-      DataSourceRepository dataSourceRepository,
-      BiobankRepository biobankRepository) {
+      DataSourceRepository dataSourceRepository) {
     this.queryRepository = queryRepository;
     this.collectionRepository = collectionRepository;
     this.dataSourceRepository = dataSourceRepository;
   }
 
-  private void checkAndSetResources(Set<BiobankDTO> biobankDTOS, Query queryEntity) {
+  private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Query queryEntity) {
     Set<Collection> collections = new HashSet<>();
-    Set<Biobank> biobanks = new HashSet<>();
-
-    biobankDTOS.forEach(
-        biobankDTO -> {
-          List<CollectionDTO> collectionDTOs = biobankDTO.getCollections();
-          if (collectionDTOs != null) {
-            collectionDTOs.forEach(
-                collectionDTO -> {
+    // Currently, we assume the biobank -> collection hierarchy
+    resourceDTOs.forEach(
+        resourceDTO -> {
+          Set<ResourceDTO> childrenDTOs = resourceDTO.getChildren();
+          if (childrenDTOs != null) {
+            childrenDTOs.forEach(
+                childrenDTO -> {
                   Collection collectionEntity =
                       collectionRepository
-                          .findBySourceId(collectionDTO.getId())
+                          .findBySourceId(childrenDTO.getId())
                           .orElseThrow(
                               () ->
                                   new ResponseStatusException(
                                       HttpStatus.BAD_REQUEST,
                                       String.format(
                                           "Specified collection %s not found",
-                                          collectionDTO.getId())));
-                  if (!collectionEntity.getBiobank().getSourceId().equals(biobankDTO.getId())) {
+                                          childrenDTO.getId())));
+                  if (!collectionEntity.getBiobank().getSourceId().equals(resourceDTO.getId())) {
                     throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         String.format(
                             "Specified collection %s doesn't belong to the specified biobank %s",
-                            collectionDTO.getId(), biobankDTO.getId()));
+                            childrenDTO.getId(), resourceDTO.getId()));
                   }
                   collections.add(collectionEntity);
                 });
           }
         });
     queryEntity.setCollections(collections);
-    queryEntity.setBiobanks(biobanks);
   }
 
   private void checkAndSetDataSource(String url, Query queryEntity) {

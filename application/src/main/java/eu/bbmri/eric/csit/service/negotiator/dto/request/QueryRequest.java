@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -24,5 +25,5 @@ public class QueryRequest {
 
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
-  private Set<BiobankDTO> resources;
+  private Set<ResourceDTO> resources;
 }

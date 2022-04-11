@@ -45,7 +45,6 @@ public class Query extends BaseEntity {
       joinColumns = @JoinColumn(name = "biobank_id"),
       inverseJoinColumns = @JoinColumn(name = "query_id"))
   @Exclude
-  @NotNull
   private Set<Biobank> biobanks;
 
   @ManyToMany

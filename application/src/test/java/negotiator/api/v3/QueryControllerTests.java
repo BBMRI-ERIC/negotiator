@@ -42,8 +42,8 @@ public class QueryControllerTests {
   @Test
   public void testBadRequest_whenUrlFieldIsMissing() throws Exception {
     String requestBody =
-        "\"humanReadable\": \"string\","
-            + "\"resources\": [{\"id\": \"biobank:1\",\"collections\": [{\"id\": \"collection:1\"}]}]}";
+        "{\"humanReadable\": \"string\","
+            + "\"resources\":[{\"type\": \"biobank\",\"id\":\"biobank:1\",\"children\":[{\"type\":\"collection\",\"id\":\"collection:1\"}]}]}";
 
     mockMvc
         .perform(
@@ -56,8 +56,8 @@ public class QueryControllerTests {
   @Test
   public void testBadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
     String requestBody =
-        "{\"url\": \"http://datasource.dev\", "
-            + "\"resources\": [{\"id\": \"biobank:1\",\"collections\": [{\"id\": \"collection:1\"}]}]}";
+        "{\"url\": \"http://datasource.dev\","
+            + "\"resources\":[{\"type\": \"biobank\",\"id\":\"biobank:1\",\"children\":[{\"type\":\"collection\",\"id\":\"collection:1\"}]}]}";
 
     mockMvc
         .perform(
@@ -68,7 +68,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenResoourcesFieldIsMissing() throws Exception {
+  public void testBadRequest_whenResourcesFieldIsMissing() throws Exception {
     String requestBody =
         "{\"url\": \"http://datasource.dev\", "
             + "\"humanReadable\": \"Test request\"}";
@@ -99,9 +99,9 @@ public class QueryControllerTests {
   @Test
   public void testBadRequest_whenCollectionNotFound() throws Exception {
     String requestBody =
-        "{\"url\": \"http://datasource.dev\", "
-            + "\"humanReadable\": \"Test request\", "
-            + "\"resources\": [{\"id\": \"biobank:1\",\"collections\": [{\"id\": \"collection:unknown\"}]}]}";
+        "{\"url\": \"http://datasource.dev\","
+            + "\"humanReadable\": \"string\","
+            + "\"resources\":[{\"type\": \"biobank\",\"id\":\"biobank:1\",\"children\":[{\"type\":\"collection\",\"id\":\"colllection_unknown\"}]}]}";
 
     mockMvc
         .perform(
@@ -114,9 +114,9 @@ public class QueryControllerTests {
   @Test
   public void testBadRequest_whenCollectionAndBiobankMismatch() throws Exception {
     String requestBody =
-        "{\"url\": \"http://datasource.dev\", "
-            + "\"humanReadable\": \"Test request\", "
-            + "\"resources\": [{\"id\": \"wrong_biobank\",\"collections\": [{\"id\": \"collection:1\"}]}]}";
+        "{\"url\": \"http://datasource.dev\","
+            + "\"humanReadable\": \"string\","
+            + "\"resources\":[{\"type\": \"biobank\",\"id\":\"wrong_biobank\",\"children\":[{\"type\":\"collection\",\"id\":\"collection:1\"}]}]}";
 
     mockMvc
         .perform(
@@ -130,9 +130,9 @@ public class QueryControllerTests {
   @Test
   public void testBadRequest_whenDataSourceNotFound() throws Exception {
     String requestBody =
-        "{\"url\": \"http://wrong_data_source\", "
-            + "\"humanReadable\": \"Test request\", "
-            + "\"resources\": [{\"id\": \"biobank:1\",\"collections\": [{\"id\": \"collection:1\"}]}]}";
+        "{\"url\": \"http://wrong_data_source\","
+            + "\"humanReadable\": \"string\","
+            + "\"resources\":[{\"type\": \"biobank\",\"id\":\"biobank:1\",\"children\":[{\"type\":\"collection\",\"id\":\"collection:1\"}]}]}";
 
     mockMvc
         .perform(
@@ -148,7 +148,7 @@ public class QueryControllerTests {
     String requestBody =
         "{\"url\": \"http://datasource.dev\","
             + "\"humanReadable\": \"string\","
-            + "\"resources\": [{\"id\": \"biobank:1\",\"collections\": [{\"id\": \"collection:1\"}]}]}";
+            + "\"resources\":[{\"type\": \"biobank\",\"id\":\"biobank:1\",\"children\":[{\"type\":\"collection\",\"id\":\"collection:1\"}]}]}";
 
     mockMvc
         .perform(
@@ -159,7 +159,9 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.id", is(1)))
         .andExpect(jsonPath("$.url", is("http://datasource.dev")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
-        .andExpect(jsonPath("$.resources[0].collections[0].id", is("collection:1")))
+        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
+        .andExpect(jsonPath("$.resources[0].children[0].id", is("collection:1")))
+        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")))
         .andExpect(jsonPath("$.queryToken", is(not(emptyString()))));
   }
 }
