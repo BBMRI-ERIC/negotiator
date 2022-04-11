@@ -1,10 +1,20 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.BiobankDTO;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class QueryResponse {
 
   @NotNull private Long id;
@@ -20,44 +30,4 @@ public class QueryResponse {
   private Set<BiobankDTO> resources;
 
   @NotNull private String queryToken;
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public String getHumanReadable() {
-    return humanReadable;
-  }
-
-  public void setHumanReadable(String humanReadable) {
-    this.humanReadable = humanReadable;
-  }
-
-  public Set<BiobankDTO> getResources() {
-    return resources;
-  }
-
-  public void setResources(Set<BiobankDTO> resources) {
-    this.resources = resources;
-  }
-
-  public String getQueryToken() {
-    return queryToken;
-  }
-
-  public void setQueryToken(String queryToken) {
-    this.queryToken = queryToken;
-  }
 }

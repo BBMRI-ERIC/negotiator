@@ -1,10 +1,19 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionDTO;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class BiobankDTO {
 
   @NotNull private String id;
@@ -12,18 +21,4 @@ public class BiobankDTO {
   @Nullable private String name;
 
   @Nullable private List<CollectionDTO> collections;
-
-  public String getId() {
-    return id;
-  }
-
-  @Nullable
-  public String getName() {
-    return name;
-  }
-
-  @Nullable
-  public List<CollectionDTO> getCollections() {
-    return collections;
-  }
 }

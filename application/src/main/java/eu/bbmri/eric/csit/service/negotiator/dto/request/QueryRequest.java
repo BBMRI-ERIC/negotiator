@@ -1,9 +1,19 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class QueryRequest {
 
   @NotNull(message = "The url of the original query must be present")
@@ -15,16 +25,4 @@ public class QueryRequest {
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
   private Set<BiobankDTO> resources;
-
-  public String getUrl() {
-    return url;
-  }
-
-  public String getHumanReadable() {
-    return humanReadable;
-  }
-
-  public Set<BiobankDTO> getResources() {
-    return resources;
-  }
 }

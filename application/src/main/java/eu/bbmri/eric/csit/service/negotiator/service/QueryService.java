@@ -23,14 +23,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-public class DataService {
+public class QueryService {
 
   private final QueryRepository queryRepository;
   private final CollectionRepository collectionRepository;
-  private final BiobankRepository biobankRepository;
   private final DataSourceRepository dataSourceRepository;
 
-  public DataService(
+  public QueryService(
       QueryRepository queryRepository,
       CollectionRepository collectionRepository,
       DataSourceRepository dataSourceRepository,
@@ -38,7 +37,6 @@ public class DataService {
     this.queryRepository = queryRepository;
     this.collectionRepository = collectionRepository;
     this.dataSourceRepository = dataSourceRepository;
-    this.biobankRepository = biobankRepository;
   }
 
   private void checkAndSetResources(Set<BiobankDTO> biobankDTOS, Query queryEntity) {
@@ -115,9 +113,5 @@ public class DataService {
 
   public Optional<Query> getQueryById(Long id) {
     return queryRepository.findById(id);
-  }
-
-  public Collection getCollectionById(Long id) {
-    return collectionRepository.getById(id);
   }
 }

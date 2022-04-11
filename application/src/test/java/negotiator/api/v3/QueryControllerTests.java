@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.QueryController;
-import eu.bbmri.eric.csit.service.negotiator.service.DataService;
+import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import eu.bbmri.eric.csit.service.repository.QueryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class QueryControllerTests {
 
   @Autowired private QueryController queryController;
 
-  @Autowired public DataService dataService;
+  @Autowired public QueryService queryService;
 
   @Autowired public QueryRepository queryRepository;
 

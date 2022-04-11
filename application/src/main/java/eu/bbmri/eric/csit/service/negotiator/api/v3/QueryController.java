@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.v3;
 import eu.bbmri.eric.csit.service.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
-import eu.bbmri.eric.csit.service.negotiator.service.DataService;
+import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -21,20 +21,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class QueryController {
 
-  private final DataService dataService;
+  private final QueryService queryService;
 
-  public QueryController(DataService dataService) {
-    this.dataService = dataService;
+  public QueryController(QueryService queryService) {
+    this.queryService = queryService;
   }
 
   @GetMapping("/queries")
   List<Query> list() {
-    return dataService.findAllQueries();
+    return queryService.findAllQueries();
   }
 
   @GetMapping("/queries/{id}")
   Query retrieve(@PathVariable Long id) throws EntityNotFoundException {
-    return dataService.getQueryById(id).orElseThrow(EntityNotFoundException::new);
+    return queryService.getQueryById(id).orElseThrow(EntityNotFoundException::new);
   }
 
   @PostMapping(
@@ -42,7 +42,7 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  QueryResponse add(@Valid @RequestBody QueryRequest query) {
-    return dataService.createQuery(query);
+  QueryResponse add(@Valid @RequestBody QueryRequest queryRequest) {
+    return queryService.createQuery(queryRequest);
   }
 }
