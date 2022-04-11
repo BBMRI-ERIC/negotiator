@@ -721,15 +721,15 @@ components:
           type: string
         humanReadable:
           type: string
-        collections:
+        resources:
           type: array
           items:
             type: object
             properties:
-              biobankId:
-                type: string
-              collectionId:
-                type: string
+              biobanks:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Biobank'
     QueryV3:
       allOf:
         - $ref: '#/components/schemas/QueryCreateV3'
