@@ -320,7 +320,7 @@ paths:
           schema:
             type: integer
             format: int64
-          description: the id of the user used to filter the projects 
+          description: the id of the user used to filter the projects
       responses:
         '200':
           description: successful operation
@@ -380,7 +380,7 @@ paths:
       tags:
         - v3
       summary: Creates a request
-      parameters: 
+      parameters:
         - name: Prefer
           in: header
           schema:
@@ -462,7 +462,7 @@ paths:
           required: false
           description: specifies the id of the request the users are involved in
       responses:
-        '200': 
+        '200':
           description: Successful search
           content:
             'application/json':
@@ -688,32 +688,26 @@ components:
         description:
           type: string
           description: Description of the DataSource
-        biobanks:
+        resources:
           type: array
           items:
-            $ref: '#/components/schemas/Biobank'
-    Biobank:
+            $ref: '#/components/schemas/Resource'
+    Resource:
       type: object
       properties:
         id:
           type: string
-          description: Id of the biobank in the datasource
+          description: Id of the resource in the datasource
+        type:
+          type: string
+          description: The type of resource (biobank, collections, etc.)
         name:
           type: string
-          description: Name of the biobank in the data source
-        collections:
+          description: Name of the resource in the data source
+        children:
           type: array
           items:
-            $ref: '#/components/schemas/Collection'
-    Collection:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Id of the collecion in the data source
-        name:
-          type: string
-          description: Name of the collecion in the data source
+            $ref: '#/components/schemas/Resource'
     QueryCreateV3:
       type: object
       properties:
@@ -721,15 +715,11 @@ components:
           type: string
         humanReadable:
           type: string
-        collections:
+        resources:
           type: array
           items:
             type: object
-            properties:
-              biobankId:
-                type: string
-              collectionId:
-                type: string
+            $ref: '#/components/schemas/Resource'
     QueryV3:
       allOf:
         - $ref: '#/components/schemas/QueryCreateV3'
