@@ -29,7 +29,6 @@ public class ProjectController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   ProjectResponse add(@Valid @RequestBody ProjectRequest request) {
-
     Project projectEntity = projectService.createQuery(request);
     return modelMapper.map(projectEntity, ProjectResponse.class);
   }

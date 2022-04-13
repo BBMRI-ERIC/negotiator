@@ -2,8 +2,8 @@ package negotiator.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.text.IsEmptyString.emptyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -163,5 +163,6 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.resources[0].children[0].id", is("collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")))
         .andExpect(jsonPath("$.queryToken", is(not(emptyString()))));
+    assertEquals(queryRepository.findAll().size(), 1);
   }
 }

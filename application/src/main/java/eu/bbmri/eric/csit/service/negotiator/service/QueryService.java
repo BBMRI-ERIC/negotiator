@@ -7,7 +7,6 @@ import eu.bbmri.eric.csit.service.model.DataSource;
 import eu.bbmri.eric.csit.service.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
 import eu.bbmri.eric.csit.service.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.repository.QueryRepository;
@@ -77,7 +76,7 @@ public class QueryService {
     queryEntity.setDataSource(dataSource);
   }
 
-  public QueryResponse createQuery(QueryRequest queryRequest) {
+  public Query createQuery(QueryRequest queryRequest) {
     Query queryEntity = new Query();
     checkAndSetResources(queryRequest.getResources(), queryEntity);
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
@@ -90,15 +89,7 @@ public class QueryService {
     } catch (JsonProcessingException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot serialize the request");
     }
-    queryRepository.save(queryEntity);
-
-    QueryResponse response = new QueryResponse();
-    response.setId(queryEntity.getId());
-    response.setUrl(queryRequest.getUrl());
-    response.setHumanReadable(queryRequest.getHumanReadable());
-    response.setResources(queryRequest.getResources());
-    response.setQueryToken(queryEntity.getQueryToken());
-    return response;
+    return queryRepository.save(queryEntity);
   }
 
   public List<Query> findAllQueries() {
