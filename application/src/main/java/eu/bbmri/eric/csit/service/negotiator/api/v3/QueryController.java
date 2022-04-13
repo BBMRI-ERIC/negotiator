@@ -7,6 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class QueryController {
 
-  private final QueryService queryService;
-
-  public QueryController(QueryService queryService) {
-    this.queryService = queryService;
-  }
+  @Autowired private QueryService queryService;
 
   @GetMapping("/queries")
   List<Query> list() {

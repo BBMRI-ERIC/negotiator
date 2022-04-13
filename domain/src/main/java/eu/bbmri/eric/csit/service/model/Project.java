@@ -2,17 +2,17 @@ package eu.bbmri.eric.csit.service.model;
 
 import java.util.Date;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
@@ -44,10 +44,19 @@ public class Project extends AuditEntity {
   @Exclude
   private Person modifiedBy;
 
-  @NonNull private String title;
-  @Lob private String projectDescription;
-  @Lob private String ethicsVote;
-  private Boolean testProject;
+  @NotNull
+  private String title;
+
+  @Column(columnDefinition = "VARCHAR(512)")
+  @NotNull
+  private String description;
+
+  @Column(columnDefinition = "VARCHAR(512)")
+  private String ethicsVote;
+
+  private Boolean isTestProject;
+
   private Date expectedEndDate;
+
   private Boolean expectedDataGeneration;
 }
