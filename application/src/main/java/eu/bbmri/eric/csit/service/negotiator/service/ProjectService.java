@@ -14,7 +14,7 @@ public class ProjectService {
 
   @Autowired private ProjectRepository projectRepository;
 
-  public Project createQuery(ProjectRequest projectRequest) {
+  public Project createProject(ProjectRequest projectRequest) {
     Project projectEntity = new Project();
     projectEntity.setTitle(projectRequest.getTitle());
     projectEntity.setDescription(projectRequest.getDescription());
