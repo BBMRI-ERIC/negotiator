@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.ProjectResponse;
 import eu.bbmri.eric.csit.service.negotiator.service.ProjectService;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

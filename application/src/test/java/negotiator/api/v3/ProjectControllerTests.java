@@ -2,6 +2,8 @@ package negotiator.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,13 +18,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 public class ProjectControllerTests {
-
+  @Autowired
+  private WebApplicationContext context;
   private MockMvc mockMvc;
 
   @Autowired private ProjectController projectController;
@@ -37,10 +42,41 @@ public class ProjectControllerTests {
 
   @BeforeEach
   public void before() {
-    mockMvc = MockMvcBuilders.standaloneSetup(projectController).build();
+    mockMvc = MockMvcBuilders
+        .webAppContextSetup(context)
+        .apply(springSecurity()).build();
     projectRepository.deleteAll();
   }
 
+  private MockHttpServletRequestBuilder getRequest(String requestBody) {
+    return MockMvcRequestBuilders.post("/v3/projects/")
+        .with(httpBasic("user", "pass"))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(requestBody);
+  }
+
+  @Test
+  public void testUnauthorized_whenAuthenticationFails() throws Exception {
+    String requestBody = String.format(
+        """
+        {
+        "title": "%s",
+        "description": "%s",
+        "ethicsVote": "%s",
+        "expectedDataGeneration": %b,
+        "expectedEndDate": "%s",
+        "isTestProject": %b
+        }""", TITLE, DESCRIPTION, ETHICS_VOTE, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/projects/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+        .andExpect(status().isUnauthorized());
+    assertEquals(projectRepository.findAll().size(), 0);
+  }
   @Test
   public void testBadRequest_whenTitle_IsMissing() throws Exception {
     String requestBody = String.format(
@@ -54,10 +90,7 @@ public class ProjectControllerTests {
         }""", DESCRIPTION, ETHICS_VOTE, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -75,10 +108,7 @@ public class ProjectControllerTests {
         }""", TITLE, ETHICS_VOTE, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -97,10 +127,7 @@ public class ProjectControllerTests {
         }""", TITLE, "d".repeat(513), ETHICS_VOTE, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -118,10 +145,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -140,10 +164,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, "e".repeat(513), EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -161,10 +182,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, ETHICS_VOTE, EXPECTED_DATA_GENERATION, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -183,10 +201,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, ETHICS_VOTE, "13-04-2022", EXPECTED_DATA_GENERATION, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -204,10 +219,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, ETHICS_VOTE, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -225,10 +237,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, ETHICS_VOTE, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isBadRequest());
     assertEquals(projectRepository.findAll().size(), 0);
   }
@@ -246,10 +255,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, ETHICS_VOTE, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(1)))
@@ -276,10 +282,7 @@ public class ProjectControllerTests {
         }""", TITLE, DESCRIPTION, ETHICS_VOTE, EXPECTED_DATA_GENERATION, EXPECTED_END_DATE, IS_TEST_PROJECT);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        .perform(getRequest(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(3)))  // 3 because it's the current autogenerated value

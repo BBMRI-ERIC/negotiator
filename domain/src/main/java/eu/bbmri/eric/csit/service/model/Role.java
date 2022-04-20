@@ -19,7 +19,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "role")
-public class Role extends AuditEntity {
+public class Role extends BaseEntity {
 
   private String name;
 

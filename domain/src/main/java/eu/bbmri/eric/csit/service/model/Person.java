@@ -29,6 +29,7 @@ public class Person extends BaseEntity {
     INTERNAL,
     EXTERNAL
   }
+
   @ManyToMany
   @JoinTable(
       name = "person_biobank_link",
@@ -72,6 +73,7 @@ public class Person extends BaseEntity {
   @NotNull private String authEmail;
 
   private String password; // can be null if the user is authenticated via OIDC
+
   private byte[] personImage;
 
   @NotNull private Boolean isAdmin;
