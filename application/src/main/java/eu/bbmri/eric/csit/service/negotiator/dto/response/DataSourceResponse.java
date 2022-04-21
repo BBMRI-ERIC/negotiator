@@ -13,6 +13,8 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class DataSourceResponse {
 
+  private Long id;
+
   private String description;
 
   private String name;

@@ -1,23 +1,22 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sun.istack.NotNull;
 import eu.bbmri.eric.csit.service.model.DataSource.ApiType;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class DataSourceRequest {
-  private String description;
+  @NotNull private String description;
 
   @NotNull private String name;
 
