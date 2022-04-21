@@ -1,30 +1,22 @@
-package eu.bbmri.eric.csit.service.model;
+package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sun.istack.NotNull;
-import javax.persistence.Entity;
+import eu.bbmri.eric.csit.service.model.DataSource.ApiType;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@Entity(name = "DataSource")
-@Table(name = "data_source")
-public class DataSource extends BaseEntity {
-
-  public enum ApiType {
-    MOLGENIS
-  }
-
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
+public class DataSourceRequest {
   private String description;
 
   @NotNull private String name;

@@ -76,7 +76,7 @@ public class QueryService {
     queryEntity.setDataSource(dataSource);
   }
 
-  public Query createQuery(QueryRequest queryRequest) {
+  public Query create(QueryRequest queryRequest) {
     Query queryEntity = new Query();
     checkAndSetResources(queryRequest.getResources(), queryEntity);
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
@@ -92,11 +92,16 @@ public class QueryService {
     return queryRepository.save(queryEntity);
   }
 
-  public List<Query> findAllQueries() {
+  public List<Query> findAll() {
     return queryRepository.findAll();
   }
 
-  public Optional<Query> getQueryById(Long id) {
-    return queryRepository.findById(id);
+  public Query getById(Long id) {
+    return queryRepository
+        .findById(id)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, String.format("query with id %d not found", id)));
   }
 }

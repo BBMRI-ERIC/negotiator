@@ -51,15 +51,15 @@ public class QueryController {
 
   @GetMapping("/queries")
   List<QueryResponse> list() {
-    List<Query> queries = queryService.findAllQueries();
+    List<Query> queries = queryService.findAll();
     return queries.stream()
         .map(query -> modelMapper.map(query, QueryResponse.class))
         .collect(Collectors.toList());
   }
 
   @GetMapping("/queries/{id}")
-  QueryResponse retrieve(@PathVariable Long id) throws EntityNotFoundException {
-    Query queryEntity = queryService.getQueryById(id).orElseThrow(EntityNotFoundException::new);
+  QueryResponse retrieve(@PathVariable Long id) {
+    Query queryEntity = queryService.getById(id);
     return modelMapper.map(queryEntity, QueryResponse.class);
   }
 
@@ -69,7 +69,7 @@ public class QueryController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   QueryResponse add(@Valid @RequestBody QueryRequest queryRequest) {
-    Query queryEntity = queryService.createQuery(queryRequest);
+    Query queryEntity = queryService.create(queryRequest);
     return modelMapper.map(queryEntity, QueryResponse.class);
   }
 
