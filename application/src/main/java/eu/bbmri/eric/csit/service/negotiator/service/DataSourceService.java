@@ -39,4 +39,14 @@ public class DataSourceService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be saved");
     }
   }
+
+  public DataSource update(Long id, DataSourceRequest dataSourceRequest) {
+    DataSource dataSourceEntity = getById(id);
+    modelMapper.map(dataSourceRequest, dataSourceEntity);
+    try {
+      return dataSourceRepository.save(dataSourceEntity);
+    } catch (DataIntegrityViolationException ex) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be saved");
+    }
+  }
 }

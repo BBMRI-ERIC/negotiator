@@ -1,6 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import eu.bbmri.eric.csit.service.model.DataSource.ApiType;
+import eu.bbmri.eric.csit.service.negotiator.dto.ValidationGroups.Create;
+import eu.bbmri.eric.csit.service.negotiator.dto.ValidationGroups.Update;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
@@ -16,29 +18,39 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataSourceRequest {
-  @NotNull private String description;
+  @NotNull(groups = Create.class)
+  private String description;
 
-  @NotNull private String name;
+  @NotNull(groups = Create.class)
+  private String name;
 
-  @NotNull private String url;
+  @NotNull(groups = Create.class)
+  private String url;
 
-  @NotNull private String apiUrl;
+  @NotNull(groups = Create.class)
+  private String apiUrl;
 
-  @NotNull private String apiUsername;
+  @NotNull(groups = Create.class)
+  private String apiUsername;
 
-  @NotNull private String apiPassword;
+  @NotNull(groups = Create.class)
+  private String apiPassword;
 
   @Enumerated(EnumType.STRING)
-  @NotNull
+  @NotNull(groups = Create.class)
   private ApiType apiType;
 
-  @NotNull private String resourceNetwork;
+  @NotNull(groups = Create.class)
+  private String resourceNetwork;
 
-  @NotNull private String resourceBiobank;
+  @NotNull(groups = Create.class)
+  private String resourceBiobank;
 
-  @NotNull private String resourceCollection;
+  @NotNull(groups = Create.class)
+  private String resourceCollection;
 
-  @NotNull private Boolean syncActive;
+  @NotNull(groups = Create.class)
+  private Boolean syncActive;
 
   private Boolean sourcePrefix;
 }

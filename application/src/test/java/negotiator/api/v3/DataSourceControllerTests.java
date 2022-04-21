@@ -8,13 +8,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri.eric.csit.service.model.DataSource;
 import eu.bbmri.eric.csit.service.model.DataSource.ApiType;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.DataSourceController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
 import eu.bbmri.eric.csit.service.repository.DataSourceRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -31,6 +34,7 @@ public class DataSourceControllerTests {
 
   @Autowired private DataSourceController controller;
   @Autowired private DataSourceRepository repository;
+  @Autowired private ModelMapper modelMapper;
 
   private static final String NAME = "Data Source";
   private static final String DESCRIPTION = "This is a data source";
@@ -48,20 +52,21 @@ public class DataSourceControllerTests {
     mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
   }
 
-  private DataSourceRequest createRequest() {
+  private DataSourceRequest createRequest(boolean update) {
+    String suffix = update ? "u" : "";
     return DataSourceRequest.builder()
-        .name(NAME)
-        .description(DESCRIPTION)
-        .url(URL)
+        .name(String.format("%s%s", NAME, suffix))
+        .description(String.format("%s%s", DESCRIPTION, suffix))
+        .url(String.format("%s%s", URL, suffix))
         .apiType(ApiType.MOLGENIS)
-        .apiUsername(API_USERNAME)
-        .apiPassword(API_PASSWORD)
-        .apiUrl(API_URL)
-        .resourceNetwork(RESOURCE_NETWORK)
-        .resourceBiobank(RESOURCE_BIOBANK)
-        .resourceCollection(RESOURCE_COLLECTION)
-        .syncActive(false)
-        .sourcePrefix(false)
+        .apiUsername(String.format("%s%s", API_USERNAME, suffix))
+        .apiPassword(String.format("%s%s", API_PASSWORD, suffix))
+        .apiUrl(String.format("%s%s", API_URL, suffix))
+        .resourceNetwork(String.format("%s%s", RESOURCE_NETWORK, suffix))
+        .resourceBiobank(String.format("%s%s", RESOURCE_BIOBANK, suffix))
+        .resourceCollection(String.format("%s%s", RESOURCE_COLLECTION, suffix))
+        .syncActive(update)
+        .sourcePrefix(update)
         .build();
   }
 
@@ -87,35 +92,35 @@ public class DataSourceControllerTests {
 
   @Test
   public void testBadRequest_whenName_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setName(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenDescription_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setDescription(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenUrl_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setUrl(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenApiType_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setApiType(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenApiType_IsWrong() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     String requestBody = jsonFromRequest(request);
     requestBody = requestBody.replace("MOLGENIS", "UNKNOWN");
     checkBadRequest(requestBody);
@@ -123,49 +128,49 @@ public class DataSourceControllerTests {
 
   @Test
   public void testBadRequest_whenApiUrl_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setApiUrl(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenApiUsername_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setApiUsername(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenApiPassword_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setApiPassword(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenResourceNetwork_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setResourceNetwork(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenResourceBiobank_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setResourceBiobank(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testBadRequest_whenResourceCollection_IsMissing() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     request.setResourceCollection(null);
     checkBadRequest(request);
   }
 
   @Test
   public void testCreated_whenRequest_IsCorrect() throws Exception {
-    DataSourceRequest request = createRequest();
+    DataSourceRequest request = createRequest(false);
     String requestBody = jsonFromRequest(request);
 
     mockMvc
@@ -180,6 +185,32 @@ public class DataSourceControllerTests {
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.url", is(URL)));
     assertEquals(repository.findAll().size(), 2);
+
     repository.deleteById(2L);
+  }
+
+  @Test
+  public void testUpdate_whenIsCorrect() throws Exception {
+    // The data source to be updated
+    DataSource dataSourceEntity = modelMapper.map(createRequest(true), DataSource.class);
+    repository.save(dataSourceEntity);
+
+    // Request body with updated values
+    DataSourceRequest request = createRequest(true);
+
+    String requestBody = jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("/v3/data-sources/%s".formatted(dataSourceEntity.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isNoContent())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+    Optional<DataSource> updateDataSource = repository.findById(dataSourceEntity.getId());
+    assert updateDataSource.isPresent();
+    assertEquals(updateDataSource.get(), modelMapper.map(request, DataSource.class));
+
+    repository.deleteById(dataSourceEntity.getId());
   }
 }
