@@ -50,7 +50,7 @@ public class ProjectControllerTests {
 
   private MockHttpServletRequestBuilder getRequest(String requestBody) {
     return MockMvcRequestBuilders.post("/v3/projects/")
-        .with(httpBasic("user", "pass"))
+        .with(httpBasic("researcher", "researcher"))
         .contentType(MediaType.APPLICATION_JSON)
         .content(requestBody);
   }
