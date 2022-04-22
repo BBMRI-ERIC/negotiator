@@ -23,7 +23,7 @@ public class DataSourceService {
   public DataSource getById(Long id) {
     return dataSourceRepository
         .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(DataSource.class, id));
+        .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   public List<DataSource> findAll() {

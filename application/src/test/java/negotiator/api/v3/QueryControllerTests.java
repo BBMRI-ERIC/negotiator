@@ -4,6 +4,8 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,22 +23,21 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 public class QueryControllerTests {
 
   private MockMvc mockMvc;
-
+  @Autowired private WebApplicationContext context;
   @Autowired private QueryController queryController;
-
   @Autowired public QueryService queryService;
-
   @Autowired public QueryRepository queryRepository;
 
   @BeforeEach
   public void before() {
-    mockMvc = MockMvcBuilders.standaloneSetup(queryController).build();
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
   }
 
   @Test
@@ -48,6 +49,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest());
@@ -62,6 +64,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest());
@@ -70,12 +73,12 @@ public class QueryControllerTests {
   @Test
   public void testBadRequest_whenResourcesFieldIsMissing() throws Exception {
     String requestBody =
-        "{\"url\": \"http://datasource.dev\", "
-            + "\"humanReadable\": \"Test request\"}";
+        "{\"url\": \"http://datasource.dev\", " + "\"humanReadable\": \"Test request\"}";
 
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest());
@@ -91,6 +94,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest());
@@ -106,6 +110,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest());
@@ -121,6 +126,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest())
@@ -137,6 +143,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest())
@@ -153,6 +160,7 @@ public class QueryControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/queries")
+                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())

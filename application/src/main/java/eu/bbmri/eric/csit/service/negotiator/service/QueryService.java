@@ -7,16 +7,15 @@ import eu.bbmri.eric.csit.service.model.DataSource;
 import eu.bbmri.eric.csit.service.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.repository.QueryRepository;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class QueryService {
@@ -48,16 +47,14 @@ public class QueryService {
                           .findBySourceId(childrenDTO.getId())
                           .orElseThrow(
                               () ->
-                                  new ResponseStatusException(
-                                      HttpStatus.BAD_REQUEST,
+                                  new WrongRequestException(
                                       String.format(
-                                          "Specified collection %s not found",
-                                          childrenDTO.getId())));
+                                          "Collection %s not found", childrenDTO.getId())));
+
                   if (!collectionEntity.getBiobank().getSourceId().equals(resourceDTO.getId())) {
-                    throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
+                    throw new WrongRequestException(
                         String.format(
-                            "Specified collection %s doesn't belong to the specified biobank %s",
+                            "Collection %s doesn't belong to biobank %s",
                             childrenDTO.getId(), resourceDTO.getId()));
                   }
                   collections.add(collectionEntity);
@@ -71,8 +68,7 @@ public class QueryService {
     DataSource dataSource =
         dataSourceRepository
             .findByUrl(url)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data source not found"));
+            .orElseThrow(() -> new WrongRequestException("Data source not found"));
     queryEntity.setDataSource(dataSource);
   }
 
@@ -87,7 +83,7 @@ public class QueryService {
       String jsonPayload = mapper.writeValueAsString(queryRequest);
       queryEntity.setJsonPayload(jsonPayload);
     } catch (JsonProcessingException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot serialize the request");
+      throw new WrongRequestException();
     }
     return queryRepository.save(queryEntity);
   }
@@ -97,11 +93,6 @@ public class QueryService {
   }
 
   public Query getById(Long id) {
-    return queryRepository
-        .findById(id)
-        .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, String.format("query with id %d not found", id)));
+    return queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 }

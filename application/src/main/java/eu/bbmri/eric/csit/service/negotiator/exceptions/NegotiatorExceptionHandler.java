@@ -25,9 +25,9 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler(EntityNotStorableException.class)
-  public final ResponseEntity<ErrorResponse> handleEntityNotStorableException(
-      EntityNotFoundException ex, WebRequest request) {
+  @ExceptionHandler({EntityNotStorableException.class, WrongRequestException.class})
+  public final ResponseEntity<ErrorResponse> handleBadRequestExceptions(
+      RuntimeException ex, WebRequest request) {
     ErrorResponse errorResponse = new ErrorResponse(401, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }

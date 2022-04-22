@@ -26,10 +26,9 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 public class ProjectControllerTests {
-  @Autowired
-  private WebApplicationContext context;
   private MockMvc mockMvc;
 
+  @Autowired private WebApplicationContext context;
   @Autowired private ProjectController projectController;
   @Autowired private ProjectRepository projectRepository;
 
@@ -77,6 +76,7 @@ public class ProjectControllerTests {
         .andExpect(status().isUnauthorized());
     assertEquals(projectRepository.findAll().size(), 0);
   }
+
   @Test
   public void testBadRequest_whenTitle_IsMissing() throws Exception {
     String requestBody = String.format(
