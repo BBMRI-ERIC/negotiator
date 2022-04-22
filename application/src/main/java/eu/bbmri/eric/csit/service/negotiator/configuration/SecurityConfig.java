@@ -45,6 +45,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable();
 
     http.authorizeRequests()
+        .antMatchers(HttpMethod.POST, "/v3/data-sources/**")
+        .hasRole("ADMIN")
+        .and()
+        .authorizeRequests()
         .antMatchers(HttpMethod.POST, "/v3/projects/**")
         .hasAuthority("SCOPE_openid")
         .and()
