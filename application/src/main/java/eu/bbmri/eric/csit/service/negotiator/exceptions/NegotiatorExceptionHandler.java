@@ -17,4 +17,18 @@ public class NegotiatorExceptionHandler {
     ErrorResponse errorResponse = new ErrorResponse(401, "The body of the response is not valid");
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(EntityNotFoundException.class)
+  public final ResponseEntity<ErrorResponse> handleEntityNotFoundException(
+      EntityNotFoundException ex, WebRequest request) {
+    ErrorResponse errorResponse = new ErrorResponse(404, ex.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(EntityNotStorableException.class)
+  public final ResponseEntity<ErrorResponse> handleEntityNotStorableException(
+      EntityNotFoundException ex, WebRequest request) {
+    ErrorResponse errorResponse = new ErrorResponse(401, ex.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 }

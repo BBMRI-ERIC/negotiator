@@ -2,6 +2,8 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.repository.DataSourceRepository;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -21,10 +23,7 @@ public class DataSourceService {
   public DataSource getById(Long id) {
     return dataSourceRepository
         .findById(id)
-        .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, String.format("Data source with id %d not found", id)));
+        .orElseThrow(() -> new EntityNotFoundException(DataSource.class, id));
   }
 
   public List<DataSource> findAll() {
@@ -36,7 +35,7 @@ public class DataSourceService {
     try {
       return dataSourceRepository.save(dataSourceEntity);
     } catch (DataIntegrityViolationException ex) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be saved");
+      throw new EntityNotStorableException();
     }
   }
 
@@ -46,7 +45,7 @@ public class DataSourceService {
     try {
       return dataSourceRepository.save(dataSourceEntity);
     } catch (DataIntegrityViolationException ex) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be saved");
+      throw new EntityNotStorableException();
     }
   }
 }
