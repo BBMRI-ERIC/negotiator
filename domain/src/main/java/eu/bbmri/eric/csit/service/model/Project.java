@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -56,7 +56,7 @@ public class Project extends AuditEntity {
 
   private Boolean isTestProject;
 
-  private Date expectedEndDate;
+  private LocalDate expectedEndDate;
 
   private Boolean expectedDataGeneration;
 }

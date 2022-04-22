@@ -3,12 +3,14 @@ package eu.bbmri.eric.csit.service.negotiator.dto.request;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.OptBoolean;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -23,8 +25,8 @@ public class ProjectRequest {
   @NotNull private String ethicsVote;
 
   @NotNull
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", lenient = OptBoolean.FALSE)
-  private Date expectedEndDate;
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  private LocalDate expectedEndDate;
 
   @NotNull private Boolean expectedDataGeneration;
 
