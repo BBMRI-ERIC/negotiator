@@ -1,15 +1,13 @@
 package eu.bbmri.eric.csit.service.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,7 +29,8 @@ public class DataSource extends BaseEntity {
 
   private String description;
 
-  @NotNull private String name;
+  @NotNull
+  private String name;
 
   @NotNull private String url;
 
