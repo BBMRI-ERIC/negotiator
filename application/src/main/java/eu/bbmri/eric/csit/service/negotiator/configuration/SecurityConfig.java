@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,8 +22,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     auth.inMemoryAuthentication()
         .withUser("admin")
         .password(passwordEncoder().encode("admin"))
-        .authorities("SCOPE_openid")
-        .roles("ADMIN");
+        .roles("ADMIN")
+        .and()
+        .withUser("directory")
+        .password(passwordEncoder().encode("directory"))
+        .roles("EXT_SERV")
+        .and()
+        .withUser("perun")
+        .password(passwordEncoder().encode("perun"))
+        .roles("PERUN_USER");
   }
 
   @Override
@@ -43,8 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
 
         .authorizeRequests()
-        .antMatchers(HttpMethod.GET, "/v3/queries/**")
-        .authenticated()
+        .antMatchers(HttpMethod.POST, "/v3/queries/**")
+        .hasAnyRole("ADMIN", "EXT_SERV")
 
         .and()
         .authorizeRequests()
