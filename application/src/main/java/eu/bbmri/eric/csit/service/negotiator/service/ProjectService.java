@@ -2,8 +2,10 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.repository.ProjectRepository;
+import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,5 +24,13 @@ public class ProjectService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
+  }
+
+  public Project findById(Long id) {
+    return projectRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+  }
+
+  public List<Project> findAll() {
+    return projectRepository.findAll();
   }
 }

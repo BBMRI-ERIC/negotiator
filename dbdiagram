@@ -50,10 +50,10 @@ Table "request" {
   "created_by" integer
   "modified_by" integer
   "title" "character varying" [not null]
-  "request_description" text
+  "description" text
   "ethics_vote" text
   "test_request" boolean
-  "request_token" "character varying"
+  "token" "character varying"
   "project_id" integer [not null]
 }
 
