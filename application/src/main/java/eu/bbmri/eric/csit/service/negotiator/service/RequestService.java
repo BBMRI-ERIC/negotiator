@@ -23,7 +23,7 @@ public class RequestService {
   public Request create(Project project, RequestRequest request) {
     Request requestEntity = modelMapper.map(request, Request.class);
     requestEntity.setProject(project);
-    requestEntity.setToken("token");
+
     try {
       return requestRepository.save(requestEntity);
     } catch (DataIntegrityViolationException ex) {

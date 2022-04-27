@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.model;
 
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -41,5 +42,5 @@ public class Request extends AuditEntity {
 
   private Boolean testRequest;
 
-  private String token;
+  private String token = UUID.randomUUID().toString().replace("-", "");
 }

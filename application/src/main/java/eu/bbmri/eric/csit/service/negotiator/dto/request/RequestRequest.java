@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +22,5 @@ public class RequestRequest {
 
   private Boolean isTest = false;
 
-  private ProjectRequest project;
+  @Valid private ProjectRequest project;
 }

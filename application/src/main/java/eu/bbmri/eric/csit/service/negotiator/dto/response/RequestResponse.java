@@ -23,6 +23,8 @@ public class RequestResponse {
 
   @NotNull private String description;
 
+  @NotNull private String token;
+
   private Boolean isTest = false;
 
   private ProjectResponse project;
