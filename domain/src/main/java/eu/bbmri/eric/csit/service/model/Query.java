@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
@@ -24,20 +25,13 @@ import org.hibernate.annotations.TypeDefs;
 
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity(name = "Query")
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 public class Query extends BaseEntity {
-
-  public Query() {
-    this.setQueryToken(generateQueryToken());
-  }
-
-  private String generateQueryToken() {
-    return UUID.randomUUID().toString().replace("-", "");
-  }
 
   @ManyToMany
   @JoinTable(
@@ -61,7 +55,8 @@ public class Query extends BaseEntity {
   @NotNull
   private String jsonPayload;
 
-  @NotNull private String queryToken;
+  @NotNull private String queryToken = UUID.randomUUID().toString().replace("-", "");
+  ;
 
   @NotNull private String url;
 

@@ -20,7 +20,10 @@ import eu.bbmri.eric.csit.service.repository.ProjectRepository;
 import java.net.URI;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -35,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@TestMethodOrder(OrderAnnotation.class)
 public class ProjectControllerTests {
   private MockMvc mockMvc;
 
@@ -53,6 +57,7 @@ public class ProjectControllerTests {
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     repository.deleteAll();
+
   }
 
   private ProjectRequest createRequest(boolean update) {
@@ -117,7 +122,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenTitle_IsMissing() throws Exception {
+  public void testCreate_BadRequest_whenTitle_IsMissing() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setTitle(null);
     checkErrorResponse(
@@ -125,7 +130,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenDescription_IsMissing() throws Exception {
+  public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setDescription(null);
     checkErrorResponse(
@@ -133,7 +138,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenDescription_IsTooLong() throws Exception {
+  public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setDescription("d".repeat(513));
     checkErrorResponse(
@@ -141,7 +146,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenEthicsVote_IsMissing() throws Exception {
+  public void testCreate_BadRequest_whenEthicsVote_IsMissing() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setEthicsVote(null);
     checkErrorResponse(
@@ -149,7 +154,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenEthicsVote_IsTooLong() throws Exception {
+  public void testCreate_BadRequest_whenEthicsVote_IsTooLong() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setEthicsVote("e".repeat(513));
     checkErrorResponse(
@@ -157,7 +162,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenExpectedEndDate_IsMissing() throws Exception {
+  public void testCreate_BadRequest_whenExpectedEndDate_IsMissing() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setExpectedEndDate(null);
     checkErrorResponse(
@@ -165,7 +170,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenExpectedEndDate_HasWrongFormat() throws Exception {
+  public void testCreate_BadRequest_whenExpectedEndDate_HasWrongFormat() throws Exception {
     ProjectRequest request = createRequest(false);
     String requestBody = jsonFromRequest(request);
     requestBody =
@@ -180,7 +185,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenExpectedDataGeneration_IsMissing() throws Exception {
+  public void testCreate_BadRequest_whenExpectedDataGeneration_IsMissing() throws Exception {
     ProjectRequest request = createRequest(false);
     request.setExpectedDataGeneration(null);
     checkErrorResponse(
@@ -188,7 +193,8 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testCreated_whenIsTestProject_isDefault() throws Exception {
+  @Order(1)
+  public void testCreate_Ok_whenIsTestProject_isDefault() throws Exception {
     ProjectRequest request = createRequest(false);
     String requestBody = jsonFromRequest(request);
 
@@ -200,7 +206,7 @@ public class ProjectControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(1)))
+        .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.ethicsVote", is(ETHICS_VOTE)))

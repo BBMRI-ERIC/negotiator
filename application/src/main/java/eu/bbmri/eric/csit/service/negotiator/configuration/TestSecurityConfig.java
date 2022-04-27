@@ -50,7 +50,7 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .hasRole("ADMIN")
         .and()
         .authorizeRequests()
-        .antMatchers(HttpMethod.POST, "/v3/projects/**")
+        .antMatchers("/v3/projects/**", "/v3/requests/**")
         .hasAuthority("SCOPE_openid")
         .and()
         .authorizeRequests()

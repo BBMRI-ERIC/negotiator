@@ -1,7 +1,8 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import javax.validation.Valid;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,12 +16,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class RequestRequest {
+public class RequestResponse {
+  @NotNull private Long id;
+
   @NotNull private String title;
 
   @NotNull private String description;
 
+  @NotNull private String token;
+
   private Boolean isTest = false;
 
-  @Valid private ProjectRequest project;
+  private ProjectResponse project;
 }
