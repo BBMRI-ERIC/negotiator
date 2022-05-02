@@ -30,4 +30,6 @@ public class QueryResponse {
   private Set<ResourceDTO> resources;
 
   @NotNull private String queryToken;
+
+  @NotNull private String redirectUrl;
 }

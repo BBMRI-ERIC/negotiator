@@ -55,9 +55,6 @@ public class Query extends BaseEntity {
   @NotNull
   private String jsonPayload;
 
-  @NotNull private String queryToken = UUID.randomUUID().toString().replace("-", "");
-  ;
-
   @NotNull private String url;
 
   @ManyToOne(fetch = FetchType.LAZY)

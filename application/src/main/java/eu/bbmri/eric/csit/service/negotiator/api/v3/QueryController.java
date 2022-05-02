@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.http.HttpStatus;
@@ -27,10 +28,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/v3")
 public class QueryController {
+
+  private static final String REDIRECT_PATH = "%s/researcher/query/%d";
 
   private final QueryService queryService;
 
@@ -42,11 +46,47 @@ public class QueryController {
     TypeMap<Query, QueryResponse> typeMap =
         modelMapper.createTypeMap(Query.class, QueryResponse.class);
 
+    Converter<Set<Collection>, Set<ResourceDTO>> queryCollectionToResources =
+        q -> convertCollectionsToResources(q.getSource());
     typeMap.addMappings(
         mapper ->
             mapper
-                .using(new QueryResourceConverted())
+                .using(queryCollectionToResources)
                 .map(Query::getCollections, QueryResponse::setResources));
+
+    Converter<Long, String> queryToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
+    typeMap.addMappings(
+        mapper ->
+            mapper.using(queryToRedirectUrl).map(Query::getId, QueryResponse::setRedirectUrl));
+  }
+
+  private String convertIdToRedirectUrl(Long queryId) {
+    String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+    return REDIRECT_PATH.formatted(baseURL, queryId);
+  }
+
+  private Set<ResourceDTO> convertCollectionsToResources(Set<Collection> collections) {
+    Map<String, ResourceDTO> biobanks = new HashMap<>();
+    collections.forEach(
+        collection -> {
+          Biobank b = collection.getBiobank();
+          ResourceDTO biobankResource;
+          if (biobanks.containsKey(b.getSourceId())) {
+            biobankResource = biobanks.get(b.getSourceId());
+          } else {
+            biobankResource = new ResourceDTO();
+            biobankResource.setId(b.getSourceId());
+            biobankResource.setType("biobank");
+            biobankResource.setChildren(new HashSet<>());
+            biobanks.put(b.getSourceId(), biobankResource);
+          }
+          ResourceDTO collectionResource = new ResourceDTO();
+          collectionResource.setType("collection");
+          collectionResource.setId(collection.getSourceId());
+          biobankResource.getChildren().add(collectionResource);
+        });
+
+    return new HashSet<>(biobanks.values());
   }
 
   @GetMapping("/queries")
@@ -71,34 +111,5 @@ public class QueryController {
   QueryResponse add(@Valid @RequestBody QueryRequest queryRequest) {
     Query queryEntity = queryService.create(queryRequest);
     return modelMapper.map(queryEntity, QueryResponse.class);
-  }
-
-  private static class QueryResourceConverted
-      extends AbstractConverter<Set<Collection>, Set<ResourceDTO>> {
-
-    @Override
-    protected Set<ResourceDTO> convert(Set<Collection> collections) {
-      Map<String, ResourceDTO> biobanks = new HashMap<>();
-      collections.forEach(
-          collection -> {
-            Biobank b = collection.getBiobank();
-            ResourceDTO biobankResource;
-            if (biobanks.containsKey(b.getSourceId())) {
-              biobankResource = biobanks.get(b.getSourceId());
-            } else {
-              biobankResource = new ResourceDTO();
-              biobankResource.setId(b.getSourceId());
-              biobankResource.setType("biobank");
-              biobankResource.setChildren(new HashSet<>());
-              biobanks.put(b.getSourceId(), biobankResource);
-            }
-            ResourceDTO collectionResource = new ResourceDTO();
-            collectionResource.setType("collection");
-            collectionResource.setId(collection.getSourceId());
-            biobankResource.getChildren().add(collectionResource);
-          });
-
-      return new HashSet<>(biobanks.values());
-    }
   }
 }

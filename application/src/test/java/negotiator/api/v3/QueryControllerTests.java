@@ -1,5 +1,6 @@
 package negotiator.api.v3;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.text.IsEmptyString.emptyString;
@@ -178,11 +179,11 @@ public class QueryControllerTests {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/researcher/query/")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("collection:1")))
-        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")))
-        .andExpect(jsonPath("$.queryToken", is(not(emptyString()))));
+        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
     assertEquals(repository.findAll().size(), 1);
     repository.deleteById(1L);
   }
