@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
-import org.modelmapper.AbstractConverter;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -99,7 +97,7 @@ public class QueryController {
 
   @GetMapping("/queries/{id}")
   QueryResponse retrieve(@PathVariable Long id) {
-    Query queryEntity = queryService.getById(id);
+    Query queryEntity = queryService.findById(id);
     return modelMapper.map(queryEntity, QueryResponse.class);
   }
 

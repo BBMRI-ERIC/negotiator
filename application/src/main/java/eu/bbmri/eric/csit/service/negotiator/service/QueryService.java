@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import eu.bbmri.eric.csit.service.model.Collection;
 import eu.bbmri.eric.csit.service.model.DataSource;
@@ -16,8 +15,8 @@ import eu.bbmri.eric.csit.service.repository.QueryRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class QueryService {
@@ -94,7 +93,11 @@ public class QueryService {
     return queryRepository.findAll();
   }
 
-  public Query getById(Long id) {
+  public Query findById(Long id) {
     return queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+  }
+
+  public List<Query> findAllById(List<Long> ids) {
+    return ids.stream().map(this::findById).collect(Collectors.toList());
   }
 }

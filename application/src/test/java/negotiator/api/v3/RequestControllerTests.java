@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,16 +15,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.model.Project;
+import eu.bbmri.eric.csit.service.model.Query;
 import eu.bbmri.eric.csit.service.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.ProjectController;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.RequestController;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.repository.ProjectRepository;
+import eu.bbmri.eric.csit.service.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.repository.RequestRepository;
 import java.net.URI;
-import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -50,32 +53,33 @@ public class RequestControllerTests {
   private MockMvc mockMvc;
 
   @Autowired private WebApplicationContext context;
-  @Autowired private ProjectController projectController;
+  @Autowired private RequestController requestController;
   @Autowired private ProjectRepository projectRepository;
   @Autowired private RequestRepository requestRepository;
-  @Autowired private RequestController requestController;
+  @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
 
   private static final String TITLE = "request title";
   private static final String DESCRIPTION = "request description";
-  private static final String PROJECT_TITLE = "project title";
-  private static final String PROJECT_DESCRIPTION = "project description";
-  private static final String PROJECT_ETHICS_VOTE = "ethics vote";
-  private static final String PROJECT_EXPECTED_END_DATE = "2022-04-13";
-  private static final boolean PROJECT_EXPECTED_DATA_GENERATION = true;
-  private static final boolean PROJECT_IS_TEST_PROJECT = true;
   private static final String REQUESTS_ENDPOINT = "/v3/requests";
   private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/requests";
+
+  private Long queryId;
 
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+    QueryRequest queryRequest = TestObjectFactory.createQueryRequest(false);
+    Query query = modelMapper.map(queryRequest, Query.class);
+    queryRepository.save(query);
+    queryId = query.getId();
   }
 
   @AfterEach
   public void after() {
     requestRepository.deleteAll();
     projectRepository.deleteAll();
+    queryRepository.deleteAll();
   }
 
   private RequestRequest createRequest(boolean update, boolean includeProject) {
@@ -84,25 +88,12 @@ public class RequestControllerTests {
     RequestRequest.RequestRequestBuilder builder =
         RequestRequest.builder()
             .title(String.format("%s%s", TITLE, suffix))
-            .description(String.format("%s%s", DESCRIPTION, suffix));
+            .description(String.format("%s%s", DESCRIPTION, suffix))
+            .queries(List.of(queryId));
     if (includeProject) {
-
-      builder.project(createProjectRequest(update));
+      builder.project(TestObjectFactory.createProjectRequest(update));
     }
     return builder.build();
-  }
-
-  private ProjectRequest createProjectRequest(boolean update) {
-    String suffix = update ? "u" : "";
-
-    return ProjectRequest.builder()
-        .title(String.format("%s%s", PROJECT_TITLE, suffix))
-        .description(String.format("%s%s", PROJECT_DESCRIPTION, suffix))
-        .ethicsVote(String.format("%s%s", PROJECT_ETHICS_VOTE, suffix))
-        .expectedEndDate(LocalDate.parse(PROJECT_EXPECTED_END_DATE))
-        .expectedDataGeneration(PROJECT_EXPECTED_DATA_GENERATION)
-        .isTestProject(PROJECT_IS_TEST_PROJECT)
-        .build();
   }
 
   private String jsonFromRequest(Object request) throws JsonProcessingException {
@@ -134,6 +125,7 @@ public class RequestControllerTests {
                 .with(auth)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
+        .andDo(print())
         .andExpect(statusMatcher);
     assertEquals(requestRepository.findAll().size(), 0);
   }
@@ -201,12 +193,17 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
         .andExpect(jsonPath("$[0].token").isString())
         .andExpect(jsonPath("$[0].project.id", is(projectEntity.getId().intValue())))
-        .andExpect(jsonPath("$[0].project.title", is(PROJECT_TITLE)))
-        .andExpect(jsonPath("$[0].project.description", is(PROJECT_DESCRIPTION)))
+        .andExpect(jsonPath("$[0].project.title", is(TestObjectFactory.PROJECT_TITLE)))
+        .andExpect(jsonPath("$[0].project.description", is(TestObjectFactory.PROJECT_DESCRIPTION)))
         .andExpect(
-            jsonPath("$[0].project.expectedDataGeneration", is(PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$[0].project.expectedEndDate", is(PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$[0].project.isTestProject", is(PROJECT_IS_TEST_PROJECT)));
+            jsonPath(
+                "$[0].project.expectedDataGeneration",
+                is(TestObjectFactory.PROJECT_EXPECTED_DATA_GENERATION)))
+        .andExpect(
+            jsonPath(
+                "$[0].project.expectedEndDate", is(TestObjectFactory.PROJECT_EXPECTED_END_DATE)))
+        .andExpect(
+            jsonPath("$[0].project.isTestProject", is(TestObjectFactory.PROJECT_IS_TEST_PROJECT)));
   }
 
   @Test
@@ -280,12 +277,16 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.project.id", is(projectEntity.getId().intValue())))
-        .andExpect(jsonPath("$.project.title", is(PROJECT_TITLE)))
-        .andExpect(jsonPath("$.project.description", is(PROJECT_DESCRIPTION)))
+        .andExpect(jsonPath("$.project.title", is(TestObjectFactory.PROJECT_TITLE)))
+        .andExpect(jsonPath("$.project.description", is(TestObjectFactory.PROJECT_DESCRIPTION)))
         .andExpect(
-            jsonPath("$.project.expectedDataGeneration", is(PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.project.expectedEndDate", is(PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.project.isTestProject", is(PROJECT_IS_TEST_PROJECT)));
+            jsonPath(
+                "$.project.expectedDataGeneration",
+                is(TestObjectFactory.PROJECT_EXPECTED_DATA_GENERATION)))
+        .andExpect(
+            jsonPath("$.project.expectedEndDate", is(TestObjectFactory.PROJECT_EXPECTED_END_DATE)))
+        .andExpect(
+            jsonPath("$.project.isTestProject", is(TestObjectFactory.PROJECT_IS_TEST_PROJECT)));
   }
 
   @Test
@@ -395,6 +396,74 @@ public class RequestControllerTests {
   }
 
   @Test
+  public void testCreate_BadRequest_whenQueries_IsMissing() throws Exception {
+    RequestRequest request = createRequest(false, true);
+    request.setQueries(null);
+    checkErrorResponse(
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
+        REQUESTS_ENDPOINT);
+
+    request = createRequest(false, false);
+    request.setQueries(null);
+    checkErrorResponse(
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
+        PROJECTS_ENDPOINT.formatted(1));
+  }
+
+  @Test
+  public void testCreate_BadRequest_whenQueries_IsEmpty() throws Exception {
+    RequestRequest request = createRequest(false, true);
+    request.setQueries(Collections.emptyList());
+    checkErrorResponse(
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
+        REQUESTS_ENDPOINT);
+
+    request = createRequest(false, false);
+    request.setQueries(Collections.emptyList());
+    checkErrorResponse(
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
+        PROJECTS_ENDPOINT.formatted(1));
+  }
+
+  @Test
+  public void testCreate_BadRequest_whenSomeQueries_IsNotFound() throws Exception {
+    RequestRequest request = createRequest(false, true);
+    request.setQueries(List.of(-1L));
+    checkErrorResponse(
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
+        REQUESTS_ENDPOINT);
+
+    // Create the project before
+    Project projectEntity =
+        modelMapper.map(TestObjectFactory.createProjectRequest(false), Project.class);
+    projectRepository.save(projectEntity);
+
+    request = createRequest(false, false);
+    request.setQueries(List.of(-1L));
+    checkErrorResponse(
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
+        PROJECTS_ENDPOINT.formatted(projectEntity.getId()));
+  }
+
+  @Test
   public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
     RequestRequest request = createRequest(false, true);
     request.setDescription("d".repeat(513));
@@ -406,7 +475,8 @@ public class RequestControllerTests {
         REQUESTS_ENDPOINT);
 
     // Create the project before
-    Project projectEntity = modelMapper.map(createProjectRequest(false), Project.class);
+    Project projectEntity =
+        modelMapper.map(TestObjectFactory.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
     request = createRequest(false, false);
@@ -497,7 +567,7 @@ public class RequestControllerTests {
     String requestBody = jsonFromRequest(request);
     requestBody =
         requestBody.replace(
-            "\"expectedEndDate\":\"%s\"".formatted(PROJECT_EXPECTED_END_DATE),
+            "\"expectedEndDate\":\"%s\"".formatted(TestObjectFactory.PROJECT_EXPECTED_END_DATE),
             "\"expectedEndDate\":\"13-04-2022\"");
     checkErrorResponse(
         HttpMethod.POST,
@@ -535,15 +605,20 @@ public class RequestControllerTests {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.title", is(TITLE)))
-        .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
+        .andExpect(jsonPath("$.token").isString())
+        .andExpect(jsonPath("$.queries", is(List.of(queryId.intValue()))))
         .andExpect(jsonPath("$.project.id", is(1)))
-        .andExpect(jsonPath("$.project.title", is(PROJECT_TITLE)))
-        .andExpect(jsonPath("$.project.description", is(PROJECT_DESCRIPTION)))
+        .andExpect(jsonPath("$.project.title", is(TestObjectFactory.PROJECT_TITLE)))
+        .andExpect(jsonPath("$.project.description", is(TestObjectFactory.PROJECT_DESCRIPTION)))
         .andExpect(
-            jsonPath("$.project.expectedDataGeneration", is(PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.project.expectedEndDate", is(PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.project.isTestProject", is(PROJECT_IS_TEST_PROJECT)));
+            jsonPath(
+                "$.project.expectedDataGeneration",
+                is(TestObjectFactory.PROJECT_EXPECTED_DATA_GENERATION)))
+        .andExpect(
+            jsonPath("$.project.expectedEndDate", is(TestObjectFactory.PROJECT_EXPECTED_END_DATE)))
+        .andExpect(
+            jsonPath("$.project.isTestProject", is(TestObjectFactory.PROJECT_IS_TEST_PROJECT)));
     assertEquals(requestRepository.findAll().size(), 1);
     assertEquals(projectRepository.findAll().size(), 1);
   }
@@ -552,7 +627,8 @@ public class RequestControllerTests {
   @Order(2)
   public void testCreate_Ok_whenProjectAlreadyExists() throws Exception {
     // Create the project before
-    Project projectEntity = modelMapper.map(createProjectRequest(false), Project.class);
+    Project projectEntity =
+        modelMapper.map(TestObjectFactory.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
     RequestRequest request = createRequest(false, true);
@@ -570,7 +646,8 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$.token").isString());
+        .andExpect(jsonPath("$.token").isString())
+        .andExpect(jsonPath("$.queries", is(List.of(queryId.intValue()))));
     assertEquals(requestRepository.findAll().size(), 1);
     assertEquals(projectRepository.findAll().size(), 1);
   }

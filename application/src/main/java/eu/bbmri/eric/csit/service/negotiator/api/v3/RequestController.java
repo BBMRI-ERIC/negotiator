@@ -1,20 +1,19 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
-import eu.bbmri.eric.csit.service.model.Project;
+import eu.bbmri.eric.csit.service.model.Query;
 import eu.bbmri.eric.csit.service.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.ProjectResponse;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.RequestResponse;
-import eu.bbmri.eric.csit.service.negotiator.service.ProjectService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.TypeMap;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class RequestController {
 
-  @Autowired private RequestService requestService;
-  @Autowired private ProjectService projectService;
-  @Autowired private ModelMapper modelMapper;
+  private final RequestService requestService;
+  private final ModelMapper modelMapper;
+
+  public RequestController(RequestService requestService, ModelMapper modelMapper) {
+    this.requestService = requestService;
+    this.modelMapper = modelMapper;
+
+    TypeMap<Request, RequestResponse> typeMap =
+        modelMapper.createTypeMap(Request.class, RequestResponse.class);
+
+    Converter<Set<Query>, List<Long>> queriesIds =
+        query -> query.getSource().stream().map(Query::getId).collect(Collectors.toList());
+
+    typeMap.addMappings(
+        mapper -> mapper.using(queriesIds).map(Request::getQueries, RequestResponse::setQueries));
+  }
 
   /**
    * Create a request and the project it belongs to
@@ -60,8 +72,7 @@ public class RequestController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestResponse add(@PathVariable Long projectId, @Valid @RequestBody RequestRequest request) {
-    Project project = projectService.findById(projectId);
-    Request requestEntity = requestService.create(project, request);
+    Request requestEntity = requestService.create(projectId, request);
     return modelMapper.map(requestEntity, RequestResponse.class);
   }
 
