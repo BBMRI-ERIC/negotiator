@@ -27,6 +27,7 @@ import eu.bbmri.eric.csit.service.repository.RequestRepository;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -64,22 +65,21 @@ public class RequestControllerTests {
   private static final String REQUESTS_ENDPOINT = "/v3/requests";
   private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/requests";
 
-  private Long queryId;
+  private Query testQuery;
 
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     QueryRequest queryRequest = TestObjectFactory.createQueryRequest(false);
     Query query = modelMapper.map(queryRequest, Query.class);
-    queryRepository.save(query);
-    queryId = query.getId();
+    testQuery = queryRepository.save(query);
   }
 
   @AfterEach
   public void after() {
+    queryRepository.deleteAll();
     requestRepository.deleteAll();
     projectRepository.deleteAll();
-    queryRepository.deleteAll();
   }
 
   private RequestRequest createRequest(boolean update, boolean includeProject) {
@@ -89,7 +89,7 @@ public class RequestControllerTests {
         RequestRequest.builder()
             .title(String.format("%s%s", TITLE, suffix))
             .description(String.format("%s%s", DESCRIPTION, suffix))
-            .queries(List.of(queryId));
+            .queries(List.of(testQuery.getId()));
     if (includeProject) {
       builder.project(TestObjectFactory.createProjectRequest(update));
     }
@@ -125,7 +125,6 @@ public class RequestControllerTests {
                 .with(auth)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-        .andDo(print())
         .andExpect(statusMatcher);
     assertEquals(requestRepository.findAll().size(), 0);
   }
@@ -607,7 +606,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
-        .andExpect(jsonPath("$.queries", is(List.of(queryId.intValue()))))
+        .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId().intValue())))
         .andExpect(jsonPath("$.project.id", is(1)))
         .andExpect(jsonPath("$.project.title", is(TestObjectFactory.PROJECT_TITLE)))
         .andExpect(jsonPath("$.project.description", is(TestObjectFactory.PROJECT_DESCRIPTION)))
@@ -647,8 +646,63 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
-        .andExpect(jsonPath("$.queries", is(List.of(queryId.intValue()))));
+        .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId().intValue())));
     assertEquals(requestRepository.findAll().size(), 1);
     assertEquals(projectRepository.findAll().size(), 1);
+  }
+
+  @Test
+  public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
+    RequestRequest request = createRequest(false, false);
+    checkErrorResponse(
+        HttpMethod.PUT,
+        request,
+        status().isUnauthorized(),
+        anonymous(),
+        "%s/1".formatted(REQUESTS_ENDPOINT));
+  }
+
+  @Test
+  public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
+    RequestRequest request = createRequest(false, false);
+    checkErrorResponse(
+        HttpMethod.PUT,
+        request,
+        status().isUnauthorized(),
+        httpBasic("admin", "wrong_pass"),
+        "%s/1".formatted(REQUESTS_ENDPOINT));
+  }
+
+  @Test
+  public void testUpdate_Forbidden_whenNoPermission() throws Exception {
+    RequestRequest request = createRequest(false, false);
+    checkErrorResponse(
+        HttpMethod.PUT,
+        request,
+        status().isForbidden(),
+        httpBasic("directory", "directory"),
+        "%s/1".formatted(REQUESTS_ENDPOINT));
+  }
+
+  @Test
+  public void testUpdate_Ok_whenChangeTitle() throws Exception {
+    // The data source to be updated
+    Request requestEntity = modelMapper.map(createRequest(false, false), Request.class);
+    requestRepository.save(requestEntity);
+
+    testQuery.setRequest(requestEntity);
+    queryRepository.save(testQuery);
+
+    // Request body with updated values
+    RequestRequest request = createRequest(true, false);
+    String requestBody = jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("%s/%s".formatted(REQUESTS_ENDPOINT, requestEntity.getId()))
+                .with(httpBasic("researcher", "researcher"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isNoContent())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
 }

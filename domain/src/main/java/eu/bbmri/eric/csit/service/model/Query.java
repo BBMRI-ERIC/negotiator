@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -68,4 +69,29 @@ public class Query extends BaseEntity {
   @NotNull
   @Exclude
   private DataSource dataSource;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Query query = (Query) o;
+    return
+        Objects.equals(getId(), query.getId())
+        && Objects.equals(getBiobanks(), query.getBiobanks())
+        && Objects.equals(getCollections(), query.getCollections())
+        && Objects.equals(getJsonPayload(), query.getJsonPayload())
+        && Objects.equals(getUrl(), query.getUrl())
+        && Objects.equals(getRequest(), query.getRequest())
+        && Objects.equals(getDataSource(), query.getDataSource());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getBiobanks(), getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
+  }
 }

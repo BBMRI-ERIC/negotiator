@@ -2,8 +2,6 @@ package negotiator.api.v3;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -22,7 +20,10 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -37,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@TestMethodOrder(OrderAnnotation.class)
 public class QueryControllerTests {
 
   private MockMvc mockMvc;
@@ -166,7 +168,8 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testCreated() throws Exception {
+  @Order(1)
+  public void testCreate_Ok() throws Exception {
     QueryRequest request = createRequest(false);
     String requestBody = jsonFromRequest(request);
 
@@ -185,6 +188,6 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.resources[0].children[0].id", is("collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
     assertEquals(repository.findAll().size(), 1);
-    repository.deleteById(1L);
+    repository.deleteAll();
   }
 }

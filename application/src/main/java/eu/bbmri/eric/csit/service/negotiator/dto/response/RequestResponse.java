@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri.eric.csit.service.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import java.util.List;
@@ -30,5 +31,5 @@ public class RequestResponse {
 
   private ProjectResponse project;
 
-  private List<Long> queries;
+  private List<QueryResponse> queries;
 }

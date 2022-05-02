@@ -100,4 +100,8 @@ public class QueryService {
   public List<Query> findAllById(List<Long> ids) {
     return ids.stream().map(this::findById).collect(Collectors.toList());
   }
+
+  public Query update(Query queryEntity) {
+    return queryRepository.save(queryEntity);
+  }
 }

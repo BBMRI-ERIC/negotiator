@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.model;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,7 +45,31 @@ public class Request extends AuditEntity {
 
   private String description;
 
-  private Boolean testRequest;
+  private Boolean isTest;
 
   private String token = UUID.randomUUID().toString().replace("-", "");
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Request request = (Request) o;
+    return Objects.equals(getTitle(), request.getTitle())
+        && Objects.equals(getDescription(), request.getDescription())
+        && Objects.equals(getIsTest(), request.getIsTest())
+        && Objects.equals(getToken(), request.getToken());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getTitle(),
+        getDescription(),
+        getIsTest(),
+        getToken());
+  }
 }

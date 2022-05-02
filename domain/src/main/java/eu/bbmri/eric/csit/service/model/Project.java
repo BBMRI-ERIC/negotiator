@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -44,8 +45,7 @@ public class Project extends AuditEntity {
   @Exclude
   private Person modifiedBy;
 
-  @NotNull
-  private String title;
+  @NotNull private String title;
 
   @Column(columnDefinition = "VARCHAR(512)")
   @NotNull
@@ -59,4 +59,36 @@ public class Project extends AuditEntity {
   private LocalDate expectedEndDate;
 
   private Boolean expectedDataGeneration;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Project project = (Project) o;
+    return Objects.equals(getTitle(), project.getTitle())
+        && Objects.equals(getDescription(), project.getDescription())
+        && Objects.equals(getEthicsVote(), project.getEthicsVote())
+        && Objects.equals(getIsTestProject(), project.getIsTestProject())
+        && Objects.equals(getExpectedEndDate(), project.getExpectedEndDate())
+        && Objects.equals(getExpectedDataGeneration(), project.getExpectedDataGeneration());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getPersons(),
+        getAttachments(),
+        getCreatedBy(),
+        getModifiedBy(),
+        getTitle(),
+        getDescription(),
+        getEthicsVote(),
+        getIsTestProject(),
+        getExpectedEndDate(),
+        getExpectedDataGeneration());
+  }
 }

@@ -240,7 +240,7 @@ public class DataSourceControllerTests {
   @Test
   public void testUpdate_whenIsCorrect() throws Exception {
     // The data source to be updated
-    DataSource dataSourceEntity = modelMapper.map(createRequest(true), DataSource.class);
+    DataSource dataSourceEntity = modelMapper.map(createRequest(false), DataSource.class);
     repository.save(dataSourceEntity);
 
     // Request body with updated values

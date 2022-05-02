@@ -8,10 +8,8 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.repository.RequestRepository;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,20 +23,30 @@ public class RequestService {
   @Autowired private QueryService queryService;
   @Autowired private ModelMapper modelMapper;
 
-  private Request create(Project project, RequestRequest request) {
+  private List<Query> findQueries(List<Long> queriesId) {
     List<Query> queries;
     try {
-      queries = queryService.findAllById(request.getQueries());
+      queries = queryService.findAllById(queriesId);
     } catch (EntityNotFoundException ex) {
       throw new WrongRequestException("One or more of the specified queries do not exist");
     }
+    return queries;
+  }
 
-    Request requestEntity = modelMapper.map(request, Request.class);
+  private Request create(Project project, RequestRequest request) {
+    List<Query> queries = findQueries(request.getQueries());
+
+    final Request requestEntity = modelMapper.map(request, Request.class);
     requestEntity.setProject(project);
-    requestEntity.setQueries(new HashSet<>(queries));
 
     try {
-      return requestRepository.save(requestEntity);
+      requestRepository.save(requestEntity);
+      queries.forEach(query -> {
+        query.setRequest(requestEntity);
+        queryService.update(query);
+      });
+      requestEntity.setQueries(new HashSet<>(queries));
+      return requestEntity;
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
@@ -55,6 +63,25 @@ public class RequestService {
     }
     Project project = projectService.create(request.getProject());
     return create(project, request);
+  }
+
+  public Request update(Long id, RequestRequest request) {
+    final Request requestEntity = findById(id);
+    requestEntity.setTitle(request.getTitle());
+    requestEntity.setDescription(request.getDescription());
+
+    List<Query> queries = findQueries(request.getQueries());
+    try {
+      requestRepository.save(requestEntity);
+      queries.forEach(query -> {
+        query.setRequest(requestEntity);
+        queryService.update(query);
+      });
+      requestEntity.setQueries(new HashSet<>(queries));
+      return requestEntity;
+    } catch (DataIntegrityViolationException ex) {
+      throw new EntityNotStorableException();
+    }
   }
 
   public List<Request> findAll() {
