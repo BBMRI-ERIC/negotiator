@@ -10,7 +10,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,7 +57,8 @@ public class Request extends AuditEntity {
       return false;
     }
     Request request = (Request) o;
-    return Objects.equals(getTitle(), request.getTitle())
+    return Objects.equals(getId(), request.getId())
+        && Objects.equals(getTitle(), request.getTitle())
         && Objects.equals(getDescription(), request.getDescription())
         && Objects.equals(getIsTest(), request.getIsTest())
         && Objects.equals(getToken(), request.getToken());
@@ -67,6 +67,7 @@ public class Request extends AuditEntity {
   @Override
   public int hashCode() {
     return Objects.hash(
+        getId(),
         getTitle(),
         getDescription(),
         getIsTest(),

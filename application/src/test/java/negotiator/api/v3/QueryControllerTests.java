@@ -8,8 +8,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.QueryController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
@@ -40,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class QueryControllerTests {
+  private static final String ENDPOINT = "/v3/queries";
 
   private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
@@ -47,131 +46,113 @@ public class QueryControllerTests {
   @Autowired public QueryService service;
   @Autowired public QueryRepository repository;
 
-  private static final String URL = "http://datasource.dev";
-  private static final String HUMAN_READABLE = "Query description";
-  private static final String BIOBANK_ID = "biobank:1";
-  private static final String BIOBANK_NAME = "Test Biobank";
-  private static final String COLLECTION_ID = "collection:1";
-  private static final String COLLECTION_NAME = "Test Collection";
-
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
   }
 
-  private QueryRequest createRequest(boolean update) {
-    String suffix = update ? "u" : "";
-    ResourceDTO collection = ResourceDTO.builder().id(COLLECTION_ID).name(COLLECTION_NAME).build();
-    ResourceDTO biobank =
-        ResourceDTO.builder()
-            .id(BIOBANK_ID)
-            .name(BIOBANK_NAME)
-            .children(Set.of(collection))
-            .build();
-
-    return QueryRequest.builder()
-        .url(String.format("%s%s", URL, suffix))
-        .humanReadable(String.format("%s%s", HUMAN_READABLE, suffix))
-        .url(String.format("%s%s", URL, suffix))
-        .resources(Set.of(biobank))
-        .build();
-  }
-
-  private String jsonFromRequest(Object request) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.writeValueAsString(request);
-  }
-
-  private void checkErrorResponse(
-      HttpMethod method, String requestBody, ResultMatcher statusMatcher, RequestPostProcessor auth)
-      throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.request(method, URI.create("/v3/queries"))
-                .with(auth)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(statusMatcher);
-    assertEquals(repository.findAll().size(), 0);
-  }
-
-  private void checkErrorResponse(
-      HttpMethod method,
-      QueryRequest request,
-      ResultMatcher statusMatcher,
-      RequestPostProcessor auth)
-      throws Exception {
-    String requestBody = jsonFromRequest(request);
-    checkErrorResponse(method, requestBody, statusMatcher, auth);
-  }
-
   @Test
   public void testBadRequest_whenUrlFieldIsMissing() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     request.setUrl(null);
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testBadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     request.setHumanReadable(null);
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testBadRequest_whenResourcesFieldIsMissing() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     request.setResources(null);
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testBadRequest_whenResourcesFieldIsEmpty() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     request.setResources(Set.of());
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testBadRequest_whenCollectionNotFound() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
     Optional<ResourceDTO> collection = biobank.get().getChildren().stream().findFirst();
     assert collection.isPresent();
     collection.get().setId("collection_unknown");
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testBadRequest_whenCollectionAndBiobankMismatch() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
     biobank.get().setId("wrong_biobank");
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testBadRequest_whenDataSourceNotFound() throws Exception {
-    QueryRequest request = createRequest(false);
+    QueryRequest request = TestUtils.createQueryRequest(false);
     request.setUrl("http://wrong_data_source");
-    checkErrorResponse(
-        HttpMethod.POST, request, status().isBadRequest(), httpBasic("directory", "directory"));
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isBadRequest(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   @Order(1)
   public void testCreate_Ok() throws Exception {
-    QueryRequest request = createRequest(false);
-    String requestBody = jsonFromRequest(request);
+    QueryRequest request = TestUtils.createQueryRequest(false);
+    String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
         .perform(

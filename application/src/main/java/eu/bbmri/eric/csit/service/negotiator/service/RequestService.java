@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RequestService {
@@ -39,12 +40,18 @@ public class RequestService {
     final Request requestEntity = modelMapper.map(request, Request.class);
     requestEntity.setProject(project);
 
+    if (queries.stream().anyMatch(query -> query.getRequest() != null)) {
+      throw new WrongRequestException(
+          "One or more query object is already assigned to another request");
+    }
     try {
+
       requestRepository.save(requestEntity);
-      queries.forEach(query -> {
-        query.setRequest(requestEntity);
-        queryService.update(query);
-      });
+      queries.forEach(
+          query -> {
+            query.setRequest(requestEntity);
+            queryService.update(query);
+          });
       requestEntity.setQueries(new HashSet<>(queries));
       return requestEntity;
     } catch (DataIntegrityViolationException ex) {
@@ -59,7 +66,7 @@ public class RequestService {
 
   public Request create(RequestRequest request) {
     if (request.getProject() == null) {
-      throw new WrongRequestException();
+      throw new WrongRequestException("Missing project data");
     }
     Project project = projectService.create(request.getProject());
     return create(project, request);
@@ -67,16 +74,24 @@ public class RequestService {
 
   public Request update(Long id, RequestRequest request) {
     final Request requestEntity = findById(id);
+
+    List<Query> queries = findQueries(request.getQueries());
+
+    if (queries.stream().anyMatch(query -> query.getRequest() != null && query.getRequest() != requestEntity)) {
+      throw new WrongRequestException(
+          "One or more query object is already assigned to another request");
+    }
+
     requestEntity.setTitle(request.getTitle());
     requestEntity.setDescription(request.getDescription());
 
-    List<Query> queries = findQueries(request.getQueries());
     try {
       requestRepository.save(requestEntity);
-      queries.forEach(query -> {
-        query.setRequest(requestEntity);
-        queryService.update(query);
-      });
+      queries.forEach(
+          query -> {
+            query.setRequest(requestEntity);
+            queryService.update(query);
+          });
       requestEntity.setQueries(new HashSet<>(queries));
       return requestEntity;
     } catch (DataIntegrityViolationException ex) {
