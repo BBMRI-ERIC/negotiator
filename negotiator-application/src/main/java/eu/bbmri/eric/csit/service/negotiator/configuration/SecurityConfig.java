@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "docker"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired private PasswordEncoder passwordEncoder;
