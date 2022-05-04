@@ -31,22 +31,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired private PasswordEncoder passwordEncoder;
 
   @Override
-  public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication()
-        .withUser("admin")
-        .password(passwordEncoder.encode("admin"))
-        .roles("ADMIN")
-        .and()
-        .withUser("directory")
-        .password(passwordEncoder.encode("directory"))
-        .roles("EXT_SERV")
-        .and()
-        .withUser("perun")
-        .password(passwordEncoder.encode("perun"))
-        .roles("PERUN_USER");
-  }
-
-  @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

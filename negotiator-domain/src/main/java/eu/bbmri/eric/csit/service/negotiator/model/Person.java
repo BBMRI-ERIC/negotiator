@@ -25,11 +25,6 @@ import lombok.ToString.Exclude;
 @Table(name = "person")
 public class Person extends BaseEntity {
 
-  private enum UserType {
-    INTERNAL,
-    EXTERNAL
-  }
-
   @ManyToMany
   @JoinTable(
       name = "person_biobank_link",
@@ -62,10 +57,6 @@ public class Person extends BaseEntity {
   @Exclude
   Set<Project> projects;
 
-  @Enumerated(EnumType.STRING)
-  @NotNull
-  private UserType type; // Type of user: local or perun
-
   @NotNull private String authSubject;
 
   @NotNull private String authName;
@@ -75,8 +66,6 @@ public class Person extends BaseEntity {
   private String password; // can be null if the user is authenticated via OIDC
 
   private byte[] personImage;
-
-  @NotNull private Boolean isAdmin;
 
   private String organization;
 }
