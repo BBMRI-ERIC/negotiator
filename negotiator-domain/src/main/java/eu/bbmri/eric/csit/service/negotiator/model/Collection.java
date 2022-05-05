@@ -2,10 +2,13 @@ package eu.bbmri.eric.csit.service.negotiator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -26,21 +29,21 @@ public class Collection extends BaseEntity {
   //  @Exclude
   //  private Set<Network> networks = new HashSet<>();
 
-  //  @ManyToMany(mappedBy = "collections")
-  //  @Exclude
-  //  private Set<Person> persons = new HashSet<>();
+  @ManyToMany(mappedBy = "collections")
+  @Exclude
+  private Set<Person> persons = new HashSet<>();
 
   //  @ManyToMany(mappedBy = "collections")
   //  @Exclude
   //  private Set<Query> queries = new HashSet<>();
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
   @JsonIgnore
   private DataSource dataSource;
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "biobank_id")
   @NotNull
   @Exclude

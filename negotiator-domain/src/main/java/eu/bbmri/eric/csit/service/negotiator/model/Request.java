@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
+import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +27,7 @@ import lombok.ToString.Exclude;
 @Setter
 @Builder
 @Table(name = "request")
-public class Request extends AuditEntity {
+public class Request extends BaseEntity {
 
   @ManyToMany(mappedBy = "requests")
   @Exclude

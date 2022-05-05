@@ -29,6 +29,7 @@ public abstract class AuditEntity {
   private Long id;
 
   @Exclude private Date creationDate;
+
   @Exclude private Date modifiedDate;
 
   @ManyToOne(fetch = FetchType.LAZY)

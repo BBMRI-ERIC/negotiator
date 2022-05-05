@@ -1,13 +1,17 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @ToString
 @NoArgsConstructor
@@ -18,9 +22,9 @@ import lombok.ToString;
 @Table(name = "biobank")
 public class Biobank extends BaseEntity {
 
-  //  @ManyToMany(mappedBy = "biobanks")
-  //  @Exclude
-  //  private Set<Person> persons = new HashSet<>();
+    @ManyToMany(mappedBy = "biobanks")
+    @Exclude
+    private Set<Person> persons = new HashSet<>();
   //
   //  @ManyToMany(mappedBy = "biobanks")
   //  @Exclude

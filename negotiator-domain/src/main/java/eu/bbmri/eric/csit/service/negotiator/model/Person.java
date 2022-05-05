@@ -26,32 +26,32 @@ public class Person extends BaseEntity {
   @ManyToMany
   @JoinTable(
       name = "person_biobank_link",
-      joinColumns = @JoinColumn(name = "biobank_id"),
-      inverseJoinColumns = @JoinColumn(name = "person_id"))
+      joinColumns = @JoinColumn(name = "person_id"),
+      inverseJoinColumns = @JoinColumn(name = "biobank_id"))
   @Exclude
   Set<Biobank> biobanks;
 
   @ManyToMany
   @JoinTable(
       name = "person_collection_link",
-      joinColumns = @JoinColumn(name = "collection_id"),
-      inverseJoinColumns = @JoinColumn(name = "person_id"))
+      joinColumns = @JoinColumn(name = "person_id"),
+      inverseJoinColumns = @JoinColumn(name = "collection_id"))
   @Exclude
   Set<Collection> collections;
 
   @ManyToMany
   @JoinTable(
       name = "person_network_link",
-      joinColumns = @JoinColumn(name = "network_id"),
-      inverseJoinColumns = @JoinColumn(name = "person_id"))
+      joinColumns = @JoinColumn(name = "person_id"),
+      inverseJoinColumns = @JoinColumn(name = "network_id"))
   @Exclude
   Set<Network> networks;
 
   @ManyToMany
   @JoinTable(
       name = "person_project_link",
-      joinColumns = @JoinColumn(name = "project_id"),
-      inverseJoinColumns = @JoinColumn(name = "person_id"))
+      joinColumns = @JoinColumn(name = "person_id"),
+      inverseJoinColumns = @JoinColumn(name = "project_id"))
   @Exclude
   Set<Project> projects;
 
