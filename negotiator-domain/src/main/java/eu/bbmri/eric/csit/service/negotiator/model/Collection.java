@@ -51,7 +51,6 @@ public class Collection extends BaseEntity {
   private Biobank biobank;
 
   @NotNull
-  @Column(name = "source_id")
   private String sourceId;
 
   @NotNull private String name;

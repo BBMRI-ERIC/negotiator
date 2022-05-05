@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
+import com.sun.istack.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -50,13 +51,14 @@ public class Network extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
-  private DataSource datasource;
-
-  private String sourceId;
+  private DataSource dataSource;
 
   private String name;
 
   private String acronym;
+
+  @NotNull
+  private String sourceId;
 
   @Lob
   @Column(columnDefinition = "VARCHAR(512)")

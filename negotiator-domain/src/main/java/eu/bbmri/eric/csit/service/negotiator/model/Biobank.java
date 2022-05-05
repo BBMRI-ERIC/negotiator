@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +40,10 @@ public class Biobank extends BaseEntity {
   //  @Exclude
   //  private DataSource dataSource;
 
+  @NotNull
   private String name;
 
+  @NotNull
   private String sourceId;
 
   @Column(columnDefinition = "VARCHAR(512)")

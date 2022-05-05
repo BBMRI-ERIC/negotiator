@@ -1,5 +1,5 @@
-insert into data_source
-  (id, url, api_username, api_password, api_type, api_url, description, name, resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
+insert into data_source (id, url, api_username, api_password, api_type, api_url, description, name,
+   resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
 values
   (1, 'http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasource.dev',
    'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
@@ -17,22 +17,23 @@ insert into authorities (username, authority) values
   ('perun', 'PERUN_USER'),
   ('researcher', 'RESEARCHER');
 
-insert into person
-  (id, auth_email, auth_name, auth_subject, organization, person_image)
-values
+insert into person (id, auth_email, auth_name, auth_subject, organization, person_image) values
   (1, 'researcher@negotiator.dev', 'researcher', 'researcher', 'Test Lab', null),
   (2, 'manager@testbiobank.dev', 'test_biobank_manager', 'test_biobank_manager', 'Test Biobank', null),
   (3, 'manager@testcollection.dev', 'test_collection_manager', 'test_collection_manager', 'Test Collection', null),
   (4, 'manager@testnetwork.dev', 'test_network_manager', 'test_network_manager', 'Test Network', null);
 
-insert into biobank (id, name, description, source_id)
-values(1, 'Biobank for Test', 'This is a testing biobank', 'biobank:1');
+insert into biobank (id, name, description, source_id) values
+  (1, 'Biobank for Test', 'This is a testing biobank', 'biobank:1');
 
-insert into collection (id, name, description, source_id, data_source_id, biobank_id)
-values(1, 'Collection for Test', 'This is a testing collection', 'collection:1', 1, 1);
+insert into collection (id, name, description, source_id, data_source_id, biobank_id) values
+  (1, 'Collection for Test', 'This is a testing collection', 'collection:1', 1, 1);
+
+insert into network (id, name, description, source_id, acronym, data_source_id) values
+  (1, 'Network for Test', 'This is a testing network', 'network:1', 'NFT', 1);
 
 insert into person_biobank_link (biobank_id, person_id) values (1, 2);
 
 insert into person_collection_link (collection_id, person_id) values (1, 3);
 
-insert into person_network_link (network_id, person_id) values (1, 3);
+insert into person_network_link (network_id, person_id) values (1, 4);
