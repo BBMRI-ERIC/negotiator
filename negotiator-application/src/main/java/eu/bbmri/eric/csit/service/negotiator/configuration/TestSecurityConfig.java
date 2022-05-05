@@ -1,9 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiatorUserDetailsService;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,9 +18,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile({"test"})
 public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
 
+  @Autowired public NegotiatorUserDetailsService userDetailsService;
+
   @Autowired private PasswordEncoder passwordEncoder;
 
   @Autowired private DataSource dataSource;
+
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userDetailsService)
+        .passwordEncoder(passwordEncoder)
+        .and()
+        .jdbcAuthentication()
+        .dataSource(dataSource);
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
