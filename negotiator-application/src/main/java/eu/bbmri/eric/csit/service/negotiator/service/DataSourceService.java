@@ -1,9 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import java.util.List;
 import org.modelmapper.ModelMapper;

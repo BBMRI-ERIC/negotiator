@@ -1,13 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
 import eu.bbmri.eric.csit.service.negotiator.model.Biobank;
 import eu.bbmri.eric.csit.service.negotiator.model.Collection;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

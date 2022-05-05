@@ -3,8 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.model;
 import com.sun.istack.NotNull;
 import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;

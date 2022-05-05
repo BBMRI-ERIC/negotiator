@@ -12,7 +12,6 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class NegotiatorExceptionHandler {
 
-
   @ExceptionHandler(JwtDecoderInitializationException.class)
   public final ResponseEntity<ErrorResponse> handleJwtDecoderError(
       RuntimeException ex, WebRequest request) {

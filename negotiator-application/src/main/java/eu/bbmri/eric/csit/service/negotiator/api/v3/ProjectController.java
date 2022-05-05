@@ -1,8 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
-import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.ProjectResponse;
+import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.service.ProjectService;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -7,6 +7,7 @@ public class WrongRequestException extends RuntimeException {
   public WrongRequestException() {
     super(errorMessage);
   }
+
   public WrongRequestException(String message) {
     super(message);
   }

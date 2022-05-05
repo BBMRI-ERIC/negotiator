@@ -24,6 +24,5 @@ public class ResourceDTO {
 
   @NotNull private String type;
 
-  @NotNull
-  private Set<ResourceDTO> children;
+  @NotNull private Set<ResourceDTO> children;
 }
