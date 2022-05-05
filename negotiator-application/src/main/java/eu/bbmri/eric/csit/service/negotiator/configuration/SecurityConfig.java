@@ -3,9 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -28,22 +26,19 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @Profile({"dev", "prod", "docker"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired private PasswordEncoder passwordEncoder;
+  @Autowired public NegotiatorUserDetailsService userDetailsService;
+
+  @Autowired public DataSource dataSource;
+
+  @Autowired public PasswordEncoder passwordEncoder;
 
   @Override
-  public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication()
-        .withUser("admin")
-        .password(passwordEncoder.encode("admin"))
-        .roles("ADMIN")
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userDetailsService)
+        .passwordEncoder(passwordEncoder)
         .and()
-        .withUser("directory")
-        .password(passwordEncoder.encode("directory"))
-        .roles("EXT_SERV")
-        .and()
-        .withUser("perun")
-        .password(passwordEncoder.encode("perun"))
-        .roles("PERUN_USER");
+        .jdbcAuthentication()
+        .dataSource(dataSource);
   }
 
   @Override
@@ -87,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           if (jwt.getClaims().containsKey("scope")) {
             String[] scopes = jwt.getClaims().get("scope").toString().split(" ");
             if (Arrays.asList(scopes).contains("openid")) {
-              authority.add(new SimpleGrantedAuthority("RESEARCHERs"));
+              authority.add(new SimpleGrantedAuthority("RESEARCHER"));
             }
           }
           return authority;

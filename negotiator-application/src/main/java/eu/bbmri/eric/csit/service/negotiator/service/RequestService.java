@@ -1,12 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +76,8 @@ public class RequestService {
 
     List<Query> queries = findQueries(request.getQueries());
 
-    if (queries.stream().anyMatch(query -> query.getRequest() != null && query.getRequest() != requestEntity)) {
+    if (queries.stream()
+        .anyMatch(query -> query.getRequest() != null && query.getRequest() != requestEntity)) {
       throw new WrongRequestException(
           "One or more query object is already assigned to another request");
     }

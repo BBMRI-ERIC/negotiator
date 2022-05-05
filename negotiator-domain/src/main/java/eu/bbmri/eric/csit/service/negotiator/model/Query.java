@@ -78,8 +78,7 @@ public class Query extends BaseEntity {
       return false;
     }
     Query query = (Query) o;
-    return
-        Objects.equals(getId(), query.getId())
+    return Objects.equals(getId(), query.getId())
         && Objects.equals(getBiobanks(), query.getBiobanks())
         && Objects.equals(getCollections(), query.getCollections())
         && Objects.equals(getJsonPayload(), query.getJsonPayload())

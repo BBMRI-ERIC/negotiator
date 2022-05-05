@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -15,26 +16,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile({"test"})
 public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
 
+  @Autowired public NegotiatorUserDetailsService userDetailsService;
+
   @Autowired private PasswordEncoder passwordEncoder;
 
+  @Autowired private DataSource dataSource;
+
   @Override
-  public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication()
-        .withUser("researcher")
-        .password(passwordEncoder.encode("researcher"))
-        .authorities("RESEARCHER")
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userDetailsService)
+        .passwordEncoder(passwordEncoder)
         .and()
-        .withUser("admin")
-        .password(passwordEncoder.encode("admin"))
-        .authorities("ADMIN")
-        .and()
-        .withUser("directory")
-        .password(passwordEncoder.encode("directory"))
-        .authorities("EXT_SERV")
-        .and()
-        .withUser("perun")
-        .password(passwordEncoder.encode("perun"))
-        .authorities("PERUN_USER");
+        .jdbcAuthentication()
+        .dataSource(dataSource);
   }
 
   @Override
@@ -55,7 +49,7 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers(HttpMethod.POST, "/v3/queries/**")
-        .hasAnyRole("ADMIN", "EXT_SERV")
+        .hasAnyAuthority("ADMIN", "EXT_SERV")
         .and()
         .authorizeRequests()
         .anyRequest()

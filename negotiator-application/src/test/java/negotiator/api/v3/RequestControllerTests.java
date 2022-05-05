@@ -10,13 +10,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import eu.bbmri.eric.csit.service.negotiator.model.Project;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
+import eu.bbmri.eric.csit.service.negotiator.model.Project;
+import eu.bbmri.eric.csit.service.negotiator.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
@@ -44,20 +44,17 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class RequestControllerTests {
+  private static final String TITLE = "request title";
+  private static final String DESCRIPTION = "request description";
+  private static final String REQUESTS_ENDPOINT = "/v3/requests";
+  private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/requests";
   private MockMvc mockMvc;
-
   @Autowired private WebApplicationContext context;
   @Autowired private RequestController requestController;
   @Autowired private ProjectRepository projectRepository;
   @Autowired private RequestRepository requestRepository;
   @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
-
-  private static final String TITLE = "request title";
-  private static final String DESCRIPTION = "request description";
-  private static final String REQUESTS_ENDPOINT = "/v3/requests";
-  private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/requests";
-
   private Query testQuery;
 
   @BeforeEach

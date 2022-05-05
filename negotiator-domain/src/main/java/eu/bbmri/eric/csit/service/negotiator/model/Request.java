@@ -66,11 +66,6 @@ public class Request extends AuditEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        getId(),
-        getTitle(),
-        getDescription(),
-        getIsTest(),
-        getToken());
+    return Objects.hash(getId(), getTitle(), getDescription(), getIsTest(), getToken());
   }
 }

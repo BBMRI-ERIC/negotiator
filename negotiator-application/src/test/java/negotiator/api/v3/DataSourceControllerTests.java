@@ -9,10 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.DataSourceController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
+import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +32,8 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 public class DataSourceControllerTests {
 
-  private MockMvc mockMvc;
   private static final String ENDPOINT = "/v3/data-sources";
+  private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private DataSourceController controller;
   @Autowired private DataSourceRepository repository;

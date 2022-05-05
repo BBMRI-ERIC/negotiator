@@ -2,16 +2,13 @@ package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.OptBoolean;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
