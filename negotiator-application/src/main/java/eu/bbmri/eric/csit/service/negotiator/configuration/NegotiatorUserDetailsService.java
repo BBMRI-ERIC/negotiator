@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.service;
+package eu.bbmri.eric.csit.service.negotiator.configuration;
 
 import eu.bbmri.eric.csit.service.negotiator.repository.UserRepository;
 import javax.transaction.Transactional;
