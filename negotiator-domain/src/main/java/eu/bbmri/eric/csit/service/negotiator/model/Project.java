@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @Entity
@@ -25,6 +27,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "project")
+@EntityListeners(AuditingEntityListener.class)
 public class Project extends AuditEntity {
 
   @ManyToMany(mappedBy = "projects")
@@ -34,16 +37,6 @@ public class Project extends AuditEntity {
   @ManyToMany(mappedBy = "projects")
   @Exclude
   Set<Attachment> attachments;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
 
   @NotNull private String title;
 

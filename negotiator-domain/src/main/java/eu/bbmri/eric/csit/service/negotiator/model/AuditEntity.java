@@ -1,44 +1,48 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 /**
  * Class that adds fields util for Auditing purpose. It is intended to be extended by classes that
  * needs auditing information
  */
-@Entity
 @Getter
 @Setter
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@MappedSuperclass
 public abstract class AuditEntity {
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
 
-  @Exclude private Date creationDate;
+  @CreatedDate @Exclude private LocalDateTime creationDate;
 
-  @Exclude private Date modifiedDate;
+  @LastModifiedDate @Exclude private LocalDateTime modifiedDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
+  @JoinColumn(name = "created_by", updatable = false)
+  @CreatedBy
   @Exclude
   private Person createdBy;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
+  @JoinColumn(name = "modified_by")
+  @LastModifiedBy
   @Exclude
   private Person modifiedBy;
 }

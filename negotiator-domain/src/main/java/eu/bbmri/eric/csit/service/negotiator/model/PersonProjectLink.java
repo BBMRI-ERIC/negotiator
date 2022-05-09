@@ -19,7 +19,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "person_project_link")
-public class PersonProjectLink extends AuditEntity {
+public class PersonProjectLink extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "person_id")

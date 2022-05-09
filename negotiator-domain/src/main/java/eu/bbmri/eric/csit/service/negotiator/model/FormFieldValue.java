@@ -22,16 +22,6 @@ import lombok.ToString.Exclude;
 public class FormFieldValue extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "form_request_field_id")
   @Exclude
   private FormRequestField formRequestField;

@@ -24,16 +24,6 @@ import lombok.ToString.Exclude;
 public class NotificationMail extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "notification_id")
   @Exclude
   private Notification notification;

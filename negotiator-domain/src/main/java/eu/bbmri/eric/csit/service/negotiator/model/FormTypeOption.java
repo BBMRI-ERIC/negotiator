@@ -21,15 +21,6 @@ import lombok.ToString.Exclude;
 @Table(name = "form_type_option")
 public class FormTypeOption extends AuditEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
-
   private String option;
+
 }
