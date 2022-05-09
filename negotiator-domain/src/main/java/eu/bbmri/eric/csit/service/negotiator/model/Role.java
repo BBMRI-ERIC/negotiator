@@ -23,10 +23,10 @@ public class Role extends BaseEntity {
 
   private String name;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "role_id", insertable = false, updatable = false)
-  @Exclude
-  private PersonProjectLink personProjectLink;
+//  @ManyToOne(fetch = FetchType.LAZY)
+//  @JoinColumn(name = "role_id", insertable = false, updatable = false)
+//  @Exclude
+//  private PersonProjectLink personProjectLink;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "role_id", insertable = false, updatable = false)

@@ -1,10 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
-import com.fasterxml.jackson.databind.ser.Serializers.Base;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @Entity
@@ -27,7 +28,8 @@ import lombok.ToString.Exclude;
 @Setter
 @Builder
 @Table(name = "request")
-public class Request extends BaseEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class Request extends AuditEntity {
 
   @ManyToMany(mappedBy = "requests")
   @Exclude
@@ -39,6 +41,7 @@ public class Request extends BaseEntity {
   private Project project;
 
   @OneToMany(mappedBy = "request")
+  @Exclude
   private Set<Query> queries;
 
   private String title;
