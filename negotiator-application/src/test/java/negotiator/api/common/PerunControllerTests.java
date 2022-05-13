@@ -1,12 +1,14 @@
 package negotiator.api.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.util.List;
@@ -37,6 +39,37 @@ public class PerunControllerTests {
   }
 
   @Test
+  public void testCreate_Unauthorized_whenNoAuth() throws Exception {
+    ProjectRequest request = TestUtils.createProjectRequest(false);
+    TestUtils.checkErrorResponse(
+        mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
+  }
+
+  @Test
+  public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
+    ProjectRequest request = TestUtils.createProjectRequest(false);
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isUnauthorized(),
+        httpBasic("perun", "wrong_pass"),
+        ENDPOINT);
+  }
+
+  @Test
+  public void testCreate_Forbidden_whenNoPermission() throws Exception {
+    ProjectRequest request = TestUtils.createProjectRequest(false);
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.POST,
+        request,
+        status().isForbidden(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
+  }
+
+  @Test
   public void testCreate_goodRequest() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     TestUtils.checkErrorResponse(
@@ -44,7 +77,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isCreated(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -60,7 +93,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
     badRequest.setOrganization("");
     request.set(0, badRequest);
@@ -69,7 +102,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -85,7 +118,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -101,7 +134,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
     badRequest.setDisplayName("");
     request.set(0, badRequest);
@@ -110,7 +143,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -126,7 +159,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
     badRequest.setStatus("");
     request.set(0, badRequest);
@@ -135,7 +168,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -151,7 +184,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
     badRequest.setMail("");
     request.set(0, badRequest);
@@ -160,7 +193,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -176,7 +209,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isCreated(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
     String[] emptyIdentities = {};
     badRequest.setIdentities(emptyIdentities);
@@ -186,7 +219,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isCreated(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
   }
 
@@ -205,7 +238,7 @@ public class PerunControllerTests {
         HttpMethod.POST,
         request,
         status().isCreated(),
-        httpBasic("admin", "admin"),
+        httpBasic("perun", "perun"),
         ENDPOINT);
 
     // Check the upfare in the repository
