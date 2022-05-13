@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.response.ErrorResponse;
+import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
@@ -35,7 +36,11 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler({EntityNotStorableException.class, WrongRequestException.class})
+  @ExceptionHandler({
+    EntityNotStorableException.class,
+    WrongRequestException.class,
+    ConstraintViolationException.class
+  })
   public final ResponseEntity<ErrorResponse> handleBadRequestExceptions(
       RuntimeException ex, WebRequest request) {
     ErrorResponse errorResponse =

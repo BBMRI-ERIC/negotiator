@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
@@ -12,6 +13,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource.ApiType;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.springframework.http.HttpMethod;
@@ -50,6 +52,15 @@ public class TestUtils {
 
   public static final String REQUEST_TITLE = "request title";
   public static final String REQUEST_DESCRIPTION = "request description";
+
+  public static final String PERUN_USER_ORGANIZATION = "perun user organization";
+  public static final Integer PERUN_USER_ID = 1;
+  public static final String PERUN_USER_DISPLAY_NAME = "display name";
+  public static final String PERUN_USER_STATUS = "perun user status";
+  public static final String PERUN_USER_MAIL = "perunusermail@mail.it";
+  public static final String[] PERUN_USER_IDENTITIES = {
+    "perun user identity 1", "perun user identity 2"
+  };
 
   public static DataSourceRequest createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
@@ -149,5 +160,24 @@ public class TestUtils {
                 .content(requestBody))
         .andExpect(statusMatcher);
     //    assertEquals(requestRepository.findAll().size(), 0);
+  }
+
+  public static List<PerunUserRequest> createPerunUserRequestList(boolean update, int size) {
+    String suffix = update ? "u" : "";
+    List<PerunUserRequest> perunUserRequestList = new <PerunUserRequest>ArrayList();
+
+    for (int i = 0; i < size; i++) {
+      PerunUserRequest request =
+          PerunUserRequest.builder()
+              .id(PERUN_USER_ID + i)
+              .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
+              .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
+              .status(String.format("%s_%s", PERUN_USER_STATUS, i))
+              .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
+              .identities(PERUN_USER_IDENTITIES)
+              .build();
+      perunUserRequestList.add(request);
+    }
+    return perunUserRequestList;
   }
 }
