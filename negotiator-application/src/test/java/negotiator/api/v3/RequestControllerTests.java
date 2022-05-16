@@ -619,7 +619,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId().intValue())))
-        .andExpect(jsonPath("$.project.id", is(1)))
+        .andExpect(jsonPath("$.project.id").isNumber())
         .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
         .andExpect(
