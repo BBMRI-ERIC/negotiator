@@ -22,10 +22,10 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public final ResponseEntity<ErrorResponse> handleResponseValidationException(
+  public final ResponseEntity<ErrorResponse> handleRequestValidationException(
       MethodArgumentNotValidException ex, WebRequest request) {
     ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "The body of the response is not valid");
+        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "The body of the Request is not valid");
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
