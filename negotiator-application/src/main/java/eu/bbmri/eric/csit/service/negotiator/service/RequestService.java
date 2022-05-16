@@ -106,4 +106,12 @@ public class RequestService {
   public Request findById(Long id) {
     return requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
+
+  public List<Request> findByBiobankId(String biobankId) {
+    return requestRepository.findByBiobankId(biobankId);
+  }
+
+  public List<Request> findByCollectionId(String collectionId) {
+    return requestRepository.findByCollectionId(collectionId);
+  }
 }

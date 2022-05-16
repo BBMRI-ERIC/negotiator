@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.api.v3;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.RequestResponse;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,14 +11,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -80,8 +78,18 @@ public class RequestController {
   }
 
   @GetMapping("/requests")
-  List<RequestResponse> list() {
-    return requestService.findAll().stream()
+  List<RequestResponse> list(
+      @RequestParam(required = false) String biobankId,
+      @RequestParam(required = false) String collectionId) {
+    List<Request> requests;
+    if (biobankId != null) {
+      requests = requestService.findByBiobankId(biobankId);
+    } else if (collectionId != null) {
+      requests = requestService.findByCollectionId(collectionId);
+    } else {
+      requests = requestService.findAll();
+    }
+    return requests.stream()
         .map(request -> modelMapper.map(request, RequestResponse.class))
         .collect(Collectors.toList());
   }
