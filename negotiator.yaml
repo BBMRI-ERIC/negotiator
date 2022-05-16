@@ -167,7 +167,8 @@ paths:
   /v3/data-sources:
     get:
       tags:
-        - v3
+        - V3
+        - Data Sources
       summary: Gets the list of data sources registered in this Negotiator
       responses:
         '200':
@@ -181,7 +182,8 @@ paths:
   /v3/data-sources/{dataSourceId}:
     get:
       tags:
-        - v3
+        - V3
+        - Data Sources
       summary: Retrieves data of a data source
       description: Retrieves data of the data source identified by data-source-id
       parameters:
@@ -207,7 +209,8 @@ paths:
   /v3/queries:
     post:
       tags:
-        - v3
+        - V3
+        - Queries
       summary: Creates a query for a Data Source
       description: Create a query for the data source identified by {dataSourceId}
       parameters:
@@ -246,6 +249,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Data source with the specified id not found in the Negotiator
           content:
@@ -255,7 +264,8 @@ paths:
   /v3/queries/{queryId}:
     get:
       tags:
-        - v3
+        - V3
+        - Queries
       summary: Retrieves data of a specific query
       parameters:
         - name: queryId
@@ -271,6 +281,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/QueryResponseV3'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Data source or Query with the specified id not found in the Negotiator
           content:
@@ -280,7 +296,8 @@ paths:
   /v3/projects:
     post:
       tags:
-        - v3
+        - V3
+        - Projects
       summary: Create a new project in the negotiator
       description: Create a new project in the negotiator
       parameters:
@@ -307,11 +324,22 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ProjectCreateResponseV3'
+        '400':
+          description: Bad Request
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
-          description: Invalid input
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       tags:
-        - v3
+        - V3
+        - Projects
       summary: Get the list of projects
       description: Get the list of projects. It is possible to filter by user id
       parameters:
@@ -328,10 +356,17 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ProjectCreateResponseV3'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v3/projects/{projectId}:
     put:
       tags:
-        - v3
+        - V3
+        - Projects
       summary: Update the project identified by Id
       description: Update the project identified by Id
       parameters:
@@ -350,12 +385,23 @@ paths:
               $ref: '#/components/schemas/ProjectCreateV3'
       responses:
         '204':
-          description: No Content
+          description: Project updated correctly
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: "Project not found"
+          description: Project not found
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       tags:
-        - v3
+        - V3
+        - Projects
       summary: Retrieve a project in the negotiator by Id
       description: Retrieve a project in the negotiator by Id
       parameters:
@@ -373,13 +419,26 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ProjectCreateResponseV3'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Project not found
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v3/requests:
     post:
       tags:
-        - v3
-      summary: Creates a request
+        - V3
+        - Requests
+      summary: Creates a new request with and the project it belongs to
+      description: Endpoint to create a request and also its project.
+        > To create a request for a previous project check `/v3/project/{projectId}/requests` endpoint
       parameters:
         - name: Prefer
           in: header
@@ -391,6 +450,83 @@ paths:
             default: return=minimal
           required: false
           description: specifies whether to return all data of the created request or just the id. By default it just the id is returned
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/RequestCreateV3WithProject'
+      responses:
+        '201':
+          description: Request created successfully
+          headers:
+            Location:
+              schema:
+                type: string
+              description:
+                The location of the newly created request (e.g., /v3/requests/1)
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/RequestResponseV3'
+    get:
+      summary: Gets a list of Requests. They can be filtered by biobank or collection
+      tags:
+        - v3
+        - Requests
+      parameters:
+        - name: bioankId
+          in: query
+          schema:
+            type: string
+          required: false
+          description: specifies the data source id of a biobank the request is sent to
+        - name: collectionId
+          in: query
+          schema:
+            type: string
+          required: false
+          description: specifies the data source id of a collection the request is sent to
+      responses:
+        '200':
+          description: The list of requests corresponding to filter createria (if any)
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RequestResponseV3'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v3/projects/{projectId}/requests:
+    post:
+      tags:
+        - V3
+        - Requests
+      summary: Creates a new request for the project with id {projectId}
+      description: Endpoint to create a request for a previously create project.
+        > In this case the project data should not sent in the request
+      parameters:
+        - name: Prefer
+          in: header
+          schema:
+            type: string
+            enum:
+              - return=representation
+              - return=minimal
+            default: return=minimal
+          required: false
+          description: specifies whether to return all data of the created request or just the id. By default it just the id is returned
+        - name: projectId
+          in: path
+          description: Id of the project associated to the request
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           'application/json':
@@ -409,6 +545,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/RequestResponseV3'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v3/requests/{requestId}:
     parameters:
       - name: requestId
@@ -420,7 +562,8 @@ paths:
         description: The id of the request to get/update
     put:
       tags:
-        - v3
+        - V3
+        - Requests
       summary: Updates the request with id {requestId}
       requestBody:
         content:
@@ -430,9 +573,16 @@ paths:
       responses:
         '204':
           description: Request updated successfully
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     get:
       tags:
-        - v3
+        - V3
+        - Requests
       summary: Retrieves the request with id {requestId}
       responses:
         '200':
@@ -441,6 +591,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/RequestResponseV3'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v3/users/:
     get:
       tags:
@@ -478,6 +634,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: The user has no permission to perform this operation
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     Status:
@@ -718,7 +880,6 @@ components:
         resources:
           type: array
           items:
-            type: object
             $ref: '#/components/schemas/Resource'
     QueryV3:
       allOf:
@@ -743,19 +904,21 @@ components:
           type: string
         description:
           type: string
-        projectDescription:
-          type: string
-        ethicsVote:
-          type: string
         isTest:
           type: boolean
         queries:
           type: array
           items:
-            $ref: '#/components/schemas/QueryV3'
-        project:
-          type: integer
-          format: int64
+            type: integer
+            format: int64
+            description: "List of IDs of queries related to the request"
+    RequestCreateV3WithProject:
+      allOf:
+        - $ref: '#/components/schemas/RequestCreateV3'
+        - type: object
+          properties:
+            project:
+              $ref: '#/components/schemas/ProjectCreateV3'
     RequestResponseV3:
       type: object
       allOf:
@@ -774,11 +937,13 @@ components:
           type: string
         ethicsVote:
           type: string
-        expectedEndTime:
+        expectedDataGeneration:
+          type: boolean
+        expectedEndDate:
           type: string
-          pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$
-          example: 2020-09-10 11:25
-          description: date/time when project will probably end
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          example: "2020-09-10"
+          description: date when project will probably end
     ProjectCreateResponseV3:
       allOf:
         - $ref: '#/components/schemas/ProjectCreateV3'
