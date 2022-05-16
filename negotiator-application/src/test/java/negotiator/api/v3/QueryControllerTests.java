@@ -162,7 +162,7 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/researcher/query/")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
-        .andExpect(jsonPath("$.resources[0].children[0].id", is("collection:1")))
+        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
     assertEquals(repository.findAll().size(), 1);
     repository.deleteAll();

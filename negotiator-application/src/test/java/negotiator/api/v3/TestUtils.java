@@ -40,7 +40,7 @@ public class TestUtils {
   public static final String QUERY_HUMAN_READABLE = "Query description";
   public static final String QUERY_BIOBANK_ID = "biobank:1";
   public static final String QUERY_BIOBANK_NAME = "Test Biobank";
-  public static final String QUERY_COLLECTION_ID = "collection:1";
+  public static final String QUERY_COLLECTION_ID = "biobank:1:collection:1";
   public static final String QUERY_COLLECTION_NAME = "Test Collection";
 
   public static final String PROJECT_TITLE = "project title";
