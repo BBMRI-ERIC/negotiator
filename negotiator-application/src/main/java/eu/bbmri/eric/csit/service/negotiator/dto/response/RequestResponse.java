@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri.eric.csit.service.negotiator.model.PersonRequestRole;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,6 @@ public class RequestResponse {
   private ProjectResponse project;
 
   private List<QueryResponse> queries;
+
+  private List<PersonRequestRoleDTO> persons;
 }

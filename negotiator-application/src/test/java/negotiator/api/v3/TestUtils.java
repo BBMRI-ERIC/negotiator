@@ -111,6 +111,25 @@ public class TestUtils {
         .build();
   }
 
+  public static List<PerunUserRequest> createPerunUserRequestList(boolean update, int size) {
+    String suffix = update ? "u" : "";
+    List<PerunUserRequest> perunUserRequestList = new <PerunUserRequest>ArrayList();
+
+    for (int i = 0; i < size; i++) {
+      PerunUserRequest request =
+          PerunUserRequest.builder()
+              .id(PERUN_USER_ID + i)
+              .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
+              .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
+              .status(String.format("%s_%s", PERUN_USER_STATUS, i))
+              .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
+              .identities(PERUN_USER_IDENTITIES)
+              .build();
+      perunUserRequestList.add(request);
+    }
+    return perunUserRequestList;
+  }
+
   public static RequestRequest createRequest(
       boolean update, boolean includeProject, List<Long> queriesId) {
     String suffix = update ? "u" : "";
@@ -162,22 +181,34 @@ public class TestUtils {
     //    assertEquals(requestRepository.findAll().size(), 0);
   }
 
-  public static List<PerunUserRequest> createPerunUserRequestList(boolean update, int size) {
-    String suffix = update ? "u" : "";
-    List<PerunUserRequest> perunUserRequestList = new <PerunUserRequest>ArrayList();
+  public static void checkErrorResponse(
+      MockMvc mockMvc,
+      HttpMethod method,
+      Object request,
+      ResultMatcher statusMatcher,
+      String token,
+      String endpoint)
+      throws Exception {
+    String requestBody = TestUtils.jsonFromRequest(request);
+    checkErrorResponse(mockMvc, method, requestBody, statusMatcher, token, endpoint);
+  }
 
-    for (int i = 0; i < size; i++) {
-      PerunUserRequest request =
-          PerunUserRequest.builder()
-              .id(PERUN_USER_ID + i)
-              .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
-              .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
-              .status(String.format("%s_%s", PERUN_USER_STATUS, i))
-              .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
-              .identities(PERUN_USER_IDENTITIES)
-              .build();
-      perunUserRequestList.add(request);
-    }
-    return perunUserRequestList;
+  public static void checkErrorResponse(
+      MockMvc mockMvc,
+      HttpMethod method,
+      String requestBody,
+      ResultMatcher statusMatcher,
+      String token,
+      String endpoint)
+      throws Exception {
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.request(method, URI.create(endpoint))
+                .header("Authorization", "Bearer %s".formatted(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(statusMatcher);
+    //    assertEquals(requestRepository.findAll().size(), 0);
   }
 }

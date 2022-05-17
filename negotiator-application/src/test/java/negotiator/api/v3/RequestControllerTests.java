@@ -17,6 +17,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.repository.PersonRequestRoleRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
@@ -48,13 +49,19 @@ public class RequestControllerTests {
   private static final String DESCRIPTION = "request description";
   private static final String REQUESTS_ENDPOINT = "/v3/requests";
   private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/requests";
-  private MockMvc mockMvc;
+  private static final String CORRECT_TOKEN_VALUE = "researcher";
+  private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
+  private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";
+
   @Autowired private WebApplicationContext context;
   @Autowired private RequestController requestController;
   @Autowired private ProjectRepository projectRepository;
+  @Autowired private PersonRequestRoleRepository personRequestRoleRepository;
   @Autowired private RequestRepository requestRepository;
   @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
+
+  private MockMvc mockMvc;
   private Query testQuery;
 
   @BeforeEach
@@ -66,6 +73,7 @@ public class RequestControllerTests {
   @AfterEach
   public void after() {
     queryRepository.deleteAll();
+    personRequestRoleRepository.deleteAll();
     requestRepository.deleteAll();
     projectRepository.deleteAll();
   }
@@ -91,7 +99,7 @@ public class RequestControllerTests {
   }
 
   @Test
-  public void testGetAll_Unauthorized_whenWrongAuth() throws Exception {
+  public void testGetAll_Unauthorized_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.GET,
@@ -110,7 +118,45 @@ public class RequestControllerTests {
   }
 
   @Test
+  public void testGetAll_Unauthorized_whenInvalidToken() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        "",
+        REQUESTS_ENDPOINT);
+
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        "",
+        PROJECTS_ENDPOINT.formatted(1));
+  }
+
+  @Test
   public void testGetAll_Forbidden_whenNoPermission() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isForbidden(),
+        FORBIDDEN_TOKEN_VALUE,
+        REQUESTS_ENDPOINT);
+
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isForbidden(),
+        FORBIDDEN_TOKEN_VALUE,
+        PROJECTS_ENDPOINT.formatted(1));
+  }
+
+  @Test
+  public void testGetAll_Forbidden_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.GET,
@@ -140,7 +186,7 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(REQUESTS_ENDPOINT)
-                .with(httpBasic("researcher", "researcher")))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id", is(entity.getId().intValue())))
@@ -164,7 +210,7 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(REQUESTS_ENDPOINT)
-                .with(httpBasic("researcher", "researcher")))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json("[]"));
@@ -182,7 +228,7 @@ public class RequestControllerTests {
   }
 
   @Test
-  public void testGetById_Unauthorized_whenWrongAuth() throws Exception {
+  public void testGetById_Unauthorized_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.GET,
@@ -193,7 +239,18 @@ public class RequestControllerTests {
   }
 
   @Test
-  public void testGetById_Forbidden_whenNoPermission() throws Exception {
+  public void testGetById_Forbidden_whenNoPermissionAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isForbidden(),
+        FORBIDDEN_TOKEN_VALUE,
+        "%s/1".formatted(REQUESTS_ENDPOINT));
+  }
+
+  @Test
+  public void testGetById_Forbidden_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.GET,
@@ -210,7 +267,7 @@ public class RequestControllerTests {
         HttpMethod.GET,
         "",
         status().isNotFound(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         "%s/-1".formatted(REQUESTS_ENDPOINT));
   }
 
@@ -226,7 +283,7 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(REQUESTS_ENDPOINT, entity.getId()))
-                .with(httpBasic("researcher", "researcher")))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(entity.getId().intValue())))
@@ -314,7 +371,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isNotFound(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(-1));
   }
 
@@ -327,7 +384,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
     request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
@@ -337,7 +394,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(1));
   }
 
@@ -350,7 +407,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
     request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
@@ -360,7 +417,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(1));
   }
 
@@ -373,7 +430,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
     request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
@@ -383,7 +440,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(1));
   }
 
@@ -396,7 +453,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
     request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
@@ -406,7 +463,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(1));
   }
 
@@ -419,7 +476,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
     // Create the project before
@@ -433,7 +490,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(projectEntity.getId()));
   }
 
@@ -446,7 +503,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
     // Create the project before
@@ -460,7 +517,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         PROJECTS_ENDPOINT.formatted(projectEntity.getId()));
   }
 
@@ -473,7 +530,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -486,7 +543,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -499,7 +556,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -512,7 +569,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -525,7 +582,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -538,7 +595,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -555,7 +612,7 @@ public class RequestControllerTests {
         HttpMethod.POST,
         requestBody,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
@@ -568,12 +625,12 @@ public class RequestControllerTests {
         HttpMethod.POST,
         request,
         status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
+        CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
   }
 
   @Test
-  public void testCreate_BadRequest_whenQuery_IsAssignedToAnotherRequest() throws Exception {
+  public void testCreate_BadRequest_whenQuery_IsAlreadyAssignedToAnotherRequest() throws Exception {
     RequestRequest createRequest =
         TestUtils.createRequest(false, false, List.of(testQuery.getId()));
     // The data source to be updated
@@ -591,7 +648,7 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(REQUESTS_ENDPOINT)
-                .with(httpBasic("researcher", "researcher"))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andDo(print())
@@ -609,7 +666,7 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(REQUESTS_ENDPOINT))
-                .with(httpBasic("researcher", "researcher"))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
@@ -629,8 +686,8 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)))
         .andReturn();
 
-    assertEquals(requestRepository.findAll().size(), 1);
-    assertEquals(projectRepository.findAll().size(), 1);
+    assertEquals(requestRepository.count(), 1);
+    assertEquals(projectRepository.count(), 1);
   }
 
   @Test
@@ -647,7 +704,7 @@ public class RequestControllerTests {
         .perform(
             MockMvcRequestBuilders.post(
                     URI.create(PROJECTS_ENDPOINT.formatted(projectEntity.getId())))
-                .with(httpBasic("researcher", "researcher"))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
@@ -698,7 +755,7 @@ public class RequestControllerTests {
   }
 
   @Test
-  public void testUpdate_BadRequest_whenQuery_IsAssignedToAnotherRequest() throws Exception {
+  public void testUpdate_BadRequest_whenQueryIsAlreadyAssignedToAnotherRequest() throws Exception {
     // Create the request that has the assigned query
     Request requestEntityWithQuery =
         modelMapper.map(TestUtils.createRequest(false, false, null), Request.class);
@@ -723,7 +780,7 @@ public class RequestControllerTests {
         .perform(
             MockMvcRequestBuilders.put(
                     "%s/%s".formatted(REQUESTS_ENDPOINT, requestEntityUpdate.getId()))
-                .with(httpBasic("researcher", "researcher"))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest())
@@ -747,7 +804,7 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("%s/%s".formatted(REQUESTS_ENDPOINT, requestEntity.getId()))
-                .with(httpBasic("researcher", "researcher"))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isNoContent())

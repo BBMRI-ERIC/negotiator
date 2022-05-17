@@ -1,16 +1,23 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.response.PersonRequestRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.RequestResponse;
+import eu.bbmri.eric.csit.service.negotiator.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.model.PersonRequestRole;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.TypeMap;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,30 +32,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class RequestController {
 
-  @Autowired private RequestService requestService;
-  @Autowired private ModelMapper modelMapper;
+  private final RequestService requestService;
+  private final ModelMapper modelMapper;
 
-  /**
-   * Create a request and the project it belongs to
-   *
-   * @param request
-   * @return
-   */
+  public RequestController(RequestService requestService, ModelMapper modelMapper) {
+    this.requestService = requestService;
+    this.modelMapper = modelMapper;
+    TypeMap<Request, RequestResponse> typeMap =
+        modelMapper.createTypeMap(Request.class, RequestResponse.class);
+
+    Converter<Set<PersonRequestRole>, List<PersonRequestRoleDTO>> personsRoleConverter =
+        prr -> personsRoleConverter(prr.getSource());
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(personsRoleConverter)
+                .map(Request::getPersons, RequestResponse::setPersons));
+  }
+
+  private List<PersonRequestRoleDTO> personsRoleConverter(Set<PersonRequestRole> personsRoles) {
+    return personsRoles.stream()
+        .map(
+            personRole ->
+                new PersonRequestRoleDTO(
+                    personRole.getPerson().getAuthName(), personRole.getRole().getName()))
+        .collect(Collectors.toList());
+  }
+
+  /** Create a request and the project it belongs to */
   @PostMapping(
       value = "/requests",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestResponse add(@Valid @RequestBody RequestRequest request) {
-    Request requestEntity = requestService.create(request);
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Person creator = (Person) auth.getPrincipal();
+    Request requestEntity = requestService.create(request, creator);
     return modelMapper.map(requestEntity, RequestResponse.class);
   }
 
   /**
    * Create a request for a specific project
    *
-   * @param projectId
-   * @param request
    * @return RequestResponse
    */
   @PostMapping(
@@ -57,7 +83,9 @@ public class RequestController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestResponse add(@PathVariable Long projectId, @Valid @RequestBody RequestRequest request) {
-    Request requestEntity = requestService.create(projectId, request);
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Person creator = (Person) auth.getPrincipal();
+    Request requestEntity = requestService.create(projectId, request, creator);
     return modelMapper.map(requestEntity, RequestResponse.class);
   }
 
@@ -97,7 +125,6 @@ public class RequestController {
   @GetMapping("/requests/{id}")
   RequestResponse retrieve(@Valid @PathVariable Long id) {
     Request entity = requestService.findById(id);
-    RequestResponse response = modelMapper.map(entity, RequestResponse.class);
-    return response;
+    return modelMapper.map(entity, RequestResponse.class);
   }
 }

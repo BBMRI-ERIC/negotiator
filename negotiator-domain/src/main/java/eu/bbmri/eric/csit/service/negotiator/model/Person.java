@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,6 +55,10 @@ public class Person extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "project_id"))
   @Exclude
   Set<Project> projects;
+
+  @OneToMany(mappedBy = "person")
+  @Exclude
+  Set<PersonRequestRole> roles;
 
   @NotNull private String authSubject;
 

@@ -4,12 +4,19 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import eu.bbmri.eric.csit.service.negotiator.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.model.PersonRequestRole;
 import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.model.Role;
+import eu.bbmri.eric.csit.service.negotiator.repository.PersonRequestRoleRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.repository.RoleRepository;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,6 +26,8 @@ import org.springframework.stereotype.Service;
 public class RequestService {
 
   @Autowired private RequestRepository requestRepository;
+  @Autowired private RoleRepository roleRepository;
+  @Autowired private PersonRequestRoleRepository personRequestRoleRepository;
   @Autowired private ProjectService projectService;
   @Autowired private QueryService queryService;
   @Autowired private ModelMapper modelMapper;
@@ -33,42 +42,52 @@ public class RequestService {
     return queries;
   }
 
-  private Request create(Project project, RequestRequest request) {
+  @Transactional
+  private Request create(Project project, RequestRequest request, Person creator) {
     List<Query> queries = findQueries(request.getQueries());
-
-    final Request requestEntity = modelMapper.map(request, Request.class);
-    requestEntity.setProject(project);
 
     if (queries.stream().anyMatch(query -> query.getRequest() != null)) {
       throw new WrongRequestException(
           "One or more query object is already assigned to another request");
     }
-    try {
 
+    try {
+      final Request requestEntity = modelMapper.map(request, Request.class);
+      requestEntity.setProject(project);
       requestRepository.save(requestEntity);
+
+      Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
+      PersonRequestRole personRole = new PersonRequestRole();
+      personRole.setPerson(creator);
+      personRole.setRole(role);
+      personRole.setRequest(requestEntity);
+      personRequestRoleRepository.save(personRole);
+
       queries.forEach(
           query -> {
             query.setRequest(requestEntity);
             queryService.update(query);
           });
+
       requestEntity.setQueries(new HashSet<>(queries));
+      requestEntity.setPersons(Set.of(personRole));
       return requestEntity;
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
   }
 
-  public Request create(Long projectId, RequestRequest request) {
+  public Request create(Long projectId, RequestRequest request, Person creator) {
     Project project = projectService.findById(projectId);
-    return create(project, request);
+    return create(project, request, creator);
   }
 
-  public Request create(RequestRequest request) {
+  public Request create(RequestRequest request, Person creator) {
     if (request.getProject() == null) {
       throw new WrongRequestException("Missing project data");
     }
     Project project = projectService.create(request.getProject());
-    return create(project, request);
+    return create(project, request, creator);
   }
 
   public Request update(Long id, RequestRequest request) {
