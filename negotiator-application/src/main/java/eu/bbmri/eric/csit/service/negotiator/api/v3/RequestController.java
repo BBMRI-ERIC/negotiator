@@ -41,7 +41,7 @@ public class RequestController {
     TypeMap<Request, RequestResponse> typeMap =
         modelMapper.createTypeMap(Request.class, RequestResponse.class);
 
-    Converter<Set<PersonRequestRole>, List<PersonRequestRoleDTO>> personsRoleConverter =
+    Converter<Set<PersonRequestRole>, Set<PersonRequestRoleDTO>> personsRoleConverter =
         prr -> personsRoleConverter(prr.getSource());
     typeMap.addMappings(
         mapper ->
@@ -50,13 +50,13 @@ public class RequestController {
                 .map(Request::getPersons, RequestResponse::setPersons));
   }
 
-  private List<PersonRequestRoleDTO> personsRoleConverter(Set<PersonRequestRole> personsRoles) {
+  private Set<PersonRequestRoleDTO> personsRoleConverter(Set<PersonRequestRole> personsRoles) {
     return personsRoles.stream()
         .map(
             personRole ->
                 new PersonRequestRoleDTO(
                     personRole.getPerson().getAuthName(), personRole.getRole().getName()))
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
   /** Create a request and the project it belongs to */

@@ -6,10 +6,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,18 +28,18 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class Project extends AuditEntity {
 
-  @ManyToMany(mappedBy = "projects")
   @Exclude
+  @ManyToMany(mappedBy = "projects")
   Set<Person> persons;
 
-  @ManyToMany(mappedBy = "projects")
   @Exclude
+  @ManyToMany(mappedBy = "projects")
   Set<Attachment> attachments;
 
   @NotNull private String title;
 
-  @Column(columnDefinition = "VARCHAR(512)")
   @NotNull
+  @Column(columnDefinition = "VARCHAR(512)")
   private String description;
 
   @Column(columnDefinition = "VARCHAR(512)")
@@ -52,6 +50,9 @@ public class Project extends AuditEntity {
   private LocalDate expectedEndDate;
 
   private Boolean expectedDataGeneration;
+
+  @OneToMany(mappedBy = "project")
+  private Set<Request> requests;
 
   @Override
   public boolean equals(Object o) {

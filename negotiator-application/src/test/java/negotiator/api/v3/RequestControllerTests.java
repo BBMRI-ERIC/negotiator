@@ -24,6 +24,7 @@ import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -120,20 +121,10 @@ public class RequestControllerTests {
   @Test
   public void testGetAll_Unauthorized_whenInvalidToken() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isUnauthorized(),
-        "",
-        REQUESTS_ENDPOINT);
+        mockMvc, HttpMethod.GET, "", status().isUnauthorized(), "", REQUESTS_ENDPOINT);
 
     TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isUnauthorized(),
-        "",
-        PROJECTS_ENDPOINT.formatted(1));
+        mockMvc, HttpMethod.GET, "", status().isUnauthorized(), "", PROJECTS_ENDPOINT.formatted(1));
   }
 
   @Test
@@ -176,11 +167,8 @@ public class RequestControllerTests {
 
   @Test
   public void testGetAll_Ok() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
-    Project projectEntity = modelMapper.map(request.getProject(), Project.class);
-    projectRepository.save(projectEntity);
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     Request entity = modelMapper.map(request, Request.class);
-    entity.setProject(projectEntity);
     entity = requestRepository.save(entity);
 
     mockMvc
@@ -193,7 +181,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$[0].title", is(TITLE)))
         .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
         .andExpect(jsonPath("$[0].token").isString())
-        .andExpect(jsonPath("$[0].project.id", is(projectEntity.getId().intValue())))
+        .andExpect(jsonPath("$[0].project.id", is(entity.getProject().getId().intValue())))
         .andExpect(jsonPath("$[0].project.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$[0].project.description", is(TestUtils.PROJECT_DESCRIPTION)))
         .andExpect(
@@ -273,11 +261,8 @@ public class RequestControllerTests {
 
   @Test
   public void testGetById_Ok_whenCorrectId() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
-    Project projectEntity = modelMapper.map(request.getProject(), Project.class);
-    projectRepository.save(projectEntity);
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     Request entity = modelMapper.map(request, Request.class);
-    entity.setProject(projectEntity);
     entity = requestRepository.save(entity);
 
     mockMvc
@@ -290,7 +275,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
-        .andExpect(jsonPath("$.project.id", is(projectEntity.getId().intValue())))
+        .andExpect(jsonPath("$.project.id", is(entity.getProject().getId().intValue())))
         .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
         .andExpect(
@@ -302,7 +287,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_Unauthorized_whenNoAuth() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -311,7 +296,7 @@ public class RequestControllerTests {
         anonymous(),
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -323,7 +308,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -332,7 +317,7 @@ public class RequestControllerTests {
         httpBasic("researcher", "wrong_pass"),
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -344,7 +329,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -353,7 +338,7 @@ public class RequestControllerTests {
         httpBasic("directory", "directory"),
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -365,7 +350,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_NotFound_whenProjectDoesNotExist() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -377,7 +362,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenTitle_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.setTitle(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -387,7 +372,7 @@ public class RequestControllerTests {
         CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     request.setTitle(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -400,7 +385,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.setDescription(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -410,7 +395,7 @@ public class RequestControllerTests {
         CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     request.setDescription(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -423,7 +408,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenQueries_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.setQueries(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -433,7 +418,7 @@ public class RequestControllerTests {
         CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     request.setQueries(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -446,8 +431,8 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenQueries_IsEmpty() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
-    request.setQueries(Collections.emptyList());
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
+    request.setQueries(Collections.emptySet());
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -456,8 +441,8 @@ public class RequestControllerTests {
         CORRECT_TOKEN_VALUE,
         REQUESTS_ENDPOINT);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
-    request.setQueries(Collections.emptyList());
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
+    request.setQueries(Collections.emptySet());
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -469,8 +454,8 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenSomeQueries_IsNotFound() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
-    request.setQueries(List.of(-1L));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
+    request.setQueries(Set.of(-1L));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -483,8 +468,8 @@ public class RequestControllerTests {
     Project projectEntity = modelMapper.map(TestUtils.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
-    request.setQueries(List.of(-1L));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
+    request.setQueries(Set.of(-1L));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -496,7 +481,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.setDescription("d".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -510,7 +495,7 @@ public class RequestControllerTests {
     Project projectEntity = modelMapper.map(TestUtils.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
-    request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     request.setDescription("d".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -523,7 +508,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectTitle_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setTitle(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -536,7 +521,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectDescription_IsTooLong() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setDescription("d".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -549,7 +534,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectDescription_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setDescription(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -562,7 +547,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectEthicsVote_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setEthicsVote(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -575,7 +560,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectEthicsVote_IsTooLong() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setEthicsVote("d".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -588,7 +573,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectExpectedEndDate_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setExpectedEndDate(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -601,7 +586,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectExpectedEndDate_HasWrongFormat() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody =
         requestBody.replace(
@@ -618,7 +603,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenProjectExpectedDataGeneration_IsMissing() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     request.getProject().setExpectedDataGeneration(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -632,7 +617,7 @@ public class RequestControllerTests {
   @Test
   public void testCreate_BadRequest_whenQuery_IsAlreadyAssignedToAnotherRequest() throws Exception {
     RequestRequest createRequest =
-        TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+        TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     // The data source to be updated
     Request requestEntity = modelMapper.map(createRequest, Request.class);
     requestRepository.save(requestEntity);
@@ -643,7 +628,7 @@ public class RequestControllerTests {
 
     // Request body with updated values
     RequestRequest updateRequest =
-        TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+        TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
     mockMvc
         .perform(
@@ -660,7 +645,7 @@ public class RequestControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok_whenProjectIsIncluded() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -697,7 +682,7 @@ public class RequestControllerTests {
     Project projectEntity = modelMapper.map(TestUtils.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
-    RequestRequest request = TestUtils.createRequest(false, true, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -720,7 +705,7 @@ public class RequestControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -732,7 +717,7 @@ public class RequestControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -744,7 +729,7 @@ public class RequestControllerTests {
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    RequestRequest request = TestUtils.createRequest(false, false, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -774,7 +759,7 @@ public class RequestControllerTests {
 
     // Request body with updated values and query already assigned
     RequestRequest request =
-        TestUtils.createRequest(true, false, List.of(firstQuery.getId(), secondQuery.getId()));
+        TestUtils.createRequest(true, false, Set.of(firstQuery.getId(), secondQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
         .perform(
@@ -792,14 +777,14 @@ public class RequestControllerTests {
     // The data source to be updated
     Request requestEntity =
         modelMapper.map(
-            TestUtils.createRequest(false, false, List.of(testQuery.getId())), Request.class);
+            TestUtils.createRequest(false, false, Set.of(testQuery.getId())), Request.class);
     requestRepository.save(requestEntity);
 
     testQuery.setRequest(requestEntity);
     queryRepository.save(testQuery);
 
     // Request body with updated values
-    RequestRequest request = TestUtils.createRequest(true, false, List.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(true, false, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
         .perform(

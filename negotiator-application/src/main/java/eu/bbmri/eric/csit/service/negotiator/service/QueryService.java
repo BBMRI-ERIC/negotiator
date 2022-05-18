@@ -97,8 +97,8 @@ public class QueryService {
     return queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
-  public List<Query> findAllById(List<Long> ids) {
-    return ids.stream().map(this::findById).collect(Collectors.toList());
+  public Set<Query> findAllById(Set<Long> ids) {
+    return ids.stream().map(this::findById).collect(Collectors.toSet());
   }
 
   public Query update(Query queryEntity) {

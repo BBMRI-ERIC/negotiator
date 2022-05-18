@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.List;
+import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -27,5 +27,5 @@ public class RequestRequest {
 
   @Valid private ProjectRequest project;
 
-  @Valid @NotEmpty private List<Long> queries;
+  @Valid @NotEmpty private Set<Long> queries;
 }

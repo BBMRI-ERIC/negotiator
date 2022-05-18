@@ -16,7 +16,6 @@ import eu.bbmri.eric.csit.service.negotiator.repository.RoleRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,8 +31,8 @@ public class RequestService {
   @Autowired private QueryService queryService;
   @Autowired private ModelMapper modelMapper;
 
-  private List<Query> findQueries(List<Long> queriesId) {
-    List<Query> queries;
+  private Set<Query> findQueries(Set<Long> queriesId) {
+    Set<Query> queries;
     try {
       queries = queryService.findAllById(queriesId);
     } catch (EntityNotFoundException ex) {
@@ -42,9 +41,8 @@ public class RequestService {
     return queries;
   }
 
-  @Transactional
-  private Request create(Project project, RequestRequest request, Person creator) {
-    List<Query> queries = findQueries(request.getQueries());
+  private Request create(Request requestEntity, Set<Long> queriesId, Person creator) {
+    Set<Query> queries = findQueries(queriesId);
 
     if (queries.stream().anyMatch(query -> query.getRequest() != null)) {
       throw new WrongRequestException(
@@ -52,8 +50,6 @@ public class RequestService {
     }
 
     try {
-      final Request requestEntity = modelMapper.map(request, Request.class);
-      requestEntity.setProject(project);
       requestRepository.save(requestEntity);
 
       Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
@@ -79,21 +75,22 @@ public class RequestService {
 
   public Request create(Long projectId, RequestRequest request, Person creator) {
     Project project = projectService.findById(projectId);
-    return create(project, request, creator);
+    Request requestEntity = modelMapper.map(request, Request.class);
+    requestEntity.setProject(project);
+    return create(requestEntity, request.getQueries(), creator);
   }
 
   public Request create(RequestRequest request, Person creator) {
     if (request.getProject() == null) {
       throw new WrongRequestException("Missing project data");
     }
-    Project project = projectService.create(request.getProject());
-    return create(project, request, creator);
+    Request requestEntity = modelMapper.map(request, Request.class);
+    return create(requestEntity, request.getQueries(), creator);
   }
 
   public Request update(Long id, RequestRequest request) {
-    final Request requestEntity = findById(id);
-
-    List<Query> queries = findQueries(request.getQueries());
+    Request requestEntity = findById(id);
+    Set<Query> queries = findQueries(request.getQueries());
 
     if (queries.stream()
         .anyMatch(query -> query.getRequest() != null && query.getRequest() != requestEntity)) {

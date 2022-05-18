@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -19,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.OnDelete;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
@@ -37,12 +37,12 @@ public class Request extends AuditEntity {
   @Exclude
   Set<Attachment> attachments;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "project_id")
   @Exclude
   private Project project;
 
-  @OneToMany(mappedBy = "person", cascade = { CascadeType.REMOVE }, orphanRemoval = true)
+  @OneToMany(mappedBy = "request")
   @Exclude
   private Set<PersonRequestRole> persons;
 

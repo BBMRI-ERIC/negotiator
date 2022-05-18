@@ -113,7 +113,7 @@ public class TestUtils {
 
   public static List<PerunUserRequest> createPerunUserRequestList(boolean update, int size) {
     String suffix = update ? "u" : "";
-    List<PerunUserRequest> perunUserRequestList = new <PerunUserRequest>ArrayList();
+    List<PerunUserRequest> perunUserRequestList = new ArrayList<>();
 
     for (int i = 0; i < size; i++) {
       PerunUserRequest request =
@@ -131,7 +131,7 @@ public class TestUtils {
   }
 
   public static RequestRequest createRequest(
-      boolean update, boolean includeProject, List<Long> queriesId) {
+      boolean update, boolean includeProject, Set<Long> queriesId) {
     String suffix = update ? "u" : "";
 
     RequestRequest.RequestRequestBuilder builder =
