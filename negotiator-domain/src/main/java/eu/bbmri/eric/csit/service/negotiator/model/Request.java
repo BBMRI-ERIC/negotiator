@@ -1,8 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
@@ -35,12 +37,18 @@ public class Request extends AuditEntity {
   @Exclude
   Set<Attachment> attachments;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "project_id")
   @Exclude
   private Project project;
 
-  @OneToMany(mappedBy = "request")
+  @OneToMany(
+      mappedBy = "request",
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+  @Exclude
+  private Set<PersonRequestRole> persons = new HashSet<>();
+
+  @OneToMany(mappedBy = "request", cascade = CascadeType.MERGE)
   @Exclude
   private Set<Query> queries;
 

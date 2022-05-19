@@ -1,11 +1,15 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
 import com.sun.istack.NotNull;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -55,6 +59,10 @@ public class Person extends BaseEntity {
   @Exclude
   Set<Project> projects;
 
+  @OneToMany(mappedBy = "person")
+  @Exclude
+  Set<PersonRequestRole> roles;
+
   @NotNull private String authSubject;
 
   @NotNull private String authName;
@@ -66,4 +74,30 @@ public class Person extends BaseEntity {
   private byte[] personImage;
 
   private String organization;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Person person = (Person) o;
+    return Objects.equals(getAuthSubject(), person.getAuthSubject())
+        && Objects.equals(getAuthName(), person.getAuthName())
+        && Objects.equals(getAuthEmail(), person.getAuthEmail())
+        && Objects.equals(getPassword(), person.getPassword())
+        && Arrays.equals(getPersonImage(), person.getPersonImage())
+        && Objects.equals(getOrganization(), person.getOrganization());
+  }
+
+  @Override
+  public int hashCode() {
+    int result =
+        Objects.hash(
+            getAuthSubject(), getAuthName(), getAuthEmail(), getPassword(), getOrganization());
+    result = 31 * result + Arrays.hashCode(getPersonImage());
+    return result;
+  }
 }

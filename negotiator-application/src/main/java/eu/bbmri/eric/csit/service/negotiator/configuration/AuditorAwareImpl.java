@@ -12,7 +12,7 @@ public class AuditorAwareImpl implements AuditorAware<Person> {
   public Optional<Person> getCurrentAuditor() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth instanceof NegotiatorJwtAuthenticationToken) {
-      return Optional.ofNullable(((NegotiatorJwtAuthenticationToken) auth).getPerson());
+      return Optional.ofNullable((Person) auth.getPrincipal());
     } else {
       return Optional.empty();
     }

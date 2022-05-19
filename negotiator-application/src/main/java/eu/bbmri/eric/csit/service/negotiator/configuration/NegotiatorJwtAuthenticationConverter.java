@@ -34,6 +34,7 @@ public class NegotiatorJwtAuthenticationConverter
     Person person = personRepository.findByAuthSubject(jwt.getClaim("user_name")).orElse(null);
 
     String principalClaimValue = jwt.getClaimAsString("sub");
+
     return new NegotiatorJwtAuthenticationToken(jwt, authorities, principalClaimValue, person);
   }
 }
