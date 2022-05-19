@@ -68,7 +68,7 @@ public class RequestController {
   RequestResponse add(@Valid @RequestBody RequestRequest request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Person creator = (Person) auth.getPrincipal();
-    Request requestEntity = requestService.create(request, creator);
+    Request requestEntity = requestService.create(request, creator.getId());
     return modelMapper.map(requestEntity, RequestResponse.class);
   }
 
@@ -85,7 +85,7 @@ public class RequestController {
   RequestResponse add(@PathVariable Long projectId, @Valid @RequestBody RequestRequest request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Person creator = (Person) auth.getPrincipal();
-    Request requestEntity = requestService.create(projectId, request, creator);
+    Request requestEntity = requestService.create(projectId, request, creator.getId());
     return modelMapper.map(requestEntity, RequestResponse.class);
   }
 

@@ -57,7 +57,6 @@ public class RequestControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired private RequestController requestController;
   @Autowired private ProjectRepository projectRepository;
-  @Autowired private PersonRequestRoleRepository personRequestRoleRepository;
   @Autowired private RequestRepository requestRepository;
   @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
@@ -74,7 +73,6 @@ public class RequestControllerTests {
   @AfterEach
   public void after() {
     queryRepository.deleteAll();
-    personRequestRoleRepository.deleteAll();
     requestRepository.deleteAll();
     projectRepository.deleteAll();
   }

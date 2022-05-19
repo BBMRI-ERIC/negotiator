@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -25,7 +26,7 @@ import lombok.ToString.Exclude;
 @IdClass(PersonRequestId.class)
 public class PersonRequestRole {
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "person_id")
   @Id
   @Exclude
