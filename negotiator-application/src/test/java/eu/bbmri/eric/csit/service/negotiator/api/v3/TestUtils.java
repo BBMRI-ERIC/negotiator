@@ -1,4 +1,4 @@
-package negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

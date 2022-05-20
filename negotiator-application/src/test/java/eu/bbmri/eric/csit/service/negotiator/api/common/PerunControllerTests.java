@@ -1,4 +1,4 @@
-package negotiator.api.common;
+package eu.bbmri.eric.csit.service.negotiator.api.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
@@ -12,7 +12,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.util.List;
-import negotiator.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;

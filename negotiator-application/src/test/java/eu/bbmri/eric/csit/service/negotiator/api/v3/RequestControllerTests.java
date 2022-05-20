@@ -1,4 +1,4 @@
-package negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,19 +11,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRequestRoleRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
 import java.net.URI;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

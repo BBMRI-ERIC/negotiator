@@ -1,4 +1,4 @@
-package negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.DataSourceController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;

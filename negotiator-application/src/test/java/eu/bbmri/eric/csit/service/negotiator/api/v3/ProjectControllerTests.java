@@ -1,4 +1,4 @@
-package negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,10 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.ProjectController;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
 import java.net.URI;
+import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -201,13 +201,13 @@ public class ProjectControllerTests {
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(jsonPath("$.ethicsVote", is(TestUtils.PROJECT_ETHICS_VOTE)))
+        .andExpect(jsonPath("$.title", Is.is(TestUtils.PROJECT_TITLE)))
+        .andExpect(jsonPath("$.description", Is.is(TestUtils.PROJECT_DESCRIPTION)))
+        .andExpect(jsonPath("$.ethicsVote", Is.is(TestUtils.PROJECT_ETHICS_VOTE)))
         .andExpect(
-            jsonPath("$.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+            jsonPath("$.expectedDataGeneration", Is.is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
+        .andExpect(jsonPath("$.expectedEndDate", Is.is(TestUtils.PROJECT_EXPECTED_END_DATE)))
+        .andExpect(jsonPath("$.isTestProject", Is.is(TestUtils.PROJECT_IS_TEST_PROJECT)));
     assertEquals(repository.findAll().size(), 1);
   }
 }
