@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class QueryService {
@@ -64,6 +65,7 @@ public class QueryService {
     queryEntity.setDataSource(dataSource);
   }
 
+  @Transactional
   public Query create(QueryRequest queryRequest) {
     Query queryEntity = new Query();
     checkAndSetResources(queryRequest.getResources(), queryEntity);
@@ -80,12 +82,14 @@ public class QueryService {
     return queryRepository.save(queryEntity);
   }
 
+  @Transactional(readOnly = true)
   public List<Query> findAll() {
-    return queryRepository.findAll();
+    return queryRepository.findDetailedAll();
   }
 
+  @Transactional(readOnly = true)
   public Query findById(Long id) {
-    return queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return queryRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   public Set<Query> findAllById(Set<Long> ids) {

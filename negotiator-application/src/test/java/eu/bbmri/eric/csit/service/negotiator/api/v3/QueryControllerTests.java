@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -37,17 +39,21 @@ public class QueryControllerTests {
   private static final String ENDPOINT = "/v3/queries";
   @Autowired public QueryService service;
   @Autowired public QueryRepository repository;
-  private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private QueryController controller;
+  @Autowired private QueryService queryService;
+  @Autowired private ModelMapper modelMapper;
+
+  private MockMvc mockMvc;
 
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+    repository.deleteAll();
   }
 
   @Test
-  public void testBadRequest_whenUrlFieldIsMissing() throws Exception {
+  public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     request.setUrl(null);
     TestUtils.checkErrorResponse(
@@ -60,7 +66,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
+  public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     request.setHumanReadable(null);
     TestUtils.checkErrorResponse(
@@ -73,7 +79,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenResourcesFieldIsMissing() throws Exception {
+  public void testCreate_BadRequest_whenResourcesFieldIsMissing() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     request.setResources(null);
     TestUtils.checkErrorResponse(
@@ -86,7 +92,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenResourcesFieldIsEmpty() throws Exception {
+  public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     request.setResources(Set.of());
     TestUtils.checkErrorResponse(
@@ -99,7 +105,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenCollectionNotFound() throws Exception {
+  public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
@@ -116,7 +122,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenCollectionAndBiobankMismatch() throws Exception {
+  public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
@@ -131,7 +137,7 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testBadRequest_whenDataSourceNotFound() throws Exception {
+  public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
     QueryRequest request = TestUtils.createQueryRequest(false);
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(
@@ -164,6 +170,50 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
     assertEquals(repository.findAll().size(), 1);
-    repository.deleteAll();
+  }
+
+  @Test
+  @Order(2)
+  public void testGetAll_Ok() throws Exception {
+    queryService.create(TestUtils.createQueryRequest(false));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/queries")
+                .with(httpBasic("directory", "directory"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()", is(1)))
+        .andExpect(jsonPath("$[0].id").isNumber())
+        .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
+        .andExpect(
+            jsonPath("$[0].redirectUrl", containsString("http://localhost/researcher/query/")))
+        .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
+        .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
+        .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
+        .andExpect(jsonPath("$[0].resources[0].children[0].type", is("collection")));
+    assertEquals(repository.findAll().size(), 1);
+  }
+
+  @Test
+  @Order(2)
+  public void testGetById_Ok() throws Exception {
+    Query q = queryService.create(TestUtils.createQueryRequest(false));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/queries/%s".formatted(q.getId()))
+                .with(httpBasic("directory", "directory"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(
+            jsonPath("$.redirectUrl", containsString("http://localhost/researcher/query/")))
+        .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
+        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
+        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
+        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
+    assertEquals(repository.findAll().size(), 1);
   }
 }

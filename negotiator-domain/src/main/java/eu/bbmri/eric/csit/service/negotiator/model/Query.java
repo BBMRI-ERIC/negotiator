@@ -14,6 +14,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import org.hibernate.annotations.TypeDefs;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity(name = "Query")
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
@@ -88,6 +90,7 @@ public class Query extends BaseEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
+    return Objects.hash(
+        getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
   }
 }
