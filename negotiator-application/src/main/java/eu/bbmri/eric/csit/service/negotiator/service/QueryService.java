@@ -40,26 +40,17 @@ public class QueryService {
     resourceDTOs.forEach(
         resourceDTO -> {
           Set<ResourceDTO> childrenDTOs = resourceDTO.getChildren();
-          if (childrenDTOs != null) {
-            childrenDTOs.forEach(
-                childrenDTO -> {
-                  Collection collectionEntity =
-                      collectionRepository
-                          .findBySourceId(childrenDTO.getId())
-                          .orElseThrow(
-                              () ->
-                                  new WrongRequestException(
-                                      String.format(
-                                          "Collection %s not found", childrenDTO.getId())));
 
-                  if (!collectionEntity.getBiobank().getSourceId().equals(resourceDTO.getId())) {
-                    throw new WrongRequestException(
-                        String.format(
-                            "Collection %s doesn't belong to biobank %s",
-                            childrenDTO.getId(), resourceDTO.getId()));
-                  }
-                  collections.add(collectionEntity);
-                });
+          Set<Collection> newCollections =
+              collectionRepository.findBySourceIdInAndBiobankSourceId(
+                  childrenDTOs.stream().map(ResourceDTO::getId).collect(Collectors.toSet()),
+                  resourceDTO.getId());
+
+          if (newCollections.size() < childrenDTOs.size()) {
+            throw new WrongRequestException(
+                "Some of the specified resources were not found or the hierarchy was not correct");
+          } else {
+            collections.addAll(newCollections);
           }
         });
     queryEntity.setCollections(collections);

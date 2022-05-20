@@ -33,13 +33,13 @@ import org.hibernate.annotations.TypeDefs;
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 public class Query extends BaseEntity {
 
-  @ManyToMany
-  @JoinTable(
-      name = "query_biobank_link",
-      joinColumns = @JoinColumn(name = "biobank_id"),
-      inverseJoinColumns = @JoinColumn(name = "query_id"))
-  @Exclude
-  private Set<Biobank> biobanks;
+  //  @ManyToMany
+  //  @JoinTable(
+  //      name = "query_biobank_link",
+  //      joinColumns = @JoinColumn(name = "biobank_id"),
+  //      inverseJoinColumns = @JoinColumn(name = "query_id"))
+  //  @Exclude
+  //  private Set<Biobank> biobanks;
 
   @ManyToMany
   @JoinTable(
@@ -79,7 +79,6 @@ public class Query extends BaseEntity {
     }
     Query query = (Query) o;
     return Objects.equals(getId(), query.getId())
-        && Objects.equals(getBiobanks(), query.getBiobanks())
         && Objects.equals(getCollections(), query.getCollections())
         && Objects.equals(getJsonPayload(), query.getJsonPayload())
         && Objects.equals(getUrl(), query.getUrl())
@@ -89,7 +88,6 @@ public class Query extends BaseEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        getBiobanks(), getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
+    return Objects.hash(getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
   }
 }
