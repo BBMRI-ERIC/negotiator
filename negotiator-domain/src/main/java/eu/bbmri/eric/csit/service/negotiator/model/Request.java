@@ -11,6 +11,9 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -31,6 +34,29 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @Table(name = "request")
 @EntityListeners(AuditingEntityListener.class)
+@NamedEntityGraph(
+    name = "request-with-detailed-children",
+    attributeNodes = {
+      @NamedAttributeNode("project"),
+      @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
+      @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
+    },
+    subgraphs = {
+      @NamedSubgraph(
+          name = "persons-with-roles",
+          attributeNodes = {
+            @NamedAttributeNode(value = "person"),
+            @NamedAttributeNode(value = "role")
+          }),
+      @NamedSubgraph(
+          name = "queries-detailed",
+          attributeNodes = {
+            @NamedAttributeNode(value = "collections", subgraph = "collections-with-biobank")
+          }),
+      @NamedSubgraph(
+          name = "collections-with-biobank",
+          attributeNodes = {@NamedAttributeNode("biobank")})
+    })
 public class Request extends AuditEntity {
 
   @ManyToMany(mappedBy = "requests")
@@ -44,11 +70,12 @@ public class Request extends AuditEntity {
 
   @OneToMany(
       mappedBy = "request",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+      fetch = FetchType.LAZY)
   @Exclude
   private Set<PersonRequestRole> persons = new HashSet<>();
 
-  @OneToMany(mappedBy = "request", cascade = CascadeType.MERGE)
+  @OneToMany(mappedBy = "request", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   @Exclude
   private Set<Query> queries;
 

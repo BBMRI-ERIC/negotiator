@@ -2,13 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.model;
 
 import com.sun.istack.NotNull;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,6 +27,9 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "person")
+@NamedEntityGraph(
+    name = "person-detailed",
+    attributeNodes = {@NamedAttributeNode("roles")})
 public class Person extends BaseEntity {
 
   @ManyToMany
@@ -61,7 +66,7 @@ public class Person extends BaseEntity {
 
   @OneToMany(mappedBy = "person")
   @Exclude
-  Set<PersonRequestRole> roles;
+  Set<PersonRequestRole> roles = new HashSet<>();
 
   @NotNull private String authSubject;
 

@@ -39,20 +39,12 @@ import org.hibernate.annotations.TypeDefs;
 @NamedEntityGraph(
     name = "query-with-detailed-collections",
     attributeNodes = {
-      @NamedAttributeNode("id"),
-      @NamedAttributeNode("url"),
-      @NamedAttributeNode("jsonPayload"),
       @NamedAttributeNode(value = "collections", subgraph = "collections-with-biobank")
     },
     subgraphs = {
       @NamedSubgraph(
           name = "collections-with-biobank",
-          attributeNodes = {
-            @NamedAttributeNode("sourceId"),
-            @NamedAttributeNode("name"),
-            @NamedAttributeNode("description"),
-            @NamedAttributeNode("biobank")
-          })
+          attributeNodes = {@NamedAttributeNode("biobank")})
     })
 public class Query extends BaseEntity {
 
@@ -102,16 +94,12 @@ public class Query extends BaseEntity {
     }
     Query query = (Query) o;
     return Objects.equals(getId(), query.getId())
-        && Objects.equals(getCollections(), query.getCollections())
         && Objects.equals(getJsonPayload(), query.getJsonPayload())
-        && Objects.equals(getUrl(), query.getUrl())
-        && Objects.equals(getRequest(), query.getRequest())
-        && Objects.equals(getDataSource(), query.getDataSource());
+        && Objects.equals(getUrl(), query.getUrl());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
+    return Objects.hash(getId(), getJsonPayload(), getUrl());
   }
 }
