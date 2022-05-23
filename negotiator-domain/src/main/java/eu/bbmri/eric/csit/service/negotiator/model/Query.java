@@ -12,6 +12,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +36,24 @@ import org.hibernate.annotations.TypeDefs;
 @Entity(name = "Query")
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
+@NamedEntityGraph(
+    name = "query-with-detailed-collections",
+    attributeNodes = {
+      @NamedAttributeNode("id"),
+      @NamedAttributeNode("url"),
+      @NamedAttributeNode("jsonPayload"),
+      @NamedAttributeNode(value = "collections", subgraph = "collections-with-biobank")
+    },
+    subgraphs = {
+      @NamedSubgraph(
+          name = "collections-with-biobank",
+          attributeNodes = {
+            @NamedAttributeNode("sourceId"),
+            @NamedAttributeNode("name"),
+            @NamedAttributeNode("description"),
+            @NamedAttributeNode("biobank")
+          })
+    })
 public class Query extends BaseEntity {
 
   //  @ManyToMany

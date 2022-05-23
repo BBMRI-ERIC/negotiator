@@ -84,7 +84,7 @@ public class QueryService {
 
   @Transactional(readOnly = true)
   public List<Query> findAll() {
-    return queryRepository.findDetailedAll();
+    return queryRepository.findAll();
   }
 
   @Transactional(readOnly = true)

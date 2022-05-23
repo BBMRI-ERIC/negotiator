@@ -4,6 +4,9 @@ import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
+import org.hibernate.annotations.Entity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,12 +14,15 @@ import org.springframework.stereotype.Repository;
 @Transactional
 public interface QueryRepository extends JpaRepository<Query, Long> {
 
-  @org.springframework.data.jpa.repository.Query(
-      value = "SELECT q from Query q JOIN FETCH q.collections c JOIN FETCH c.biobank")
-  List<Query> findDetailedAll();
+  @NotNull
+  @Override
+  @EntityGraph(
+      value = "query-with-detailed-collections"
+  )
+  List<Query> findAll();
 
-  @org.springframework.data.jpa.repository.Query(
-      value =
-          "SELECT q from Query q JOIN FETCH q.collections c JOIN FETCH c.biobank WHERE q.id = :id")
+  @EntityGraph(
+      value = "query-with-detailed-collections"
+  )
   Optional<Query> findDetailedById(Long id);
 }
