@@ -7,6 +7,9 @@ spring.datasource.driver-class-name=
 spring.datasource.url=jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
 spring.datasource.username=negotiator
 spring.datasource.password=negotiator
+spring.datasource.initialize=true
+#spring.datasource.schema=classpath:/schema.sql
+#spring.datasource.continue-on-error=true
 
 spring.sql.init.mode=always
 spring.sql.init.platform=h2
@@ -14,8 +17,6 @@ spring.jpa.hibernate.show-sql=true
 spring.jpa.defer-datasource-initialization=true
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
-spring.datasource.initialize=true
-#spring.datasource.schema=classpath:/schema.sql
-#spring.datasource.continue-on-error=true
+spring.jpa.open-in-view=false
 
 spring.security.oauth2.resourceserver.jwt.issuer-uri=
