@@ -1,0 +1,39 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "Negotiator"
+  datasource:
+    driver-class-name:
+    url:
+    username:
+    password:
+    initialize:
+  sql:
+    init:
+      mode:
+      platform:
+  jpa:
+    hibernate:
+      show-sql:
+      ddl-auto:
+    defer-datasource-initialization:
+    properties:
+      hibernate:
+        dialect:
+  jackson:
+    date-format: "yyyy-MM-dd"
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          datasource:
+            init:
+              ScriptUtils: debug
+

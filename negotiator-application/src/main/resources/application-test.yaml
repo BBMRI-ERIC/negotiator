@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
+    username: negotiator
+    password: negotiator
+    initialize: true
+  sql:
+    init:
+      mode: always
+      platform: h2
+  jpa:
+    hibernate:
+      show-sql: true
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          datasource:
+            init:
+              ScriptUtils: debug
+

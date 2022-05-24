@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres:5432/negotiator
+    username: negotiator
+    password: negotiator
+    initialize: true
+  sql:
+    init:
+      mode: always
+      platform: postgres
+  jpa:
+    hibernate:
+      show-sql: false
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  jackson:
+    date-format: "yyyy-MM-dd"
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          datasource:
+            init:
+              ScriptUtils: debug
+
