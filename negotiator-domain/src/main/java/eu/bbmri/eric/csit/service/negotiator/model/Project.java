@@ -6,7 +6,10 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -26,6 +29,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @Table(name = "project")
 @EntityListeners(AuditingEntityListener.class)
+@NamedEntityGraph(
+    name = "project-detailed",
+    attributeNodes = {@NamedAttributeNode("requests")})
 public class Project extends AuditEntity {
 
   @Exclude
@@ -51,7 +57,8 @@ public class Project extends AuditEntity {
 
   private Boolean expectedDataGeneration;
 
-  @OneToMany(mappedBy = "project")
+  @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+  @Exclude
   private Set<Request> requests;
 
   @Override
@@ -74,10 +81,6 @@ public class Project extends AuditEntity {
   @Override
   public int hashCode() {
     return Objects.hash(
-        getPersons(),
-        getAttachments(),
-        getCreatedBy(),
-        getModifiedBy(),
         getTitle(),
         getDescription(),
         getEthicsVote(),

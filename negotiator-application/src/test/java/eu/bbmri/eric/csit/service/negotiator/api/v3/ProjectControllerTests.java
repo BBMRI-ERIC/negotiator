@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
+import eu.bbmri.eric.csit.service.negotiator.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
 import java.net.URI;
 import org.hamcrest.core.Is;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -33,12 +36,16 @@ import org.springframework.web.context.WebApplicationContext;
 @TestMethodOrder(OrderAnnotation.class)
 public class ProjectControllerTests {
   private static final String ENDPOINT = "/v3/projects";
+  private static final String CORRECT_TOKEN_VALUE = "researcher";
+  private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
+  private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";
 
   private MockMvc mockMvc;
 
   @Autowired private WebApplicationContext context;
   @Autowired private ProjectController controller;
   @Autowired private ProjectRepository repository;
+  @Autowired private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {
@@ -208,5 +215,153 @@ public class ProjectControllerTests {
         .andExpect(jsonPath("$.expectedEndDate", Is.is(TestUtils.PROJECT_EXPECTED_END_DATE)))
         .andExpect(jsonPath("$.isTestProject", Is.is(TestUtils.PROJECT_IS_TEST_PROJECT)));
     assertEquals(repository.findAll().size(), 1);
+  }
+
+  @Test
+  public void testGetAll_Unauthorized_whenNoAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc, HttpMethod.GET, "", status().isUnauthorized(), anonymous(), ENDPOINT);
+  }
+
+  @Test
+  public void testGetAll_Unauthorized_whenBasicAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        httpBasic("researcher", "wrong_pass"),
+        ENDPOINT);
+  }
+
+  @Test
+  public void testGetAll_Unauthorized_whenInvalidToken() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc, HttpMethod.GET, "", status().isUnauthorized(), "", ENDPOINT);
+  }
+
+  @Test
+  public void testGetAll_Forbidden_whenNoPermission() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc, HttpMethod.GET, "", status().isForbidden(), FORBIDDEN_TOKEN_VALUE, ENDPOINT);
+  }
+
+  @Test
+  public void testGetAll_Forbidden_whenBasicAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isForbidden(),
+        httpBasic("directory", "directory"),
+        ENDPOINT);
+  }
+
+  @Test
+  public void testGetAll_Ok() throws Exception {
+    ProjectRequest projectRequest = TestUtils.createProjectRequest(false);
+    Project entity = modelMapper.map(projectRequest, Project.class);
+    entity = repository.save(entity);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(ENDPOINT)
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].id", is(entity.getId().intValue())))
+        .andExpect(jsonPath("$[0].title", is(TestUtils.PROJECT_TITLE)))
+        .andExpect(jsonPath("$[0].description", is(TestUtils.PROJECT_DESCRIPTION)))
+        .andExpect(
+            jsonPath("$[0].expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
+        .andExpect(jsonPath("$[0].expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
+        .andExpect(jsonPath("$[0].isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+  }
+
+  @Test
+  public void testGetById_Unauthorized_whenNoAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        anonymous(),
+        String.format("%s/1", ENDPOINT));
+  }
+
+  @Test
+  public void testGetById_Unauthorized_whenBasicAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        httpBasic("researcher", "wrong_pass"),
+        String.format("%s/1", ENDPOINT));
+  }
+
+  @Test
+  public void testGetById_Unauthorized_whenInvalidToken() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        "",
+        String.format("%s/1", ENDPOINT));
+  }
+
+  @Test
+  public void testGetbyId_Forbidden_whenNoPermission() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isForbidden(),
+        FORBIDDEN_TOKEN_VALUE,
+        String.format("%s/1", ENDPOINT));
+  }
+
+  @Test
+  public void testGetById_Forbidden_whenBasicAuth() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isForbidden(),
+        httpBasic("directory", "directory"),
+        String.format("%s/1", ENDPOINT));
+  }
+
+  @Test
+  public void testGetById_NotFound_WhenTheIdIsNotPresent() throws Exception {
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isNotFound(),
+        CORRECT_TOKEN_VALUE,
+        String.format("%s/1", ENDPOINT));
+  }
+
+  @Test
+  public void testGetById_Ok() throws Exception {
+    ProjectRequest projectRequest = TestUtils.createProjectRequest(false);
+    Project entity = modelMapper.map(projectRequest, Project.class);
+    entity = repository.save(entity);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, entity.getId()))
+                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id", is(entity.getId().intValue())))
+        .andExpect(jsonPath("$.title", is(TestUtils.PROJECT_TITLE)))
+        .andExpect(jsonPath("$.description", is(TestUtils.PROJECT_DESCRIPTION)))
+        .andExpect(
+            jsonPath("$.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
+        .andExpect(jsonPath("$.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
+        .andExpect(jsonPath("$.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
   }
 }
