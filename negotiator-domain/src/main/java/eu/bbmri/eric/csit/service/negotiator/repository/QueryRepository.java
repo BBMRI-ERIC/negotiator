@@ -15,13 +15,9 @@ public interface QueryRepository extends JpaRepository<Query, Long> {
 
   @NotNull
   @Override
-  @EntityGraph(
-      value = "query-with-detailed-collections"
-  )
+  @EntityGraph(value = "query-with-detailed-collections")
   List<Query> findAll();
 
-  @EntityGraph(
-      value = "query-with-detailed-collections"
-  )
+  @EntityGraph(value = "query-with-detailed-collections")
   Optional<Query> findDetailedById(Long id);
 }

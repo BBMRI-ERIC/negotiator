@@ -1,11 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
 import java.util.Objects;
-import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -31,16 +29,18 @@ public class DataSource extends BaseEntity {
   @NotNull private String apiUrl;
   @NotNull private String apiUsername;
   @NotNull private String apiPassword;
+
   @Enumerated(EnumType.STRING)
   @NotNull
   private ApiType apiType;
+
   @NotNull private String resourceNetwork;
   @NotNull private String resourceBiobank;
   @NotNull private String resourceCollection;
   @NotNull private Boolean syncActive;
   private Boolean sourcePrefix;
-  @OneToMany(mappedBy = "dataSource")
-  private Set<User> users;
+  //  @OneToMany(mappedBy = "dataSource")
+  //  private Set<User> users;
 
   @Override
   public boolean equals(Object o) {

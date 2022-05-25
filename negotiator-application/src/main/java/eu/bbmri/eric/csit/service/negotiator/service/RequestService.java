@@ -69,7 +69,8 @@ public class RequestService {
     Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
 
     // Gets the person and associated roles
-    Person creator = personRepository.findDetailedById(creatorId).orElseThrow(EntityNotStorableException::new);
+    Person creator =
+        personRepository.findDetailedById(creatorId).orElseThrow(EntityNotStorableException::new);
 
     // Ceates the association between the Person and the Request
     PersonRequestRole personRole = new PersonRequestRole(creator, requestEntity, role);
@@ -187,7 +188,9 @@ public class RequestService {
    */
   @Transactional
   public Request findById(Long id) throws EntityNotFoundException {
-    return requestRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return requestRepository
+        .findDetailedById(id)
+        .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   /**

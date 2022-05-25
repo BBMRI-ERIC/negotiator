@@ -31,7 +31,7 @@ public class NegotiatorJwtAuthenticationConverter
         authorities.add(new SimpleGrantedAuthority("RESEARCHER"));
       }
     }
-    Person person = personRepository.findByAuthSubject(jwt.getClaim("user_name")).orElse(null);
+    Person person = personRepository.findByAuthName(jwt.getClaim("user_name")).orElse(null);
 
     String principalClaimValue = jwt.getClaimAsString("sub");
 

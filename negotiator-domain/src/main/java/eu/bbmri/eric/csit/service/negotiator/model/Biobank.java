@@ -25,9 +25,9 @@ import lombok.ToString.Exclude;
 @Table(name = "biobank")
 public class Biobank extends BaseEntity {
 
-    @ManyToMany(mappedBy = "biobanks")
-    @Exclude
-    private Set<Person> persons = new HashSet<>();
+  @ManyToMany(mappedBy = "biobanks")
+  @Exclude
+  private Set<Person> persons = new HashSet<>();
   //
   //  @ManyToMany(mappedBy = "biobanks")
   //  @Exclude
@@ -42,11 +42,9 @@ public class Biobank extends BaseEntity {
   //  @Exclude
   //  private DataSource dataSource;
 
-  @NotNull
-  private String name;
+  @NotNull private String name;
 
-  @NotNull
-  private String sourceId;
+  @NotNull private String sourceId;
 
   @Column(columnDefinition = "VARCHAR(512)")
   private String description;

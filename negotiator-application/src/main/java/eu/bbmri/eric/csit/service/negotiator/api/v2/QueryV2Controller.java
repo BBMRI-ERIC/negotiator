@@ -58,10 +58,12 @@ public class QueryV2Controller {
         mapper ->
             mapper.using(queryToRedirectUri).map(Query::getId, QueryV2Response::setRedirectUri));
   }
+
   private String convertIdToRedirectUri(Long queryId) {
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
     return REDIRECT_PATH.formatted(baseURL, queryId);
   }
+
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
     Map<String, ResourceDTO> resources = new HashMap<>();
     collections.forEach(

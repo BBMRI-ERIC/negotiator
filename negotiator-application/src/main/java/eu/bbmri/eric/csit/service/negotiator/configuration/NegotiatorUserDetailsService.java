@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
-import eu.bbmri.eric.csit.service.negotiator.repository.UserRepository;
+import eu.bbmri.eric.csit.service.negotiator.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,15 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class NegotiatorUserDetailsService implements UserDetailsService {
 
-  @Autowired private UserRepository userRepository;
+  @Autowired private PersonRepository personRepository;
 
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    eu.bbmri.eric.csit.service.negotiator.model.User user =
-        userRepository
-            .findByUsername(username)
+    Person person =
+        personRepository
+            .findByAuthNameAndPasswordNotNull(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new NegotiatorUserDetails(user);
+    NegotiatorUserDetails n = new NegotiatorUserDetails(person);
+    return n;
   }
 }

@@ -30,11 +30,10 @@ import lombok.ToString.Exclude;
 @NamedEntityGraph(
     name = "collection-with-biobank",
     attributeNodes = {
-        @NamedAttributeNode("sourceId"),
-        @NamedAttributeNode("name"),
-        @NamedAttributeNode("description"),
-        @NamedAttributeNode("biobank")
-
+      @NamedAttributeNode("sourceId"),
+      @NamedAttributeNode("name"),
+      @NamedAttributeNode("description"),
+      @NamedAttributeNode("biobank")
     })
 public class Collection extends BaseEntity {
 

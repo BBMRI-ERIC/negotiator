@@ -54,7 +54,7 @@ public class TestUtils {
   public static final String REQUEST_DESCRIPTION = "request description";
 
   public static final String PERUN_USER_ORGANIZATION = "perun user organization";
-  public static final Integer PERUN_USER_ID = 1;
+  public static final Integer PERUN_USER_ID = 100;
   public static final String PERUN_USER_DISPLAY_NAME = "display name";
   public static final String PERUN_USER_STATUS = "perun user status";
   public static final String PERUN_USER_MAIL = "perunusermail@mail.it";

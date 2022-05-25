@@ -29,7 +29,9 @@ public class ProjectService {
 
   @Transactional
   public Project findById(Long id) {
-    return projectRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return projectRepository
+        .findDetailedById(id)
+        .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   @Transactional

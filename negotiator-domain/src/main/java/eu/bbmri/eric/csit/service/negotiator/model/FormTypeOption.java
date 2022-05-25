@@ -18,5 +18,4 @@ import lombok.ToString;
 public class FormTypeOption extends AuditEntity {
 
   private String option;
-
 }

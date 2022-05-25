@@ -57,8 +57,7 @@ public class Network extends BaseEntity {
 
   private String acronym;
 
-  @NotNull
-  private String sourceId;
+  @NotNull private String sourceId;
 
   @Lob
   @Column(columnDefinition = "VARCHAR(512)")
