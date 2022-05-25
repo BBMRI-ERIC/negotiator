@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.time.Instant;
 import javax.sql.DataSource;

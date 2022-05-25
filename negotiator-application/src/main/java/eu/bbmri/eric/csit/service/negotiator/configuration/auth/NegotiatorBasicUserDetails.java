@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration;
+package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import java.util.Collection;
@@ -7,13 +7,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class NegotiatorUserDetails implements UserDetails {
+public class NegotiatorBasicUserDetails implements UserDetails, NegotiatorUserDetails {
 
   private final Person person;
 
   private final HashSet<GrantedAuthority> authorities;
 
-  public NegotiatorUserDetails(Person person) {
+  public NegotiatorBasicUserDetails(Person person) {
     this.person = person;
     authorities = new HashSet<>();
     person
@@ -55,5 +55,9 @@ public class NegotiatorUserDetails implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  public Person getPerson() {
+    return person;
   }
 }

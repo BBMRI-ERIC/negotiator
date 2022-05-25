@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration;
+package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
@@ -21,7 +21,6 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
         personRepository
             .findByAuthNameAndPasswordNotNull(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
-    NegotiatorUserDetails n = new NegotiatorUserDetails(person);
-    return n;
+    return new NegotiatorBasicUserDetails(person);
   }
 }

@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration;
+package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
@@ -35,6 +35,6 @@ public class NegotiatorJwtAuthenticationConverter
 
     String principalClaimValue = jwt.getClaimAsString("sub");
 
-    return new NegotiatorJwtAuthenticationToken(jwt, authorities, principalClaimValue, person);
+    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, principalClaimValue);
   }
 }

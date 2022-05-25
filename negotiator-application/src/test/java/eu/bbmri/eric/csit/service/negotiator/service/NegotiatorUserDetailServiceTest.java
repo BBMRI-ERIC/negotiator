@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.configuration.NegotiatorUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.configuration.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorBasicUserDetails;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import org.junit.jupiter.api.Test;
@@ -48,6 +48,7 @@ public class NegotiatorUserDetailServiceTest {
     assertNotNull(p.getPassword());
 
     assertInstanceOf(
-        NegotiatorUserDetails.class, negotiatorUserDetailsService.loadUserByUsername("researcher"));
+        NegotiatorBasicUserDetails.class,
+        negotiatorUserDetailsService.loadUserByUsername("researcher"));
   }
 }
