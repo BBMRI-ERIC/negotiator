@@ -5,6 +5,15 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
+      - SPRING_DATASOURCE_USERNAME=negotiator
+      - SPRING_DATASOURCE_PASSWORD=negotiator
+      - SPRING_DATASOURCE_INITIALIZE=true
+      - SPRING_DATASOURCE_DATA=file:/data.sql
+      - SPRING_DATASOURCE_INITIALIZATION-MODE=always
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - OAUTH2_ISSUER=
     ports:
       - "8080:8080"
     depends_on:

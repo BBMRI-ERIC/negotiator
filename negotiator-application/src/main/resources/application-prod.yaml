@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/negotiator
+    url: jdbc:postgresql://localhost:5432/negotiator
     username: negotiator
     password: negotiator
     initialize: true
@@ -24,12 +24,4 @@ spring:
       resourceserver:
         jwt:
           issuer-uri:
-logging:
-  level:
-    org:
-      springframework:
-        jdbc:
-          datasource:
-            init:
-              ScriptUtils: debug
 

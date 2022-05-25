@@ -3,31 +3,10 @@ server:
 spring:
   application:
     name: "Negotiator"
-  datasource:
-    driver-class-name:
-    url:
-    username:
-    password:
-    initialize:
-  sql:
-    init:
-      mode:
-      platform:
-  jpa:
-    hibernate:
-      show-sql:
-      ddl-auto:
-    defer-datasource-initialization:
-    properties:
-      hibernate:
-        dialect:
   jackson:
     date-format: "yyyy-MM-dd"
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri:
+  jpa:
+    open-in-view: false
 logging:
   level:
     org:
