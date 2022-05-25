@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.time.Instant;
 import javax.sql.DataSource;
@@ -22,12 +24,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired public NegotiatorUserDetailsService userDetailsService;
-
-  @Autowired private PasswordEncoder passwordEncoder;
-
-  @Autowired private DataSource dataSource;
-
   @Autowired public PersonRepository personRepository;
+  @Autowired private PasswordEncoder passwordEncoder;
+  @Autowired private DataSource dataSource;
 
   @Bean
   JwtDecoder jwtDecoder() {
@@ -39,7 +38,7 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         scopes = "openid";
         iat = Instant.now();
       } else {
-         iat = Instant.now().minusSeconds(24*3600);
+        iat = Instant.now().minusSeconds(24 * 3600);
       }
       return Jwt.withTokenValue("fake-token")
           .header("typ", "JWT")

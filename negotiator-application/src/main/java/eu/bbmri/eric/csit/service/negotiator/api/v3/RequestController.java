@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.PersonRequestRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.RequestResponse;
@@ -67,7 +68,7 @@ public class RequestController {
   @ResponseStatus(HttpStatus.CREATED)
   RequestResponse add(@Valid @RequestBody RequestRequest request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Person creator = (Person) auth.getPrincipal();
+    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
     Request requestEntity = requestService.create(request, creator.getId());
     return modelMapper.map(requestEntity, RequestResponse.class);
   }
@@ -84,7 +85,7 @@ public class RequestController {
   @ResponseStatus(HttpStatus.CREATED)
   RequestResponse add(@PathVariable Long projectId, @Valid @RequestBody RequestRequest request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Person creator = (Person) auth.getPrincipal();
+    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
     Request requestEntity = requestService.create(projectId, request, creator.getId());
     return modelMapper.map(requestEntity, RequestResponse.class);
   }

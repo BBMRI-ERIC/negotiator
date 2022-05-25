@@ -14,7 +14,10 @@ import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,10 +25,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@TestMethodOrder(OrderAnnotation.class)
 public class PerunControllerTests {
   private static final String ENDPOINT = "/perun/users";
   private MockMvc mockMvc;
@@ -70,7 +75,9 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_goodRequest() throws Exception {
+  @Order(1)
+  @Transactional
+  public void testCreate_Ok() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -79,10 +86,11 @@ public class PerunControllerTests {
         status().isCreated(),
         httpBasic("perun", "perun"),
         ENDPOINT);
+    request.forEach(pr -> personRepository.deleteByAuthSubject(String.valueOf(pr.getId())));
   }
 
   @Test
-  public void testCreate_organization_missing_or_empty() throws Exception {
+  public void testCreate_BadRequest_WhenOrganizationMissingOrEmpty() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
     PerunUserRequest badRequest = request.get(0);
@@ -107,7 +115,7 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_id_null() throws Exception {
+  public void testCreate_BadRequest_WhenIdIsNull() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
     PerunUserRequest badRequest = request.get(0);
@@ -123,7 +131,7 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_displayName_missing_or_empty() throws Exception {
+  public void testCreate_BadRequest_WhenDisplayNameMissingOrEmpty() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
     PerunUserRequest badRequest = request.get(0);
@@ -148,7 +156,7 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_status_missing_or_empty() throws Exception {
+  public void testCreate_BadRequest_WhenStatusIsMissingOrEmpty() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
     PerunUserRequest badRequest = request.get(0);
@@ -173,7 +181,7 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_mail_missing_or_empty() throws Exception {
+  public void testCreate_BadRequest_WhenMailIsMissingOrEmpty() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
     PerunUserRequest badRequest = request.get(0);
@@ -198,7 +206,9 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_identities_missing_or_empty() throws Exception {
+  @Order(2)
+  @Transactional
+  public void testCreate_Ok_WhenIdentitiesAreMissingOrEmpty() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
     PerunUserRequest badRequest = request.get(0);
@@ -211,6 +221,9 @@ public class PerunControllerTests {
         status().isCreated(),
         httpBasic("perun", "perun"),
         ENDPOINT);
+
+    personRepository.deleteByAuthSubject("100");
+
     String[] emptyIdentities = {};
     badRequest.setIdentities(emptyIdentities);
     request.set(0, badRequest);
@@ -221,10 +234,12 @@ public class PerunControllerTests {
         status().isCreated(),
         httpBasic("perun", "perun"),
         ENDPOINT);
+
+    personRepository.deleteByAuthSubject("100");
   }
 
   @Test
-  public void testUpdate_goodRequest() throws Exception {
+  public void testUpdate_Ok() throws Exception {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 1);
     Person personEntity = modelMapper.map(request.get(0), Person.class);
     personRepository.save(personEntity);
@@ -233,6 +248,7 @@ public class PerunControllerTests {
     String updatedOrganization = "UpdatedOrganization";
     updateRequest.setOrganization(updatedOrganization);
     request.set(0, updateRequest);
+
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -241,9 +257,9 @@ public class PerunControllerTests {
         httpBasic("perun", "perun"),
         ENDPOINT);
 
-    // Check the upfare in the repository
+    // Check the update in the repository
     Person updatedPerson =
-        personRepository.findByAuthSubject(String.format("%s", updateRequest.getId())).orElse(null);
+        personRepository.findByAuthSubject(String.valueOf(updateRequest.getId())).orElse(null);
     assertEquals(updatedOrganization, updatedPerson.getOrganization());
   }
 }

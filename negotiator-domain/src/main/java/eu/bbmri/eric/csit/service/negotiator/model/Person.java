@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -68,17 +70,26 @@ public class Person extends BaseEntity {
   @Exclude
   Set<PersonRequestRole> roles = new HashSet<>();
 
-  @NotNull private String authSubject;
+  @Column(unique = true)
+  @NotNull
+  private String authSubject;
 
-  @NotNull private String authName;
+  @Column(unique = true)
+  @NotNull
+  private String authName;
 
-  @NotNull private String authEmail;
+  @Column(unique = true)
+  @NotNull
+  private String authEmail;
 
   private String password; // can be null if the user is authenticated via OIDC
 
   private byte[] personImage;
 
   private String organization;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
+  private Set<Authority> authorities;
 
   @Override
   public boolean equals(Object o) {

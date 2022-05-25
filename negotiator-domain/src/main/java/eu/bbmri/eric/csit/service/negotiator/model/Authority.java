@@ -19,8 +19,8 @@ import lombok.Setter;
 public class Authority extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "username")
-  private User username;
+  @JoinColumn(name = "person_id")
+  private Person person;
 
   private String authority;
 }

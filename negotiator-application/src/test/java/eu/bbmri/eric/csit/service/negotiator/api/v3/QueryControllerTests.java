@@ -208,8 +208,7 @@ public class QueryControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.url", is("http://datasource.dev")))
-        .andExpect(
-            jsonPath("$.redirectUrl", containsString("http://localhost/researcher/query/")))
+        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/researcher/query/")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))

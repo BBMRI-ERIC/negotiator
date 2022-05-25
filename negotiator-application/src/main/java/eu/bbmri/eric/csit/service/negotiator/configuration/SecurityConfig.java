@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "docker"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired public NegotiatorUserDetailsService userDetailsService;

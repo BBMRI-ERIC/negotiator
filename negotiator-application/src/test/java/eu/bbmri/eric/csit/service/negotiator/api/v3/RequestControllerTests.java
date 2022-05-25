@@ -611,8 +611,7 @@ public class RequestControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenQuery_IsAlreadyAssignedToAnotherRequest() throws Exception {
-    RequestRequest createRequest =
-        TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
+    RequestRequest createRequest = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     // The data source to be updated
     Request requestEntity = modelMapper.map(createRequest, Request.class);
     requestRepository.save(requestEntity);
@@ -622,8 +621,7 @@ public class RequestControllerTests {
     assertEquals(1, requestRepository.count());
 
     // Request body with updated values
-    RequestRequest updateRequest =
-        TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
+    RequestRequest updateRequest = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
     mockMvc
         .perform(
