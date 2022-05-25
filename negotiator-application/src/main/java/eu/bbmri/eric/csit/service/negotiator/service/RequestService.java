@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @CommonsLog
@@ -34,7 +35,6 @@ public class RequestService {
   @Autowired private ModelMapper modelMapper;
 
   private Set<Query> findQueries(Set<Long> queriesId) {
-    log.debug("Getting queries entities required ");
     Set<Query> queries;
     try {
       queries = queryService.findAllById(queriesId);
@@ -65,18 +65,11 @@ public class RequestService {
           "One or more query object is already assigned to another request");
     }
 
-    // Updates the bidirectional relationship between query and request
-    requestEntity.setQueries(new HashSet<>(queries));
-    queries.forEach(
-        query -> {
-          query.setRequest(requestEntity);
-        });
-
     // Gets the Role entity. Since this is a new request, the person is the CREATOR of the request
     Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
 
-    // Gets the person
-    Person creator = personRepository.getById(creatorId);
+    // Gets the person and associated roles
+    Person creator = personRepository.findDetailedById(creatorId).orElseThrow(EntityNotStorableException::new);
 
     // Ceates the association between the Person and the Request
     PersonRequestRole personRole = new PersonRequestRole(creator, requestEntity, role);
@@ -84,6 +77,13 @@ public class RequestService {
     // Updates person and request with the person role
     creator.getRoles().add(personRole);
     requestEntity.getPersons().add(personRole);
+
+    // Updates the bidirectional relationship between query and request
+    requestEntity.setQueries(new HashSet<>(queries));
+    queries.forEach(
+        query -> {
+          query.setRequest(requestEntity);
+        });
 
     try {
       // Finally, save the request. NB: it also cascades operations for other Queries,
@@ -106,6 +106,7 @@ public class RequestService {
    *     that called the API)
    * @return the created Request entity
    */
+  @Transactional
   public Request create(Long projectId, RequestRequest request, Long creatorId) {
     // Get the project or throw an exception
     Project project = projectService.findById(projectId);
@@ -124,6 +125,7 @@ public class RequestService {
    *     that called the API)
    * @return the created Request entity
    */
+  @Transactional
   public Request create(RequestRequest request, Long creatorId) {
     if (request.getProject() == null) {
       throw new WrongRequestException("Missing project data");
@@ -139,6 +141,7 @@ public class RequestService {
    * @param request the RequestRequest DTO with the new Request data
    * @return The updated Request entity
    */
+  @Transactional
   public Request update(Long id, RequestRequest request) {
     Request requestEntity = findById(id);
     Set<Query> queries = findQueries(request.getQueries());
@@ -171,6 +174,7 @@ public class RequestService {
    *
    * @return the List of Request entities
    */
+  @Transactional
   public List<Request> findAll() {
     return requestRepository.findAll();
   }
@@ -181,8 +185,9 @@ public class RequestService {
    * @param id the id of the Request to retrieve
    * @return the Request with specified id
    */
+  @Transactional
   public Request findById(Long id) throws EntityNotFoundException {
-    return requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return requestRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   /**
@@ -191,6 +196,7 @@ public class RequestService {
    * @param biobankId the id in the data source of the biobank of the request
    * @return the List of Request entities found
    */
+  @Transactional
   public List<Request> findByBiobankId(String biobankId) {
     return requestRepository.findByBiobankId(biobankId);
   }
@@ -201,6 +207,7 @@ public class RequestService {
    * @param collectionId the id in the data source of the biobank of the request
    * @return the List of Request entities found
    */
+  @Transactional
   public List<Request> findByCollectionId(String collectionId) {
     return requestRepository.findByCollectionId(collectionId);
   }

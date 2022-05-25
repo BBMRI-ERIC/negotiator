@@ -10,8 +10,11 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,8 +24,18 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity(name = "Collection")
 @Table(name = "collection")
+@NamedEntityGraph(
+    name = "collection-with-biobank",
+    attributeNodes = {
+        @NamedAttributeNode("sourceId"),
+        @NamedAttributeNode("name"),
+        @NamedAttributeNode("description"),
+        @NamedAttributeNode("biobank")
+
+    })
 public class Collection extends BaseEntity {
 
   //  @ManyToMany(mappedBy = "collections")
@@ -50,8 +63,7 @@ public class Collection extends BaseEntity {
   @JsonIgnore
   private Biobank biobank;
 
-  @NotNull
-  private String sourceId;
+  @NotNull private String sourceId;
 
   @NotNull private String name;
 

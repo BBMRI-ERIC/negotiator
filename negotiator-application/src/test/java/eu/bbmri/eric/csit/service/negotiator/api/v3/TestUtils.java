@@ -83,11 +83,16 @@ public class TestUtils {
   public static QueryRequest createQueryRequest(boolean update) {
     String suffix = update ? "u" : "";
     ResourceDTO collection =
-        ResourceDTO.builder().id(QUERY_COLLECTION_ID).name(QUERY_COLLECTION_NAME).build();
+        ResourceDTO.builder()
+            .id(QUERY_COLLECTION_ID)
+            .name(QUERY_COLLECTION_NAME)
+            .type("collection")
+            .build();
     ResourceDTO biobank =
         ResourceDTO.builder()
             .id(QUERY_BIOBANK_ID)
             .name(QUERY_BIOBANK_NAME)
+            .type("biobank")
             .children(Set.of(collection))
             .build();
 

@@ -7,12 +7,12 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.util.List;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;

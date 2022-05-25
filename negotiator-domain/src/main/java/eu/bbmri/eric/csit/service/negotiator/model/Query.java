@@ -12,8 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,9 +32,20 @@ import org.hibernate.annotations.TypeDefs;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity(name = "Query")
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
+@NamedEntityGraph(
+    name = "query-with-detailed-collections",
+    attributeNodes = {
+      @NamedAttributeNode(value = "collections", subgraph = "collections-with-biobank")
+    },
+    subgraphs = {
+      @NamedSubgraph(
+          name = "collections-with-biobank",
+          attributeNodes = {@NamedAttributeNode("biobank")})
+    })
 public class Query extends BaseEntity {
 
   //  @ManyToMany
@@ -79,15 +94,12 @@ public class Query extends BaseEntity {
     }
     Query query = (Query) o;
     return Objects.equals(getId(), query.getId())
-        && Objects.equals(getCollections(), query.getCollections())
         && Objects.equals(getJsonPayload(), query.getJsonPayload())
-        && Objects.equals(getUrl(), query.getUrl())
-        && Objects.equals(getRequest(), query.getRequest())
-        && Objects.equals(getDataSource(), query.getDataSource());
+        && Objects.equals(getUrl(), query.getUrl());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getCollections(), getJsonPayload(), getUrl(), getRequest(), getDataSource());
+    return Objects.hash(getId(), getJsonPayload(), getUrl());
   }
 }

@@ -8,6 +8,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Entity(name = "Biobank")
 @Table(name = "biobank")
 public class Biobank extends BaseEntity {

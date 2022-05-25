@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProjectService {
@@ -26,10 +27,12 @@ public class ProjectService {
     }
   }
 
+  @Transactional
   public Project findById(Long id) {
-    return projectRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return projectRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
+  @Transactional
   public List<Project> findAll() {
     return projectRepository.findAll();
   }

@@ -677,7 +677,7 @@ public class RequestControllerTests {
     Project projectEntity = modelMapper.map(TestUtils.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
-    RequestRequest request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
+    RequestRequest request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
