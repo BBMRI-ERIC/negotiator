@@ -12,6 +12,8 @@ import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,9 +60,16 @@ public class QueryService {
   }
 
   private void checkAndSetDataSource(String url, Query queryEntity) {
+    URL dataSourceURL;
+    try {
+      dataSourceURL = new URL(url);
+    } catch (MalformedURLException e) {
+      throw new WrongRequestException("URL not valid");
+    }
     DataSource dataSource =
         dataSourceRepository
-            .findByUrl(url)
+            .findByUrl(
+                String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
             .orElseThrow(() -> new WrongRequestException("Data source not found"));
     queryEntity.setDataSource(dataSource);
   }
