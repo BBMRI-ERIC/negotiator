@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/v3")
 public class QueryController {
 
-  private static final String REDIRECT_PATH = "%s/researcher/query/%d";
+  @Value("${negotiator.redirectPath:/v3/queries}")
+  private String REDIRECT_PATH;
 
   private final QueryService queryService;
 
@@ -60,7 +62,7 @@ public class QueryController {
 
   private String convertIdToRedirectUrl(Long queryId) {
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-    return REDIRECT_PATH.formatted(baseURL, queryId);
+    return "%s%s/%d".formatted(baseURL, REDIRECT_PATH, queryId);
   }
 
   private Set<ResourceDTO> convertCollectionsToResources(Set<Collection> collections) {

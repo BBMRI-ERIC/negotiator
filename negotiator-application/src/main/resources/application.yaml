@@ -7,6 +7,8 @@ spring:
     date-format: "yyyy-MM-dd"
   jpa:
     open-in-view: false
+negotiator:
+  redirectPath: "/v3/queries"
 logging:
   level:
     org:
