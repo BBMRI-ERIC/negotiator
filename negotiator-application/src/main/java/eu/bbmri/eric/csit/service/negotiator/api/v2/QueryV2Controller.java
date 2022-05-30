@@ -15,8 +15,10 @@ import javax.validation.Valid;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -94,9 +96,12 @@ public class QueryV2Controller {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  QueryV2Response add(@Valid @RequestBody QueryV2Request queryRequest) {
+  ResponseEntity<QueryV2Response> add(@Valid @RequestBody QueryV2Request queryRequest) {
     QueryRequest v3Request = modelMapper.map(queryRequest, QueryRequest.class);
     Query queryEntity = queryService.create(v3Request);
-    return modelMapper.map(queryEntity, QueryV2Response.class);
+    QueryV2Response response = modelMapper.map(queryEntity, QueryV2Response.class);
+    return ResponseEntity.ok()
+        .header(HttpHeaders.LOCATION, response.getRedirectUri())
+        .body(response);
   }
 }
