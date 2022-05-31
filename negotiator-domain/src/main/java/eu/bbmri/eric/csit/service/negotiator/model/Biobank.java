@@ -46,6 +46,6 @@ public class Biobank extends BaseEntity {
 
   @NotNull private String sourceId;
 
-  @Column(columnDefinition = "VARCHAR(512)")
+  @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 }

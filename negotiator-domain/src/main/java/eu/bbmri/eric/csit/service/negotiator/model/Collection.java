@@ -66,6 +66,6 @@ public class Collection extends BaseEntity {
 
   @NotNull private String name;
 
-  @Column(columnDefinition = "VARCHAR(512)")
+  @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 }
