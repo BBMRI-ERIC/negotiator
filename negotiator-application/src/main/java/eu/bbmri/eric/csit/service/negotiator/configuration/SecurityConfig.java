@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDe
 import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @Profile({"dev", "prod", "docker"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Value("${negotiator.authorization.claim}")
+  private String authzClaim;
+
+  @Value("${negotiator.authorization.subjectClaim}")
+  private String authzSubjectClaim;
+
+  @Value("${negotiator.authorization.adminClaimValue}")
+  private String authzAdminValue;
+
+  @Value("${negotiator.authorization.researcherClaimValue}")
+  private String authzResearcherValue;
+
+  @Value("${negotiator.authorization.biobankerClaimValue}")
+  private String authzBiobankerValue;
 
   @Autowired public NegotiatorUserDetailsService userDetailsService;
 
@@ -71,6 +87,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .oauth2ResourceServer()
         .jwt()
-        .jwtAuthenticationConverter(new NegotiatorJwtAuthenticationConverter(personRepository));
+        .jwtAuthenticationConverter(
+            new NegotiatorJwtAuthenticationConverter(
+                personRepository,
+                authzClaim,
+                authzSubjectClaim,
+                authzAdminValue,
+                authzResearcherValue,
+                authzBiobankerValue));
   }
 }

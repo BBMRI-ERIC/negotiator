@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
 import java.time.Instant;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -28,6 +29,21 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired private PasswordEncoder passwordEncoder;
   @Autowired private DataSource dataSource;
 
+  @Value("${negotiator.authorization.claim}")
+  private String authzClaim;
+
+  @Value("${negotiator.authorization.subjectClaim}")
+  private String authzSubjectClaim;
+
+  @Value("${negotiator.authorization.adminClaimValue}")
+  private String authzAdminValue;
+
+  @Value("${negotiator.authorization.researcherClaimValue}")
+  private String authzResearcherValue;
+
+  @Value("${negotiator.authorization.biobankerClaimValue}")
+  private String authzBiobankerValue;
+
   @Bean
   JwtDecoder jwtDecoder() {
     return token -> {
@@ -35,7 +51,7 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
       String scopes = "";
       Instant iat;
       if ("researcher".equals(userId)) {
-        scopes = "openid";
+        scopes = authzResearcherValue;
         iat = Instant.now();
       } else {
         iat = Instant.now().minusSeconds(24 * 3600);
@@ -44,8 +60,8 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
           .header("typ", "JWT")
           .header("alg", "none")
           .claim("oid", userId)
-          .claim("scope", scopes)
-          .claim("user_name", userId)
+          .claim(authzClaim, scopes)
+          .claim(authzSubjectClaim, userId)
           .claim("iat", iat)
           .claim("exp", iat.plusSeconds(3600))
           .subject(userId)
@@ -94,6 +110,13 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .oauth2ResourceServer()
         .jwt()
-        .jwtAuthenticationConverter(new NegotiatorJwtAuthenticationConverter(personRepository));
+        .jwtAuthenticationConverter(
+            new NegotiatorJwtAuthenticationConverter(
+                personRepository,
+                authzClaim,
+                authzSubjectClaim,
+                authzAdminValue,
+                authzResearcherValue,
+                authzBiobankerValue));
   }
 }

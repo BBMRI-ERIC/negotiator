@@ -18,3 +18,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
 
+negotiator:
+  redirectPath: "/v3/queries"
+  authorization:
+    claim: "authz"
+    adminClaimValue: "admin_group"
+    researcherClaimValue: "researcher_group"
+    biobankerClaimValue: "biobanker_group"
+    subjectClaim: "subject_id"

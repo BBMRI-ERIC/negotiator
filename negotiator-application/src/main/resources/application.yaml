@@ -9,6 +9,12 @@ spring:
     open-in-view: false
 negotiator:
   redirectPath: "/v3/queries"
+  authorization:
+    claim: ""
+    adminClaimValue: ""
+    researcherClaimValue: ""
+    biobankerClaimValue: ""
+    subjectClaim: ""
 logging:
   level:
     org:
