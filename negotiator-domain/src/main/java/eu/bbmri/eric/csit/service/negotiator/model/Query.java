@@ -59,8 +59,8 @@ public class Query extends BaseEntity {
   @ManyToMany
   @JoinTable(
       name = "query_collection_link",
-      joinColumns = @JoinColumn(name = "collection_id"),
-      inverseJoinColumns = @JoinColumn(name = "query_id"))
+      joinColumns = @JoinColumn(name = "query_id"),
+      inverseJoinColumns = @JoinColumn(name = "collection_id"))
   @Exclude
   @NotNull
   private Set<Collection> collections;

@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -110,6 +111,16 @@ public class QueryController {
   @ResponseStatus(HttpStatus.CREATED)
   QueryResponse add(@Valid @RequestBody QueryRequest queryRequest) {
     Query queryEntity = queryService.create(queryRequest);
+    return modelMapper.map(queryEntity, QueryResponse.class);
+  }
+
+  @PutMapping(
+      value = "/queries/{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  QueryResponse update(@Valid @PathVariable Long id, @Valid @RequestBody QueryRequest queryRequest) {
+    Query queryEntity = queryService.update(id, queryRequest);
     return modelMapper.map(queryEntity, QueryResponse.class);
   }
 }

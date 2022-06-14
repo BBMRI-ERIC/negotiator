@@ -74,9 +74,7 @@ public class QueryService {
     queryEntity.setDataSource(dataSource);
   }
 
-  @Transactional
-  public Query create(QueryRequest queryRequest) {
-    Query queryEntity = new Query();
+  private Query saveQuery(QueryRequest queryRequest, Query queryEntity) {
     checkAndSetResources(queryRequest.getResources(), queryEntity);
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
     queryEntity.setUrl(queryRequest.getUrl());
@@ -89,6 +87,12 @@ public class QueryService {
       throw new WrongRequestException();
     }
     return queryRepository.save(queryEntity);
+  }
+
+  @Transactional
+  public Query create(QueryRequest queryRequest) {
+    Query queryEntity = new Query();
+    return saveQuery(queryRequest, queryEntity);
   }
 
   @Transactional(readOnly = true)
@@ -105,7 +109,10 @@ public class QueryService {
     return ids.stream().map(this::findById).collect(Collectors.toSet());
   }
 
-  public Query update(Query queryEntity) {
-    return queryRepository.save(queryEntity);
+  @Transactional
+  public Query update(Long id, QueryRequest queryRequest) {
+    Query queryEntity =
+        queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return saveQuery(queryRequest, queryEntity);
   }
 }

@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.v3;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
@@ -186,8 +188,7 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.length()", is(1)))
         .andExpect(jsonPath("$[0].id").isNumber())
         .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
-        .andExpect(
-            jsonPath("$[0].redirectUrl", containsString("http://localhost/v3/queries/")))
+        .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/v3/queries/")))
         .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
         .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
@@ -212,6 +213,68 @@ public class QueryControllerTests {
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
+        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
+    assertEquals(repository.findAll().size(), 1);
+  }
+
+  @Test
+  public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
+    QueryRequest request = TestUtils.createQueryRequest(false);
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.PUT,
+        request,
+        status().isUnauthorized(),
+        anonymous(),
+        "%s/1".formatted(ENDPOINT));
+  }
+
+  @Test
+  public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
+    QueryRequest request = TestUtils.createQueryRequest(false);
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.PUT,
+        request,
+        status().isUnauthorized(),
+        httpBasic("admin", "wrong_pass"),
+        "%s/1".formatted(ENDPOINT));
+  }
+
+  @Test
+  public void testUpdate_Forbidden_whenNoPermission() throws Exception {
+    QueryRequest request = TestUtils.createQueryRequest(false);
+    TestUtils.checkErrorResponse(
+        mockMvc,
+        HttpMethod.PUT,
+        request,
+        status().isForbidden(),
+        httpBasic("researcher", "researcher"),
+        "%s/1".formatted(ENDPOINT));
+  }
+
+  @Test
+  @Order(3)
+  public void testUpdate_Ok() throws Exception {
+    Query q = queryService.create(TestUtils.createQueryRequest(false));
+
+    QueryRequest updateRequest = TestUtils.createQueryRequest(true);
+    String requestBody = TestUtils.jsonFromRequest(updateRequest);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("/v3/queries/%s".formatted(q.getId()))
+                .with(httpBasic("directory", "directory"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isNoContent())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/v3/queries/")))
+        .andExpect(jsonPath("$.resources[0].id", is("biobank:2")))
+        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
+        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:2:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
     assertEquals(repository.findAll().size(), 1);
   }

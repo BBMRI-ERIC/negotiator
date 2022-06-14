@@ -97,6 +97,8 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers(HttpMethod.POST, "/v3/queries/**")
         .hasAnyAuthority("ADMIN", "EXT_SERV")
+        .antMatchers(HttpMethod.PUT, "/v3/queries/**")
+        .hasAnyAuthority("ADMIN", "EXT_SERV")
         .and()
         .authorizeRequests()
         .antMatchers("/perun/**")

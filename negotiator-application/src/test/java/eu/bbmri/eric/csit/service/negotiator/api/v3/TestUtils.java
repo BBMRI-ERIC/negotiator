@@ -38,10 +38,14 @@ public class TestUtils {
 
   public static final String QUERY_URL = "http://datasource.dev";
   public static final String QUERY_HUMAN_READABLE = "Query description";
-  public static final String QUERY_BIOBANK_ID = "biobank:1";
-  public static final String QUERY_BIOBANK_NAME = "Test Biobank";
-  public static final String QUERY_COLLECTION_ID = "biobank:1:collection:1";
-  public static final String QUERY_COLLECTION_NAME = "Test Collection";
+  public static final String QUERY_BIOBANK_1_ID = "biobank:1";
+  public static final String QUERY_BIOBANK_1_NAME = "Test Biobank #1";
+  public static final String QUERY_COLLECTION_1_ID = "biobank:1:collection:1";
+  public static final String QUERY_COLLECTION_1_NAME = "Test collection #1 of biobank #1";
+  public static final String QUERY_BIOBANK_2_ID = "biobank:2";
+  public static final String QUERY_BIOBANK_2_NAME = "Test Biobank 2 #2";
+  public static final String QUERY_COLLECTION_2_ID = "biobank:2:collection:1";
+  public static final String QUERY_COLLECTION_2_NAME = "Test collection #1 of biobank #2";
 
   public static final String PROJECT_TITLE = "project title";
   public static final String PROJECT_DESCRIPTION = "project description";
@@ -82,23 +86,28 @@ public class TestUtils {
 
   public static QueryRequest createQueryRequest(boolean update) {
     String suffix = update ? "u" : "";
+    String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
+    String collectionName = update ? QUERY_COLLECTION_2_NAME : QUERY_COLLECTION_1_NAME;
+    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;;
+    String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;;
+
     ResourceDTO collection =
         ResourceDTO.builder()
-            .id(QUERY_COLLECTION_ID)
-            .name(QUERY_COLLECTION_NAME)
+            .id(collectionId)
+            .name(collectionName)
             .type("collection")
             .build();
     ResourceDTO biobank =
         ResourceDTO.builder()
-            .id(QUERY_BIOBANK_ID)
-            .name(QUERY_BIOBANK_NAME)
+            .id(biobankId)
+            .name(biobankName)
             .type("biobank")
             .children(Set.of(collection))
             .build();
 
     return QueryRequest.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
-        .url(String.format("%s%s", QUERY_URL, suffix))
+        .url(QUERY_URL)
         .resources(Set.of(biobank))
         .build();
   }
