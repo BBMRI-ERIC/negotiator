@@ -7,6 +7,11 @@ spring:
     date-format: "yyyy-MM-dd"
   jpa:
     open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri:
 negotiator:
   redirectPath: "/v3/queries"
   authorization:

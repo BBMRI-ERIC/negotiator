@@ -21,6 +21,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile({"dev", "prod", "docker"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+  @Autowired public NegotiatorUserDetailsService userDetailsService;
+
+  @Autowired public DataSource dataSource;
+
+  @Autowired public PasswordEncoder passwordEncoder;
+
+  @Autowired public PersonRepository personRepository;
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+  private String jwtIssuer;
+
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
 
@@ -35,14 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Value("${negotiator.authorization.biobankerClaimValue}")
   private String authzBiobankerValue;
-
-  @Autowired public NegotiatorUserDetailsService userDetailsService;
-
-  @Autowired public DataSource dataSource;
-
-  @Autowired public PasswordEncoder passwordEncoder;
-
-  @Autowired public PersonRepository personRepository;
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -61,6 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .cors()
         .and()
         .csrf()
+        .disable()
+        .headers()
+        .frameOptions()
         .disable();
 
     http.authorizeRequests()
@@ -76,24 +82,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .hasAnyAuthority("ADMIN", "EXT_SERV")
         .and()
         .authorizeRequests()
-        .antMatchers("/perun/**")
-        .hasAuthority("PERUN_USER")
-        .and()
-        .authorizeRequests()
         .anyRequest()
         .permitAll()
         .and()
-        .httpBasic()
-        .and()
-        .oauth2ResourceServer()
-        .jwt()
-        .jwtAuthenticationConverter(
-            new NegotiatorJwtAuthenticationConverter(
-                personRepository,
-                authzClaim,
-                authzSubjectClaim,
-                authzAdminValue,
-                authzResearcherValue,
-                authzBiobankerValue));
+        .httpBasic();
+
+    if (!jwtIssuer.isEmpty()) {
+      http.oauth2ResourceServer()
+          .jwt()
+          .jwtAuthenticationConverter(
+              new NegotiatorJwtAuthenticationConverter(
+                  personRepository,
+                  authzClaim,
+                  authzSubjectClaim,
+                  authzAdminValue,
+                  authzResearcherValue,
+                  authzBiobankerValue));
+    }
   }
 }
