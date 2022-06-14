@@ -1,8 +1,9 @@
 # Build the jar
 FROM maven:3-openjdk-17-slim
+ARG BRANCH=master
 RUN apt update && apt install -y git
 RUN git clone https://github.com/BBMRI-ERIC/negotiator-v3.git negotiator
-RUN cd negotiator && mvn clean package -DskipTests
+RUN cd negotiator && git checkout ${BRANCH} && mvn clean package -DskipTests
 
 # Build the image
 FROM openjdk:17-alpine

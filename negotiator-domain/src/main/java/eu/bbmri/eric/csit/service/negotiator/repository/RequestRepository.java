@@ -20,11 +20,29 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
   @Query(
       value =
-          "SELECT DISTINCT r from Request r JOIN r.queries q JOIN q.collections c JOIN c.biobank b WHERE b.sourceId = :biobankId")
+          "SELECT DISTINCT r "
+              + "FROM Request r "
+              + "JOIN FETCH r.persons pp "
+              + "JOIN FETCH pp.person "
+              + "JOIN FETCH pp.role "
+              + "JOIN FETCH r.project p "
+              + "JOIN FETCH r.queries q "
+              + "JOIN FETCH q.collections c "
+              + "JOIN FETCH c.biobank b "
+              + "WHERE b.sourceId = :biobankId")
   List<Request> findByBiobankId(String biobankId);
 
   @Query(
       value =
-          "SELECT DISTINCT r from Request r JOIN r.queries q JOIN q.collections c WHERE c.sourceId = :collectionId")
+          "SELECT DISTINCT r "
+              + "FROM Request r "
+              + "JOIN FETCH r.persons pp "
+              + "JOIN FETCH pp.person "
+              + "JOIN FETCH pp.role "
+              + "JOIN FETCH r.project p "
+              + "JOIN FETCH r.queries q "
+              + "JOIN FETCH q.collections c "
+              + "JOIN FETCH c.biobank b "
+              + "WHERE c.sourceId = :collectionId")
   List<Request> findByCollectionId(String collectionId);
 }
