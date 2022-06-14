@@ -253,6 +253,22 @@ public class QueryControllerTests {
         "%s/1".formatted(ENDPOINT));
   }
 
+
+  @Test
+  public void testUpdate_NotFound() throws Exception {
+    QueryRequest updateRequest = TestUtils.createQueryRequest(true);
+    String requestBody = TestUtils.jsonFromRequest(updateRequest);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("/v3/queries/-1")
+                .with(httpBasic("directory", "directory"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isNotFound());
+  }
+
   @Test
   @Order(3)
   public void testUpdate_Ok() throws Exception {
