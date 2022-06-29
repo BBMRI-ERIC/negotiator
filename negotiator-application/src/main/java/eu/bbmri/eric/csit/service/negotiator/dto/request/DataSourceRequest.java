@@ -51,5 +51,5 @@ public class DataSourceRequest {
   @NotNull(groups = Create.class)
   private Boolean syncActive;
 
-  private Boolean sourcePrefix;
+  private String sourcePrefix;
 }

@@ -9,7 +9,7 @@ insert into data_source (id, url, api_username, api_password, api_type, api_url,
 values
   (1, 'http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasource.dev',
    'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
-   'directory_networks', 'false', 'false');
+   'directory_networks', 'source_prefix', 'false');
 
 insert into person (id, auth_email, auth_name, auth_subject, password, organization, person_image) values
   (1, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey', 'BBMRI', null),

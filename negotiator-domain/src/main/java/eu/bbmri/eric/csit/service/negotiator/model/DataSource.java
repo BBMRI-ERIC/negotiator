@@ -38,7 +38,7 @@ public class DataSource extends BaseEntity {
   @NotNull private String resourceBiobank;
   @NotNull private String resourceCollection;
   @NotNull private Boolean syncActive;
-  private Boolean sourcePrefix;
+  private String sourcePrefix;
   //  @OneToMany(mappedBy = "dataSource")
   //  private Set<User> users;
 

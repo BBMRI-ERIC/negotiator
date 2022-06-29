@@ -34,6 +34,7 @@ public class TestUtils {
   public static final String DATA_SOURCE_RESOURCE_NETWORK = "resource_networks";
   public static final String DATA_SOURCE_RESOURCE_BIOBANK = "resource_biobanks";
   public static final String DATA_SOURCE_RESOURCE_COLLECTION = "resource_collections";
+  public static final String DATA_SOURCE_SOURCE_PREFIX = "source_prefix";
   public static final boolean DATA_SOURCE_SYNC_ACTIVE = false;
 
   public static final String QUERY_URL = "http://datasource.dev";
@@ -80,7 +81,7 @@ public class TestUtils {
         .resourceBiobank(String.format("%s%s", DATA_SOURCE_RESOURCE_BIOBANK, suffix))
         .resourceCollection(String.format("%s%s", DATA_SOURCE_RESOURCE_COLLECTION, suffix))
         .syncActive(update)
-        .sourcePrefix(update)
+        .sourcePrefix(String.format("%s%s", DATA_SOURCE_SOURCE_PREFIX, suffix))
         .build();
   }
 
