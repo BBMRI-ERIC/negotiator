@@ -13,7 +13,7 @@ spring:
         jwt:
           issuer-uri:
 negotiator:
-  redirectPath: "/v3/queries"
+  redirectPath: "/gui/request"
   authorization:
     claim: ""
     adminClaimValue: ""

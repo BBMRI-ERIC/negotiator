@@ -29,7 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 public class QueryV2Controller {
 
-  @Value("${negotiator.redirectPath:/v3/queries}")
+  @Value("${negotiator.redirectPath:/gui/request}")
   private String REDIRECT_PATH;
 
   private final QueryService queryService;
@@ -65,7 +65,7 @@ public class QueryV2Controller {
 
   private String convertIdToRedirectUri(Long queryId) {
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-    return "%s%s/%d".formatted(baseURL, REDIRECT_PATH, queryId);
+    return "%s%s/jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, queryId);
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {

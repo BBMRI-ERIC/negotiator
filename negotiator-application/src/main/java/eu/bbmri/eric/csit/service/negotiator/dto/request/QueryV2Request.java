@@ -29,4 +29,6 @@ public class QueryV2Request {
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
   private Set<CollectionV2DTO> collections;
+
+  private String nToken;
 }
