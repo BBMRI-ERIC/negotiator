@@ -29,7 +29,7 @@ public class QueryResponse {
   @NotEmpty(message = "At least one resource must be present")
   private Set<ResourceDTO> resources;
 
-  @NotNull private String queryToken;
+  @NotNull private String token;
 
   @NotNull private String redirectUrl;
 }

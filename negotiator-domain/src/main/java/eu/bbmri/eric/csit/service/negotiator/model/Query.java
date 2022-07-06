@@ -1,10 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,6 +16,7 @@ import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -70,7 +71,8 @@ public class Query extends BaseEntity {
   @NotNull
   private String jsonPayload;
 
-  @NotNull private String url;
+  @NotNull
+  private String url;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
@@ -84,6 +86,10 @@ public class Query extends BaseEntity {
   @Exclude
   private DataSource dataSource;
 
+  @NotNull
+  private String token = UUID.randomUUID().toString().replace("-", "");
+
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -95,11 +101,12 @@ public class Query extends BaseEntity {
     Query query = (Query) o;
     return Objects.equals(getId(), query.getId())
         && Objects.equals(getJsonPayload(), query.getJsonPayload())
-        && Objects.equals(getUrl(), query.getUrl());
+        && Objects.equals(getUrl(), query.getUrl())
+        && Objects.equals(getToken(), query.getToken());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getJsonPayload(), getUrl());
+    return Objects.hash(getId(), getJsonPayload(), getUrl(), getToken());
   }
 }
