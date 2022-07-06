@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2Request;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource.ApiType;
@@ -110,6 +112,24 @@ public class TestUtils {
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
         .resources(Set.of(biobank))
+        .build();
+  }
+
+  public static QueryV2Request createQueryV2Request(boolean update) {
+    String suffix = update ? "u" : "";
+    String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
+    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;;
+
+    CollectionV2DTO collection =
+        CollectionV2DTO.builder()
+            .collectionId(collectionId)
+            .biobankId(biobankId)
+            .build();
+
+    return QueryV2Request.builder()
+        .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
+        .url(QUERY_URL)
+        .collections(Set.of(collection))
         .build();
   }
 

@@ -5,9 +5,13 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2Request;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryV2Response;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,13 +21,10 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -69,8 +70,14 @@ public class QueryV2Controller {
   }
 
   private String convertIdToRedirectUri(Long queryId) {
+    Query query = queryService.findById(queryId);
+    Request request = query.getRequest();
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-    return "%s%s/jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, queryId);
+    if (request == null) {
+      return "%s%s/jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, queryId);
+    } else {
+      return "%s%s/queryId=%sjsonQuery=%s".formatted(baseURL, REDIRECT_PATH, request.getId(), queryId);
+    }
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
@@ -102,28 +109,37 @@ public class QueryV2Controller {
       value = "/api/directory/create_query",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.CREATED)
   ResponseEntity<QueryV2Response> add(@Valid @RequestBody QueryV2Request queryRequest) {
     QueryRequest v3Request = modelMapper.map(queryRequest, QueryRequest.class);
     Query queryEntity;
-    if (queryRequest.getToken() != null
-        && !queryRequest
-            .getToken()
-            .isEmpty()) { // Update an old query or add a new one to a request
+    boolean created;
+    if (queryRequest.getToken() != null && !queryRequest.getToken().isEmpty()) {
+      // Update an old query or add a new one to a request
       String[] tokens = queryRequest.getToken().split("__search__");
-      if (tokens.length == 1) {
+      try {
+        // If the request was not found in V2, a new query was created
+        requestService.findByToken(tokens[0]);
+        created = false;
+        if (tokens.length == 1) {
+          queryEntity = queryService.create(v3Request);
+          requestService.addQueryToRequest(tokens[0], queryEntity);
+        } else { // Updating an old query: the requestToken can be ignored
+          queryEntity = queryService.update(tokens[1], v3Request);
+        }
+
+      } catch (EntityNotFoundException ex) {
         queryEntity = queryService.create(v3Request);
-        requestService.addQueryToRequest(tokens[0], queryEntity);
-      } else { // Updating an old query: the requestToken can be ignored
-        queryEntity = queryService.update(tokens[1], v3Request);
+        created = true;
       }
     } else {
       queryEntity = queryService.create(v3Request);
+      created = true;
     }
-
     QueryV2Response response = modelMapper.map(queryEntity, QueryV2Response.class);
-    return ResponseEntity.ok()
-        .header(HttpHeaders.LOCATION, response.getRedirectUri())
-        .body(response);
+    if (created) {
+      return ResponseEntity.created(URI.create(response.getRedirectUri())).body(response);
+    } else {
+      return ResponseEntity.accepted().body(response);
+    }
   }
 }

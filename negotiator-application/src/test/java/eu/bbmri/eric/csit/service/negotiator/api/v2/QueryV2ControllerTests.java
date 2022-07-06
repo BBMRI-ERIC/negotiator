@@ -1,20 +1,22 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.v2;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2Request;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.Optional;
 import java.util.Set;
@@ -32,18 +34,19 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
-public class QueryControllerTests {
-  private static final String ENDPOINT = "/v3/queries";
-  @Autowired public QueryService service;
-  @Autowired public QueryRepository repository;
+public class QueryV2ControllerTests {
+  private static final String ENDPOINT = "/api/directory/create_query";
+  @Autowired public QueryRepository queryRepository;
   @Autowired private WebApplicationContext context;
-  @Autowired private QueryController controller;
+  @Autowired private QueryV2Controller controller;
   @Autowired private QueryService queryService;
+  @Autowired private RequestRepository requestRepository;
   @Autowired private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
@@ -51,12 +54,12 @@ public class QueryControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    repository.deleteAll();
+    queryRepository.deleteAll();
   }
 
   @Test
   public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     request.setUrl(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -69,7 +72,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     request.setHumanReadable(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -81,9 +84,9 @@ public class QueryControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenResourcesFieldIsMissing() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
-    request.setResources(null);
+  public void testCreate_BadRequest_whenCollectionFieldIsMissing() throws Exception {
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    request.setCollections(null);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -95,8 +98,8 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
-    request.setResources(Set.of());
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    request.setCollections(Set.of());
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -108,12 +111,10 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
-    Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
-    assert biobank.isPresent();
-    Optional<ResourceDTO> collection = biobank.get().getChildren().stream().findFirst();
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    Optional<CollectionV2DTO> collection = request.getCollections().stream().findFirst();
     assert collection.isPresent();
-    collection.get().setId("collection_unknown");
+    collection.get().setCollectionId("collection_unknown");
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -125,10 +126,10 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
-    Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    Optional<CollectionV2DTO> biobank = request.getCollections().stream().findFirst();
     assert biobank.isPresent();
-    biobank.get().setId("wrong_biobank");
+    biobank.get().setBiobankId("wrong_biobank");
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -140,7 +141,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -154,7 +155,7 @@ public class QueryControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -164,135 +165,124 @@ public class QueryControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
-        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/gui/request")))
-        .andExpect(jsonPath("$.token").isNotEmpty())
-        .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
-        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
-        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
-        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
-  }
-
-  @Test
-  @Order(2)
-  public void testGetAll_Ok() throws Exception {
-    queryService.create(TestUtils.createQueryRequest(false));
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(1)))
-        .andExpect(jsonPath("$[0].id").isNumber())
-        .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
-        .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/gui/request")))
-        .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
-        .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
-        .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
-        .andExpect(jsonPath("$[0].resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
-  }
-
-  @Test
-  @Order(2)
-  public void testGetById_Ok() throws Exception {
-    Query q = queryService.create(TestUtils.createQueryRequest(false));
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, q.getId()))
-                .with(httpBasic("directory", "directory"))
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
-        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/gui/request")))
-        .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
-        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
-        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
-        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+        .andExpect(
+            header().string("Location", containsString("http://localhost/gui/request/jsonQuery=")))
+        .andExpect(
+            jsonPath("$.redirect_uri", containsString("http://localhost/gui/request/jsonQuery=")));
+    assertEquals(queryRepository.findAll().size(), 1);
   }
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.PUT,
-        request,
-        status().isUnauthorized(),
-        anonymous(),
-        "%s/1".formatted(ENDPOINT));
+        mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     TestUtils.checkErrorResponse(
         mockMvc,
-        HttpMethod.PUT,
+        HttpMethod.POST,
         request,
         status().isUnauthorized(),
         httpBasic("admin", "wrong_pass"),
-        "%s/1".formatted(ENDPOINT));
+        ENDPOINT);
   }
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryV2Request request = TestUtils.createQueryV2Request(false);
     TestUtils.checkErrorResponse(
         mockMvc,
-        HttpMethod.PUT,
+        HttpMethod.POST,
         request,
         status().isForbidden(),
         httpBasic("researcher", "researcher"),
-        "%s/1".formatted(ENDPOINT));
+        ENDPOINT);
   }
 
-
   @Test
-  public void testUpdate_NotFound() throws Exception {
-    QueryRequest updateRequest = TestUtils.createQueryRequest(true);
+  public void testUpdate_CreateWhenRequestIsNotFound() throws Exception {
+    QueryV2Request updateRequest = TestUtils.createQueryV2Request(false);
+    updateRequest.setToken("-1__search__-1");
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
-
     mockMvc
         .perform(
-            MockMvcRequestBuilders.put("%s/-1".formatted(ENDPOINT))
+            MockMvcRequestBuilders.post(ENDPOINT)
                 .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isCreated())
+        .andExpect(
+            header().string("Location", containsString("http://localhost/gui/request/jsonQuery=")))
+        .andExpect(
+            jsonPath("$.redirect_uri", containsString("http://localhost/gui/request/jsonQuery=")));
   }
 
   @Test
   @Order(3)
-  public void testUpdate_Ok() throws Exception {
+  @Transactional
+  public void testUpdate_Ok_whenChangeQuery() throws Exception {
     Query q = queryService.create(TestUtils.createQueryRequest(false));
+    // The data source to be updated
+    Request requestEntity =
+        modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Request.class);
+    q.setRequest(requestEntity);
+    requestRepository.save(requestEntity);
 
-    QueryRequest updateRequest = TestUtils.createQueryRequest(true);
+    QueryV2Request updateRequest = TestUtils.createQueryV2Request(false);
+    updateRequest.setToken("%s__search__%s".formatted(requestEntity.getToken(), q.getToken()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.put("%s/%s".formatted(ENDPOINT, q.getId()))
+            MockMvcRequestBuilders.post(ENDPOINT)
                 .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-        .andExpect(status().isNoContent())
-        .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
-        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/gui/request")))
-        .andExpect(jsonPath("$.resources[0].id", is("biobank:2")))
-        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
-        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:2:collection:1")))
-        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+        .andExpect(status().isAccepted())
+        .andExpect(
+            jsonPath(
+                "$.redirect_uri",
+                containsString(
+                    "http://localhost/gui/request/queryId=%sjsonQuery="
+                        .formatted(requestEntity.getId()))));
+    assertEquals(queryRepository.findAll().size(), 1);
+  }
+
+  @Test
+  @Order(3)
+  @Transactional
+  public void testUpdate_Ok_whenAddQueryToARequest() throws Exception {
+    Query q = queryService.create(TestUtils.createQueryRequest(false));
+    // The data source to be updated
+    Request requestEntity =
+        modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Request.class);
+    q.setRequest(requestEntity);
+    requestRepository.save(requestEntity);
+
+    QueryV2Request updateRequest = TestUtils.createQueryV2Request(false);
+    updateRequest.setToken("%s__search__".formatted(requestEntity.getToken()));
+    String requestBody = TestUtils.jsonFromRequest(updateRequest);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ENDPOINT)
+                .with(httpBasic("directory", "directory"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isAccepted())
+        .andExpect(
+            jsonPath(
+                "$.redirect_uri",
+                containsString(
+                    "http://localhost/gui/request/queryId=%sjsonQuery="
+                        .formatted(requestEntity.getId()))));
+    assertEquals(queryRepository.findAll().size(), 2);
   }
 }
