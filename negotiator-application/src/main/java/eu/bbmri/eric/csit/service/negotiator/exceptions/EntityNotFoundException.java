@@ -13,4 +13,8 @@ public class EntityNotFoundException extends RuntimeException {
   public EntityNotFoundException(List<Long> entityId) {
     super(errorMessage.formatted(entityId));
   }
+
+  public EntityNotFoundException(String entityId) {
+    super(errorMessage.formatted(entityId));
+  }
 }

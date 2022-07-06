@@ -7,6 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryV2Response;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,10 +35,14 @@ public class QueryV2Controller {
 
   private final QueryService queryService;
 
+  private final RequestService requestService;
+
   private final ModelMapper modelMapper;
 
-  public QueryV2Controller(QueryService queryService, ModelMapper modelMapper) {
+  public QueryV2Controller(
+      QueryService queryService, RequestService requestService, ModelMapper modelMapper) {
     this.queryService = queryService;
+    this.requestService = requestService;
     this.modelMapper = modelMapper;
 
     // Mapper from v2 Query to V3 Query
@@ -100,7 +105,22 @@ public class QueryV2Controller {
   @ResponseStatus(HttpStatus.CREATED)
   ResponseEntity<QueryV2Response> add(@Valid @RequestBody QueryV2Request queryRequest) {
     QueryRequest v3Request = modelMapper.map(queryRequest, QueryRequest.class);
-    Query queryEntity = queryService.create(v3Request);
+    Query queryEntity;
+    if (queryRequest.getToken() != null
+        && !queryRequest
+            .getToken()
+            .isEmpty()) { // Update an old query or add a new one to a request
+      String[] tokens = queryRequest.getToken().split("__search__");
+      if (tokens.length == 1) {
+        queryEntity = queryService.create(v3Request);
+        requestService.addQueryToRequest(tokens[0], queryEntity);
+      } else { // Updating an old query: the requestToken can be ignored
+        queryEntity = queryService.update(tokens[1], v3Request);
+      }
+    } else {
+      queryEntity = queryService.create(v3Request);
+    }
+
     QueryV2Response response = modelMapper.map(queryEntity, QueryV2Response.class);
     return ResponseEntity.ok()
         .header(HttpHeaders.LOCATION, response.getRedirectUri())

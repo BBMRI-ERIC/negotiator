@@ -20,4 +20,7 @@ public interface QueryRepository extends JpaRepository<Query, Long> {
 
   @EntityGraph(value = "query-with-detailed-collections")
   Optional<Query> findDetailedById(Long id);
+
+  //  @EntityGraph(value = "query-with-detailed-collections")
+  Optional<Query> findByToken(String token);
 }

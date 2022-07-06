@@ -78,6 +78,7 @@ public class QueryService {
     checkAndSetResources(queryRequest.getResources(), queryEntity);
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
     queryEntity.setUrl(queryRequest.getUrl());
+    queryEntity.setQueryString(queryRequest.getHumanReadable());
 
     JsonMapper mapper = new JsonMapper();
     try {
@@ -107,6 +108,13 @@ public class QueryService {
 
   public Set<Query> findAllById(Set<Long> ids) {
     return ids.stream().map(this::findById).collect(Collectors.toSet());
+  }
+
+  @Transactional
+  public Query update(String token, QueryRequest queryRequest) {
+    Query queryEntity =
+        queryRepository.findByToken(token).orElseThrow(() -> new EntityNotFoundException(token));
+    return saveQuery(queryRequest, queryEntity);
   }
 
   @Transactional

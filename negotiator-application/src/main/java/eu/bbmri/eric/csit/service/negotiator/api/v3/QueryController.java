@@ -47,6 +47,9 @@ public class QueryController {
     TypeMap<Query, QueryResponse> typeMap =
         modelMapper.createTypeMap(Query.class, QueryResponse.class);
 
+    typeMap.addMappings(
+        mapper -> mapper.map(Query::getQueryString, QueryResponse::setHumanReadable));
+
     Converter<Set<Collection>, Set<ResourceDTO>> queryCollectionToResources =
         q -> convertCollectionsToResources(q.getSource());
     typeMap.addMappings(
@@ -119,7 +122,8 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  QueryResponse update(@Valid @PathVariable Long id, @Valid @RequestBody QueryRequest queryRequest) {
+  QueryResponse update(
+      @Valid @PathVariable Long id, @Valid @RequestBody QueryRequest queryRequest) {
     Query queryEntity = queryService.update(id, queryRequest);
     return modelMapper.map(queryEntity, QueryResponse.class);
   }

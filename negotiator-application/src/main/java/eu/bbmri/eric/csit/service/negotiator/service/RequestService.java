@@ -135,16 +135,7 @@ public class RequestService {
     return create(requestEntity, request.getQueries(), creatorId);
   }
 
-  /**
-   * Updates the request with the specified ID.
-   *
-   * @param id the id of the request tu update
-   * @param request the RequestRequest DTO with the new Request data
-   * @return The updated Request entity
-   */
-  @Transactional
-  public Request update(Long id, RequestRequest request) {
-    Request requestEntity = findById(id);
+  private Request update(Request requestEntity, RequestRequest request) {
     Set<Query> queries = findQueries(request.getQueries());
 
     if (queries.stream()
@@ -162,6 +153,45 @@ public class RequestService {
     requestEntity.setTitle(request.getTitle());
     requestEntity.setDescription(request.getDescription());
 
+    try {
+      requestRepository.save(requestEntity);
+      return requestEntity;
+    } catch (DataIntegrityViolationException ex) {
+      throw new EntityNotStorableException();
+    }
+  }
+
+  /**
+   * Updates the request with the specified ID.
+   *
+   * @param id the id of the request tu update
+   * @param request the RequestRequest DTO with the new Request data
+   * @return The updated Request entity
+   */
+  @Transactional
+  public Request update(Long id, RequestRequest request) {
+    Request requestEntity = findById(id);
+    return update(requestEntity, request);
+  }
+
+  /**
+   * Updates the request with the specified token.
+   *
+   * @param token the token of the request tu update
+   * @param request the RequestRequest DTO with the new Request data
+   * @return The updated Request entity
+   */
+  @Transactional
+  public Request update(String token, RequestRequest request) {
+    Request requestEntity = findByToken(token);
+    return update(requestEntity, request);
+  }
+
+  @Transactional
+  public Request addQueryToRequest(String token, Query queryEntity) {
+    Request requestEntity = findByToken(token);
+    requestEntity.getQueries().add(queryEntity);
+    queryEntity.setRequest(requestEntity);
     try {
       requestRepository.save(requestEntity);
       return requestEntity;
@@ -191,6 +221,19 @@ public class RequestService {
     return requestRepository
         .findDetailedById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
+  }
+
+  /**
+   * Returns the Request with the specified token if exists, otherwise it throws an exception
+   *
+   * @param token the id of the Request to retrieve
+   * @return the Request with specified id
+   */
+  @Transactional
+  public Request findByToken(String token) throws EntityNotFoundException {
+    return requestRepository
+        .findByToken(token)
+        .orElseThrow(() -> new EntityNotFoundException(token));
   }
 
   /**

@@ -72,6 +72,9 @@ public class Query extends BaseEntity {
   private String jsonPayload;
 
   @NotNull
+  private String queryString;
+
+  @NotNull
   private String url;
 
   @ManyToOne(fetch = FetchType.LAZY)

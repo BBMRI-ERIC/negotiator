@@ -30,5 +30,6 @@ public class QueryV2Request {
   @NotEmpty(message = "At least one resource must be present")
   private Set<CollectionV2DTO> collections;
 
-  private String nToken;
+  @JsonProperty("nToken")
+  private String token;
 }
