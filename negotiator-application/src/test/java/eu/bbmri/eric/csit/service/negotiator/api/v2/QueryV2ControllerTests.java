@@ -246,6 +246,10 @@ public class QueryV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isAccepted())
         .andExpect(
+            header().string("Location", containsString(
+                    "http://localhost/gui/request/queryId=%sjsonQuery="
+                        .formatted(requestEntity.getId()))))
+        .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
@@ -277,6 +281,10 @@ public class QueryV2ControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isAccepted())
+        .andExpect(
+            header().string("Location", containsString(
+                "http://localhost/gui/request/queryId=%sjsonQuery="
+                    .formatted(requestEntity.getId()))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",

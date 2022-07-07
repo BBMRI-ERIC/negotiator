@@ -139,7 +139,7 @@ public class QueryV2Controller {
     if (created) {
       return ResponseEntity.created(URI.create(response.getRedirectUri())).body(response);
     } else {
-      return ResponseEntity.accepted().body(response);
+      return ResponseEntity.accepted().header("Location", response.getRedirectUri()).body(response);
     }
   }
 }
