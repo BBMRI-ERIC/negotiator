@@ -19,6 +19,7 @@ import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
@@ -57,6 +58,7 @@ public class RequestControllerTests {
   @Autowired private RequestRepository requestRepository;
   @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
+  @Autowired private QueryService queryService;
 
   private MockMvc mockMvc;
   private Query testQuery;
@@ -76,8 +78,7 @@ public class RequestControllerTests {
 
   private Query createQueryEntity() {
     QueryRequest queryRequest = TestUtils.createQueryRequest(false);
-    Query query = modelMapper.map(queryRequest, Query.class);
-    return queryRepository.save(query);
+    return queryService.create(queryRequest);
   }
 
   @Test
