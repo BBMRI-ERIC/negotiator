@@ -18,5 +18,5 @@ public class PersonRequestId implements Serializable {
 
   Long person;
 
-  Long request;
+  String request;
 }

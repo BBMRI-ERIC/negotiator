@@ -75,7 +75,7 @@ public class QueryV2Controller {
     if (request == null) {
       return "%s%s/jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, queryId);
     } else {
-      return "%s%s/queryId=%d&jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, request.getId(), queryId);
+      return "%s%s/queryId=%s&jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, request.getId(), queryId);
     }
   }
 

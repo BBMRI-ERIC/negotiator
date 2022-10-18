@@ -37,7 +37,7 @@ public class ProjectController {
 
   @GetMapping(value = "/projects/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  ProjectDTO retrieve(@Valid @PathVariable Long id) {
+    ProjectDTO retrieve(@Valid @PathVariable String id) {
     return modelMapper.map(projectService.findById(id), ProjectDTO.class);
   }
 

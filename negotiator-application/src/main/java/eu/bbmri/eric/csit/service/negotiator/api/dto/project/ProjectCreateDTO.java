@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
@@ -19,8 +20,11 @@ import lombok.Setter;
 public class ProjectCreateDTO {
   @NotNull private String title;
 
-  @NotNull private String description;
+  @NotNull
+  @Length(max = 512)
+  private String description;
 
+  @Length(max = 512)
   @NotNull private String ethicsVote;
 
   @NotNull

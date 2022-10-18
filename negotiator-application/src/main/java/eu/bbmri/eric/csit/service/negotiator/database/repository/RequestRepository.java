@@ -9,16 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RequestRepository extends JpaRepository<Request, Long> {
+public interface RequestRepository extends JpaRepository<Request, String> {
 
   @Override
   @EntityGraph(value = "request-with-detailed-children")
   List<Request> findAll();
 
   @EntityGraph(value = "request-with-detailed-children")
-  Optional<Request> findDetailedById(Long id);
-
-  Optional<Request> findById(String id);
+  Optional<Request> findDetailedById(String id);
 
   Optional<Request> findByToken(String token);
 

@@ -20,6 +20,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.hibernate.exception.DataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,9 +90,8 @@ public class RequestService {
     try {
       // Finally, save the request. NB: it also cascades operations for other Queries,
       // PersonRequestRole
-      requestRepository.save(requestEntity);
-      return requestEntity;
-    } catch (DataIntegrityViolationException ex) {
+      return requestRepository.save(requestEntity);
+    } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Request into db. Some db constraint violated");
       throw new EntityNotStorableException();
     }
@@ -108,7 +108,7 @@ public class RequestService {
    * @return the created Request entity
    */
   @Transactional
-  public Request create(Long projectId, RequestCreateDTO request, Long creatorId) {
+  public Request create(String projectId, RequestCreateDTO request, Long creatorId) {
     // Get the project or throw an exception
     Project project = projectService.findById(projectId);
     Request requestEntity = modelMapper.map(request, Request.class);
@@ -156,7 +156,7 @@ public class RequestService {
     try {
       requestRepository.save(requestEntity);
       return requestEntity;
-    } catch (DataIntegrityViolationException ex) {
+    } catch (DataException | DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
   }
@@ -169,21 +169,8 @@ public class RequestService {
    * @return The updated Request entity
    */
   @Transactional
-  public Request update(Long id, RequestCreateDTO request) {
+  public Request update(String id, RequestCreateDTO request) {
     Request requestEntity = findDetailedById(id);
-    return update(requestEntity, request);
-  }
-
-  /**
-   * Updates the request with the specified token.
-   *
-   * @param token the token of the request tu update
-   * @param request the RequestCreateDTO DTO with the new Request data
-   * @return The updated Request entity
-   */
-  @Transactional
-  public Request update(String token, RequestCreateDTO request) {
-    Request requestEntity = findByToken(token);
     return update(requestEntity, request);
   }
 
@@ -217,7 +204,7 @@ public class RequestService {
    * @return the Request with specified id
    */
   @Transactional
-  public Request findDetailedById(Long id) throws EntityNotFoundException {
+  public Request findDetailedById(String id) throws EntityNotFoundException {
     return requestRepository
         .findDetailedById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
@@ -230,7 +217,7 @@ public class RequestService {
    * @return the Request with specified id
    */
   @Transactional
-  public Request findById(Long id) throws EntityNotFoundException {
+  public Request findById(String id) throws EntityNotFoundException {
     return requestRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));

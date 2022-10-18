@@ -12,6 +12,7 @@ import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -26,9 +27,10 @@ import org.springframework.data.annotation.LastModifiedDate;
 @MappedSuperclass
 public abstract class AuditEntity {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
   @Column(name = "id")
-  private Long id;
+  private String id;
 
   @CreatedDate @Exclude private LocalDateTime creationDate;
 

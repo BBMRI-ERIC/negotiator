@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
@@ -22,7 +23,9 @@ public class RequestCreateDTO {
 
   @NotNull private String title;
 
-  @NotNull private String description;
+  @NotNull
+  @Length(max = 512)
+  private String description;
 
   private Boolean isTest = false;
 

@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+public interface ProjectRepository extends JpaRepository<Project, String> {
   @Override
   @EntityGraph(value = "project-detailed")
   List<Project> findAll();
 
   @EntityGraph(value = "project-detailed")
-  Optional<Project> findDetailedById(Long id);
+  Optional<Project> findDetailedById(String id);
 }

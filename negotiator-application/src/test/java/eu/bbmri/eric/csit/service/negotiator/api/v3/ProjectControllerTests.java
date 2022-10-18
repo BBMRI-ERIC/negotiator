@@ -207,7 +207,7 @@ public class ProjectControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.id").isString())
         .andExpect(jsonPath("$.title", Is.is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$.description", Is.is(TestUtils.PROJECT_DESCRIPTION)))
         .andExpect(jsonPath("$.ethicsVote", Is.is(TestUtils.PROJECT_ETHICS_VOTE)))
@@ -270,7 +270,7 @@ public class ProjectControllerTests {
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$[0].id", is(entity.getId().intValue())))
+        .andExpect(jsonPath("$[0].id", is(entity.getId())))
         .andExpect(jsonPath("$[0].title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$[0].description", is(TestUtils.PROJECT_DESCRIPTION)))
         .andExpect(
@@ -357,7 +357,7 @@ public class ProjectControllerTests {
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(entity.getId().intValue())))
+        .andExpect(jsonPath("$.id", is(entity.getId())))
         .andExpect(jsonPath("$.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$.description", is(TestUtils.PROJECT_DESCRIPTION)))
         .andExpect(

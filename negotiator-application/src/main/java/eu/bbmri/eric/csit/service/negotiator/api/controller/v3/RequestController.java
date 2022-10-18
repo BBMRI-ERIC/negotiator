@@ -83,7 +83,7 @@ public class RequestController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  RequestDTO add(@PathVariable Long projectId, @Valid @RequestBody RequestCreateDTO request) {
+  RequestDTO add(@PathVariable String projectId, @Valid @RequestBody RequestCreateDTO request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
     Request requestEntity = requestService.create(projectId, request, creator.getId());
@@ -101,7 +101,7 @@ public class RequestController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  RequestDTO update(@Valid @PathVariable Long id, @Valid @RequestBody RequestCreateDTO request) {
+      RequestDTO update(@Valid @PathVariable String id, @Valid @RequestBody RequestCreateDTO request) {
     Request requestEntity = requestService.update(id, request);
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
@@ -124,8 +124,8 @@ public class RequestController {
   }
 
   @GetMapping("/requests/{id}")
-    RequestDTO retrieve(@Valid @PathVariable Long id) {
+  RequestDTO retrieve(@Valid @PathVariable String id) {
     Request entity = requestService.findDetailedById(id);
-    return modelMapper.map(entity, RequestResponse.class);
+    return modelMapper.map(entity, RequestDTO.class);
   }
 }

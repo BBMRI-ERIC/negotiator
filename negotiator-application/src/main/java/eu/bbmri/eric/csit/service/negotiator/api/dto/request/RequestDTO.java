@@ -19,7 +19,7 @@ import lombok.Setter;
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class RequestDTO {
-  @NotNull private Long id;
+  @NotNull private String id;
 
   @NotNull private String title;
 
