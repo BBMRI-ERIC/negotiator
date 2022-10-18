@@ -47,9 +47,6 @@ public class QueryController {
     TypeMap<Query, QueryResponse> typeMap =
         modelMapper.createTypeMap(Query.class, QueryResponse.class);
 
-    typeMap.addMappings(
-        mapper -> mapper.map(Query::getQueryString, QueryResponse::setHumanReadable));
-
     Converter<Set<Collection>, Set<ResourceDTO>> queryCollectionToResources =
         q -> convertCollectionsToResources(q.getSource());
     typeMap.addMappings(

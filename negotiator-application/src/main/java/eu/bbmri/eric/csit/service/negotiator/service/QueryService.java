@@ -9,6 +9,8 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.model.Collection;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
@@ -78,7 +80,7 @@ public class QueryService {
     checkAndSetResources(queryRequest.getResources(), queryEntity);
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
     queryEntity.setUrl(queryRequest.getUrl());
-    queryEntity.setQueryString(queryRequest.getHumanReadable());
+    queryEntity.setHumanReadable(queryRequest.getHumanReadable());
 
     JsonMapper mapper = new JsonMapper();
     try {

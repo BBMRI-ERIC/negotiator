@@ -47,6 +47,16 @@ import org.hibernate.annotations.TypeDefs;
           name = "collections-with-biobank",
           attributeNodes = {@NamedAttributeNode("biobank")})
     })
+@NamedEntityGraph(
+    name = "query-with-detailed-resources",
+    attributeNodes = {
+        @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "resources-with-parent",
+            attributeNodes = {@NamedAttributeNode("parent")})
+    })
 public class Query extends BaseEntity {
 
   //  @ManyToMany
@@ -56,6 +66,15 @@ public class Query extends BaseEntity {
   //      inverseJoinColumns = @JoinColumn(name = "query_id"))
   //  @Exclude
   //  private Set<Biobank> biobanks;
+
+  @ManyToMany
+  @JoinTable(
+      name = "query_resources_link",
+      joinColumns = @JoinColumn(name = "query_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
+  @Exclude
+//  @NotNull
+  private Set<Resource> resources;
 
   @ManyToMany
   @JoinTable(
@@ -72,7 +91,7 @@ public class Query extends BaseEntity {
   private String jsonPayload;
 
   @NotNull
-  private String queryString;
+  private String humanReadable;
 
   @NotNull
   private String url;

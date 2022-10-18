@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"eu.bbmri.eric.csit.service.*"})
-@EnableJpaRepositories(basePackages = {"eu.bbmri.eric.csit.service.*"})
+@EntityScan(basePackages = {"eu.bbmri.eric.csit.service.negotiator.*"})
+@EnableJpaRepositories(basePackages = {"eu.bbmri.eric.csit.service.negotiator.*"})
 @EnableAutoConfiguration
 public class NegotiatorApplication {
 

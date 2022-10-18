@@ -36,6 +36,14 @@ public class Person extends BaseEntity {
 
   @ManyToMany
   @JoinTable(
+      name = "person_resource_link",
+      joinColumns = @JoinColumn(name = "person_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
+  @Exclude
+  Set<Resource> resources;
+
+  @ManyToMany
+  @JoinTable(
       name = "person_biobank_link",
       joinColumns = @JoinColumn(name = "person_id"),
       inverseJoinColumns = @JoinColumn(name = "biobank_id"))
