@@ -28,5 +28,5 @@ public class RequestCreateDTO {
 
   @Valid private ProjectCreateDTO project;
 
-  @Valid @NotEmpty private Set<Long> queries;
+  @Valid @NotEmpty private Set<String> queries;
 }

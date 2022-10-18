@@ -99,23 +99,16 @@ public class QueryService {
   }
 
   @Transactional(readOnly = true)
-  public Query findById(Long id) {
+  public Query findById(String id) {
     return queryRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
-  public Set<Query> findAllById(Set<Long> ids) {
+  public Set<Query> findAllById(Set<String> ids) {
     return ids.stream().map(this::findById).collect(Collectors.toSet());
   }
 
   @Transactional
-  public Query update(String token, QueryCreateDTO queryRequest) {
-    Query queryEntity =
-        queryRepository.findByToken(token).orElseThrow(() -> new EntityNotFoundException(token));
-    return saveQuery(queryRequest, queryEntity);
-  }
-
-  @Transactional
-  public Query update(Long id, QueryCreateDTO queryRequest) {
+  public Query update(String id, QueryCreateDTO queryRequest) {
     Query queryEntity =
         queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return saveQuery(queryRequest, queryEntity);

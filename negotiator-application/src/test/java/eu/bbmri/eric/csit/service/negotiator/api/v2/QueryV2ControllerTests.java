@@ -235,7 +235,7 @@ public class QueryV2ControllerTests {
     requestRepository.save(requestEntity);
 
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
-    updateRequest.setToken("%s__search__%s".formatted(requestEntity.getToken(), q.getToken()));
+    updateRequest.setToken("%s__search__%s".formatted(requestEntity.getToken(), q.getId()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc
@@ -248,20 +248,19 @@ public class QueryV2ControllerTests {
         .andExpect(status().isAccepted())
         .andExpect(
             header().string("Location", containsString(
-                    "http://localhost/gui/request/queryId=%sjsonQuery="
+                    "http://localhost/gui/request/queryId=%s&jsonQuery="
                         .formatted(requestEntity.getId()))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
-                    "http://localhost/gui/request/queryId=%sjsonQuery="
+                    "http://localhost/gui/request/queryId=%s&jsonQuery="
                         .formatted(requestEntity.getId()))));
     assertEquals(queryRepository.findAll().size(), 1);
   }
 
   @Test
   @Order(3)
-  @Transactional
   public void testUpdate_Ok_whenAddQueryToARequest() throws Exception {
     Query q = queryService.create(TestUtils.createQueryRequest(false));
     // The data source to be updated
@@ -284,13 +283,13 @@ public class QueryV2ControllerTests {
         .andExpect(status().isAccepted())
         .andExpect(
             header().string("Location", containsString(
-                "http://localhost/gui/request/queryId=%sjsonQuery="
+                "http://localhost/gui/request/queryId=%s&jsonQuery="
                     .formatted(requestEntity.getId()))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
-                    "http://localhost/gui/request/queryId=%sjsonQuery="
+                    "http://localhost/gui/request/queryId=%s&jsonQuery="
                         .formatted(requestEntity.getId()))));
     assertEquals(queryRepository.findAll().size(), 2);
   }

@@ -62,20 +62,20 @@ public class QueryV2Controller {
     TypeMap<Query, QueryV2DTO> queryToV3Response =
         modelMapper.createTypeMap(Query.class, QueryV2DTO.class);
 
-    Converter<Long, String> queryToRedirectUri = q -> convertIdToRedirectUri(q.getSource());
+    Converter<String, String> queryToRedirectUri = q -> convertIdToRedirectUri(q.getSource());
     queryToV3Response.addMappings(
         mapper ->
             mapper.using(queryToRedirectUri).map(Query::getId, QueryV2DTO::setRedirectUri));
   }
 
-  private String convertIdToRedirectUri(Long queryId) {
+  private String convertIdToRedirectUri(String queryId) {
     Query query = queryService.findById(queryId);
     Request request = query.getRequest();
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
     if (request == null) {
       return "%s%s/jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, queryId);
     } else {
-      return "%s%s/queryId=%sjsonQuery=%s".formatted(baseURL, REDIRECT_PATH, request.getId(), queryId);
+      return "%s%s/queryId=%d&jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, request.getId(), queryId);
     }
   }
 

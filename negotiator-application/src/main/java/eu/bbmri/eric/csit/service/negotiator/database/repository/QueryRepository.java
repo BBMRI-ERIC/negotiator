@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
-public interface QueryRepository extends JpaRepository<Query, Long> {
+public interface QueryRepository extends JpaRepository<Query, String> {
 
   @NotNull
   @Override
@@ -19,8 +19,5 @@ public interface QueryRepository extends JpaRepository<Query, Long> {
   List<Query> findAll();
 
   @EntityGraph(value = "query-with-detailed-resources")
-  Optional<Query> findDetailedById(Long id);
-
-  //  @EntityGraph(value = "query-with-detailed-collections")
-  Optional<Query> findByToken(String token);
+  Optional<Query> findDetailedById(String id);
 }

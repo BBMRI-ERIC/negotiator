@@ -124,8 +124,8 @@ public class RequestController {
   }
 
   @GetMapping("/requests/{id}")
-  RequestDTO retrieve(@Valid @PathVariable Long id) {
-    Request entity = requestService.findById(id);
-    return modelMapper.map(entity, RequestDTO.class);
+    RequestDTO retrieve(@Valid @PathVariable Long id) {
+    Request entity = requestService.findDetailedById(id);
+    return modelMapper.map(entity, RequestResponse.class);
   }
 }

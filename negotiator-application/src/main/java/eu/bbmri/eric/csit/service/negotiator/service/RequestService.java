@@ -34,7 +34,7 @@ public class RequestService {
   @Autowired private QueryService queryService;
   @Autowired private ModelMapper modelMapper;
 
-  private Set<Query> findQueries(Set<Long> queriesId) {
+  private Set<Query> findQueries(Set<String> queriesId) {
     Set<Query> queries;
     try {
       queries = queryService.findAllById(queriesId);
@@ -54,7 +54,7 @@ public class RequestService {
    *     that called the API)
    * @return The created query
    */
-  private Request create(Request requestEntity, Set<Long> queriesId, Long creatorId) {
+  private Request create(Request requestEntity, Set<String> queriesId, Long creatorId) {
     // Gets the Entities for the queries
     log.debug("Getting query entities");
     Set<Query> queries = findQueries(queriesId);
@@ -170,7 +170,7 @@ public class RequestService {
    */
   @Transactional
   public Request update(Long id, RequestCreateDTO request) {
-    Request requestEntity = findById(id);
+    Request requestEntity = findDetailedById(id);
     return update(requestEntity, request);
   }
 
@@ -217,9 +217,22 @@ public class RequestService {
    * @return the Request with specified id
    */
   @Transactional
-  public Request findById(Long id) throws EntityNotFoundException {
+  public Request findDetailedById(Long id) throws EntityNotFoundException {
     return requestRepository
         .findDetailedById(id)
+        .orElseThrow(() -> new EntityNotFoundException(id));
+  }
+
+  /**
+   * Returns the Request with the specified id if exists, otherwise it throws an exception
+   *
+   * @param id the id of the Request to retrieve
+   * @return the Request with specified id
+   */
+  @Transactional
+  public Request findById(Long id) throws EntityNotFoundException {
+    return requestRepository
+        .findById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
   }
 

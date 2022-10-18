@@ -166,7 +166,7 @@ public class TestUtils {
   }
 
   public static RequestCreateDTO createRequest(
-      boolean update, boolean includeProject, Set<Long> queriesId) {
+      boolean update, boolean includeProject, Set<String> queriesId) {
     String suffix = update ? "u" : "";
 
     RequestCreateDTO.RequestCreateDTOBuilder builder =

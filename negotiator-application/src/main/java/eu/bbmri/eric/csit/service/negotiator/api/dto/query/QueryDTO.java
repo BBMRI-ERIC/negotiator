@@ -16,7 +16,7 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class QueryDTO {
 
-  @NotNull private Long id;
+  @NotNull private String id;
 
   @NotNull(message = "The url of the original query must be present")
   private String url;

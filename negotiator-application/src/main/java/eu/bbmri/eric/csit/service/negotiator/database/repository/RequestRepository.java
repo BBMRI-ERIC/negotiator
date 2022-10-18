@@ -18,6 +18,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
   @EntityGraph(value = "request-with-detailed-children")
   Optional<Request> findDetailedById(Long id);
 
+  Optional<Request> findById(String id);
+
   Optional<Request> findByToken(String token);
 
   @Query(

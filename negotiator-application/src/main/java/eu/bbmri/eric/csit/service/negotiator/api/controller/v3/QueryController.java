@@ -54,15 +54,15 @@ public class QueryController {
                 .using(queryResourceToResources)
                 .map(Query::getResources, QueryDTO::setResources));
 
-    Converter<Long, String> queryToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
+    Converter<String, String> queryToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
     typeMap.addMappings(
         mapper ->
             mapper.using(queryToRedirectUrl).map(Query::getId, QueryDTO::setRedirectUrl));
   }
 
-  private String convertIdToRedirectUrl(Long queryId) {
+  private String convertIdToRedirectUrl(String queryId) {
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-    return "%s%s/%d".formatted(baseURL, REDIRECT_PATH, queryId);
+    return "%s%s/%s".formatted(baseURL, REDIRECT_PATH, queryId);
   }
 
   private Set<ResourceDTO> convertResourceToResources(Set<Resource> resources) {
@@ -98,7 +98,7 @@ public class QueryController {
   }
 
   @GetMapping("/queries/{id}")
-  QueryDTO retrieve(@PathVariable Long id) {
+    QueryDTO retrieve(@PathVariable String id) {
     Query queryEntity = queryService.findById(id);
     return modelMapper.map(queryEntity, QueryDTO.class);
   }
@@ -118,8 +118,8 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  QueryDTO update(
-      @Valid @PathVariable Long id, @Valid @RequestBody QueryCreateDTO queryRequest) {
+    QueryDTO update(
+      @Valid @PathVariable String id, @Valid @RequestBody QueryCreateDTO queryRequest) {
     Query queryEntity = queryService.update(id, queryRequest);
     return modelMapper.map(queryEntity, QueryDTO.class);
   }

@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -41,13 +44,17 @@ import lombok.ToString.Exclude;
             name = "resources-with-parent",
             attributeNodes = {@NamedAttributeNode("parent")})
     })
-public class Query extends BaseEntity {
+public class Query {
 
   @NotNull
   private String url;
 
   @NotNull
   private String humanReadable;
+
+  @Id
+  @Column(name = "id")
+  private final String id = UUID.randomUUID().toString().replace("-", "");;
 
   @ManyToMany
   @JoinTable(
@@ -71,7 +78,7 @@ public class Query extends BaseEntity {
   private DataSource dataSource;
 
   @NotNull
-  private String token = UUID.randomUUID().toString().replace("-", "");
+  private final String token = UUID.randomUUID().toString().replace("-", "");
 
   @Override
   public boolean equals(Object o) {

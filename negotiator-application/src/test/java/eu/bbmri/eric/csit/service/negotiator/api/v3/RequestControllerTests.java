@@ -452,7 +452,7 @@ public class RequestControllerTests {
   @Test
   public void testCreate_BadRequest_whenSomeQueries_IsNotFound() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
-    request.setQueries(Set.of(-1L));
+    request.setQueries(Set.of("unknownn"));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -466,7 +466,7 @@ public class RequestControllerTests {
     projectRepository.save(projectEntity);
 
     request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
-    request.setQueries(Set.of(-1L));
+    request.setQueries(Set.of("unknown"));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -655,7 +655,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
-        .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId().intValue())))
+        .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId())))
         .andExpect(jsonPath("$.project.id").isNumber())
         .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
@@ -693,7 +693,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.token").isString())
-        .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId().intValue())));
+        .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId())));
     assertEquals(requestRepository.findAll().size(), 1);
     assertEquals(projectRepository.findAll().size(), 1);
   }
