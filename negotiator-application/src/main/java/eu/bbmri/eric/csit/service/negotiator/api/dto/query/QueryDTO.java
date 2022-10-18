@@ -28,7 +28,5 @@ public class QueryDTO {
   @NotEmpty(message = "At least one resource must be present")
   private Set<ResourceDTO> resources;
 
-  @NotNull private String token;
-
   @NotNull private String redirectUrl;
 }

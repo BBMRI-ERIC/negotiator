@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -77,9 +76,6 @@ public class Query {
   @Exclude
   private DataSource dataSource;
 
-  @NotNull
-  private final String token = UUID.randomUUID().toString().replace("-", "");
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -90,12 +86,11 @@ public class Query {
     }
     Query query = (Query) o;
     return Objects.equals(getId(), query.getId())
-        && Objects.equals(getUrl(), query.getUrl())
-        && Objects.equals(getToken(), query.getToken());
+        && Objects.equals(getUrl(), query.getUrl());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getUrl(), getToken());
+    return Objects.hash(getId(), getUrl());
   }
 }
