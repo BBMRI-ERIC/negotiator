@@ -235,7 +235,7 @@ public class QueryV2ControllerTests {
     requestRepository.save(requestEntity);
 
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
-    updateRequest.setToken("%s__search__%s".formatted(requestEntity.getToken(), q.getId()));
+    updateRequest.setToken("%s__search__%s".formatted(requestEntity.getId(), q.getId()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc
@@ -270,7 +270,7 @@ public class QueryV2ControllerTests {
     requestRepository.save(requestEntity);
 
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
-    updateRequest.setToken("%s__search__".formatted(requestEntity.getToken()));
+    updateRequest.setToken("%s__search__".formatted(requestEntity.getId()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc

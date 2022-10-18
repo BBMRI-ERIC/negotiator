@@ -175,8 +175,8 @@ public class RequestService {
   }
 
   @Transactional
-  public Request addQueryToRequest(String token, Query queryEntity) {
-    Request requestEntity = findByToken(token);
+  public Request addQueryToRequest(String id, Query queryEntity) {
+    Request requestEntity = findById(id);
     requestEntity.getQueries().add(queryEntity);
     queryEntity.setRequest(requestEntity);
     try {
@@ -221,19 +221,6 @@ public class RequestService {
     return requestRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
-  }
-
-  /**
-   * Returns the Request with the specified token if exists, otherwise it throws an exception
-   *
-   * @param token the id of the Request to retrieve
-   * @return the Request with specified id
-   */
-  @Transactional
-  public Request findByToken(String token) throws EntityNotFoundException {
-    return requestRepository
-        .findByToken(token)
-        .orElseThrow(() -> new EntityNotFoundException(token));
   }
 
   /**

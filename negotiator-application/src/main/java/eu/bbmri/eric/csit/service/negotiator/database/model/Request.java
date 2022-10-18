@@ -85,8 +85,6 @@ public class Request extends AuditEntity {
 
   private Boolean isTest;
 
-  private String token = UUID.randomUUID().toString().replace("-", "");
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -99,12 +97,11 @@ public class Request extends AuditEntity {
     return Objects.equals(getId(), request.getId())
         && Objects.equals(getTitle(), request.getTitle())
         && Objects.equals(getDescription(), request.getDescription())
-        && Objects.equals(getIsTest(), request.getIsTest())
-        && Objects.equals(getToken(), request.getToken());
+        && Objects.equals(getIsTest(), request.getIsTest());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getTitle(), getDescription(), getIsTest(), getToken());
+    return Objects.hash(getId(), getTitle(), getDescription(), getIsTest());
   }
 }

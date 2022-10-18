@@ -177,7 +177,6 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$[0].id", is(entity.getId())))
         .andExpect(jsonPath("$[0].title", is(TITLE)))
         .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$[0].token").isString())
         .andExpect(jsonPath("$[0].project.id", is(entity.getProject().getId())))
         .andExpect(jsonPath("$[0].project.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$[0].project.description", is(TestUtils.PROJECT_DESCRIPTION)))
@@ -271,7 +270,6 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.id", is(entity.getId())))
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.project.id", is(entity.getProject().getId())))
         .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
         .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
@@ -654,7 +652,6 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.id").isString())
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId())))
         .andExpect(jsonPath("$.project.id").isString())
         .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
@@ -692,7 +689,6 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.id").isString())
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId())));
     assertEquals(requestRepository.findAll().size(), 1);
     assertEquals(projectRepository.findAll().size(), 1);

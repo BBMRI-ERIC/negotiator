@@ -117,7 +117,7 @@ public class QueryV2Controller {
       String[] tokens = queryRequest.getToken().split("__search__");
       try {
         // If the request was not found in V2, a new query was created
-        requestService.findByToken(tokens[0]);
+        requestService.findById(tokens[0]);
         created = false;
         if (tokens.length == 1) {
           queryEntity = queryService.create(v3Request);

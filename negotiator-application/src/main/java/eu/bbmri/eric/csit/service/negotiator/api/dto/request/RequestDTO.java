@@ -25,8 +25,6 @@ public class RequestDTO {
 
   @NotNull private String description;
 
-  @NotNull private String token;
-
   private Boolean isTest = false;
 
   private ProjectDTO project;
