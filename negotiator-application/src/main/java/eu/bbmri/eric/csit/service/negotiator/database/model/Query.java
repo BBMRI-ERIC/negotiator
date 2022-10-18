@@ -3,10 +3,10 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.GenericGenerator;
 
 @ToString
 @AllArgsConstructor
@@ -52,8 +53,10 @@ public class Query {
   private String humanReadable;
 
   @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
   @Column(name = "id")
-  private final String id = UUID.randomUUID().toString().replace("-", "");;
+  private String id;
 
   @ManyToMany
   @JoinTable(
