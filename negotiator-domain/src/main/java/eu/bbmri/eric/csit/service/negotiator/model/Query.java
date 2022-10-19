@@ -38,16 +38,6 @@ import org.hibernate.annotations.TypeDefs;
 @Table(name = "query")
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 @NamedEntityGraph(
-    name = "query-with-detailed-collections",
-    attributeNodes = {
-      @NamedAttributeNode(value = "collections", subgraph = "collections-with-biobank")
-    },
-    subgraphs = {
-      @NamedSubgraph(
-          name = "collections-with-biobank",
-          attributeNodes = {@NamedAttributeNode("biobank")})
-    })
-@NamedEntityGraph(
     name = "query-with-detailed-resources",
     attributeNodes = {
         @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
@@ -59,31 +49,14 @@ import org.hibernate.annotations.TypeDefs;
     })
 public class Query extends BaseEntity {
 
-  //  @ManyToMany
-  //  @JoinTable(
-  //      name = "query_biobank_link",
-  //      joinColumns = @JoinColumn(name = "biobank_id"),
-  //      inverseJoinColumns = @JoinColumn(name = "query_id"))
-  //  @Exclude
-  //  private Set<Biobank> biobanks;
-
   @ManyToMany
   @JoinTable(
       name = "query_resources_link",
       joinColumns = @JoinColumn(name = "query_id"),
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Exclude
-//  @NotNull
-  private Set<Resource> resources;
-
-  @ManyToMany
-  @JoinTable(
-      name = "query_collection_link",
-      joinColumns = @JoinColumn(name = "query_id"),
-      inverseJoinColumns = @JoinColumn(name = "collection_id"))
-  @Exclude
   @NotNull
-  private Set<Collection> collections;
+  private Set<Resource> resources;
 
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")

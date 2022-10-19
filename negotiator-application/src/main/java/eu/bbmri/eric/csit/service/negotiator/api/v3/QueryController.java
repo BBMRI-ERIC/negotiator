@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
 import eu.bbmri.eric.csit.service.negotiator.model.Biobank;
 import eu.bbmri.eric.csit.service.negotiator.model.Collection;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,13 +48,13 @@ public class QueryController {
     TypeMap<Query, QueryResponse> typeMap =
         modelMapper.createTypeMap(Query.class, QueryResponse.class);
 
-    Converter<Set<Collection>, Set<ResourceDTO>> queryCollectionToResources =
-        q -> convertCollectionsToResources(q.getSource());
+    Converter<Set<Resource>, Set<ResourceDTO>> queryResourceToResources =
+        q -> convertResourceToResources(q.getSource());
     typeMap.addMappings(
         mapper ->
             mapper
-                .using(queryCollectionToResources)
-                .map(Query::getCollections, QueryResponse::setResources));
+                .using(queryResourceToResources)
+                .map(Query::getResources, QueryResponse::setResources));
 
     Converter<Long, String> queryToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
     typeMap.addMappings(
@@ -66,28 +67,28 @@ public class QueryController {
     return "%s%s/%d".formatted(baseURL, REDIRECT_PATH, queryId);
   }
 
-  private Set<ResourceDTO> convertCollectionsToResources(Set<Collection> collections) {
-    Map<String, ResourceDTO> biobanks = new HashMap<>();
-    collections.forEach(
+  private Set<ResourceDTO> convertResourceToResources(Set<Resource> resources) {
+    Map<String, ResourceDTO> parents = new HashMap<>();
+    resources.forEach(
         collection -> {
-          Biobank b = collection.getBiobank();
-          ResourceDTO biobankResource;
-          if (biobanks.containsKey(b.getSourceId())) {
-            biobankResource = biobanks.get(b.getSourceId());
+          Resource parent = collection.getParent();
+          ResourceDTO parentResource;
+          if (parents.containsKey(parent.getSourceId())) {
+            parentResource = parents.get(parent.getSourceId());
           } else {
-            biobankResource = new ResourceDTO();
-            biobankResource.setId(b.getSourceId());
-            biobankResource.setType("biobank");
-            biobankResource.setChildren(new HashSet<>());
-            biobanks.put(b.getSourceId(), biobankResource);
+            parentResource = new ResourceDTO();
+            parentResource.setId(parent.getSourceId());
+            parentResource.setType("biobank");
+            parentResource.setChildren(new HashSet<>());
+            parents.put(parent.getSourceId(), parentResource);
           }
           ResourceDTO collectionResource = new ResourceDTO();
           collectionResource.setType("collection");
           collectionResource.setId(collection.getSourceId());
-          biobankResource.getChildren().add(collectionResource);
+          parentResource.getChildren().add(collectionResource);
         });
 
-    return new HashSet<>(biobanks.values());
+    return new HashSet<>(parents.values());
   }
 
   @GetMapping("/queries")

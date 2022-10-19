@@ -29,9 +29,9 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
               + "JOIN FETCH pp.role "
               + "JOIN FETCH r.project p "
               + "JOIN FETCH r.queries q "
-              + "JOIN FETCH q.collections c "
-              + "JOIN FETCH c.biobank b "
-              + "WHERE b.sourceId = :biobankId")
+              + "JOIN FETCH q.resources c "
+              + "JOIN FETCH c.parent p "
+              + "WHERE p.sourceId = :biobankId")
   List<Request> findByBiobankId(String biobankId);
 
   @Query(
@@ -43,8 +43,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
               + "JOIN FETCH pp.role "
               + "JOIN FETCH r.project p "
               + "JOIN FETCH r.queries q "
-              + "JOIN FETCH q.collections c "
-              + "JOIN FETCH c.biobank b "
+              + "JOIN FETCH q.resources c "
+              + "JOIN FETCH c.parent p "
               + "WHERE c.sourceId = :collectionId")
   List<Request> findByCollectionId(String collectionId);
 }

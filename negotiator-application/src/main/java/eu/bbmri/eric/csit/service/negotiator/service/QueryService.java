@@ -9,56 +9,50 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.model.Collection;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.repository.ResourceRepository;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class QueryService {
 
-  private final QueryRepository queryRepository;
-  private final CollectionRepository collectionRepository;
-  private final DataSourceRepository dataSourceRepository;
-
-  public QueryService(
-      QueryRepository queryRepository,
-      CollectionRepository collectionRepository,
-      DataSourceRepository dataSourceRepository) {
-    this.queryRepository = queryRepository;
-    this.collectionRepository = collectionRepository;
-    this.dataSourceRepository = dataSourceRepository;
-  }
+  @Autowired private QueryRepository queryRepository;
+  @Autowired private CollectionRepository collectionRepository;
+  @Autowired private ResourceRepository resourceRepository;
+  @Autowired private DataSourceRepository dataSourceRepository;
+  @Autowired private ModelMapper modelMapper;
 
   private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Query queryEntity) {
-    Set<Collection> collections = new HashSet<>();
-    // Currently, we assume the biobank -> collection hierarchy
-    resourceDTOs.forEach(
+    Set<Resource> resources = new HashSet<>();
+    resourceDTOs.forEach(  // For each parent
         resourceDTO -> {
           Set<ResourceDTO> childrenDTOs = resourceDTO.getChildren();
-
-          Set<Collection> newCollections =
-              collectionRepository.findBySourceIdInAndBiobankSourceId(
+          Set<Resource> newResources =
+              resourceRepository.findBySourceIdInAndParentSourceId(
                   childrenDTOs.stream().map(ResourceDTO::getId).collect(Collectors.toSet()),
                   resourceDTO.getId());
 
-          if (newCollections.size() < childrenDTOs.size()) {
+          if (newResources.size() < childrenDTOs.size()) {
             throw new WrongRequestException(
                 "Some of the specified resources were not found or the hierarchy was not correct");
           } else {
-            collections.addAll(newCollections);
+            resources.addAll(newResources);
           }
-        });
-    queryEntity.setCollections(collections);
+        }
+    );
+    queryEntity.setResources(resources);
   }
 
   private void checkAndSetDataSource(String url, Query queryEntity) {

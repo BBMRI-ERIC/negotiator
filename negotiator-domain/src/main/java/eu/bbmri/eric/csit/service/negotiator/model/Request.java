@@ -51,11 +51,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
       @NamedSubgraph(
           name = "queries-detailed",
           attributeNodes = {
-            @NamedAttributeNode(value = "collections", subgraph = "collections-with-biobank")
+            @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
           }),
       @NamedSubgraph(
-          name = "collections-with-biobank",
-          attributeNodes = {@NamedAttributeNode("biobank")})
+          name = "resources-with-parent",
+          attributeNodes = {@NamedAttributeNode("parent")})
     })
 public class Request extends AuditEntity {
 
