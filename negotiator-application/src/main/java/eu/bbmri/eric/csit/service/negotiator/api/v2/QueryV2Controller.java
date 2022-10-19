@@ -6,7 +6,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2Request;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryV2Response;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;

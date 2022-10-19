@@ -7,15 +7,6 @@
   <packaging>jar</packaging>
   <name>application</name>
 
-  <dependencies>
-    <dependency>
-      <artifactId>negotiator-domain</artifactId>
-      <groupId>eu.bbmri.eric.csit.service.negotiator</groupId>
-      <scope>compile</scope>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
-
   <parent>
     <artifactId>negotiator</artifactId>
     <groupId>eu.bbmri.eric.csit.service.negotiator</groupId>
