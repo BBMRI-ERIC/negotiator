@@ -33,34 +33,17 @@ import lombok.ToString.Exclude;
       @NamedAttributeNode("sourceId"),
       @NamedAttributeNode("name"),
       @NamedAttributeNode("description"),
-      @NamedAttributeNode("biobank")
     })
 public class Collection extends BaseEntity {
-
-  //  @ManyToMany(mappedBy = "collections")
-  //  @Exclude
-  //  private Set<Network> networks = new HashSet<>();
-
   @ManyToMany(mappedBy = "collections")
   @Exclude
   private Set<Person> persons = new HashSet<>();
-
-  //  @ManyToMany(mappedBy = "collections")
-  //  @Exclude
-  //  private Set<Query> queries = new HashSet<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude
   @JsonIgnore
   private DataSource dataSource;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "biobank_id")
-  @NotNull
-  @Exclude
-  @JsonIgnore
-  private Biobank biobank;
 
   @NotNull private String sourceId;
 

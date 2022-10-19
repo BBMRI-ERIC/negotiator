@@ -25,26 +25,3 @@ insert into authorities (person_id, authority) values
   (2, 'EXT_SERV'),
   (3, 'PERUN_USER'),
   (4, 'RESEARCHER');
-
-insert into biobank (id, name, description, source_id) values
-  (1, 'Test biobank #1', 'This is the first testing biobank', 'biobank:1'),
-  (2, 'Test biobank #2', 'This is the second testing biobank', 'biobank:2'),
-  (3, 'Test biobank #3', 'This is the third testing biobank', 'biobank:3');
-
-insert into collection (id, name, description, source_id, data_source_id, biobank_id) values
-  (1, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1', 'biobank:1:collection:1', 1, 1),
-  (2, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1', 'biobank:1:collection:2', 1, 1),
-  (3, 'Test collection #1 of biobank #2', 'This is the first test collection of biobank 2', 'biobank:2:collection:1', 1, 2),
-  (4, 'Test collection #1 of biobank #3', 'This is the first test collection of biobank 3', 'biobank:3:collection:1', 1, 3),
-  (5, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3', 'biobank:3:collection:2', 1, 3),
-  (6, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 1, 3);
-
-
-insert into network (id, name, description, source_id, acronym, data_source_id) values
-  (1, 'Network for Test', 'This is a testing network', 'network:1', 'NFT', 1);
-
-insert into person_biobank_link (biobank_id, person_id) values (1, 2);
-
-insert into person_collection_link (collection_id, person_id) values (1, 3);
-
-insert into person_network_link (network_id, person_id) values (1, 4);

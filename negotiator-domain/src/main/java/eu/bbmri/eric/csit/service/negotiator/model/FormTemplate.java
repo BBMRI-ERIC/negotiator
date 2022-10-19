@@ -22,9 +22,9 @@ import lombok.ToString.Exclude;
 public class FormTemplate extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "biobank_id")
+  @JoinColumn(name = "resource_id")
   @Exclude
-  private Biobank biobank;
+  private Resource resource;
 
   private Boolean commercial;
 }

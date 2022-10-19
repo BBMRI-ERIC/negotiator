@@ -59,11 +59,6 @@ public class Resource extends BaseEntity {
 
 //  @OneToMany(mappedBy = "parent")
 //  private Set<Resource> children = new HashSet<>();
-//
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "biobank_id")
-//  @Exclude
-//  private Biobank biobank;
 
   @ManyToMany(mappedBy = "resources")
   @Exclude

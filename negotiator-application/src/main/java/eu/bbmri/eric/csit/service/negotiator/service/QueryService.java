@@ -6,11 +6,9 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import eu.bbmri.eric.csit.service.negotiator.model.Collection;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.repository.CollectionRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.repository.ResourceRepository;
@@ -29,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class QueryService {
 
   @Autowired private QueryRepository queryRepository;
-  @Autowired private CollectionRepository collectionRepository;
   @Autowired private ResourceRepository resourceRepository;
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;

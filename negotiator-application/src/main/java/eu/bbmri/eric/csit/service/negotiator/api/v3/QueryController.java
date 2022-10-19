@@ -3,8 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.api.v3;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
-import eu.bbmri.eric.csit.service.negotiator.model.Biobank;
-import eu.bbmri.eric.csit.service.negotiator.model.Collection;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;

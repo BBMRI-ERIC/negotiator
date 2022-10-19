@@ -40,9 +40,9 @@ public class Post extends AuditEntity {
   private Person poster;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "biobank_id")
+  @JoinColumn(name = "resource_id")
   @Exclude
-  private Biobank biobank;
+  private Resource resource;
 
   @Lob private String postText;
   private String postStatus;
