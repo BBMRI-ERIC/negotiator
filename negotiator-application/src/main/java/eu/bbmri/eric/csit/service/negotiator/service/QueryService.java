@@ -31,27 +31,41 @@ public class QueryService {
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
 
+  /**
+   * Checks that resources in input conforms to the hierarchy regitered in the negotiator,
+   * and if they do, add the leaf resources to the query
+   * @param resourceDTOs The List of Resources in the query request
+   * @param queryEntity The Query Entity to save in the DB
+   */
   private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Query queryEntity) {
-    Set<Resource> resources = new HashSet<>();
+    Set<Resource> resourcesInQuery = new HashSet<>();
     resourceDTOs.forEach(  // For each parent
         resourceDTO -> {
+          // Gets the children
           Set<ResourceDTO> childrenDTOs = resourceDTO.getChildren();
-          Set<Resource> newResources =
+          // Gets from the DB all the Resources with the ids of the children and parentId of the
+          // parent
+          Set<Resource> childrenResources =
               resourceRepository.findBySourceIdInAndParentSourceId(
                   childrenDTOs.stream().map(ResourceDTO::getId).collect(Collectors.toSet()),
                   resourceDTO.getId());
-
-          if (newResources.size() < childrenDTOs.size()) {
+          // If the Resources in the DB are the same as the one in input, it means they are all correct
+          if (childrenResources.size() < childrenDTOs.size()) {
             throw new WrongRequestException(
                 "Some of the specified resources were not found or the hierarchy was not correct");
           } else {
-            resources.addAll(newResources);
+            resourcesInQuery.addAll(childrenResources);
           }
         }
     );
-    queryEntity.setResources(resources);
+    queryEntity.setResources(resourcesInQuery);
   }
 
+  /**
+   * Checks that the DataSource corresponding to the URL is present in the DB and adds it to the Query entity
+   * @param url the url of the DataSource in the incoming query
+   * @param queryEntity the Query entity to fill with the DataSource
+   */
   private void checkAndSetDataSource(String url, Query queryEntity) {
     URL dataSourceURL;
     try {
@@ -72,14 +86,6 @@ public class QueryService {
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
     queryEntity.setUrl(queryRequest.getUrl());
     queryEntity.setHumanReadable(queryRequest.getHumanReadable());
-
-    JsonMapper mapper = new JsonMapper();
-    try {
-      String jsonPayload = mapper.writeValueAsString(queryRequest);
-      queryEntity.setJsonPayload(jsonPayload);
-    } catch (JsonProcessingException e) {
-      throw new WrongRequestException();
-    }
     return queryRepository.save(queryEntity);
   }
 

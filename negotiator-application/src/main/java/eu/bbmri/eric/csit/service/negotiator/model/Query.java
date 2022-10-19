@@ -1,11 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -24,9 +22,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 @ToString
 @AllArgsConstructor
@@ -36,7 +31,6 @@ import org.hibernate.annotations.TypeDefs;
 @Builder
 @Entity(name = "Query")
 @Table(name = "query")
-@TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 @NamedEntityGraph(
     name = "query-with-detailed-resources",
     attributeNodes = {
@@ -49,6 +43,12 @@ import org.hibernate.annotations.TypeDefs;
     })
 public class Query extends BaseEntity {
 
+  @NotNull
+  private String url;
+
+  @NotNull
+  private String humanReadable;
+
   @ManyToMany
   @JoinTable(
       name = "query_resources_link",
@@ -57,17 +57,6 @@ public class Query extends BaseEntity {
   @Exclude
   @NotNull
   private Set<Resource> resources;
-
-  @Type(type = "json")
-  @Column(columnDefinition = "jsonb")
-  @NotNull
-  private String jsonPayload;
-
-  @NotNull
-  private String humanReadable;
-
-  @NotNull
-  private String url;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
@@ -84,7 +73,6 @@ public class Query extends BaseEntity {
   @NotNull
   private String token = UUID.randomUUID().toString().replace("-", "");
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -95,13 +83,12 @@ public class Query extends BaseEntity {
     }
     Query query = (Query) o;
     return Objects.equals(getId(), query.getId())
-        && Objects.equals(getJsonPayload(), query.getJsonPayload())
         && Objects.equals(getUrl(), query.getUrl())
         && Objects.equals(getToken(), query.getToken());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getJsonPayload(), getUrl(), getToken());
+    return Objects.hash(getId(), getUrl(), getToken());
   }
 }
