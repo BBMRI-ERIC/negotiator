@@ -29,9 +29,9 @@ public class LifecycleRequestCollectionStatus extends AuditEntity {
   private Request request;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "collection_id")
+  @JoinColumn(name = "resource_id")
   @Exclude
-  private Collection collection;
+  private Resource resource;
 
   private String status;
   private String statusType;
