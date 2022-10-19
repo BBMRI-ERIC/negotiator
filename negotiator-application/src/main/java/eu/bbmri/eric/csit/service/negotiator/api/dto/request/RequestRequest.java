@@ -1,8 +1,9 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.LocalDate;
+import java.util.Set;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,18 +17,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class ProjectRequest {
+public class RequestRequest {
+
   @NotNull private String title;
 
   @NotNull private String description;
 
-  @NotNull private String ethicsVote;
+  private Boolean isTest = false;
 
-  @NotNull
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate expectedEndDate;
+  @Valid private ProjectRequest project;
 
-  @NotNull private Boolean expectedDataGeneration;
-
-  private Boolean isTestProject = false;
+  @Valid @NotEmpty private Set<Long> queries;
 }

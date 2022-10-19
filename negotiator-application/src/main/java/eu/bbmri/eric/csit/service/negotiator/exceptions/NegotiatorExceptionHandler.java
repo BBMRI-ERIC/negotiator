@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.response.ErrorResponse;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.response.ErrorResponse;
 import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

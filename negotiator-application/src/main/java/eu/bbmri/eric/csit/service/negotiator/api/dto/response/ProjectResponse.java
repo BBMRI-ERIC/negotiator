@@ -1,7 +1,7 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.response;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ProjectRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ProjectRequest;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

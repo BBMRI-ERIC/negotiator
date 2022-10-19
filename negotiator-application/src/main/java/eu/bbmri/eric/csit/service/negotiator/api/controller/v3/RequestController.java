@@ -1,9 +1,9 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.PersonRequestRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.RequestResponse;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.response.PersonRequestRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.response.RequestResponse;
 import eu.bbmri.eric.csit.service.negotiator.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.model.PersonRequestRole;
 import eu.bbmri.eric.csit.service.negotiator.model.Request;

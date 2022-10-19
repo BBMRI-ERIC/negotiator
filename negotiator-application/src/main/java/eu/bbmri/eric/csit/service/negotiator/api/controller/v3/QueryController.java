@@ -1,8 +1,8 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.QueryResponse;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.response.QueryResponse;
 import eu.bbmri.eric.csit.service.negotiator.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;

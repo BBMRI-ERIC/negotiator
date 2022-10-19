@@ -1,22 +1,23 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.response;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class PersonRequestRoleDTO {
+public class DataSourceResponse {
 
-  @NotNull private String name;
+  private Long id;
 
-  @NotNull private String role;
+  private String description;
+
+  private String name;
+
+  private String url;
 }

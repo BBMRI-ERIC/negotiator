@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.response;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -11,13 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class DataSourceResponse {
+public class ErrorResponse {
 
-  private Long id;
+  private Integer code;
 
-  private String description;
-
-  private String name;
-
-  private String url;
+  private String message;
 }

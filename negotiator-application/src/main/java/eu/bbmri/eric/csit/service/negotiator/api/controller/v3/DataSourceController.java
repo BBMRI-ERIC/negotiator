@@ -1,9 +1,9 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.ValidationGroups.Create;
-import eu.bbmri.eric.csit.service.negotiator.dto.ValidationGroups.Update;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
-import eu.bbmri.eric.csit.service.negotiator.dto.response.DataSourceResponse;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Update;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.DataSourceRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.response.DataSourceResponse;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.service.DataSourceService;
 import java.util.List;

@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

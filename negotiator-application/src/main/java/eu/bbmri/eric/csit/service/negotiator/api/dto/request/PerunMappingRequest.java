@@ -1,6 +1,6 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.ValidationGroups.Create;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -10,7 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.DataSourceRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.DataSourceController;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.DataSourceRequest;
 import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
 import java.util.Optional;

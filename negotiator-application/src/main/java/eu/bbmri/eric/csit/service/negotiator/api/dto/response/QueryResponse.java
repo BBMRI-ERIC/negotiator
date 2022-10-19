@@ -1,12 +1,11 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,12 +14,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class QueryV2Request {
+public class QueryResponse {
+
+  @NotNull private Long id;
 
   @NotNull(message = "The url of the original query must be present")
-  @JsonProperty("URL")
   private String url;
 
   @NotNull(message = "A human readable description of the query must be present")
@@ -28,8 +27,9 @@ public class QueryV2Request {
 
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
-  private Set<CollectionV2DTO> collections;
+  private Set<ResourceDTO> resources;
 
-  @JsonProperty("nToken")
-  private String token;
+  @NotNull private String token;
+
+  @NotNull private String redirectUrl;
 }
