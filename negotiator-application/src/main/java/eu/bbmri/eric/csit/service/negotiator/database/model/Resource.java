@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,15 +58,17 @@ public class Resource extends BaseEntity {
   @Nullable
   private Resource parent;
 
-//  @OneToMany(mappedBy = "parent")
-//  private Set<Resource> children = new HashSet<>();
+  @OneToMany(mappedBy = "parent")
+  private Set<Resource> children = new HashSet<>();
 
   @ManyToMany(mappedBy = "resources")
   @Exclude
   private Set<Person> persons = new HashSet<>();
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "data_source_id")
-//  @Exclude
-//  @JsonIgnore
-//  private DataSource dataSource;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "data_source_id")
+  @Exclude
+  @JsonIgnore
+  @NotNull
+  private DataSource dataSource;
 }
