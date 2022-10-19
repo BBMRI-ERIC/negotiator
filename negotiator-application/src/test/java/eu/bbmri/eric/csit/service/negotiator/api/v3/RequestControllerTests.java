@@ -640,7 +640,8 @@ public class RequestControllerTests {
   public void testCreate_Ok_whenProjectIsIncluded() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
-
+    long currentRequest = requestRepository.count();
+    long currentProject = projectRepository.count();
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(REQUESTS_ENDPOINT))
@@ -663,8 +664,8 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)))
         .andReturn();
 
-    assertEquals(requestRepository.count(), 1);
-    assertEquals(projectRepository.count(), 1);
+    assertEquals(requestRepository.count(), currentRequest + 1);
+    assertEquals(projectRepository.count(), currentProject + 1);
   }
 
   @Test
@@ -676,6 +677,9 @@ public class RequestControllerTests {
 
     RequestCreateDTO request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
+
+    long currentRequest = requestRepository.count();
+    long currentProject = projectRepository.count();
 
     mockMvc
         .perform(
@@ -690,8 +694,9 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId())));
-    assertEquals(requestRepository.findAll().size(), 1);
-    assertEquals(projectRepository.findAll().size(), 1);
+
+    assertEquals(requestRepository.count(), currentRequest + 1);
+    assertEquals(projectRepository.count(), currentProject);
   }
 
   @Test
