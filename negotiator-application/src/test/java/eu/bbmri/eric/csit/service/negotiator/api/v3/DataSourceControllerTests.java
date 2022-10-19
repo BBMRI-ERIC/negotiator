@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.DataSourceController;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.DataSourceRequest;
-import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
-import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenName_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setName(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -59,7 +59,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setDescription(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -72,7 +72,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrl_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setUrl(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -85,7 +85,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenApiType_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiType(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -98,7 +98,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenApiType_IsWrong() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody = requestBody.replace("MOLGENIS", "UNKNOWN");
     TestUtils.checkErrorResponse(
@@ -112,7 +112,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenApiUrl_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiUrl(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -125,7 +125,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenApiUsername_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiUsername(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -138,7 +138,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenApiPassword_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiPassword(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -151,7 +151,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourceNetwork_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setResourceNetwork(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -164,7 +164,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourceBiobank_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setResourceBiobank(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -177,7 +177,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourceCollection_IsMissing() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setResourceCollection(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -190,7 +190,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreated_whenRequest_IsCorrect() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -212,14 +212,14 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_Unauthorized_whenNoAuth() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -231,7 +231,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -249,7 +249,7 @@ public class DataSourceControllerTests {
     repository.save(dataSourceEntity);
 
     // Request body with updated values
-    DataSourceRequest request = TestUtils.createDataSourceRequest(true);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(true);
 
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
@@ -270,14 +270,14 @@ public class DataSourceControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.PUT, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -289,7 +289,7 @@ public class DataSourceControllerTests {
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    DataSourceRequest request = TestUtils.createDataSourceRequest(false);
+    DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,

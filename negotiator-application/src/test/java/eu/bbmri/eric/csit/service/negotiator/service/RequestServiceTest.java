@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import java.util.Set;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class RequestServiceTest {
   @Autowired private ModelMapper modelMapper;
 
   private Query createQueryEntity() {
-    QueryRequest queryRequest = TestUtils.createQueryRequest(false);
+    QueryCreateDTO queryRequest = TestUtils.createQueryRequest(false);
     Query query = modelMapper.map(queryRequest, Query.class);
     return queryRepository.save(query);
   }
@@ -40,7 +40,7 @@ public class RequestServiceTest {
     assert requestRepository.count() == 0;
     assert projectRepository.count() == 0;
     Query query = createQueryEntity();
-    RequestRequest request = TestUtils.createRequest(false, true, Set.of(query.getId()));
+    RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(query.getId()));
     Request requestEntity =
         requestService.create(request, 1L); // NB: 1L is the researcher Person id in test data
 

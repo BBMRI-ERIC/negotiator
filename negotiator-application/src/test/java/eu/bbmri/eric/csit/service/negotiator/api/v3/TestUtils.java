@@ -4,15 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.DataSourceRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.PerunUserRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ProjectRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2Request;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.model.DataSource.ApiType;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -69,9 +69,9 @@ public class TestUtils {
     "perun user identity 1", "perun user identity 2"
   };
 
-  public static DataSourceRequest createDataSourceRequest(boolean update) {
+  public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
-    return DataSourceRequest.builder()
+    return DataSourceCreateDTO.builder()
         .name(String.format("%s%s", DATA_SOURCE_NAME, suffix))
         .description(String.format("%s%s", DATA_SOURCE_DESCRIPTION, suffix))
         .url(String.format("%s%s", DATA_SOURCE_URL, suffix))
@@ -87,7 +87,7 @@ public class TestUtils {
         .build();
   }
 
-  public static QueryRequest createQueryRequest(boolean update) {
+  public static QueryCreateDTO createQueryRequest(boolean update) {
     String suffix = update ? "u" : "";
     String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
     String collectionName = update ? QUERY_COLLECTION_2_NAME : QUERY_COLLECTION_1_NAME;
@@ -108,14 +108,14 @@ public class TestUtils {
             .children(Set.of(collection))
             .build();
 
-    return QueryRequest.builder()
+    return QueryCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
         .resources(Set.of(biobank))
         .build();
   }
 
-  public static QueryV2Request createQueryV2Request(boolean update) {
+  public static QueryCreateV2DTO createQueryV2Request(boolean update) {
     String suffix = update ? "u" : "";
     String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
     String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;;
@@ -126,17 +126,17 @@ public class TestUtils {
             .biobankId(biobankId)
             .build();
 
-    return QueryV2Request.builder()
+    return QueryCreateV2DTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
         .collections(Set.of(collection))
         .build();
   }
 
-  public static ProjectRequest createProjectRequest(boolean update) {
+  public static ProjectCreateDTO createProjectRequest(boolean update) {
     String suffix = update ? "u" : "";
 
-    return ProjectRequest.builder()
+    return ProjectCreateDTO.builder()
         .title(String.format("%s%s", PROJECT_TITLE, suffix))
         .description(String.format("%s%s", PROJECT_DESCRIPTION, suffix))
         .ethicsVote(String.format("%s%s", PROJECT_ETHICS_VOTE, suffix))
@@ -165,12 +165,12 @@ public class TestUtils {
     return perunUserRequestList;
   }
 
-  public static RequestRequest createRequest(
+  public static RequestCreateDTO createRequest(
       boolean update, boolean includeProject, Set<Long> queriesId) {
     String suffix = update ? "u" : "";
 
-    RequestRequest.RequestRequestBuilder builder =
-        RequestRequest.builder()
+    RequestCreateDTO.RequestCreateDTOBuilder builder =
+        RequestCreateDTO.builder()
             .title(String.format("%s%s", REQUEST_TITLE, suffix))
             .description(String.format("%s%s", REQUEST_DESCRIPTION, suffix))
             .queries(queriesId);

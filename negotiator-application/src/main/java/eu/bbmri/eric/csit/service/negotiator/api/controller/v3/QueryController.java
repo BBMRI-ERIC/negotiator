@@ -1,10 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.response.QueryResponse;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,8 +43,8 @@ public class QueryController {
   public QueryController(QueryService queryService, ModelMapper modelMapper) {
     this.queryService = queryService;
     this.modelMapper = modelMapper;
-    TypeMap<Query, QueryResponse> typeMap =
-        modelMapper.createTypeMap(Query.class, QueryResponse.class);
+    TypeMap<Query, QueryDTO> typeMap =
+        modelMapper.createTypeMap(Query.class, QueryDTO.class);
 
     Converter<Set<Resource>, Set<ResourceDTO>> queryResourceToResources =
         q -> convertResourceToResources(q.getSource());
@@ -52,12 +52,12 @@ public class QueryController {
         mapper ->
             mapper
                 .using(queryResourceToResources)
-                .map(Query::getResources, QueryResponse::setResources));
+                .map(Query::getResources, QueryDTO::setResources));
 
     Converter<Long, String> queryToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
     typeMap.addMappings(
         mapper ->
-            mapper.using(queryToRedirectUrl).map(Query::getId, QueryResponse::setRedirectUrl));
+            mapper.using(queryToRedirectUrl).map(Query::getId, QueryDTO::setRedirectUrl));
   }
 
   private String convertIdToRedirectUrl(Long queryId) {
@@ -90,17 +90,17 @@ public class QueryController {
   }
 
   @GetMapping("/queries")
-  List<QueryResponse> list() {
+  List<QueryDTO> list() {
     List<Query> queries = queryService.findAll();
     return queries.stream()
-        .map(query -> modelMapper.map(query, QueryResponse.class))
+        .map(query -> modelMapper.map(query, QueryDTO.class))
         .collect(Collectors.toList());
   }
 
   @GetMapping("/queries/{id}")
-  QueryResponse retrieve(@PathVariable Long id) {
+  QueryDTO retrieve(@PathVariable Long id) {
     Query queryEntity = queryService.findById(id);
-    return modelMapper.map(queryEntity, QueryResponse.class);
+    return modelMapper.map(queryEntity, QueryDTO.class);
   }
 
   @PostMapping(
@@ -108,9 +108,9 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  QueryResponse add(@Valid @RequestBody QueryRequest queryRequest) {
+  QueryDTO add(@Valid @RequestBody QueryCreateDTO queryRequest) {
     Query queryEntity = queryService.create(queryRequest);
-    return modelMapper.map(queryEntity, QueryResponse.class);
+    return modelMapper.map(queryEntity, QueryDTO.class);
   }
 
   @PutMapping(
@@ -118,9 +118,9 @@ public class QueryController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  QueryResponse update(
-      @Valid @PathVariable Long id, @Valid @RequestBody QueryRequest queryRequest) {
+  QueryDTO update(
+      @Valid @PathVariable Long id, @Valid @RequestBody QueryCreateDTO queryRequest) {
     Query queryEntity = queryService.update(id, queryRequest);
-    return modelMapper.map(queryEntity, QueryResponse.class);
+    return modelMapper.map(queryEntity, QueryDTO.class);
   }
 }

@@ -2,9 +2,9 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Update;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.DataSourceRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.response.DataSourceResponse;
-import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.service.DataSourceService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,15 +30,15 @@ public class DataSourceController {
   @Autowired private ModelMapper modelMapper;
 
   @GetMapping("/data-sources")
-  List<DataSourceResponse> list() {
+  List<DataSourceDTO> list() {
     return dataSourceService.findAll().stream()
-        .map(dataSource -> modelMapper.map(dataSource, DataSourceResponse.class))
+        .map(dataSource -> modelMapper.map(dataSource, DataSourceDTO.class))
         .collect(Collectors.toList());
   }
 
   @GetMapping("/data-sources/{id}")
-  DataSourceResponse retrieve(@PathVariable Long id) {
-    return modelMapper.map(dataSourceService.getById(id), DataSourceResponse.class);
+  DataSourceDTO retrieve(@PathVariable Long id) {
+    return modelMapper.map(dataSourceService.getById(id), DataSourceDTO.class);
   }
 
   @PostMapping(
@@ -46,9 +46,9 @@ public class DataSourceController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  DataSourceResponse add(@Validated(Create.class) @RequestBody DataSourceRequest request) {
+  DataSourceDTO add(@Validated(Create.class) @RequestBody DataSourceCreateDTO request) {
     DataSource dataSourceEntity = dataSourceService.create(request);
-    return modelMapper.map(dataSourceEntity, DataSourceResponse.class);
+    return modelMapper.map(dataSourceEntity, DataSourceDTO.class);
   }
 
   @PutMapping(
@@ -56,9 +56,9 @@ public class DataSourceController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  DataSourceResponse update(
-      @PathVariable Long id, @Validated(Update.class) @RequestBody DataSourceRequest request) {
+  DataSourceDTO update(
+      @PathVariable Long id, @Validated(Update.class) @RequestBody DataSourceCreateDTO request) {
     DataSource dataSourceEntity = dataSourceService.update(id, request);
-    return modelMapper.map(dataSourceEntity, DataSourceResponse.class);
+    return modelMapper.map(dataSourceEntity, DataSourceDTO.class);
   }
 }

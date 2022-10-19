@@ -1,8 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.PerunUserRequest;
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;

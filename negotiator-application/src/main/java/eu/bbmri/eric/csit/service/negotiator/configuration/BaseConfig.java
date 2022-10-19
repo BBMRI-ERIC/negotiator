@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

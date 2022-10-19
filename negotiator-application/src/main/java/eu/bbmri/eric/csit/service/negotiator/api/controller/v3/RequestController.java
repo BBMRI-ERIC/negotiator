@@ -1,12 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.response.PersonRequestRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.response.RequestResponse;
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.model.PersonRequestRole;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonRequestRole;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.List;
 import java.util.Set;
@@ -39,8 +39,8 @@ public class RequestController {
   public RequestController(RequestService requestService, ModelMapper modelMapper) {
     this.requestService = requestService;
     this.modelMapper = modelMapper;
-    TypeMap<Request, RequestResponse> typeMap =
-        modelMapper.createTypeMap(Request.class, RequestResponse.class);
+    TypeMap<Request, RequestDTO> typeMap =
+        modelMapper.createTypeMap(Request.class, RequestDTO.class);
 
     Converter<Set<PersonRequestRole>, Set<PersonRequestRoleDTO>> personsRoleConverter =
         prr -> personsRoleConverter(prr.getSource());
@@ -48,7 +48,7 @@ public class RequestController {
         mapper ->
             mapper
                 .using(personsRoleConverter)
-                .map(Request::getPersons, RequestResponse::setPersons));
+                .map(Request::getPersons, RequestDTO::setPersons));
   }
 
   private Set<PersonRequestRoleDTO> personsRoleConverter(Set<PersonRequestRole> personsRoles) {
@@ -66,48 +66,48 @@ public class RequestController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  RequestResponse add(@Valid @RequestBody RequestRequest request) {
+  RequestDTO add(@Valid @RequestBody RequestCreateDTO request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
     Request requestEntity = requestService.create(request, creator.getId());
-    return modelMapper.map(requestEntity, RequestResponse.class);
+    return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
   /**
    * Create a request for a specific project
    *
-   * @return RequestResponse
+   * @return RequestDTO
    */
   @PostMapping(
       value = "/projects/{projectId}/requests",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  RequestResponse add(@PathVariable Long projectId, @Valid @RequestBody RequestRequest request) {
+  RequestDTO add(@PathVariable Long projectId, @Valid @RequestBody RequestCreateDTO request) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
     Request requestEntity = requestService.create(projectId, request, creator.getId());
-    return modelMapper.map(requestEntity, RequestResponse.class);
+    return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
   /**
    * Create a request for a specific project
    *
    * @param request
-   * @return RequestResponse
+   * @return RequestDTO
    */
   @PutMapping(
       value = "/requests/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  RequestResponse update(@Valid @PathVariable Long id, @Valid @RequestBody RequestRequest request) {
+  RequestDTO update(@Valid @PathVariable Long id, @Valid @RequestBody RequestCreateDTO request) {
     Request requestEntity = requestService.update(id, request);
-    return modelMapper.map(requestEntity, RequestResponse.class);
+    return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
   @GetMapping("/requests")
-  List<RequestResponse> list(
+  List<RequestDTO> list(
       @RequestParam(required = false) String biobankId,
       @RequestParam(required = false) String collectionId) {
     List<Request> requests;
@@ -119,13 +119,13 @@ public class RequestController {
       requests = requestService.findAll();
     }
     return requests.stream()
-        .map(request -> modelMapper.map(request, RequestResponse.class))
+        .map(request -> modelMapper.map(request, RequestDTO.class))
         .collect(Collectors.toList());
   }
 
   @GetMapping("/requests/{id}")
-  RequestResponse retrieve(@Valid @PathVariable Long id) {
+  RequestDTO retrieve(@Valid @PathVariable Long id) {
     Request entity = requestService.findById(id);
-    return modelMapper.map(entity, RequestResponse.class);
+    return modelMapper.map(entity, RequestDTO.class);
   }
 }

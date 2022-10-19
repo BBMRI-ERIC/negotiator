@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;

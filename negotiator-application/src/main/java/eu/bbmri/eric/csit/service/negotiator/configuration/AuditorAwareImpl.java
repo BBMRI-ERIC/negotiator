@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;

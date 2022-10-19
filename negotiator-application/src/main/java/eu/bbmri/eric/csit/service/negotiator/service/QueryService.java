@@ -1,15 +1,15 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import eu.bbmri.eric.csit.service.negotiator.model.DataSource;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.repository.DataSourceRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -79,7 +79,7 @@ public class QueryService {
     queryEntity.setDataSource(dataSource);
   }
 
-  private Query saveQuery(QueryRequest queryRequest, Query queryEntity) {
+  private Query saveQuery(QueryCreateDTO queryRequest, Query queryEntity) {
     checkAndSetResources(queryRequest.getResources(), queryEntity);
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
     queryEntity.setUrl(queryRequest.getUrl());
@@ -88,7 +88,7 @@ public class QueryService {
   }
 
   @Transactional
-  public Query create(QueryRequest queryRequest) {
+  public Query create(QueryCreateDTO queryRequest) {
     Query queryEntity = new Query();
     return saveQuery(queryRequest, queryEntity);
   }
@@ -108,14 +108,14 @@ public class QueryService {
   }
 
   @Transactional
-  public Query update(String token, QueryRequest queryRequest) {
+  public Query update(String token, QueryCreateDTO queryRequest) {
     Query queryEntity =
         queryRepository.findByToken(token).orElseThrow(() -> new EntityNotFoundException(token));
     return saveQuery(queryRequest, queryEntity);
   }
 
   @Transactional
-  public Query update(Long id, QueryRequest queryRequest) {
+  public Query update(Long id, QueryCreateDTO queryRequest) {
     Query queryEntity =
         queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return saveQuery(queryRequest, queryEntity);

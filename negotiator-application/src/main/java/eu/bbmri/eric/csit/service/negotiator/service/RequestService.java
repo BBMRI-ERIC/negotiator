@@ -1,18 +1,18 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.model.PersonRequestRole;
-import eu.bbmri.eric.csit.service.negotiator.model.Project;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.model.Role;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.RoleRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonRequestRole;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,13 +102,13 @@ public class RequestService {
    * already exisiting Project identified by the id
    *
    * @param projectId the id of the project to which the Request has to be associated
-   * @param request the RequestRequest DTO sent from to the endpoint
+   * @param request the RequestCreateDTO DTO sent from to the endpoint
    * @param creatorId the ID of the Person that creates the Request (i.e., the authenticated Person
    *     that called the API)
    * @return the created Request entity
    */
   @Transactional
-  public Request create(Long projectId, RequestRequest request, Long creatorId) {
+  public Request create(Long projectId, RequestCreateDTO request, Long creatorId) {
     // Get the project or throw an exception
     Project project = projectService.findById(projectId);
     Request requestEntity = modelMapper.map(request, Request.class);
@@ -120,14 +120,14 @@ public class RequestService {
   /**
    * Creates a Request and the Project it is part of into the repository.
    *
-   * @param request the RequestRequest DTO sent from to the endpoint. It must have also the project
+   * @param request the RequestCreateDTO DTO sent from to the endpoint. It must have also the project
    *     data to create also the project
    * @param creatorId the ID of the Person that creates the Request (i.e., the authenticated Person
    *     that called the API)
    * @return the created Request entity
    */
   @Transactional
-  public Request create(RequestRequest request, Long creatorId) {
+  public Request create(RequestCreateDTO request, Long creatorId) {
     if (request.getProject() == null) {
       throw new WrongRequestException("Missing project data");
     }
@@ -135,7 +135,7 @@ public class RequestService {
     return create(requestEntity, request.getQueries(), creatorId);
   }
 
-  private Request update(Request requestEntity, RequestRequest request) {
+  private Request update(Request requestEntity, RequestCreateDTO request) {
     Set<Query> queries = findQueries(request.getQueries());
 
     if (queries.stream()
@@ -165,11 +165,11 @@ public class RequestService {
    * Updates the request with the specified ID.
    *
    * @param id the id of the request tu update
-   * @param request the RequestRequest DTO with the new Request data
+   * @param request the RequestCreateDTO DTO with the new Request data
    * @return The updated Request entity
    */
   @Transactional
-  public Request update(Long id, RequestRequest request) {
+  public Request update(Long id, RequestCreateDTO request) {
     Request requestEntity = findById(id);
     return update(requestEntity, request);
   }
@@ -178,11 +178,11 @@ public class RequestService {
    * Updates the request with the specified token.
    *
    * @param token the token of the request tu update
-   * @param request the RequestRequest DTO with the new Request data
+   * @param request the RequestCreateDTO DTO with the new Request data
    * @return The updated Request entity
    */
   @Transactional
-  public Request update(String token, RequestRequest request) {
+  public Request update(String token, RequestCreateDTO request) {
     Request requestEntity = findByToken(token);
     return update(requestEntity, request);
   }

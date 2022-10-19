@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.common;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import java.util.List;
 import javax.validation.Valid;

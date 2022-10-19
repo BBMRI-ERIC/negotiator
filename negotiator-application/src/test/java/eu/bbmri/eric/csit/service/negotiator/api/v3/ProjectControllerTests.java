@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.ProjectController;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ProjectRequest;
-import eu.bbmri.eric.csit.service.negotiator.model.Project;
-import eu.bbmri.eric.csit.service.negotiator.repository.ProjectRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
 import java.net.URI;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,14 +56,14 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_Unauthorized_whenNoAuth() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -75,7 +75,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -87,7 +87,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenTitle_IsMissing() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setTitle(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -100,7 +100,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setDescription(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -113,7 +113,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setDescription("d".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -126,7 +126,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenEthicsVote_IsMissing() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setEthicsVote(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -139,7 +139,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenEthicsVote_IsTooLong() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setEthicsVote("e".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -152,7 +152,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenExpectedEndDate_IsMissing() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setExpectedEndDate(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -165,7 +165,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenExpectedEndDate_HasWrongFormat() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody =
         requestBody.replace(
@@ -182,7 +182,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenExpectedDataGeneration_IsMissing() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     request.setExpectedDataGeneration(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -196,7 +196,7 @@ public class ProjectControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok_whenIsTestProject_isDefault() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -260,7 +260,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testGetAll_Ok() throws Exception {
-    ProjectRequest projectRequest = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);
     entity = repository.save(entity);
 
@@ -347,7 +347,7 @@ public class ProjectControllerTests {
 
   @Test
   public void testGetById_Ok() throws Exception {
-    ProjectRequest projectRequest = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);
     entity = repository.save(entity);
 

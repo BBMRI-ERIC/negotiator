@@ -1,8 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ProjectRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.response.ProjectResponse;
-import eu.bbmri.eric.csit.service.negotiator.model.Project;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.service.ProjectService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,16 +29,16 @@ public class ProjectController {
 
   @GetMapping(value = "/projects", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  List<ProjectResponse> list() {
+  List<ProjectDTO> list() {
     return projectService.findAll().stream()
-        .map(project -> modelMapper.map(project, ProjectResponse.class))
+        .map(project -> modelMapper.map(project, ProjectDTO.class))
         .collect(Collectors.toList());
   }
 
   @GetMapping(value = "/projects/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  ProjectResponse retrieve(@Valid @PathVariable Long id) {
-    return modelMapper.map(projectService.findById(id), ProjectResponse.class);
+  ProjectDTO retrieve(@Valid @PathVariable Long id) {
+    return modelMapper.map(projectService.findById(id), ProjectDTO.class);
   }
 
   @PostMapping(
@@ -46,8 +46,8 @@ public class ProjectController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  ProjectResponse add(@Valid @RequestBody ProjectRequest request) {
+  ProjectDTO add(@Valid @RequestBody ProjectCreateDTO request) {
     Project projectEntity = projectService.create(request);
-    return modelMapper.map(projectEntity, ProjectResponse.class);
+    return modelMapper.map(projectEntity, ProjectDTO.class);
   }
 }

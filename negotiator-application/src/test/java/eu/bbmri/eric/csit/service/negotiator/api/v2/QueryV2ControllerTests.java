@@ -12,12 +12,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v2.QueryV2Controller;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2Request;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
-import eu.bbmri.eric.csit.service.negotiator.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.Optional;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     request.setUrl(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -73,7 +73,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     request.setHumanReadable(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -86,7 +86,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionFieldIsMissing() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     request.setCollections(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -99,7 +99,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     request.setCollections(Set.of());
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -112,7 +112,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     Optional<CollectionV2DTO> collection = request.getCollections().stream().findFirst();
     assert collection.isPresent();
     collection.get().setCollectionId("collection_unknown");
@@ -127,7 +127,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     Optional<CollectionV2DTO> biobank = request.getCollections().stream().findFirst();
     assert biobank.isPresent();
     biobank.get().setBiobankId("wrong_biobank");
@@ -142,7 +142,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -156,7 +156,7 @@ public class QueryV2ControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -175,14 +175,14 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -194,7 +194,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    QueryV2Request request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -206,7 +206,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testUpdate_CreateWhenRequestIsNotFound() throws Exception {
-    QueryV2Request updateRequest = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
     updateRequest.setToken("-1__search__-1");
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
     mockMvc
@@ -234,7 +234,7 @@ public class QueryV2ControllerTests {
     q.setRequest(requestEntity);
     requestRepository.save(requestEntity);
 
-    QueryV2Request updateRequest = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
     updateRequest.setToken("%s__search__%s".formatted(requestEntity.getToken(), q.getToken()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
@@ -270,7 +270,7 @@ public class QueryV2ControllerTests {
     q.setRequest(requestEntity);
     requestRepository.save(requestEntity);
 
-    QueryV2Request updateRequest = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
     updateRequest.setToken("%s__search__".formatted(requestEntity.getToken()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 

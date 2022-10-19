@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.time.Instant;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -11,10 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.QueryController;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import java.util.Optional;
 import java.util.Set;
@@ -56,7 +56,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     request.setUrl(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -69,7 +69,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     request.setHumanReadable(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -82,7 +82,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourcesFieldIsMissing() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     request.setResources(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -95,7 +95,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     request.setResources(Set.of());
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -108,7 +108,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
     Optional<ResourceDTO> collection = biobank.get().getChildren().stream().findFirst();
@@ -125,7 +125,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
     biobank.get().setId("wrong_biobank");
@@ -140,7 +140,7 @@ public class QueryControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -154,7 +154,7 @@ public class QueryControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
 
     mockMvc
@@ -220,7 +220,7 @@ public class QueryControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -232,7 +232,7 @@ public class QueryControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -244,7 +244,7 @@ public class QueryControllerTests {
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    QueryRequest request = TestUtils.createQueryRequest(false);
+    QueryCreateDTO request = TestUtils.createQueryRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -257,7 +257,7 @@ public class QueryControllerTests {
 
   @Test
   public void testUpdate_NotFound() throws Exception {
-    QueryRequest updateRequest = TestUtils.createQueryRequest(true);
+    QueryCreateDTO updateRequest = TestUtils.createQueryRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc
@@ -275,7 +275,7 @@ public class QueryControllerTests {
   public void testUpdate_Ok() throws Exception {
     Query q = queryService.create(TestUtils.createQueryRequest(false));
 
-    QueryRequest updateRequest = TestUtils.createQueryRequest(true);
+    QueryCreateDTO updateRequest = TestUtils.createQueryRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc

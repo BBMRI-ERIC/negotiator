@@ -8,10 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.PerunUserRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ProjectRequest;
-import eu.bbmri.eric.csit.service.negotiator.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -45,14 +45,14 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_Unauthorized_whenNoAuth() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -64,7 +64,7 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    ProjectRequest request = TestUtils.createProjectRequest(false);
+    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,

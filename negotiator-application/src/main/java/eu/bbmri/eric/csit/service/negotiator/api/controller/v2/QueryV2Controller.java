@@ -1,13 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v2;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryRequest;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2Request;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.response.QueryV2Response;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
@@ -46,8 +46,8 @@ public class QueryV2Controller {
     this.modelMapper = modelMapper;
 
     // Mapper from v2 Query to V3 Query
-    TypeMap<QueryV2Request, QueryRequest> v2ToV3Map =
-        modelMapper.createTypeMap(QueryV2Request.class, QueryRequest.class);
+    TypeMap<QueryCreateV2DTO, QueryCreateDTO> v2ToV3Map =
+        modelMapper.createTypeMap(QueryCreateV2DTO.class, QueryCreateDTO.class);
 
     Converter<Set<CollectionV2DTO>, Set<ResourceDTO>> collectionV2ToResourceV3 =
         q -> convertCollectionV2ToResourceV3(q.getSource());
@@ -56,16 +56,16 @@ public class QueryV2Controller {
         mapper ->
             mapper
                 .using(collectionV2ToResourceV3)
-                .map(QueryV2Request::getCollections, QueryRequest::setResources));
+                .map(QueryCreateV2DTO::getCollections, QueryCreateDTO::setResources));
 
     // Mapper from v2 Query to V3 Query
-    TypeMap<Query, QueryV2Response> queryToV3Response =
-        modelMapper.createTypeMap(Query.class, QueryV2Response.class);
+    TypeMap<Query, QueryV2DTO> queryToV3Response =
+        modelMapper.createTypeMap(Query.class, QueryV2DTO.class);
 
     Converter<Long, String> queryToRedirectUri = q -> convertIdToRedirectUri(q.getSource());
     queryToV3Response.addMappings(
         mapper ->
-            mapper.using(queryToRedirectUri).map(Query::getId, QueryV2Response::setRedirectUri));
+            mapper.using(queryToRedirectUri).map(Query::getId, QueryV2DTO::setRedirectUri));
   }
 
   private String convertIdToRedirectUri(Long queryId) {
@@ -108,8 +108,8 @@ public class QueryV2Controller {
       value = "/api/directory/create_query",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  ResponseEntity<QueryV2Response> add(@Valid @RequestBody QueryV2Request queryRequest) {
-    QueryRequest v3Request = modelMapper.map(queryRequest, QueryRequest.class);
+  ResponseEntity<QueryV2DTO> add(@Valid @RequestBody QueryCreateV2DTO queryRequest) {
+    QueryCreateDTO v3Request = modelMapper.map(queryRequest, QueryCreateDTO.class);
     Query queryEntity;
     boolean created;
     if (queryRequest.getToken() != null && !queryRequest.getToken().isEmpty()) {
@@ -134,7 +134,7 @@ public class QueryV2Controller {
       queryEntity = queryService.create(v3Request);
       created = true;
     }
-    QueryV2Response response = modelMapper.map(queryEntity, QueryV2Response.class);
+    QueryV2DTO response = modelMapper.map(queryEntity, QueryV2DTO.class);
     if (created) {
       return ResponseEntity.created(URI.create(response.getRedirectUri())).body(response);
     } else {
