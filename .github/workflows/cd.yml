@@ -31,7 +31,6 @@ jobs:
       with:
         images: |
           bbmrieric/negoatiator
-          ghcr.io/bbmrieric/negotiator
         tags: |
           type=schedule
           type=ref,event=branch
