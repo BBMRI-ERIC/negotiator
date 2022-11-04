@@ -71,4 +71,4 @@ jobs:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER}}
         key: ${{ secrets.PRIVATE_KEY }}
-        script: whoami
+        script: ls
