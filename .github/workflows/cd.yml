@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Checkout the codebase
+      name: Checkout the codebase
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
