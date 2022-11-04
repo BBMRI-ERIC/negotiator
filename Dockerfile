@@ -1,11 +1,13 @@
-# Build the jar
-FROM maven:3-openjdk-17-slim
-ARG BRANCH=master
-RUN apt update && apt install -y git
-RUN git clone https://github.com/BBMRI-ERIC/negotiator-v3.git negotiator
-RUN cd negotiator && git checkout ${BRANCH} && mvn clean package -DskipTests
-
 # Build the image
-FROM openjdk:17-alpine
-COPY --from=0 negotiator/negotiator-application/target/negotiator-application-3.0.1-exec.jar negotiator-application-3.0.1.jar
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=docker", "/negotiator-application-3.0.1.jar"]
+FROM eclipse-temurin:17-jre
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get purge curl wget libbinutils libctf0 libctf-nobfd0 libncurses6 -y && \
+    apt-get autoremove -y && apt-get clean
+
+RUN mkdir -p /app && chown -R 1001:1001 /app
+
+COPY target/negotiator-exec.jar /app/negotiator.jar
+WORKDIR /app
+USER 1001
+ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=docker", "/app/negotiator.jar"]
