@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  build:
+  publish_docker:
 
     runs-on: ubuntu-latest
 
@@ -59,7 +59,7 @@ jobs:
         labels: ${{ steps.docker-meta.outputs.labels }}
 
   deploy:
-
+    needs: publish_docker
     runs-on: ubuntu-latest
 
     environment: staging
@@ -71,4 +71,5 @@ jobs:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER}}
         key: ${{ secrets.PRIVATE_KEY }}
+        script_stop: true
         script: ls
