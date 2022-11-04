@@ -1,7 +1,8 @@
 version: "3.4"
 services:
   negotiator:
-    image: bbmri/negotiator:3.0.0
+    container_name: negotiator
+    image: negotiator:latest
     build:
       context: ./
       dockerfile: Dockerfile
@@ -10,7 +11,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=negotiator
       - SPRING_DATASOURCE_PASSWORD=negotiator
       - SPRING_DATASOURCE_INITIALIZE=true
-      - SPRING_DATASOURCE_DATA=file:/data.sql
+#      - SPRING_DATASOURCE_DATA=file:/data.sql
       - SPRING_DATASOURCE_INITIALIZATION-MODE=always
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - OAUTH2_ISSUER=
@@ -18,9 +19,10 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
-    entrypoint: [ "java","-jar", "-Dspring.profiles.active=docker", "/negotiator-application-3.0.1.jar" ]
+
   postgres:
-    image: postgres:11-alpine
+    container_name: negotiator-db
+    image: postgres:14
     environment:
       - POSTGRES_USER=negotiator
       - POSTGRES_PASSWORD=negotiator
@@ -28,7 +30,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - negotiator-db-data:/var/lib/postgresql/data
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
 volumes:
-  db-data:
+  negotiator-db-data:
