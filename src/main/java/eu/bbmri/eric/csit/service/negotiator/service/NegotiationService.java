@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationRequest;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepositoryImpl;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -11,11 +12,13 @@ import java.util.Collections;
 
 public class NegotiationService {
 
-    private NegotiationRepository negotiationRepository;
-    public Negotiation startNegotiation(NegotiationRequest negotiationRequest){
+    private final NegotiationRepository negotiationRepository = new NegotiationRepositoryImpl();
+
+    public Negotiation startNegotiation(NegotiationRequest negotiationRequest, Long creatorId){
         Negotiation negotiation = Negotiation
                 .builder()
                 .requests(new ArrayList<>(Collections.singletonList(negotiationRequest)))
+                .creatorId(creatorId)
                 .build();
         negotiationRepository.save(negotiation);
         return negotiation;
@@ -23,5 +26,8 @@ public class NegotiationService {
 
     public Negotiation getNegotiationById(int id) {
         return negotiationRepository.findById(id);
+    }
+    public ArrayList<Negotiation> getAllNegotiations() {
+        return negotiationRepository.findAll();
     }
 }

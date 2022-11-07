@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import java.util.ArrayList;
 
 
@@ -11,7 +13,11 @@ import java.util.ArrayList;
 @Setter
 @Builder
 public class Negotiation {
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    private Long creatorId;
     private ArrayList<NegotiationRequest> requests;
 
     public NegotiationRequest addRequest(NegotiationRequest negotiationRequest){

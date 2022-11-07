@@ -12,6 +12,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -33,14 +36,13 @@ public class NegotiationServiceTest {
 
     @Test
     public void testStartingNegotiationReturnIsNotNull(){
-        assertNotNull(negotiationService.startNegotiation(negotiationRequest));
+        assertNotNull(negotiationService.startNegotiation(negotiationRequest, 0L));
     }
+
 
     @Test
     public void testGetNegotiationById() {
-        Negotiation negotiation = Negotiation.builder().id(1).build();
-        when(negotiationService.getNegotiationById(1)).thenReturn(negotiation);
-        assertNotNull(negotiationService.getNegotiationById(1));
+        assertNotNull(negotiationService.getAllNegotiations());
         assertNull(negotiationService.getNegotiationById(0));
     }
 }

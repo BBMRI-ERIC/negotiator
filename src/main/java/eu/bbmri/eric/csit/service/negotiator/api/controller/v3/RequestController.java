@@ -1,12 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonRequestRole;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.List;
 import java.util.Set;
@@ -34,10 +34,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class RequestController {
 
   private final RequestService requestService;
+
+  private final NegotiationService negotiationService;
   private final ModelMapper modelMapper;
 
-  public RequestController(RequestService requestService, ModelMapper modelMapper) {
+  public RequestController(RequestService requestService, NegotiationService negotiationService, ModelMapper modelMapper) {
     this.requestService = requestService;
+    this.negotiationService = negotiationService;
     this.modelMapper = modelMapper;
     TypeMap<Request, RequestDTO> typeMap =
         modelMapper.createTypeMap(Request.class, RequestDTO.class);
@@ -66,10 +69,11 @@ public class RequestController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  RequestDTO add(@Valid @RequestBody RequestCreateDTO request) {
+  RequestDTO add(@Valid @RequestBody NegotiationRequestCreateDTO request) {
     Person creator = getCreatorFromAuthentication();
-    Request requestEntity = requestService.create(request, creator.getId());
-    return modelMapper.map(requestEntity, RequestDTO.class);
+    NegotiationRequest negotiationRequest = NegotiationRequest.builder().build();
+    Negotiation negotiation = negotiationService.startNegotiation(negotiationRequest, creator.getId());
+    return modelMapper.map(negotiation, RequestDTO.class);
   }
 
   private static Person getCreatorFromAuthentication() {
