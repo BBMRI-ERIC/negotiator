@@ -24,7 +24,26 @@
       </configuration>
       <groupId>org.springframework.boot</groupId>
     </plugin>
-  </plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.8</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <parent>
@@ -38,18 +57,6 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
-
-  <!--  <build>-->
-  <!--    <plugins>-->
-  <!--      <plugin>-->
-  <!--        <artifactId>spring-boot-maven-plugin</artifactId>-->
-  <!--        <configuration>-->
-  <!--          <mainClass>NegotiatorApplication</mainClass>-->
-  <!--        </configuration>-->
-  <!--        <groupId>org.springframework.boot</groupId>-->
-  <!--      </plugin>-->
-  <!--    </plugins>-->
-  <!--  </build>-->
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
