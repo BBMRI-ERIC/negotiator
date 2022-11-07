@@ -74,8 +74,7 @@ public class RequestController {
 
   private static Person getCreatorFromAuthentication() {
     Authentication auth = getAuthentication();
-    Person creator = getCreator(auth);
-    return creator;
+    return getCreator(auth);
   }
 
   private static Person getCreator(Authentication auth) {
