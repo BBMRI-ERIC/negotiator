@@ -1,11 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,19 +21,22 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "form_field_selection")
-public class FormFieldSelection extends AuditEntity {
+@Table(name = "form_field_template_link")
+@IdClass(FormFieldTemplateId.class)
+public class FormFieldTemplateLink {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "form_template_id")
+  @JoinColumn(name = "template_id")
   @Exclude
-  private FormTemplate formTemplate;
+  @Id
+  private FormTemplate template;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "form_field_id")
+  @JoinColumn(name = "field_id")
   @Exclude
-  private FormField formField;
+  @Id
+  private FormField field;
 
-  @Column(name = "\"order\"")
-  private Integer order;
+  @NotNull
+  private Integer ordering;
 }

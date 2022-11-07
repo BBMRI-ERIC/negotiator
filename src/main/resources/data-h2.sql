@@ -38,3 +38,12 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
   (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 'collection', 3, 1);
 
 insert into person_resource_link (resource_id, person_id) values (1, 2), (4, 3);
+
+insert into form_field_type (id, name) values (1, 'text');
+
+insert into form_field (id, name, label, form_field_type_id) values (1, 'title', 'Title', 1);
+insert into form_field (id, name, label, form_field_type_id) values (2, 'description', 'Description', 1);
+
+insert into form_template (id, resource_id, commercial) values (1, 1, 'false');
+
+insert into form_field_template_link (template_id, field_id, ordering) values (1, 1, 1), (1, 2, 2);
