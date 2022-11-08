@@ -68,9 +68,7 @@ public class RequestController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO add(@Valid @RequestBody RequestCreateDTO request) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
-    Request requestEntity = requestService.create(request, creator.getId());
+    Request requestEntity = requestService.create(request, getCreatorId());
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
   @PostMapping(
@@ -79,10 +77,17 @@ public class RequestController {
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO request) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
-    NegotiationRequest requestEntity = requestService.createRequest(request, creator.getId());
+    NegotiationRequest requestEntity = requestService.createRequest(request, getCreatorId());
     return modelMapper.map(requestEntity, RequestDTO.class);
+  }
+
+  private static Long getCreatorId() {
+    return getCreator().getId();
+  }
+
+  private static Person getCreator() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
   }
 
   /**
@@ -96,9 +101,7 @@ public class RequestController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO add(@PathVariable String projectId, @Valid @RequestBody RequestCreateDTO request) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
-    Request requestEntity = requestService.create(projectId, request, creator.getId());
+    Request requestEntity = requestService.create(projectId, request, getCreatorId());
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
