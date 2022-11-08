@@ -14,7 +14,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.Optional;
 import java.util.Set;
@@ -40,7 +40,7 @@ import org.springframework.web.context.WebApplicationContext;
 public class RequestControllerTests {
   private static final String ENDPOINT = "/v3/queries";
   @Autowired public RequestService service;
-  @Autowired public QueryRepository repository;
+  @Autowired public RequestRepository repository;
   @Autowired private WebApplicationContext context;
   @Autowired private RequestController controller;
   @Autowired private RequestService requestService;

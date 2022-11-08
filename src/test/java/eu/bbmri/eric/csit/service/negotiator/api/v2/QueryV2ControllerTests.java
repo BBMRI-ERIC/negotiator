@@ -16,8 +16,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.Optional;
 import java.util.Set;
@@ -43,11 +43,11 @@ import org.springframework.web.context.WebApplicationContext;
 @TestMethodOrder(OrderAnnotation.class)
 public class QueryV2ControllerTests {
   private static final String ENDPOINT = "/api/directory/create_query";
-  @Autowired public QueryRepository queryRepository;
+  @Autowired public RequestRepository requestRepository;
   @Autowired private WebApplicationContext context;
   @Autowired private QueryV2Controller controller;
   @Autowired private RequestService requestService;
-  @Autowired private RequestRepository requestRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
@@ -55,7 +55,7 @@ public class QueryV2ControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    queryRepository.deleteAll();
+    requestRepository.deleteAll();
   }
 
   @Test
@@ -170,7 +170,7 @@ public class QueryV2ControllerTests {
             header().string("Location", containsString("http://localhost/gui/request/jsonQuery=")))
         .andExpect(
             jsonPath("$.redirect_uri", containsString("http://localhost/gui/request/jsonQuery=")));
-    assertEquals(queryRepository.findAll().size(), 1);
+    assertEquals(requestRepository.findAll().size(), 1);
   }
 
   @Test
@@ -232,7 +232,7 @@ public class QueryV2ControllerTests {
     Request requestEntity =
         modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Request.class);
     q.setRequest(requestEntity);
-    requestRepository.save(requestEntity);
+    negotiationRepository.save(requestEntity);
 
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
     updateRequest.setToken("%s__search__%s".formatted(requestEntity.getId(), q.getId()));
@@ -256,7 +256,7 @@ public class QueryV2ControllerTests {
                 containsString(
                     "http://localhost/gui/request/queryId=%s&jsonQuery="
                         .formatted(requestEntity.getId()))));
-    assertEquals(queryRepository.findAll().size(), 1);
+    assertEquals(requestRepository.findAll().size(), 1);
   }
 
   @Test
@@ -267,7 +267,7 @@ public class QueryV2ControllerTests {
     Request requestEntity =
         modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Request.class);
     q.setRequest(requestEntity);
-    requestRepository.save(requestEntity);
+    negotiationRepository.save(requestEntity);
 
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
     updateRequest.setToken("%s__search__".formatted(requestEntity.getId()));
@@ -291,6 +291,6 @@ public class QueryV2ControllerTests {
                 containsString(
                     "http://localhost/gui/request/queryId=%s&jsonQuery="
                         .formatted(requestEntity.getId()))));
-    assertEquals(queryRepository.findAll().size(), 2);
+    assertEquals(requestRepository.findAll().size(), 2);
   }
 }

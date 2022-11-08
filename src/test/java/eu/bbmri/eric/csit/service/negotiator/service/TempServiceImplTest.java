@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationRequest;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.TempRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +20,7 @@ public class TempServiceImplTest {
     NegotiationRequest negotiationRequest;
 
     @Mock
-    NegotiationRepository negotiationRepository;
+    TempRepository tempRepository;
 
     @BeforeEach
     void setUp() {

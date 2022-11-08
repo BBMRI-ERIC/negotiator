@@ -4,7 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationRequest;
 
 import java.util.HashMap;
 
-public class NegotiatorRequestRepositoryImpl implements NegotiationRequestRepository{
+public class TempRequestRepositoryImpl implements TempRequestRepository {
     private final HashMap<Long, NegotiationRequest> negotiationRequests = new HashMap<>();
     @Override
     public NegotiationRequest save(NegotiationRequest negotiationRequest) {

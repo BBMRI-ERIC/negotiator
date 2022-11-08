@@ -2,12 +2,12 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.TempRequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import java.util.HashSet;
 import java.util.List;
@@ -24,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 @CommonsLog
 public class NegotiationService {
 
-  @Autowired private RequestRepository requestRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
 
-  private NegotiationRequestRepository negotiationRequestRepository;
+  private TempRequestRepository tempRequestRepository;
   @Autowired private RoleRepository roleRepository;
   @Autowired private PersonRepository personRepository;
   @Autowired private ProjectService projectService;
@@ -46,10 +46,10 @@ public class NegotiationService {
 
   public void createRequest(NegotiationRequest negotiationRequest){
     log.debug(negotiationRequest.toString());
-    negotiationRequestRepository.save(negotiationRequest);
+    tempRequestRepository.save(negotiationRequest);
   }
   public NegotiationRequest getNegotiationRequestById(Long id){
-    return negotiationRequestRepository.findById(id);
+    return tempRequestRepository.findById(id);
   }
 
   /**
@@ -96,7 +96,7 @@ public class NegotiationService {
     try {
       // Finally, save the request. NB: it also cascades operations for other Queries,
       // PersonRequestRole
-      return requestRepository.save(requestEntity);
+      return negotiationRepository.save(requestEntity);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Request into db. Some db constraint violated");
       throw new EntityNotStorableException();
@@ -160,7 +160,7 @@ public class NegotiationService {
     requestEntity.setDescription(request.getDescription());
 
     try {
-      requestRepository.save(requestEntity);
+      negotiationRepository.save(requestEntity);
       return requestEntity;
     } catch (DataException | DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
@@ -186,7 +186,7 @@ public class NegotiationService {
     requestEntity.getQueries().add(queryEntity);
     queryEntity.setRequest(requestEntity);
     try {
-      requestRepository.save(requestEntity);
+      negotiationRepository.save(requestEntity);
       return requestEntity;
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
@@ -200,7 +200,7 @@ public class NegotiationService {
    */
   @Transactional
   public List<Request> findAll() {
-    return requestRepository.findAll();
+    return negotiationRepository.findAll();
   }
 
   /**
@@ -211,7 +211,7 @@ public class NegotiationService {
    */
   @Transactional
   public Request findDetailedById(String id) throws EntityNotFoundException {
-    return requestRepository
+    return negotiationRepository
         .findDetailedById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
   }
@@ -224,7 +224,7 @@ public class NegotiationService {
    */
   @Transactional
   public Request findById(String id) throws EntityNotFoundException {
-    return requestRepository
+    return negotiationRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
   }
@@ -237,7 +237,7 @@ public class NegotiationService {
    */
   @Transactional
   public List<Request> findByBiobankId(String biobankId) {
-    return requestRepository.findByBiobankId(biobankId);
+    return negotiationRepository.findByBiobankId(biobankId);
   }
 
   /**
@@ -248,6 +248,6 @@ public class NegotiationService {
    */
   @Transactional
   public List<Request> findByCollectionId(String collectionId) {
-    return requestRepository.findByCollectionId(collectionId);
+    return negotiationRepository.findByCollectionId(collectionId);
   }
 }

@@ -18,8 +18,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
 import java.util.Collections;
@@ -56,8 +56,8 @@ public class NegotiationControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired private NegotiationController negotiationController;
   @Autowired private ProjectRepository projectRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private RequestRepository requestRepository;
-  @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
   @Autowired private RequestService requestService;
 
@@ -72,8 +72,8 @@ public class NegotiationControllerTests {
 
   @AfterEach
   public void after() {
-    queryRepository.deleteAll();
     requestRepository.deleteAll();
+    negotiationRepository.deleteAll();
     projectRepository.deleteAll();
   }
 
@@ -166,7 +166,7 @@ public class NegotiationControllerTests {
   public void testGetAll_Ok() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     Request entity = modelMapper.map(request, Request.class);
-    entity = requestRepository.save(entity);
+    entity = negotiationRepository.save(entity);
 
     mockMvc
         .perform(
@@ -259,7 +259,7 @@ public class NegotiationControllerTests {
   public void testGetById_Ok_whenCorrectId() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     Request entity = modelMapper.map(request, Request.class);
-    entity = requestRepository.save(entity);
+    entity = negotiationRepository.save(entity);
 
     mockMvc
         .perform(
@@ -614,11 +614,11 @@ public class NegotiationControllerTests {
     RequestCreateDTO createRequest = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     // The data source to be updated
     Request requestEntity = modelMapper.map(createRequest, Request.class);
-    requestRepository.save(requestEntity);
+    negotiationRepository.save(requestEntity);
 
     testQuery.setRequest(requestEntity);
-    queryRepository.save(testQuery);
-    assertEquals(1, requestRepository.count());
+    requestRepository.save(testQuery);
+    assertEquals(1, negotiationRepository.count());
 
     // Request body with updated values
     RequestCreateDTO updateRequest = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
@@ -632,7 +632,7 @@ public class NegotiationControllerTests {
         .andDo(print())
         .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    assertEquals(1, requestRepository.count());
+    assertEquals(1, negotiationRepository.count());
   }
 
   @Test
@@ -640,7 +640,7 @@ public class NegotiationControllerTests {
   public void testCreate_Ok_whenProjectIsIncluded() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
-    long currentRequest = requestRepository.count();
+    long currentRequest = negotiationRepository.count();
     long currentProject = projectRepository.count();
     mockMvc
         .perform(
@@ -664,7 +664,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)))
         .andReturn();
 
-    assertEquals(requestRepository.count(), currentRequest + 1);
+    assertEquals(negotiationRepository.count(), currentRequest + 1);
     assertEquals(projectRepository.count(), currentProject + 1);
   }
 
@@ -678,7 +678,7 @@ public class NegotiationControllerTests {
     RequestCreateDTO request = TestUtils.createRequest(false, false, Set.of(testQuery.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
 
-    long currentRequest = requestRepository.count();
+    long currentRequest = negotiationRepository.count();
     long currentProject = projectRepository.count();
 
     mockMvc
@@ -695,7 +695,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.queries[0].id", is(testQuery.getId())));
 
-    assertEquals(requestRepository.count(), currentRequest + 1);
+    assertEquals(negotiationRepository.count(), currentRequest + 1);
     assertEquals(projectRepository.count(), currentProject);
   }
 
@@ -740,18 +740,18 @@ public class NegotiationControllerTests {
     // Create the request that has the assigned query
     Request requestEntityWithQuery =
         modelMapper.map(TestUtils.createRequest(false, false, null), Request.class);
-    requestRepository.save(requestEntityWithQuery);
+    negotiationRepository.save(requestEntityWithQuery);
     Query firstQuery = createQueryEntity();
     firstQuery.setRequest(requestEntityWithQuery);
-    queryRepository.save(firstQuery);
+    requestRepository.save(firstQuery);
 
     // Create the request to update
     Request requestEntityUpdate =
         modelMapper.map(TestUtils.createRequest(false, false, null), Request.class);
-    requestRepository.save(requestEntityUpdate);
+    negotiationRepository.save(requestEntityUpdate);
     Query secondQuery = createQueryEntity();
     secondQuery.setRequest(requestEntityUpdate);
-    queryRepository.save(secondQuery);
+    requestRepository.save(secondQuery);
 
     // Request body with updated values and query already assigned
     RequestCreateDTO request =
@@ -774,10 +774,10 @@ public class NegotiationControllerTests {
     Request requestEntity =
         modelMapper.map(
             TestUtils.createRequest(false, false, Set.of(testQuery.getId())), Request.class);
-    requestRepository.save(requestEntity);
+    negotiationRepository.save(requestEntity);
 
     testQuery.setRequest(requestEntity);
-    queryRepository.save(testQuery);
+    requestRepository.save(testQuery);
 
     // Request body with updated values
     RequestCreateDTO request = TestUtils.createRequest(true, false, Set.of(testQuery.getId()));

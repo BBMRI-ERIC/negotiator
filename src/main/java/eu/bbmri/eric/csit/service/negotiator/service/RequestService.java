@@ -8,7 +8,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RequestService {
 
-  @Autowired private QueryRepository queryRepository;
+  @Autowired private RequestRepository requestRepository;
   @Autowired private ResourceRepository resourceRepository;
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
@@ -84,7 +84,7 @@ public class RequestService {
     checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
     queryEntity.setUrl(queryRequest.getUrl());
     queryEntity.setHumanReadable(queryRequest.getHumanReadable());
-    return queryRepository.save(queryEntity);
+    return requestRepository.save(queryEntity);
   }
 
   @Transactional
@@ -95,12 +95,12 @@ public class RequestService {
 
   @Transactional(readOnly = true)
   public List<Query> findAll() {
-    return queryRepository.findAll();
+    return requestRepository.findAll();
   }
 
   @Transactional(readOnly = true)
   public Query findById(String id) {
-    return queryRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return requestRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   public Set<Query> findAllById(Set<String> ids) {
@@ -110,7 +110,7 @@ public class RequestService {
   @Transactional
   public Query update(String id, QueryCreateDTO queryRequest) {
     Query queryEntity =
-        queryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return saveQuery(queryRequest, queryEntity);
   }
 }
