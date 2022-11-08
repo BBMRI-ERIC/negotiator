@@ -39,6 +39,8 @@ public class FormField extends BaseEntity {
   @Exclude
   private FormFieldType type;
 
+  @NotNull private Boolean required;
+
   @OneToMany(mappedBy = "field")
   Set<FormFieldTemplateLink> templates;
 
