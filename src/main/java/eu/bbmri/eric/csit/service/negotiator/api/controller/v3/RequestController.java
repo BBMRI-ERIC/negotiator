@@ -69,24 +69,11 @@ public class RequestController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  RequestDTO add(@Valid @RequestBody NegotiationRequestCreateDTO request) {
-    Person creator = getCreatorFromAuthentication();
-    NegotiationRequest negotiationRequest = NegotiationRequest.builder().build();
-    Negotiation negotiation = negotiationService.startNegotiation(negotiationRequest, creator.getId());
-    return modelMapper.map(negotiation, RequestDTO.class);
-  }
-
-  private static Person getCreatorFromAuthentication() {
-    Authentication auth = getAuthentication();
-    return getCreator(auth);
-  }
-
-  private static Person getCreator(Authentication auth) {
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
-  }
-
-  private static Authentication getAuthentication() {
-    return SecurityContextHolder.getContext().getAuthentication();
+  RequestDTO add(@Valid @RequestBody RequestCreateDTO request) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
+    Request requestEntity = requestService.create(request, creator.getId());
+    return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
   /**
@@ -100,7 +87,8 @@ public class RequestController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO add(@PathVariable String projectId, @Valid @RequestBody RequestCreateDTO request) {
-    Person creator = getCreatorFromAuthentication();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
     Request requestEntity = requestService.create(projectId, request, creator.getId());
     return modelMapper.map(requestEntity, RequestDTO.class);
   }

@@ -16,7 +16,6 @@ spring:
           issuer-uri:
 negotiator:
   redirectPath: "/gui/request"
-
   authorization:
     claim: ""
     adminClaimValue: ""
