@@ -79,9 +79,10 @@ public class RequestController {
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationRequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO requestCreateDTO) {
     NegotiationRequest negotiationRequest = convertToEntity(requestCreateDTO);
-    // TODO: attach redirect url for the GUI
     requestService.createRequest(negotiationRequest);
-    return modelMapper.map(negotiationRequest, NegotiationRequestDTO.class);
+    NegotiationRequestDTO negotiationRequestDTO = modelMapper.map(negotiationRequest, NegotiationRequestDTO.class);
+    negotiationRequestDTO.setRedirectUrl("/gui/form/" + negotiationRequestDTO.getId());
+    return negotiationRequestDTO;
   }
   @GetMapping("/negotiation_requests/{id}")
   NegotiationRequestDTO retrieve(@Valid @PathVariable Long id) {
