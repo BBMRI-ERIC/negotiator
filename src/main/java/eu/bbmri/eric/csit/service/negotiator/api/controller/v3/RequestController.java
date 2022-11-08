@@ -37,7 +37,7 @@ public class RequestController {
 
   private final ModelMapper modelMapper;
 
-  public RequestController(RequestService requestService, NegotiationService negotiationService, ModelMapper modelMapper) {
+  public RequestController(RequestService requestService, ModelMapper modelMapper) {
     this.requestService = requestService;
     this.modelMapper = modelMapper;
     TypeMap<Request, RequestDTO> typeMap =
