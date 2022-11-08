@@ -45,6 +45,8 @@ public class RequestService {
   }
 
   public NegotiationRequest createRequest(NegotiationRequestCreateDTO negotiationRequestCreateDTO, Long creatorId){
+    log.debug(negotiationRequestCreateDTO.getNegotiableEntities());
+
     return new NegotiationRequest();
   }
 

@@ -79,7 +79,7 @@ public class RequestController {
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO request) {
-    // TODO: Do something with received CreateDTO and return Core entity
+    // TODO: VALIDATE? LOG?Do something with received CreateDTO and return Core entity
     NegotiationRequest requestEntity = requestService.createRequest(request, getCreatorId());
     // TODO: Map core entity to DTO (attach redirect url for the GUI)
     return modelMapper.map(requestEntity, RequestDTO.class);
