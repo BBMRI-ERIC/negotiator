@@ -6,12 +6,10 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepositoryImpl;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 @Service
-public class NegotiationService {
+public class NegotiationServiceImpl {
 
     private final NegotiationRepository negotiationRepository = new NegotiationRepositoryImpl();
 
