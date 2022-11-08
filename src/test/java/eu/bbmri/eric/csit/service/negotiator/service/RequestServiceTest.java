@@ -72,6 +72,14 @@ public class RequestServiceTest {
 
   @Test
   public void testCreateRequest(){
+    NegotiationRequest negotiationRequest = getNegotiationRequest();
+    requestService.createRequest(negotiationRequest);
+    when(negotiationRequestRepository.findById(1L)).thenReturn(negotiationRequest);
+    assertEquals(negotiationRequest, negotiationRequestRepository.findById(1L));
+  }
+
+
+  private static NegotiationRequest getNegotiationRequest() {
     NegotiationRequest negotiationRequest = new NegotiationRequest();
     negotiationRequest.setId(1L);
     negotiationRequest.setCreatorId("Man");
@@ -79,8 +87,7 @@ public class RequestServiceTest {
     Set<NegotiableEntity> negotiableEntities = new HashSet<>();
     negotiableEntities.add(NegotiableEntity.builder().id("idk").parentId("idk2").label("Test").build());
     negotiationRequest.setNegotiableEntities(negotiableEntities);
-    requestService.createRequest(negotiationRequest);
-    when(negotiationRequestRepository.findById(1L)).thenReturn(negotiationRequest);
-    assertEquals(negotiationRequest, negotiationRequestRepository.findById(1L));
+    return negotiationRequest;
   }
+
 }
