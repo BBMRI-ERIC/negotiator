@@ -1,0 +1,34 @@
+package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
+public class NegotiationRequestDTO {
+    @NotNull
+    private String id;
+
+    @NotNull(message = "The url of the original query must be present")
+    private String url;
+
+    @NotNull(message = "A human readable description of the query must be present")
+    private String humanReadable;
+
+    @NotNull
+    @NotEmpty(message = "At least one resource must be present")
+    private Set<NegotiableEntityDTO> negotiableEntities;
+
+    @NotNull private String redirectUrl;
+}

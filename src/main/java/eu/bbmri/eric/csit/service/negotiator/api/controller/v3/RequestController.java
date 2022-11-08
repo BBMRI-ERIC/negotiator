@@ -1,6 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
@@ -77,7 +79,9 @@ public class RequestController {
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO request) {
+    // TODO: Do something with received CreateDTO and return Core entity
     NegotiationRequest requestEntity = requestService.createRequest(request, getCreatorId());
+    // TODO: Map core entity to DTO (attach redirect url for the GUI)
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
 

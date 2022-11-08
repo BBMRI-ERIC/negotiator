@@ -1,6 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -43,7 +45,7 @@ public class RequestService {
   }
 
   public NegotiationRequest createRequest(NegotiationRequestCreateDTO negotiationRequestCreateDTO, Long creatorId){
-    return null;
+    return new NegotiationRequest();
   }
 
   /**
