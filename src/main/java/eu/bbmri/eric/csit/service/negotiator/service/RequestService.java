@@ -1,10 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
@@ -27,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class RequestService {
 
   @Autowired private RequestRepository requestRepository;
+
+  private NegotiationRequestRepository negotiationRequestRepository;
   @Autowired private RoleRepository roleRepository;
   @Autowired private PersonRepository personRepository;
   @Autowired private ProjectService projectService;
@@ -44,10 +44,9 @@ public class RequestService {
     return queries;
   }
 
-  public NegotiationRequest createRequest(NegotiationRequestCreateDTO negotiationRequestCreateDTO, Long creatorId){
-    log.debug(negotiationRequestCreateDTO.getNegotiableEntities());
-
-    return new NegotiationRequest();
+  public void createRequest(NegotiationRequest negotiationRequest){
+    log.debug(negotiationRequest.getNegotiableEntities());
+    negotiationRequestRepository.save(negotiationRequest);
   }
 
   /**

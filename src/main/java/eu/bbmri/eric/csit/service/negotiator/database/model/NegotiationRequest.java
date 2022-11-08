@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import lombok.*;
 
-import java.util.ArrayList;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class NegotiationRequest {
     private String id;
+    private String creatorId;
     private String dataSourceId;
-    private ArrayList<NegotiableEntity> negotiableEntities;
+    private Set<NegotiableEntity> negotiableEntities;
 }

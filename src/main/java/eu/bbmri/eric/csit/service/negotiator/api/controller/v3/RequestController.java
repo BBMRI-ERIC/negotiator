@@ -78,9 +78,14 @@ public class RequestController {
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationRequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO requestCreateDTO) {
-    // TODO: VALIDATE? LOG?
-    // TODO: Map core entity to DTO (attach redirect url for the GUI)
-    return modelMapper.map(requestCreateDTO, NegotiationRequestDTO.class);
+    NegotiationRequest negotiationRequest = convertToEntity(requestCreateDTO);
+    // TODO: attach redirect url for the GUI
+    requestService.createRequest(negotiationRequest);
+    return modelMapper.map(negotiationRequest, NegotiationRequestDTO.class);
+  }
+
+  private NegotiationRequest convertToEntity(NegotiationRequestCreateDTO requestCreateDTO) {
+    return modelMapper.map(requestCreateDTO, NegotiationRequest.class);
   }
 
   private static Long getCreatorId() {
