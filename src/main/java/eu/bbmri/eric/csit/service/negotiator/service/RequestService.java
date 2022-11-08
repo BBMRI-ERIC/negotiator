@@ -48,6 +48,9 @@ public class RequestService {
     log.debug(negotiationRequest.toString());
     negotiationRequestRepository.save(negotiationRequest);
   }
+  public NegotiationRequest getNegotiationRequestById(Long id){
+    return negotiationRequestRepository.findById(id);
+  }
 
   /**
    * Associates the Request entity with other Entities and create the record

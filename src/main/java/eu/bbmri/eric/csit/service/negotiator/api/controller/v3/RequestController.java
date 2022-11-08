@@ -83,6 +83,11 @@ public class RequestController {
     requestService.createRequest(negotiationRequest);
     return modelMapper.map(negotiationRequest, NegotiationRequestDTO.class);
   }
+  @GetMapping("/negotiation_requests/{id}")
+  NegotiationRequestDTO retrieve(@Valid @PathVariable Long id) {
+    NegotiationRequest entity = requestService.getNegotiationRequestById(id);
+    return modelMapper.map(entity, NegotiationRequestDTO.class);
+  }
 
   private NegotiationRequest convertToEntity(NegotiationRequestCreateDTO requestCreateDTO) {
     return modelMapper.map(requestCreateDTO, NegotiationRequest.class);
