@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: "/api"
 spring:
   application:
     name: "Negotiator"
@@ -14,6 +16,7 @@ spring:
           issuer-uri:
 negotiator:
   redirectPath: "/gui/request"
+
   authorization:
     claim: ""
     adminClaimValue: ""
