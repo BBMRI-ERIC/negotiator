@@ -14,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public abstract class NegotiableEntityDTO {
+public class NegotiableEntityDTO {
     @NotNull
     private String entity_identifier;
 

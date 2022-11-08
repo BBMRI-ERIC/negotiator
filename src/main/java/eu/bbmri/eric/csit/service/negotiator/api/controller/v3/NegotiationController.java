@@ -21,9 +21,6 @@ public class NegotiationController {
 
     private final NegotiationService negotiationService = new NegotiationService();
 
-
-
-
     @PostMapping(
             value = "/negotiations",
             consumes = MediaType.APPLICATION_JSON_VALUE,

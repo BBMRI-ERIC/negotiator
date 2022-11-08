@@ -1,15 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonRequestRole;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
@@ -44,6 +40,10 @@ public class RequestService {
       throw new WrongRequestException("One or more of the specified queries do not exist");
     }
     return queries;
+  }
+
+  public NegotiationRequest createRequest(NegotiationRequestCreateDTO negotiationRequestCreateDTO, Long creatorId){
+    return null;
   }
 
   /**

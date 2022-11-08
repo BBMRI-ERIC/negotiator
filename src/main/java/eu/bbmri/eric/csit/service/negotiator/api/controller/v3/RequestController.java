@@ -73,6 +73,17 @@ public class RequestController {
     Request requestEntity = requestService.create(request, creator.getId());
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
+  @PostMapping(
+          value = "/negotiation_requests",
+          consumes = MediaType.APPLICATION_JSON_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  RequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO request) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
+    NegotiationRequest requestEntity = requestService.createRequest(request, creator.getId());
+    return modelMapper.map(requestEntity, RequestDTO.class);
+  }
 
   /**
    * Create a request for a specific project
