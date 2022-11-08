@@ -10,7 +10,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NegotiationRequest {
-    private String id;
+    private Long id;
     private String creatorId;
     private String dataSourceId;
     private Set<NegotiableEntity> negotiableEntities;

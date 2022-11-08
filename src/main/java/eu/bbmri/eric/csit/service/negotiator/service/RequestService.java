@@ -45,7 +45,7 @@ public class RequestService {
   }
 
   public void createRequest(NegotiationRequest negotiationRequest){
-    log.debug(negotiationRequest.getNegotiableEntities());
+    log.debug(negotiationRequest.toString());
     negotiationRequestRepository.save(negotiationRequest);
   }
 
