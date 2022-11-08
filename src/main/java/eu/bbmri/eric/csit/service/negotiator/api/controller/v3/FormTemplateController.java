@@ -56,9 +56,8 @@ public class FormTemplateController {
 
   @GetMapping(value = "/form-template", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  FormTemplateDTO retrieve(
-      @RequestParam Long resourceId) {
-    FormTemplate formTemplate = formTemplateService.findByResourceId(resourceId);
+  FormTemplateDTO search(@RequestParam String resourceId) {
+    FormTemplate formTemplate = formTemplateService.findByResourceEntityId(resourceId);
     return modelMapper.map(formTemplate, FormTemplateDTO.class);
   }
 }
