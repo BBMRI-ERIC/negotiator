@@ -15,7 +15,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
-import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +39,11 @@ import org.springframework.web.context.WebApplicationContext;
 @TestMethodOrder(OrderAnnotation.class)
 public class RequestControllerTests {
   private static final String ENDPOINT = "/v3/queries";
-  @Autowired public QueryService service;
+  @Autowired public RequestService service;
   @Autowired public QueryRepository repository;
   @Autowired private WebApplicationContext context;
   @Autowired private RequestController controller;
-  @Autowired private QueryService queryService;
+  @Autowired private RequestService requestService;
   @Autowired private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
@@ -177,7 +177,7 @@ public class RequestControllerTests {
   @Test
   @Order(2)
   public void testGetAll_Ok() throws Exception {
-    queryService.create(TestUtils.createQueryRequest(false));
+    requestService.create(TestUtils.createQueryRequest(false));
 
     mockMvc
         .perform(
@@ -199,7 +199,7 @@ public class RequestControllerTests {
   @Test
   @Order(2)
   public void testGetById_Ok() throws Exception {
-    Query q = queryService.create(TestUtils.createQueryRequest(false));
+    Query q = requestService.create(TestUtils.createQueryRequest(false));
 
     mockMvc
         .perform(
@@ -272,7 +272,7 @@ public class RequestControllerTests {
   @Test
   @Order(3)
   public void testUpdate_Ok() throws Exception {
-    Query q = queryService.create(TestUtils.createQueryRequest(false));
+    Query q = requestService.create(TestUtils.createQueryRequest(false));
 
     QueryCreateDTO updateRequest = TestUtils.createQueryRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);

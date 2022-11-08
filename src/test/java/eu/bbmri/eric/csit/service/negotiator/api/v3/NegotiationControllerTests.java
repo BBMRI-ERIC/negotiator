@@ -20,7 +20,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
@@ -59,7 +59,7 @@ public class NegotiationControllerTests {
   @Autowired private RequestRepository requestRepository;
   @Autowired private QueryRepository queryRepository;
   @Autowired private ModelMapper modelMapper;
-  @Autowired private QueryService queryService;
+  @Autowired private RequestService requestService;
 
   private MockMvc mockMvc;
   private Query testQuery;
@@ -79,7 +79,7 @@ public class NegotiationControllerTests {
 
   private Query createQueryEntity() {
     QueryCreateDTO queryRequest = TestUtils.createQueryRequest(false);
-    return queryService.create(queryRequest);
+    return requestService.create(queryRequest);
   }
 
   @Test

@@ -5,7 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,12 +36,12 @@ public class RequestController {
   @Value("${negotiator.redirectPath:/v3/queries}")
   private String REDIRECT_PATH;
 
-  private final QueryService queryService;
+  private final RequestService requestService;
 
   private final ModelMapper modelMapper;
 
-  public RequestController(QueryService queryService, ModelMapper modelMapper) {
-    this.queryService = queryService;
+  public RequestController(RequestService requestService, ModelMapper modelMapper) {
+    this.requestService = requestService;
     this.modelMapper = modelMapper;
     TypeMap<Query, QueryDTO> typeMap =
         modelMapper.createTypeMap(Query.class, QueryDTO.class);
@@ -91,7 +91,7 @@ public class RequestController {
 
   @GetMapping("/queries")
   List<QueryDTO> list() {
-    List<Query> queries = queryService.findAll();
+    List<Query> queries = requestService.findAll();
     return queries.stream()
         .map(query -> modelMapper.map(query, QueryDTO.class))
         .collect(Collectors.toList());
@@ -99,7 +99,7 @@ public class RequestController {
 
   @GetMapping("/queries/{id}")
     QueryDTO retrieve(@PathVariable String id) {
-    Query queryEntity = queryService.findById(id);
+    Query queryEntity = requestService.findById(id);
     return modelMapper.map(queryEntity, QueryDTO.class);
   }
 
@@ -109,7 +109,7 @@ public class RequestController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   QueryDTO add(@Valid @RequestBody QueryCreateDTO queryRequest) {
-    Query queryEntity = queryService.create(queryRequest);
+    Query queryEntity = requestService.create(queryRequest);
     return modelMapper.map(queryEntity, QueryDTO.class);
   }
 
@@ -120,7 +120,7 @@ public class RequestController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
     QueryDTO update(
       @Valid @PathVariable String id, @Valid @RequestBody QueryCreateDTO queryRequest) {
-    Query queryEntity = queryService.update(id, queryRequest);
+    Query queryEntity = requestService.update(id, queryRequest);
     return modelMapper.map(queryEntity, QueryDTO.class);
   }
 }

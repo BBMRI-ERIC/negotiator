@@ -18,7 +18,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.QueryRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ public class QueryV2ControllerTests {
   @Autowired public QueryRepository queryRepository;
   @Autowired private WebApplicationContext context;
   @Autowired private QueryV2Controller controller;
-  @Autowired private QueryService queryService;
+  @Autowired private RequestService requestService;
   @Autowired private RequestRepository requestRepository;
   @Autowired private ModelMapper modelMapper;
 
@@ -227,7 +227,7 @@ public class QueryV2ControllerTests {
   @Order(3)
   @Transactional
   public void testUpdate_Ok_whenChangeQuery() throws Exception {
-    Query q = queryService.create(TestUtils.createQueryRequest(false));
+    Query q = requestService.create(TestUtils.createQueryRequest(false));
     // The data source to be updated
     Request requestEntity =
         modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Request.class);
@@ -262,7 +262,7 @@ public class QueryV2ControllerTests {
   @Test
   @Order(3)
   public void testUpdate_Ok_whenAddQueryToARequest() throws Exception {
-    Query q = queryService.create(TestUtils.createQueryRequest(false));
+    Query q = requestService.create(TestUtils.createQueryRequest(false));
     // The data source to be updated
     Request requestEntity =
         modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Request.class);

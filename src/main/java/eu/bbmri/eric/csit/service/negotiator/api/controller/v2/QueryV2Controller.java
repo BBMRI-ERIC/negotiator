@@ -8,8 +8,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.service.QueryService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,16 +33,16 @@ public class QueryV2Controller {
   @Value("${negotiator.redirectPath:/gui/request}")
   private String REDIRECT_PATH;
 
-  private final QueryService queryService;
-
   private final RequestService requestService;
+
+  private final NegotiationService negotiationService;
 
   private final ModelMapper modelMapper;
 
   public QueryV2Controller(
-      QueryService queryService, RequestService requestService, ModelMapper modelMapper) {
-    this.queryService = queryService;
+          RequestService requestService, NegotiationService negotiationService, ModelMapper modelMapper) {
     this.requestService = requestService;
+    this.negotiationService = negotiationService;
     this.modelMapper = modelMapper;
 
     // Mapper from v2 Query to V3 Query
@@ -69,7 +69,7 @@ public class QueryV2Controller {
   }
 
   private String convertIdToRedirectUri(String queryId) {
-    Query query = queryService.findById(queryId);
+    Query query = requestService.findById(queryId);
     Request request = query.getRequest();
     String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
     if (request == null) {
@@ -117,21 +117,21 @@ public class QueryV2Controller {
       String[] tokens = queryRequest.getToken().split("__search__");
       try {
         // If the request was not found in V2, a new query was created
-        requestService.findById(tokens[0]);
+        negotiationService.findById(tokens[0]);
         created = false;
         if (tokens.length == 1) {
-          queryEntity = queryService.create(v3Request);
-          requestService.addQueryToRequest(tokens[0], queryEntity);
+          queryEntity = requestService.create(v3Request);
+          negotiationService.addQueryToRequest(tokens[0], queryEntity);
         } else { // Updating an old query: the requestToken can be ignored
-          queryEntity = queryService.update(tokens[1], v3Request);
+          queryEntity = requestService.update(tokens[1], v3Request);
         }
 
       } catch (EntityNotFoundException ex) {
-        queryEntity = queryService.create(v3Request);
+        queryEntity = requestService.create(v3Request);
         created = true;
       }
     } else {
-      queryEntity = queryService.create(v3Request);
+      queryEntity = requestService.create(v3Request);
       created = true;
     }
     QueryV2DTO response = modelMapper.map(queryEntity, QueryV2DTO.class);

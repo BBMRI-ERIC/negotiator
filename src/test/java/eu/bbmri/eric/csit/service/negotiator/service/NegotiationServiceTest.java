@@ -26,10 +26,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-public class RequestServiceTest {
+public class NegotiationServiceTest {
 
   @InjectMocks
-  private RequestService requestService;
+  private NegotiationService negotiationService;
   @Autowired private QueryRepository queryRepository;
   @Autowired private RequestRepository requestRepository;
   @Autowired private ProjectRepository projectRepository;
@@ -51,7 +51,7 @@ public class RequestServiceTest {
     Query query = createQueryEntity();
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(query.getId()));
     Request requestEntity =
-        requestService.create(request, 1L); // NB: 1L is the researcher Person id in test data
+        negotiationService.create(request, 1L); // NB: 1L is the researcher Person id in test data
 
     assertEquals(requestRepository.count(), 1);
     assertEquals(projectRepository.count(), 1);
@@ -73,7 +73,7 @@ public class RequestServiceTest {
   @Test
   public void testCreateRequest(){
     NegotiationRequest negotiationRequest = getNegotiationRequest();
-    requestService.createRequest(negotiationRequest);
+    negotiationService.createRequest(negotiationRequest);
     when(negotiationRequestRepository.findById(1L)).thenReturn(negotiationRequest);
     assertEquals(negotiationRequest, negotiationRequestRepository.findById(1L));
   }

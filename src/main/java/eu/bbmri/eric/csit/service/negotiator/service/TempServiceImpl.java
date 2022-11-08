@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 @Service
-public class NegotiationServiceImpl {
+public class TempServiceImpl {
 
     private final NegotiationRepository negotiationRepository = new NegotiationRepositoryImpl();
 

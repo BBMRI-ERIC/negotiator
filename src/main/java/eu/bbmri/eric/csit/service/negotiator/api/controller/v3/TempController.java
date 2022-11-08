@@ -4,7 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.TempServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @RequestMapping("/v3")
 public class TempController {
 
-    private final NegotiationServiceImpl negotiationServiceImpl = new NegotiationServiceImpl();
+    private final TempServiceImpl tempServiceImpl = new TempServiceImpl();
 
     @PostMapping(
             value = "/negotiations",
@@ -27,7 +27,7 @@ public class TempController {
     RequestDTO createNegotiation(@Valid @RequestBody NegotiationCreateDTO negotiationCreateDTO) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Person creator = ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
-        negotiationServiceImpl.startNegotiation(null, creator.getId());
+        tempServiceImpl.startNegotiation(null, creator.getId());
         return null;
     }
 }

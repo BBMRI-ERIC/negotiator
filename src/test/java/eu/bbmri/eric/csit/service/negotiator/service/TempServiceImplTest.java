@@ -11,10 +11,10 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NegotiationServiceImplTest {
+public class TempServiceImplTest {
 
     @InjectMocks
-    NegotiationServiceImpl negotiationServiceImpl;
+    TempServiceImpl tempServiceImpl;
 
     @Mock
     NegotiationRequest negotiationRequest;
@@ -29,13 +29,13 @@ public class NegotiationServiceImplTest {
 
     @Test
     public void testStartingNegotiationReturnIsNotNull(){
-        assertNotNull(negotiationServiceImpl.startNegotiation(negotiationRequest, 0L));
+        assertNotNull(tempServiceImpl.startNegotiation(negotiationRequest, 0L));
     }
 
 
     @Test
     public void testGetNegotiationById() {
-        assertNotNull(negotiationServiceImpl.getAllNegotiations());
-        assertNull(negotiationServiceImpl.getNegotiationById(0));
+        assertNotNull(tempServiceImpl.getAllNegotiations());
+        assertNull(tempServiceImpl.getNegotiationById(0));
     }
 }

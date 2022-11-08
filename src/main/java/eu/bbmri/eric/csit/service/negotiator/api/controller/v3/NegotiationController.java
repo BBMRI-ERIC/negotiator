@@ -7,7 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,12 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class NegotiationController {
 
-  private final RequestService requestService;
+  private final NegotiationService negotiationService;
 
   private final ModelMapper modelMapper;
 
-  public NegotiationController(RequestService requestService, ModelMapper modelMapper) {
-    this.requestService = requestService;
+  public NegotiationController(NegotiationService negotiationService, ModelMapper modelMapper) {
+    this.negotiationService = negotiationService;
     this.modelMapper = modelMapper;
     TypeMap<Request, RequestDTO> typeMap =
         modelMapper.createTypeMap(Request.class, RequestDTO.class);
@@ -69,7 +69,7 @@ public class NegotiationController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO add(@Valid @RequestBody RequestCreateDTO request) {
-    Request requestEntity = requestService.create(request, getCreatorId());
+    Request requestEntity = negotiationService.create(request, getCreatorId());
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
   @PostMapping(
@@ -79,14 +79,14 @@ public class NegotiationController {
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationRequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO requestCreateDTO) {
     NegotiationRequest negotiationRequest = convertToEntity(requestCreateDTO);
-    requestService.createRequest(negotiationRequest);
+    negotiationService.createRequest(negotiationRequest);
     NegotiationRequestDTO negotiationRequestDTO = modelMapper.map(negotiationRequest, NegotiationRequestDTO.class);
     negotiationRequestDTO.setRedirectUrl("/gui/form/" + negotiationRequestDTO.getId());
     return negotiationRequestDTO;
   }
   @GetMapping("/negotiation_requests/{id}")
   NegotiationRequestDTO retrieve(@Valid @PathVariable Long id) {
-    NegotiationRequest entity = requestService.getNegotiationRequestById(id);
+    NegotiationRequest entity = negotiationService.getNegotiationRequestById(id);
     return modelMapper.map(entity, NegotiationRequestDTO.class);
   }
 
@@ -114,7 +114,7 @@ public class NegotiationController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   RequestDTO add(@PathVariable String projectId, @Valid @RequestBody RequestCreateDTO request) {
-    Request requestEntity = requestService.create(projectId, request, getCreatorId());
+    Request requestEntity = negotiationService.create(projectId, request, getCreatorId());
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
@@ -130,7 +130,7 @@ public class NegotiationController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
       RequestDTO update(@Valid @PathVariable String id, @Valid @RequestBody RequestCreateDTO request) {
-    Request requestEntity = requestService.update(id, request);
+    Request requestEntity = negotiationService.update(id, request);
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
@@ -140,11 +140,11 @@ public class NegotiationController {
       @RequestParam(required = false) String collectionId) {
     List<Request> requests;
     if (biobankId != null) {
-      requests = requestService.findByBiobankId(biobankId);
+      requests = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
-      requests = requestService.findByCollectionId(collectionId);
+      requests = negotiationService.findByCollectionId(collectionId);
     } else {
-      requests = requestService.findAll();
+      requests = negotiationService.findAll();
     }
     return requests.stream()
         .map(request -> modelMapper.map(request, RequestDTO.class))
@@ -153,7 +153,7 @@ public class NegotiationController {
 
   @GetMapping("/requests/{id}")
   RequestDTO retrieve(@Valid @PathVariable String id) {
-    Request entity = requestService.findDetailedById(id);
+    Request entity = negotiationService.findDetailedById(id);
     return modelMapper.map(entity, RequestDTO.class);
   }
 }
