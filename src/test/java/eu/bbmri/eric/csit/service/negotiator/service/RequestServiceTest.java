@@ -1,19 +1,23 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiableEntity;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationRequest;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +28,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public class RequestServiceTest {
 
-  @Autowired private RequestService requestService;
+  @InjectMocks
+  private RequestService requestService;
   @Autowired private QueryRepository queryRepository;
   @Autowired private RequestRepository requestRepository;
   @Autowired private ProjectRepository projectRepository;
@@ -68,6 +73,14 @@ public class RequestServiceTest {
   @Test
   public void testCreateRequest(){
     NegotiationRequest negotiationRequest = new NegotiationRequest();
-    negotiationRequest.setCreatorId("unique_id");
+    negotiationRequest.setId(1L);
+    negotiationRequest.setCreatorId("Man");
+    negotiationRequest.setDataSourceId("Directory Test");
+    Set<NegotiableEntity> negotiableEntities = new HashSet<>();
+    negotiableEntities.add(NegotiableEntity.builder().id("idk").parentId("idk2").label("Test").build());
+    negotiationRequest.setNegotiableEntities(negotiableEntities);
+    requestService.createRequest(negotiationRequest);
+    when(negotiationRequestRepository.findById(1L)).thenReturn(negotiationRequest);
+    assertEquals(negotiationRequest, negotiationRequestRepository.findById(1L));
   }
 }
