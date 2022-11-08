@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationRequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
@@ -49,6 +50,7 @@ public class RequestController {
             mapper
                 .using(personsRoleConverter)
                 .map(Request::getPersons, RequestDTO::setPersons));
+
   }
 
   private Set<PersonRequestRoleDTO> personsRoleConverter(Set<PersonRequestRole> personsRoles) {
@@ -75,11 +77,10 @@ public class RequestController {
           consumes = MediaType.APPLICATION_JSON_VALUE,
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  RequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO request) {
-    // TODO: VALIDATE? LOG?Do something with received CreateDTO and return Core entity
-    NegotiationRequest requestEntity = requestService.createRequest(request, getCreatorId());
+  NegotiationRequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO requestCreateDTO) {
+    // TODO: VALIDATE? LOG?
     // TODO: Map core entity to DTO (attach redirect url for the GUI)
-    return modelMapper.map(requestEntity, RequestDTO.class);
+    return modelMapper.map(requestCreateDTO, NegotiationRequestDTO.class);
   }
 
   private static Long getCreatorId() {
