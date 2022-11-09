@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.form;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation_template;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sun.istack.NotNull;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class FieldDTO {
+public class AccessCriteriaDTO {
 
   @NotNull
   private String name;

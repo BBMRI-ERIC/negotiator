@@ -1,14 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
-import com.sun.istack.Nullable;
 import java.util.Set;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -25,8 +21,7 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "form_field")
-public class FormField extends BaseEntity {
+public class AccessCriteria extends BaseEntity {
 
   @NotNull
   private String name;
@@ -34,15 +29,12 @@ public class FormField extends BaseEntity {
   @NotNull
   private String label;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "form_field_type_id")
-  @Exclude
-  private FormFieldType type;
+  private String type;
 
   @NotNull private Boolean required;
 
-  @OneToMany(mappedBy = "field")
-  Set<FormFieldTemplateLink> templates;
+  @OneToMany(mappedBy = "accessCriteria")
+  Set<AccessCriteriaTemplateLink> templates;
 
 //  @Nullable
 //  private String category;

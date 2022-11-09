@@ -23,7 +23,6 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "form_template")
 @NamedEntityGraph(
     name = "template-with-details",
     attributeNodes = {
@@ -45,7 +44,7 @@ import lombok.ToString.Exclude;
             })
       }
 )
-public class FormTemplate extends BaseEntity {
+public class AccessCriteriaTemplate extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "resource_id")
@@ -54,5 +53,5 @@ public class FormTemplate extends BaseEntity {
 
   @Exclude
   @OneToMany(mappedBy = "template")
-  private Set<FormFieldTemplateLink> fields;
+  private Set<AccessCriteriaTemplateLink> fields;
 }

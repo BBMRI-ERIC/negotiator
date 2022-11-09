@@ -2,9 +2,11 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,13 +20,21 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "form_field_value")
-public class FormFieldValue extends AuditEntity {
+@IdClass(AccessCriteriaTemplateId.class)
+public class AccessCriteriaTemplateLink {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "form_request_field_id")
+  @JoinColumn(name = "template_id")
   @Exclude
-  private FormRequestField formRequestField;
+  @Id
+  private AccessCriteriaTemplate template;
 
-  private String value;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "access_criteria_id")
+  @Exclude
+  @Id
+  private AccessCriteria accessCriteria;
+
+  @NotNull
+  private Integer ordering;
 }

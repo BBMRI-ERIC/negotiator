@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.io.Serializable;
 import javax.persistence.Embeddable;
-import javax.persistence.IdClass;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,9 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class FormFieldTemplateId implements Serializable {
+public class AccessCriteriaTemplateId implements Serializable {
 
-  Long field;
+  Long accessCriteria;
 
   Long template;
 }

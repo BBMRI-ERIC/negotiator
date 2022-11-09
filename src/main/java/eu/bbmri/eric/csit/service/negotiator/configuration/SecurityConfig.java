@@ -73,14 +73,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(HttpMethod.POST, "/v3/data-sources/**")
         .hasAuthority("ADMIN")
         .and()
+
         .authorizeRequests()
-        .antMatchers("/v3/projects/**", "/v3/negotiations/**")
+        .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria")
         .hasAuthority("RESEARCHER")
         .and()
+
         .authorizeRequests()
         .antMatchers(HttpMethod.POST, "/v3/requests/**")
         .hasAnyAuthority("ADMIN", "EXT_SERV")
         .and()
+
         .authorizeRequests()
         .anyRequest()
         .permitAll()

@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.form;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation_template;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashSet;
@@ -15,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class FormTemplateDTO {
+public class AccessCriteriaTemplateDTO {
 
-  Set<FieldDTO> fields = new HashSet<>();
+  Set<AccessCriteriaDTO> fields = new HashSet<>();
 
 }
