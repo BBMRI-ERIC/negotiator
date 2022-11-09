@@ -39,8 +39,8 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
 
 insert into person_resource_link (resource_id, person_id) values (1, 2), (4, 3);
 
-insert into access_criteria (id, name, label, type, required) values (1, 'title', 'Title', 'text', 'true');
-insert into access_criteria (id, name, label, type, required) values (2, 'description', 'Description', 'text', 'true');
+insert into access_criteria (id, name, description, type, required) values (1, 'title', 'Give a title', 'text', 'true');
+insert into access_criteria (id, name, description, type, required) values (2, 'description', 'Give a description', 'text', 'true');
 
 insert into access_criteria_template (id, resource_id) values (1, 1);
 

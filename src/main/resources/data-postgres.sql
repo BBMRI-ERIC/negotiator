@@ -41,8 +41,8 @@ insert into person_resource_link (resource_id, person_id) values (1, 2), (4, 3);
 
 insert into form_field_type (id, name) values (1, 'text');
 
-insert into form_field (id, name, label, form_field_type_id, required) values (1, 'title', 'Title', 1, 'true');
-insert into form_field (id, name, label, form_field_type_id, required) values (2, 'description', 'Description', 1, 'true');
+insert into access_criteria (id, name, description, type, required) values (1, 'title', 'Give a title', 'text', 'true');
+insert into access_criteria (id, name, description, type, required) values (2, 'description', 'Give a description', 'text', 'true');
 
 insert into form_template (id, resource_id) values (1, 1);
 

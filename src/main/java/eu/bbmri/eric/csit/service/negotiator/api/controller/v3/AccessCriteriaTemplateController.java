@@ -48,7 +48,7 @@ public class AccessCriteriaTemplateController {
             field ->
                 new AccessCriteriaDTO(
                     field.getAccessCriteria().getName(),
-                    field.getAccessCriteria().getLabel(),
+                    field.getAccessCriteria().getDescription(),
                     field.getAccessCriteria().getType(),
                     field.getAccessCriteria().getRequired())
         )
