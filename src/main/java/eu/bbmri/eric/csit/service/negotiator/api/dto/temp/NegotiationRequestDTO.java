@@ -1,7 +1,6 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.temp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +19,10 @@ public class NegotiationRequestDTO {
     @NotNull
     private String id;
 
-    @NotNull(message = "The url of the original query must be present")
+    @NotNull(message = "The url of the original request must be present")
     private String url;
 
-    @NotNull(message = "A human readable description of the query must be present")
+    @NotNull(message = "A human readable description of the request must be present")
     private String humanReadable;
 
     @NotNull

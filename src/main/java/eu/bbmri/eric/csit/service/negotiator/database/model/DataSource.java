@@ -25,9 +25,22 @@ public class DataSource extends BaseEntity {
 
   private String description;
   @NotNull private String name;
+  @NotNull private String url;
   @NotNull private String apiUrl;
   @NotNull private String apiUsername;
   @NotNull private String apiPassword;
+
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  private ApiType apiType;
+
+  @NotNull private String resourceNetwork;
+  @NotNull private String resourceBiobank;
+  @NotNull private String resourceCollection;
+  @NotNull private Boolean syncActive;
+  private String sourcePrefix;
+  //  @OneToMany(mappedBy = "dataSource")
+  //  private Set<User> users;
 
   @Override
   public boolean equals(Object o) {
@@ -40,10 +53,16 @@ public class DataSource extends BaseEntity {
     DataSource that = (DataSource) o;
     return Objects.equals(getDescription(), that.getDescription())
         && Objects.equals(getName(), that.getName())
+        && Objects.equals(getUrl(), that.getUrl())
         && Objects.equals(getApiUrl(), that.getApiUrl())
         && Objects.equals(getApiUsername(), that.getApiUsername())
         && Objects.equals(getApiPassword(), that.getApiPassword())
-        ;
+        && getApiType() == that.getApiType()
+        && Objects.equals(getResourceNetwork(), that.getResourceNetwork())
+        && Objects.equals(getResourceBiobank(), that.getResourceBiobank())
+        && Objects.equals(getResourceCollection(), that.getResourceCollection())
+        && Objects.equals(getSyncActive(), that.getSyncActive())
+        && Objects.equals(getSourcePrefix(), that.getSourcePrefix());
   }
 
   @Override
@@ -51,10 +70,16 @@ public class DataSource extends BaseEntity {
     return Objects.hash(
         getDescription(),
         getName(),
+        getUrl(),
         getApiUrl(),
         getApiUsername(),
-        getApiPassword()
-        );
+        getApiPassword(),
+        getApiType(),
+        getResourceNetwork(),
+        getResourceBiobank(),
+        getResourceCollection(),
+        getSyncActive(),
+        getSourcePrefix());
   }
 
   public enum ApiType {

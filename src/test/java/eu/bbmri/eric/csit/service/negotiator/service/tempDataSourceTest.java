@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiableEntity;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationRequest;
@@ -39,7 +39,7 @@ public class tempDataSourceTest {
   @Autowired private ModelMapper modelMapper;
 
   private Request createQueryEntity() {
-    QueryCreateDTO queryRequest = TestUtils.createQueryRequest(false);
+    RequestCreateDTO queryRequest = TestUtils.createRequest(false);
     Request request = modelMapper.map(queryRequest, Request.class);
     return requestRepository.save(request);
   }
@@ -49,7 +49,7 @@ public class tempDataSourceTest {
     assert negotiationRepository.count() == 0;
     assert projectRepository.count() == 0;
     Request query = createQueryEntity();
-    RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(query.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(query.getId()));
     Negotiation negotiationEntity =
         negotiationService.create(request, 1L); // NB: 1L is the researcher Person id in test data
 

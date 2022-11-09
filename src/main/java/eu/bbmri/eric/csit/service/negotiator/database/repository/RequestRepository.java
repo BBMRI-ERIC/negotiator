@@ -15,9 +15,9 @@ public interface RequestRepository extends JpaRepository<Request, String> {
 
   @NotNull
   @Override
-  @EntityGraph(value = "query-with-detailed-resources")
+  @EntityGraph(value = "request-with-detailed-resources")
   List<Request> findAll();
 
-  @EntityGraph(value = "query-with-detailed-resources")
+  @EntityGraph(value = "request-with-detailed-resources")
   Optional<Request> findDetailedById(String id);
 }

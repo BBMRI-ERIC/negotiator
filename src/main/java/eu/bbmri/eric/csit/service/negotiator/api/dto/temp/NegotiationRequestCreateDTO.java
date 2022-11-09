@@ -1,12 +1,8 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.temp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -19,10 +15,10 @@ import java.util.Set;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class NegotiationRequestCreateDTO {
 
-    @NotNull(message = "The url of the original query must be present")
+    @NotNull(message = "The url of the original request must be present")
     private String url;
 
-    @NotNull(message = "A human readable description of the query must be present")
+    @NotNull(message = "A human readable description of the request must be present")
     private String humanReadable;
 
     @NotNull

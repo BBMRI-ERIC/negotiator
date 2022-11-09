@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
@@ -30,8 +30,8 @@ public class RequestService {
 
   /**
    * Checks that resources in input conforms to the hierarchy regitered in the negotiator,
-   * and if they do, add the leaf resources to the query
-   * @param resourceDTOs The List of Resources in the query negotiation
+   * and if they do, add the leaf resources to the request
+   * @param resourceDTOs The List of Resources in the request negotiation
    * @param requestEntity The Request Entity to save in the DB
    */
   private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Request requestEntity) {
@@ -60,7 +60,7 @@ public class RequestService {
 
   /**
    * Checks that the DataSource corresponding to the URL is present in the DB and adds it to the Request entity
-   * @param url the url of the DataSource in the incoming query
+   * @param url the url of the DataSource in the incoming request
    * @param requestEntity the Request entity to fill with the DataSource
    */
   private void checkAndSetDataSource(String url, Request requestEntity) {
@@ -78,7 +78,7 @@ public class RequestService {
     requestEntity.setDataSource(dataSource);
   }
 
-  private Request saveQuery(QueryCreateDTO queryRequest, Request requestEntity) {
+  private Request saveQuery(RequestCreateDTO queryRequest, Request requestEntity) {
     checkAndSetResources(queryRequest.getResources(), requestEntity);
     checkAndSetDataSource(queryRequest.getUrl(), requestEntity);
     requestEntity.setUrl(queryRequest.getUrl());
@@ -87,7 +87,7 @@ public class RequestService {
   }
 
   @Transactional
-  public Request create(QueryCreateDTO queryRequest) {
+  public Request create(RequestCreateDTO queryRequest) {
     Request requestEntity = new Request();
     return saveQuery(queryRequest, requestEntity);
   }
@@ -107,7 +107,7 @@ public class RequestService {
   }
 
   @Transactional
-  public Request update(String id, QueryCreateDTO queryRequest) {
+  public Request update(String id, RequestCreateDTO queryRequest) {
     Request requestEntity =
         requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return saveQuery(queryRequest, requestEntity);

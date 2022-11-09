@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.query;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;

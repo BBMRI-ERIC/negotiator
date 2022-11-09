@@ -25,8 +25,8 @@ paths:
     post:
       tags:
         - v2
-      summary: Creates a new query.
-      description: Takes a JSON query object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the query edit page. I case of updating a existing query or extending an exiting negotiation, a token is provided for identification.
+      summary: Creates a new request.
+      description: Takes a JSON request object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the request edit page. I case of updating a existing request or extending an exiting negotiation, a token is provided for identification.
       requestBody:
         required: true
         content:
@@ -211,8 +211,8 @@ paths:
       tags:
         - V3
         - Queries
-      summary: Creates a query for a Data Source
-      description: Create a query for the data source identified by {dataSourceId}
+      summary: Creates a request for a Data Source
+      description: Create a request for the data source identified by {dataSourceId}
       parameters:
         - name: Prefer
           in: header
@@ -223,7 +223,7 @@ paths:
               - return=minimal
             default: return=minimal
           required: false
-          description: specifies whether to return all data of the created query or just the id. By default it just the id is returned
+          description: specifies whether to return all data of the created request or just the id. By default it just the id is returned
       requestBody:
         required: true
         content:
@@ -238,7 +238,7 @@ paths:
               schema:
                 type: string
               description:
-                the location of the newly created query (e.g., /v3/data-sources/{dataSourceId}/queries/1)
+                the location of the newly created request (e.g., /v3/data-sources/{dataSourceId}/queries/1)
           content:
             'application/json':
               schema:
@@ -266,14 +266,14 @@ paths:
       tags:
         - V3
         - Queries
-      summary: Retrieves data of a specific query
+      summary: Retrieves data of a specific request
       parameters:
         - name: queryId
           in: path
           schema:
             type: string
           required: true
-          description: the id of the query to retrieve
+          description: the id of the request to retrieve
       responses:
         '200':
           description: Request created correctly
@@ -344,7 +344,7 @@ paths:
       description: Get the list of projects. It is possible to filter by user id
       parameters:
         - name: user
-          in: query
+          in: request
           schema:
             type: integer
             format: int64
@@ -475,13 +475,13 @@ paths:
         - Requests
       parameters:
         - name: bioankId
-          in: query
+          in: request
           schema:
             type: string
           required: false
           description: specifies the data source id of a biobank the negotiation is sent to
         - name: collectionId
-          in: query
+          in: request
           schema:
             type: string
           required: false
@@ -604,14 +604,14 @@ paths:
       description: Endpoint used to search for users by some parameters ids
       parameters:
         - name: projectId
-          in: query
+          in: request
           schema:
             type: integer
             format: int64
           required: false
           description: specifies the id of the project the users are involved in
         - name: requestId
-          in: query
+          in: request
           schema:
             type: integer
             format: int64
@@ -827,7 +827,7 @@ components:
               humanReadable:
                 type: string
                 example: selected countries are AT
-                description: human readable version of the query
+                description: human readable version of the request
               url:
                 type: string
                 description: redirect url to the directory
@@ -889,7 +889,7 @@ components:
             id:
               type: integer
               format: int64
-              description: Id of the query generated
+              description: Id of the request generated
     QueryResponseV3:
       allOf:
         - $ref: '#/components/schemas/QueryV3'

@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.net.URI;
 import java.time.LocalDate;
@@ -87,7 +87,7 @@ public class TestUtils {
         .build();
   }
 
-  public static QueryCreateDTO createQueryRequest(boolean update) {
+  public static RequestCreateDTO createRequest(boolean update) {
     String suffix = update ? "u" : "";
     String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
     String collectionName = update ? QUERY_COLLECTION_2_NAME : QUERY_COLLECTION_1_NAME;
@@ -108,7 +108,7 @@ public class TestUtils {
             .children(Set.of(collection))
             .build();
 
-    return QueryCreateDTO.builder()
+    return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
         .resources(Set.of(biobank))
@@ -165,12 +165,12 @@ public class TestUtils {
     return perunUserRequestList;
   }
 
-  public static RequestCreateDTO createRequest(
+  public static NegotiationCreateDTO createNegotiation(
       boolean update, boolean includeProject, Set<String> queriesId) {
     String suffix = update ? "u" : "";
 
-    RequestCreateDTO.RequestCreateDTOBuilder builder =
-        RequestCreateDTO.builder()
+    NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
+        NegotiationCreateDTO.builder()
             .title(String.format("%s%s", REQUEST_TITLE, suffix))
             .description(String.format("%s%s", REQUEST_DESCRIPTION, suffix))
             .queries(queriesId);

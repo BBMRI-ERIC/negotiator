@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v2.QueryV2Controller;
 import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
@@ -227,10 +227,9 @@ public class RequestV2ControllerTests {
   @Order(3)
   @Transactional
   public void testUpdate_Ok_whenChangeQuery() throws Exception {
-    Request q = requestService.create(TestUtils.createQueryRequest(false));
-    // The data source to be updated
+    Request q = requestService.create(TestUtils.createRequest(false));
     Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Negotiation.class);
+        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())), Negotiation.class);
     q.setNegotiation(negotiationEntity);
     negotiationRepository.save(negotiationEntity);
 
@@ -262,10 +261,10 @@ public class RequestV2ControllerTests {
   @Test
   @Order(3)
   public void testUpdate_Ok_whenAddQueryToARequest() throws Exception {
-    Request q = requestService.create(TestUtils.createQueryRequest(false));
+    Request q = requestService.create(TestUtils.createRequest(false));
     // The data source to be updated
     Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createRequest(false, false, Set.of(q.getId())), Negotiation.class);
+        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())), Negotiation.class);
     q.setNegotiation(negotiationEntity);
     negotiationRepository.save(negotiationEntity);
 

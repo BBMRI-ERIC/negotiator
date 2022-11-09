@@ -1,7 +1,6 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.temp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
 import lombok.*;
 import org.springframework.lang.Nullable;
 

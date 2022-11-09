@@ -35,7 +35,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity(name = "Request")
 @Table(name = "request")
 @NamedEntityGraph(
-    name = "query-with-detailed-resources",
+    name = "request-with-detailed-resources",
     attributeNodes = {
         @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
     },
