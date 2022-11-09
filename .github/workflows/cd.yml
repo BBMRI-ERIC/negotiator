@@ -71,5 +71,6 @@ jobs:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER}}
         key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
         script_stop: true
-        script: cd /home/negotiator/negotiator-v3; git pull; sudo docker-compose pull; sudo docker-compose up --force-recreate --build -d
+        script: deploy
