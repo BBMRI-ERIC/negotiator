@@ -13,7 +13,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - OAUTH2_ISSUER=
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on:
       - postgres
 
