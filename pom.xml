@@ -3,11 +3,11 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <description>The BBMRI-ERIC Negotiator dataSource for structured temp with biological
+  <description>The BBMRI-ERIC Negotiator service for structured temp with biological
     resources dealing with human data and/or biological samples.
   </description>
   <name>BBMRI Negotiator</name>
-  <groupId>eu.bbmri.eric.csit.dataSource.negotiator</groupId>
+  <groupId>eu.bbmri.eric.csit.service.negotiator</groupId>
   <artifactId>negotiator</artifactId>
   <version>3.0.1</version>
   <modelVersion>4.0.0</modelVersion>
@@ -20,7 +20,7 @@
       <version>2.7.5</version>
       <configuration>
         <classifier>exec</classifier>
-        <mainClass>eu.bbmri.eric.csit.dataSource.negotiator.NegotiatorApplication</mainClass>
+        <mainClass>eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication</mainClass>
       </configuration>
       <groupId>org.springframework.boot</groupId>
     </plugin>

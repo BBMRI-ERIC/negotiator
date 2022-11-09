@@ -11,7 +11,7 @@ paths:
       tags:
         - v2
       summary: Get version and statistics of the called Negotiator instance.
-      description: Listes depoyed version of the BBMRI-ERIC Negotiator dataSource, basic statistic of the dataSource.
+      description: Listes depoyed version of the BBMRI-ERIC Negotiator service, basic statistic of the service.
       responses:
         '200':
           description: Successful operation
@@ -843,13 +843,13 @@ components:
           description: ID of the data source in the negotiator
         name:
           type: string
-          description: Name of the DataSource
+          description: Name of the Service
         url:
           type: string
-          description: URL of the DataSource
+          description: URL of the Service
         description:
           type: string
-          description: Description of the DataSource
+          description: Description of the Service
         resources:
           type: array
           items:
