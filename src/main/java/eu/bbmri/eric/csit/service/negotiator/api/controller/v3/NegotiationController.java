@@ -64,30 +64,13 @@ public class NegotiationController {
 
   /** Create a negotiation and the project it belongs to */
   @PostMapping(
-      value = "/requests",
+      value = "/negotiations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationDTO add(@Valid @RequestBody NegotiationCreateDTO request) {
     Negotiation negotiationEntity = negotiationService.create(request, getCreatorId());
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
-  }
-  @PostMapping(
-          value = "/negotiation_requests",
-          consumes = MediaType.APPLICATION_JSON_VALUE,
-          produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.CREATED)
-  NegotiationRequestDTO createRequest(@Valid @RequestBody NegotiationRequestCreateDTO requestCreateDTO) {
-    NegotiationRequest negotiationRequest = convertToEntity(requestCreateDTO);
-    negotiationService.createRequest(negotiationRequest);
-    NegotiationRequestDTO negotiationRequestDTO = modelMapper.map(negotiationRequest, NegotiationRequestDTO.class);
-    negotiationRequestDTO.setRedirectUrl("/gui/form/" + negotiationRequestDTO.getId());
-    return negotiationRequestDTO;
-  }
-  @GetMapping("/negotiation_requests/{id}")
-  NegotiationRequestDTO retrieve(@Valid @PathVariable Long id) {
-    NegotiationRequest entity = negotiationService.getNegotiationRequestById(id);
-    return modelMapper.map(entity, NegotiationRequestDTO.class);
   }
 
   private NegotiationRequest convertToEntity(NegotiationRequestCreateDTO requestCreateDTO) {
@@ -109,7 +92,7 @@ public class NegotiationController {
    * @return NegotiationDTO
    */
   @PostMapping(
-      value = "/projects/{projectId}/requests",
+      value = "/projects/{projectId}/negotiations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
@@ -125,7 +108,7 @@ public class NegotiationController {
    * @return NegotiationDTO
    */
   @PutMapping(
-      value = "/requests/{id}",
+      value = "/negotiations/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -134,7 +117,7 @@ public class NegotiationController {
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
-  @GetMapping("/requests")
+  @GetMapping("/negotiations")
   List<NegotiationDTO> list(
       @RequestParam(required = false) String biobankId,
       @RequestParam(required = false) String collectionId) {
@@ -151,7 +134,7 @@ public class NegotiationController {
         .collect(Collectors.toList());
   }
 
-  @GetMapping("/requests/{id}")
+  @GetMapping("/negotiations/{id}")
   NegotiationDTO retrieve(@Valid @PathVariable String id) {
     Negotiation entity = negotiationService.findDetailedById(id);
     return modelMapper.map(entity, NegotiationDTO.class);
