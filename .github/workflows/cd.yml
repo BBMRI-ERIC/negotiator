@@ -72,4 +72,4 @@ jobs:
         username: ${{ secrets.REMOTE_USER}}
         key: ${{ secrets.PRIVATE_KEY }}
         script_stop: true
-        script: ls
+        script: cd negotiator-v3 && git pull && sudo docker-compose up -d

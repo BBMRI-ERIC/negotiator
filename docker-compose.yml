@@ -2,7 +2,7 @@ version: "3.4"
 services:
   negotiator:
     container_name: negotiator
-    image: negotiator:latest
+    image: negotiator:master
     build:
       context: ./
       dockerfile: Dockerfile
