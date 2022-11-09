@@ -3,9 +3,6 @@ services:
   negotiator:
     container_name: negotiator
     image: negotiator:master
-    build:
-      context: ./
-      dockerfile: Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
       - SPRING_DATASOURCE_USERNAME=negotiator
