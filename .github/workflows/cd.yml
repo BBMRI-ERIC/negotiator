@@ -73,4 +73,4 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         port: ${{ secrets.PORT }}
         script_stop: true
-        script: ls
+        script: deploy
