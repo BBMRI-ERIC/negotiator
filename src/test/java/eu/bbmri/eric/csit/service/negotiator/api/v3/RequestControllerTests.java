@@ -38,7 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class RequestControllerTests {
-  private static final String ENDPOINT = "/v3/queries";
+  private static final String ENDPOINT = "/v3/requests";
   @Autowired public RequestService service;
   @Autowired public RequestRepository repository;
   @Autowired private WebApplicationContext context;

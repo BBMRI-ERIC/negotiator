@@ -47,8 +47,8 @@ import org.springframework.web.context.WebApplicationContext;
 public class NegotiationControllerTests {
   private static final String TITLE = "negotiation title";
   private static final String DESCRIPTION = "negotiation description";
-  private static final String REQUESTS_ENDPOINT = "/v3/requests";
-  private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/requests";
+  private static final String REQUESTS_ENDPOINT = "/v3/negotiations";
+  private static final String PROJECTS_ENDPOINT = "/v3/projects/%s/negotiations";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
   private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";

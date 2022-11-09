@@ -89,7 +89,7 @@ public class RequestController {
     return new HashSet<>(parents.values());
   }
 
-  @GetMapping("/queries")
+  @GetMapping("/requests")
   List<RequestDTO> list() {
     List<Request> queries = requestService.findAll();
     return queries.stream()
@@ -97,14 +97,14 @@ public class RequestController {
         .collect(Collectors.toList());
   }
 
-  @GetMapping("/queries/{id}")
+  @GetMapping("/requests/{id}")
   RequestDTO retrieve(@PathVariable String id) {
     Request requestEntity = requestService.findById(id);
     return modelMapper.map(requestEntity, RequestDTO.class);
   }
 
   @PostMapping(
-      value = "/queries",
+      value = "/requests",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
@@ -114,7 +114,7 @@ public class RequestController {
   }
 
   @PutMapping(
-      value = "/queries/{id}",
+      value = "/requests/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
