@@ -2,7 +2,7 @@ version: "3.4"
 services:
   negotiator:
     container_name: negotiator
-    image: negotiator:master
+    image: bbmrieric/negotiator:master
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
       - SPRING_DATASOURCE_USERNAME=negotiator
