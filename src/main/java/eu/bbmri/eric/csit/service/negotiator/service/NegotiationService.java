@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.TempRequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
@@ -26,7 +25,6 @@ public class NegotiationService {
 
   @Autowired private NegotiationRepository negotiationRepository;
 
-  private TempRequestRepository tempRequestRepository;
   @Autowired private RoleRepository roleRepository;
   @Autowired private PersonRepository personRepository;
   @Autowired private ProjectService projectService;
@@ -44,13 +42,6 @@ public class NegotiationService {
     return queries;
   }
 
-  public void createRequest(NegotiationRequest negotiationRequest){
-    log.debug(negotiationRequest.toString());
-    tempRequestRepository.save(negotiationRequest);
-  }
-  public NegotiationRequest getNegotiationRequestById(Long id){
-    return tempRequestRepository.findById(id);
-  }
 
   /**
    * Associates the Negotiation entity with other Entities and create the record

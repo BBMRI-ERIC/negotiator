@@ -1,7 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.temp.NegotiationRequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.temp.NegotiationRequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
@@ -73,9 +71,6 @@ public class NegotiationController {
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
-  private NegotiationRequest convertToEntity(NegotiationRequestCreateDTO requestCreateDTO) {
-    return modelMapper.map(requestCreateDTO, NegotiationRequest.class);
-  }
 
   private static Long getCreatorId() {
     return getCreator().getId();

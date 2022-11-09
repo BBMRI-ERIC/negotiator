@@ -34,8 +34,6 @@ public class tempDataSourceTest {
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private ProjectRepository projectRepository;
   @Autowired private PersonRepository personRepository;
-  @Mock
-  private TempRequestRepository tempRequestRepository;
   @Autowired private ModelMapper modelMapper;
 
   private Request createQueryEntity() {
@@ -70,24 +68,5 @@ public class tempDataSourceTest {
     assertEquals(negotiationEntity.getProject().getEthicsVote(), request.getProject().getEthicsVote());
   }
 
-  @Test
-  public void testCreateRequest(){
-    NegotiationRequest negotiationRequest = getNegotiationRequest();
-    negotiationService.createRequest(negotiationRequest);
-    when(tempRequestRepository.findById(1L)).thenReturn(negotiationRequest);
-    assertEquals(negotiationRequest, tempRequestRepository.findById(1L));
-  }
-
-
-  private static NegotiationRequest getNegotiationRequest() {
-    NegotiationRequest negotiationRequest = new NegotiationRequest();
-    negotiationRequest.setId(1L);
-    negotiationRequest.setCreatorId("Man");
-    negotiationRequest.setDataSourceId("Directory Test");
-    Set<NegotiableEntity> negotiableEntities = new HashSet<>();
-    negotiableEntities.add(NegotiableEntity.builder().id("idk").parentId("idk2").label("Test").build());
-    negotiationRequest.setNegotiableEntities(negotiableEntities);
-    return negotiationRequest;
-  }
 
 }
