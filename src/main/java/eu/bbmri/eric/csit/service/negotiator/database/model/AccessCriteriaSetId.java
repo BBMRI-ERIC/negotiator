@@ -14,9 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class AccessCriteriaTemplateId implements Serializable {
+public class AccessCriteriaSetId implements Serializable {
 
   Long accessCriteria;
 
-  Long template;
+  Long accessCriteriaSet;
 }

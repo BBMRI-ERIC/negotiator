@@ -22,7 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-public class AccessCriteriaTemplateControllerTests {
+public class AccessCriteriaSetControllerTests {
   private static final String ENDPOINT = "/v3/access-criteria";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";

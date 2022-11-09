@@ -3,13 +3,10 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,34 +21,33 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @NamedEntityGraph(
-    name = "template-with-details",
+    name = "access-criteria-set-with-details",
     attributeNodes = {
-        @NamedAttributeNode("resource"),
-        @NamedAttributeNode(value = "fields", subgraph = "fields-templates"),
+        @NamedAttributeNode(value = "accessCriteriaSetLink", subgraph = "access-criteria-set"),
     },
     subgraphs = {
         @NamedSubgraph(
-            name = "field-templates",
+            name = "access-criteria-set",
             attributeNodes = {
-                @NamedAttributeNode(value = "field", subgraph = "fields-with-details"),
-//                @NamedAttributeNode(value = "label")
+                @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details"),
             }),
         @NamedSubgraph(
-            name = "fields-with-details",
+            name = "access-criteria-with-details",
             attributeNodes = {
                 @NamedAttributeNode(value = "name"),
-                @NamedAttributeNode(value = "label")
+                @NamedAttributeNode(value = "description"),
+                @NamedAttributeNode(value = "type")
             })
-      }
+    }
 )
-public class AccessCriteriaTemplate extends BaseEntity {
+public class AccessCriteriaSet extends BaseEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "resource_id")
+  @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
   @Exclude
-  private Resource resource;
+  private Set<Resource> resources;
 
+  @OneToMany(mappedBy = "accessCriteriaSet")
   @Exclude
-  @OneToMany(mappedBy = "template")
-  private Set<AccessCriteriaTemplateLink> fields;
+  private Set<AccessCriteriaSetLink> accessCriteriaSetLink;
+
 }

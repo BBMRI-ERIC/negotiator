@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation_template;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sun.istack.NotNull;
@@ -20,7 +20,7 @@ public class AccessCriteriaDTO {
   private String name;
 
   @NotNull
-  private String label;
+  private String description;
 
   @NotNull
   private String type;

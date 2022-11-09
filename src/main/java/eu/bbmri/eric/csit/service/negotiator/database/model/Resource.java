@@ -71,4 +71,9 @@ public class Resource extends BaseEntity {
   @JsonIgnore
   @NotNull
   private DataSource dataSource;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "access_criteria_set_id")
+  @Exclude
+  private AccessCriteriaSet accessCriteriaSet;
 }

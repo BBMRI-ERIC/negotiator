@@ -8,7 +8,7 @@ spring:
   jackson:
     date-format: "yyyy-MM-dd"
   jpa:
-    open-in-view: true
+    open-in-view: false
   security:
     oauth2:
       resourceserver:

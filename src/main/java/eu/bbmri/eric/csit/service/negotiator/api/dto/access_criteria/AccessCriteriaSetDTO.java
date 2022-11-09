@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation_template;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashSet;
@@ -15,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class AccessCriteriaTemplateDTO {
+public class AccessCriteriaSetDTO {
 
-  Set<AccessCriteriaDTO> fields = new HashSet<>();
+  Set<AccessCriteriaDTO> accessCriteria = new HashSet<>();
 
 }

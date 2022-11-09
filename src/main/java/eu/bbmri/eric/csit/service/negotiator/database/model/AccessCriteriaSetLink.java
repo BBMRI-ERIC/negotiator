@@ -20,20 +20,20 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@IdClass(AccessCriteriaTemplateId.class)
-public class AccessCriteriaTemplateLink {
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "template_id")
-  @Exclude
-  @Id
-  private AccessCriteriaTemplate template;
+@IdClass(AccessCriteriaSetId.class)
+public class AccessCriteriaSetLink {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "access_criteria_id")
   @Exclude
   @Id
   private AccessCriteria accessCriteria;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "access_criteria_set_id")
+  @Exclude
+  @Id
+  private AccessCriteriaSet accessCriteriaSet;
 
   @NotNull
   private Integer ordering;
