@@ -30,7 +30,7 @@ public class PerunController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   List<PerunUserRequest> createOrUpdate(
-      @RequestBody @NotEmpty(message = "Perun Users Request list cannot be empty.")
+      @RequestBody @NotEmpty(message = "Perun Users Negotiation list cannot be empty.")
           List<@Valid PerunUserRequest> perunUsersRequest) {
 
     for (PerunUserRequest request : perunUsersRequest) {

@@ -18,7 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-public class NegotiatorUserDetailServiceTest {
+public class NegotiatorUserDetailDataSourceTest {
 
   @Autowired NegotiatorUserDetailsService negotiatorUserDetailsService;
   @Autowired PersonRepository personRepository;

@@ -243,7 +243,7 @@ public class PerunControllerTests {
     List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 1);
     Person personEntity = modelMapper.map(request.get(0), Person.class);
     personRepository.save(personEntity);
-    // Update by changing the organization in the request
+    // Update by changing the organization in the negotiation
     PerunUserRequest updateRequest = request.get(0);
     String updatedOrganization = "UpdatedOrganization";
     updateRequest.setOrganization(updatedOrganization);

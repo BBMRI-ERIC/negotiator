@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -9,40 +10,40 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NegotiationRepository extends JpaRepository<Request, String> {
+public interface NegotiationRepository extends JpaRepository<Negotiation, String> {
 
   @Override
-  @EntityGraph(value = "request-with-detailed-children")
-  List<Request> findAll();
+  @EntityGraph(value = "negotiation-with-detailed-children")
+  List<Negotiation> findAll();
 
-  @EntityGraph(value = "request-with-detailed-children")
-  Optional<Request> findDetailedById(String id);
+  @EntityGraph(value = "negotiation-with-detailed-children")
+  Optional<Negotiation> findDetailedById(String id);
 
   @Query(
       value =
           "SELECT DISTINCT r "
-              + "FROM Request r "
+              + "FROM Negotiation r "
               + "JOIN FETCH r.persons pp "
               + "JOIN FETCH pp.person "
               + "JOIN FETCH pp.role "
-              + "JOIN FETCH r.project p "
+              + "JOIN FETCH r.project pr "
               + "JOIN FETCH r.queries q "
               + "JOIN FETCH q.resources c "
               + "JOIN FETCH c.parent p "
-              + "WHERE p.sourceId = :biobankId")
-  List<Request> findByBiobankId(String biobankId);
+              + "WHERE p.id = :biobankId")
+  List<Negotiation> findByBiobankId(String biobankId);
 
   @Query(
       value =
           "SELECT DISTINCT r "
-              + "FROM Request r "
+              + "FROM Negotiation r "
               + "JOIN FETCH r.persons pp "
               + "JOIN FETCH pp.person "
               + "JOIN FETCH pp.role "
-              + "JOIN FETCH r.project p "
+              + "JOIN FETCH r.project project "
               + "JOIN FETCH r.queries q "
               + "JOIN FETCH q.resources c "
               + "JOIN FETCH c.parent p "
               + "WHERE c.sourceId = :collectionId")
-  List<Request> findByCollectionId(String collectionId);
+  List<Negotiation> findByCollectionId(String collectionId);
 }

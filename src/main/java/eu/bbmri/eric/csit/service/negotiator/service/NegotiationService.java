@@ -33,8 +33,8 @@ public class NegotiationService {
   @Autowired private RequestService requestService;
   @Autowired private ModelMapper modelMapper;
 
-  private Set<Query> findQueries(Set<String> queriesId) {
-    Set<Query> queries;
+  private Set<Request> findQueries(Set<String> queriesId) {
+    Set<Request> queries;
     try {
       queries = requestService.findAllById(queriesId);
     } catch (EntityNotFoundException ex) {
@@ -53,201 +53,201 @@ public class NegotiationService {
   }
 
   /**
-   * Associates the Request entity with other Entities and create the record
+   * Associates the Negotiation entity with other Entities and create the record
    *
-   * @param requestEntity the Entity to save
-   * @param queriesId a Set of query ids to associate to the Request
-   * @param creatorId the ID of the Person that creates the Request (i.e., the authenticated Person
+   * @param negotiationEntity the Entity to save
+   * @param queriesId a Set of query ids to associate to the Negotiation
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated Person
    *     that called the API)
    * @return The created query
    */
-  private Request create(Request requestEntity, Set<String> queriesId, Long creatorId) {
+  private Negotiation create(Negotiation negotiationEntity, Set<String> queriesId, Long creatorId) {
     // Gets the Entities for the queries
     log.debug("Getting query entities");
-    Set<Query> queries = findQueries(queriesId);
-    // Check if any query is already associated to a request
-    if (queries.stream().anyMatch(query -> query.getRequest() != null)) {
-      log.error("One or more query object is already assigned to another request");
+    Set<Request> queries = findQueries(queriesId);
+    // Check if any query is already associated to a negotiation
+    if (queries.stream().anyMatch(query -> query.getNegotiation() != null)) {
+      log.error("One or more query object is already assigned to another negotiation");
       throw new WrongRequestException(
-          "One or more query object is already assigned to another request");
+          "One or more query object is already assigned to another negotiation");
     }
 
-    // Gets the Role entity. Since this is a new request, the person is the CREATOR of the request
+    // Gets the Role entity. Since this is a new negotiation, the person is the CREATOR of the negotiation
     Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
 
     // Gets the person and associated roles
     Person creator =
         personRepository.findDetailedById(creatorId).orElseThrow(EntityNotStorableException::new);
 
-    // Ceates the association between the Person and the Request
-    PersonRequestRole personRole = new PersonRequestRole(creator, requestEntity, role);
+    // Ceates the association between the Person and the Negotiation
+    PersonNegotiationRole personRole = new PersonNegotiationRole(creator, negotiationEntity, role);
 
-    // Updates person and request with the person role
+    // Updates person and negotiation with the person role
     creator.getRoles().add(personRole);
-    requestEntity.getPersons().add(personRole);
+    negotiationEntity.getPersons().add(personRole);
 
-    // Updates the bidirectional relationship between query and request
-    requestEntity.setQueries(new HashSet<>(queries));
+    // Updates the bidirectional relationship between query and negotiation
+    negotiationEntity.setQueries(new HashSet<>(queries));
     queries.forEach(
         query -> {
-          query.setRequest(requestEntity);
+          query.setNegotiation(negotiationEntity);
         });
 
     try {
-      // Finally, save the request. NB: it also cascades operations for other Queries,
-      // PersonRequestRole
-      return negotiationRepository.save(requestEntity);
+      // Finally, save the negotiation. NB: it also cascades operations for other Queries,
+      // PersonNegotiationRole
+      return negotiationRepository.save(negotiationEntity);
     } catch (DataException | DataIntegrityViolationException ex) {
-      log.error("Error while saving the Request into db. Some db constraint violated");
+      log.error("Error while saving the Negotiation into db. Some db constraint violated");
       throw new EntityNotStorableException();
     }
   }
 
   /**
-   * Creates a Request into the repository. In this version the Request is created as part of an
+   * Creates a Negotiation into the repository. In this version the Negotiation is created as part of an
    * already exisiting Project identified by the id
    *
-   * @param projectId the id of the project to which the Request has to be associated
+   * @param projectId the id of the project to which the Negotiation has to be associated
    * @param request the RequestCreateDTO DTO sent from to the endpoint
-   * @param creatorId the ID of the Person that creates the Request (i.e., the authenticated Person
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated Person
    *     that called the API)
-   * @return the created Request entity
+   * @return the created Negotiation entity
    */
   @Transactional
-  public Request create(String projectId, RequestCreateDTO request, Long creatorId) {
+  public Negotiation create(String projectId, RequestCreateDTO request, Long creatorId) {
     // Get the project or throw an exception
     Project project = projectService.findById(projectId);
-    Request requestEntity = modelMapper.map(request, Request.class);
-    requestEntity.setProject(project);
-    project.getRequests().add(requestEntity);
-    return create(requestEntity, request.getQueries(), creatorId);
+    Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
+    negotiationEntity.setProject(project);
+    project.getNegotiations().add(negotiationEntity);
+    return create(negotiationEntity, request.getQueries(), creatorId);
   }
 
   /**
-   * Creates a Request and the Project it is part of into the repository.
+   * Creates a Negotiation and the Project it is part of into the repository.
    *
    * @param request the RequestCreateDTO DTO sent from to the endpoint. It must have also the project
    *     data to create also the project
-   * @param creatorId the ID of the Person that creates the Request (i.e., the authenticated Person
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated Person
    *     that called the API)
-   * @return the created Request entity
+   * @return the created Negotiation entity
    */
   @Transactional
-  public Request create(RequestCreateDTO request, Long creatorId) {
+  public Negotiation create(RequestCreateDTO request, Long creatorId) {
     if (request.getProject() == null) {
       throw new WrongRequestException("Missing project data");
     }
-    Request requestEntity = modelMapper.map(request, Request.class);
-    return create(requestEntity, request.getQueries(), creatorId);
+    Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
+    return create(negotiationEntity, request.getQueries(), creatorId);
   }
 
-  private Request update(Request requestEntity, RequestCreateDTO request) {
-    Set<Query> queries = findQueries(request.getQueries());
+  private Negotiation update(Negotiation negotiationEntity, RequestCreateDTO request) {
+    Set<Request> queries = findQueries(request.getQueries());
 
     if (queries.stream()
-        .anyMatch(query -> query.getRequest() != null && query.getRequest() != requestEntity)) {
+        .anyMatch(query -> query.getNegotiation() != null && query.getNegotiation() != negotiationEntity)) {
       throw new WrongRequestException(
-          "One or more query object is already assigned to another request");
+          "One or more query object is already assigned to another negotiation");
     }
 
     queries.forEach(
         query -> {
-          query.setRequest(requestEntity);
+          query.setNegotiation(negotiationEntity);
         });
 
-    requestEntity.setQueries(new HashSet<>(queries));
-    requestEntity.setTitle(request.getTitle());
-    requestEntity.setDescription(request.getDescription());
+    negotiationEntity.setQueries(new HashSet<>(queries));
+    negotiationEntity.setTitle(request.getTitle());
+    negotiationEntity.setDescription(request.getDescription());
 
     try {
-      negotiationRepository.save(requestEntity);
-      return requestEntity;
+      negotiationRepository.save(negotiationEntity);
+      return negotiationEntity;
     } catch (DataException | DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
   }
 
   /**
-   * Updates the request with the specified ID.
+   * Updates the negotiation with the specified ID.
    *
-   * @param id the id of the request tu update
-   * @param request the RequestCreateDTO DTO with the new Request data
-   * @return The updated Request entity
+   * @param id the id of the negotiation tu update
+   * @param request the RequestCreateDTO DTO with the new Negotiation data
+   * @return The updated Negotiation entity
    */
   @Transactional
-  public Request update(String id, RequestCreateDTO request) {
-    Request requestEntity = findDetailedById(id);
-    return update(requestEntity, request);
+  public Negotiation update(String id, RequestCreateDTO request) {
+    Negotiation negotiationEntity = findDetailedById(id);
+    return update(negotiationEntity, request);
   }
 
   @Transactional
-  public Request addQueryToRequest(String id, Query queryEntity) {
-    Request requestEntity = findById(id);
-    requestEntity.getQueries().add(queryEntity);
-    queryEntity.setRequest(requestEntity);
+  public Negotiation addQueryToRequest(String id, Request requestEntity) {
+    Negotiation negotiationEntity = findById(id);
+    negotiationEntity.getQueries().add(requestEntity);
+    requestEntity.setNegotiation(negotiationEntity);
     try {
-      negotiationRepository.save(requestEntity);
-      return requestEntity;
+      negotiationRepository.save(negotiationEntity);
+      return negotiationEntity;
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
   }
 
   /**
-   * Returns all request in the repository
+   * Returns all negotiation in the repository
    *
-   * @return the List of Request entities
+   * @return the List of Negotiation entities
    */
   @Transactional
-  public List<Request> findAll() {
+  public List<Negotiation> findAll() {
     return negotiationRepository.findAll();
   }
 
   /**
-   * Returns the Request with the specified id if exists, otherwise it throws an exception
+   * Returns the Negotiation with the specified id if exists, otherwise it throws an exception
    *
-   * @param id the id of the Request to retrieve
-   * @return the Request with specified id
+   * @param id the id of the Negotiation to retrieve
+   * @return the Negotiation with specified id
    */
   @Transactional
-  public Request findDetailedById(String id) throws EntityNotFoundException {
+  public Negotiation findDetailedById(String id) throws EntityNotFoundException {
     return negotiationRepository
         .findDetailedById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   /**
-   * Returns the Request with the specified id if exists, otherwise it throws an exception
+   * Returns the Negotiation with the specified id if exists, otherwise it throws an exception
    *
-   * @param id the id of the Request to retrieve
-   * @return the Request with specified id
+   * @param id the id of the Negotiation to retrieve
+   * @return the Negotiation with specified id
    */
   @Transactional
-  public Request findById(String id) throws EntityNotFoundException {
+  public Negotiation findById(String id) throws EntityNotFoundException {
     return negotiationRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   /**
-   * Returns a List of Request entities filtered by biobank id
+   * Returns a List of Negotiation entities filtered by biobank id
    *
-   * @param biobankId the id in the data source of the biobank of the request
-   * @return the List of Request entities found
+   * @param biobankId the id in the data source of the biobank of the negotiation
+   * @return the List of Negotiation entities found
    */
   @Transactional
-  public List<Request> findByBiobankId(String biobankId) {
+  public List<Negotiation> findByBiobankId(String biobankId) {
     return negotiationRepository.findByBiobankId(biobankId);
   }
 
   /**
-   * Returns a List of Request entities filtered by biobank id
+   * Returns a List of Negotiation entities filtered by biobank id
    *
-   * @param collectionId the id in the data source of the biobank of the request
-   * @return the List of Request entities found
+   * @param collectionId the id in the data source of the biobank of the negotiation
+   * @return the List of Negotiation entities found
    */
   @Transactional
-  public List<Request> findByCollectionId(String collectionId) {
+  public List<Negotiation> findByCollectionId(String collectionId) {
     return negotiationRepository.findByCollectionId(collectionId);
   }
 }

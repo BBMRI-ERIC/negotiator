@@ -1,12 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Temp;
 
 import java.util.ArrayList;
 
 public interface TempRepository {
-    Negotiation findById(int id);
-    Negotiation save(Negotiation negotiation);
+    Temp findById(int id);
+    Temp save(Temp temp);
 
-    ArrayList<Negotiation> findAll();
+    ArrayList<Temp> findAll();
 }

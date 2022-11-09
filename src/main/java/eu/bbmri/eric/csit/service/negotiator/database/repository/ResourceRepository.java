@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
-  //  @Query("SELECT c FROM collection c JOIN FETCH p.biobank WHERE c.name = (:name)")
+  //  @Request("SELECT c FROM collection c JOIN FETCH p.biobank WHERE c.name = (:name)")
   Optional<Resource> findByName(String name);
 
   Optional<Resource> findBySourceId(String sourceId);

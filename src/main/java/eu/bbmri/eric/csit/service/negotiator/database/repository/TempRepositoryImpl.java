@@ -1,26 +1,26 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Temp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TempRepositoryImpl implements TempRepository {
 
-    private final HashMap<Integer, Negotiation> negotiations = new HashMap<>();
+    private final HashMap<Integer, Temp> negotiations = new HashMap<>();
     @Override
-    public Negotiation findById(int id) {
+    public Temp findById(int id) {
         return negotiations.get(id);
     }
 
     @Override
-    public Negotiation save(Negotiation negotiation) {
-        negotiations.put(negotiation.getId(), negotiation);
-        return negotiation;
+    public Temp save(Temp temp) {
+        negotiations.put(temp.getId(), temp);
+        return temp;
     }
 
     @Override
-    public ArrayList<Negotiation> findAll() {
+    public ArrayList<Temp> findAll() {
         return new ArrayList<>(negotiations.values());
     }
 }

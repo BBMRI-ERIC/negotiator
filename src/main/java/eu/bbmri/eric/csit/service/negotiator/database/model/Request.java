@@ -1,21 +1,22 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.HashSet;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,67 +24,60 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.GenericGenerator;
 
 @ToString
-@Entity
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder
+@Entity(name = "Request")
 @Table(name = "request")
-@EntityListeners(AuditingEntityListener.class)
 @NamedEntityGraph(
-    name = "request-with-detailed-children",
+    name = "query-with-detailed-resources",
     attributeNodes = {
-      @NamedAttributeNode("project"),
-      @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
-      @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
+        @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
     },
     subgraphs = {
-      @NamedSubgraph(
-          name = "persons-with-roles",
-          attributeNodes = {
-            @NamedAttributeNode(value = "person"),
-            @NamedAttributeNode(value = "role")
-          }),
-      @NamedSubgraph(
-          name = "queries-detailed",
-          attributeNodes = {
-            @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
-          }),
-      @NamedSubgraph(
-          name = "resources-with-parent",
-          attributeNodes = {@NamedAttributeNode("parent")})
+        @NamedSubgraph(
+            name = "resources-with-parent",
+            attributeNodes = {@NamedAttributeNode("parent")})
     })
-public class Request extends AuditEntity {
+public class Request {
 
-  @ManyToMany(mappedBy = "requests")
+  @NotNull
+  private String url;
+
+  @NotNull
+  private String humanReadable;
+
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @Column(name = "id")
+  private String id;
+
+  @ManyToMany
+  @JoinTable(
+      name = "request_resources_link",
+      joinColumns = @JoinColumn(name = "request_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Exclude
-  Set<Attachment> attachments;
+  @NotNull
+  private Set<Resource> resources;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-  @JoinColumn(name = "project_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "request_id")
   @Exclude
-  private Project project;
+  private Negotiation negotiation;
 
-  @OneToMany(
-      mappedBy = "request",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-      fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "data_source_id")
+  @JsonIgnore
+  @NotNull
   @Exclude
-  private Set<PersonRequestRole> persons = new HashSet<>();
-
-  @OneToMany(mappedBy = "request", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-  @Exclude
-  private Set<Query> queries;
-
-  private String title;
-
-  private String description;
-
-  private Boolean isTest;
+  private DataSource dataSource;
 
   @Override
   public boolean equals(Object o) {
@@ -95,13 +89,11 @@ public class Request extends AuditEntity {
     }
     Request request = (Request) o;
     return Objects.equals(getId(), request.getId())
-        && Objects.equals(getTitle(), request.getTitle())
-        && Objects.equals(getDescription(), request.getDescription())
-        && Objects.equals(getIsTest(), request.getIsTest());
+        && Objects.equals(getUrl(), request.getUrl());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getTitle(), getDescription(), getIsTest());
+    return Objects.hash(getId(), getUrl());
   }
 }

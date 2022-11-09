@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -11,13 +11,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
-public interface RequestRepository extends JpaRepository<Query, String> {
+public interface RequestRepository extends JpaRepository<Request, String> {
 
   @NotNull
   @Override
   @EntityGraph(value = "query-with-detailed-resources")
-  List<Query> findAll();
+  List<Request> findAll();
 
   @EntityGraph(value = "query-with-detailed-resources")
-  Optional<Query> findDetailedById(String id);
+  Optional<Request> findDetailedById(String id);
 }

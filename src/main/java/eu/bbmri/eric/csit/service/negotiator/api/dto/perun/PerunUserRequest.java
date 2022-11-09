@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PerunUserRequest {
 
-  @NotBlank(message = "Perun user request organization cannot be null or empty.")
+  @NotBlank(message = "Perun user negotiation organization cannot be null or empty.")
   private String organization;
 
   @NotNull private Integer id;

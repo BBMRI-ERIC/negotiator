@@ -11,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TempServiceImplTest {
+public class TempDataSourceImplTest {
 
     @InjectMocks
     TempServiceImpl tempServiceImpl;

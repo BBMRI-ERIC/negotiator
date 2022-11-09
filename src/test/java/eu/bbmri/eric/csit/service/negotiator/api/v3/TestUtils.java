@@ -40,7 +40,7 @@ public class TestUtils {
   public static final boolean DATA_SOURCE_SYNC_ACTIVE = false;
 
   public static final String QUERY_URL = "http://datasource.dev";
-  public static final String QUERY_HUMAN_READABLE = "Query description";
+  public static final String QUERY_HUMAN_READABLE = "Request description";
   public static final String QUERY_BIOBANK_1_ID = "biobank:1";
   public static final String QUERY_BIOBANK_1_NAME = "Test Biobank #1";
   public static final String QUERY_COLLECTION_1_ID = "biobank:1:collection:1";
@@ -57,8 +57,8 @@ public class TestUtils {
   public static final boolean PROJECT_EXPECTED_DATA_GENERATION = true;
   public static final boolean PROJECT_IS_TEST_PROJECT = true;
 
-  public static final String REQUEST_TITLE = "request title";
-  public static final String REQUEST_DESCRIPTION = "request description";
+  public static final String REQUEST_TITLE = "negotiation title";
+  public static final String REQUEST_DESCRIPTION = "negotiation description";
 
   public static final String PERUN_USER_ORGANIZATION = "perun user organization";
   public static final Integer PERUN_USER_ID = 100;

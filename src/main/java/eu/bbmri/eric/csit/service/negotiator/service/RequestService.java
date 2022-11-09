@@ -2,10 +2,10 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
@@ -18,10 +18,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@org.springframework.stereotype.Service
 public class RequestService {
 
   @Autowired private RequestRepository requestRepository;
@@ -32,10 +31,10 @@ public class RequestService {
   /**
    * Checks that resources in input conforms to the hierarchy regitered in the negotiator,
    * and if they do, add the leaf resources to the query
-   * @param resourceDTOs The List of Resources in the query request
-   * @param queryEntity The Query Entity to save in the DB
+   * @param resourceDTOs The List of Resources in the query negotiation
+   * @param requestEntity The Request Entity to save in the DB
    */
-  private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Query queryEntity) {
+  private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Request requestEntity) {
     Set<Resource> resourcesInQuery = new HashSet<>();
     resourceDTOs.forEach(  // For each parent
         resourceDTO -> {
@@ -56,15 +55,15 @@ public class RequestService {
           }
         }
     );
-    queryEntity.setResources(resourcesInQuery);
+    requestEntity.setResources(resourcesInQuery);
   }
 
   /**
-   * Checks that the DataSource corresponding to the URL is present in the DB and adds it to the Query entity
+   * Checks that the DataSource corresponding to the URL is present in the DB and adds it to the Request entity
    * @param url the url of the DataSource in the incoming query
-   * @param queryEntity the Query entity to fill with the DataSource
+   * @param requestEntity the Request entity to fill with the DataSource
    */
-  private void checkAndSetDataSource(String url, Query queryEntity) {
+  private void checkAndSetDataSource(String url, Request requestEntity) {
     URL dataSourceURL;
     try {
       dataSourceURL = new URL(url);
@@ -76,41 +75,41 @@ public class RequestService {
             .findByUrl(
                 String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
             .orElseThrow(() -> new WrongRequestException("Data source not found"));
-    queryEntity.setDataSource(dataSource);
+    requestEntity.setDataSource(dataSource);
   }
 
-  private Query saveQuery(QueryCreateDTO queryRequest, Query queryEntity) {
-    checkAndSetResources(queryRequest.getResources(), queryEntity);
-    checkAndSetDataSource(queryRequest.getUrl(), queryEntity);
-    queryEntity.setUrl(queryRequest.getUrl());
-    queryEntity.setHumanReadable(queryRequest.getHumanReadable());
-    return requestRepository.save(queryEntity);
+  private Request saveQuery(QueryCreateDTO queryRequest, Request requestEntity) {
+    checkAndSetResources(queryRequest.getResources(), requestEntity);
+    checkAndSetDataSource(queryRequest.getUrl(), requestEntity);
+    requestEntity.setUrl(queryRequest.getUrl());
+    requestEntity.setHumanReadable(queryRequest.getHumanReadable());
+    return requestRepository.save(requestEntity);
   }
 
   @Transactional
-  public Query create(QueryCreateDTO queryRequest) {
-    Query queryEntity = new Query();
-    return saveQuery(queryRequest, queryEntity);
+  public Request create(QueryCreateDTO queryRequest) {
+    Request requestEntity = new Request();
+    return saveQuery(queryRequest, requestEntity);
   }
 
   @Transactional(readOnly = true)
-  public List<Query> findAll() {
+  public List<Request> findAll() {
     return requestRepository.findAll();
   }
 
   @Transactional(readOnly = true)
-  public Query findById(String id) {
+  public Request findById(String id) {
     return requestRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
-  public Set<Query> findAllById(Set<String> ids) {
+  public Set<Request> findAllById(Set<String> ids) {
     return ids.stream().map(this::findById).collect(Collectors.toSet());
   }
 
   @Transactional
-  public Query update(String id, QueryCreateDTO queryRequest) {
-    Query queryEntity =
+  public Request update(String id, QueryCreateDTO queryRequest) {
+    Request requestEntity =
         requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    return saveQuery(queryRequest, queryEntity);
+    return saveQuery(queryRequest, requestEntity);
   }
 }

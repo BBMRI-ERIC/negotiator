@@ -9,8 +9,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiableEntity;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationRequest;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Query;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
 
 import java.util.HashSet;
@@ -26,7 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-public class NegotiationServiceTest {
+public class tempDataSourceTest {
 
   @InjectMocks
   private NegotiationService negotiationService;
@@ -38,36 +38,36 @@ public class NegotiationServiceTest {
   private TempRequestRepository tempRequestRepository;
   @Autowired private ModelMapper modelMapper;
 
-  private Query createQueryEntity() {
+  private Request createQueryEntity() {
     QueryCreateDTO queryRequest = TestUtils.createQueryRequest(false);
-    Query query = modelMapper.map(queryRequest, Query.class);
-    return requestRepository.save(query);
+    Request request = modelMapper.map(queryRequest, Request.class);
+    return requestRepository.save(request);
   }
 
   //  @Test
   public void testCreate_Ok_whenProjectIsIncluded() throws Exception {
     assert negotiationRepository.count() == 0;
     assert projectRepository.count() == 0;
-    Query query = createQueryEntity();
+    Request query = createQueryEntity();
     RequestCreateDTO request = TestUtils.createRequest(false, true, Set.of(query.getId()));
-    Request requestEntity =
+    Negotiation negotiationEntity =
         negotiationService.create(request, 1L); // NB: 1L is the researcher Person id in test data
 
     assertEquals(negotiationRepository.count(), 1);
     assertEquals(projectRepository.count(), 1);
-    assertEquals(requestEntity.getTitle(), request.getTitle());
-    assertEquals(requestEntity.getDescription(), request.getDescription());
-    assertEquals(requestEntity.getProject().getTitle(), request.getProject().getTitle());
+    assertEquals(negotiationEntity.getTitle(), request.getTitle());
+    assertEquals(negotiationEntity.getDescription(), request.getDescription());
+    assertEquals(negotiationEntity.getProject().getTitle(), request.getProject().getTitle());
     assertEquals(
-        requestEntity.getProject().getDescription(), request.getProject().getDescription());
+        negotiationEntity.getProject().getDescription(), request.getProject().getDescription());
     assertEquals(
-        requestEntity.getProject().getExpectedDataGeneration(),
+        negotiationEntity.getProject().getExpectedDataGeneration(),
         request.getProject().getExpectedDataGeneration());
     assertEquals(
-        requestEntity.getProject().getExpectedEndDate(), request.getProject().getExpectedEndDate());
+        negotiationEntity.getProject().getExpectedEndDate(), request.getProject().getExpectedEndDate());
     assertEquals(
-        requestEntity.getProject().getIsTestProject(), request.getProject().getIsTestProject());
-    assertEquals(requestEntity.getProject().getEthicsVote(), request.getProject().getEthicsVote());
+        negotiationEntity.getProject().getIsTestProject(), request.getProject().getIsTestProject());
+    assertEquals(negotiationEntity.getProject().getEthicsVote(), request.getProject().getEthicsVote());
   }
 
   @Test
