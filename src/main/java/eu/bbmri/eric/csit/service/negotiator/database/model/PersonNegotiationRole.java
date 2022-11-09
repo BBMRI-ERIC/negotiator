@@ -22,9 +22,9 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "person_request")
-@IdClass(PersonRequestId.class)
-public class PersonRequestRole {
+@Table(name = "person_negotiation")
+@IdClass(PersonNegotiationId.class)
+public class PersonNegotiationRole {
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "person_id")
@@ -33,10 +33,10 @@ public class PersonRequestRole {
   private Person person;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "request_id")
+  @JoinColumn(name = "negotiation_id")
   @Id
   @Exclude
-  private Request request;
+  private Negotiation negotiation;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "role_id")

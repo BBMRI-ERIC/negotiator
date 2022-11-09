@@ -31,7 +31,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @NamedEntityGraph(
     name = "project-detailed",
-    attributeNodes = {@NamedAttributeNode("requests")})
+    attributeNodes = {@NamedAttributeNode("negotiations")})
 public class Project extends AuditEntity {
 
   @Exclude
@@ -59,7 +59,7 @@ public class Project extends AuditEntity {
 
   @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
   @Exclude
-  private Set<Request> requests;
+  private Set<Negotiation> negotiations;
 
   @Override
   public boolean equals(Object o) {

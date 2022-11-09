@@ -26,7 +26,7 @@ public class LifecycleRequestStatus extends AuditEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
   @Exclude
-  private Request request;
+  private Negotiation negotiation;
 
   private String status;
   private String statusType;

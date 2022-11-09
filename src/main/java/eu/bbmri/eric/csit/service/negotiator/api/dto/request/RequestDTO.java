@@ -1,13 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
 import java.util.Set;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,20 +13,20 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class RequestDTO {
+
   @NotNull private String id;
 
-  @NotNull private String title;
+  @NotNull(message = "The url of the original request must be present")
+  private String url;
 
-  @NotNull private String description;
+  @NotNull(message = "A human readable description of the request must be present")
+  private String humanReadable;
 
-  private Boolean isTest = false;
+  @NotNull
+  @NotEmpty(message = "At least one resource must be present")
+  private Set<ResourceDTO> resources;
 
-  private ProjectDTO project;
-
-  private Set<QueryDTO> queries;
-
-  private Set<PersonRequestRoleDTO> persons;
+  @NotNull private String redirectUrl;
 }

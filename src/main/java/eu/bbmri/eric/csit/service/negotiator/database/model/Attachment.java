@@ -46,7 +46,7 @@ public class Attachment extends AuditEntity {
       joinColumns = @JoinColumn(name = "request_id"),
       inverseJoinColumns = @JoinColumn(name = "attachment_id"))
   @Exclude
-  Set<Request> requests;
+  Set<Negotiation> negotiations;
 
   @ManyToMany
   @JoinTable(

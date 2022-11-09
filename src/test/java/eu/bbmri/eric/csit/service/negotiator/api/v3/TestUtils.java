@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.query.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.net.URI;
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public class TestUtils {
   public static final boolean DATA_SOURCE_SYNC_ACTIVE = false;
 
   public static final String QUERY_URL = "http://datasource.dev";
-  public static final String QUERY_HUMAN_READABLE = "Query description";
+  public static final String QUERY_HUMAN_READABLE = "Request description";
   public static final String QUERY_BIOBANK_1_ID = "biobank:1";
   public static final String QUERY_BIOBANK_1_NAME = "Test Biobank #1";
   public static final String QUERY_COLLECTION_1_ID = "biobank:1:collection:1";
@@ -57,8 +57,8 @@ public class TestUtils {
   public static final boolean PROJECT_EXPECTED_DATA_GENERATION = true;
   public static final boolean PROJECT_IS_TEST_PROJECT = true;
 
-  public static final String REQUEST_TITLE = "request title";
-  public static final String REQUEST_DESCRIPTION = "request description";
+  public static final String REQUEST_TITLE = "negotiation title";
+  public static final String REQUEST_DESCRIPTION = "negotiation description";
 
   public static final String PERUN_USER_ORGANIZATION = "perun user organization";
   public static final Integer PERUN_USER_ID = 100;
@@ -87,7 +87,7 @@ public class TestUtils {
         .build();
   }
 
-  public static QueryCreateDTO createQueryRequest(boolean update) {
+  public static RequestCreateDTO createRequest(boolean update) {
     String suffix = update ? "u" : "";
     String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
     String collectionName = update ? QUERY_COLLECTION_2_NAME : QUERY_COLLECTION_1_NAME;
@@ -108,7 +108,7 @@ public class TestUtils {
             .children(Set.of(collection))
             .build();
 
-    return QueryCreateDTO.builder()
+    return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
         .resources(Set.of(biobank))
@@ -165,12 +165,12 @@ public class TestUtils {
     return perunUserRequestList;
   }
 
-  public static RequestCreateDTO createRequest(
+  public static NegotiationCreateDTO createNegotiation(
       boolean update, boolean includeProject, Set<String> queriesId) {
     String suffix = update ? "u" : "";
 
-    RequestCreateDTO.RequestCreateDTOBuilder builder =
-        RequestCreateDTO.builder()
+    NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
+        NegotiationCreateDTO.builder()
             .title(String.format("%s%s", REQUEST_TITLE, suffix))
             .description(String.format("%s%s", REQUEST_DESCRIPTION, suffix))
             .queries(queriesId);

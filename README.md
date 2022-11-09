@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator-v3/branch/master/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator-v3)
 # BBMRI-ERIC Negotiator
 
-The BBMRI-ERIC Negotiator service for structured negotiation with biological resources dealing with
+The BBMRI-ERIC Negotiator service for structured temp with biological resources dealing with
 human data and/or biological samples.
 
 ## Version

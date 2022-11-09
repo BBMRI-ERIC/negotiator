@@ -3,7 +3,7 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <description>The BBMRI-ERIC Negotiator service for structured negotiation with biological
+  <description>The BBMRI-ERIC Negotiator service for structured temp with biological
     resources dealing with human data and/or biological samples.
   </description>
   <name>BBMRI Negotiator</name>
@@ -118,5 +118,11 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter-api</artifactId>
+          <version>5.9.1</version>
+          <scope>test</scope>
+      </dependency>
   </dependencies>
 </project>

@@ -52,7 +52,7 @@ public class Person extends BaseEntity {
 
   @OneToMany(mappedBy = "person")
   @Exclude
-  Set<PersonRequestRole> roles = new HashSet<>();
+  Set<PersonNegotiationRole> roles = new HashSet<>();
 
   @Column(unique = true)
   @NotNull

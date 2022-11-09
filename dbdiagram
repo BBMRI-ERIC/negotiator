@@ -43,7 +43,7 @@ Table "role" {
   role_name "character varying"
 }
 
-Table "request" {
+Table "negotiation" {
   "request_id" integer [pk, not null, increment]
   "creation_date" datetime
   "modified_date" datetime
@@ -57,9 +57,9 @@ Table "request" {
   "project_id" integer [not null]
 }
 
-Ref: "person"."person_id" < "request"."created_by"
-Ref: "person"."person_id" < "request"."modified_by"
-Ref: "project"."project_id" < "request"."project_id"
+Ref: "person"."person_id" < "negotiation"."created_by"
+Ref: "person"."person_id" < "negotiation"."modified_by"
+Ref: "project"."project_id" < "negotiation"."project_id"
 
 
 Table "person_request_link" {
@@ -71,11 +71,11 @@ Table "person_request_link" {
 }
 
 Ref: "person"."person_id" < "person_request_link"."created_by"
-Ref: "request"."request_id" < "person_request_link"."request_id"
+Ref: "negotiation"."request_id" < "person_request_link"."request_id"
 Ref: "person"."person_id" < "person_request_link"."person_id"
 Ref: "person_request_link"."role_id" < "role"."role_id"
 
-Table "query" {
+Table "request" {
   "query_id" integer [pk, not null, increment]
   "creation_date" datetime
   "modified_date" datetime
@@ -87,9 +87,9 @@ Table "query" {
   "request_id" integer
 }
 
-Ref: "person"."person_id" < "query"."created_by"
-Ref: "person"."person_id" < "query"."modified_by"
-Ref: "request"."request_id" < "query"."request_id"
+Ref: "person"."person_id" < "request"."created_by"
+Ref: "person"."person_id" < "request"."modified_by"
+Ref: "negotiation"."request_id" < "request"."request_id"
 
 Table "data_source" {
   "data_source_id" integer [pk, not null, increment]
@@ -113,7 +113,7 @@ Table "data_source" {
 
 Ref: "person"."person_id" < "data_source"."created_by"
 Ref: "person"."person_id" < "data_source"."modified_by"
-Ref: "query"."data_source_id" > "data_source"."data_source_id"
+Ref: "request"."data_source_id" > "data_source"."data_source_id"
 
 Table "biobank" {
   "biobank_id" integer [pk, not null, increment]
@@ -151,7 +151,7 @@ Table "query_biobank_link" {
 
 Ref: "person"."person_id" < "query_biobank_link"."created_by"
 Ref: "biobank"."biobank_id" < "query_biobank_link"."biobank_id"
-Ref: "query"."query_id" < "query_biobank_link"."query_id"
+Ref: "request"."query_id" < "query_biobank_link"."query_id"
 
 Table "collection" {
   "collection_id" integer [pk, not null, increment]
@@ -202,7 +202,7 @@ Table "query_collection_link" {
 
 Ref: "person"."person_id" < "query_collection_link"."created_by"
 Ref: "collection"."collection_id" < "query_collection_link"."collection_id"
-Ref: "query"."query_id" < "query_collection_link"."query_id"
+Ref: "request"."query_id" < "query_collection_link"."query_id"
 
 Table "attachment_project_link" {
   "attachment_id" integer [not null]
@@ -223,7 +223,7 @@ Table "attachment_request_link" {
 }
 
 Ref: "person"."person_id" < "attachment_request_link"."created_by"
-Ref: "request"."request_id" < "attachment_request_link"."request_id"
+Ref: "negotiation"."request_id" < "attachment_request_link"."request_id"
 Ref: "attachment"."attachment_id" < "attachment_request_link"."attachment_id"
 
 
@@ -243,7 +243,7 @@ Table "lifecycle_request_status" {
 
 Ref: "person"."person_id" < "lifecycle_request_status"."created_by"
 Ref: "person"."person_id" < "lifecycle_request_status"."modified_by"
-Ref: "request"."request_id" < "lifecycle_request_status"."request_id"
+Ref: "negotiation"."request_id" < "lifecycle_request_status"."request_id"
 Ref: "person"."person_id" < "lifecycle_request_status"."status_by"
 
 Table "lifecycle_request_collection_status" {
@@ -263,7 +263,7 @@ Table "lifecycle_request_collection_status" {
 
 Ref: "person"."person_id" < "lifecycle_request_collection_status"."created_by"
 Ref: "person"."person_id" < "lifecycle_request_collection_status"."modified_by"
-Ref: "request"."request_id" < "lifecycle_request_collection_status"."request_id"
+Ref: "negotiation"."request_id" < "lifecycle_request_collection_status"."request_id"
 Ref: "collection"."collection_id" < "lifecycle_request_collection_status"."collection_id"
 Ref: "person"."person_id" < "lifecycle_request_collection_status"."status_by"
 
@@ -297,7 +297,7 @@ Table "notification" {
 
 Ref: "person"."person_id" < "notification"."created_by"
 Ref: "person"."person_id" < "notification"."modified_by"
-Ref: "request"."request_id" < "notification"."request_id"
+Ref: "negotiation"."request_id" < "notification"."request_id"
 Ref: "person"."person_id" < "notification"."sender_id"
 Ref: "post"."post_id" < "notification"."post_id"
 
@@ -351,7 +351,7 @@ Table "post" {
 
 Ref: "person"."person_id" < "post"."created_by"
 Ref: "person"."person_id" < "post"."modified_by"
-Ref: "request"."request_id" < "post"."request_id"
+Ref: "negotiation"."request_id" < "post"."request_id"
 Ref: "person"."person_id" < "post"."poster_id"
 
 Table "attachment_post_link" {
@@ -394,7 +394,7 @@ Ref: "attachment"."attachment_id" < "attachment_private_post_link"."attachment_i
 
 Ref: "person"."person_id" < "private_post"."created_by"
 Ref: "person"."person_id" < "private_post"."modified_by"
-Ref: "request"."request_id" < "private_post"."request_id"
+Ref: "negotiation"."request_id" < "private_post"."request_id"
 Ref: "person"."person_id" < "private_post"."poster_id"
 Ref: "biobank"."biobank_id" < "private_post"."biobank_id"
 
@@ -523,7 +523,7 @@ Table "form_request" {
 
 Ref: "person"."person_id" < "form_request"."created_by"
 Ref: "person"."person_id" < "form_request"."modified_by"
-Ref: "request"."request_id" < "form_request"."request_id"
+Ref: "negotiation"."request_id" < "form_request"."request_id"
 
 Table "form_request_field" {
   "form_request_field_id" integer [pk, not null, increment]

@@ -25,8 +25,8 @@ paths:
     post:
       tags:
         - v2
-      summary: Creates a new query.
-      description: Takes a JSON query object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the query edit page. I case of updating a existing query or extending an exiting request, a token is provided for identification.
+      summary: Creates a new request.
+      description: Takes a JSON request object with information of the search criteria and results of the directory. Stores it temporary in the database and returns a redirect URL for the directory. With this URL the directory can redirect the user to the request edit page. I case of updating a existing request or extending an exiting negotiation, a token is provided for identification.
       requestBody:
         required: true
         content:
@@ -57,9 +57,9 @@ paths:
   /v2/io/export:
     get:
       tags:
-        - request
-      summary: Get request details by requestId
-      description: Get detailed data for a request by requestId
+        - negotiation
+      summary: Get negotiation details by requestId
+      description: Get detailed data for a negotiation by requestId
       requestBody:
         required: true
         content:
@@ -81,9 +81,9 @@ paths:
   /v2/io/import:
     post:
       tags:
-        - request
-      summary: Import a request to negotiator
-      description: Import a request to negotiator
+        - negotiation
+      summary: Import a negotiation to negotiator
+      description: Import a negotiation to negotiator
       requestBody:
         required: true
         content:
@@ -211,8 +211,8 @@ paths:
       tags:
         - V3
         - Queries
-      summary: Creates a query for a Data Source
-      description: Create a query for the data source identified by {dataSourceId}
+      summary: Creates a request for a Data Source
+      description: Create a request for the data source identified by {dataSourceId}
       parameters:
         - name: Prefer
           in: header
@@ -223,7 +223,7 @@ paths:
               - return=minimal
             default: return=minimal
           required: false
-          description: specifies whether to return all data of the created query or just the id. By default it just the id is returned
+          description: specifies whether to return all data of the created request or just the id. By default it just the id is returned
       requestBody:
         required: true
         content:
@@ -232,19 +232,19 @@ paths:
               $ref: '#/components/schemas/QueryCreateV3'
       responses:
         '201':
-          description: Query created correctly
+          description: Request created correctly
           headers:
             Location:
               schema:
                 type: string
               description:
-                the location of the newly created query (e.g., /v3/data-sources/{dataSourceId}/queries/1)
+                the location of the newly created request (e.g., /v3/data-sources/{dataSourceId}/queries/1)
           content:
             'application/json':
               schema:
                 $ref: '#/components/schemas/QueryResponseV3'
         '400':
-          description: There was an error in the request
+          description: There was an error in the negotiation
           content:
             'application/json':
               schema:
@@ -266,17 +266,17 @@ paths:
       tags:
         - V3
         - Queries
-      summary: Retrieves data of a specific query
+      summary: Retrieves data of a specific request
       parameters:
         - name: queryId
           in: path
           schema:
             type: string
           required: true
-          description: the id of the query to retrieve
+          description: the id of the request to retrieve
       responses:
         '200':
-          description: Query created correctly
+          description: Request created correctly
           content:
             'application/json':
               schema:
@@ -288,7 +288,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Data source or Query with the specified id not found in the Negotiator
+          description: Data source or Request with the specified id not found in the Negotiator
           content:
             'application/json':
               schema:
@@ -325,7 +325,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProjectCreateResponseV3'
         '400':
-          description: Bad Request
+          description: Bad Negotiation
           content:
             'application/json':
               schema:
@@ -344,7 +344,7 @@ paths:
       description: Get the list of projects. It is possible to filter by user id
       parameters:
         - name: user
-          in: query
+          in: request
           schema:
             type: integer
             format: int64
@@ -436,9 +436,9 @@ paths:
       tags:
         - V3
         - Requests
-      summary: Creates a new request with and the project it belongs to
-      description: Endpoint to create a request and also its project.
-        > To create a request for a previous project check `/v3/project/{projectId}/requests` endpoint
+      summary: Creates a new negotiation with and the project it belongs to
+      description: Endpoint to create a negotiation and also its project.
+        > To create a negotiation for a previous project check `/v3/project/{projectId}/requests` endpoint
       parameters:
         - name: Prefer
           in: header
@@ -449,7 +449,7 @@ paths:
               - return=minimal
             default: return=minimal
           required: false
-          description: specifies whether to return all data of the created request or just the id. By default it just the id is returned
+          description: specifies whether to return all data of the created negotiation or just the id. By default it just the id is returned
       requestBody:
         content:
           'application/json':
@@ -457,13 +457,13 @@ paths:
               $ref: '#/components/schemas/RequestCreateV3WithProject'
       responses:
         '201':
-          description: Request created successfully
+          description: Negotiation created successfully
           headers:
             Location:
               schema:
                 type: string
               description:
-                The location of the newly created request (e.g., /v3/requests/1)
+                The location of the newly created negotiation (e.g., /v3/requests/1)
           content:
             'application/json':
               schema:
@@ -475,17 +475,17 @@ paths:
         - Requests
       parameters:
         - name: bioankId
-          in: query
+          in: request
           schema:
             type: string
           required: false
-          description: specifies the data source id of a biobank the request is sent to
+          description: specifies the data source id of a biobank the negotiation is sent to
         - name: collectionId
-          in: query
+          in: request
           schema:
             type: string
           required: false
-          description: specifies the data source id of a collection the request is sent to
+          description: specifies the data source id of a collection the negotiation is sent to
       responses:
         '200':
           description: The list of requests corresponding to filter createria (if any)
@@ -506,9 +506,9 @@ paths:
       tags:
         - V3
         - Requests
-      summary: Creates a new request for the project with id {projectId}
-      description: Endpoint to create a request for a previously create project.
-        > In this case the project data should not sent in the request
+      summary: Creates a new negotiation for the project with id {projectId}
+      description: Endpoint to create a negotiation for a previously create project.
+        > In this case the project data should not sent in the negotiation
       parameters:
         - name: Prefer
           in: header
@@ -519,10 +519,10 @@ paths:
               - return=minimal
             default: return=minimal
           required: false
-          description: specifies whether to return all data of the created request or just the id. By default it just the id is returned
+          description: specifies whether to return all data of the created negotiation or just the id. By default it just the id is returned
         - name: projectId
           in: path
-          description: Id of the project associated to the request
+          description: Id of the project associated to the negotiation
           required: true
           schema:
             type: integer
@@ -534,13 +534,13 @@ paths:
               $ref: '#/components/schemas/RequestCreateV3'
       responses:
         '201':
-          description: Request created successfully
+          description: Negotiation created successfully
           headers:
             Location:
               schema:
                 type: string
               description:
-                The location of the newly created request (e.g., /v3/requests/1)
+                The location of the newly created negotiation (e.g., /v3/requests/1)
           content:
             'application/json':
               schema:
@@ -559,12 +559,12 @@ paths:
           type: integer
           format: int64
         required: true
-        description: The id of the request to get/update
+        description: The id of the negotiation to get/update
     put:
       tags:
         - V3
         - Requests
-      summary: Updates the request with id {requestId}
+      summary: Updates the negotiation with id {requestId}
       requestBody:
         content:
           'application/json':
@@ -572,7 +572,7 @@ paths:
               $ref: '#/components/schemas/RequestCreateV3'
       responses:
         '204':
-          description: Request updated successfully
+          description: Negotiation updated successfully
         '401':
           description: The user has no permission to perform this operation
           content:
@@ -583,10 +583,10 @@ paths:
       tags:
         - V3
         - Requests
-      summary: Retrieves the request with id {requestId}
+      summary: Retrieves the negotiation with id {requestId}
       responses:
         '200':
-          description: Request updated successfully
+          description: Negotiation updated successfully
           content:
             'application/json':
               schema:
@@ -604,19 +604,19 @@ paths:
       description: Endpoint used to search for users by some parameters ids
       parameters:
         - name: projectId
-          in: query
+          in: request
           schema:
             type: integer
             format: int64
           required: false
           description: specifies the id of the project the users are involved in
         - name: requestId
-          in: query
+          in: request
           schema:
             type: integer
             format: int64
           required: false
-          description: specifies the id of the request the users are involved in
+          description: specifies the id of the negotiation the users are involved in
       responses:
         '200':
           description: Successful search
@@ -627,7 +627,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserV3'
         '400':
-          description: Bad request
+          description: Bad negotiation
           content:
             'application/json':
               schema:
@@ -805,10 +805,10 @@ components:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$
           example: 2020-09-10 11:25
-          description: date/time when request was created
+          description: date/time when negotiation was created
         collections:
           type: array
-          description: array of collection involved in the request (optional)
+          description: array of collection involved in the negotiation (optional)
           items:
             type: object
             properties:
@@ -820,14 +820,14 @@ components:
           type: array
           items:
             type: object
-            description: array of queries for the request (optional)
+            description: array of queries for the negotiation (optional)
             properties:
               queryParameters:
                 type: string
               humanReadable:
                 type: string
                 example: selected countries are AT
-                description: human readable version of the query
+                description: human readable version of the request
               url:
                 type: string
                 description: redirect url to the directory
@@ -843,13 +843,13 @@ components:
           description: ID of the data source in the negotiator
         name:
           type: string
-          description: Name of the DataSource
+          description: Name of the Service
         url:
           type: string
-          description: URL of the DataSource
+          description: URL of the Service
         description:
           type: string
-          description: Description of the DataSource
+          description: Description of the Service
         resources:
           type: array
           items:
@@ -889,7 +889,7 @@ components:
             id:
               type: integer
               format: int64
-              description: Id of the query generated
+              description: Id of the request generated
     QueryResponseV3:
       allOf:
         - $ref: '#/components/schemas/QueryV3'
@@ -911,7 +911,7 @@ components:
           items:
             type: integer
             format: int64
-            description: "List of IDs of queries related to the request"
+            description: "List of IDs of queries related to the negotiation"
     RequestCreateV3WithProject:
       allOf:
         - $ref: '#/components/schemas/RequestCreateV3'
@@ -927,7 +927,7 @@ components:
             id:
               type: integer
               format: int64
-              description: Id of the generated request
+              description: Id of the generated negotiation
     ProjectCreateV3:
       type: object
       properties:

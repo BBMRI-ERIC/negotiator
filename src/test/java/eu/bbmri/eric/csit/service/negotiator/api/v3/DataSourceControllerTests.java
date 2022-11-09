@@ -248,7 +248,7 @@ public class DataSourceControllerTests {
         modelMapper.map(TestUtils.createDataSourceRequest(false), DataSource.class);
     repository.save(dataSourceEntity);
 
-    // Request body with updated values
+    // Negotiation body with updated values
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(true);
 
     String requestBody = TestUtils.jsonFromRequest(request);
