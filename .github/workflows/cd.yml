@@ -25,19 +25,6 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Docker meta
-      id: docker-meta
-      uses: docker/metadata-action@v4
-      with:
-        images: |
-          bbmrieric/negotiator
-        tags: |
-          type=schedule
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-
     - uses: actions/checkout@v3
     - name: Set up JDK 17
       uses: actions/setup-java@v3
@@ -55,8 +42,8 @@ jobs:
         context: .
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ steps.docker-meta.outputs.tags }}
-        labels: ${{ steps.docker-meta.outputs.labels }}
+        repository: bbmrieric/negotiator
+        auto_tag: true
 
   deploy:
     needs: publish_docker
