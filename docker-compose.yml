@@ -2,7 +2,7 @@ version: "3.4"
 services:
   negotiator:
     container_name: negotiator
-    image: bbmrieric/negotiator:master
+    image: bbmrieric/negotiator
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
       - SPRING_DATASOURCE_USERNAME=negotiator
@@ -13,9 +13,14 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - OAUTH2_ISSUER=
     ports:
-      - "80:8080"
+      - "81:8080"
     depends_on:
       - postgres
+  negotiator-frontend:
+    container_name: negotiator-frontend
+    image: bbmrieric/negotiator-frontend
+    ports:
+      - "80:8080"
 
   postgres:
     container_name: negotiator-db
