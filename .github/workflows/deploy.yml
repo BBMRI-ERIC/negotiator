@@ -1,0 +1,21 @@
+name: Deployment
+
+on: workflow_dispatch
+
+jobs:
+
+  deploy:
+      runs-on: ubuntu-latest
+
+      environment: development
+
+      steps:
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER}}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script_stop: true
+          script: deploy
