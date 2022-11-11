@@ -1,5 +1,5 @@
-![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/java-ci.yml/badge.svg?)
-[![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator-v3/branch/master/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator-v3)
+![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/CI.yml/badge.svg?)
+[![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator-v3/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator-v3)
 # BBMRI-ERIC Negotiator
 
 The BBMRI-ERIC Negotiator service for structured temp with biological resources dealing with
