@@ -5,6 +5,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCrite
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSetLink;
 import eu.bbmri.eric.csit.service.negotiator.service.AccessCriteriaSetService;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.modelmapper.Converter;
@@ -33,7 +35,7 @@ public class AccessCriteriaSetController {
     TypeMap<AccessCriteriaSet, AccessCriteriaSetDTO> typeMap =
         modelMapper.createTypeMap(AccessCriteriaSet.class, AccessCriteriaSetDTO.class);
 
-    Converter<Set<AccessCriteriaSetLink>, Set<AccessCriteriaDTO>> accessCriteriaConverter =
+    Converter<List<AccessCriteriaSetLink>, List<AccessCriteriaDTO>> accessCriteriaConverter =
         ffc -> formFieldConverter(ffc.getSource());
     typeMap.addMappings(
         mapper ->
@@ -42,7 +44,7 @@ public class AccessCriteriaSetController {
                 .map(AccessCriteriaSet::getAccessCriteriaSetLink, AccessCriteriaSetDTO::setAccessCriteria));
   }
 
-  private Set<AccessCriteriaDTO> formFieldConverter(Set<AccessCriteriaSetLink> accessCriteria) {
+  private List<AccessCriteriaDTO> formFieldConverter(List<AccessCriteriaSetLink> accessCriteria) {
     return accessCriteria.stream()
         .map(
             criteria ->
@@ -52,7 +54,7 @@ public class AccessCriteriaSetController {
                     criteria.getAccessCriteria().getType(),
                     criteria.getAccessCriteria().getRequired())
         )
-        .collect(Collectors.toSet());
+        .collect(Collectors.toList());
   }
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
