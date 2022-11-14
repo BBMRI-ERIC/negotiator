@@ -6,25 +6,33 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3")
 public class RequestController {
-
-  @Value("${negotiator.redirectPath:/v3/queries}")
-  private String REDIRECT_PATH;
+  @Value("${negotiator.frontendUrl}")
+  private String FRONTEND_URL;
 
   private final RequestService requestService;
 
@@ -51,8 +59,7 @@ public class RequestController {
   }
 
   private String convertIdToRedirectUrl(String queryId) {
-    String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-    return "%s%s/%s".formatted(baseURL, REDIRECT_PATH, queryId);
+    return "%s/requests/%s".formatted(FRONTEND_URL, queryId);
   }
 
   private Set<ResourceDTO> convertResourceToResources(Set<Resource> resources) {

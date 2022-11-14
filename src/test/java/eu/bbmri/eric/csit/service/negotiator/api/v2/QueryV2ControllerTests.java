@@ -41,8 +41,8 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
-public class RequestV2ControllerTests {
-  private static final String ENDPOINT = "/api/directory/create_query";
+public class QueryV2ControllerTests {
+  private static final String ENDPOINT = "/directory/create_query";
   @Autowired public RequestRepository requestRepository;
   @Autowired private WebApplicationContext context;
   @Autowired private QueryV2Controller controller;
@@ -167,9 +167,9 @@ public class RequestV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(
-            header().string("Location", containsString("http://localhost/gui/negotiation/jsonQuery=")))
+            header().string("Location", containsString("http://localhost/request")))
         .andExpect(
-            jsonPath("$.redirect_uri", containsString("http://localhost/gui/negotiation/jsonQuery=")));
+            jsonPath("$.redirect_uri", containsString("http://localhost/request")));
     assertEquals(requestRepository.findAll().size(), 1);
   }
 
@@ -218,9 +218,9 @@ public class RequestV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(
-            header().string("Location", containsString("http://localhost/gui/negotiation/jsonQuery=")))
+            header().string("Location", containsString("http://localhost/request")))
         .andExpect(
-            jsonPath("$.redirect_uri", containsString("http://localhost/gui/negotiation/jsonQuery=")));
+            jsonPath("$.redirect_uri", containsString("http://localhost/request")));
   }
 
   @Test
@@ -247,13 +247,13 @@ public class RequestV2ControllerTests {
         .andExpect(status().isAccepted())
         .andExpect(
             header().string("Location", containsString(
-                    "http://localhost/gui/negotiation/queryId=%s&jsonQuery="
+                    "http://localhost/negotiations/%s/requests"
                         .formatted(negotiationEntity.getId()))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
-                    "http://localhost/gui/negotiation/queryId=%s&jsonQuery="
+                    "http://localhost/negotiations/%s/requests"
                         .formatted(negotiationEntity.getId()))));
     assertEquals(requestRepository.findAll().size(), 1);
   }
@@ -282,13 +282,13 @@ public class RequestV2ControllerTests {
         .andExpect(status().isAccepted())
         .andExpect(
             header().string("Location", containsString(
-                "http://localhost/gui/negotiation/queryId=%s&jsonQuery="
+                "http://localhost/negotiations/%s/requests"
                     .formatted(negotiationEntity.getId()))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
-                    "http://localhost/gui/negotiation/queryId=%s&jsonQuery="
+                    "http://localhost/negotiations/%s/requests"
                         .formatted(negotiationEntity.getId()))));
     assertEquals(requestRepository.findAll().size(), 2);
   }

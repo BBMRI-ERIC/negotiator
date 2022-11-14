@@ -15,6 +15,7 @@ spring:
         jwt:
           issuer-uri:
 negotiator:
+  frontendUrl: "http://localhost"
   redirectPath: "/gui/negotiation"
   authorization:
     claim: ""
