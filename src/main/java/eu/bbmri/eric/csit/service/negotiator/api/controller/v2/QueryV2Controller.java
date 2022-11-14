@@ -1,15 +1,15 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v2;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,13 +25,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 public class QueryV2Controller {
-
-  @Value("${negotiator.redirectPath:/gui/negotiation}")
-  private String REDIRECT_PATH;
+  @Value("${negotiator.frontendUrl}")
+  private String FRONTEND_URL;
 
   private final RequestService requestService;
 
@@ -71,11 +69,11 @@ public class QueryV2Controller {
   private String convertIdToRedirectUri(String queryId) {
     Request request = requestService.findById(queryId);
     Negotiation negotiation = request.getNegotiation();
-    String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+
     if (negotiation == null) {
-      return "%s%s/jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, queryId);
+      return "%s/requests/%s".formatted(FRONTEND_URL, queryId);
     } else {
-      return "%s%s/queryId=%s&jsonQuery=%s".formatted(baseURL, REDIRECT_PATH, negotiation.getId(), queryId);
+      return "%s/negotiations/%s/requests/%s".formatted(FRONTEND_URL, negotiation.getId(), queryId);
     }
   }
 
@@ -105,7 +103,7 @@ public class QueryV2Controller {
   }
 
   @PostMapping(
-      value = "/api/directory/create_query",
+      value = "/directory/create_query",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   ResponseEntity<QueryV2DTO> add(@Valid @RequestBody QueryCreateV2DTO queryRequest) {

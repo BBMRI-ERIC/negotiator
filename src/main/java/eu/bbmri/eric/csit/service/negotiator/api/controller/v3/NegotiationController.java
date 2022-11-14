@@ -2,9 +2,11 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
 import java.util.Set;
@@ -71,14 +73,9 @@ public class NegotiationController {
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
-
-  private static Long getCreatorId() {
-    return getCreator().getId();
-  }
-
-  private static Person getCreator() {
+  private Long getCreatorId() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
+    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
   }
 
   /**
