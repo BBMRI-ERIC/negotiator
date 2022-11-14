@@ -95,7 +95,7 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .hasAuthority("RESEARCHER")
         .and()
         .authorizeRequests()
-        .antMatchers(HttpMethod.POST, "/v3/requests/**", "/api/directory/create_query")
+        .antMatchers(HttpMethod.POST, "/v3/requests/**", "/directory/create_query")
         .hasAnyAuthority("ADMIN", "EXT_SERV")
         .antMatchers(HttpMethod.PUT, "/v3/requests/**")
         .hasAnyAuthority("ADMIN", "EXT_SERV")
