@@ -56,4 +56,13 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
 
+    - name: Build and push
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ steps.meta.outputs.tags }}
+
       
