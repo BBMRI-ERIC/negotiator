@@ -26,13 +26,13 @@ insert into authorities (person_id, authority) values
   (3, 'PERUN_USER'),
   (4, 'RESEARCHER');
 
-insert into access_criteria (id, name, description, type, required) values (1, 'title', 'Give a title', 'text', 'true');
-insert into access_criteria (id, name, description, type, required) values (2, 'description', 'Give a description', 'text', 'true');
-insert into access_criteria (id, name, description, type, required) values (3, 'ethics vote', 'Write the etchics vote', 'text', 'true');
+insert into access_criteria (id, name, description, type, required) values (1, 'ethics vote', 'Write the etchics vote', 'text', 'true');
+insert into access_criteria (id, name, description, type, required) values (2, 'title', 'Give a title', 'text', 'true');
+insert into access_criteria (id, name, description, type, required) values (3, 'description', 'Give a description', 'text', 'true');
 
 insert into access_criteria_set (id) values (1);
 
-insert into access_criteria_set_link (access_criteria_set_id, access_criteria_id, ordering) values (1, 1, 1), (1, 2, 2), (1, 3, 3);
+insert into access_criteria_set_link (access_criteria_set_id, access_criteria_id, ordering) values (1, 2, 1), (1, 3, 2), (1, 1, 3);
 
 insert into resource (id, name, description, source_id, type, parent_id, data_source_id, access_criteria_set_id) values
   (1, 'Test biobank #1', 'This is the first testing biobank', 'biobank:1', 'biobank' ,null, 1, 1),
