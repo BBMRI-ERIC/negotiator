@@ -12,10 +12,13 @@ jobs:
       steps:
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
+        env:
+          BACKEND_DEPLOY_TAG: ${GITHUB_REF##*/}
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER}}
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script_stop: true
+          envs: BACKEND_DEPLOY_TAG
           script: deploy
