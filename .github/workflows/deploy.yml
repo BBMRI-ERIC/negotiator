@@ -21,4 +21,4 @@ jobs:
           port: ${{ secrets.PORT }}
           script_stop: true
           envs: BACKEND_DEPLOY_TAG
-          script: deploy
+          script: source deploy
