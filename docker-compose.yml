@@ -4,35 +4,14 @@ services:
     container_name: negotiator
     image: bbmrieric/negotiator
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
+      - SPRING_DATASOURCE_URL=
       - SPRING_DATASOURCE_USERNAME=negotiator
       - SPRING_DATASOURCE_PASSWORD=negotiator
       - SPRING_DATASOURCE_INITIALIZE=true
-#      - SPRING_DATASOURCE_DATA=file:/data.sql
+      - SPRING_DATASOURCE_DATA=
       - SPRING_DATASOURCE_INITIALIZATION-MODE=always
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - OAUTH2_ISSUER=
     ports:
       - "81:8080"
-    depends_on:
-      - postgres
-  negotiator-frontend:
-    container_name: negotiator-frontend
-    image: bbmrieric/negotiator-frontend
-    ports:
-      - "80:8080"
 
-  postgres:
-    container_name: negotiator-db
-    image: postgres:14
-    environment:
-      - POSTGRES_USER=negotiator
-      - POSTGRES_PASSWORD=negotiator
-      - POSTGRES_DB=negotiator
-    ports:
-      - "5432:5432"
-    volumes:
-      - negotiator-db-data:/var/lib/postgresql/data
-    command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
-volumes:
-  negotiator-db-data:
