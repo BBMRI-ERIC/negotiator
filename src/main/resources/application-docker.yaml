@@ -11,5 +11,6 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+          user-info-uri: ${OAUTH2_USERINFO_URI}
           issuer-uri: ${OAUTH2_ISSUER}
 
