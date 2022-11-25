@@ -4,11 +4,11 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
-public class NegotiatorJwtUserDetails implements NegotiatorUserDetails {
+public class JwtUserDetails implements NegotiatorUserDetails {
 
   private final Person person;
 
-  public NegotiatorJwtUserDetails(
+  public JwtUserDetails(
       Person person, Collection<? extends GrantedAuthority> authorities) {
     this.person = person;
   }

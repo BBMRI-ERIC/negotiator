@@ -13,6 +13,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+          user-info-uri:
           issuer-uri:
 negotiator:
   frontendUrl: "http://localhost"

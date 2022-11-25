@@ -1,9 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +31,9 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired private PasswordEncoder passwordEncoder;
   @Autowired private DataSource dataSource;
 
+  @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
+  private String userInfoEndpoint;
+
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
 
@@ -48,12 +53,13 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
   JwtDecoder jwtDecoder() {
     return token -> {
       String userId = token.replace("Bearer ", "");
-      String scopes = "";
+      List<String> scopes;
       Instant iat;
       if ("researcher".equals(userId)) {
-        scopes = authzResearcherValue;
+        scopes = List.of(authzResearcherValue);
         iat = Instant.now();
       } else {
+        scopes = List.of();
         iat = Instant.now().minusSeconds(24 * 3600);
       }
       return Jwt.withTokenValue("fake-token")
@@ -113,8 +119,9 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .oauth2ResourceServer()
         .jwt()
         .jwtAuthenticationConverter(
-            new NegotiatorJwtAuthenticationConverter(
+            new JwtAuthenticationConverter(
                 personRepository,
+                userInfoEndpoint,
                 authzClaim,
                 authzSubjectClaim,
                 authzAdminValue,

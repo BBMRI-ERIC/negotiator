@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import javax.sql.DataSource;
@@ -28,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired public PasswordEncoder passwordEncoder;
 
   @Autowired public PersonRepository personRepository;
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
+  private String userInfoEndpoint;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
@@ -94,8 +97,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.oauth2ResourceServer()
           .jwt()
           .jwtAuthenticationConverter(
-              new NegotiatorJwtAuthenticationConverter(
+              new JwtAuthenticationConverter(
                   personRepository,
+                  userInfoEndpoint,
                   authzClaim,
                   authzSubjectClaim,
                   authzAdminValue,
