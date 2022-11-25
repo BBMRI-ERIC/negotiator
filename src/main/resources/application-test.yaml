@@ -21,7 +21,7 @@ spring:
 negotiator:
   authorization:
     claim: "authz"
-    adminClaimValue: "admin_group"
-    researcherClaimValue: "researcher_group"
-    biobankerClaimValue: "biobanker_group"
-    subjectClaim: "subject_id"
+    admin-claim-value: "admin_group"
+    researcher-claim-value: "researcher_group"
+    biobanker-claim-value: "biobanker_group"
+    subject-claim: "subject_id"

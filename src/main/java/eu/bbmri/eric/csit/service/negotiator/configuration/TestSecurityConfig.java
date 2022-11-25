@@ -37,16 +37,16 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
 
-  @Value("${negotiator.authorization.subjectClaim}")
+  @Value("${negotiator.authorization.subject-claim}")
   private String authzSubjectClaim;
 
-  @Value("${negotiator.authorization.adminClaimValue}")
+  @Value("${negotiator.authorization.admin-claim-value}")
   private String authzAdminValue;
 
-  @Value("${negotiator.authorization.researcherClaimValue}")
+  @Value("${negotiator.authorization.researcher-claim-value}")
   private String authzResearcherValue;
 
-  @Value("${negotiator.authorization.biobankerClaimValue}")
+  @Value("${negotiator.authorization.biobanker-claim-value}")
   private String authzBiobankerValue;
 
   @Bean
