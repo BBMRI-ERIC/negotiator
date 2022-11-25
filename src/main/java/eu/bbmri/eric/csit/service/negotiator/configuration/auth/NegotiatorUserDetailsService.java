@@ -21,6 +21,6 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
         personRepository
             .findByAuthNameAndPasswordNotNull(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new NegotiatorBasicUserDetails(person);
+    return new HttpBasicUserDetails(person);
   }
 }

@@ -5,14 +5,27 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepositor
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.client.RestTemplate;
 
-public class NegotiatorJwtAuthenticationConverter
+/**
+ * Class to map the Authorities in a JWT to the one knwon by the Negotiator
+ */
+public class JwtAuthenticationConverter
     implements Converter<Jwt, AbstractAuthenticationToken> {
+
+  private final String userInfoEndpoint;
 
   private final String authzClaim;
 
@@ -33,18 +46,20 @@ public class NegotiatorJwtAuthenticationConverter
    * @param personRepository The Repository to retrieve the Person
    * @param authzClaim the name of the claim that contains the value of the claim
    * @param authzSubjectClaim the name of the claim that contains the id of the subject, used to
-   *     retrieve the Person from the Repository
+   * retrieve the Person from the Repository
    * @param authzAdminValue the value of the authzClaim for Administrator role
    * @param authzResearcherValue the value of the authzClaim for Researcher role
    * @param authzBiobankerValue the value of the authzClaim for Biobanker role
    */
-  public NegotiatorJwtAuthenticationConverter(
+  public JwtAuthenticationConverter(
       PersonRepository personRepository,
+      String userInfoEndpoint,
       String authzClaim,
       String authzSubjectClaim,
       String authzAdminValue,
       String authzResearcherValue,
       String authzBiobankerValue) {
+    this.userInfoEndpoint = userInfoEndpoint;
     this.personRepository = personRepository;
     this.authzClaim = authzClaim;
     this.authzAdminValue = authzAdminValue;
@@ -53,20 +68,45 @@ public class NegotiatorJwtAuthenticationConverter
     this.authzSubjectClaim = authzSubjectClaim;
   }
 
+  private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders requestHeaders = new HttpHeaders();
+    requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
+    HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
+
+    ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
+        httpEntity, Object.class);
+    Object claims = response.getBody();
+    try {
+      return (LinkedHashMap<String, Object>) claims;
+    } catch (ClassCastException ex) {
+      return new LinkedHashMap<>();
+    }
+  }
+
+  private Map<String, Object> getClaims(Jwt jwt) {
+    if (userInfoEndpoint != null && !userInfoEndpoint.isBlank()) {
+      return getClaimsFromUserEndpoints(jwt);
+    } else {
+      return jwt.getClaims();
+    }
+  }
+
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
+    Map<String, Object> claims = getClaims(jwt);
 
     Collection<GrantedAuthority> authorities = new HashSet<>();
+    if (claims.containsKey(authzClaim)) {
+      List<String> scopes = (List<String>) claims.get(authzClaim);
 
-    if (jwt.getClaims().containsKey(authzClaim)) {
-      String[] scopes = jwt.getClaims().get(authzClaim).toString().split(" ");
-      if (Arrays.asList(scopes).contains(authzAdminValue)) {
+      if (scopes.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ADMIN"));
       }
-      if (Arrays.asList(scopes).contains(authzResearcherValue)) {
+      if (scopes.contains(authzResearcherValue)) {
         authorities.add(new SimpleGrantedAuthority("RESEARCHER"));
       }
-      if (Arrays.asList(scopes).contains(authzBiobankerValue)) {
+      if (scopes.contains(authzBiobankerValue)) {
         authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
       }
     }
