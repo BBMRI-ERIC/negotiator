@@ -78,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
 
         .authorizeRequests()
-        .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria")
+        .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria/**")
         .hasAuthority("RESEARCHER")
         .and()
 
