@@ -16,7 +16,7 @@ spring:
           user-info-uri:
           issuer-uri:
 negotiator:
-  frontendUrl: "http://localhost"
+  frontend-url: "http://localhost"
   authorization:
     claim: ""
     admin-claim-value: ""
