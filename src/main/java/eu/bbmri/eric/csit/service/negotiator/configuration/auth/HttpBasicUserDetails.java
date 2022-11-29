@@ -7,13 +7,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class NegotiatorBasicUserDetails implements UserDetails, NegotiatorUserDetails {
+public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails {
 
   private final Person person;
 
   private final HashSet<GrantedAuthority> authorities;
 
-  public NegotiatorBasicUserDetails(Person person) {
+  public HttpBasicUserDetails(Person person) {
     this.person = person;
     authorities = new HashSet<>();
     person
