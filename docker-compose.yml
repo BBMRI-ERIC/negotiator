@@ -23,6 +23,8 @@ services:
       - "81:8080"
     depends_on:
       - postgres
+    volumes:
+      - ./src/main/resources/data-postgres.sql:/data.sql
   negotiator-frontend:
     container_name: negotiator-frontend
     image: bbmrieric/negotiator-frontend
