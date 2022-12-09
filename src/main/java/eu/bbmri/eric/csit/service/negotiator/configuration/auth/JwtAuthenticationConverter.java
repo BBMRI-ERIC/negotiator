@@ -110,7 +110,8 @@ public class JwtAuthenticationConverter
         authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
       }
     }
-    Person person = personRepository.findByAuthName(jwt.getClaim(authzSubjectClaim)).orElse(null);
+
+    Person person = personRepository.findByAuthName(claims.get(authzSubjectClaim).toString()).orElse(null);
 
     String principalClaimValue = jwt.getClaimAsString("sub");
 

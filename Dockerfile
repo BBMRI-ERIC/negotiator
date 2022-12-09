@@ -10,4 +10,4 @@ RUN mkdir -p /app && chown -R 1001:1001 /app
 COPY target/negotiator-exec.jar /app/negotiator.jar
 WORKDIR /app
 USER 1001
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=docker", "/app/negotiator.jar"]
+ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/app/negotiator.jar"]
