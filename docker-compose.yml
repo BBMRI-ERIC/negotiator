@@ -8,14 +8,23 @@ services:
       - SPRING_DATASOURCE_USERNAME=negotiator
       - SPRING_DATASOURCE_PASSWORD=negotiator
       - SPRING_DATASOURCE_INITIALIZE=true
-#      - SPRING_DATASOURCE_DATA=file:/data.sql
+      - SPRING_DATASOURCE_DATA=file:/data.sql
       - SPRING_DATASOURCE_INITIALIZATION-MODE=always
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - OAUTH2_ISSUER=
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_USER-INFO-URI=
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI=
+      - NEGOTIATOR_FRONTEND-URL=
+      - NEGOTIATOR_AUTHORIZATION_CLAIM=
+      - NEGOTIATOR_AUTHORIZATION_ADMIN-CLAIM-VALUE=
+      - NEGOTIATOR_AUTHORIZATION_RESEARCHER-CLAIM-VALUE=
+      - NEGOTIATOR_AUTHORIZATION_BIOBANKER-CLAIM-VALUE=
+      - NEGOTIATOR_AUTHORIZATION_SUBJECT-CLAIM=
     ports:
       - "81:8080"
     depends_on:
       - postgres
+    volumes:
+      - ./src/main/resources/data-postgres.sql:/data.sql
   negotiator-frontend:
     container_name: negotiator-frontend
     image: bbmrieric/negotiator-frontend

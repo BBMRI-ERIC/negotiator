@@ -18,16 +18,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-@Profile({"dev", "prod", "docker"})
+@Profile({"dev", "prod"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired public NegotiatorUserDetailsService userDetailsService;
+  @Autowired
+  public NegotiatorUserDetailsService userDetailsService;
 
-  @Autowired public DataSource dataSource;
+  @Autowired
+  public DataSource dataSource;
 
-  @Autowired public PasswordEncoder passwordEncoder;
+  @Autowired
+  public PasswordEncoder passwordEncoder;
 
-  @Autowired public PersonRepository personRepository;
+  @Autowired
+  public PersonRepository personRepository;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
   private String userInfoEndpoint;
@@ -38,16 +42,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
 
-  @Value("${negotiator.authorization.subjectClaim}")
+  @Value("${negotiator.authorization.subject-claim}")
   private String authzSubjectClaim;
 
-  @Value("${negotiator.authorization.adminClaimValue}")
+  @Value("${negotiator.authorization.admin-claim-value}")
   private String authzAdminValue;
 
-  @Value("${negotiator.authorization.researcherClaimValue}")
+  @Value("${negotiator.authorization.researcher-claim-value}")
   private String authzResearcherValue;
 
-  @Value("${negotiator.authorization.biobankerClaimValue}")
+  @Value("${negotiator.authorization.biobanker-claim-value}")
   private String authzBiobankerValue;
 
   @Override
@@ -73,20 +77,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable();
 
     http.authorizeRequests()
-        .antMatchers(HttpMethod.POST, "/v3/data-sources/**")
+        .antMatchers(HttpMethod.POST, "/v3/data-sources/*")
         .hasAuthority("ADMIN")
         .and()
-
         .authorizeRequests()
-        .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria")
+        .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria/**")
         .hasAuthority("RESEARCHER")
         .and()
-
         .authorizeRequests()
-        .antMatchers(HttpMethod.POST, "/v3/requests/**")
+        .antMatchers(HttpMethod.POST, "/v3/requests/**", "/directory/create_query")
         .hasAnyAuthority("ADMIN", "EXT_SERV")
         .and()
-
         .authorizeRequests()
         .anyRequest()
         .permitAll()

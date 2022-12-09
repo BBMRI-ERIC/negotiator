@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 public class RequestController {
-  @Value("${negotiator.frontendUrl}")
+  @Value("${negotiator.frontend-url}")
   private String FRONTEND_URL;
 
   private final RequestService requestService;

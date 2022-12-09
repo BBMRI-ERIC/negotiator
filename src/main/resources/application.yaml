@@ -16,13 +16,13 @@ spring:
           user-info-uri:
           issuer-uri:
 negotiator:
-  frontendUrl: "http://localhost"
+  frontend-url: "http://localhost"
   authorization:
     claim: ""
-    adminClaimValue: ""
-    researcherClaimValue: ""
-    biobankerClaimValue: ""
-    subjectClaim: ""
+    admin-claim-value: ""
+    researcher-claim-value: ""
+    biobanker-claim-value: ""
+    subject-claim: ""
 logging:
   level:
     org:

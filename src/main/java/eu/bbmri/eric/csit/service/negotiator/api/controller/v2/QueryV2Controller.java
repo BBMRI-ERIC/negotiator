@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class QueryV2Controller {
-  @Value("${negotiator.frontendUrl}")
+  @Value("${negotiator.frontend-url}")
   private String FRONTEND_URL;
 
   private final RequestService requestService;
