@@ -13,9 +13,9 @@ public interface AccessCriteriaSetRepository extends JpaRepository<AccessCriteri
       value =
           "SELECT DISTINCT a "
               + "FROM AccessCriteriaSet a "
+              + "JOIN FETCH a.sections acs "
+              + "JOIN FETCH acs.accessCriteria ac "
               + "JOIN a.resources r "
-              + "JOIN FETCH a.accessCriteriaSetLink c "
-              + "JOIN FETCH c.accessCriteria ac "
               + "WHERE r.sourceId = :entityId")
   AccessCriteriaSet findByResourceEntityId(String entityId);
 }

@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
@@ -15,6 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
+import org.hibernate.collection.internal.PersistentSortedSet;
 
 @ToString
 @Entity
@@ -25,12 +29,15 @@ import lombok.ToString.Exclude;
 @NamedEntityGraph(
     name = "access-criteria-set-with-details",
     attributeNodes = {
-        @NamedAttributeNode(value = "accessCriteriaSetLink", subgraph = "access-criteria-set"),
+        @NamedAttributeNode(value = "name"),
+        @NamedAttributeNode(value = "sections", subgraph = "access-criteria-sections"),
     },
     subgraphs = {
         @NamedSubgraph(
-            name = "access-criteria-set",
+            name = "access-criteria-sections",
             attributeNodes = {
+                @NamedAttributeNode(value = "title"),
+                @NamedAttributeNode(value = "description"),
                 @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details"),
             }),
         @NamedSubgraph(
@@ -44,13 +51,16 @@ import lombok.ToString.Exclude;
 )
 public class AccessCriteriaSet extends BaseEntity {
 
+  private String name;
+
   @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
   @Exclude
   private Set<Resource> resources;
 
-  @OneToMany(mappedBy = "accessCriteriaSet")
-  @OrderBy("ordering ASC")
+  @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
+  @OrderBy("id ASC")
+//  @Sort(type = SortType.NATURAL)
   @Exclude
-  private List<AccessCriteriaSetLink> accessCriteriaSetLink;
+  private SortedSet<AccessCriteriaSection> sections;
 
 }

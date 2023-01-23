@@ -1,11 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaSectionDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
-import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSetLink;
 import eu.bbmri.eric.csit.service.negotiator.service.AccessCriteriaSetService;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,8 +21,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v3")
 @CrossOrigin
 public class AccessCriteriaSetController {
-  @Autowired private final AccessCriteriaSetService accessCriteriaSetService;
-  @Autowired private final ModelMapper modelMapper;
+
+  @Autowired
+  private final AccessCriteriaSetService accessCriteriaSetService;
+  @Autowired
+  private final ModelMapper modelMapper;
 
   public AccessCriteriaSetController(
       AccessCriteriaSetService accessCriteriaSetService, ModelMapper modelMapper) {
@@ -32,24 +35,31 @@ public class AccessCriteriaSetController {
     TypeMap<AccessCriteriaSet, AccessCriteriaSetDTO> typeMap =
         modelMapper.createTypeMap(AccessCriteriaSet.class, AccessCriteriaSetDTO.class);
 
-    Converter<List<AccessCriteriaSetLink>, List<AccessCriteriaDTO>> accessCriteriaConverter =
+    Converter<Set<AccessCriteriaSection>, List<AccessCriteriaSectionDTO>> accessCriteriaConverter =
         ffc -> formFieldConverter(ffc.getSource());
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(accessCriteriaConverter)
-                .map(AccessCriteriaSet::getAccessCriteriaSetLink, AccessCriteriaSetDTO::setAccessCriteria));
+                .map(AccessCriteriaSet::getSections, AccessCriteriaSetDTO::setSections));
   }
 
-  private List<AccessCriteriaDTO> formFieldConverter(List<AccessCriteriaSetLink> accessCriteria) {
-    return accessCriteria.stream()
+  private List<AccessCriteriaSectionDTO> formFieldConverter(Set<AccessCriteriaSection> sections) {
+    return sections.stream()
         .map(
-            criteria ->
-                new AccessCriteriaDTO(
-                    criteria.getAccessCriteria().getName(),
-                    criteria.getAccessCriteria().getDescription(),
-                    criteria.getAccessCriteria().getType(),
-                    criteria.getAccessCriteria().getRequired())
+            section -> {
+              List<AccessCriteriaDTO> accessCriteria = section.getAccessCriteria().stream().map(
+                  criteria -> new AccessCriteriaDTO(
+                      criteria.getName(),
+                      criteria.getDescription(),
+                      criteria.getType(),
+                      criteria.getRequired())
+              ).toList();
+              return new AccessCriteriaSectionDTO(
+                  section.getTitle(),
+                  section.getDescription(),
+                  accessCriteria);
+            }
         )
         .collect(Collectors.toList());
   }
@@ -57,7 +67,8 @@ public class AccessCriteriaSetController {
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   AccessCriteriaSetDTO search(@RequestParam String resourceId) {
-    AccessCriteriaSet accessCriteriaSet = accessCriteriaSetService.findByResourceEntityId(resourceId);
+    AccessCriteriaSet accessCriteriaSet = accessCriteriaSetService.findByResourceEntityId(
+        resourceId);
     return modelMapper.map(accessCriteriaSet, AccessCriteriaSetDTO.class);
   }
 }

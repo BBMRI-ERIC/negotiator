@@ -1,11 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
+import com.sun.istack.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +16,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class AccessCriteriaSetDTO {
+public class AccessCriteriaSectionDTO {
+  @NotNull
+  private String title;
 
-  String name;
+  @NotNull
+  private String description;
 
-  List<AccessCriteriaSection> sections = new ArrayList<>();
+  @NotNull
+  List<AccessCriteriaDTO> accessCriteria = new ArrayList<>();
 
 }

@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import com.sun.istack.NotNull;
 import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -32,7 +33,8 @@ public class AccessCriteria extends BaseEntity {
 
   @NotNull private Boolean required;
 
-  @OneToMany(mappedBy = "accessCriteria")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name="access_criteria_section_id")
   @Exclude
-  Set<AccessCriteriaSetLink> accessCriteriaSetLink;
+  AccessCriteriaSection section;
 }
