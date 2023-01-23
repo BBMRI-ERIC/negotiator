@@ -2,21 +2,20 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
 import java.util.Objects;
-import java.util.Set;
+import java.util.SortedSet;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.OrderBy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.hibernate.validator.constraints.UniqueElements;
 
 @ToString
 @Entity
@@ -27,15 +26,16 @@ import org.hibernate.validator.constraints.UniqueElements;
 public class AccessCriteriaSection extends BaseEntity implements Comparable<AccessCriteriaSection> {
 
   @NotNull
-  @Column(unique=true)
+  @Column(unique = true)
   private String title;
 
   @NotNull
   private String description;
 
   @OneToMany(mappedBy = "section")
+  @OrderBy("id ASC")
   @Exclude
-  Set<AccessCriteria> accessCriteria;
+  private SortedSet<AccessCriteria> accessCriteria;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "access_criteria_set_id")
