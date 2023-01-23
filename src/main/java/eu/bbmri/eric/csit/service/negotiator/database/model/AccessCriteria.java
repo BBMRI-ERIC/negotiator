@@ -20,7 +20,7 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AccessCriteria extends BaseEntity {
+public class AccessCriteria extends BaseEntity implements Comparable<AccessCriteria>{
 
   @NotNull
   private String name;
@@ -36,5 +36,16 @@ public class AccessCriteria extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="access_criteria_section_id")
   @Exclude
-  AccessCriteriaSection section;
+  private AccessCriteriaSection section;
+
+  @Override
+  public int compareTo(AccessCriteria section) {
+    if (this.getId() < section.getId()) {
+      return -1;
+    } else if (this.getId().equals(section.getId())) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
 }
