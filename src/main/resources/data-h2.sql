@@ -34,7 +34,7 @@ insert into access_criteria_section (id, title, description, access_criteria_set
 insert into access_criteria_section (id, title, description, access_criteria_set_id) values (3, 'Ethics vote', 'Is ethics vote present in your project?', 1);
 
 insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (1, 'title', 'Give a title', 'text', 'true', 1);
-insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (2, 'description', 'Give a description', 'text', 'true', 1);
+insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (2, 'description', 'Give a description', 'text', 'false', 1);
 insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (3, 'number of biosamples', 'Number of biosamples', 'text', 'true', 2);
 insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (4, 'ethics vote', 'Write the etchics vote', 'text', 'true', 3);
 
