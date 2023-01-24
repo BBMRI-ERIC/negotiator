@@ -21,7 +21,8 @@ import org.hibernate.validator.constraints.Length;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class NegotiationCreateDTO {
 
-  @NotNull private String title;
+  @NotNull
+  private String title;
 
   @NotNull
   @Length(max = 512)
@@ -29,7 +30,10 @@ public class NegotiationCreateDTO {
 
   private Boolean isTest = false;
 
-  @Valid private ProjectCreateDTO project;
+  @Valid
+  private ProjectCreateDTO project;
 
-  @Valid @NotEmpty private Set<String> queries;
+  @Valid
+  @NotEmpty
+  private Set<String> queries;
 }

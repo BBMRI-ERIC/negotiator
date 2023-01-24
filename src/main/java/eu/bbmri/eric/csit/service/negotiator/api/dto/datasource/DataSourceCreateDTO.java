@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.api.dto.datasource;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
-
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
@@ -18,6 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataSourceCreateDTO {
+
   @NotNull(groups = Create.class)
   private String description;
 

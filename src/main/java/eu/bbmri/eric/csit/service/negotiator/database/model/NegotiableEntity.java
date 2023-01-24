@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class NegotiableEntity {
-    private String id;
-    private String label;
-    private String parentId;
+
+  private String id;
+  private String label;
+  private String parentId;
 }

@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class ProjectController {
 
-  @Autowired private ProjectService projectService;
+  @Autowired
+  private ProjectService projectService;
 
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @GetMapping(value = "/projects", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
@@ -37,7 +39,7 @@ public class ProjectController {
 
   @GetMapping(value = "/projects/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-    ProjectDTO retrieve(@Valid @PathVariable String id) {
+  ProjectDTO retrieve(@Valid @PathVariable String id) {
     return modelMapper.map(projectService.findById(id), ProjectDTO.class);
   }
 

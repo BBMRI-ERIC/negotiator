@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import javax.persistence.Entity;
@@ -16,9 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.Sort;
-import org.hibernate.annotations.SortType;
-import org.hibernate.collection.internal.PersistentSortedSet;
 
 @ToString
 @Entity
@@ -59,7 +55,6 @@ public class AccessCriteriaSet extends BaseEntity {
 
   @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
   @OrderBy("id ASC")
-//  @Sort(type = SortType.NATURAL)
   @Exclude
   private SortedSet<AccessCriteriaSection> sections;
 

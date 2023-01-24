@@ -16,7 +16,9 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class PersonRequestRoleDTO {
 
-  @NotNull private String name;
+  @NotNull
+  private String name;
 
-  @NotNull private String role;
+  @NotNull
+  private String role;
 }

@@ -31,12 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 public class RequestController {
-  @Value("${negotiator.frontend-url}")
-  private String FRONTEND_URL;
 
   private final RequestService requestService;
-
   private final ModelMapper modelMapper;
+  @Value("${negotiator.frontend-url}")
+  private String FRONTEND_URL;
 
   public RequestController(RequestService requestService, ModelMapper modelMapper) {
     this.requestService = requestService;

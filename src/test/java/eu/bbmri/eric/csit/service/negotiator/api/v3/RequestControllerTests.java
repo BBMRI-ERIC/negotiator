@@ -38,13 +38,20 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class RequestControllerTests {
+
   private static final String ENDPOINT = "/v3/requests";
-  @Autowired public RequestService service;
-  @Autowired public RequestRepository repository;
-  @Autowired private WebApplicationContext context;
-  @Autowired private RequestController controller;
-  @Autowired private RequestService requestService;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  public RequestService service;
+  @Autowired
+  public RequestRepository repository;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private RequestController controller;
+  @Autowired
+  private RequestService requestService;
+  @Autowired
+  private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
 

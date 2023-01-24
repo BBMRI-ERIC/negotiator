@@ -5,7 +5,6 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
@@ -62,7 +61,9 @@ public class NegotiationController {
         .collect(Collectors.toSet());
   }
 
-  /** Create a negotiation and the project it belongs to */
+  /**
+   * Create a negotiation and the project it belongs to
+   */
   @PostMapping(
       value = "/negotiations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -88,7 +89,8 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  NegotiationDTO add(@PathVariable String projectId, @Valid @RequestBody NegotiationCreateDTO request) {
+  NegotiationDTO add(@PathVariable String projectId,
+      @Valid @RequestBody NegotiationCreateDTO request) {
     Negotiation negotiationEntity = negotiationService.create(projectId, request, getCreatorId());
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
@@ -96,7 +98,6 @@ public class NegotiationController {
   /**
    * Create a negotiation for a specific project
    *
-   * @param request
    * @return NegotiationDTO
    */
   @PutMapping(
@@ -104,7 +105,8 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  NegotiationDTO update(@Valid @PathVariable String id, @Valid @RequestBody NegotiationCreateDTO request) {
+  NegotiationDTO update(@Valid @PathVariable String id,
+      @Valid @RequestBody NegotiationCreateDTO request) {
     Negotiation negotiationEntity = negotiationService.update(id, request);
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }

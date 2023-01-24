@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, String> {
+
   @Override
   @EntityGraph(value = "project-detailed")
   List<Project> findAll();

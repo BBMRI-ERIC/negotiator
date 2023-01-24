@@ -7,9 +7,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
- * A Jwt authentication token that enhances the basic one (i.e., JwtAuthenticationToken)
- * by adding JwtUserDetails that is used as Principal.
- * This allows REST endpoints to get the Principal as a NegotiatorUserDetails
+ * A Jwt authentication token that enhances the basic one (i.e., JwtAuthenticationToken) by adding
+ * JwtUserDetails that is used as Principal. This allows REST endpoints to get the Principal as a
+ * NegotiatorUserDetails
  */
 public class NegotiatorJwtAuthenticationToken extends JwtAuthenticationToken {
 

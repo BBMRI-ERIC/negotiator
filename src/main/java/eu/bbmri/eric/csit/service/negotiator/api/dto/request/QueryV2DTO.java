@@ -14,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class QueryV2DTO {
+
   @JsonProperty("redirect_uri")
   @NotNull
   private String redirectUri;

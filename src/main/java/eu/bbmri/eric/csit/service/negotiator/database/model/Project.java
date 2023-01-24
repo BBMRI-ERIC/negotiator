@@ -42,7 +42,8 @@ public class Project extends AuditEntity {
   @ManyToMany(mappedBy = "projects")
   Set<Attachment> attachments;
 
-  @NotNull private String title;
+  @NotNull
+  private String title;
 
   @NotNull
   @Column(columnDefinition = "VARCHAR(512)")

@@ -28,17 +28,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class QueryV2Controller {
+
+  private final RequestService requestService;
+  private final NegotiationService negotiationService;
+  private final ModelMapper modelMapper;
   @Value("${negotiator.frontend-url}")
   private String FRONTEND_URL;
 
-  private final RequestService requestService;
-
-  private final NegotiationService negotiationService;
-
-  private final ModelMapper modelMapper;
-
   public QueryV2Controller(
-          RequestService requestService, NegotiationService negotiationService, ModelMapper modelMapper) {
+      RequestService requestService, NegotiationService negotiationService,
+      ModelMapper modelMapper) {
     this.requestService = requestService;
     this.negotiationService = negotiationService;
     this.modelMapper = modelMapper;

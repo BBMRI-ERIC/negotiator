@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/perun")
 public class PerunController {
 
-  @Autowired private PersonService personService;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private PersonService personService;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @PostMapping(
       value = "/users",
@@ -31,7 +33,7 @@ public class PerunController {
   @ResponseStatus(HttpStatus.CREATED)
   List<PerunUserRequest> createOrUpdate(
       @RequestBody @NotEmpty(message = "Perun Users Negotiation list cannot be empty.")
-          List<@Valid PerunUserRequest> perunUsersRequest) {
+      List<@Valid PerunUserRequest> perunUsersRequest) {
 
     for (PerunUserRequest request : perunUsersRequest) {
       personService.createOrUpdate(request);

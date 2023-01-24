@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -111,7 +110,8 @@ public class JwtAuthenticationConverter
       }
     }
 
-    Person person = personRepository.findByAuthName(claims.get(authzSubjectClaim).toString()).orElse(null);
+    Person person = personRepository.findByAuthName(claims.get(authzSubjectClaim).toString())
+        .orElse(null);
 
     String principalClaimValue = jwt.getClaimAsString("sub");
 
