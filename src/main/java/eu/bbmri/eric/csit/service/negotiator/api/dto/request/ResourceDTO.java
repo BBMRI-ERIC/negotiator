@@ -18,11 +18,15 @@ import org.springframework.lang.Nullable;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ResourceDTO {
 
-  @NotNull private String id;
+  @NotNull
+  private String id;
 
-  @Nullable private String name;
+  @Nullable
+  private String name;
 
-  @NotNull private String type;
+  @NotNull
+  private String type;
 
-  @NotNull private Set<ResourceDTO> children;
+  @NotNull
+  private Set<ResourceDTO> children;
 }

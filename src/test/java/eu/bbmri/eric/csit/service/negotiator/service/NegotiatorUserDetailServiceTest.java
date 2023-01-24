@@ -20,8 +20,10 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public class NegotiatorUserDetailServiceTest {
 
-  @Autowired NegotiatorUserDetailsService negotiatorUserDetailsService;
-  @Autowired PersonRepository personRepository;
+  @Autowired
+  NegotiatorUserDetailsService negotiatorUserDetailsService;
+  @Autowired
+  PersonRepository personRepository;
 
   @Test
   public void testIsNotAuthenticated_whenPasswordIsMissing() throws Exception {

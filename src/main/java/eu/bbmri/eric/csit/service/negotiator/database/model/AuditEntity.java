@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -26,15 +25,20 @@ import org.springframework.data.annotation.LastModifiedDate;
 @Setter
 @MappedSuperclass
 public abstract class AuditEntity {
+
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   @Column(name = "id")
   private String id;
 
-  @CreatedDate @Exclude private LocalDateTime creationDate;
+  @CreatedDate
+  @Exclude
+  private LocalDateTime creationDate;
 
-  @LastModifiedDate @Exclude private LocalDateTime modifiedDate;
+  @LastModifiedDate
+  @Exclude
+  private LocalDateTime modifiedDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", updatable = false)

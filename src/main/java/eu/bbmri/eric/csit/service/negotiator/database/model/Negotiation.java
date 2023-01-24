@@ -36,25 +36,25 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NamedEntityGraph(
     name = "negotiation-with-detailed-children",
     attributeNodes = {
-      @NamedAttributeNode("project"),
-      @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
-      @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
+        @NamedAttributeNode("project"),
+        @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
+        @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
     },
     subgraphs = {
-      @NamedSubgraph(
-          name = "persons-with-roles",
-          attributeNodes = {
-            @NamedAttributeNode(value = "person"),
-            @NamedAttributeNode(value = "role")
-          }),
-      @NamedSubgraph(
-          name = "queries-detailed",
-          attributeNodes = {
-            @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
-          }),
-      @NamedSubgraph(
-          name = "resources-with-parent",
-          attributeNodes = {@NamedAttributeNode("parent")})
+        @NamedSubgraph(
+            name = "persons-with-roles",
+            attributeNodes = {
+                @NamedAttributeNode(value = "person"),
+                @NamedAttributeNode(value = "role")
+            }),
+        @NamedSubgraph(
+            name = "queries-detailed",
+            attributeNodes = {
+                @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
+            }),
+        @NamedSubgraph(
+            name = "resources-with-parent",
+            attributeNodes = {@NamedAttributeNode("parent")})
     })
 public class Negotiation extends AuditEntity {
 

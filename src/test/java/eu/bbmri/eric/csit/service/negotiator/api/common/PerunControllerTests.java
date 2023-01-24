@@ -7,9 +7,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.List;
@@ -32,11 +32,15 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class PerunControllerTests {
+
   private static final String ENDPOINT = "/perun/users";
   private MockMvc mockMvc;
-  @Autowired private WebApplicationContext context;
-  @Autowired private PersonRepository personRepository;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private PersonRepository personRepository;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {

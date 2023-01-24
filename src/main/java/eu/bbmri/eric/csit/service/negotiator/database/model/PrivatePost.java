@@ -44,7 +44,8 @@ public class PrivatePost extends AuditEntity {
   @Exclude
   private Resource resource;
 
-  @Lob private String postText;
+  @Lob
+  private String postText;
   private String postStatus;
   private Date postDate;
 }

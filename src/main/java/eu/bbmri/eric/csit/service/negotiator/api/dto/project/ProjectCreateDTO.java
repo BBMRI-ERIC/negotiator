@@ -18,20 +18,24 @@ import org.hibernate.validator.constraints.Length;
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ProjectCreateDTO {
-  @NotNull private String title;
+
+  @NotNull
+  private String title;
 
   @NotNull
   @Length(max = 512)
   private String description;
 
   @Length(max = 512)
-  @NotNull private String ethicsVote;
+  @NotNull
+  private String ethicsVote;
 
   @NotNull
   @JsonFormat(pattern = "yyyy-MM-dd")
   private LocalDate expectedEndDate;
 
-  @NotNull private Boolean expectedDataGeneration;
+  @NotNull
+  private Boolean expectedDataGeneration;
 
   private Boolean isTestProject = false;
 }

@@ -4,7 +4,6 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticatio
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +25,14 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @Profile({"test"})
 public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired public NegotiatorUserDetailsService userDetailsService;
-  @Autowired public PersonRepository personRepository;
-  @Autowired private PasswordEncoder passwordEncoder;
-  @Autowired private DataSource dataSource;
+  @Autowired
+  public NegotiatorUserDetailsService userDetailsService;
+  @Autowired
+  public PersonRepository personRepository;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+  @Autowired
+  private DataSource dataSource;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
   private String userInfoEndpoint;
@@ -97,7 +100,7 @@ public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
         .hasAuthority("ADMIN")
         .and()
         .authorizeRequests()
-        .antMatchers("/v3/projects/**", "/v3/negotiations/**",  "/v3/access-criteria/**")
+        .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria/**")
         .hasAuthority("RESEARCHER")
         .and()
         .authorizeRequests()

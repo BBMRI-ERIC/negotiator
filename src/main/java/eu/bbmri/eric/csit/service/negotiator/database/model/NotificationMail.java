@@ -37,5 +37,6 @@ public class NotificationMail extends AuditEntity {
   private String sendStatus;
   private Date sendDate;
   private String subject;
-  @Lob private String body;
+  @Lob
+  private String body;
 }

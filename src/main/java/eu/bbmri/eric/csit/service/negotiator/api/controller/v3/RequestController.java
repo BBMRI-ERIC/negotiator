@@ -25,12 +25,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v3")
 @CrossOrigin
 public class RequestController {
-  @Value("${negotiator.frontend-url}")
-  private String FRONTEND_URL;
 
   private final RequestService requestService;
-
   private final ModelMapper modelMapper;
+  @Value("${negotiator.frontend-url}")
+  private String FRONTEND_URL;
 
   public RequestController(RequestService requestService, ModelMapper modelMapper) {
     this.requestService = requestService;

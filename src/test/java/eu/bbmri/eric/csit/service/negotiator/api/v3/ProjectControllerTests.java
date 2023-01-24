@@ -36,6 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class ProjectControllerTests {
+
   private static final String ENDPOINT = "/v3/projects";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
@@ -43,10 +44,14 @@ public class ProjectControllerTests {
 
   private MockMvc mockMvc;
 
-  @Autowired private WebApplicationContext context;
-  @Autowired private ProjectController controller;
-  @Autowired private ProjectRepository repository;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private ProjectController controller;
+  @Autowired
+  private ProjectRepository repository;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {

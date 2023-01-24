@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class NegotiatorUserDetailsService implements UserDetailsService {
 
-  @Autowired private PersonRepository personRepository;
+  @Autowired
+  private PersonRepository personRepository;
 
   @Override
   @Transactional

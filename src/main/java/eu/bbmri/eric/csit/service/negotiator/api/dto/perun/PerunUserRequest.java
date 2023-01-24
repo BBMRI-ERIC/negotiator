@@ -18,7 +18,8 @@ public class PerunUserRequest {
   @NotBlank(message = "Perun user negotiation organization cannot be null or empty.")
   private String organization;
 
-  @NotNull private Integer id;
+  @NotNull
+  private Integer id;
 
   @NotBlank(message = "Perun user displayName cannot be null or empty.")
   private String displayName;

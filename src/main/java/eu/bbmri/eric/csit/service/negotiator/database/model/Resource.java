@@ -41,13 +41,15 @@ import lombok.ToString.Exclude;
         @NamedAttributeNode("parent")
     })
 public class Resource extends BaseEntity {
+
   @NotNull
   private String name;
 
   @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 
-  @NotNull private String sourceId;
+  @NotNull
+  private String sourceId;
 
   @NotNull
   private String type;

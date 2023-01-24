@@ -17,13 +17,13 @@ import lombok.Setter;
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class AccessCriteriaSectionDTO {
+
   @NotNull
   private String title;
-
   @NotNull
   private String description;
 
   @NotNull
-  List<AccessCriteriaDTO> accessCriteria = new ArrayList<>();
+  private List<AccessCriteriaDTO> accessCriteria = new ArrayList<>();
 
 }

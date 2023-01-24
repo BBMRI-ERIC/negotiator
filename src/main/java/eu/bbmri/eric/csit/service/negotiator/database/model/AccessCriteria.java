@@ -1,12 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
-import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +18,10 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AccessCriteria extends BaseEntity implements Comparable<AccessCriteria>{
+public class AccessCriteria extends BaseEntity implements Comparable<AccessCriteria> {
+
+  @NotNull
+  private String identifier;
 
   @NotNull
   private String name;
@@ -31,10 +32,11 @@ public class AccessCriteria extends BaseEntity implements Comparable<AccessCrite
   @NotNull
   private String type;
 
-  @NotNull private Boolean required;
+  @NotNull
+  private Boolean required;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name="access_criteria_section_id")
+  @JoinColumn(name = "access_criteria_section_id")
   @Exclude
   private AccessCriteriaSection section;
 
