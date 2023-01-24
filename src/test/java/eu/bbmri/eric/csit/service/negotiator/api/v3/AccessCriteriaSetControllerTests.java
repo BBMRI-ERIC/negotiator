@@ -75,7 +75,6 @@ public class AccessCriteriaSetControllerTests {
 
   @Test
   public void testGet_Ok() throws Exception {
-    // Notice that we are implicitly testing ordering by "ordering" field since the access criteria
     mockMvc
         .perform(
             MockMvcRequestBuilders
@@ -83,18 +82,18 @@ public class AccessCriteriaSetControllerTests {
                 .param("resourceId", "biobank:1")
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.accessCriteria").isArray())
-        .andExpect(jsonPath("$.accessCriteria[0].name", is("title")))
-        .andExpect(jsonPath("$.accessCriteria[0].description", is("Give a title")))
-        .andExpect(jsonPath("$.accessCriteria[0].type", is("text")))
-        .andExpect(jsonPath("$.accessCriteria[0].required", is(true)))
-        .andExpect(jsonPath("$.accessCriteria[1].name", is("description")))
-        .andExpect(jsonPath("$.accessCriteria[1].description", is("Give a description")))
-        .andExpect(jsonPath("$.accessCriteria[1].type", is("text")))
-        .andExpect(jsonPath("$.accessCriteria[1].required", is(true)))
-        .andExpect(jsonPath("$.accessCriteria[2].name", is("ethics vote")))
-        .andExpect(jsonPath("$.accessCriteria[2].description", is("Write the etchics vote")))
-        .andExpect(jsonPath("$.accessCriteria[2].type", is("text")))
-        .andExpect(jsonPath("$.accessCriteria[2].required", is(true)));
+        .andExpect(jsonPath("$.sections[0].accessCriteria").isArray())
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].name", is("title")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].description", is("Give a title")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].type", is("text")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].required", is(true)))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].name", is("description")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].description", is("Give a description")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].type", is("text")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].required", is(false)))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].name", is("number of biosamples")))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].description", is("Number of biosamples")))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].type", is("text")))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].required", is(true)));
   }
 }
