@@ -33,10 +33,22 @@ insert into access_criteria_section (id, title, description, access_criteria_set
 insert into access_criteria_section (id, title, description, access_criteria_set_id) values (2, 'Biosamples and Data Information', 'Provide information about the biosamples you want', 1);
 insert into access_criteria_section (id, title, description, access_criteria_set_id) values (3, 'Ethics vote', 'Is ethics vote present in your project?', 1);
 
-insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (1, 'title', 'Give a title', 'text', 'true', 1);
-insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (2, 'description', 'Give a description', 'text', 'false', 1);
-insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (3, 'number of biosamples', 'Number of biosamples', 'text', 'true', 2);
-insert into access_criteria (id, name, description, type, required, access_criteria_section_id) values (4, 'ethics vote', 'Write the etchics vote', 'text', 'true', 3);
+insert into access_criteria (id, name, description, type) values (1, 'Title', 'Give a title', 'text');
+insert into access_criteria (id, name, description, type) values (2, 'Description', 'Give a description', 'textarea');
+insert into access_criteria (id, name, description, type) values (3, 'Number of biosamples', 'Number of biosamples', 'number');
+insert into access_criteria (id, name, description, type) values (4, 'Sample type(s)', 'Sample Type', 'text');
+insert into access_criteria (id, name, description, type) values (5, 'Number of subjects', 'Number of subjects', 'text');
+insert into access_criteria (id, name, description, type) values (6, 'Volume', 'Write the etchics vote', 'number');
+insert into access_criteria (id, name, description, type) values (7, 'Ethics vote', 'Write the etchics vote', 'text');
+
+insert into access_criteria_section_link (access_criteria_section_id, access_criteria_id, ordering, required) values
+  (1, 1, 1, 'true'),
+  (1, 2, 2, 'false'),
+  (2, 3, 1, 'true'),
+  (2, 4, 2, 'false'),
+  (2, 5, 3, 'true'),
+  (2, 6, 4, 'false'),
+  (3, 7, 1, 'true');
 
 insert into resource (id, name, description, source_id, type, parent_id, data_source_id, access_criteria_set_id) values
   (1, 'Test biobank #1', 'This is the first testing biobank', 'biobank:1', 'biobank' ,null, 1, 1),
