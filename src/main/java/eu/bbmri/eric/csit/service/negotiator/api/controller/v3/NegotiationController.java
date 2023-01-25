@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
@@ -42,7 +42,7 @@ public class NegotiationController {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
-    Converter<Set<PersonNegotiationRole>, Set<PersonRequestRoleDTO>> personsRoleConverter =
+    Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
         prr -> personsRoleConverter(prr.getSource());
     typeMap.addMappings(
         mapper ->
@@ -52,11 +52,11 @@ public class NegotiationController {
 
   }
 
-  private Set<PersonRequestRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
+  private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
     return personsRoles.stream()
         .map(
             personRole ->
-                new PersonRequestRoleDTO(
+                new PersonRoleDTO(
                     personRole.getPerson().getAuthName(), personRole.getRole().getName()))
         .collect(Collectors.toSet());
   }

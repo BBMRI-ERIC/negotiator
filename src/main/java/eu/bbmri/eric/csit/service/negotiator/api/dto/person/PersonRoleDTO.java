@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class PersonRequestRoleDTO {
+public class PersonRoleDTO {
 
   @NotNull
   private String name;
