@@ -187,15 +187,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$[0].title", is(TITLE)))
         .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
         .andExpect(jsonPath("$[0].project.id", is(entity.getProject().getId())))
-        .andExpect(jsonPath("$[0].project.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$[0].project.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath(
-                "$[0].project.expectedDataGeneration",
-                is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(
-            jsonPath("$[0].project.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$[0].project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$[0].project.payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 
   @Test
@@ -281,13 +273,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.project.id", is(entity.getProject().getId())))
-        .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath(
-                "$.project.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.project.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$.project.payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 
   @Test
@@ -522,122 +508,6 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenProjectTitle_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setTitle(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectDescription_IsTooLong() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setDescription("d".repeat(513));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectDescription_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setDescription(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectEthicsVote_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setEthicsVote(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectEthicsVote_IsTooLong() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setEthicsVote("d".repeat(513));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectExpectedEndDate_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setExpectedEndDate(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectExpectedEndDate_HasWrongFormat() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    String requestBody = TestUtils.jsonFromRequest(request);
-    requestBody =
-        requestBody.replace(
-            "\"expectedEndDate\":\"%s\"".formatted(TestUtils.PROJECT_EXPECTED_END_DATE),
-            "\"expectedEndDate\":\"13-04-2022\"");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        requestBody,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectExpectedDataGeneration_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
-        Set.of(testRequest.getId()));
-    request.getProject().setExpectedDataGeneration(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
   public void testCreate_BadRequest_whenQuery_IsAlreadyAssignedToAnotherRequest() throws Exception {
     NegotiationCreateDTO createRequest = TestUtils.createNegotiation(false, false,
         Set.of(testRequest.getId()));
@@ -686,13 +556,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.queries[0].id", is(testRequest.getId())))
         .andExpect(jsonPath("$.project.id").isString())
-        .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath(
-                "$.project.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.project.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)))
+        .andExpect(jsonPath("$.project.payload", is(TestUtils.PROJECT_PAYLOAD)))
         .andReturn();
 
     assertEquals(negotiationRepository.count(), currentRequest + 1);

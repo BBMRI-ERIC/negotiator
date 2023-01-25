@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import java.util.Set;
@@ -35,5 +35,5 @@ public class NegotiationDTO {
 
   private Set<RequestDTO> queries;
 
-  private Set<PersonRequestRoleDTO> persons;
+  private Set<PersonRoleDTO> persons;
 }

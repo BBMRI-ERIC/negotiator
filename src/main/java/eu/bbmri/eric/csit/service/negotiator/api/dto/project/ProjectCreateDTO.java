@@ -20,22 +20,6 @@ import org.hibernate.validator.constraints.Length;
 public class ProjectCreateDTO {
 
   @NotNull
-  private String title;
+  private String payload;
 
-  @NotNull
-  @Length(max = 512)
-  private String description;
-
-  @Length(max = 512)
-  @NotNull
-  private String ethicsVote;
-
-  @NotNull
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate expectedEndDate;
-
-  @NotNull
-  private Boolean expectedDataGeneration;
-
-  private Boolean isTestProject = false;
 }

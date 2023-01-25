@@ -1,16 +1,17 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.time.LocalDate;
-import java.util.Objects;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 @ToString
 @Entity
@@ -28,65 +31,54 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @Setter
 @Table(name = "project")
-@EntityListeners(AuditingEntityListener.class)
+@TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 @NamedEntityGraph(
     name = "project-detailed",
-    attributeNodes = {@NamedAttributeNode("negotiations")})
+    attributeNodes = {
+        @NamedAttributeNode("negotiations"),
+        @NamedAttributeNode("payload")
+    }
+)
 public class Project extends AuditEntity {
 
-  @Exclude
-  @ManyToMany(mappedBy = "projects")
-  Set<Person> persons;
-
-  @Exclude
-  @ManyToMany(mappedBy = "projects")
-  Set<Attachment> attachments;
-
+  @Type(type = "json")
+  @Column(columnDefinition = "jsonb")
   @NotNull
-  private String title;
-
-  @NotNull
-  @Column(columnDefinition = "VARCHAR(512)")
-  private String description;
-
-  @Column(columnDefinition = "VARCHAR(512)")
-  private String ethicsVote;
-
-  private Boolean isTestProject;
-
-  private LocalDate expectedEndDate;
-
-  private Boolean expectedDataGeneration;
+  private String payload;
 
   @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
   @Exclude
   private Set<Negotiation> negotiations;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Project project = (Project) o;
-    return Objects.equals(getTitle(), project.getTitle())
-        && Objects.equals(getDescription(), project.getDescription())
-        && Objects.equals(getEthicsVote(), project.getEthicsVote())
-        && Objects.equals(getIsTestProject(), project.getIsTestProject())
-        && Objects.equals(getExpectedEndDate(), project.getExpectedEndDate())
-        && Objects.equals(getExpectedDataGeneration(), project.getExpectedDataGeneration());
-  }
+  @Exclude
+  @ManyToMany(mappedBy = "projects")
+  private Set<Person> persons;
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        getTitle(),
-        getDescription(),
-        getEthicsVote(),
-        getIsTestProject(),
-        getExpectedEndDate(),
-        getExpectedDataGeneration());
-  }
+//  @Override
+//  public boolean equals(Object o) {
+//    if (this == o) {
+//      return true;
+//    }
+//    if (o == null || getClass() != o.getClass()) {
+//      return false;
+//    }
+//    Project project = (Project) o;
+//    return Objects.equals(getTitle(), project.getTitle())
+//        && Objects.equals(getDescription(), project.getDescription())
+//        && Objects.equals(getEthicsVote(), project.getEthicsVote())
+//        && Objects.equals(getIsTestProject(), project.getIsTestProject())
+//        && Objects.equals(getExpectedEndDate(), project.getExpectedEndDate())
+//        && Objects.equals(getExpectedDataGeneration(), project.getExpectedDataGeneration());
+//  }
+//
+//  @Override
+//  public int hashCode() {
+//    return Objects.hash(
+//        getTitle(),
+//        getDescription(),
+//        getEthicsVote(),
+//        getIsTestProject(),
+//        getExpectedEndDate(),
+//        getExpectedDataGeneration());
+//  }
 }
