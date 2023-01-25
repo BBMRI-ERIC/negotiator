@@ -3,8 +3,11 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaSectionDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
+import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSectionLink;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.service.AccessCriteriaSetService;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +15,6 @@ import java.util.stream.Collectors;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 public class AccessCriteriaSetController {
 
-  @Autowired
   private final AccessCriteriaSetService accessCriteriaSetService;
-  @Autowired
+
   private final ModelMapper modelMapper;
 
   public AccessCriteriaSetController(
@@ -51,11 +52,11 @@ public class AccessCriteriaSetController {
     return sections.stream()
         .map(
             section -> {
-              List<AccessCriteriaDTO> accessCriteria = section.getAccessCriteria().stream().map(
+              List<AccessCriteriaDTO> accessCriteria = section.getAccessCriteriaSectionLink().stream().map(
                   criteria -> new AccessCriteriaDTO(
-                      criteria.getName(),
-                      criteria.getDescription(),
-                      criteria.getType(),
+                      criteria.getAccessCriteria().getName(),
+                      criteria.getAccessCriteria().getDescription(),
+                      criteria.getAccessCriteria().getType(),
                       criteria.getRequired())
               ).toList();
               return new AccessCriteriaSectionDTO(

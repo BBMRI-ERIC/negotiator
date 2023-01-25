@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
+import java.util.List;
 import java.util.Objects;
 import java.util.SortedSet;
 import javax.persistence.Column;
@@ -32,10 +33,10 @@ public class AccessCriteriaSection extends BaseEntity implements Comparable<Acce
   @NotNull
   private String description;
 
-  @OneToMany(mappedBy = "section")
-  @OrderBy("id ASC")
+  @OneToMany(mappedBy = "accessCriteriaSection")
+  @OrderBy("ordering ASC")
   @Exclude
-  private SortedSet<AccessCriteria> accessCriteria;
+  private List<AccessCriteriaSectionLink> accessCriteriaSectionLink;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "access_criteria_set_id")
