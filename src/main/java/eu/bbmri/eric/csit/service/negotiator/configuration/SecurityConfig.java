@@ -86,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers(HttpMethod.POST, "/v3/requests/**", "/directory/create_query")
-        .hasAnyAuthority("ADMIN", "EXT_SERV")
+        .hasAnyAuthority("RESEARCHER", "EXT_SERV")
         .and()
         .authorizeRequests()
         .anyRequest()

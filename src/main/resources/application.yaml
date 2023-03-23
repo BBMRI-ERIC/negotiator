@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
   servlet:
     context-path: "/api"
 spring:
@@ -13,16 +13,16 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          user-info-uri:
-          issuer-uri:
+          user-info-uri: "http://localhost:4011/connect/userinfo"
+          issuer-uri: "http://localhost:4011"
 negotiator:
-  frontend-url: "http://localhost"
+  frontend-url: "http://localhost:8080"
   authorization:
-    claim: ""
+    claim: "eduperson_entitlement"
     admin-claim-value: ""
-    researcher-claim-value: ""
+    researcher-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu"
     biobanker-claim-value: ""
-    subject-claim: ""
+    subject-claim: "preferred_username"
 logging:
   level:
     org:

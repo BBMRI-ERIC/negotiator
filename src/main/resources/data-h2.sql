@@ -18,13 +18,14 @@ insert into person (id, auth_email, auth_name, auth_subject, password, organizat
   (4, 'researcher@negotiator.dev', 'researcher', '4', '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', null),
   (5, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
   (6, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
-  (7, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null);
+  (7, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
+  (8, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null);
 
 insert into authorities (person_id, authority) values
   (1, 'ADMIN'),
   (2, 'EXT_SERV'),
   (3, 'PERUN_USER'),
-  (4, 'RESEARCHER');
+  (8, 'RESEARCHER');
 
 insert into access_criteria (id, name, description, type, required) values (1, 'ethics vote', 'Write the etchics vote', 'text', 'true');
 insert into access_criteria (id, name, description, type, required) values (2, 'title', 'Give a title', 'text', 'true');

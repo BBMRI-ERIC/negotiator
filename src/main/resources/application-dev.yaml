@@ -23,5 +23,23 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri:
+          user-info-uri: "http://localhost:4011/connect/userinfo"
+          issuer-uri: "http://localhost:4011"
+  negotiator:
+    frontend-url: "http://localhost:8080"
+    authorization:
+      claim: "eduperson_entitlement"
+      admin-claim-value: ""
+      researcher-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu"
+      biobanker-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu"
+      subject-claim: "sub"
+  logging:
+    level:
+      org:
+        springframework:
+          jdbc:
+            datasource:
+              init:
+                ScriptUtils: debug
+
 
