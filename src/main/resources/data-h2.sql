@@ -25,6 +25,7 @@ insert into authorities (person_id, authority) values
   (1, 'ADMIN'),
   (2, 'EXT_SERV'),
   (3, 'PERUN_USER'),
+  (4, 'RESEARCHER'),
   (8, 'RESEARCHER');
 
 insert into access_criteria_set (id, name) values (1, 'BBMRI Template');
