@@ -8,3 +8,7 @@
 mvn package
 java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
+# Connection URL for the H2 database:
+``
+jdbc:h2:tcp://localhost:9092/mem:negotiator
+``
