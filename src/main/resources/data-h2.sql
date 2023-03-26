@@ -4,22 +4,22 @@ insert into role (id, name) values
   (3, 'MANAGER'),
   (4, 'RESEARCHER');
 
-insert into data_source (id, url, api_username, api_password, api_type, api_url, description, name,
+insert into data_source (url, api_username, api_password, api_type, api_url, description, name,
    resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
 values
-  (1, 'http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasource.dev',
+  ('http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasource.dev',
    'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
    'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization, person_image) values
-  (1, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey', 'BBMRI', null),
-  (2, 'directory@negotiator.dev', 'directory', '2', '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', null),
-  (3, 'perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci', 'BBMRI', null),
-  (4, 'researcher@negotiator.dev', 'researcher', '4', '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', null),
-  (5, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
-  (6, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
-  (7, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
-  (8, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null);
+insert into person (auth_email, auth_name, auth_subject, password, organization, person_image) values
+  ('admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey', 'BBMRI', null),
+  ('directory@negotiator.dev', 'directory', '2', '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', null),
+  ('perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci', 'BBMRI', null),
+  ('researcher@negotiator.dev', 'researcher', '4', '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', null),
+  ('manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
+  ('manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
+  ('manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
+  ('adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null);
 
 insert into authorities (person_id, authority) values
   (1, 'ADMIN'),
