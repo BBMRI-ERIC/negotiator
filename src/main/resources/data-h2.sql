@@ -63,3 +63,6 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
   (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 'collection', 3, 1, 1);
 
 insert into person_resource_link (resource_id, person_id) values (1, 2), (4, 3);
+INSERT INTO PUBLIC.NEGOTIATION (ID, CREATION_DATE, MODIFIED_DATE, DESCRIPTION, IS_TEST, TITLE, CREATED_BY, MODIFIED_BY, PROJECT_ID)
+VALUES ('1', null, null, 'Test request description', false, 'A very important request', 8, null, null),
+       ('2', null, null, 'Test request description 2', false, 'Another very important request', 8, null, null);
