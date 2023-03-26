@@ -174,8 +174,8 @@ public class NegotiationControllerTests {
   public void testGetAll_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
         Set.of(testRequest.getId()));
-    Negotiation entity = modelMapper.map(request, Negotiation.class);
-    entity = negotiationRepository.save(entity);
+    Negotiation negotiation = modelMapper.map(request, Negotiation.class);
+    negotiation = negotiationRepository.save(negotiation);
 
     mockMvc
         .perform(
@@ -183,10 +183,10 @@ public class NegotiationControllerTests {
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$[0].id", is(entity.getId())))
+        .andExpect(jsonPath("$[0].id", is(negotiation.getId())))
         .andExpect(jsonPath("$[0].title", is(TITLE)))
         .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$[0].project.id", is(entity.getProject().getId())))
+        .andExpect(jsonPath("$[0].project.id", is(negotiation.getProject().getId())))
         .andExpect(jsonPath("$[0].project.payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 
