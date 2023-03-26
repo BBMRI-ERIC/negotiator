@@ -1,5 +1,5 @@
 # Prerequisites
-- Java 19
+- Java 17
 - Maven
 - Spring
 
