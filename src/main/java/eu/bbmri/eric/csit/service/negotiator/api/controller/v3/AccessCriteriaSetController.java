@@ -52,12 +52,14 @@ public class AccessCriteriaSetController {
               List<AccessCriteriaDTO> accessCriteria = section.getAccessCriteriaSectionLink().stream().map(
                   criteria -> new AccessCriteriaDTO(
                       criteria.getAccessCriteria().getName(),
+                      criteria.getAccessCriteria().getLabel(),
                       criteria.getAccessCriteria().getDescription(),
                       criteria.getAccessCriteria().getType(),
                       criteria.getRequired())
               ).toList();
               return new AccessCriteriaSectionDTO(
-                  section.getTitle(),
+                  section.getName(),
+                  section.getLabel(),
                   section.getDescription(),
                   accessCriteria);
             }

@@ -14,7 +14,6 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -158,12 +157,11 @@ public class TestUtils {
   public static NegotiationCreateDTO createNegotiation(
       boolean update, Set<String> requestsId) {
     String suffix = update ? "u" : "";
-
+    String payload = "{\"title\": \"Title\", \"description\": \"Descriptiion\"}";
     NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
         NegotiationCreateDTO.builder()
-            .title(String.format("%s%s", REQUEST_TITLE, suffix))
-            .description(String.format("%s%s", REQUEST_DESCRIPTION, suffix))
-            .queries(requestsId);
+            .payload(payload)
+            .requests(requestsId);
     return builder.build();
   }
 

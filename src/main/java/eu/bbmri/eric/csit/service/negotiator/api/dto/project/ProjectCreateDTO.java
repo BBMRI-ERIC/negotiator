@@ -18,7 +18,6 @@ import org.hibernate.validator.constraints.Length;
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ProjectCreateDTO {
-
   @NotNull
   private String payload;
 

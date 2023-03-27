@@ -113,7 +113,7 @@ public class NegotiationService {
   @Transactional
   public Negotiation create(NegotiationCreateDTO request, Long creatorId) {
     Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
-    return create(negotiationEntity, request.getQueries(), creatorId);
+    return create(negotiationEntity, request.getRequests(), creatorId);
   }
 
 //  /**
@@ -135,7 +135,7 @@ public class NegotiationService {
 //  }
 
   private Negotiation update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
-    Set<Request> queries = findQueries(request.getQueries());
+    Set<Request> queries = findQueries(request.getRequests());
 
     if (queries.stream()
         .anyMatch(query -> query.getNegotiation() != null

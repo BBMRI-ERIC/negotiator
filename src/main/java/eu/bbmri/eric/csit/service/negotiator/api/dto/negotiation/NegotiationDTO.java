@@ -23,17 +23,10 @@ public class NegotiationDTO {
   @NotNull
   private String id;
 
-  @NotNull
-  private String title;
-
-  @NotNull
-  private String description;
-
-  private Boolean isTest = false;
-
-  private ProjectDTO project;
-
   private Set<RequestDTO> requests;
 
   private Set<PersonRoleDTO> persons;
+
+  @NotNull
+  private String payload;
 }

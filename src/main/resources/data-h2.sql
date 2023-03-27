@@ -31,17 +31,18 @@ insert into authorities (person_id, authority) values
 
 insert into access_criteria_set (id, name) values (1, 'BBMRI Template');
 
-insert into access_criteria_section (id, title, description, access_criteria_set_id) values (1, 'Project', 'Provide information about your project', 1);
-insert into access_criteria_section (id, title, description, access_criteria_set_id) values (2, 'Biosamples and Data Information', 'Provide information about the biosamples you want', 1);
-insert into access_criteria_section (id, title, description, access_criteria_set_id) values (3, 'Ethics vote', 'Is ethics vote present in your project?', 1);
+insert into access_criteria_section (id, name, label, description, access_criteria_set_id) values (1, 'project', 'Project', 'Provide information about your project', 1);
+insert into access_criteria_section (id, name, label, description, access_criteria_set_id) values (2, 'samples', 'Biosamples and Data Information', 'Provide information about the biosamples you want', 1);
+insert into access_criteria_section (id, name, label, description, access_criteria_set_id) values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?', 1);
 
-insert into access_criteria (id, name, description, type) values (1, 'Title', 'Give a title', 'text');
-insert into access_criteria (id, name, description, type) values (2, 'Description', 'Give a description', 'textarea');
-insert into access_criteria (id, name, description, type) values (3, 'Number of biosamples', 'Number of biosamples', 'number');
-insert into access_criteria (id, name, description, type) values (4, 'Sample type(s)', 'Sample Type', 'text');
-insert into access_criteria (id, name, description, type) values (5, 'Number of subjects', 'Number of subjects', 'text');
-insert into access_criteria (id, name, description, type) values (6, 'Volume', 'Write the etchics vote', 'number');
-insert into access_criteria (id, name, description, type) values (7, 'Ethics vote', 'Write the etchics vote', 'text');
+insert into access_criteria (id, name, label, description, type) values (1, 'title', 'Title', 'Give a title', 'text');
+insert into access_criteria (id, name, label, description, type) values (2, 'description', 'Description', 'Give a description', 'textarea');
+insert into access_criteria (id, name, label, description, type) values (3, 'num-of-subjects', 'Number of subjects', 'Number of biosamples', 'number');
+insert into access_criteria (id, name, label, description, type) values (4, 'sample-type', 'Sample type(s)', 'Sample Type', 'text');
+insert into access_criteria (id, name, label, description, type) values (5, 'num-of-sample', 'Number of sample', 'Sample Type', 'text');
+insert into access_criteria (id, name, label, description, type) values (6, 'volume', 'Volume', 'Write the etchics vote', 'number');
+insert into access_criteria (id, name, label, description, type) values (7, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'text');
+
 
 insert into access_criteria_section_link (access_criteria_section_id, access_criteria_id, ordering, required) values
   (1, 1, 1, 'true'),

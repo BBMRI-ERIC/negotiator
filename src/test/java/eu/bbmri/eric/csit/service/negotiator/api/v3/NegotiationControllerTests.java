@@ -265,10 +265,10 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenQueries_IsMissing() throws Exception {
+  public void testCreate_BadRequest_whenRequests_IsMissing() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(false,
         Set.of(testRequest.getId()));
-    request.setQueries(null);
+    request.setRequests(null);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -279,10 +279,10 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenQueries_IsEmpty() throws Exception {
+  public void testCreate_BadRequest_whenRequests_IsEmpty() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(false,
         Set.of(testRequest.getId()));
-    request.setQueries(Collections.emptySet());
+    request.setRequests(Collections.emptySet());
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -293,24 +293,10 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenSomeQueries_IsNotFound() throws Exception {
+  public void testCreate_BadRequest_whenSomeRequests_IsNotFound() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(false,
         Set.of(testRequest.getId()));
-    request.setQueries(Set.of("unknownn"));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false,
-        Set.of(testRequest.getId()));
-    request.setDescription("d".repeat(513));
+    request.setRequests(Set.of("unknownn"));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -351,10 +337,9 @@ public class NegotiationControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false,
-        Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, Set.of(testRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
-    long currentRequest = negotiationRepository.count();
+    long previousRequestCount = negotiationRepository.count();
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(REQUESTS_ENDPOINT))
@@ -364,9 +349,10 @@ public class NegotiationControllerTests {
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.payload").isString())
         .andReturn();
 
-    assertEquals(negotiationRepository.count(), currentRequest + 1);
+    assertEquals(negotiationRepository.count(), previousRequestCount + 1);
   }
 
   @Test
