@@ -236,7 +236,7 @@ public class QueryV2ControllerTests {
   public void testUpdate_Ok_whenChangeQuery() throws Exception {
     Request q = requestService.create(TestUtils.createRequest(false));
     Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())),
+        modelMapper.map(TestUtils.createNegotiation(false, Set.of(q.getId())),
             Negotiation.class);
     q.setNegotiation(negotiationEntity);
     negotiationRepository.save(negotiationEntity);
@@ -272,7 +272,7 @@ public class QueryV2ControllerTests {
     Request q = requestService.create(TestUtils.createRequest(false));
     // The data source to be updated
     Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())),
+        modelMapper.map(TestUtils.createNegotiation(false, Set.of(q.getId())),
             Negotiation.class);
     q.setNegotiation(negotiationEntity);
     negotiationRepository.save(negotiationEntity);

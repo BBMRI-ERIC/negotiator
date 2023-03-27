@@ -78,22 +78,6 @@ public class NegotiationController {
    *
    * @return NegotiationDTO
    */
-  @PostMapping(
-      value = "/projects/{projectId}/negotiations",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.CREATED)
-  NegotiationDTO add(@PathVariable String projectId,
-      @Valid @RequestBody NegotiationCreateDTO request) {
-    Negotiation negotiationEntity = negotiationService.create(projectId, request, getCreatorId());
-    return modelMapper.map(negotiationEntity, NegotiationDTO.class);
-  }
-
-  /**
-   * Create a negotiation for a specific project
-   *
-   * @return NegotiationDTO
-   */
   @PutMapping(
       value = "/negotiations/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,

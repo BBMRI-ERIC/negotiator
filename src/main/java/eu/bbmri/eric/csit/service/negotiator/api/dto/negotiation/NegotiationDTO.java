@@ -33,7 +33,7 @@ public class NegotiationDTO {
 
   private ProjectDTO project;
 
-  private Set<RequestDTO> queries;
+  private Set<RequestDTO> requests;
 
   private Set<PersonRoleDTO> persons;
 }

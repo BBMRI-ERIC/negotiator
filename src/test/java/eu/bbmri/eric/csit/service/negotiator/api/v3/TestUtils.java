@@ -156,17 +156,14 @@ public class TestUtils {
   }
 
   public static NegotiationCreateDTO createNegotiation(
-      boolean update, boolean includeProject, Set<String> queriesId) {
+      boolean update, Set<String> requestsId) {
     String suffix = update ? "u" : "";
 
     NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
         NegotiationCreateDTO.builder()
             .title(String.format("%s%s", REQUEST_TITLE, suffix))
             .description(String.format("%s%s", REQUEST_DESCRIPTION, suffix))
-            .queries(queriesId);
-    if (includeProject) {
-      builder.project(TestUtils.createProjectRequest(update));
-    }
+            .queries(requestsId);
     return builder.build();
   }
 

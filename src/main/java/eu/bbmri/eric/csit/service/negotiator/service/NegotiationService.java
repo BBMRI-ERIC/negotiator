@@ -4,7 +4,6 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
@@ -35,8 +34,6 @@ public class NegotiationService {
   private RoleRepository roleRepository;
   @Autowired
   private PersonRepository personRepository;
-  @Autowired
-  private ProjectService projectService;
   @Autowired
   private RequestService requestService;
   @Autowired
@@ -89,7 +86,7 @@ public class NegotiationService {
     negotiationEntity.getPersons().add(personRole);
 
     // Updates the bidirectional relationship between request and negotiation
-    negotiationEntity.setQueries(new HashSet<>(queries));
+    negotiationEntity.setRequests(new HashSet<>(queries));
     queries.forEach(
         query -> {
           query.setNegotiation(negotiationEntity);
@@ -106,42 +103,36 @@ public class NegotiationService {
   }
 
   /**
-   * Creates a Negotiation into the repository. In this version the Negotiation is created as part
-   * of an already exisiting Project identified by the id
+   * Creates a Negotiation into the repository.
    *
-   * @param projectId the id of the project to which the Negotiation has to be associated
    * @param request the NegotiationCreateDTO DTO sent from to the endpoint
    * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
    * Person that called the API)
    * @return the created Negotiation entity
    */
   @Transactional
-  public Negotiation create(String projectId, NegotiationCreateDTO request, Long creatorId) {
-    // Get the project or throw an exception
-    Project project = projectService.findById(projectId);
+  public Negotiation create(NegotiationCreateDTO request, Long creatorId) {
     Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
-    negotiationEntity.setProject(project);
-    project.getNegotiations().add(negotiationEntity);
     return create(negotiationEntity, request.getQueries(), creatorId);
   }
 
-  /**
-   * Creates a Negotiation and the Project it is part of into the repository.
-   *
-   * @param request the NegotiationCreateDTO DTO sent from to the endpoint. It must have also the
-   * project data to create also the project
-   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
-   * Person that called the API)
-   * @return the created Negotiation entity
-   */
-  @Transactional
-  public Negotiation create(NegotiationCreateDTO request, Long creatorId) {
-    if (request.getProject() == null) {
-      throw new WrongRequestException("Missing project data");
-    }
-    Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
-    return create(negotiationEntity, request.getQueries(), creatorId);
-  }
+//  /**
+//   * Creates a Negotiation and the Project it is part of into the repository.
+//   *
+//   * @param request the NegotiationCreateDTO DTO sent from to the endpoint. It must have also the
+//   * project data to create also the project
+//   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
+//   * Person that called the API)
+//   * @return the created Negotiation entity
+//   */
+//  @Transactional
+//  public Negotiation create(NegotiationCreateDTO request, Long creatorId) {
+//    if (request.getProject() == null) {
+//      throw new WrongRequestException("Missing project data");
+//    }
+//    Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
+//    return create(negotiationEntity, request.getQueries(), creatorId);
+//  }
 
   private Negotiation update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
     Set<Request> queries = findQueries(request.getQueries());
@@ -158,9 +149,7 @@ public class NegotiationService {
           query.setNegotiation(negotiationEntity);
         });
 
-    negotiationEntity.setQueries(new HashSet<>(queries));
-    negotiationEntity.setTitle(request.getTitle());
-    negotiationEntity.setDescription(request.getDescription());
+    negotiationEntity.setRequests(new HashSet<>(queries));
 
     try {
       negotiationRepository.save(negotiationEntity);
@@ -186,7 +175,7 @@ public class NegotiationService {
   @Transactional
   public Negotiation addQueryToRequest(String id, Request requestEntity) {
     Negotiation negotiationEntity = findById(id);
-    negotiationEntity.getQueries().add(requestEntity);
+    negotiationEntity.getRequests().add(requestEntity);
     requestEntity.setNegotiation(negotiationEntity);
     try {
       negotiationRepository.save(negotiationEntity);

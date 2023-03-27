@@ -1,14 +1,14 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
@@ -21,6 +21,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 //import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
@@ -31,13 +33,12 @@ import lombok.ToString.Exclude;
 @Setter
 @Builder
 @Table(name = "negotiation")
-//@EntityListeners(AuditingEntityListener.class)
+@TypeDef(typeClass = JsonType.class, name = "json")
 @NamedEntityGraph(
     name = "negotiation-with-detailed-children",
     attributeNodes = {
-        @NamedAttributeNode("project"),
         @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
-        @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
+        @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
     },
     subgraphs = {
         @NamedSubgraph(
@@ -47,7 +48,7 @@ import lombok.ToString.Exclude;
                 @NamedAttributeNode(value = "role")
             }),
         @NamedSubgraph(
-            name = "queries-detailed",
+            name = "requests-detailed",
             attributeNodes = {
                 @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
             }),
@@ -61,11 +62,6 @@ public class Negotiation extends AuditEntity {
   @Exclude
   Set<Attachment> attachments;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-  @JoinColumn(name = "project_id")
-  @Exclude
-  private Project project;
-
   @OneToMany(
       mappedBy = "negotiation",
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
@@ -75,13 +71,19 @@ public class Negotiation extends AuditEntity {
 
   @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   @Exclude
-  private Set<Request> queries;
+  private Set<Request> requests;
 
-  private String title;
+  @Type(type = "json")
+  @Column(columnDefinition = "jsonb")
+  private String payload;
 
-  private String description;
+  private String state;
 
-  private Boolean isTest;
+//  private String title;
+//
+//  private String description;
+//
+//  private Boolean isTest;
 
   @Override
   public boolean equals(Object o) {
@@ -92,14 +94,11 @@ public class Negotiation extends AuditEntity {
       return false;
     }
     Negotiation negotiation = (Negotiation) o;
-    return Objects.equals(getId(), negotiation.getId())
-        && Objects.equals(getTitle(), negotiation.getTitle())
-        && Objects.equals(getDescription(), negotiation.getDescription())
-        && Objects.equals(getIsTest(), negotiation.getIsTest());
+    return Objects.equals(getId(), negotiation.getId());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getTitle(), getDescription(), getIsTest());
+    return Objects.hash(getId());
   }
 }
