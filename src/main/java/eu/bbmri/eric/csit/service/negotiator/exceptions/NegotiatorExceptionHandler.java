@@ -25,7 +25,8 @@ public class NegotiatorExceptionHandler {
   public final ResponseEntity<ErrorResponse> handleRequestValidationException(
       MethodArgumentNotValidException ex, WebRequest request) {
     ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "The body of the Negotiation is not valid");
+        new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+            "The body of the Negotiation is not valid");
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
@@ -37,9 +38,9 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler({
-    EntityNotStorableException.class,
-    WrongRequestException.class,
-    ConstraintViolationException.class
+      EntityNotStorableException.class,
+      WrongRequestException.class,
+      ConstraintViolationException.class
   })
   public final ResponseEntity<ErrorResponse> handleBadRequestExceptions(
       RuntimeException ex, WebRequest request) {

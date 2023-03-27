@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
@@ -25,13 +25,21 @@ import lombok.ToString.Exclude;
 @NamedEntityGraph(
     name = "access-criteria-set-with-details",
     attributeNodes = {
-        @NamedAttributeNode(value = "accessCriteriaSetLink", subgraph = "access-criteria-set"),
+        @NamedAttributeNode(value = "name"),
+        @NamedAttributeNode(value = "sections", subgraph = "access-criteria-sections"),
     },
     subgraphs = {
         @NamedSubgraph(
-            name = "access-criteria-set",
+            name = "access-criteria-sections",
             attributeNodes = {
-                @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details"),
+                @NamedAttributeNode(value = "title"),
+                @NamedAttributeNode(value = "description"),
+                @NamedAttributeNode(value = "accessCriteriaSectionLink", subgraph = "access-criteria-section-with-details"),
+            }),
+        @NamedSubgraph(
+            name = "access-criteria-section-with-details",
+            attributeNodes = {
+                @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details")
             }),
         @NamedSubgraph(
             name = "access-criteria-with-details",
@@ -44,13 +52,15 @@ import lombok.ToString.Exclude;
 )
 public class AccessCriteriaSet extends BaseEntity {
 
+  private String name;
+
   @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
   @Exclude
   private Set<Resource> resources;
 
-  @OneToMany(mappedBy = "accessCriteriaSet")
-  @OrderBy("ordering ASC")
+  @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
+  @OrderBy("id ASC")
   @Exclude
-  private List<AccessCriteriaSetLink> accessCriteriaSetLink;
+  private SortedSet<AccessCriteriaSection> sections;
 
 }

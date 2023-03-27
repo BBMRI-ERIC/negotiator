@@ -10,7 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AccessCriteriaSetService {
 
-  @Autowired private AccessCriteriaSetRepository accessCriteriaSetRepository;
+  @Autowired
+  private AccessCriteriaSetRepository accessCriteriaSetRepository;
 
   @Transactional
   public AccessCriteriaSet findByResourceEntityId(String resourceEntityId) {

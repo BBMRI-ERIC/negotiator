@@ -2,14 +2,14 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -23,14 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 @org.springframework.stereotype.Service
 public class RequestService {
 
-  @Autowired private RequestRepository requestRepository;
-  @Autowired private ResourceRepository resourceRepository;
-  @Autowired private DataSourceRepository dataSourceRepository;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private RequestRepository requestRepository;
+  @Autowired
+  private ResourceRepository resourceRepository;
+  @Autowired
+  private DataSourceRepository dataSourceRepository;
+  @Autowired
+  private ModelMapper modelMapper;
 
   /**
-   * Checks that resources in input conforms to the hierarchy regitered in the negotiator,
-   * and if they do, add the leaf resources to the request
+   * Checks that resources in input conforms to the hierarchy regitered in the negotiator, and if
+   * they do, add the leaf resources to the request
+   *
    * @param resourceDTOs The List of Resources in the request negotiation
    * @param requestEntity The Request Entity to save in the DB
    */
@@ -59,7 +64,9 @@ public class RequestService {
   }
 
   /**
-   * Checks that the DataSource corresponding to the URL is present in the DB and adds it to the Request entity
+   * Checks that the DataSource corresponding to the URL is present in the DB and adds it to the
+   * Request entity
+   *
    * @param url the url of the DataSource in the incoming request
    * @param requestEntity the Request entity to fill with the DataSource
    */
@@ -99,7 +106,8 @@ public class RequestService {
 
   @Transactional(readOnly = true)
   public Request findById(String id) {
-    return requestRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return requestRepository.findDetailedById(id)
+        .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   public Set<Request> findAllById(Set<String> ids) {

@@ -12,14 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
 import java.util.Collections;
@@ -45,6 +45,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class NegotiationControllerTests {
+
   private static final String TITLE = "negotiation title";
   private static final String DESCRIPTION = "negotiation description";
   private static final String REQUESTS_ENDPOINT = "/v3/negotiations";
@@ -53,13 +54,20 @@ public class NegotiationControllerTests {
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
   private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";
 
-  @Autowired private WebApplicationContext context;
-  @Autowired private NegotiationController negotiationController;
-  @Autowired private ProjectRepository projectRepository;
-  @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private RequestRepository requestRepository;
-  @Autowired private ModelMapper modelMapper;
-  @Autowired private RequestService requestService;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private NegotiationController negotiationController;
+  @Autowired
+  private ProjectRepository projectRepository;
+  @Autowired
+  private NegotiationRepository negotiationRepository;
+  @Autowired
+  private RequestRepository requestRepository;
+  @Autowired
+  private ModelMapper modelMapper;
+  @Autowired
+  private RequestService requestService;
 
   private MockMvc mockMvc;
   private Request testRequest;
@@ -164,9 +172,10 @@ public class NegotiationControllerTests {
 
   @Test
   public void testGetAll_Ok() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    Negotiation entity = modelMapper.map(request, Negotiation.class);
-    entity = negotiationRepository.save(entity);
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
+    Negotiation negotiation = modelMapper.map(request, Negotiation.class);
+    negotiation = negotiationRepository.save(negotiation);
 
     mockMvc
         .perform(
@@ -174,19 +183,11 @@ public class NegotiationControllerTests {
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$[0].id", is(entity.getId())))
+        .andExpect(jsonPath("$[0].id", is(negotiation.getId())))
         .andExpect(jsonPath("$[0].title", is(TITLE)))
         .andExpect(jsonPath("$[0].description", is(DESCRIPTION)))
-        .andExpect(jsonPath("$[0].project.id", is(entity.getProject().getId())))
-        .andExpect(jsonPath("$[0].project.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$[0].project.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath(
-                "$[0].project.expectedDataGeneration",
-                is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(
-            jsonPath("$[0].project.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$[0].project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$[0].project.id", is(negotiation.getProject().getId())))
+        .andExpect(jsonPath("$[0].project.payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 
   @Test
@@ -257,7 +258,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testGetById_Ok_whenCorrectId() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     Negotiation entity = modelMapper.map(request, Negotiation.class);
     entity = negotiationRepository.save(entity);
 
@@ -271,18 +273,13 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.title", is(TITLE)))
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.project.id", is(entity.getProject().getId())))
-        .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath(
-                "$.project.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.project.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$.project.payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 
   @Test
   public void testCreate_Unauthorized_whenNoAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -303,7 +300,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -324,7 +322,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -345,7 +344,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_NotFound_whenProjectDoesNotExist() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -357,7 +357,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenTitle_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     request.setTitle(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -380,7 +381,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     request.setDescription(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -403,7 +405,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenQueries_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     request.setQueries(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -426,7 +429,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenQueries_IsEmpty() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     request.setQueries(Collections.emptySet());
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -449,7 +453,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenSomeQueries_IsNotFound() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     request.setQueries(Set.of("unknownn"));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -476,7 +481,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     request.setDescription("d".repeat(513));
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -502,116 +508,9 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenProjectTitle_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setTitle(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectDescription_IsTooLong() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setDescription("d".repeat(513));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectDescription_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setDescription(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectEthicsVote_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setEthicsVote(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectEthicsVote_IsTooLong() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setEthicsVote("d".repeat(513));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectExpectedEndDate_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setExpectedEndDate(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectExpectedEndDate_HasWrongFormat() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    String requestBody = TestUtils.jsonFromRequest(request);
-    requestBody =
-        requestBody.replace(
-            "\"expectedEndDate\":\"%s\"".formatted(TestUtils.PROJECT_EXPECTED_END_DATE),
-            "\"expectedEndDate\":\"13-04-2022\"");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        requestBody,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenProjectExpectedDataGeneration_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
-    request.getProject().setExpectedDataGeneration(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        REQUESTS_ENDPOINT);
-  }
-
-  @Test
   public void testCreate_BadRequest_whenQuery_IsAlreadyAssignedToAnotherRequest() throws Exception {
-    NegotiationCreateDTO createRequest = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO createRequest = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     // The data source to be updated
     Negotiation negotiationEntity = modelMapper.map(createRequest, Negotiation.class);
     negotiationRepository.save(negotiationEntity);
@@ -621,7 +520,8 @@ public class NegotiationControllerTests {
     assertEquals(1, negotiationRepository.count());
 
     // Negotiation body with updated values
-    NegotiationCreateDTO updateRequest = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO updateRequest = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
     mockMvc
         .perform(
@@ -638,7 +538,8 @@ public class NegotiationControllerTests {
   @Test
   @Order(1)
   public void testCreate_Ok_whenProjectIsIncluded() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, true,
+        Set.of(testRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     long currentRequest = negotiationRepository.count();
     long currentProject = projectRepository.count();
@@ -655,13 +556,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.description", is(DESCRIPTION)))
         .andExpect(jsonPath("$.queries[0].id", is(testRequest.getId())))
         .andExpect(jsonPath("$.project.id").isString())
-        .andExpect(jsonPath("$.project.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.project.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath(
-                "$.project.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.project.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.project.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)))
+        .andExpect(jsonPath("$.project.payload", is(TestUtils.PROJECT_PAYLOAD)))
         .andReturn();
 
     assertEquals(negotiationRepository.count(), currentRequest + 1);
@@ -675,7 +570,8 @@ public class NegotiationControllerTests {
     Project projectEntity = modelMapper.map(TestUtils.createProjectRequest(false), Project.class);
     projectRepository.save(projectEntity);
 
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
 
     long currentRequest = negotiationRepository.count();
@@ -701,7 +597,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -713,7 +610,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -725,7 +623,8 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(false, false,
+        Set.of(testRequest.getId()));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -755,7 +654,8 @@ public class NegotiationControllerTests {
 
     // Negotiation body with updated values and request already assigned
     NegotiationCreateDTO request =
-        TestUtils.createNegotiation(true, false, Set.of(firstRequest.getId(), secondRequest.getId()));
+        TestUtils.createNegotiation(true, false,
+            Set.of(firstRequest.getId(), secondRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
         .perform(
@@ -773,18 +673,21 @@ public class NegotiationControllerTests {
     // The data source to be updated
     Negotiation negotiationEntity =
         modelMapper.map(
-            TestUtils.createNegotiation(false, false, Set.of(testRequest.getId())), Negotiation.class);
+            TestUtils.createNegotiation(false, false, Set.of(testRequest.getId())),
+            Negotiation.class);
     negotiationRepository.save(negotiationEntity);
 
     testRequest.setNegotiation(negotiationEntity);
     requestRepository.save(testRequest);
 
     // Negotiation body with updated values
-    NegotiationCreateDTO request = TestUtils.createNegotiation(true, false, Set.of(testRequest.getId()));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(true, false,
+        Set.of(testRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.put("%s/%s".formatted(REQUESTS_ENDPOINT, negotiationEntity.getId()))
+            MockMvcRequestBuilders.put(
+                    "%s/%s".formatted(REQUESTS_ENDPOINT, negotiationEntity.getId()))
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))

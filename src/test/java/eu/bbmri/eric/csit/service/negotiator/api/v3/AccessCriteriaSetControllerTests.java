@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 public class AccessCriteriaSetControllerTests {
+
   private static final String ENDPOINT = "/v3/access-criteria";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
@@ -32,10 +33,14 @@ public class AccessCriteriaSetControllerTests {
 
   private MockMvc mockMvc;
 
-  @Autowired private WebApplicationContext context;
-  @Autowired private ProjectController controller;
-  @Autowired private ProjectRepository repository;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private ProjectController controller;
+  @Autowired
+  private ProjectRepository repository;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {
@@ -52,30 +57,33 @@ public class AccessCriteriaSetControllerTests {
   @Test
   public void testGet_Unauthorized_whenWrongAuth() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isUnauthorized(), httpBasic("researcher", "wrong_pass"), ENDPOINT);
+        mockMvc, HttpMethod.GET, "", status().isUnauthorized(),
+        httpBasic("researcher", "wrong_pass"), ENDPOINT);
   }
 
   @Test
   public void testGet_Forbidden_whenNoPermission() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isForbidden(), httpBasic("directory", "directory"), ENDPOINT);
+        mockMvc, HttpMethod.GET, "", status().isForbidden(), httpBasic("directory", "directory"),
+        ENDPOINT);
   }
 
   @Test
   public void testGet_BadRequest_whenMissingResourceId() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isBadRequest(), httpBasic("researcher", "researcher"), ENDPOINT);
+        mockMvc, HttpMethod.GET, "", status().isBadRequest(), httpBasic("researcher", "researcher"),
+        ENDPOINT);
   }
 
   @Test
   public void testGet_NotFound_whenResourceIdIsNotExistent() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isNotFound(), httpBasic("researcher", "researcher"), "%s?resourceId=UNKNOWN".formatted(ENDPOINT));
+        mockMvc, HttpMethod.GET, "", status().isNotFound(), httpBasic("researcher", "researcher"),
+        "%s?resourceId=UNKNOWN".formatted(ENDPOINT));
   }
 
   @Test
   public void testGet_Ok() throws Exception {
-    // Notice that we are implicitly testing ordering by "ordering" field since the access criteria
     mockMvc
         .perform(
             MockMvcRequestBuilders
@@ -83,18 +91,20 @@ public class AccessCriteriaSetControllerTests {
                 .param("resourceId", "biobank:1")
                 .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.accessCriteria").isArray())
-        .andExpect(jsonPath("$.accessCriteria[0].name", is("title")))
-        .andExpect(jsonPath("$.accessCriteria[0].description", is("Give a title")))
-        .andExpect(jsonPath("$.accessCriteria[0].type", is("text")))
-        .andExpect(jsonPath("$.accessCriteria[0].required", is(true)))
-        .andExpect(jsonPath("$.accessCriteria[1].name", is("description")))
-        .andExpect(jsonPath("$.accessCriteria[1].description", is("Give a description")))
-        .andExpect(jsonPath("$.accessCriteria[1].type", is("text")))
-        .andExpect(jsonPath("$.accessCriteria[1].required", is(true)))
-        .andExpect(jsonPath("$.accessCriteria[2].name", is("ethics vote")))
-        .andExpect(jsonPath("$.accessCriteria[2].description", is("Write the etchics vote")))
-        .andExpect(jsonPath("$.accessCriteria[2].type", is("text")))
-        .andExpect(jsonPath("$.accessCriteria[2].required", is(true)));
+        .andExpect(jsonPath("$.sections[0].accessCriteria").isArray())
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].name", is("Title")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].description", is("Give a title")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].type", is("text")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[0].required", is(true)))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].name", is("Description")))
+        .andExpect(
+            jsonPath("$.sections[0].accessCriteria[1].description", is("Give a description")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].type", is("textarea")))
+        .andExpect(jsonPath("$.sections[0].accessCriteria[1].required", is(false)))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].name", is("Number of biosamples")))
+        .andExpect(
+            jsonPath("$.sections[1].accessCriteria[0].description", is("Number of biosamples")))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].type", is("number")))
+        .andExpect(jsonPath("$.sections[1].accessCriteria[0].required", is(true)));
   }
 }

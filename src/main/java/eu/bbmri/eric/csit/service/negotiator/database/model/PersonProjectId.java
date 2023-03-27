@@ -14,9 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class AccessCriteriaSetId implements Serializable {
+public class PersonProjectId implements Serializable {
+  Long person;
 
-  Long accessCriteria;
-
-  Long accessCriteriaSet;
+  String project;
 }

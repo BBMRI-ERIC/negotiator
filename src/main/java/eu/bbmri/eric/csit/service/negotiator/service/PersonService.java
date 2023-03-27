@@ -16,9 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class PersonService {
 
-  @Autowired private PersonRepository personRepository;
+  @Autowired
+  private PersonRepository personRepository;
 
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @PostConstruct
   public void setMappings() {

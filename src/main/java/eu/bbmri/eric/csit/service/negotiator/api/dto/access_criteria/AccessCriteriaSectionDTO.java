@@ -1,32 +1,29 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Set;
-import javax.validation.constraints.NotNull;
+import com.sun.istack.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class ResourceDTO {
+public class AccessCriteriaSectionDTO {
 
   @NotNull
-  private String id;
-
-  @Nullable
-  private String name;
+  private String title;
+  @NotNull
+  private String description;
 
   @NotNull
-  private String type;
+  private List<AccessCriteriaDTO> accessCriteria = new ArrayList<>();
 
-  @NotNull
-  private Set<ResourceDTO> children;
 }

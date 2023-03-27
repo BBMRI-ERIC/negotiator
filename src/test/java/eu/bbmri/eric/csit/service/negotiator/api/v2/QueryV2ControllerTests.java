@@ -11,13 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v2.QueryV2Controller;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.Optional;
 import java.util.Set;
@@ -42,13 +42,20 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class QueryV2ControllerTests {
+
   private static final String ENDPOINT = "/directory/create_query";
-  @Autowired public RequestRepository requestRepository;
-  @Autowired private WebApplicationContext context;
-  @Autowired private QueryV2Controller controller;
-  @Autowired private RequestService requestService;
-  @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  public RequestRepository requestRepository;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private QueryV2Controller controller;
+  @Autowired
+  private RequestService requestService;
+  @Autowired
+  private NegotiationRepository negotiationRepository;
+  @Autowired
+  private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
 
@@ -229,7 +236,8 @@ public class QueryV2ControllerTests {
   public void testUpdate_Ok_whenChangeQuery() throws Exception {
     Request q = requestService.create(TestUtils.createRequest(false));
     Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())), Negotiation.class);
+        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())),
+            Negotiation.class);
     q.setNegotiation(negotiationEntity);
     negotiationRepository.save(negotiationEntity);
 
@@ -247,8 +255,8 @@ public class QueryV2ControllerTests {
         .andExpect(status().isAccepted())
         .andExpect(
             header().string("Location", containsString(
-                    "http://localhost/negotiations/%s/requests"
-                        .formatted(negotiationEntity.getId()))))
+                "http://localhost/negotiations/%s/requests"
+                    .formatted(negotiationEntity.getId()))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
@@ -264,7 +272,8 @@ public class QueryV2ControllerTests {
     Request q = requestService.create(TestUtils.createRequest(false));
     // The data source to be updated
     Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())), Negotiation.class);
+        modelMapper.map(TestUtils.createNegotiation(false, false, Set.of(q.getId())),
+            Negotiation.class);
     q.setNegotiation(negotiationEntity);
     negotiationRepository.save(negotiationEntity);
 

@@ -2,9 +2,11 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,18 +20,24 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "person_project_link")
-public class PersonProjectLink extends BaseEntity {
+@IdClass(AccessCriteriaSectionId.class)
+public class AccessCriteriaSectionLink {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "person_id")
+  @JoinColumn(name = "access_criteria_id")
   @Exclude
-  private Person person;
+  @Id
+  private AccessCriteria accessCriteria;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "project_id")
+  @JoinColumn(name = "access_criteria_section_id")
   @Exclude
-  private Project project;
+  @Id
+  private AccessCriteriaSection accessCriteriaSection;
 
-  private Integer roleId;
+  @NotNull
+  private Integer ordering;
+
+  @NotNull
+  private Boolean required;
 }

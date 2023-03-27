@@ -2,10 +2,9 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRequestRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
@@ -19,18 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v3")
+@CrossOrigin
 public class NegotiationController {
 
   private final NegotiationService negotiationService;
@@ -43,7 +35,7 @@ public class NegotiationController {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
-    Converter<Set<PersonNegotiationRole>, Set<PersonRequestRoleDTO>> personsRoleConverter =
+    Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
         prr -> personsRoleConverter(prr.getSource());
     typeMap.addMappings(
         mapper ->
@@ -53,16 +45,18 @@ public class NegotiationController {
 
   }
 
-  private Set<PersonRequestRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
+  private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
     return personsRoles.stream()
         .map(
             personRole ->
-                new PersonRequestRoleDTO(
+                new PersonRoleDTO(
                     personRole.getPerson().getAuthName(), personRole.getRole().getName()))
         .collect(Collectors.toSet());
   }
 
-  /** Create a negotiation and the project it belongs to */
+  /**
+   * Create a negotiation and the project it belongs to
+   */
   @PostMapping(
       value = "/negotiations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -88,7 +82,8 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  NegotiationDTO add(@PathVariable String projectId, @Valid @RequestBody NegotiationCreateDTO request) {
+  NegotiationDTO add(@PathVariable String projectId,
+      @Valid @RequestBody NegotiationCreateDTO request) {
     Negotiation negotiationEntity = negotiationService.create(projectId, request, getCreatorId());
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
@@ -96,7 +91,6 @@ public class NegotiationController {
   /**
    * Create a negotiation for a specific project
    *
-   * @param request
    * @return NegotiationDTO
    */
   @PutMapping(
@@ -104,7 +98,8 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  NegotiationDTO update(@Valid @PathVariable String id, @Valid @RequestBody NegotiationCreateDTO request) {
+  NegotiationDTO update(@Valid @PathVariable String id,
+      @Valid @RequestBody NegotiationCreateDTO request) {
     Negotiation negotiationEntity = negotiationService.update(id, request);
     return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }

@@ -4,13 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.net.URI;
@@ -50,12 +50,7 @@ public class TestUtils {
   public static final String QUERY_COLLECTION_2_ID = "biobank:2:collection:1";
   public static final String QUERY_COLLECTION_2_NAME = "Test collection #1 of biobank #2";
 
-  public static final String PROJECT_TITLE = "project title";
-  public static final String PROJECT_DESCRIPTION = "project description";
-  public static final String PROJECT_ETHICS_VOTE = "ethics vote";
-  public static final String PROJECT_EXPECTED_END_DATE = "2022-04-13";
-  public static final boolean PROJECT_EXPECTED_DATA_GENERATION = true;
-  public static final boolean PROJECT_IS_TEST_PROJECT = true;
+  public static final String PROJECT_PAYLOAD = "{\"title\":\"Test project\",\"description\":\"This is a test project\"}";
 
   public static final String REQUEST_TITLE = "negotiation title";
   public static final String REQUEST_DESCRIPTION = "negotiation description";
@@ -66,7 +61,7 @@ public class TestUtils {
   public static final String PERUN_USER_STATUS = "perun user status";
   public static final String PERUN_USER_MAIL = "perunusermail@mail.it";
   public static final String[] PERUN_USER_IDENTITIES = {
-    "perun user identity 1", "perun user identity 2"
+      "perun user identity 1", "perun user identity 2"
   };
 
   public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
@@ -91,8 +86,8 @@ public class TestUtils {
     String suffix = update ? "u" : "";
     String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
     String collectionName = update ? QUERY_COLLECTION_2_NAME : QUERY_COLLECTION_1_NAME;
-    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;;
-    String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;;
+    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
+    String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
     ResourceDTO collection =
         ResourceDTO.builder()
@@ -118,7 +113,7 @@ public class TestUtils {
   public static QueryCreateV2DTO createQueryV2Request(boolean update) {
     String suffix = update ? "u" : "";
     String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
-    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;;
+    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
 
     CollectionV2DTO collection =
         CollectionV2DTO.builder()
@@ -137,12 +132,7 @@ public class TestUtils {
     String suffix = update ? "u" : "";
 
     return ProjectCreateDTO.builder()
-        .title(String.format("%s%s", PROJECT_TITLE, suffix))
-        .description(String.format("%s%s", PROJECT_DESCRIPTION, suffix))
-        .ethicsVote(String.format("%s%s", PROJECT_ETHICS_VOTE, suffix))
-        .expectedEndDate(LocalDate.parse(PROJECT_EXPECTED_END_DATE))
-        .expectedDataGeneration(PROJECT_EXPECTED_DATA_GENERATION)
-        .isTestProject(PROJECT_IS_TEST_PROJECT)
+        .payload(PROJECT_PAYLOAD)
         .build();
   }
 

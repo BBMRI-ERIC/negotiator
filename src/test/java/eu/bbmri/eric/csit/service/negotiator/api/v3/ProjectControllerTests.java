@@ -36,6 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
 public class ProjectControllerTests {
+
   private static final String ENDPOINT = "/v3/projects";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
@@ -43,10 +44,14 @@ public class ProjectControllerTests {
 
   private MockMvc mockMvc;
 
-  @Autowired private WebApplicationContext context;
-  @Autowired private ProjectController controller;
-  @Autowired private ProjectRepository repository;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private WebApplicationContext context;
+  @Autowired
+  private ProjectController controller;
+  @Autowired
+  private ProjectRepository repository;
+  @Autowired
+  private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {
@@ -86,114 +91,6 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenTitle_IsMissing() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setTitle(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setDescription(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenDescription_IsTooLong() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setDescription("d".repeat(513));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenEthicsVote_IsMissing() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setEthicsVote(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenEthicsVote_IsTooLong() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setEthicsVote("e".repeat(513));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenExpectedEndDate_IsMissing() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setExpectedEndDate(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenExpectedEndDate_HasWrongFormat() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    String requestBody = TestUtils.jsonFromRequest(request);
-    requestBody =
-        requestBody.replace(
-            "\"expectedEndDate\":\"%s\"".formatted(TestUtils.PROJECT_EXPECTED_END_DATE),
-            "\"expectedEndDate\":\"13-04-2022\"");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        requestBody,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
-  public void testCreate_BadRequest_whenExpectedDataGeneration_IsMissing() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    request.setExpectedDataGeneration(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
   @Order(1)
   public void testCreate_Ok_whenIsTestProject_isDefault() throws Exception {
     ProjectCreateDTO request = TestUtils.createProjectRequest(false);
@@ -208,13 +105,7 @@ public class ProjectControllerTests {
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.title", Is.is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.description", Is.is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(jsonPath("$.ethicsVote", Is.is(TestUtils.PROJECT_ETHICS_VOTE)))
-        .andExpect(
-            jsonPath("$.expectedDataGeneration", Is.is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.expectedEndDate", Is.is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.isTestProject", Is.is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$.payload", Is.is(TestUtils.PROJECT_PAYLOAD)));
     assertEquals(repository.findAll().size(), 1);
   }
 
@@ -271,12 +162,7 @@ public class ProjectControllerTests {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id", is(entity.getId())))
-        .andExpect(jsonPath("$[0].title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$[0].description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath("$[0].expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$[0].expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$[0].isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$[0].payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 
   @Test
@@ -358,11 +244,6 @@ public class ProjectControllerTests {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(entity.getId())))
-        .andExpect(jsonPath("$.title", is(TestUtils.PROJECT_TITLE)))
-        .andExpect(jsonPath("$.description", is(TestUtils.PROJECT_DESCRIPTION)))
-        .andExpect(
-            jsonPath("$.expectedDataGeneration", is(TestUtils.PROJECT_EXPECTED_DATA_GENERATION)))
-        .andExpect(jsonPath("$.expectedEndDate", is(TestUtils.PROJECT_EXPECTED_END_DATE)))
-        .andExpect(jsonPath("$.isTestProject", is(TestUtils.PROJECT_IS_TEST_PROJECT)));
+        .andExpect(jsonPath("$.payload", is(TestUtils.PROJECT_PAYLOAD)));
   }
 }

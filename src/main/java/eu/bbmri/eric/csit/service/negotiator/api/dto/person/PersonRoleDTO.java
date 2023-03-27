@@ -14,9 +14,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class PersonRequestRoleDTO {
+public class PersonRoleDTO {
 
-  @NotNull private String name;
+  @NotNull
+  private String name;
 
-  @NotNull private String role;
+  @NotNull
+  private String role;
 }

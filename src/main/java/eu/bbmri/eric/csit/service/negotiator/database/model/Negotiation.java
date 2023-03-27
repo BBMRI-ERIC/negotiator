@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -22,7 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+//import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @Entity
@@ -32,29 +31,29 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @Builder
 @Table(name = "negotiation")
-@EntityListeners(AuditingEntityListener.class)
+//@EntityListeners(AuditingEntityListener.class)
 @NamedEntityGraph(
     name = "negotiation-with-detailed-children",
     attributeNodes = {
-      @NamedAttributeNode("project"),
-      @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
-      @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
+        @NamedAttributeNode("project"),
+        @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
+        @NamedAttributeNode(value = "queries", subgraph = "queries-detailed"),
     },
     subgraphs = {
-      @NamedSubgraph(
-          name = "persons-with-roles",
-          attributeNodes = {
-            @NamedAttributeNode(value = "person"),
-            @NamedAttributeNode(value = "role")
-          }),
-      @NamedSubgraph(
-          name = "queries-detailed",
-          attributeNodes = {
-            @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
-          }),
-      @NamedSubgraph(
-          name = "resources-with-parent",
-          attributeNodes = {@NamedAttributeNode("parent")})
+        @NamedSubgraph(
+            name = "persons-with-roles",
+            attributeNodes = {
+                @NamedAttributeNode(value = "person"),
+                @NamedAttributeNode(value = "role")
+            }),
+        @NamedSubgraph(
+            name = "queries-detailed",
+            attributeNodes = {
+                @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
+            }),
+        @NamedSubgraph(
+            name = "resources-with-parent",
+            attributeNodes = {@NamedAttributeNode("parent")})
     })
 public class Negotiation extends AuditEntity {
 

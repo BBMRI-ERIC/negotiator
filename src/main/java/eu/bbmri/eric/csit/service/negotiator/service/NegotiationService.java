@@ -1,21 +1,26 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
+import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.hibernate.exception.DataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +28,19 @@ import org.springframework.transaction.annotation.Transactional;
 @CommonsLog
 public class NegotiationService {
 
-  @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired
+  private NegotiationRepository negotiationRepository;
 
-  @Autowired private RoleRepository roleRepository;
-  @Autowired private PersonRepository personRepository;
-  @Autowired private ProjectService projectService;
-  @Autowired private RequestService requestService;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired
+  private RoleRepository roleRepository;
+  @Autowired
+  private PersonRepository personRepository;
+  @Autowired
+  private ProjectService projectService;
+  @Autowired
+  private RequestService requestService;
+  @Autowired
+  private ModelMapper modelMapper;
 
   private Set<Request> findQueries(Set<String> queriesId) {
     Set<Request> queries;
@@ -48,8 +59,8 @@ public class NegotiationService {
    *
    * @param negotiationEntity the Entity to save
    * @param queriesId a Set of request ids to associate to the Negotiation
-   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated Person
-   *     that called the API)
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
+   * Person that called the API)
    * @return The created request
    */
   private Negotiation create(Negotiation negotiationEntity, Set<String> queriesId, Long creatorId) {
@@ -95,13 +106,13 @@ public class NegotiationService {
   }
 
   /**
-   * Creates a Negotiation into the repository. In this version the Negotiation is created as part of an
-   * already exisiting Project identified by the id
+   * Creates a Negotiation into the repository. In this version the Negotiation is created as part
+   * of an already exisiting Project identified by the id
    *
    * @param projectId the id of the project to which the Negotiation has to be associated
    * @param request the NegotiationCreateDTO DTO sent from to the endpoint
-   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated Person
-   *     that called the API)
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
+   * Person that called the API)
    * @return the created Negotiation entity
    */
   @Transactional
@@ -117,10 +128,10 @@ public class NegotiationService {
   /**
    * Creates a Negotiation and the Project it is part of into the repository.
    *
-   * @param request the NegotiationCreateDTO DTO sent from to the endpoint. It must have also the project
-   *     data to create also the project
-   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated Person
-   *     that called the API)
+   * @param request the NegotiationCreateDTO DTO sent from to the endpoint. It must have also the
+   * project data to create also the project
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
+   * Person that called the API)
    * @return the created Negotiation entity
    */
   @Transactional
@@ -136,7 +147,8 @@ public class NegotiationService {
     Set<Request> queries = findQueries(request.getQueries());
 
     if (queries.stream()
-        .anyMatch(query -> query.getNegotiation() != null && query.getNegotiation() != negotiationEntity)) {
+        .anyMatch(query -> query.getNegotiation() != null
+            && query.getNegotiation() != negotiationEntity)) {
       throw new WrongRequestException(
           "One or more request object is already assigned to another negotiation");
     }

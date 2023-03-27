@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator'
+    url: jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
     username: negotiator
     password: negotiator
     initialize: true
@@ -11,7 +11,6 @@ spring:
       platform: h2
   jpa:
     hibernate:
-      show-sql: true
       ddl-auto: create-drop
     defer-datasource-initialization: true
     properties:
@@ -23,5 +22,23 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri:
+          user-info-uri: "http://localhost:4011/connect/userinfo"
+          issuer-uri: "http://localhost:4011"
+negotiator:
+  frontend-url: "http://localhost:8080"
+  authorization:
+    claim: "eduperson_entitlement"
+    admin-claim-value: ""
+    researcher-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu"
+    biobanker-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu"
+    subject-claim: "preferred_username"
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          datasource:
+            init:
+              ScriptUtils: debug
+
 

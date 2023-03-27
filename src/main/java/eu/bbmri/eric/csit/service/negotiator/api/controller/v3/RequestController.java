@@ -19,6 +19,7 @@ import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,13 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3")
+@CrossOrigin
 public class RequestController {
-  @Value("${negotiator.frontend-url}")
-  private String FRONTEND_URL;
 
   private final RequestService requestService;
-
   private final ModelMapper modelMapper;
+  @Value("${negotiator.frontend-url}")
+  private String FRONTEND_URL;
 
   public RequestController(RequestService requestService, ModelMapper modelMapper) {
     this.requestService = requestService;

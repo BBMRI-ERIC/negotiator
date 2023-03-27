@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import com.sun.istack.NotNull;
 import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -19,7 +20,10 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AccessCriteria extends BaseEntity {
+public class AccessCriteria extends BaseEntity implements Comparable<AccessCriteria> {
+
+  @NotNull
+  private String identifier;
 
   @NotNull
   private String name;
@@ -30,9 +34,23 @@ public class AccessCriteria extends BaseEntity {
   @NotNull
   private String type;
 
-  @NotNull private Boolean required;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "access_criteria_section_id")
+  @Exclude
+  private AccessCriteriaSection section;
 
   @OneToMany(mappedBy = "accessCriteria")
   @Exclude
-  Set<AccessCriteriaSetLink> accessCriteriaSetLink;
+  private Set<AccessCriteriaSectionLink> accessCriteriaSectionLinks;
+
+  @Override
+  public int compareTo(AccessCriteria section) {
+    if (this.getId() < section.getId()) {
+      return -1;
+    } else if (this.getId().equals(section.getId())) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
 }

@@ -6,8 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OrderBy;
-import javax.validation.constraints.NotNull;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,21 +20,23 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@IdClass(AccessCriteriaSetId.class)
-public class AccessCriteriaSetLink {
+@IdClass(PersonProjectId.class)
+public class PersonProjectRole {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "access_criteria_id")
+  @JoinColumn(name = "person_id")
   @Exclude
   @Id
-  private AccessCriteria accessCriteria;
+  private Person person;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "access_criteria_set_id")
+  @JoinColumn(name = "project_id")
   @Exclude
   @Id
-  private AccessCriteriaSet accessCriteriaSet;
+  private Project project;
 
-  @NotNull
-  private Integer ordering;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "role_id")
+  @Exclude
+  private Role roleId;
 }

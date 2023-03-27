@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator'
+    url: jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
     username: negotiator
     password: negotiator
     initialize: true
@@ -19,6 +19,7 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
 
 negotiator:
+  frontend-url: "http://localhost"
   authorization:
     claim: "authz"
     admin-claim-value: "admin_group"
