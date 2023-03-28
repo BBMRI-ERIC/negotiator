@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -25,5 +26,5 @@ public class NegotiationCreateDTO {
   private Set<String> requests;
 
   @NotNull
-  private String payload;
+  private JsonNode payload;
 }

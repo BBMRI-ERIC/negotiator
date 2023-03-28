@@ -79,12 +79,6 @@ public class Negotiation extends AuditEntity {
 
   private String state;
 
-//  private String title;
-//
-//  private String description;
-//
-//  private Boolean isTest;
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

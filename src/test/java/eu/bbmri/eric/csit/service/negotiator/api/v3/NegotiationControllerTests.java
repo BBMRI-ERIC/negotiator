@@ -68,7 +68,7 @@ public class NegotiationControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    testRequest = createQueryEntity();
+    testRequest = createRequestEntity();
   }
 
   @AfterEach
@@ -77,7 +77,7 @@ public class NegotiationControllerTests {
     negotiationRepository.deleteAll();
   }
 
-  private Request createQueryEntity() {
+  private Request createRequestEntity() {
     RequestCreateDTO queryRequest = TestUtils.createRequest(false);
     return requestService.create(queryRequest);
   }
@@ -307,7 +307,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenQuery_IsAlreadyAssignedToAnotherRequest() throws Exception {
+  public void testCreate_BadRequest_whenRequest_IsAlreadyAssignedToAnotherRequest() throws Exception {
     NegotiationCreateDTO createRequest = TestUtils.createNegotiation(false,
         Set.of(testRequest.getId()));
     // The data source to be updated
@@ -340,6 +340,7 @@ public class NegotiationControllerTests {
     NegotiationCreateDTO request = TestUtils.createNegotiation(false, Set.of(testRequest.getId()));
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousRequestCount = negotiationRepository.count();
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(REQUESTS_ENDPOINT))
@@ -349,7 +350,12 @@ public class NegotiationControllerTests {
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.payload").isString())
+        .andExpect(jsonPath("$.payload.project.title",
+            is("Title")))
+        .andExpect(jsonPath("$.payload.samples.num-of-subjects",
+            is(10)))
+        .andExpect(jsonPath("$.payload.ethics-vote.ethics-vote",
+            is("My ethic vote")))
         .andReturn();
 
     assertEquals(negotiationRepository.count(), previousRequestCount + 1);
@@ -395,20 +401,20 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testUpdate_BadRequest_whenQueryIsAlreadyAssignedToAnotherRequest() throws Exception {
+  public void testUpdate_BadRequest_whenRequestIsAlreadyAssignedToAnotherRequest() throws Exception {
     // Create the negotiation that has the assigned request
-    Negotiation negotiationEntityWithQuery =
+    Negotiation negotiationEntityWithRequest =
         modelMapper.map(TestUtils.createNegotiation(false, null), Negotiation.class);
-    negotiationRepository.save(negotiationEntityWithQuery);
-    Request firstRequest = createQueryEntity();
-    firstRequest.setNegotiation(negotiationEntityWithQuery);
+    negotiationRepository.save(negotiationEntityWithRequest);
+    Request firstRequest = createRequestEntity();
+    firstRequest.setNegotiation(negotiationEntityWithRequest);
     requestRepository.save(firstRequest);
 
     // Create the negotiation to update
     Negotiation negotiationEntityUpdate =
         modelMapper.map(TestUtils.createNegotiation(false, null), Negotiation.class);
     negotiationRepository.save(negotiationEntityUpdate);
-    Request secondRequest = createQueryEntity();
+    Request secondRequest = createRequestEntity();
     secondRequest.setNegotiation(negotiationEntityUpdate);
     requestRepository.save(secondRequest);
 
