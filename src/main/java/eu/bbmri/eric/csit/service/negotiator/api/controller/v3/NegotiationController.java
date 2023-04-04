@@ -107,12 +107,16 @@ public class NegotiationController {
   @GetMapping("/negotiations")
   List<NegotiationDTO> list(
       @RequestParam(required = false) String biobankId,
-      @RequestParam(required = false) String collectionId) {
+      @RequestParam(required = false) String collectionId,
+      @RequestParam(required = false) String userId,
+      @RequestParam(required = false) String userRole) {
     List<Negotiation> negotiations;
     if (biobankId != null) {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
       negotiations = negotiationService.findByCollectionId(collectionId);
+    } else if (userId != null && userRole != null) {
+      negotiations = negotiationService.findByUserIdAndRole(userId, userRole);
     } else {
       negotiations = negotiationService.findAll();
     }
