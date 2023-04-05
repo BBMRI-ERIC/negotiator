@@ -55,7 +55,7 @@ public class NegotiationController {
   }
 
   /**
-   * Create a negotiation and the project it belongs to
+   * Create a negotiation
    */
   @PostMapping(
       value = "/negotiations",
