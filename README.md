@@ -13,10 +13,7 @@ The goal of this project is to provide an access control mechanism by structurin
 Negotiator is currently used for mediating access to biological data and samples in BBMRI-ERIC. Using one of BBMRI-ERIC
 discovery services such as the [Directory](https://directory.bbmri-eric.eu/#/) or the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
 can browse and locate collections of bio specimens, and then request access via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/) by filling out a request form and then following individual steps of the Negotiation lifecycle.
-
-## Version
-
-This is a new implementation of the Negotiator, version 3.0.0 and is still under active development. An older version of
+This is a new implementation of the Negotiator, version 3.0.0 and is still under active development.An older version of
 this service can be found in this repository: https://github.com/BBMRI-ERIC/negotiator.bbmri
 
 ## Quick Start
@@ -43,4 +40,3 @@ jdbc:h2:tcp://localhost:9092/mem:negotiator
 ### Database Design
 
 The database design can be found here: https://dbdiagram.io/d/5f84671a3a78976d7b774fec
-
