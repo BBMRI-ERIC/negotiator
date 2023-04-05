@@ -44,19 +44,3 @@ jdbc:h2:tcp://localhost:9092/mem:negotiator
 
 The database design can be found here: https://dbdiagram.io/d/5f84671a3a78976d7b774fec
 
-## Installation
-
-### Using docker
-
-To create a test version of the negotiator perform the following steps:
-
-1. Clone this repository using `git clone https://github.com/BBMRI-ERIC/negotiator-v3.git`
-2. cd into the directory: `cd negotiator-v3`
-3. Run the docker image build `docker-compose build negotiator`
-4. Run the compose `docker-compose up -d`
-
-The negotiator will run using Postgres as DBMS, and it will respond on `http://localhost:8080`.
-
-Some [test data](/src/main/resources/data-h2.sql) will also be added 
-
-## References
