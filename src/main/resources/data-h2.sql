@@ -19,7 +19,8 @@ insert into person (auth_email, auth_name, auth_subject, password, organization,
   ('manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
   ('manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
   ('manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
-  ('adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null);
+  ('adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
+  ('taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null);
 
 insert into authorities (person_id, authority) values
   (1, 'ADMIN'),
@@ -66,3 +67,5 @@ insert into person_resource_link (resource_id, person_id) values (1, 2), (4, 3);
 INSERT INTO PUBLIC.NEGOTIATION (ID, CREATION_DATE, MODIFIED_DATE, DESCRIPTION, IS_TEST, TITLE, CREATED_BY, MODIFIED_BY, PROJECT_ID)
 VALUES ('1', null, null, 'Test request description', false, 'A very important request', 8, null, null),
        ('2', null, null, 'Test request description 2', false, 'Another very important request', 8, null, null);
+INSERT INTO PUBLIC.PERSON_NEGOTIATION (NEGOTIATION_ID, PERSON_ID, ROLE_ID) VALUES ('1', 9, 5);
+INSERT INTO PUBLIC.PERSON_NEGOTIATION (NEGOTIATION_ID, PERSON_ID, ROLE_ID) VALUES ('1', 8, 4);
