@@ -20,6 +20,9 @@ public class AccessCriteriaDTO {
   private String name;
 
   @NotNull
+  private String label;
+
+  @NotNull
   private String description;
 
   @NotNull

@@ -32,7 +32,8 @@ import lombok.ToString.Exclude;
         @NamedSubgraph(
             name = "access-criteria-sections",
             attributeNodes = {
-                @NamedAttributeNode(value = "title"),
+                @NamedAttributeNode(value = "name"),
+                @NamedAttributeNode(value = "label"),
                 @NamedAttributeNode(value = "description"),
                 @NamedAttributeNode(value = "accessCriteriaSectionLink", subgraph = "access-criteria-section-with-details"),
             }),
@@ -45,6 +46,7 @@ import lombok.ToString.Exclude;
             name = "access-criteria-with-details",
             attributeNodes = {
                 @NamedAttributeNode(value = "name"),
+                @NamedAttributeNode(value = "label"),
                 @NamedAttributeNode(value = "description"),
                 @NamedAttributeNode(value = "type")
             })

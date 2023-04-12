@@ -28,7 +28,11 @@ public class AccessCriteriaSection extends BaseEntity implements Comparable<Acce
 
   @NotNull
   @Column(unique = true)
-  private String title;
+  private String name;
+
+  @NotNull
+  @Column(unique = true)
+  private String label;
 
   @NotNull
   private String description;
@@ -52,12 +56,12 @@ public class AccessCriteriaSection extends BaseEntity implements Comparable<Acce
       return false;
     }
     AccessCriteriaSection that = (AccessCriteriaSection) o;
-    return Objects.equals(getTitle(), that.getTitle());
+    return Objects.equals(getName(), that.getName());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getTitle());
+    return Objects.hash(getName());
   }
 
   @Override

@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.v3;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -13,11 +14,15 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
+import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDate;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -63,6 +68,11 @@ public class TestUtils {
   public static final String[] PERUN_USER_IDENTITIES = {
       "perun user identity 1", "perun user identity 2"
   };
+
+  private static Resource negotiationPayload;
+
+  @Autowired
+  private static ResourceLoader resourceLoader;
 
   public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
@@ -156,17 +166,31 @@ public class TestUtils {
   }
 
   public static NegotiationCreateDTO createNegotiation(
-      boolean update, boolean includeProject, Set<String> queriesId) {
-    String suffix = update ? "u" : "";
+      boolean update, Set<String> requestsId) throws IOException {
+    String payload = """
+        {
+          "project": {
+            "title": "Title",
+            "description": "Description"
+          },
+          "samples": {
+            "sample-type": "DNA",
+            "num-of-subjects": 10,
+            "num-of-samples": 20,
+            "volume-per-sample": 5
+          },
+          "ethics-vote": {
+            "ethics-vote": "My ethic vote"
+          }
+        }
+    """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
 
     NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
         NegotiationCreateDTO.builder()
-            .title(String.format("%s%s", REQUEST_TITLE, suffix))
-            .description(String.format("%s%s", REQUEST_DESCRIPTION, suffix))
-            .queries(queriesId);
-    if (includeProject) {
-      builder.project(TestUtils.createProjectRequest(update));
-    }
+            .payload(jsonPayload)
+            .requests(requestsId);
     return builder.build();
   }
 

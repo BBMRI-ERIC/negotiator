@@ -23,10 +23,10 @@ import lombok.ToString.Exclude;
 public class AccessCriteria extends BaseEntity implements Comparable<AccessCriteria> {
 
   @NotNull
-  private String identifier;
+  private String name;
 
   @NotNull
-  private String name;
+  private String label;
 
   @NotNull
   private String description;

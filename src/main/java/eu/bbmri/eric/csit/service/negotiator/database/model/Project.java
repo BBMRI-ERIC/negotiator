@@ -35,7 +35,6 @@ import org.hibernate.annotations.TypeDefs;
 @NamedEntityGraph(
     name = "project-detailed",
     attributeNodes = {
-        @NamedAttributeNode("negotiations"),
         @NamedAttributeNode("payload")
     }
 )
@@ -46,9 +45,9 @@ public class Project extends AuditEntity {
   @NotNull
   private String payload;
 
-  @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
-  @Exclude
-  private Set<Negotiation> negotiations;
+//  @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+//  @Exclude
+//  private Set<Negotiation> negotiations;
 
   @Exclude
   @ManyToMany(mappedBy = "projects")

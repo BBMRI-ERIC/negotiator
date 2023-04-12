@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
@@ -23,17 +24,10 @@ public class NegotiationDTO {
   @NotNull
   private String id;
 
-  @NotNull
-  private String title;
-
-  @NotNull
-  private String description;
-
-  private Boolean isTest = false;
-
-  private ProjectDTO project;
-
-  private Set<RequestDTO> queries;
+  private Set<RequestDTO> requests;
 
   private Set<PersonRoleDTO> persons;
+
+  @NotNull
+  private JsonNode payload;
 }

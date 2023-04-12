@@ -1,5 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
@@ -37,12 +40,25 @@ public class NegotiationController {
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
     Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
-        prr -> personsRoleConverter(prr.getSource());
+        role -> personsRoleConverter(role.getSource());
+
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(personsRoleConverter)
                 .map(Negotiation::getPersons, NegotiationDTO::setPersons));
+
+    Converter<String, JsonNode> payloadConverter =
+        p -> {
+          try {
+            return payloadConverter(p.getSource());
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);  // TODO: raise the correct exception
+          }
+        };
+
+    typeMap.addMappings(mapper -> mapper.using(payloadConverter)
+        .map(Negotiation::getPayload, NegotiationDTO::setPayload));
 
   }
 
@@ -53,6 +69,11 @@ public class NegotiationController {
                 new PersonRoleDTO(
                     personRole.getPerson().getAuthName(), personRole.getRole().getName()))
         .collect(Collectors.toSet());
+  }
+
+  private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.readTree(jsonPayload);
   }
 
   /**
@@ -71,22 +92,6 @@ public class NegotiationController {
   private Long getCreatorId() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
-  }
-
-  /**
-   * Create a negotiation for a specific project
-   *
-   * @return NegotiationDTO
-   */
-  @PostMapping(
-      value = "/projects/{projectId}/negotiations",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.CREATED)
-  NegotiationDTO add(@PathVariable String projectId,
-      @Valid @RequestBody NegotiationCreateDTO request) {
-    Negotiation negotiationEntity = negotiationService.create(projectId, request, getCreatorId());
-    return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
   /**

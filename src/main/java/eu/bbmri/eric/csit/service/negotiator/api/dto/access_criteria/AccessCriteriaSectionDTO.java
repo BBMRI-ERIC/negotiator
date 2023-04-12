@@ -19,7 +19,11 @@ import lombok.Setter;
 public class AccessCriteriaSectionDTO {
 
   @NotNull
-  private String title;
+  private String name;
+
+  @NotNull
+  private String label;
+
   @NotNull
   private String description;
 
