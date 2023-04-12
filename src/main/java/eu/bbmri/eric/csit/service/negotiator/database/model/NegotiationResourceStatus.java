@@ -34,7 +34,6 @@ public class NegotiationResourceStatus extends AuditEntity {
   private Resource resource;
 
   private String status;
-  private String statusType;
   private Date statusDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -42,6 +41,4 @@ public class NegotiationResourceStatus extends AuditEntity {
   @Exclude
   private Person Person;
 
-  @Lob // TODO: should this one be Json instead of txt blob?
-  private String statusJson;
 }
