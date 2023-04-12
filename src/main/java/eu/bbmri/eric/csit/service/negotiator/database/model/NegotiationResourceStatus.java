@@ -20,11 +20,11 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "lifecycle_request_collection_status")
-public class LifecycleRequestCollectionStatus extends AuditEntity {
+@Table(name = "negotiation_resource_status")
+public class NegotiationResourceStatus extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "request_id")
+  @JoinColumn(name = "negotiation_id")
   @Exclude
   private Negotiation negotiation;
 
