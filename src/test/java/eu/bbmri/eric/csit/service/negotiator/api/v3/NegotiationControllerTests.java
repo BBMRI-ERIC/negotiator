@@ -694,4 +694,12 @@ public class NegotiationControllerTests {
         .andExpect(status().isNoContent())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
+  @Test
+  public void testNoNegotiationsAreReturned() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s?userRole=RESEARCHER".formatted(REQUESTS_ENDPOINT))
+                            .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+            .andExpect(status().isOk()).andExpect(content().json("[]"));
+  }
 }

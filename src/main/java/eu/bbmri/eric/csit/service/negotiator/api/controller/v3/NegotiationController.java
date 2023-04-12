@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
@@ -55,7 +56,7 @@ public class NegotiationController {
   }
 
   /**
-   * Create a negotiation and the project it belongs to
+   * Create a negotiation
    */
   @PostMapping(
       value = "/negotiations",
@@ -107,12 +108,18 @@ public class NegotiationController {
   @GetMapping("/negotiations")
   List<NegotiationDTO> list(
       @RequestParam(required = false) String biobankId,
-      @RequestParam(required = false) String collectionId) {
+      @RequestParam(required = false) String collectionId,
+      @RequestParam(required = false) String userRole) {
     List<Negotiation> negotiations;
     if (biobankId != null) {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
       negotiations = negotiationService.findByCollectionId(collectionId);
+    } else if (userRole != null) {
+      negotiations = negotiationService.findByUserIdAndRole(
+              NegotiatorUserDetailsService.
+                      getCurrentlyAuthenticatedUserId(),
+              userRole);
     } else {
       negotiations = negotiationService.findAll();
     }

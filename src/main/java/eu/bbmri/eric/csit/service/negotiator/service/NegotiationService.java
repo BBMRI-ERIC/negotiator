@@ -253,4 +253,9 @@ public class NegotiationService {
   public List<Negotiation> findByCollectionId(String collectionId) {
     return negotiationRepository.findByCollectionId(collectionId);
   }
+
+  @Transactional
+  public List<Negotiation> findByUserIdAndRole(String userId, String userRole) {
+    return negotiationRepository.findByUserIdAndRole(userId, userRole);
+  }
 }
