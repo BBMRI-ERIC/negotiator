@@ -56,7 +56,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.7</version> <!-- lookup parent from repository -->
+    <version>2.7.4</version> <!-- lookup parent from repository -->
   </parent>
 
   <properties>
@@ -81,6 +81,22 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <version>2.5.4</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core -->
+    <dependency>
+      <groupId>org.springframework.statemachine</groupId>
+      <artifactId>spring-statemachine-core</artifactId>
+      <version>3.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.statemachine</groupId>
+      <artifactId>spring-statemachine-starter</artifactId>
+      <version>3.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -135,6 +151,11 @@
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-ui</artifactId>
       <version>1.6.12</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

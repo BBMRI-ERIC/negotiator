@@ -78,6 +78,14 @@ public class Negotiation extends AuditEntity {
 
   private String state;
 
+  public NegotiationStates getState() {
+    return NegotiationStates.valueOf(state);
+  }
+
+  public void setState(NegotiationStates state) {
+    this.state = state.name();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
