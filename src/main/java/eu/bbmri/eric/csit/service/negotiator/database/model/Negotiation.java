@@ -23,7 +23,6 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-//import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @Entity
