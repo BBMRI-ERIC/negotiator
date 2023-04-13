@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
@@ -45,25 +46,35 @@ public class RequestController {
     TypeMap<Request, RequestDTO> typeMap =
         modelMapper.createTypeMap(Request.class, RequestDTO.class);
 
-    Converter<Set<Resource>, Set<ResourceDTO>> queryResourceToResources =
-        q -> convertResourceToResources(q.getSource());
+    Converter<Set<Resource>, Set<ResourceDTO>> resourcesToResourcesDTO =
+        q -> convertResourcesToResourcesDTO(q.getSource());
     typeMap.addMappings(
         mapper ->
             mapper
-                .using(queryResourceToResources)
+                .using(resourcesToResourcesDTO)
                 .map(Request::getResources, RequestDTO::setResources));
 
-    Converter<String, String> queryToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
+    Converter<String, String> requestToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
     typeMap.addMappings(
         mapper ->
-            mapper.using(queryToRedirectUrl).map(Request::getId, RequestDTO::setRedirectUrl));
+            mapper.using(requestToRedirectUrl).map(Request::getId, RequestDTO::setRedirectUrl));
+
+    Converter<Negotiation, String> negotiationToNegotiationId = q -> convertNegotiationToNegotiationId(
+        q.getSource());
+    typeMap.addMappings(mapper ->
+        mapper.using(negotiationToNegotiationId)
+            .map(Request::getNegotiation, RequestDTO::setNegotiationId));
   }
 
-  private String convertIdToRedirectUrl(String queryId) {
-    return "%s/requests/%s".formatted(FRONTEND_URL, queryId);
+  private String convertNegotiationToNegotiationId(Negotiation negotiation) {
+    return negotiation != null ? negotiation.getId() : null;
   }
 
-  private Set<ResourceDTO> convertResourceToResources(Set<Resource> resources) {
+  private String convertIdToRedirectUrl(String requestId) {
+    return "%s/requests/%s".formatted(FRONTEND_URL, requestId);
+  }
+
+  private Set<ResourceDTO> convertResourcesToResourcesDTO(Set<Resource> resources) {
     Map<String, ResourceDTO> parents = new HashMap<>();
     resources.forEach(
         collection -> {

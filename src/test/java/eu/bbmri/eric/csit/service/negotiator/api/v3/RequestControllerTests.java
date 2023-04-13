@@ -13,9 +13,12 @@ import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +53,8 @@ public class RequestControllerTests {
   private RequestController controller;
   @Autowired
   private RequestService requestService;
+  @Autowired
+  private NegotiationService negotiationService;
   @Autowired
   private ModelMapper modelMapper;
 
@@ -174,6 +179,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.id").isString())
         .andExpect(jsonPath("$.url", is("http://datasource.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/requests/")))
+        .andExpect(jsonPath("$.negotiationId").doesNotExist())
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
@@ -183,7 +189,7 @@ public class RequestControllerTests {
 
   @Test
   @Order(2)
-  public void testGetAll_Ok() throws Exception {
+  public void testGetAll_Ok_whenNoNegotiationIsAssigned() throws Exception {
     requestService.create(TestUtils.createRequest(false));
 
     mockMvc
@@ -196,6 +202,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$[0].id").isString())
         .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
         .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/request")))
+        .andExpect(jsonPath("$[0].negotiationId").doesNotExist())
         .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
         .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
@@ -205,18 +212,66 @@ public class RequestControllerTests {
 
   @Test
   @Order(2)
-  public void testGetById_Ok() throws Exception {
-    Request q = requestService.create(TestUtils.createRequest(false));
+  public void testGetAll_Ok_whenNegotiationIsAssigned() throws Exception {
+    Request r = requestService.create(TestUtils.createRequest(false));
+    Negotiation n = negotiationService.create(
+        TestUtils.createNegotiation(false, Collections.singleton(r.getId())), 104L);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(ENDPOINT)
+                .with(httpBasic("directory", "directory"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()", is(1)))
+        .andExpect(jsonPath("$[0].id").isString())
+        .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/request")))
+        .andExpect(jsonPath("$[0].negotiationId", is(n.getId())))
+        .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
+        .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
+        .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
+        .andExpect(jsonPath("$[0].resources[0].children[0].type", is("collection")));
+    assertEquals(repository.findAll().size(), 1);
+  }
+
+  @Test
+  @Order(2)
+  public void testGetById_Ok_whenNoNegotiationIsAssigned() throws Exception {
+    Request r = requestService.create(TestUtils.createRequest(false));
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, q.getId()))
+            MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
                 .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
         .andExpect(jsonPath("$.url", is("http://datasource.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
+        .andExpect(jsonPath("$.negotiationId").doesNotExist())
+        .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
+        .andExpect(jsonPath("$.resources[0].type", is("biobank")))
+        .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
+        .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
+    assertEquals(repository.findAll().size(), 1);
+  }
+
+  @Test
+  @Order(2)
+  public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
+    Request r = requestService.create(TestUtils.createRequest(false));
+    Negotiation n = negotiationService.create(
+        TestUtils.createNegotiation(false, Collections.singleton(r.getId())), 104L);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
+                .with(httpBasic("directory", "directory"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
+        .andExpect(jsonPath("$.negotiationId", is(n.getId())))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
@@ -260,7 +315,6 @@ public class RequestControllerTests {
         "%s/1".formatted(ENDPOINT));
   }
 
-
   @Test
   public void testUpdate_NotFound() throws Exception {
     RequestCreateDTO updateRequest = TestUtils.createRequest(true);
@@ -279,14 +333,14 @@ public class RequestControllerTests {
   @Test
   @Order(3)
   public void testUpdate_Ok() throws Exception {
-    Request q = requestService.create(TestUtils.createRequest(false));
+    Request r = requestService.create(TestUtils.createRequest(false));
 
     RequestCreateDTO updateRequest = TestUtils.createRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.put("%s/%s".formatted(ENDPOINT, q.getId()))
+            MockMvcRequestBuilders.put("%s/%s".formatted(ENDPOINT, r.getId()))
                 .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
