@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator;
 
 import lombok.extern.java.Log;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +37,18 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 public class StateMachineTest {
 
     @Autowired
+    private StateMachineService<TestStates, TestEvents> stateMachineService;
+
     private StateMachine<TestStates, TestEvents> stateMachine;
 
     @BeforeEach
     void beforeEach(){
+        this.stateMachine = stateMachineService.acquireStateMachine("test");
         // reset state machine to initial state
         stateMachine.stopReactively().block();
         stateMachine.startReactively().block();
     }
+
 
     @Test
     public void testGetStateMachineUUID() {
@@ -82,6 +87,13 @@ public class StateMachineTest {
                 .map(transition -> transition.getTrigger().getEvent())
                 .collect(Collectors.toList()));
     }
+
+    @Test
+    public void testGetPersistedStateMachine() {
+        stateMachine.sendEvent(TestEvents.APPROVE);
+        stateMachine = stateMachineService.acquireStateMachine("test");
+        assertEquals(TestStates.APPROVED, stateMachine.getState().getId());
+    }
 }
 
 enum TestStates {
@@ -96,7 +108,7 @@ enum TestEvents {
 }
 
 @Configuration
-@EnableStateMachine
+@EnableStateMachineFactory
 @Log
 class StateMachineConfig
         extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
@@ -137,5 +149,28 @@ class StateMachineConfig
         };
     }
 
+    @Bean
+    public StateMachinePersist<TestStates, TestEvents, String> stateMachinePersist() {
+        return new StateMachinePersist<>() {
+            private final HashMap<String, StateMachineContext<TestStates, TestEvents>> contexts = new HashMap<>();
+
+            @Override
+            public void write(StateMachineContext<TestStates, TestEvents> context, String contextObj) {
+                contexts.put(contextObj, context);
+            }
+
+            @Override
+            public StateMachineContext<TestStates, TestEvents> read(String contextObj) {
+                return contexts.get(contextObj);
+            }
+        };
+    }
+    @Bean
+    public StateMachineService<TestStates, TestEvents> stateMachineService(
+            final StateMachineFactory<TestStates, TestEvents> stateMachineFactory,
+            final StateMachinePersist<TestStates, TestEvents, String> stateMachinePersist) {
+        return new DefaultStateMachineService<>(stateMachineFactory, stateMachinePersist);
+    }
 }
+
 
