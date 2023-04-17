@@ -18,8 +18,13 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.data.StateMachineRepository;
+import org.springframework.statemachine.data.jpa.JpaPersistingStateMachineInterceptor;
+import org.springframework.statemachine.data.jpa.JpaRepositoryStateMachine;
+import org.springframework.statemachine.data.jpa.JpaStateMachineRepository;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.service.DefaultStateMachineService;
 import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.statemachine.state.State;
@@ -150,26 +155,16 @@ class StateMachineConfig
     }
 
     @Bean
-    public StateMachinePersist<TestStates, TestEvents, String> stateMachinePersist() {
-        return new StateMachinePersist<>() {
-            private final HashMap<String, StateMachineContext<TestStates, TestEvents>> contexts = new HashMap<>();
-
-            @Override
-            public void write(StateMachineContext<TestStates, TestEvents> context, String contextObj) {
-                contexts.put(contextObj, context);
-            }
-
-            @Override
-            public StateMachineContext<TestStates, TestEvents> read(String contextObj) {
-                return contexts.get(contextObj);
-            }
-        };
-    }
-    @Bean
     public StateMachineService<TestStates, TestEvents> stateMachineService(
             final StateMachineFactory<TestStates, TestEvents> stateMachineFactory,
-            final StateMachinePersist<TestStates, TestEvents, String> stateMachinePersist) {
+            final StateMachineRuntimePersister<TestStates, TestEvents, String> stateMachinePersist) {
         return new DefaultStateMachineService<>(stateMachineFactory, stateMachinePersist);
+    }
+
+    @Bean
+    public StateMachineRuntimePersister<TestStates, TestEvents, String> stateMachineRuntimePersister(
+            JpaStateMachineRepository jpaStateMachineRepository) {
+        return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
     }
 }
 
