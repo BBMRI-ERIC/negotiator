@@ -24,7 +24,7 @@ import org.springframework.statemachine.state.State;
 import java.util.EnumSet;
 
 @Configuration
-@EnableStateMachineFactory
+@EnableStateMachineFactory(name = "foo")
 @Log
 public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAdapter<NegotiationState, NegotiationEvent> {
 
@@ -64,7 +64,7 @@ public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAda
         };
     }
 
-    @Bean
+    @Bean(name = "boo")
     public StateMachineService<NegotiationState, NegotiationEvent> stateMachineService(
             final StateMachineFactory<NegotiationState, NegotiationEvent> stateMachineFactory,
             final StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachinePersist) {
