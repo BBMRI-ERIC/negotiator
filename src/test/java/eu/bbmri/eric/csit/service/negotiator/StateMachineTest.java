@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.StateMachinePersist;
@@ -28,6 +29,7 @@ import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.service.DefaultStateMachineService;
 import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.statemachine.state.State;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -39,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class StateMachineTest {
 
     @Autowired
@@ -115,6 +118,7 @@ enum TestEvents {
 @Configuration
 @EnableStateMachineFactory
 @Log
+@Profile("test")
 class StateMachineConfig
         extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
