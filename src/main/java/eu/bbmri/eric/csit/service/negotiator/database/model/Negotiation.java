@@ -76,16 +76,6 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "jsonb")
   private String payload;
 
-  private String state;
-
-  public NegotiationState getState() {
-    return NegotiationState.valueOf(state);
-  }
-
-  public void setState(NegotiationState state) {
-    this.state = state.name();
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
