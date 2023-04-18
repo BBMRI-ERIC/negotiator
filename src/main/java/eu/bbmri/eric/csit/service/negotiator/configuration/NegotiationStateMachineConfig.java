@@ -3,9 +3,11 @@ package eu.bbmri.eric.csit.service.negotiator.configuration;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -24,7 +26,7 @@ import org.springframework.statemachine.state.State;
 import java.util.EnumSet;
 
 @Configuration
-@EnableStateMachineFactory(name = "foo")
+@EnableStateMachineFactory
 @Log
 public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAdapter<NegotiationState, NegotiationEvent> {
 
@@ -64,14 +66,14 @@ public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAda
         };
     }
 
-    @Bean(name = "boo")
+    @Bean(name = "negotiationStateMachineService")
     public StateMachineService<NegotiationState, NegotiationEvent> stateMachineService(
             final StateMachineFactory<NegotiationState, NegotiationEvent> stateMachineFactory,
             final StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachinePersist) {
         return new DefaultStateMachineService<>(stateMachineFactory, stateMachinePersist);
     }
 
-    @Bean
+    @Bean(name = "negotiationStateMachineRuntimePersister")
     public StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachineRuntimePersister(
             JpaStateMachineRepository jpaStateMachineRepository) {
         return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
