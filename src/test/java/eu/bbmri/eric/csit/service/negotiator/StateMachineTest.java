@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -116,7 +117,7 @@ enum TestEvents {
 }
 
 @Configuration
-@EnableStateMachineFactory
+@EnableStateMachineFactory(name = "test")
 @Log
 @Profile("test")
 class StateMachineConfig
@@ -127,8 +128,7 @@ class StateMachineConfig
             throws Exception {
         config
                 .withConfiguration()
-                .autoStartup(true)
-                .listener(listener());
+                .autoStartup(true);
     }
 
     @Override
@@ -146,16 +146,6 @@ class StateMachineConfig
         transitions
                 .withExternal()
                 .source(TestStates.SUBMITTED).target(TestStates.APPROVED).event(TestEvents.APPROVE);
-    }
-
-    @Bean
-    public StateMachineListener<TestStates, TestEvents> listener() {
-        return new StateMachineListenerAdapter<TestStates, TestEvents>() {
-            @Override
-            public void stateChanged(State<TestStates, TestEvents> from, State<TestStates, TestEvents> to) {
-                log.info("State change to " + to.getId());
-            }
-        };
     }
 
     @Bean
