@@ -11,12 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.util.Collections;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class RequestControllerTests {
   @Autowired
   private RequestService requestService;
   @Autowired
-  private NegotiationService negotiationService;
+  private NegotiationServiceImpl negotiationService;
   @Autowired
   private ModelMapper modelMapper;
 
@@ -214,7 +215,7 @@ public class RequestControllerTests {
   @Order(2)
   public void testGetAll_Ok_whenNegotiationIsAssigned() throws Exception {
     Request r = requestService.create(TestUtils.createRequest(false));
-    Negotiation n = negotiationService.create(
+    NegotiationDTO n = negotiationService.create(
         TestUtils.createNegotiation(false, Collections.singleton(r.getId())), 104L);
     mockMvc
         .perform(
@@ -260,7 +261,7 @@ public class RequestControllerTests {
   @Order(2)
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
     Request r = requestService.create(TestUtils.createRequest(false));
-    Negotiation n = negotiationService.create(
+    NegotiationDTO n = negotiationService.create(
         TestUtils.createNegotiation(false, Collections.singleton(r.getId())), 104L);
     mockMvc
         .perform(

@@ -8,7 +8,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
 import java.util.HashMap;
@@ -30,13 +30,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class QueryV2Controller {
 
   private final RequestService requestService;
-  private final NegotiationService negotiationService;
+  private final NegotiationServiceImpl negotiationService;
   private final ModelMapper modelMapper;
   @Value("${negotiator.frontend-url}")
   private String FRONTEND_URL;
 
   public QueryV2Controller(
-      RequestService requestService, NegotiationService negotiationService,
+      RequestService requestService, NegotiationServiceImpl negotiationService,
       ModelMapper modelMapper) {
     this.requestService = requestService;
     this.negotiationService = negotiationService;
@@ -114,15 +114,14 @@ public class QueryV2Controller {
       String[] tokens = queryRequest.getToken().split("__search__");
       try {
         // If the negotiation was not found in V2, a new request was created
-        negotiationService.findById(tokens[0]);
+        negotiationService.exists(tokens[0]);
         created = false;
         if (tokens.length == 1) {
           requestEntity = requestService.create(v3Request);
-          negotiationService.addQueryToRequest(tokens[0], requestEntity);
+          negotiationService.addRequestToNegotiation(tokens[0], requestEntity);
         } else { // Updating an old request: the requestToken can be ignored
           requestEntity = requestService.update(tokens[1], v3Request);
         }
-
       } catch (EntityNotFoundException ex) {
         requestEntity = requestService.create(v3Request);
         created = true;

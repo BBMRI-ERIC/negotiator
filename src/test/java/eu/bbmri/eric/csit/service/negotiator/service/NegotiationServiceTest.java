@@ -1,37 +1,52 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.Resource;
-
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+@SpringBootTest(classes = NegotiatorApplication.class)
+@ActiveProfiles("test")
 public class NegotiationServiceTest {
+    private AutoCloseable closeable;
 
     @Mock
     NegotiationRepository negotiationRepository;
-    @InjectMocks
-    @Resource
-    NegotiationService negotiationService;
+
+    @Autowired
+    NegotiationServiceImpl negotiationService;
 
     @BeforeEach
     void beforeAll() {
-        MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void afterAll() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    public void testExistIsFalse_WhenNegotiationIsNotFound() {
+        when(negotiationRepository.findById(any())).thenThrow(EntityNotFoundException.class);
+        assertFalse(negotiationService.exists("unknown"));
     }
 
     @Test
     public void findByUserIDAndRoleReturnsNullForFakeParameters() {
         when(negotiationRepository.findByUserIdAndRole(any(), any())).thenReturn(null);
-        assertNull(negotiationService.findByUserIdAndRole("fakeID", "fakeRole"));
+        assertTrue(negotiationService.findByUserIdAndRole("fakeID", "fakeRole").isEmpty());
     }
 }
