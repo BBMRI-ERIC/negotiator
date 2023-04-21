@@ -160,8 +160,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     requestEntity.setNegotiation(negotiationEntity);
     try {
       negotiationEntity = negotiationRepository.save(negotiationEntity);
-      NegotiationDTO ndto = modelMapper.map(negotiationEntity, NegotiationDTO.class);
-      return ndto;
+      return modelMapper.map(negotiationEntity, NegotiationDTO.class);
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
