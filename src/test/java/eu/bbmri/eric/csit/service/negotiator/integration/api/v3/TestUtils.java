@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +16,6 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -120,19 +119,15 @@ public class TestUtils {
         .build();
   }
 
-  public static QueryCreateV2DTO createQueryV2Request(boolean update) {
-    String suffix = update ? "u" : "";
-    String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
-    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
-
+  public static QueryCreateV2DTO createQueryV2Request() {;
     CollectionV2DTO collection =
         CollectionV2DTO.builder()
-            .collectionId(collectionId)
-            .biobankId(biobankId)
+            .collectionId(QUERY_COLLECTION_1_ID)
+            .biobankId(QUERY_BIOBANK_1_ID)
             .build();
 
     return QueryCreateV2DTO.builder()
-        .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
+        .humanReadable(QUERY_HUMAN_READABLE)
         .url(QUERY_URL)
         .collections(Set.of(collection))
         .build();
@@ -165,25 +160,24 @@ public class TestUtils {
     return perunUserRequestList;
   }
 
-  public static NegotiationCreateDTO createNegotiation(
-      boolean update, Set<String> requestsId) throws IOException {
+  public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
     String payload = """
-        {
-          "project": {
-            "title": "Title",
-            "description": "Description"
-          },
-          "samples": {
-            "sample-type": "DNA",
-            "num-of-subjects": 10,
-            "num-of-samples": 20,
-            "volume-per-sample": 5
-          },
-          "ethics-vote": {
-            "ethics-vote": "My ethic vote"
-          }
-        }
-    """;
+            {
+              "project": {
+                "title": "Title",
+                "description": "Description"
+              },
+              "samples": {
+                "sample-type": "DNA",
+                "num-of-subjects": 10,
+                "num-of-samples": 20,
+                "volume-per-sample": 5
+              },
+              "ethics-vote": {
+                "ethics-vote": "My ethic vote"
+              }
+            }
+        """;
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 

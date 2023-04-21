@@ -68,7 +68,7 @@ public class Request {
   private Set<Resource> resources;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "request_id")
+  @JoinColumn(name = "negotiation_id")
   @Exclude
   private Negotiation negotiation;
 

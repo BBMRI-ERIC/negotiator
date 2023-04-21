@@ -4,12 +4,11 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,14 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class QueryV2Controller {
 
-  private final RequestService requestService;
+  private final RequestServiceImpl requestService;
   private final NegotiationServiceImpl negotiationService;
   private final ModelMapper modelMapper;
   @Value("${negotiator.frontend-url}")
   private String FRONTEND_URL;
 
   public QueryV2Controller(
-      RequestService requestService, NegotiationServiceImpl negotiationService,
+      RequestServiceImpl requestService, NegotiationServiceImpl negotiationService,
       ModelMapper modelMapper) {
     this.requestService = requestService;
     this.negotiationService = negotiationService;
@@ -56,23 +55,23 @@ public class QueryV2Controller {
                 .map(QueryCreateV2DTO::getCollections, RequestCreateDTO::setResources));
 
     // Mapper from v2 Request to V3 Request
-    TypeMap<Request, QueryV2DTO> queryToV3Response =
-        modelMapper.createTypeMap(Request.class, QueryV2DTO.class);
+    TypeMap<RequestDTO, QueryV2DTO> queryToV3Response =
+        modelMapper.createTypeMap(RequestDTO.class, QueryV2DTO.class);
 
     Converter<String, String> queryToRedirectUri = q -> convertIdToRedirectUri(q.getSource());
     queryToV3Response.addMappings(
         mapper ->
-            mapper.using(queryToRedirectUri).map(Request::getId, QueryV2DTO::setRedirectUri));
+            mapper.using(queryToRedirectUri).map(RequestDTO::getId, QueryV2DTO::setRedirectUri));
   }
 
   private String convertIdToRedirectUri(String queryId) {
-    Request request = requestService.findById(queryId);
-    Negotiation negotiation = request.getNegotiation();
+    RequestDTO request = requestService.findById(queryId);
+    String negotiationId = request.getNegotiationId();
 
-    if (negotiation == null) {
+    if (negotiationId == null) {
       return "%s/requests/%s".formatted(FRONTEND_URL, queryId);
     } else {
-      return "%s/negotiations/%s/requests/%s".formatted(FRONTEND_URL, negotiation.getId(), queryId);
+      return "%s/negotiations/%s/requests/%s".formatted(FRONTEND_URL, negotiationId, queryId);
     }
   }
 
@@ -107,30 +106,29 @@ public class QueryV2Controller {
       produces = MediaType.APPLICATION_JSON_VALUE)
   ResponseEntity<QueryV2DTO> add(@Valid @RequestBody QueryCreateV2DTO queryRequest) {
     RequestCreateDTO v3Request = modelMapper.map(queryRequest, RequestCreateDTO.class);
-    Request requestEntity;
+    RequestDTO requestResponse;
     boolean created;
     if (queryRequest.getToken() != null && !queryRequest.getToken().isEmpty()) {
       // Update an old request or add a new one to a negotiation
       String[] tokens = queryRequest.getToken().split("__search__");
-      try {
-        // If the negotiation was not found in V2, a new request was created
-        negotiationService.exists(tokens[0]);
+      // If the negotiation was not found in V2, a new request was created
+      if (negotiationService.exists(tokens[0])) {
         created = false;
         if (tokens.length == 1) {
-          requestEntity = requestService.create(v3Request);
-          negotiationService.addRequestToNegotiation(tokens[0], requestEntity);
+          requestResponse = requestService.create(v3Request);
+          negotiationService.addRequestToNegotiation(tokens[0], requestResponse.getId());
         } else { // Updating an old request: the requestToken can be ignored
-          requestEntity = requestService.update(tokens[1], v3Request);
+          requestResponse = requestService.update(tokens[1], v3Request);
         }
-      } catch (EntityNotFoundException ex) {
-        requestEntity = requestService.create(v3Request);
+      } else {
+        requestResponse = requestService.create(v3Request);
         created = true;
       }
     } else {
-      requestEntity = requestService.create(v3Request);
+      requestResponse = requestService.create(v3Request);
       created = true;
     }
-    QueryV2DTO response = modelMapper.map(requestEntity, QueryV2DTO.class);
+    QueryV2DTO response = modelMapper.map(requestResponse, QueryV2DTO.class);
     if (created) {
       return ResponseEntity.created(URI.create(response.getRedirectUri())).body(response);
     } else {

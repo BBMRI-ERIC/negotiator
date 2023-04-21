@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
@@ -13,20 +13,17 @@ import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,12 +37,15 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-@TestMethodOrder(OrderAnnotation.class)
 public class RequestControllerTests {
 
+  private static final Long CREATOR_ID = 104L;
   private static final String ENDPOINT = "/v3/requests";
+  private static final String NEGOTIATION_1 = "negotiation-1";
+  private static final String UNASSIGNED_REQUEST_ID = "request-2";
+
   @Autowired
-  public RequestService service;
+  public RequestServiceImpl service;
   @Autowired
   public RequestRepository repository;
   @Autowired
@@ -53,7 +53,7 @@ public class RequestControllerTests {
   @Autowired
   private RequestController controller;
   @Autowired
-  private RequestService requestService;
+  private RequestServiceImpl requestService;
   @Autowired
   private NegotiationServiceImpl negotiationService;
   @Autowired
@@ -64,7 +64,6 @@ public class RequestControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    repository.deleteAll();
   }
 
   @Test
@@ -165,11 +164,10 @@ public class RequestControllerTests {
   }
 
   @Test
-  @Order(1)
   public void testCreate_Ok() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
-
+    long previousCount = repository.count();
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
@@ -185,13 +183,14 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+    assertEquals(repository.count(), previousCount + 1);
   }
 
   @Test
-  @Order(2)
   public void testGetAll_Ok_whenNoNegotiationIsAssigned() throws Exception {
     requestService.create(TestUtils.createRequest(false));
+    String unassignedRequestSelector = "$[?(@.id == '%s')]".formatted(UNASSIGNED_REQUEST_ID);
+    long previousCount = repository.count();
 
     mockMvc
         .perform(
@@ -199,46 +198,38 @@ public class RequestControllerTests {
                 .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(1)))
-        .andExpect(jsonPath("$[0].id").isString())
-        .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
-        .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/request")))
-        .andExpect(jsonPath("$[0].negotiationId").doesNotExist())
-        .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
-        .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
-        .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
-        .andExpect(jsonPath("$[0].resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+        .andExpect(jsonPath("$.length()", is((int) previousCount)))
+        .andExpect(jsonPath(unassignedRequestSelector).exists())
+        .andExpect(jsonPath(String.format("%s.negotiationId", unassignedRequestSelector)).doesNotExist());
+    assertEquals(repository.count(), previousCount);
   }
 
   @Test
-  @Order(2)
   public void testGetAll_Ok_whenNegotiationIsAssigned() throws Exception {
-    Request r = requestService.create(TestUtils.createRequest(false));
-    NegotiationDTO n = negotiationService.create(
-        TestUtils.createNegotiation(false, Collections.singleton(r.getId())), 104L);
+    long previousCount = repository.count();
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(ENDPOINT)
                 .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(1)))
+        .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath("$[0].id").isString())
         .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
         .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/request")))
-        .andExpect(jsonPath("$[0].negotiationId", is(n.getId())))
+        .andExpect(jsonPath("$[0].negotiationId", is(NEGOTIATION_1)))
         .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1")))
         .andExpect(jsonPath("$[0].resources[0].type", is("biobank")))
         .andExpect(jsonPath("$[0].resources[0].children[0].id", is("biobank:1:collection:1")))
         .andExpect(jsonPath("$[0].resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+    assertEquals(repository.count(), previousCount);
   }
 
   @Test
-  @Order(2)
   public void testGetById_Ok_whenNoNegotiationIsAssigned() throws Exception {
-    Request r = requestService.create(TestUtils.createRequest(false));
+    RequestDTO r = requestService.create(TestUtils.createRequest(false));
+    long previousCount = repository.count();
 
     mockMvc
         .perform(
@@ -254,15 +245,17 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+    assertEquals(repository.count(), previousCount);
   }
 
   @Test
-  @Order(2)
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
-    Request r = requestService.create(TestUtils.createRequest(false));
+    RequestDTO r = requestService.create(TestUtils.createRequest(false));
     NegotiationDTO n = negotiationService.create(
-        TestUtils.createNegotiation(false, Collections.singleton(r.getId())), 104L);
+        TestUtils.createNegotiation(Collections.singleton(r.getId())), CREATOR_ID);
+
+    long previousCount = repository.count();
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
@@ -277,7 +270,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:1:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+    assertEquals(repository.count(), previousCount);
   }
 
   @Test
@@ -332,12 +325,12 @@ public class RequestControllerTests {
   }
 
   @Test
-  @Order(3)
   public void testUpdate_Ok() throws Exception {
-    Request r = requestService.create(TestUtils.createRequest(false));
+    RequestDTO r = requestService.create(TestUtils.createRequest(false));
 
     RequestCreateDTO updateRequest = TestUtils.createRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
+    long previousCount = repository.count();
 
     mockMvc
         .perform(
@@ -354,6 +347,6 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.resources[0].type", is("biobank")))
         .andExpect(jsonPath("$.resources[0].children[0].id", is("biobank:2:collection:1")))
         .andExpect(jsonPath("$.resources[0].children[0].type", is("collection")));
-    assertEquals(repository.findAll().size(), 1);
+    assertEquals(repository.count(), previousCount);
   }
 }
