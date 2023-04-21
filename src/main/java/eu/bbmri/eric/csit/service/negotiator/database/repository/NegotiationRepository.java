@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.database.repository;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,12 +20,13 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
   Optional<Negotiation> findDetailedById(String id);
 
   @Query(value = "SELECT DISTINCT r "
-          + "FROM Negotiation r "
-          + "JOIN FETCH r.persons pp "
-          + "JOIN FETCH pp.person p "
-          + "JOIN FETCH pp.role role "
-          + "where p.authSubject = :userId and role.name = :userRole")
-  List<Negotiation> findByUserIdAndRole(@Param("userId") String userId, @Param("userRole") String userRole );
+      + "FROM Negotiation r "
+      + "JOIN FETCH r.persons pp "
+      + "JOIN FETCH pp.person p "
+      + "JOIN FETCH pp.role role "
+      + "where p.authSubject = :userId and role.name = :userRole")
+  List<Negotiation> findByUserIdAndRole(@Param("userId") String userId,
+      @Param("userRole") String userRole);
 
   @Query(
       value =

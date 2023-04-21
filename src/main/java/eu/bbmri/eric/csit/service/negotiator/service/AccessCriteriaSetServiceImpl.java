@@ -28,42 +28,7 @@ public class AccessCriteriaSetServiceImpl implements AccessCriteriaSetService {
       AccessCriteriaSetRepository accessCriteriaSetRepository, ModelMapper modelMapper) {
     this.accessCriteriaSetRepository = accessCriteriaSetRepository;
     this.modelMapper = modelMapper;
-
-    TypeMap<AccessCriteriaSet, AccessCriteriaSetDTO> typeMap =
-        modelMapper.createTypeMap(AccessCriteriaSet.class, AccessCriteriaSetDTO.class);
-
-    Converter<Set<AccessCriteriaSection>, List<AccessCriteriaSectionDTO>> accessCriteriaConverter =
-        ffc -> formFieldConverter(ffc.getSource());
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(accessCriteriaConverter)
-                .map(AccessCriteriaSet::getSections, AccessCriteriaSetDTO::setSections));
   }
-
-  private List<AccessCriteriaSectionDTO> formFieldConverter(Set<AccessCriteriaSection> sections) {
-    return sections.stream()
-        .map(
-            section -> {
-              List<AccessCriteriaDTO> accessCriteria = section.getAccessCriteriaSectionLink()
-                  .stream().map(
-                      criteria -> new AccessCriteriaDTO(
-                          criteria.getAccessCriteria().getName(),
-                          criteria.getAccessCriteria().getLabel(),
-                          criteria.getAccessCriteria().getDescription(),
-                          criteria.getAccessCriteria().getType(),
-                          criteria.getRequired())
-                  ).toList();
-              return new AccessCriteriaSectionDTO(
-                  section.getName(),
-                  section.getLabel(),
-                  section.getDescription(),
-                  accessCriteria);
-            }
-        )
-        .collect(Collectors.toList());
-  }
-
 
   @Transactional
   public AccessCriteriaSetDTO findByResourceEntityId(String resourceEntityId) {

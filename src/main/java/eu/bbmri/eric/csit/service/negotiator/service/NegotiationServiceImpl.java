@@ -1,12 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
@@ -25,9 +20,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,63 +30,16 @@ import org.springframework.transaction.annotation.Transactional;
 @CommonsLog
 public class NegotiationServiceImpl implements NegotiationService {
 
-  private final NegotiationRepository negotiationRepository;
-  private final RoleRepository roleRepository;
-  private final PersonRepository personRepository;
-  private final RequestRepository requestRepository;
-  private final ModelMapper modelMapper;
-
-  public NegotiationServiceImpl(NegotiationRepository negotiationRepository,
-      RoleRepository roleRepository, PersonRepository personRepository,
-      RequestRepository requestRepository,
-      ModelMapper modelMapper) {
-
-    this.negotiationRepository = negotiationRepository;
-    this.roleRepository = roleRepository;
-    this.personRepository = personRepository;
-    this.requestRepository = requestRepository;
-    this.modelMapper = modelMapper;
-
-    TypeMap<Negotiation, NegotiationDTO> typeMap =
-        modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
-
-    Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
-        role -> personsRoleConverter(role.getSource());
-
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(personsRoleConverter)
-                .map(Negotiation::getPersons, NegotiationDTO::setPersons));
-
-    Converter<String, JsonNode> payloadConverter =
-        p -> {
-          try {
-            return payloadConverter(p.getSource());
-          } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);  // TODO: raise the correct exception
-          }
-        };
-
-    typeMap.addMappings(mapper -> mapper.using(payloadConverter)
-        .map(Negotiation::getPayload, NegotiationDTO::setPayload));
-
-  }
-
-  private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
-    Set<PersonRoleDTO> pr = personsRoles.stream()
-        .map(
-            personRole ->
-                new PersonRoleDTO(
-                    personRole.getPerson().getAuthName(), personRole.getRole().getName()))
-        .collect(Collectors.toSet());
-    return pr;
-  }
-
-  private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.readTree(jsonPayload);
-  }
+  @Autowired
+  NegotiationRepository negotiationRepository;
+  @Autowired
+  RoleRepository roleRepository;
+  @Autowired
+  PersonRepository personRepository;
+  @Autowired
+  RequestRepository requestRepository;
+  @Autowired
+  ModelMapper modelMapper;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;

@@ -34,11 +34,9 @@ public class DataSource extends BaseEntity {
   private String apiUsername;
   @NotNull
   private String apiPassword;
-
   @Enumerated(EnumType.STRING)
   @NotNull
   private ApiType apiType;
-
   @NotNull
   private String resourceNetwork;
   @NotNull
@@ -47,6 +45,7 @@ public class DataSource extends BaseEntity {
   private String resourceCollection;
   @NotNull
   private Boolean syncActive;
+
   private String sourcePrefix;
   //  @OneToMany(mappedBy = "dataSource")
   //  private Set<User> users;

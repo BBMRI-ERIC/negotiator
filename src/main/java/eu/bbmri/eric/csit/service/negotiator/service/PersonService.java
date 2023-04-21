@@ -22,16 +22,6 @@ public class PersonService {
   @Autowired
   private ModelMapper modelMapper;
 
-  @PostConstruct
-  public void setMappings() {
-    TypeMap<PerunUserRequest, Person> propertyMapper =
-        modelMapper.createTypeMap(PerunUserRequest.class, Person.class);
-    propertyMapper.addMapping(PerunUserRequest::getId, Person::setAuthSubject);
-    propertyMapper.addMapping(PerunUserRequest::getMail, Person::setAuthEmail);
-    propertyMapper.addMapping(PerunUserRequest::getDisplayName, Person::setAuthName);
-    propertyMapper.addMapping(PerunUserRequest::getOrganization, Person::setOrganization);
-  }
-
   public Person getById(Long id) {
     return personRepository
         .findById(id)
