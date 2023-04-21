@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PerunUserRequest {
+public class PerunUserDTO {
 
   @NotBlank(message = "Perun user negotiation organization cannot be null or empty.")
   private String organization;

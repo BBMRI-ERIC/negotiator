@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
@@ -141,13 +141,13 @@ public class TestUtils {
         .build();
   }
 
-  public static List<PerunUserRequest> createPerunUserRequestList(boolean update, int size) {
+  public static List<PerunUserDTO> createPerunUserRequestList(boolean update, int size) {
     String suffix = update ? "u" : "";
-    List<PerunUserRequest> perunUserRequestList = new ArrayList<>();
+    List<PerunUserDTO> perunUserDTOList = new ArrayList<>();
 
     for (int i = 0; i < size; i++) {
-      PerunUserRequest request =
-          PerunUserRequest.builder()
+      PerunUserDTO request =
+          PerunUserDTO.builder()
               .id(PERUN_USER_ID + i)
               .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
               .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
@@ -155,9 +155,9 @@ public class TestUtils {
               .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
               .identities(PERUN_USER_IDENTITIES)
               .build();
-      perunUserRequestList.add(request);
+      perunUserDTOList.add(request);
     }
-    return perunUserRequestList;
+    return perunUserDTOList;
   }
 
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {

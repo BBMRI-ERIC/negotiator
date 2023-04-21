@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -16,11 +16,11 @@ public class PersonModelsMapper {
 
   @PostConstruct
   public void setMappings() {
-    TypeMap<PerunUserRequest, Person> propertyMapper =
-        modelMapper.createTypeMap(PerunUserRequest.class, Person.class);
-    propertyMapper.addMapping(PerunUserRequest::getId, Person::setAuthSubject);
-    propertyMapper.addMapping(PerunUserRequest::getMail, Person::setAuthEmail);
-    propertyMapper.addMapping(PerunUserRequest::getDisplayName, Person::setAuthName);
-    propertyMapper.addMapping(PerunUserRequest::getOrganization, Person::setOrganization);
+    TypeMap<PerunUserDTO, Person> propertyMapper =
+        modelMapper.createTypeMap(PerunUserDTO.class, Person.class);
+    propertyMapper.addMapping(PerunUserDTO::getId, Person::setAuthSubject);
+    propertyMapper.addMapping(PerunUserDTO::getMail, Person::setAuthEmail);
+    propertyMapper.addMapping(PerunUserDTO::getDisplayName, Person::setAuthName);
+    propertyMapper.addMapping(PerunUserDTO::getOrganization, Person::setOrganization);
   }
 }

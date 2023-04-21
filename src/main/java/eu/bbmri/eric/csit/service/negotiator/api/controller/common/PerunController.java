@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.common;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
-import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.PersonServiceImpl;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PerunController {
 
   @Autowired
-  private PersonService personService;
+  private PersonServiceImpl personService;
   @Autowired
   private ModelMapper modelMapper;
 
@@ -31,13 +31,9 @@ public class PerunController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  List<PerunUserRequest> createOrUpdate(
+  List<PerunUserDTO> createOrUpdate(
       @RequestBody @NotEmpty(message = "Perun Users Negotiation list cannot be empty.")
-      List<@Valid PerunUserRequest> perunUsersRequest) {
-
-    for (PerunUserRequest request : perunUsersRequest) {
-      personService.createOrUpdate(request);
-    }
-    return perunUsersRequest;
+      List<@Valid PerunUserDTO> request) {
+    return personService.createOrUpdate(request);
   }
 }
