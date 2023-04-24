@@ -42,7 +42,7 @@ public class RequestControllerTests {
   private static final Long CREATOR_ID = 104L;
   private static final String ENDPOINT = "/v3/requests";
   private static final String NEGOTIATION_1 = "negotiation-1";
-  private static final String UNASSIGNED_REQUEST_ID = "request-2";
+  private static final String UNASSIGNED_REQUEST_ID = "request-unassigned";
 
   @Autowired
   public RequestServiceImpl service;

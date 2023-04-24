@@ -73,13 +73,15 @@ insert into negotiation (id, creation_date, modified_date, created_by, modified_
 insert into request (id, url, human_readable, data_source_id, negotiation_id) values
   ('request-1', 'http://datasource.dev', '#1: No filters used', 1, 'negotiation-1'),
   ('request-2', 'http://datasource.dev', '#1: DNA Samples', 1, null),
-  ('request-v2', 'http://datasource.dev', '#1: Blood Samples', 1, 'negotiation-v2');
+  ('request-v2', 'http://datasource.dev', '#1: Blood Samples', 1, 'negotiation-v2'),
+  ('request-unassigned', 'http://datasource.dev', '#1: Blood Samples', 1, null);
 
 insert into request_resources_link (request_id, resource_id) values
   ('request-1', 4),
   ('request-2', 5),
   ('request-2', 6),
-  ('request-v2', 7);
+  ('request-v2', 7),
+  ('request-unassigned', 7);
 
 insert into person_negotiation (negotiation_id, person_id, role_id) values ('negotiation-1', 108, 4);
 insert into person_negotiation (negotiation_id, person_id, role_id) values ('negotiation-2', 108, 4);
