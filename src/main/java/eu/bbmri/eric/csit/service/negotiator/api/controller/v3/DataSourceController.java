@@ -4,10 +4,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Update;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
-import eu.bbmri.eric.csit.service.negotiator.service.DataSourceServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.DataSourceService;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DataSourceController {
 
   @Autowired
-  private DataSourceServiceImpl dataSourceService;
+  private DataSourceService dataSourceService;
   @Autowired
   private ModelMapper modelMapper;
 

@@ -4,7 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NegotiationController {
 
   @Autowired
-  private NegotiationServiceImpl negotiationService;
+  private NegotiationService negotiationService;
   /**
    * Create a negotiation
    */

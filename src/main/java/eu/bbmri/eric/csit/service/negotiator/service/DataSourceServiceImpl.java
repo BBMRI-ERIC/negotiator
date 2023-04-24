@@ -14,7 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Service(value = "DefaultDataSourceService")
 public class DataSourceServiceImpl implements DataSourceService {
 
   private final DataSourceRepository dataSourceRepository;

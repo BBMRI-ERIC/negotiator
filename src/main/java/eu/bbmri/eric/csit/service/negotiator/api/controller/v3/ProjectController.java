@@ -2,10 +2,8 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
-import eu.bbmri.eric.csit.service.negotiator.service.ProjectServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.ProjectService;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
   @Autowired
-  private ProjectServiceImpl projectService;
+  private ProjectService projectService;
 
   @Autowired
   private ModelMapper modelMapper;

@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.common;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.PersonServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PerunController {
 
   @Autowired
-  private PersonServiceImpl personService;
+  private PersonService personService;
   @Autowired
   private ModelMapper modelMapper;
 

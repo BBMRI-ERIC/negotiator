@@ -1,26 +1,16 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v2;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import javax.validation.Valid;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class QueryV2Controller {
 
   @Autowired
-  private RequestServiceImpl requestService;
+  private RequestService requestService;
   @Autowired
-  private NegotiationServiceImpl negotiationService;
+  private NegotiationService negotiationService;
   @Autowired
   private ModelMapper modelMapper;
 
