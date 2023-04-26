@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -21,13 +22,11 @@ public class PersonServiceImpl implements PersonService {
   @Autowired
   private ModelMapper modelMapper;
 
-  public Person getById(Long id) {
+  public Person findById(Long id) {
     return personRepository
         .findById(id)
         .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, String.format("Person with id %d not found", id)));
+            () -> new EntityNotFoundException(id));
   }
 
   private Person getByAuthSubject(String authSubject) {

@@ -6,7 +6,12 @@ import java.util.List;
 
 public interface PersonService {
 
-  Person getById(Long id);
+  /**
+   * Retrieves the person identified by :id
+   * @param id the id of the person to retrieve
+   * @return the
+   */
+  Person findById(Long id);
 
   List<Person> findAll();
 

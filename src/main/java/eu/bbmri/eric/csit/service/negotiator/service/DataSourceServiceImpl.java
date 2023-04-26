@@ -32,8 +32,9 @@ public class DataSourceServiceImpl implements DataSourceService {
   }
 
   @Transactional
-  public DataSourceDTO create(DataSourceCreateDTO dataSourceRequest) {
-    DataSource dataSourceEntity = modelMapper.map(dataSourceRequest, DataSource.class);
+  public DataSourceDTO create(DataSourceCreateDTO dataSourceCreateDTO)
+      throws EntityNotStorableException {
+    DataSource dataSourceEntity = modelMapper.map(dataSourceCreateDTO, DataSource.class);
     try {
       return modelMapper.map(dataSourceRepository.save(dataSourceEntity), DataSourceDTO.class);
     } catch (DataIntegrityViolationException ex) {
@@ -41,7 +42,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
   }
 
-  public DataSourceDTO update(Long id, DataSourceCreateDTO dataSourceRequest) {
+  public DataSourceDTO update(Long id, DataSourceCreateDTO dataSourceRequest)
+      throws EntityNotStorableException {
     DataSource dataSourceEntity = findEntityById(id);
     modelMapper.map(dataSourceRequest, dataSourceEntity);
     try {

@@ -41,9 +41,9 @@ public class AccessCriteriaSetServiceTest {
 
   @Test
   void testRaiseException_whenAccessCriteriaNotFound() {
-    when(accessCriteriaSetRepository.findByResourceEntityId(any())).thenReturn(Optional.empty());
+    when(accessCriteriaSetRepository.findByResourceId(any())).thenReturn(Optional.empty());
     assertThrows(EntityNotFoundException.class,
-        () -> service.findByResourceEntityId("aResourceId"));
+        () -> service.findByResourceId("aResourceId"));
 
   }
 }

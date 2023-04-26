@@ -23,8 +23,8 @@ public class AccessCriteriaSetServiceImpl implements AccessCriteriaSetService {
   }
 
   @Transactional
-  public AccessCriteriaSetDTO findByResourceEntityId(String resourceEntityId) {
-    Optional<AccessCriteriaSet> acs = accessCriteriaSetRepository.findByResourceEntityId(
+  public AccessCriteriaSetDTO findByResourceId(String resourceEntityId) {
+    Optional<AccessCriteriaSet> acs = accessCriteriaSetRepository.findByResourceId(
         resourceEntityId);
     acs.orElseThrow(() -> new EntityNotFoundException(resourceEntityId));
     return modelMapper.map(acs, AccessCriteriaSetDTO.class);

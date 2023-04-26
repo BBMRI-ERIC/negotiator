@@ -18,5 +18,5 @@ public interface AccessCriteriaSetRepository extends JpaRepository<AccessCriteri
               + "JOIN FETCH acs.accessCriteria ac "
               + "JOIN a.resources r "
               + "WHERE r.sourceId = :entityId")
-  Optional<AccessCriteriaSet> findByResourceEntityId(String entityId);
+  Optional<AccessCriteriaSet> findByResourceId(String entityId);
 }

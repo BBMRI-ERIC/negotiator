@@ -10,6 +10,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepos
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -96,7 +97,7 @@ public class RequestServiceImpl implements RequestService {
   }
 
   @Transactional
-  public RequestDTO create(RequestCreateDTO requestBody) {
+  public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
     Request request = new Request();
     request = saveRequest(requestBody, request);
     return modelMapper.map(request, RequestDTO.class);
@@ -111,7 +112,7 @@ public class RequestServiceImpl implements RequestService {
   }
 
   @Transactional(readOnly = true)
-  public RequestDTO findById(String id) {
+  public RequestDTO findById(String id) throws EntityNotFoundException {
     Request request = requestRepository.findDetailedById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));
     return modelMapper.map(request, RequestDTO.class);
@@ -122,7 +123,8 @@ public class RequestServiceImpl implements RequestService {
   }
 
   @Transactional
-  public RequestDTO update(String id, RequestCreateDTO queryRequest) {
+  public RequestDTO update(String id, RequestCreateDTO queryRequest)
+      throws EntityNotFoundException {
     Request requestEntity =
         requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     Request request = saveRequest(queryRequest, requestEntity);

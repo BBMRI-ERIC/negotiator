@@ -22,6 +22,6 @@ public class AccessCriteriaSetController {
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   AccessCriteriaSetDTO search(@RequestParam String resourceId) {
-    return accessCriteriaSetService.findByResourceEntityId(resourceId);
+    return accessCriteriaSetService.findByResourceId(resourceId);
   }
 }

@@ -22,8 +22,8 @@ public class ProjectServiceImpl implements ProjectService {
   @Autowired
   private ModelMapper modelMapper;
 
-  public ProjectDTO create(ProjectCreateDTO projectRequest) {
-    Project projectEntity = modelMapper.map(projectRequest, Project.class);
+  public ProjectDTO create(ProjectCreateDTO projectBody) throws EntityNotStorableException {
+    Project projectEntity = modelMapper.map(projectBody, Project.class);
     try {
       Project project = projectRepository.save(projectEntity);
       return modelMapper.map(project, ProjectDTO.class);
@@ -33,7 +33,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Transactional
-  public ProjectDTO findById(String id) {
+  public ProjectDTO findById(String id) throws EntityNotFoundException {
     Project project = projectRepository
         .findDetailedById(id)
         .orElseThrow(() -> new EntityNotFoundException(id));

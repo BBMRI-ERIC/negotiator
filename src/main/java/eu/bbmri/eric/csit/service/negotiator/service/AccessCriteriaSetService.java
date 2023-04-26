@@ -4,6 +4,11 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCrite
 
 public interface AccessCriteriaSetService {
 
-  AccessCriteriaSetDTO findByResourceEntityId(String resourceEntityId);
+  /**
+   * Returns the AccessCriteriaSetDTO of the Resource with the requested id
+   * @param resourceId the ID of the Resource
+   * @return an AccessCriteriaSetDTO containing the AccessCriteria of the Resource
+   */
+  AccessCriteriaSetDTO findByResourceId(String resourceId);
 
 }
