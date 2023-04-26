@@ -1,13 +1,14 @@
-# Build the image
-FROM eclipse-temurin:17-jre
-
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get purge curl wget libbinutils libctf0 libctf-nobfd0 libncurses6 -y && \
-    apt-get autoremove -y && apt-get clean
-
-RUN mkdir -p /app && chown -R 1001:1001 /app
-
-COPY target/negotiator-exec.jar /app/negotiator.jar
+# Build jar file with dependencies
+FROM maven:3.9.1-eclipse-temurin-17-focal as BUILD_IMAGE
+COPY src /app/src
+COPY pom.xml /app
 WORKDIR /app
+RUN mvn -B clean package -Dmaven.test.skip=true
+
+
+# Runtime image
+FROM eclipse-temurin:17-jre-focal
 USER 1001
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "/app/negotiator.jar"]
+WORKDIR /app
+COPY --from=BUILD_IMAGE /app/target/negotiator-spring-boot.jar /app/negotiator.jar
+ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=prod", "negotiator.jar"]

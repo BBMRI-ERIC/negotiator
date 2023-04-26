@@ -16,13 +16,20 @@
     <finalName>negotiator</finalName>
     <plugins>
     <plugin>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-maven-plugin</artifactId>
       <version>2.7.5</version>
-      <configuration>
-        <classifier>exec</classifier>
-        <mainClass>eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication</mainClass>
-      </configuration>
-      <groupId>org.springframework.boot</groupId>
+      <executions>
+        <execution>
+          <goals>
+            <goal>repackage</goal>
+          </goals>
+          <configuration>
+            <classifier>spring-boot</classifier>
+            <mainClass>eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication</mainClass>
+          </configuration>
+        </execution>
+      </executions>
     </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
