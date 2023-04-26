@@ -3,7 +3,7 @@ FROM maven:3.9.1-eclipse-temurin-17-focal as BUILD_IMAGE
 COPY src /app/src
 COPY pom.xml /app
 WORKDIR /app
-RUN mvn clean package -Dmaven.test.skip=true
+RUN mvn -B clean package -Dmaven.test.skip=true
 
 
 # Runtime image
