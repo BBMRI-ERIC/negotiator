@@ -145,7 +145,9 @@ class StateMachineConfig
             throws Exception {
         transitions
                 .withExternal()
-                .source(TestStates.SUBMITTED).target(TestStates.APPROVED).event(TestEvents.APPROVE);
+                .source(TestStates.SUBMITTED)
+                .target(TestStates.APPROVED)
+                .event(TestEvents.APPROVE);
     }
 
     @Bean
