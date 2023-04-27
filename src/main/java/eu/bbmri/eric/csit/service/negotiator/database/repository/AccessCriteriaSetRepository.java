@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,5 +18,5 @@ public interface AccessCriteriaSetRepository extends JpaRepository<AccessCriteri
               + "JOIN FETCH acs.accessCriteria ac "
               + "JOIN a.resources r "
               + "WHERE r.sourceId = :entityId")
-  AccessCriteriaSet findByResourceEntityId(String entityId);
+  Optional<AccessCriteriaSet> findByResourceId(String entityId);
 }

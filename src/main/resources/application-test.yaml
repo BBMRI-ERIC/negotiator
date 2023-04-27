@@ -8,7 +8,7 @@ spring:
   sql:
     init:
       mode: always
-      platform: h2
+      platform: test
   jpa:
     hibernate:
       show-sql: true

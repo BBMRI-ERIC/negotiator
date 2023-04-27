@@ -1,250 +1,74 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import lombok.extern.apachecommons.CommonsLog;
-import org.hibernate.exception.DataException;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@CommonsLog
-public class NegotiationService {
-
-  @Autowired
-  private NegotiationRepository negotiationRepository;
-
-  @Autowired
-  private RoleRepository roleRepository;
-  @Autowired
-  private PersonRepository personRepository;
-  @Autowired
-  private RequestService requestService;
-  @Autowired
-  private ModelMapper modelMapper;
-
-  private Set<Request> findQueries(Set<String> queriesId) {
-    Set<Request> queries;
-    try {
-      queries = requestService.findAllById(queriesId);
-    } catch (EntityNotFoundException ex) {
-      log.error("Some of the specified queries where not found");
-      throw new WrongRequestException("One or more of the specified queries do not exist");
-    }
-    return queries;
-  }
-
+public interface NegotiationService {
 
   /**
-   * Associates the Negotiation entity with other Entities and create the record
-   *
-   * @param negotiationEntity the Entity to save
-   * @param queriesId a Set of request ids to associate to the Negotiation
-   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
-   * Person that called the API)
-   * @return The created request
+   * Checks if the negotiation with the specified id exist
+   * @param negotiationId the id of the Negotiation to check
+   * @return true if the Negotiation exist, false otherwise
    */
-  private Negotiation create(Negotiation negotiationEntity, Set<String> queriesId, Long creatorId) {
-    // Gets the Entities for the queries
-    log.debug("Getting request entities");
-    Set<Request> queries = findQueries(queriesId);
-    // Check if any request is already associated to a negotiation
-    if (queries.stream().anyMatch(query -> query.getNegotiation() != null)) {
-      log.error("One or more request object is already assigned to another negotiation");
-      throw new WrongRequestException(
-          "One or more request object is already assigned to another negotiation");
-    }
-
-    // Gets the Role entity. Since this is a new negotiation, the person is the CREATOR of the negotiation
-    Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
-
-    // Gets the person and associated roles
-    Person creator =
-        personRepository.findDetailedById(creatorId).orElseThrow(EntityNotStorableException::new);
-
-    // Ceates the association between the Person and the Negotiation
-    PersonNegotiationRole personRole = new PersonNegotiationRole(creator, negotiationEntity, role);
-
-    // Updates person and negotiation with the person role
-    creator.getRoles().add(personRole);
-    negotiationEntity.getPersons().add(personRole);
-
-    // Updates the bidirectional relationship between request and negotiation
-    negotiationEntity.setRequests(new HashSet<>(queries));
-    queries.forEach(
-        query -> {
-          query.setNegotiation(negotiationEntity);
-        });
-
-    try {
-      // Finally, save the negotiation. NB: it also cascades operations for other Queries,
-      // PersonNegotiationRole
-      return negotiationRepository.save(negotiationEntity);
-    } catch (DataException | DataIntegrityViolationException ex) {
-      log.error("Error while saving the Negotiation into db. Some db constraint violated");
-      throw new EntityNotStorableException();
-    }
-  }
+  boolean exists(String negotiationId);
 
   /**
-   * Creates a Negotiation into the repository.
-   *
-   * @param request the NegotiationCreateDTO DTO sent from to the endpoint
-   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
-   * Person that called the API)
-   * @return the created Negotiation entity
+   * Creates a new negotiation
+   * @param negotiationBody a NegotiationCreateDTO with the data of the negotiation to create
+   * @param creatorId the id of the person that wants to create the negotiation
+   * @throws EntityNotStorableException if some error occurs when crating the negotiation
+   * @return a NegotiationDTO with the data of the newly created negotiation
    */
-  @Transactional
-  public Negotiation create(NegotiationCreateDTO request, Long creatorId) {
-    Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
-    return create(negotiationEntity, request.getRequests(), creatorId);
-  }
-
-//  /**
-//   * Creates a Negotiation and the Project it is part of into the repository.
-//   *
-//   * @param request the NegotiationCreateDTO DTO sent from to the endpoint. It must have also the
-//   * project data to create also the project
-//   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
-//   * Person that called the API)
-//   * @return the created Negotiation entity
-//   */
-//  @Transactional
-//  public Negotiation create(NegotiationCreateDTO request, Long creatorId) {
-//    if (request.getProject() == null) {
-//      throw new WrongRequestException("Missing project data");
-//    }
-//    Negotiation negotiationEntity = modelMapper.map(request, Negotiation.class);
-//    return create(negotiationEntity, request.getQueries(), creatorId);
-//  }
-
-  private Negotiation update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
-    Set<Request> queries = findQueries(request.getRequests());
-
-    if (queries.stream()
-        .anyMatch(query -> query.getNegotiation() != null
-            && query.getNegotiation() != negotiationEntity)) {
-      throw new WrongRequestException(
-          "One or more request object is already assigned to another negotiation");
-    }
-
-    queries.forEach(
-        query -> {
-          query.setNegotiation(negotiationEntity);
-        });
-
-    negotiationEntity.setRequests(new HashSet<>(queries));
-
-    try {
-      negotiationRepository.save(negotiationEntity);
-      return negotiationEntity;
-    } catch (DataException | DataIntegrityViolationException ex) {
-      throw new EntityNotStorableException();
-    }
-  }
+  NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) throws EntityNotStorableException;
 
   /**
-   * Updates the negotiation with the specified ID.
-   *
-   * @param id the id of the negotiation tu update
-   * @param request the NegotiationCreateDTO DTO with the new Negotiation data
-   * @return The updated Negotiation entity
+   * Updates the negotiation with the provided id
+   * @param negotiationBody a NegotiationCreateDTO with the new data of the negotiation to update
+   * @param negotiationId the id of the negotiation to update
+   * @throws EntityNotStorableException if some error occurs when crating the negotiation
+   * @throws EntityNotFoundException if the negotiation to update is not found
+   * @return a NegotiationDTO with the updated data of the negotiation
    */
-  @Transactional
-  public Negotiation update(String id, NegotiationCreateDTO request) {
-    Negotiation negotiationEntity = findDetailedById(id);
-    return update(negotiationEntity, request);
-  }
-
-  @Transactional
-  public Negotiation addQueryToRequest(String id, Request requestEntity) {
-    Negotiation negotiationEntity = findById(id);
-    negotiationEntity.getRequests().add(requestEntity);
-    requestEntity.setNegotiation(negotiationEntity);
-    try {
-      negotiationRepository.save(negotiationEntity);
-      return negotiationEntity;
-    } catch (DataIntegrityViolationException ex) {
-      throw new EntityNotStorableException();
-    }
-  }
+  NegotiationDTO update(String negotiationId, NegotiationCreateDTO negotiationBody) throws EntityNotFoundException;
 
   /**
-   * Returns all negotiation in the repository
-   *
-   * @return the List of Negotiation entities
+   * Adds the request with :requestId to the negotiation with identified by :negotiationId
+   * @param negotiationId the id of the negotiation
+   * @param requestId the id of the request to add to the negotiation
+   * @return a NegotiationID with the data of the negotiation
    */
-  @Transactional
-  public List<Negotiation> findAll() {
-    return negotiationRepository.findAll();
-  }
+  NegotiationDTO addRequestToNegotiation(String negotiationId, String requestId);
 
   /**
-   * Returns the Negotiation with the specified id if exists, otherwise it throws an exception
-   *
-   * @param id the id of the Negotiation to retrieve
-   * @return the Negotiation with specified id
+   * Returns a list of all negotiation in the negotiator
+   * @return a List of NegotiationDTO with the data of all negotiation in the negotiator
    */
-  @Transactional
-  public Negotiation findDetailedById(String id) throws EntityNotFoundException {
-    return negotiationRepository
-        .findDetailedById(id)
-        .orElseThrow(() -> new EntityNotFoundException(id));
-  }
+  List<NegotiationDTO> findAll();
 
   /**
-   * Returns the Negotiation with the specified id if exists, otherwise it throws an exception
-   *
-   * @param id the id of the Negotiation to retrieve
-   * @return the Negotiation with specified id
+   * Retrieves the negotiation identified by :id. If includeDetails is true, also details of the
+   * negotiation are returned (i.e., data about resources involved in the negotiation)
+   * @param id the id
+   * @param includeDetails whether to include details about the resources involved in the negotiation or not
+   * @throws EntityNotFoundException if the negotiation to update is not found
+   * @return the NegotiationDTO with the data of the negotiation
    */
-  @Transactional
-  public Negotiation findById(String id) throws EntityNotFoundException {
-    return negotiationRepository
-        .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(id));
-  }
+  NegotiationDTO findById(String id, boolean includeDetails);
+
+  // TODO: change byBiobankId
+  List<NegotiationDTO> findByBiobankId(String biobankId);
+
+  // TODO: change to resouceId
+  List<NegotiationDTO> findByCollectionId(String collectionId);
 
   /**
-   * Returns a List of Negotiation entities filtered by biobank id
-   *
-   * @param biobankId the id in the data source of the biobank of the negotiation
-   * @return the List of Negotiation entities found
+   * Retrieves a list of negotiations of related to the user with id :userId and the role :userRole
+   * @param userId the id of the user that has a role in the negotiation
+   * @param userRole the role of the user in the negotiation
+   * @return a List of NegotiationDTOs
    */
-  @Transactional
-  public List<Negotiation> findByBiobankId(String biobankId) {
-    return negotiationRepository.findByBiobankId(biobankId);
-  }
-
-  /**
-   * Returns a List of Negotiation entities filtered by biobank id
-   *
-   * @param collectionId the id in the data source of the biobank of the negotiation
-   * @return the List of Negotiation entities found
-   */
-  @Transactional
-  public List<Negotiation> findByCollectionId(String collectionId) {
-    return negotiationRepository.findByCollectionId(collectionId);
-  }
-
-  @Transactional
-  public List<Negotiation> findByUserIdAndRole(String userId, String userRole) {
-    return negotiationRepository.findByUserIdAndRole(userId, userRole);
-  }
+  List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
 }

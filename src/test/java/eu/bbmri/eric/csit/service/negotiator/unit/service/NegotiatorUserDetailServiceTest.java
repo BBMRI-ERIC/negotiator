@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.service;
+package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

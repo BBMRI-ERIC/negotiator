@@ -42,7 +42,6 @@ import lombok.ToString.Exclude;
     })
 public class Resource extends BaseEntity {
 
-  @NotNull
   private String name;
 
   @Column(columnDefinition = "VARCHAR(5000)")

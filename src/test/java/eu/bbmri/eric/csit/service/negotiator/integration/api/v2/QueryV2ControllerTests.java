@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v2;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v2;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,19 +13,14 @@ import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v2.QueryV2Controller;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,8 +35,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-@TestMethodOrder(OrderAnnotation.class)
 public class QueryV2ControllerTests {
+
+  private static final String REQUEST_V2_ID = "request-v2";
+  private static final String NEGOTIATION_V2_ID = "negotiation-v2";
 
   private static final String ENDPOINT = "/directory/create_query";
   @Autowired
@@ -51,7 +48,7 @@ public class QueryV2ControllerTests {
   @Autowired
   private QueryV2Controller controller;
   @Autowired
-  private RequestService requestService;
+  private RequestServiceImpl requestService;
   @Autowired
   private NegotiationRepository negotiationRepository;
   @Autowired
@@ -62,12 +59,11 @@ public class QueryV2ControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    requestRepository.deleteAll();
   }
 
   @Test
   public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setUrl(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -80,7 +76,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setHumanReadable(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -93,7 +89,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionFieldIsMissing() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setCollections(null);
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -106,7 +102,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setCollections(Set.of());
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -119,7 +115,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     Optional<CollectionV2DTO> collection = request.getCollections().stream().findFirst();
     assert collection.isPresent();
     collection.get().setCollectionId("collection_unknown");
@@ -134,7 +130,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     Optional<CollectionV2DTO> biobank = request.getCollections().stream().findFirst();
     assert biobank.isPresent();
     biobank.get().setBiobankId("wrong_biobank");
@@ -149,7 +145,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -161,11 +157,11 @@ public class QueryV2ControllerTests {
   }
 
   @Test
-  @Order(1)
   public void testCreate_Ok() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
-    String requestBody = TestUtils.jsonFromRequest(request);
 
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
+    String requestBody = TestUtils.jsonFromRequest(request);
+    long previousCount = requestRepository.count();
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
@@ -177,19 +173,19 @@ public class QueryV2ControllerTests {
             header().string("Location", containsString("http://localhost/request")))
         .andExpect(
             jsonPath("$.redirect_uri", containsString("http://localhost/request")));
-    assertEquals(requestRepository.findAll().size(), 1);
+    assertEquals(requestRepository.count(), previousCount + 1);
   }
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
   }
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -201,7 +197,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -213,7 +209,7 @@ public class QueryV2ControllerTests {
 
   @Test
   public void testUpdate_CreateWhenRequestIsNotFound() throws Exception {
-    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
+    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
     updateRequest.setToken("-1__search__-1");
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
     mockMvc
@@ -231,20 +227,12 @@ public class QueryV2ControllerTests {
   }
 
   @Test
-  @Order(3)
   @Transactional
   public void testUpdate_Ok_whenChangeQuery() throws Exception {
-    Request q = requestService.create(TestUtils.createRequest(false));
-    Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createNegotiation(false, Set.of(q.getId())),
-            Negotiation.class);
-    q.setNegotiation(negotiationEntity);
-    negotiationRepository.save(negotiationEntity);
-
-    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
-    updateRequest.setToken("%s__search__%s".formatted(negotiationEntity.getId(), q.getId()));
+    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
+    updateRequest.setToken("%s__search__%s".formatted(NEGOTIATION_V2_ID, REQUEST_V2_ID));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
-
+    long previousCount = requestRepository.count();
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
@@ -256,31 +244,22 @@ public class QueryV2ControllerTests {
         .andExpect(
             header().string("Location", containsString(
                 "http://localhost/negotiations/%s/requests"
-                    .formatted(negotiationEntity.getId()))))
+                    .formatted(NEGOTIATION_V2_ID))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
                     "http://localhost/negotiations/%s/requests"
-                        .formatted(negotiationEntity.getId()))));
-    assertEquals(requestRepository.findAll().size(), 1);
+                        .formatted(NEGOTIATION_V2_ID))));
+    assertEquals(requestRepository.count(), previousCount);
   }
 
   @Test
-  @Order(3)
   public void testUpdate_Ok_whenAddQueryToARequest() throws Exception {
-    Request q = requestService.create(TestUtils.createRequest(false));
-    // The data source to be updated
-    Negotiation negotiationEntity =
-        modelMapper.map(TestUtils.createNegotiation(false, Set.of(q.getId())),
-            Negotiation.class);
-    q.setNegotiation(negotiationEntity);
-    negotiationRepository.save(negotiationEntity);
-
-    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request(false);
-    updateRequest.setToken("%s__search__".formatted(negotiationEntity.getId()));
+    QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
+    updateRequest.setToken("%s__search__".formatted(NEGOTIATION_V2_ID));
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
-
+    long previousRequestNumber = requestRepository.findAll().size();
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
@@ -292,13 +271,13 @@ public class QueryV2ControllerTests {
         .andExpect(
             header().string("Location", containsString(
                 "http://localhost/negotiations/%s/requests"
-                    .formatted(negotiationEntity.getId()))))
+                    .formatted(NEGOTIATION_V2_ID))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
                     "http://localhost/negotiations/%s/requests"
-                        .formatted(negotiationEntity.getId()))));
-    assertEquals(requestRepository.findAll().size(), 2);
+                        .formatted(NEGOTIATION_V2_ID))));
+    assertEquals(requestRepository.findAll().size(), previousRequestNumber + 1);
   }
 }

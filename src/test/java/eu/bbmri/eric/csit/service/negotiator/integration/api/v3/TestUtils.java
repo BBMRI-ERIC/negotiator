@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
@@ -16,7 +16,6 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -120,19 +119,15 @@ public class TestUtils {
         .build();
   }
 
-  public static QueryCreateV2DTO createQueryV2Request(boolean update) {
-    String suffix = update ? "u" : "";
-    String collectionId = update ? QUERY_COLLECTION_2_ID : QUERY_COLLECTION_1_ID;
-    String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
-
+  public static QueryCreateV2DTO createQueryV2Request() {;
     CollectionV2DTO collection =
         CollectionV2DTO.builder()
-            .collectionId(collectionId)
-            .biobankId(biobankId)
+            .collectionId(QUERY_COLLECTION_1_ID)
+            .biobankId(QUERY_BIOBANK_1_ID)
             .build();
 
     return QueryCreateV2DTO.builder()
-        .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
+        .humanReadable(QUERY_HUMAN_READABLE)
         .url(QUERY_URL)
         .collections(Set.of(collection))
         .build();
@@ -146,13 +141,13 @@ public class TestUtils {
         .build();
   }
 
-  public static List<PerunUserRequest> createPerunUserRequestList(boolean update, int size) {
+  public static List<PerunUserDTO> createPerunUserRequestList(boolean update, int size) {
     String suffix = update ? "u" : "";
-    List<PerunUserRequest> perunUserRequestList = new ArrayList<>();
+    List<PerunUserDTO> perunUserDTOList = new ArrayList<>();
 
     for (int i = 0; i < size; i++) {
-      PerunUserRequest request =
-          PerunUserRequest.builder()
+      PerunUserDTO request =
+          PerunUserDTO.builder()
               .id(PERUN_USER_ID + i)
               .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
               .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
@@ -160,30 +155,29 @@ public class TestUtils {
               .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
               .identities(PERUN_USER_IDENTITIES)
               .build();
-      perunUserRequestList.add(request);
+      perunUserDTOList.add(request);
     }
-    return perunUserRequestList;
+    return perunUserDTOList;
   }
 
-  public static NegotiationCreateDTO createNegotiation(
-      boolean update, Set<String> requestsId) throws IOException {
+  public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
     String payload = """
-        {
-          "project": {
-            "title": "Title",
-            "description": "Description"
-          },
-          "samples": {
-            "sample-type": "DNA",
-            "num-of-subjects": 10,
-            "num-of-samples": 20,
-            "volume-per-sample": 5
-          },
-          "ethics-vote": {
-            "ethics-vote": "My ethic vote"
-          }
-        }
-    """;
+            {
+              "project": {
+                "title": "Title",
+                "description": "Description"
+              },
+              "samples": {
+                "sample-type": "DNA",
+                "num-of-subjects": 10,
+                "num-of-samples": 20,
+                "volume-per-sample": 5
+              },
+              "ethics-vote": {
+                "ethics-vote": "My ethic vote"
+              }
+            }
+        """;
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 

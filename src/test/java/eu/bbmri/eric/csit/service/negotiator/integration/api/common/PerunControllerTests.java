@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.common;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
@@ -7,9 +7,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserRequest;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.List;
@@ -82,7 +82,7 @@ public class PerunControllerTests {
   @Order(1)
   @Transactional
   public void testCreate_Ok() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,
@@ -95,9 +95,9 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_BadRequest_WhenOrganizationMissingOrEmpty() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
-    PerunUserRequest badRequest = request.get(0);
+    PerunUserDTO badRequest = request.get(0);
     badRequest.setOrganization(null);
     request.set(0, badRequest);
     TestUtils.checkErrorResponse(
@@ -120,9 +120,9 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_BadRequest_WhenIdIsNull() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
-    PerunUserRequest badRequest = request.get(0);
+    PerunUserDTO badRequest = request.get(0);
     badRequest.setId(null);
     request.set(0, badRequest);
     TestUtils.checkErrorResponse(
@@ -136,9 +136,9 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_BadRequest_WhenDisplayNameMissingOrEmpty() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
-    PerunUserRequest badRequest = request.get(0);
+    PerunUserDTO badRequest = request.get(0);
     badRequest.setDisplayName(null);
     request.set(0, badRequest);
     TestUtils.checkErrorResponse(
@@ -161,9 +161,9 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_BadRequest_WhenStatusIsMissingOrEmpty() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
-    PerunUserRequest badRequest = request.get(0);
+    PerunUserDTO badRequest = request.get(0);
     badRequest.setStatus(null);
     request.set(0, badRequest);
     TestUtils.checkErrorResponse(
@@ -186,9 +186,9 @@ public class PerunControllerTests {
 
   @Test
   public void testCreate_BadRequest_WhenMailIsMissingOrEmpty() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
-    PerunUserRequest badRequest = request.get(0);
+    PerunUserDTO badRequest = request.get(0);
     badRequest.setMail(null);
     request.set(0, badRequest);
     TestUtils.checkErrorResponse(
@@ -213,9 +213,9 @@ public class PerunControllerTests {
   @Order(2)
   @Transactional
   public void testCreate_Ok_WhenIdentitiesAreMissingOrEmpty() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 2);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 2);
     // for one of the requests, set organization as null
-    PerunUserRequest badRequest = request.get(0);
+    PerunUserDTO badRequest = request.get(0);
     badRequest.setIdentities(null);
     request.set(0, badRequest);
     TestUtils.checkErrorResponse(
@@ -244,11 +244,11 @@ public class PerunControllerTests {
 
   @Test
   public void testUpdate_Ok() throws Exception {
-    List<PerunUserRequest> request = TestUtils.createPerunUserRequestList(false, 1);
+    List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 1);
     Person personEntity = modelMapper.map(request.get(0), Person.class);
     personRepository.save(personEntity);
     // Update by changing the organization in the negotiation
-    PerunUserRequest updateRequest = request.get(0);
+    PerunUserDTO updateRequest = request.get(0);
     String updatedOrganization = "UpdatedOrganization";
     updateRequest.setOrganization(updatedOrganization);
     request.set(0, updateRequest);

@@ -4,10 +4,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Update;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.service.DataSourceService;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,14 +32,12 @@ public class DataSourceController {
 
   @GetMapping("/data-sources")
   List<DataSourceDTO> list() {
-    return dataSourceService.findAll().stream()
-        .map(dataSource -> modelMapper.map(dataSource, DataSourceDTO.class))
-        .collect(Collectors.toList());
+    return dataSourceService.findAll();
   }
 
   @GetMapping("/data-sources/{id}")
   DataSourceDTO retrieve(@PathVariable Long id) {
-    return modelMapper.map(dataSourceService.getById(id), DataSourceDTO.class);
+    return dataSourceService.findById(id);
   }
 
   @PostMapping(
@@ -50,8 +46,7 @@ public class DataSourceController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   DataSourceDTO add(@Validated(Create.class) @RequestBody DataSourceCreateDTO request) {
-    DataSource dataSourceEntity = dataSourceService.create(request);
-    return modelMapper.map(dataSourceEntity, DataSourceDTO.class);
+    return dataSourceService.create(request);
   }
 
   @PutMapping(
@@ -61,7 +56,6 @@ public class DataSourceController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   DataSourceDTO update(
       @PathVariable Long id, @Validated(Update.class) @RequestBody DataSourceCreateDTO request) {
-    DataSource dataSourceEntity = dataSourceService.update(id, request);
-    return modelMapper.map(dataSourceEntity, DataSourceDTO.class);
+    return dataSourceService.update(id, request);
   }
 }

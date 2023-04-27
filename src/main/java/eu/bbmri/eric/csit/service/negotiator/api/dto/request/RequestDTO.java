@@ -31,4 +31,6 @@ public class RequestDTO {
 
   @NotNull
   private String redirectUrl;
+
+  private String negotiationId;
 }
