@@ -5,10 +5,12 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Spring State Machine implementation of the NegotiationStateService
@@ -27,7 +29,11 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
 
     @Override
     public List<NegotiationEvent> getPossibleEvents(String negotiationId) {
-        return null;
+        StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springStateMachineService.acquireStateMachine(negotiationId);
+        return stateMachine.getTransitions().stream()
+                .filter(transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
+                .map(transition -> transition.getTrigger().getEvent())
+                .collect(Collectors.toList());
     }
 
     @Override

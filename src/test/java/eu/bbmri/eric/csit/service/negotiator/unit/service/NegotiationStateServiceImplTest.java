@@ -17,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.Resource;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -27,5 +29,10 @@ public class NegotiationStateServiceImplTest {
     @Test
     public void getStateForAFakeNegotiation() {
         assertEquals(NegotiationState.SUBMITTED, negotiationStateService.getNegotiationState("fake"));
+    }
+
+    @Test
+    void getPossibleEventsForANewFakeNegotiation() {
+        assertEquals(Arrays.stream(new NegotiationEvent[]{NegotiationEvent.APPROVE}).toList(), negotiationStateService.getPossibleEvents("fake"));
     }
 }
