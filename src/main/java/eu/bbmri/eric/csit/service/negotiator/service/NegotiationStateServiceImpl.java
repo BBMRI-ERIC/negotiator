@@ -38,6 +38,8 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
 
     @Override
     public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent) {
-        return null;
+        StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springStateMachineService.acquireStateMachine(negotiationId);
+        stateMachine.sendEvent(negotiationEvent);
+        return stateMachine.getState().getId();
     }
 }
