@@ -7,6 +7,8 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDe
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
 import javax.validation.Valid;
+
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +32,9 @@ public class NegotiationController {
 
   @Autowired
   private NegotiationService negotiationService;
+
+  @Autowired
+  private NegotiationStateService negotiationStateService;
   /**
    * Create a negotiation
    */
@@ -86,5 +91,10 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}")
   NegotiationDTO retrieve(@Valid @PathVariable String id) {
     return negotiationService.findById(id, true);
+  }
+
+  @PutMapping("/negotiations/{id}/{event}")
+  NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
+   return null;
   }
 }

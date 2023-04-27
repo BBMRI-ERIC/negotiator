@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,6 +11,7 @@ import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -17,6 +19,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class NegotiationStateServiceImpl implements NegotiationStateService{
+
+    @Autowired
+    private NegotiationRepository negotiationRepository;
 
     @Autowired
     @Qualifier("negotiationStateMachineService")
@@ -38,6 +43,9 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
 
     @Override
     public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent) {
+        if (!negotiationRepository.existsById(negotiationId)){
+            throw new NoSuchElementException();
+        }
         StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springStateMachineService.acquireStateMachine(negotiationId);
         stateMachine.sendEvent(negotiationEvent);
         return stateMachine.getState().getId();

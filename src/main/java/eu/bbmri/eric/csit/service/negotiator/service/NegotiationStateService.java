@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public interface NegotiationStateService {
@@ -30,5 +31,5 @@ public interface NegotiationStateService {
      * @return the new status of the Negotiation
      */
 
-    NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent);
+    NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent) throws NoSuchElementException;
 }
