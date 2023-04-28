@@ -29,4 +29,7 @@ public class NegotiationDTO {
 
   @NotNull
   private JsonNode payload;
+
+  @NotNull
+  private String status;
 }
