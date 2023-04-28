@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
 import javax.validation.Valid;
@@ -95,6 +96,6 @@ public class NegotiationController {
 
   @PutMapping("/negotiations/{id}/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
-   return null;
+   return negotiationService.changeState(id, NegotiationEvent.valueOf(event));
   }
 }

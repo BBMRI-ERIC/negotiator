@@ -18,6 +18,10 @@ public class NegotiationStateServiceTest {
     @BeforeAll
     static void beforeAll() {
         negotiationStateService = new NegotiationStateService() {
+
+            @Override
+            public void createStateMachineForNegotiation(String negotiationId) {}
+
             @Override
             public NegotiationState getNegotiationState(String negotiationId) {
                 return NegotiationState.SUBMITTED;

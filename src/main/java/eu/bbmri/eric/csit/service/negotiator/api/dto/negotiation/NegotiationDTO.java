@@ -28,5 +28,5 @@ public class NegotiationDTO {
   private Set<PersonRoleDTO> persons;
 
   @NotNull
-  private JsonNode status;
+  private JsonNode payload;
 }

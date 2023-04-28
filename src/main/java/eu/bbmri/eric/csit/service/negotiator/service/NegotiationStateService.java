@@ -10,6 +10,12 @@ import java.util.NoSuchElementException;
 @Service
 public interface NegotiationStateService {
     /**
+     * Initializes the state machine for the first time
+     * @param negotiationId for which the state machine is created
+     */
+
+    void createStateMachineForNegotiation(String negotiationId);
+    /**
      * Returns the current state of a Negotiation
      * @param negotiationId for which state is requested
      * @return NegotiationState

@@ -76,6 +76,8 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "jsonb")
   private String payload;
 
+  private String status;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

@@ -2,11 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
@@ -40,6 +36,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   RequestRepository requestRepository;
   @Autowired
   ModelMapper modelMapper;
+  @Autowired
+  NegotiationStateService negotiationStateService;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;
@@ -102,11 +100,12 @@ public class NegotiationServiceImpl implements NegotiationService {
         request -> {
           request.setNegotiation(negotiationEntity);
         });
-
     try {
+      // Set initial state machine
       // Finally, save the negotiation. NB: it also cascades operations for other Requests,
       // PersonNegotiationRole
       Negotiation negotiation = negotiationRepository.save(negotiationEntity);
+      negotiationStateService.createStateMachineForNegotiation(negotiationEntity.getId());
       return modelMapper.map(negotiation, NegotiationDTO.class);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
@@ -240,5 +239,11 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public NegotiationDTO changeState(String negotiationId, NegotiationEvent negotiationEvent) {
+    NegotiationState newState = negotiationStateService.sendEvent(negotiationId, negotiationEvent);
+    return null;
   }
 }

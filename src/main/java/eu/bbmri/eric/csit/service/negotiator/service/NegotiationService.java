@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import java.util.List;
@@ -71,4 +72,14 @@ public interface NegotiationService {
    * @return a List of NegotiationDTOs
    */
   List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
+
+  /**
+   * Changes the state of the negotiation
+   * @param negotiationId id of the negotiation being changed
+   * @param negotiationEvent event transition
+   * @return negotiationDTO
+   */
+  NegotiationDTO changeState(String negotiationId, NegotiationEvent negotiationEvent);
 }
+
+

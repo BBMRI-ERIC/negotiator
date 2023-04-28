@@ -46,7 +46,7 @@ public class NegotiationModelMapper {
         };
 
     typeMap.addMappings(mapper -> mapper.using(payloadConverter)
-        .map(Negotiation::getPayload, NegotiationDTO::setStatus));
+        .map(Negotiation::getPayload, NegotiationDTO::setPayload));
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
