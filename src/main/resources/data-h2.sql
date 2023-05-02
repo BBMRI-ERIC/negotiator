@@ -75,8 +75,8 @@ insert into request_resources_link (request_id, resource_id) values
   ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 6);
 
 insert into negotiation (id, creation_date, modified_date, created_by, modified_by, payload) values
-  ('35763b55-a200-4ec1-af05-1daa5a0815f8', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'),
-  ('4d519fb6-4087-462e-98e6-b14e9fa20b10', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}');
+  ('35763b55-a200-4ec1-af05-1daa5a0815f8', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON ),
+  ('4d519fb6-4087-462e-98e6-b14e9fa20b10', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'FORMAT JSON );
 
 insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('35763b55-a200-4ec1-af05-1daa5a0815f8', 108, 4);
 insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('4d519fb6-4087-462e-98e6-b14e9fa20b10', 108, 4);
