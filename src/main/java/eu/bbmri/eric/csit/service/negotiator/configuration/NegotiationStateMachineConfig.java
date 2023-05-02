@@ -62,7 +62,9 @@ public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAda
             throws Exception {
         transitions
                 .withExternal()
-                .source(NegotiationState.SUBMITTED).target(NegotiationState.APPROVED).event(NegotiationEvent.APPROVE);
+                .source(NegotiationState.SUBMITTED).target(NegotiationState.APPROVED).event(NegotiationEvent.APPROVE)
+                .and().withExternal()
+                .source(NegotiationState.SUBMITTED).target(NegotiationState.DECLINED).event(NegotiationEvent.DECLINE);
     }
 
     @Bean

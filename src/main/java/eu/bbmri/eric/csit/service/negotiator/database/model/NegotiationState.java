@@ -6,5 +6,7 @@ public enum NegotiationState {
     STARTED,
     CONCLUDED,
 
+    DECLINED,
+
     ABANDONED
 }

@@ -27,7 +27,7 @@ public class NegotiationStateServiceImplTest {
 
     @Test
     void getPossibleEventsForANewFakeNegotiation() {
-        assertEquals(Arrays.stream(new NegotiationEvent[]{NegotiationEvent.APPROVE}).toList(), negotiationStateService.getPossibleEvents("fake"));
+        assertEquals(Arrays.stream(new NegotiationEvent[]{NegotiationEvent.APPROVE, NegotiationEvent.DECLINE}).toList(), negotiationStateService.getPossibleEvents("fake"));
     }
 
     @Test

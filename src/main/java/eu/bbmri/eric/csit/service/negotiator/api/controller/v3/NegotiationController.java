@@ -7,6 +7,8 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDe
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
@@ -97,5 +99,11 @@ public class NegotiationController {
   @PutMapping("/negotiations/{id}/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
    return negotiationService.changeState(id, NegotiationEvent.valueOf(event));
+  }
+
+  @GetMapping("/negotiations/{id}/events")
+  List<String> getPossibleEvents(@Valid @PathVariable String id){
+    return negotiationStateService.getPossibleEvents(id).stream().map((obj) -> Objects.toString(obj, null))
+            .collect(Collectors.toList());
   }
 }
