@@ -9,7 +9,7 @@ spring:
     initialize: true
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgres
   jpa:
     hibernate:
