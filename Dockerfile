@@ -8,6 +8,7 @@ RUN mvn -B clean package -Dmaven.test.skip=true
 
 # Runtime image
 FROM eclipse-temurin:17-jre-focal
+EXPOSE 8080
 USER 1001
 WORKDIR /app
 COPY --from=BUILD_IMAGE /app/target/negotiator-spring-boot.jar /app/negotiator.jar
