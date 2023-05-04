@@ -101,6 +101,21 @@
       <version>3.2.0</version>
     </dependency>
     <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-jose</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.nimbusds</groupId>
+          <artifactId>nimbus-jose-jwt</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <version>7.9</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.statemachine</groupId>
       <artifactId>spring-statemachine-starter</artifactId>
       <version>3.0.1</version>
