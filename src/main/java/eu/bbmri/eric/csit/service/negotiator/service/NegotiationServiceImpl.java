@@ -81,7 +81,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
 
     // Gets the Role entity. Since this is a new negotiation, the person is the CREATOR of the negotiation
-    Role role = roleRepository.findByName("CREATOR").orElseThrow(EntityNotStorableException::new);
+    Role role = roleRepository.findByName("RESEARCHER").orElseThrow(EntityNotStorableException::new);
 
     // Gets the person and associated roles
     Person creator =
