@@ -66,9 +66,9 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
 insert into person_resource_link (resource_id, person_id) values (1, 102), (4, 103);
 
 insert into negotiation (id, creation_date, modified_date, created_by, modified_by, payload) values
-  ('negotiation-1', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'),
-  ('negotiation-2', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'),
-  ('negotiation-v2', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}');
+  ('negotiation-1', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+  ('negotiation-2', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+  ('negotiation-v2', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON);
 
 insert into request (id, url, human_readable, data_source_id, negotiation_id) values
   ('request-1', 'http://datasource.dev', '#1: No filters used', 1, 'negotiation-1'),

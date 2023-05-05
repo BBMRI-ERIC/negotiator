@@ -15,6 +15,7 @@ spring:
         jwt:
           user-info-uri: ""
           issuer-uri: ""
+          jwks-url: ""
 negotiator:
   frontend-url: ""
   authorization:
