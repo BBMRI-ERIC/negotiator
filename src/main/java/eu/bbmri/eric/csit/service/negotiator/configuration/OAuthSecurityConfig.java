@@ -93,6 +93,12 @@ public class OAuthSecurityConfig {
         .authorizeHttpRequests()
         .antMatchers("/v3/projects/**")
         .hasAuthority("RESEARCHER")
+        .antMatchers("/directory/create_query")
+        .hasAuthority("EXT_SERV")
+        .and()
+        .authorizeRequests()
+        .anyRequest()
+        .permitAll()
         .and()
         .httpBasic();
 
