@@ -102,6 +102,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria/**")
         .hasAuthority("RESEARCHER")
+        .antMatchers("/directory/create_query")
+        .permitAll()
         .and()
         .authorizeRequests()
         .anyRequest()
