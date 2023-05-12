@@ -1,8 +1,9 @@
-package eu.bbmri.eric.csit.service.negotiator.service;
+package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
