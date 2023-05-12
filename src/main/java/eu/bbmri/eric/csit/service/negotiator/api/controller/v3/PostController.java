@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
+import java.util.List;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,15 +33,28 @@ public class PostController {
   private ModelMapper modelMapper;
 
   @PostMapping(
-      value = "/posts",
+      value = "/negotiation/{negotiationId}/posts",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  PostDTO add(@Valid @RequestBody PostCreateDTO request) {
-    PostDTO post = postService.create(request, getPersonId());
+  PostDTO add(@Valid @RequestBody PostCreateDTO request,
+      @Valid @PathVariable String negotiationId) {
+    PostDTO post = postService.create(request, getPersonId(), negotiationId);
     return post;
 
   }
+
+  @GetMapping("/negotiation/{negotiationId}/posts")
+  List<PostDTO> getAllMessagesByNegotiation(@Valid @PathVariable String negotiationId) {
+    return postService.findByNegotiationId(negotiationId);
+  }
+
+  @PutMapping("/negotiation/{negotiationId}/posts/{postId}")
+  PostDTO update(@Valid @RequestBody PostCreateDTO request,
+      @Valid @PathVariable String negotiationId, @Valid @PathVariable String postId) {
+    return postService.update(request, negotiationId, postId);
+  }
+
 
   private Long getPersonId() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();

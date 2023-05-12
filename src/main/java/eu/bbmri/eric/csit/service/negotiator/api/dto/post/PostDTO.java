@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
+import java.time.LocalDateTime;
 import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -26,4 +27,13 @@ public class PostDTO {
   @Valid
   @NotEmpty
   private String text;
+
+  @Valid
+  @NotEmpty
+  private LocalDateTime creationDate;
+
+  @Valid
+  @NotEmpty
+  private LocalDateTime modifiedDate;
+
 }

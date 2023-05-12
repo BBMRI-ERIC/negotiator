@@ -23,7 +23,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @Table(name = "post")
-public class Post extends BaseEntity {
+public class Post extends AuditEntity {
 
   @ManyToMany(mappedBy = "posts")
   @Exclude
@@ -45,7 +45,7 @@ public class Post extends BaseEntity {
   private Resource resource;
 
   @Lob
-  private String postText;
-  private String postStatus;
-  private Date postDate;
+  private String text;
+  private String status;
+  private Date date;
 }

@@ -22,13 +22,13 @@ public class PostCreateDTO {
   Set<Attachment> attachments;
   @Valid
   @NotEmpty
-  private String negotiationId;
-  @Valid
-  @NotEmpty
   private String text;
   @Valid
   @NotEmpty
   private String resourceId;
+
+  @Valid
+  private String status;
 
 
 }

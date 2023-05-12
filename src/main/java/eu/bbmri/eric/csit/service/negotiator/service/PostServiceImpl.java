@@ -11,7 +11,9 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepositor
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -40,13 +42,12 @@ public class PostServiceImpl implements PostService {
   private ModelMapper modelMapper;
 
   @Transactional
-  public PostDTO create(PostCreateDTO postRequest, Long personId) {
+  public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity = modelMapper.map(postRequest, Post.class);
     try {
       String resourceId = postRequest.getResourceId();
       Optional<Resource> resource = resourceRepository.findById(Long.valueOf(resourceId));
 
-      String negotiationId = postRequest.getNegotiationId();
       Negotiation negotiation = negotiationRepository.getById(negotiationId);
 
       Optional<Person> person = personRepository.findDetailedById(personId);
@@ -54,7 +55,7 @@ public class PostServiceImpl implements PostService {
       postEntity.setResource(resource.get());
       postEntity.setNegotiation(negotiation);
       postEntity.setPoster(person.get());
-      postEntity.setPostStatus("CREATED");
+      postEntity.setStatus("CREATED");
 
       Post post = postRepository.save(postEntity);
       return modelMapper.map(post, PostDTO.class);
@@ -64,5 +65,24 @@ public class PostServiceImpl implements PostService {
     }
 
   }
+
+  @Transactional
+  public List<PostDTO> findByNegotiationId(String negotiationId) {
+    List<Post> posts = postRepository.findByNegotiationId(negotiationId);
+    return posts.stream()
+        .map(post -> modelMapper.map(post, PostDTO.class))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
+
+    Post post = postRepository.findByNegotiationIdAndMessageId(negotiationId, messageId);
+    post.setStatus(request.getStatus());
+    post.setText(request.getText());
+    Post updatedPost = postRepository.save(post);
+    return modelMapper.map(updatedPost, PostDTO.class);
+  }
+
 
 }
