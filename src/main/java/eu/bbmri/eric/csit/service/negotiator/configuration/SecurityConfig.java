@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
 
-  @Value("${spring.security.oauth2.resourceserver.jwt.jwks-url}")
+  @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
   private String jwksUrl;
 
   @Value("${negotiator.authorization.claim}")

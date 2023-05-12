@@ -94,4 +94,13 @@ public class Negotiation extends AuditEntity {
   public int hashCode() {
     return Objects.hash(getId());
   }
+
+  public Set<Resource> getAllResources() {
+    Set<Resource> resources = new HashSet<>();
+    for (Request request :
+            requests) {
+      resources.addAll(request.getResources());
+    }
+    return resources;
+  }
 }
