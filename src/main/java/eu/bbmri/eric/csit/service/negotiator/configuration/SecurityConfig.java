@@ -47,6 +47,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
   private String jwksUrl;
 
+  @Value("${spring.security.oauth2.resourceserver.jwt.jwk-type}")
+  private String jwkType;
+
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
 
@@ -63,11 +66,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private String authzBiobankerValue;
 
   @Bean
+  @Profile("dev")
   public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
         .jwtProcessorCustomizer(customizer -> {
           customizer.setJWSTypeVerifier(
-              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWT")));
+              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwkType)));
         })
         .build();
   }
