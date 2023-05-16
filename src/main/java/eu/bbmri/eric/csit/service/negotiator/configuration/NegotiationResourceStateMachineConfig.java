@@ -31,9 +31,9 @@ import java.util.EnumSet;
 
 
 @Configuration
-@EnableStateMachineFactory
+@EnableStateMachineFactory(name = "negotiationResourceStateMachineFactory")
 @Log
-public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAdapter<NegotiationState, NegotiationEvent> {
+public class NegotiationResourceStateMachineConfig extends EnumStateMachineConfigurerAdapter<NegotiationState, NegotiationEvent> {
 
     @Autowired
     @Qualifier("negotiationStateMachineRuntimePersister")
@@ -53,7 +53,7 @@ public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAda
             throws Exception {
         states
                 .withStates()
-                .initial(NegotiationState.SUBMITTED)
+                .initial(NegotiationState.CONTACTED)
                 .states(EnumSet.allOf(NegotiationState.class));
     }
 
@@ -62,15 +62,14 @@ public class NegotiationStateMachineConfig extends EnumStateMachineConfigurerAda
             throws Exception {
         transitions
                 .withExternal()
-                .source(NegotiationState.SUBMITTED).target(NegotiationState.APPROVED).event(NegotiationEvent.APPROVE)
+                .source(NegotiationState.CONTACTED).target(NegotiationState.INTERESTED).event(NegotiationEvent.EXPRESS_INTEREST)
                 .and().withExternal()
-                .source(NegotiationState.SUBMITTED).target(NegotiationState.DECLINED).event(NegotiationEvent.DECLINE)
+                .source(NegotiationState.INTERESTED).target(NegotiationState.CONCLUDED).event(NegotiationEvent.CONCLUDE)
                 .and().withExternal()
-                .source(NegotiationState.APPROVED).target(NegotiationState.CONCLUDED).event(NegotiationEvent.CONCLUDE)
-        ;
+                .source(NegotiationState.INTERESTED).target(NegotiationState.ABANDONED).event(NegotiationEvent.ABANDON);
     }
 
-    @Bean
+    @Bean(name = "negotiationResourceListener")
     public StateMachineListener<NegotiationState, NegotiationEvent> listener() {
         return new StateMachineListenerAdapter<>() {
             @Override

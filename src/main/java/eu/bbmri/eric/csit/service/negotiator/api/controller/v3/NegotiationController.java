@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.List;
 import java.util.Objects;
@@ -101,6 +102,16 @@ public class NegotiationController {
    return negotiationService.changeState(id, NegotiationEvent.valueOf(event));
   }
 
+  @PutMapping("/negotiations/{negotiationId}/{resourceId}/{event}")
+  NegotiationState sendResourceEvent(@Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId, @Valid @PathVariable String event){
+    return negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
+  }
+
+  @GetMapping("/negotiations/{negotiationId}/{resourceId}/events")
+  List<String> getResourcePossibleEvents(@Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId){
+    return negotiationStateService.getPossibleEvents(negotiationId, resourceId).stream().map((obj) -> Objects.toString(obj, null))
+            .collect(Collectors.toList());
+  }
   @GetMapping("/negotiations/{id}/events")
   List<String> getPossibleEvents(@Valid @PathVariable String id){
     return negotiationStateService.getPossibleEvents(id).stream().map((obj) -> Objects.toString(obj, null))

@@ -32,4 +32,7 @@ public class NegotiationDTO {
 
   @NotNull
   private String status;
+
+  @NotNull
+  private JsonNode resourceStatus;
 }

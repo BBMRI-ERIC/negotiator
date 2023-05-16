@@ -93,6 +93,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     // Updates person and negotiation with the person role
     creator.getRoles().add(personRole);
     negotiationEntity.getPersons().add(personRole);
+    negotiationEntity.setResourcesStatus("{}");
 
     // Updates the bidirectional relationship between negotiationBody and negotiation
     negotiationEntity.setRequests(new HashSet<>(requests));
@@ -101,11 +102,14 @@ public class NegotiationServiceImpl implements NegotiationService {
           request.setNegotiation(negotiationEntity);
         });
     try {
-      // Set initial state machine
       // Finally, save the negotiation. NB: it also cascades operations for other Requests,
       // PersonNegotiationRole
       Negotiation negotiation = negotiationRepository.save(negotiationEntity);
-      negotiationStateService.createStateMachineForNegotiation(negotiationEntity.getId());
+      // Set initial state machine
+      negotiationStateService.initializeTheStateMachine(negotiationEntity.getId());
+      for (Resource resource: negotiation.getAllResources()) {
+        negotiationStateService.initializeTheStateMachine(negotiation.getId(), resource.getSourceId());
+      }
       return modelMapper.map(negotiation, NegotiationDTO.class);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");

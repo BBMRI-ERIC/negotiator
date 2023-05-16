@@ -23,6 +23,7 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.json.JSONObject;
 
 @ToString
 @Entity
@@ -78,6 +79,10 @@ public class Negotiation extends AuditEntity {
 
   private String status;
 
+  @Type(type = "json")
+  @Column(columnDefinition = "jsonb")
+  private String resourcesStatus;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -102,5 +107,12 @@ public class Negotiation extends AuditEntity {
       resources.addAll(request.getResources());
     }
     return resources;
+  }
+
+  public String setStatusForResource(String resourceId, String newStatus){
+    JSONObject jsonObject = new JSONObject(resourcesStatus);
+    jsonObject.put(resourceId, newStatus);
+    setResourcesStatus(jsonObject.toString());
+    return newStatus;
   }
 }

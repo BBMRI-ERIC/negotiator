@@ -47,6 +47,8 @@ public class NegotiationModelMapper {
 
     typeMap.addMappings(mapper -> mapper.using(payloadConverter)
         .map(Negotiation::getPayload, NegotiationDTO::setPayload));
+    typeMap.addMappings(mapper -> mapper.using(payloadConverter)
+            .map(Negotiation::getResourcesStatus, NegotiationDTO::setResourceStatus));
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
@@ -60,6 +62,9 @@ public class NegotiationModelMapper {
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
+    if (jsonPayload == null) {
+      jsonPayload = "{}";
+    }
     return mapper.readTree(jsonPayload);
   }
 }

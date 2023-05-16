@@ -4,6 +4,7 @@ public enum NegotiationEvent {
     APPROVE,
     START,
     ABANDON,
+    EXPRESS_INTEREST,
     DECLINE,
     CONCLUDE
 }

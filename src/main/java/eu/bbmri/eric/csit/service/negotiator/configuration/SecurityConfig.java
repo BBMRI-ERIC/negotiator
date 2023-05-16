@@ -67,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
         .jwtProcessorCustomizer(customizer -> {
           customizer.setJWSTypeVerifier(
-              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("at+jwt")));
+              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWT")));
         })
         .build();
   }
