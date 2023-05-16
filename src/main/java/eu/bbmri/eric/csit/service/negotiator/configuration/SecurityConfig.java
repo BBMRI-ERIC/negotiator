@@ -66,7 +66,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private String authzBiobankerValue;
 
   @Bean
-  @Profile("dev")
   public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
         .jwtProcessorCustomizer(customizer -> {
