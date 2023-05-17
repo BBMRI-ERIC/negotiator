@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
@@ -11,11 +13,14 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -106,7 +111,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       Negotiation negotiation = negotiationRepository.save(negotiationEntity);
       // Set initial state machine
       negotiationStateService.initializeTheStateMachine(negotiationEntity.getId());
-      for (Resource resource: negotiation.getAllResources()) {
+      for (Resource resource : negotiation.getAllResources().getResources()) {
         negotiationStateService.initializeTheStateMachine(negotiation.getId(), resource.getSourceId());
       }
       return modelMapper.map(negotiation, NegotiationDTO.class);

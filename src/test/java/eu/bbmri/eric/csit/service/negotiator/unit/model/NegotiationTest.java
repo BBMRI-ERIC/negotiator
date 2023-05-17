@@ -38,6 +38,6 @@ public class NegotiationTest {
         resource.setSourceId("fancyId");
         request.setResources(new HashSet<>(List.of(resource)));
         negotiation.setRequests(new HashSet<>(List.of(request)));
-        assertEquals(new HashSet<>(List.of(resource)), negotiation.getAllResources());
+        assertEquals(List.of(resource), negotiation.getAllResources().getResources());
     }
 }

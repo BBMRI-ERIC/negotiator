@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NegotiationStateServiceImplTest {
 
     @Autowired
@@ -118,11 +118,20 @@ public class NegotiationStateServiceImplTest {
     }
 
     @Test
-    void stateMachineChangeUpdatesNegotiationEntity() throws IOException {
+    void stateMachineChangeUpdatesNegotiationDTO() throws IOException {
         NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
         NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
         assertEquals("SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
         negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
         assertEquals("APPROVED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
+    }
+
+    @Test
+    void resourceStateMachineChangeUpdatesNegotiationDTO() throws IOException {
+        NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+        NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+        assertEquals("SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus().get("biobank:1:collection:2").textValue());
+        negotiationStateService.sendEvent(negotiationDTO.getId(), "biobank:1:collection:2", NegotiationEvent.APPROVE);
+        assertEquals("APPROVED", negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus().get("biobank:1:collection:2").textValue());
     }
 }
