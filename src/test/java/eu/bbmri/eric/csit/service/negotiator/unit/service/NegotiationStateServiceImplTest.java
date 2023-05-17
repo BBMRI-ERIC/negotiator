@@ -1,8 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.statemachine.data.jpa.JpaStateMachineRepository;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,6 +30,9 @@ public class NegotiationStateServiceImplTest {
 
     @Autowired
     NegotiationStateServiceImpl negotiationStateService;
+
+    @Autowired
+    NegotiationService negotiationService;
 
     @Autowired
     JpaStateMachineRepository jpaStateMachineRepository;
@@ -107,4 +115,12 @@ public class NegotiationStateServiceImplTest {
         );
     }
 
+    @Test
+    void stateMachineChangeUpdatesNegotiationEntity() throws IOException {
+        NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+        NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+        assertEquals("SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
+        negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+        assertEquals("APPROVED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
+    }
 }

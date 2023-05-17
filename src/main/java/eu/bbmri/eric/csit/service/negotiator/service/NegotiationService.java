@@ -54,7 +54,7 @@ public interface NegotiationService {
    * negotiation are returned (i.e., data about resources involved in the negotiation)
    * @param id the id
    * @param includeDetails whether to include details about the resources involved in the negotiation or not
-   * @throws EntityNotFoundException if the negotiation to update is not found
+   * @throws EntityNotFoundException if the requested negotiation is not found
    * @return the NegotiationDTO with the data of the negotiation
    */
   NegotiationDTO findById(String id, boolean includeDetails);

@@ -1,9 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import jdk.jfr.Name;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,32 +25,10 @@ import org.springframework.statemachine.service.StateMachineService;
 @CommonsLog
 public class StateMachinePersistenceConfig {
 
-    @Autowired
-    private NegotiationRepository negotiationRepository;
-
-    @Autowired
-    JpaStateMachineRepository jpaStateMachineRepository;
-
     @Bean(name = "negotiationStateMachineRuntimePersister")
     public StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachineRuntimePersister(
             JpaStateMachineRepository jpaStateMachineRepository) {
-        return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository){
-            @Override
-            public void write(StateMachineContext<NegotiationState, NegotiationEvent> context, String contextObj) throws Exception {
-                super.write(context, contextObj);
-                Negotiation negotiation = negotiationRepository.findById(contextObj).orElse(null);
-                if (negotiation != null){
-                    negotiation.setStatus(context.getState().toString());
-                    negotiationRepository.save(negotiation);
-                }
-                if (contextObj.contains("---") && negotiation == null ){
-                    Negotiation resourceNegotiation = negotiationRepository.findById(contextObj.split("---")[0]).orElse(null);
-                    log.info(resourceNegotiation.toString());
-                    resourceNegotiation.setStatusForResource(contextObj.split("---")[1], context.getState().toString());
-                    negotiationRepository.save(resourceNegotiation);
-                }
-            }
-        };
+        return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository){};
     }
 
     @Bean(name = "negotiationStateMachineService")
