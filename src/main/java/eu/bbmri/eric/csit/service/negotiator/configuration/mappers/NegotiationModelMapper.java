@@ -6,21 +6,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
+import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 @Configuration
 public class NegotiationModelMapper {
 
   @Autowired
   ModelMapper modelMapper;
+
+  @Autowired
+  NegotiationStateService negotiationStateService;
+
 
   @PostConstruct
   void addMappings() {
@@ -29,6 +38,8 @@ public class NegotiationModelMapper {
 
     Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
         role -> personsRoleConverter(role.getSource());
+
+    Converter<String, String> negotiationStatusConverter = status -> negotiationStatusConverter(status.getSource());
 
     typeMap.addMappings(
         mapper ->
@@ -47,8 +58,9 @@ public class NegotiationModelMapper {
 
     typeMap.addMappings(mapper -> mapper.using(payloadConverter)
         .map(Negotiation::getPayload, NegotiationDTO::setPayload));
-    typeMap.addMappings(mapper -> mapper.using(payloadConverter)
-            .map(Negotiation::getResourcesStatus, NegotiationDTO::setResourceStatus));
+
+    typeMap.addMappings(mapper -> mapper.using(negotiationStatusConverter).map(Negotiation::getId, NegotiationDTO::setStatus));
+
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
@@ -66,5 +78,14 @@ public class NegotiationModelMapper {
       jsonPayload = "{}";
     }
     return mapper.readTree(jsonPayload);
+  }
+
+  private String negotiationStatusConverter(String negotiationId){
+    try {
+      return negotiationStateService.getCurrentState(negotiationId).toString();
+    }
+    catch (IllegalArgumentException | InvalidDataAccessApiUsageException e){
+      return "";
+    }
   }
 }

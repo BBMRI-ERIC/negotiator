@@ -93,7 +93,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     // Updates person and negotiation with the person role
     creator.getRoles().add(personRole);
     negotiationEntity.getPersons().add(personRole);
-    negotiationEntity.setResourcesStatus("{}");
 
     // Updates the bidirectional relationship between negotiationBody and negotiation
     negotiationEntity.setRequests(new HashSet<>(requests));
