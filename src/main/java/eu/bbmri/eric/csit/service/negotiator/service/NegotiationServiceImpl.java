@@ -248,10 +248,4 @@ public class NegotiationServiceImpl implements NegotiationService {
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
   }
-
-  @Override
-  public NegotiationDTO changeState(String negotiationId, NegotiationEvent negotiationEvent) {
-    NegotiationState newState = negotiationStateService.sendEvent(negotiationId, negotiationEvent);
-    return null;
-  }
 }

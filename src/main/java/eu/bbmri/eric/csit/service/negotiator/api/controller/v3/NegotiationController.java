@@ -99,7 +99,7 @@ public class NegotiationController {
 
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
-    negotiationService.changeState(id, NegotiationEvent.valueOf(event));
+    negotiationStateService.sendEvent(id, NegotiationEvent.valueOf(event));
     return negotiationService.findById(id, true);
   }
 

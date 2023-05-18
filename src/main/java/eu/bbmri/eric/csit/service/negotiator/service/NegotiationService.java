@@ -79,7 +79,6 @@ public interface NegotiationService {
    * @param negotiationEvent event transition
    * @return negotiationDTO
    */
-  NegotiationDTO changeState(String negotiationId, NegotiationEvent negotiationEvent);
 }
 
 
