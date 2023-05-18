@@ -27,7 +27,7 @@ spring:
           user-info-uri: "http://localhost:4011/connect/userinfo"
           issuer-uri: "http://localhost:4011"
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
-          jwk-type: "JWT"
+          type: "JWT"
 negotiator:
   frontend-url: "http://localhost:8080"
   authorization:
