@@ -2,11 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class to map the Authorities in a JWT to the one knwon by the Negotiator

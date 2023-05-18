@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+
 import java.util.List;
 
 public interface NegotiationService {
@@ -53,7 +54,7 @@ public interface NegotiationService {
    * negotiation are returned (i.e., data about resources involved in the negotiation)
    * @param id the id
    * @param includeDetails whether to include details about the resources involved in the negotiation or not
-   * @throws EntityNotFoundException if the negotiation to update is not found
+   * @throws EntityNotFoundException if the requested negotiation is not found
    * @return the NegotiationDTO with the data of the negotiation
    */
   NegotiationDTO findById(String id, boolean includeDetails);
@@ -71,4 +72,13 @@ public interface NegotiationService {
    * @return a List of NegotiationDTOs
    */
   List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
+
+  /**
+   * Changes the state of the negotiation
+   * @param negotiationId id of the negotiation being changed
+   * @param negotiationEvent event transition
+   * @return negotiationDTO
+   */
 }
+
+

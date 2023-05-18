@@ -17,6 +17,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Collections;
 import java.util.Optional;
@@ -56,6 +57,8 @@ public class RequestControllerTests {
   private RequestServiceImpl requestService;
   @Autowired
   private NegotiationServiceImpl negotiationService;
+  @Autowired
+  private NegotiationStateService negotiationStateService;
   @Autowired
   private ModelMapper modelMapper;
 

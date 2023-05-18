@@ -4,9 +4,9 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import java.util.List;
-import javax.validation.Valid;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/v3")
 @CrossOrigin
@@ -30,6 +35,9 @@ public class NegotiationController {
 
   @Autowired
   private NegotiationService negotiationService;
+
+  @Autowired
+  private NegotiationStateService negotiationStateService;
   /**
    * Create a negotiation
    */
@@ -86,5 +94,32 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}")
   NegotiationDTO retrieve(@Valid @PathVariable String id) {
     return negotiationService.findById(id, true);
+  }
+
+  @PutMapping("/negotiations/{id}/lifecycle/{event}")
+  NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
+    negotiationStateService.sendEvent(id, NegotiationEvent.valueOf(event));
+    return negotiationService.findById(id, true);
+  }
+
+  @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
+  NegotiationDTO sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
+                                                   @Valid @PathVariable String resourceId,
+                                                   @Valid @PathVariable String event){
+    negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
+    return negotiationService.findById(negotiationId, true);
+  }
+
+  @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
+  List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
+                                                       @Valid @PathVariable String resourceId){
+    return negotiationStateService
+            .getPossibleEvents(negotiationId, resourceId).stream().map((obj) -> Objects.toString(obj, null))
+            .collect(Collectors.toList());
+  }
+  @GetMapping("/negotiations/{id}/lifecycle")
+  List<String> getPossibleEvents(@Valid @PathVariable String id){
+    return negotiationStateService.getPossibleEvents(id).stream().map((obj) -> Objects.toString(obj, null))
+            .collect(Collectors.toList());
   }
 }

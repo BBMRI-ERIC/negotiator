@@ -9,12 +9,12 @@ spring:
     initialize: true
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgres
   jpa:
     hibernate:
       show-sql: false
-      ddl-auto: create-drop
+      ddl-auto: update
     defer-datasource-initialization: true
     properties:
       hibernate:
@@ -26,4 +26,3 @@ spring:
       resourceserver:
         jwt:
           issuer-uri:
-

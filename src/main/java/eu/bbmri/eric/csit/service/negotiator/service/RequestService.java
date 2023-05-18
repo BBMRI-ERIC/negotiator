@@ -2,9 +2,9 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+
 import java.util.List;
 import java.util.Set;
 

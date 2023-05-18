@@ -5,7 +5,6 @@ import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +19,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
@@ -44,8 +45,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
 
-  @Value("${spring.security.oauth2.resourceserver.jwt.jwks-url}")
+  @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
   private String jwksUrl;
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.type}")
+  private String jwkType;
 
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
@@ -67,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
         .jwtProcessorCustomizer(customizer -> {
           customizer.setJWSTypeVerifier(
-              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("at+jwt")));
+              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwkType)));
         })
         .build();
   }
@@ -88,7 +92,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .cors()
-        .and()
+        .disable()
         .csrf()
         .disable()
         .headers()
@@ -103,7 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/v3/projects/**", "/v3/negotiations/**", "/v3/access-criteria/**")
         .hasAuthority("RESEARCHER")
         .antMatchers("/directory/create_query")
-        .permitAll()
+        .hasAuthority("EXT_SERV")
         .and()
         .authorizeRequests()
         .anyRequest()

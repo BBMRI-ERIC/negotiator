@@ -1,9 +1,16 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,16 +21,9 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.ToString.Exclude;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-//import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @ToString
 @Entity
@@ -77,8 +77,6 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "jsonb")
   private String payload;
 
-  private String state;
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -94,5 +92,16 @@ public class Negotiation extends AuditEntity {
   @Override
   public int hashCode() {
     return Objects.hash(getId());
+  }
+
+  public NegotiationResources getAllResources() {
+    NegotiationResources negotiationResources = new NegotiationResources();
+    Set<Resource> resources = new HashSet<>();
+    for (Request request : requests) {
+      resources.addAll(request.getResources());
+    }
+    negotiationResources.setNegotiationId(getId());
+    negotiationResources.setResources(resources.stream().toList());
+    return negotiationResources;
   }
 }

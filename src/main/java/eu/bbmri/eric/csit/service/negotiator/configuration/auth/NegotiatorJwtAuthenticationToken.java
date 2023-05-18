@@ -1,10 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
+import java.util.Collection;
 
 /**
  * A Jwt authentication token that enhances the basic one (i.e., JwtAuthenticationToken) by adding

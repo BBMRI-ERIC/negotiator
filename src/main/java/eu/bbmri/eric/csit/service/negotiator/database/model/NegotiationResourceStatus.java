@@ -1,12 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,22 +7,33 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.util.Date;
+
 @ToString
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "lifecycle_request_status")
-public class LifecycleRequestStatus extends AuditEntity {
+@Table(name = "negotiation_resource_status")
+public class NegotiationResourceStatus extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "request_id")
+  @JoinColumn(name = "negotiation_id")
   @Exclude
   private Negotiation negotiation;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "resource_id")
+  @Exclude
+  private Resource resource;
+
   private String status;
-  private String statusType;
   private Date statusDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -37,6 +41,4 @@ public class LifecycleRequestStatus extends AuditEntity {
   @Exclude
   private Person Person;
 
-  @Lob // TODO: should this one be Json instead of txt blob?
-  private String statusJson;
 }

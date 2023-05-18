@@ -9,17 +9,18 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.PostConstruct;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Configuration
 public class RequestModelsMapper {
