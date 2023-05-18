@@ -5,7 +5,6 @@ import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +19,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity

@@ -2,14 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.api.dto.datasource;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter

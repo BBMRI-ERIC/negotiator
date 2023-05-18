@@ -2,8 +2,9 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectDTO;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+
 import java.util.List;
 
 public interface ProjectService {

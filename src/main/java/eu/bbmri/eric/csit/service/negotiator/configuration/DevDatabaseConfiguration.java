@@ -1,11 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import org.h2.tools.Server;
 import org.springframework.context.annotation.Bean;
-
-import java.sql.SQLException;
-import org.h2.tools.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import java.sql.SQLException;
 
 @Configuration
 @Profile({"dev"})
