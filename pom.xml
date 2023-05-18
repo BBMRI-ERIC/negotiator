@@ -168,5 +168,10 @@
       <artifactId>json</artifactId>
       <version>20230227</version>
     </dependency>
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.4.23</version>
+    </dependency>
   </dependencies>
 </project>

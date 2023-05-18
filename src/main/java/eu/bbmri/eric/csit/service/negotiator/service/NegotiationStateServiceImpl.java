@@ -6,11 +6,15 @@ import jdk.jfr.Name;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.data.StateMachineRepository;
 import org.springframework.statemachine.data.jpa.JpaStateMachineRepository;
 import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -108,7 +112,10 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
             throw new UnsupportedOperationException("Unsupported event");
         }
         StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationStateMachineService.acquireStateMachine(machineId, true);
-        stateMachine.sendEvent(negotiationEvent);
+        StateMachineEventResult<NegotiationState, NegotiationEvent> newState = stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(negotiationEvent).build())).blockFirst();
+        if (newState != null) {
+            log.info("Event was: " + newState.getResultType().toString());
+        }
         return stateMachine.getState().getId();
     }
 
