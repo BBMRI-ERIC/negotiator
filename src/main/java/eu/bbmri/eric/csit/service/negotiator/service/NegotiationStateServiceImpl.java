@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import jdk.jfr.Name;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @CommonsLog
 public class NegotiationStateServiceImpl implements NegotiationStateService{
+    private static final String SEPARATOR = "---";
 
     @Autowired
     @Qualifier("negotiationStateMachineService")
@@ -40,7 +42,6 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
     @Autowired
     JpaStateMachineRepository jpaStateMachineRepository;
 
-    final String SEPARATOR = "---";
     @Override
     public void initializeTheStateMachine(String negotiationId) {
         springNegotiationStateMachineService.acquireStateMachine(negotiationId, false);
@@ -48,14 +49,14 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
 
     @Override
     public void initializeTheStateMachine(String negotiationId, String resourceId) {
-        String resourceNegotiationId = negotiationId + "---" + resourceId;
+        String resourceNegotiationId = negotiationId + SEPARATOR + resourceId;
         springNegotiationResourceStateMachineService.acquireStateMachine(resourceNegotiationId, false);
     }
 
     @Override
     public NegotiationState getCurrentState(String negotiationId) {
         if (!jpaStateMachineRepository.existsById(negotiationId)){
-            throw new IllegalArgumentException("Negotiation does not exist");
+            throw new EntityNotFoundException("Negotiation does not exist");
         }
         return this.springNegotiationStateMachineService.acquireStateMachine(negotiationId).getState().getId();
     }
@@ -64,7 +65,7 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
     public NegotiationState getCurrentState(String negotiationId, String resourceId) {
         String negotiationResourceId = createMachineId(negotiationId, resourceId);
         if (!jpaStateMachineRepository.existsById(negotiationResourceId)){
-            throw new IllegalArgumentException("Combination of Negotiation and Resource does not exist");
+            throw new EntityNotFoundException("Combination of Negotiation and Resource does not exist");
         }
         return this.springNegotiationStateMachineService.acquireStateMachine(negotiationResourceId).getState().getId();
     }
@@ -72,7 +73,7 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
     @Override
     public Set<NegotiationEvent> getPossibleEvents(String negotiationId) {
         if (!jpaStateMachineRepository.existsById(negotiationId)) {
-            throw new IllegalArgumentException("StateMachine " + negotiationId + "does not exist.");
+            throw new EntityNotFoundException("StateMachine " + negotiationId + "does not exist.");
         }
         StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationStateMachineService.acquireStateMachine(negotiationId);
         return stateMachine.getTransitions().stream()
@@ -85,7 +86,7 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
     public Set<NegotiationEvent> getPossibleEvents(String negotiationId, String resourceId) {
         String machineId = createMachineId(negotiationId, resourceId);
         if (!jpaStateMachineRepository.existsById(machineId)) {
-            throw new IllegalArgumentException("StateMachine " + machineId + "does not exist.");
+            throw new EntityNotFoundException("StateMachine " + machineId + "does not exist.");
         }
         StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationResourceStateMachineService.acquireStateMachine(machineId);
         return stateMachine.getTransitions().stream()

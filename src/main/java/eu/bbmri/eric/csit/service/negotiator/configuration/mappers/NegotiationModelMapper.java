@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.xml.transform.Source;
 
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import io.swagger.v3.core.util.Json;
@@ -103,7 +104,7 @@ public class NegotiationModelMapper {
     try {
       return negotiationStateService.getCurrentState(negotiationId).toString();
     }
-    catch (IllegalArgumentException e){
+    catch (EntityNotFoundException e){
       return "";
     }
   }
@@ -116,7 +117,7 @@ public class NegotiationModelMapper {
       try {
         resourcesStatus.put(resource.getSourceId(), negotiationStateService.getCurrentState(negotiationResources.getNegotiationId(), resource.getSourceId()));
       }
-      catch (IllegalArgumentException e) {
+      catch (EntityNotFoundException e) {
         log.info("Negotiation and resource combination not found");
       }
     }

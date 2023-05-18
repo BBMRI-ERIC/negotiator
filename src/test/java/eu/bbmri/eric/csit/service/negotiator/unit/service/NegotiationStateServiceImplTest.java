@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationCrea
 import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateServiceImpl;
@@ -55,7 +56,7 @@ public class NegotiationStateServiceImplTest {
     void getStateForNonExistentNegotiationThrowsIllegalArgException() {
         negotiationStateService.initializeTheStateMachine(NEGOTIATION_ID);
         assertThrows(
-                IllegalArgumentException.class,
+                EntityNotFoundException.class,
                 () -> negotiationStateService.getCurrentState("fake")
         );
     }
@@ -76,7 +77,7 @@ public class NegotiationStateServiceImplTest {
     @Test
     public void getPossibleEventsForNonExistingNegotiation() {
         assertThrows(
-                IllegalArgumentException.class,
+                EntityNotFoundException.class,
                 () -> negotiationStateService.getPossibleEvents("fakeId")
         );
     }
