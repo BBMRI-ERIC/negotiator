@@ -97,19 +97,21 @@ public class NegotiationController {
     return negotiationService.findById(id, true);
   }
 
-  @PutMapping("/negotiations/{id}/{event}")
+  @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
-   return negotiationService.changeState(id, NegotiationEvent.valueOf(event));
+    negotiationService.changeState(id, NegotiationEvent.valueOf(event));
+    return negotiationService.findById(id, true);
   }
 
-  @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/{event}")
-  NegotiationState sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
+  @PutMapping("/negotiations/{negotiationId}/lifecycle/resources/{resourceId}/{event}")
+  NegotiationDTO sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                    @Valid @PathVariable String resourceId,
                                                    @Valid @PathVariable String event){
-    return negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
+    negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
+    return negotiationService.findById(negotiationId, true);
   }
 
-  @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
+  @GetMapping("/negotiations/{negotiationId}/lifecycle/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                        @Valid @PathVariable String resourceId){
     return negotiationStateService
