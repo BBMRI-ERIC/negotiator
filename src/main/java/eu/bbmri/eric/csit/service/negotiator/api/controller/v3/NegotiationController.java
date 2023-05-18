@@ -103,13 +103,17 @@ public class NegotiationController {
   }
 
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/{event}")
-  NegotiationState sendEventForNegotiationResource(@Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId, @Valid @PathVariable String event){
+  NegotiationState sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
+                                                   @Valid @PathVariable String resourceId,
+                                                   @Valid @PathVariable String event){
     return negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
   }
 
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/events")
-  List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId){
-    return negotiationStateService.getPossibleEvents(negotiationId, resourceId).stream().map((obj) -> Objects.toString(obj, null))
+  List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
+                                                       @Valid @PathVariable String resourceId){
+    return negotiationStateService
+            .getPossibleEvents(negotiationId, resourceId).stream().map((obj) -> Objects.toString(obj, null))
             .collect(Collectors.toList());
   }
   @GetMapping("/negotiations/{id}/events")
