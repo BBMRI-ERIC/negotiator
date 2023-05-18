@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import jdk.jfr.Name;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,16 +102,16 @@ public class NegotiationStateServiceImpl implements NegotiationStateService{
     }
 
     @Override
-    public NegotiationState sendEvent(String negotiationId, String resourceId, NegotiationEvent negotiationEvent) throws NoSuchElementException {
+    public NegotiationState sendEvent(String negotiationId, String resourceId, NegotiationEvent negotiationEvent) throws WrongRequestException, EntityNotFoundException {
         return sendEventToMachine(createMachineId(negotiationId, resourceId), negotiationEvent);
     }
 
     private NegotiationState sendEventToMachine(String machineId, NegotiationEvent negotiationEvent) {
         if (!jpaStateMachineRepository.existsById(machineId)) {
-            throw new IllegalArgumentException("Negotiation " + machineId + "does not exist.");
+            throw new EntityNotFoundException("Negotiation " + machineId + "does not exist.");
         }
         if (!getPossibleEvents(machineId).contains(negotiationEvent)){
-            throw new UnsupportedOperationException("Unsupported event");
+            throw new WrongRequestException("Unsupported event");
         }
         StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationStateMachineService.acquireStateMachine(machineId, true);
         StateMachineEventResult<NegotiationState, NegotiationEvent> newState = stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(negotiationEvent).build())).blockFirst();

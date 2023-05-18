@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateServiceImpl;
@@ -93,7 +94,7 @@ public class NegotiationStateServiceImplTest {
     @Test
     public void sendEventForNonExistentNegotiationThrowException() {
         assertThrows(
-                IllegalArgumentException.class,
+                EntityNotFoundException.class,
                 () -> negotiationStateService.sendEvent("fakeId", TRANSITION_EVENT)
         );
     }
@@ -113,7 +114,7 @@ public class NegotiationStateServiceImplTest {
         String negotiationID = "negotiationID-1";
         negotiationStateService.initializeTheStateMachine(negotiationID);
         assertThrows(
-                UnsupportedOperationException.class,
+                WrongRequestException.class,
                 () -> negotiationStateService.sendEvent(negotiationID, NegotiationEvent.ABANDON)
         );
     }

@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,13 +26,13 @@ public interface NegotiationStateService {
      * @param resourceId for which the state machine is created
      */
 
-    void initializeTheStateMachine(String negotiationId, String resourceId) throws IllegalArgumentException;
+    void initializeTheStateMachine(String negotiationId, String resourceId);
     /**
      * Returns the current state of a Negotiation
      * @param negotiationId for which state is requested
      * @return NegotiationState
      */
-    NegotiationState getCurrentState(String negotiationId) throws IllegalArgumentException;
+    NegotiationState getCurrentState(String negotiationId) throws EntityNotFoundException;
 
     /**
      * Returns the current state of a Resource Negotiation
@@ -39,7 +40,7 @@ public interface NegotiationStateService {
      * @param resourceId for which state is requested
      * @return Current state
      */
-    NegotiationState getCurrentState(String negotiationId, String resourceId) throws IllegalArgumentException;
+    NegotiationState getCurrentState(String negotiationId, String resourceId) throws EntityNotFoundException;
 
     /**
      * Returns all possible events that can be sent for this negotiation
@@ -62,12 +63,12 @@ public interface NegotiationStateService {
      * Send an event to a particular negotiation
      * @return the new status of the Negotiation
      */
-    NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent) throws UnsupportedOperationException, EntityNotFoundException;
+    NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent) throws WrongRequestException, EntityNotFoundException;
 
     /**
      * Send an event to a particular resource negotiation
      * @return The new state
      * @throws NoSuchElementException In case the combination of Negotiation and Resource was not found
      */
-    NegotiationState sendEvent(String negotiationId, String resourceId, NegotiationEvent negotiationEvent) throws UnsupportedOperationException, EntityNotFoundException;
+    NegotiationState sendEvent(String negotiationId, String resourceId, NegotiationEvent negotiationEvent) throws WrongRequestException, EntityNotFoundException;
 }
