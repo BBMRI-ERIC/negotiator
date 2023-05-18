@@ -102,7 +102,7 @@ public class NegotiationController {
     return negotiationService.findById(id, true);
   }
 
-  @PutMapping("/negotiations/{negotiationId}/lifecycle/resources/{resourceId}/{event}")
+  @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
   NegotiationDTO sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                    @Valid @PathVariable String resourceId,
                                                    @Valid @PathVariable String event){
@@ -110,7 +110,7 @@ public class NegotiationController {
     return negotiationService.findById(negotiationId, true);
   }
 
-  @GetMapping("/negotiations/{negotiationId}/lifecycle/resources/{resourceId}/lifecycle")
+  @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                        @Valid @PathVariable String resourceId){
     return negotiationStateService
