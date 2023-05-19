@@ -33,7 +33,7 @@ public class PostController {
   private ModelMapper modelMapper;
 
   @PostMapping(
-      value = "/negotiation/{negotiationId}/posts",
+      value = "/negotiations/{negotiationId}/posts",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
@@ -44,12 +44,12 @@ public class PostController {
 
   }
 
-  @GetMapping("/negotiation/{negotiationId}/posts")
+  @GetMapping("/negotiations/{negotiationId}/posts")
   List<PostDTO> getAllMessagesByNegotiation(@Valid @PathVariable String negotiationId) {
     return postService.findByNegotiationId(negotiationId);
   }
 
-  @PutMapping("/negotiation/{negotiationId}/posts/{postId}")
+  @PutMapping("/negotiations/{negotiationId}/posts/{postId}")
   PostDTO update(@Valid @RequestBody PostCreateDTO request,
       @Valid @PathVariable String negotiationId, @Valid @PathVariable String postId) {
     return postService.update(request, negotiationId, postId);
