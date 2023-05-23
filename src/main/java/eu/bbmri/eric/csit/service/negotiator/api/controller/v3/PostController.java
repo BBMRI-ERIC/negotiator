@@ -39,8 +39,7 @@ public class PostController {
   @ResponseStatus(HttpStatus.CREATED)
   PostDTO add(@Valid @RequestBody PostCreateDTO request,
       @Valid @PathVariable String negotiationId) {
-    PostDTO post = postService.create(request, getPersonId(), negotiationId);
-    return post;
+    return postService.create(request, getPersonId(), negotiationId);
 
   }
 

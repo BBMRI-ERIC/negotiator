@@ -10,9 +10,10 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -46,15 +47,18 @@ public class PostServiceImpl implements PostService {
     Post postEntity = modelMapper.map(postRequest, Post.class);
     try {
       String resourceId = postRequest.getResourceId();
-      Optional<Resource> resource = resourceRepository.findById(Long.valueOf(resourceId));
+      Resource resource = resourceRepository.findById(Long.valueOf(resourceId)).orElseThrow(
+          WrongRequestException::new);
 
-      Negotiation negotiation = negotiationRepository.getById(negotiationId);
+      Negotiation negotiation = negotiationRepository.findById(negotiationId)
+          .orElseThrow(() -> new EntityNotFoundException(negotiationId));
 
-      Optional<Person> person = personRepository.findDetailedById(personId);
+      Person person = personRepository.findDetailedById(personId).orElseThrow(
+          WrongRequestException::new);
 
-      postEntity.setResource(resource.get());
+      postEntity.setResource(resource);
       postEntity.setNegotiation(negotiation);
-      postEntity.setPoster(person.get());
+      postEntity.setPoster(person);
       postEntity.setStatus("CREATED");
 
       Post post = postRepository.save(postEntity);

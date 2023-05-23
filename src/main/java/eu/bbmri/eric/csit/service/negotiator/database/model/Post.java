@@ -47,5 +47,5 @@ public class Post extends AuditEntity {
   @Lob
   private String text;
   private String status;
-  private Date date;
+
 }
