@@ -18,7 +18,15 @@ this service can be found in this repository: https://github.com/BBMRI-ERIC/nego
 
 ## Quick Start
 
-TODO using docker
+### Prerequisites
+- Docker
+
+The following command will run the Negotiator application with the REST API exposed at: http://localhost:8080
+Note: The authentication using OIDC mock server will not work because of issues with docker network, unless the OIDC mock is running
+on an external server.
+```shell
+docker run --rm -e PROFILE=dev -p 8080:8081 negotiator
+```
 
 ## Development
 
