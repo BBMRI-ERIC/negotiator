@@ -14,9 +14,14 @@ public class OAuthSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeHttpRequests().antMatchers("/v3/negotiations/**", "/v3/projects/**").authenticated()
                 .and()
                 .authorizeHttpRequests().antMatchers(HttpMethod.GET, "/v3/access-criteria/**").authenticated()
+                .and()
+                .authorizeHttpRequests().antMatchers(HttpMethod.POST, "/directory/create_query").permitAll()
+                .and()
+                .httpBasic()
                 .and()
                         .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         return http.build();
