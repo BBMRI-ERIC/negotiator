@@ -49,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private String jwksUrl;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.type}")
-  private String jwkType;
+  private String jwtType;
 
   @Value("${negotiator.authorization.claim}")
   private String authzClaim;
@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
         .jwtProcessorCustomizer(customizer -> {
           customizer.setJWSTypeVerifier(
-              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwkType)));
+              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
         })
         .build();
   }
