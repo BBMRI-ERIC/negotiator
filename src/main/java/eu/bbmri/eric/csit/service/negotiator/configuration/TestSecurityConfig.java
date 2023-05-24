@@ -23,7 +23,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@Profile({"test"})
+@Profile({"disabled"})
 public class TestSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
