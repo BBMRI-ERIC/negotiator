@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.perun;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.perun;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

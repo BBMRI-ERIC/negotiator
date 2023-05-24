@@ -1,19 +1,25 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.error;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.person;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class ErrorResponse {
+public class PersonRoleDTO {
 
-  private Integer code;
+  @NotNull
+  private String name;
 
-  private String message;
+  @NotNull
+  private String role;
 }

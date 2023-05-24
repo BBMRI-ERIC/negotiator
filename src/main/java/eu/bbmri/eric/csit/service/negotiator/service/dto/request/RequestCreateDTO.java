@@ -1,7 +1,8 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,11 +15,9 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class RequestDTO {
-
-  @NotNull
-  private String id;
+public class RequestCreateDTO {
 
   @NotNull(message = "The url of the original request must be present")
   private String url;
@@ -29,9 +28,4 @@ public class RequestDTO {
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
   private Set<ResourceDTO> resources;
-
-  @NotNull
-  private String redirectUrl;
-
-  private String negotiationId;
 }

@@ -1,11 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.CollectionV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryCreateV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.QueryV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.request.CollectionV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.request.QueryCreateV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.request.QueryV2DTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;

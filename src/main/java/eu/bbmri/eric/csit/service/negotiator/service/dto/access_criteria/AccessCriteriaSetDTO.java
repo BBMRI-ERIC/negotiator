@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;

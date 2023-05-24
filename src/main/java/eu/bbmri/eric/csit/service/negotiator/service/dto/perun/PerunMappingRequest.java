@@ -1,6 +1,6 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.perun;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.perun;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.ValidationGroups;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,21 +16,21 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class PerunMappingRequest {
 
-  @NotNull(groups = Create.class)
+  @NotNull(groups = ValidationGroups.Create.class)
   private String organization;
 
-  @NotNull(groups = Create.class)
+  @NotNull(groups = ValidationGroups.Create.class)
   private Integer id;
 
-  @NotNull(groups = Create.class)
+  @NotNull(groups = ValidationGroups.Create.class)
   private String displayName;
 
-  @NotNull(groups = Create.class)
+  @NotNull(groups = ValidationGroups.Create.class)
   private String status;
 
-  @NotNull(groups = Create.class)
+  @NotNull(groups = ValidationGroups.Create.class)
   private String mail;
 
-  @NotNull(groups = Create.class)
+  @NotNull(groups = ValidationGroups.Create.class)
   private String[] identities;
 }

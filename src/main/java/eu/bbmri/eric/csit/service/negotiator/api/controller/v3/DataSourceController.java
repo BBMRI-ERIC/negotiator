@@ -1,9 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Update;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.ValidationGroups.Create;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.ValidationGroups.Update;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.datasource.DataSourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.DataSourceService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

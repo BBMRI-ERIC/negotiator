@@ -1,23 +1,22 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.datasource;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.project;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class DataSourceDTO {
+public class ProjectCreateDTO {
+  @NotNull
+  private String payload;
 
-  private Long id;
-
-  private String description;
-
-  private String name;
-
-  private String url;
 }

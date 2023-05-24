@@ -1,6 +1,6 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.perun;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.perun;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.ValidationGroups.Create;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.ValidationGroups.Create;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

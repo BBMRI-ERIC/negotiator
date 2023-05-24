@@ -1,8 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaSectionDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.access_criteria.AccessCriteriaDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.access_criteria.AccessCriteriaSectionDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
 import org.modelmapper.Converter;

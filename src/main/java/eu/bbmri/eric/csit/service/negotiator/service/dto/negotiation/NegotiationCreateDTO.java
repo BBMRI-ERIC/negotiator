@@ -1,33 +1,30 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.negotiation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class ResourceDTO {
+public class NegotiationCreateDTO {
+
+  @Valid
+  @NotEmpty
+  private Set<String> requests;
 
   @NotNull
-  private String id;
-
-  @Nullable
-  private String name;
-
-  @NotNull
-  private String type;
-
-  @NotNull
-  private Set<ResourceDTO> children;
+  private JsonNode payload;
 }

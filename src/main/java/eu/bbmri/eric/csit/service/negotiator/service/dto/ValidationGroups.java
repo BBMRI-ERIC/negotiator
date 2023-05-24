@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.api.dto;
+package eu.bbmri.eric.csit.service.negotiator.service.dto;
 
 import javax.validation.groups.Default;
 
