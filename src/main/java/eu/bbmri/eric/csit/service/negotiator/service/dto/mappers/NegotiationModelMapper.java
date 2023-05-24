@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.mappers;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

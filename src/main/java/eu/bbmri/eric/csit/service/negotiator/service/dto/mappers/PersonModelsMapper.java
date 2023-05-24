@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.service.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;

@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
+package eu.bbmri.eric.csit.service.negotiator.service.dto.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.service.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.service.dto.request.QueryCreateV2DTO;
