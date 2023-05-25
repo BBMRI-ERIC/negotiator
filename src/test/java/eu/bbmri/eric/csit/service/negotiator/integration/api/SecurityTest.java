@@ -15,8 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -73,5 +72,11 @@ public class SecurityTest {
                 .perform(MockMvcRequestBuilders.post("/directory/create_query")
                         .contentType(MediaType.APPLICATION_JSON).with(httpBasic("directory", "directory")))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "researcher")
+    void testGetAuthUserId() {
+        assertNotNull(userDetailsService.loadUserByUsername("researcher"));
     }
 }

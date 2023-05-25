@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -206,7 +207,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(username = "testingUser")
+  @WithUserDetails("researcher")
   public void testCreate_BadRequest_whenSomeRequests_IsNotFound() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of("unknown"));
     mockMvc.perform(MockMvcRequestBuilders
@@ -216,7 +217,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("researcher")
   public void testCreate_BadRequest_whenRequest_IsAlreadyAssignedToAnotherRequest()
       throws Exception {
     // It tries to create a request by assigning the already assigned REQUEST_1
@@ -235,7 +236,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("researcher")
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
     String requestBody = TestUtils.jsonFromRequest(request);
