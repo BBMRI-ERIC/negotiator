@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,7 @@ import java.util.Map;
 /**
  * Class to map the Authorities in a JWT to the one knwon by the Negotiator
  */
+@CommonsLog
 public class JwtAuthenticationConverter
     implements Converter<Jwt, AbstractAuthenticationToken> {
 
@@ -111,8 +113,10 @@ public class JwtAuthenticationConverter
       }
     }
 
-    Person person = personRepository.findByAuthName(claims.get(authzSubjectClaim).toString())
+    Person person = personRepository.findByAuthSubject(claims.get(authzSubjectClaim).toString())
         .orElse(null);
+
+    log.info("Loaded from database: " + person.toString());
 
     String principalClaimValue = jwt.getClaimAsString("sub");
 

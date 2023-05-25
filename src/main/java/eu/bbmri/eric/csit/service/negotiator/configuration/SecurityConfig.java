@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
-@Profile({"dev", "prod"})
+@Profile({"idk"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired

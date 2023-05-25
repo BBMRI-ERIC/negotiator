@@ -14,7 +14,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
   Optional<Person> findByAuthName(String authName);
 
-  Optional<Person> findByAuthSubject(String authName);
+  Optional<Person> findByAuthSubject(String authSubject);
 
   @EntityGraph(value = "person-detailed")
   Optional<Person> findDetailedById(Long id);

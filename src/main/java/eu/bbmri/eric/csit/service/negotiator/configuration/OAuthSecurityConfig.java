@@ -1,17 +1,56 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@Profile("test")
 public class OAuthSecurityConfig {
+
+    @Autowired
+    public NegotiatorUserDetailsService userDetailsService;
+
+    @Autowired
+    public PersonRepository personRepository;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
+    private String userInfoEndpoint;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String jwtIssuer;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwksUrl;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.type}")
+    private String jwtType;
+
+    @Value("${negotiator.authorization.claim}")
+    private String authzClaim;
+
+    @Value("${negotiator.authorization.subject-claim}")
+    private String authzSubjectClaim;
+
+    @Value("${negotiator.authorization.admin-claim-value}")
+    private String authzAdminValue;
+
+    @Value("${negotiator.authorization.researcher-claim-value}")
+    private String authzResearcherValue;
+
+    @Value("${negotiator.authorization.biobanker-claim-value}")
+    private String authzBiobankerValue;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.sessionManagement()
@@ -49,9 +88,31 @@ public class OAuthSecurityConfig {
                 .antMatchers("/v3/projects/**")
                 .hasAuthority("RESEARCHER")
                 .and()
-                .httpBasic()
-                .and()
-                        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+                .httpBasic();
+
+        if (!jwtIssuer.isEmpty()) {
+            http.oauth2ResourceServer()
+                    .jwt()
+                    .jwtAuthenticationConverter(
+                            new JwtAuthenticationConverter(
+                                    personRepository,
+                                    userInfoEndpoint,
+                                    authzClaim,
+                                    authzSubjectClaim,
+                                    authzAdminValue,
+                                    authzResearcherValue,
+                                    authzBiobankerValue));
+        }
         return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
+                .jwtProcessorCustomizer(customizer -> {
+                    customizer.setJWSTypeVerifier(
+                            new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
+                })
+                .build();
     }
 }

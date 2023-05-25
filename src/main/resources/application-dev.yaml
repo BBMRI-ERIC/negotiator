@@ -35,7 +35,7 @@ negotiator:
     admin-claim-value: ""
     researcher-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu"
     biobanker-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu"
-    subject-claim: "preferred_username"
+    subject-claim: "sub"
 logging:
   level:
     org:
