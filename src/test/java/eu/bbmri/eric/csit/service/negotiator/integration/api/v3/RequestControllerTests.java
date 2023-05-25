@@ -11,10 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;

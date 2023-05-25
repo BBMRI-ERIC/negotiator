@@ -1,8 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.negotiation.NegotiationDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;

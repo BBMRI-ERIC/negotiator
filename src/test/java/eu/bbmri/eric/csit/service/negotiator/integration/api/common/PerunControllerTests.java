@@ -7,8 +7,8 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.perun.PerunUserDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;

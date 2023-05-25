@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.service.dto.perun.PerunUserDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 
 import java.util.List;
