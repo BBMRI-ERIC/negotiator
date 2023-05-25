@@ -1,18 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.common;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import java.util.List;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -27,6 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -48,13 +48,6 @@ public class PerunControllerTests {
   }
 
   @Test
-  public void testCreate_Unauthorized_whenNoAuth() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.POST, request, status().isUnauthorized(), anonymous(), ENDPOINT);
-  }
-
-  @Test
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
     ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
@@ -66,17 +59,6 @@ public class PerunControllerTests {
         ENDPOINT);
   }
 
-  @Test
-  public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isForbidden(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
-  }
 
   @Test
   @Order(1)

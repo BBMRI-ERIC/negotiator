@@ -29,7 +29,9 @@ public class OAuthSecurityConfig {
         http
                 .authorizeHttpRequests().antMatchers("/v3/negotiations/**").authenticated()
                 .and()
-                .authorizeHttpRequests().antMatchers(HttpMethod.GET, "/v3/access-criteria/**").authenticated()
+                .authorizeHttpRequests().antMatchers(HttpMethod.GET, "/v3/access-criteria/**").permitAll()
+                .and()
+                .authorizeHttpRequests().antMatchers(HttpMethod.POST, "/v3/access-criteria/**").hasRole("BIOBANKER")
                 .and()
                 .authorizeHttpRequests().antMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**").permitAll()
                 .and()

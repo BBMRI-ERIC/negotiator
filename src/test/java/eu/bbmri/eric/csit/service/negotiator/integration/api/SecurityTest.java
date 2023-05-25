@@ -49,7 +49,7 @@ public class SecurityTest {
 
     @Test
     void testAuthenticatedButMethodNotAllowed() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/v3/access-criteria")).andExpect(status().isMethodNotAllowed());
+        mockMvc.perform(MockMvcRequestBuilders.put("/v3/access-criteria")).andExpect(status().isMethodNotAllowed());
     }
 
     @Test
