@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.common;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

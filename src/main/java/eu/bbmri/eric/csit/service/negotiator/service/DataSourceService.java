@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.datasource.DataSourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 

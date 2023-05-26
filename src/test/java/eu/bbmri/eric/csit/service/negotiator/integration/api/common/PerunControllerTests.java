@@ -1,8 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.common;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.perun.PerunUserDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;

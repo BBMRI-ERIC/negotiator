@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.error.ErrorResponse;
+import eu.bbmri.eric.csit.service.negotiator.dto.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
