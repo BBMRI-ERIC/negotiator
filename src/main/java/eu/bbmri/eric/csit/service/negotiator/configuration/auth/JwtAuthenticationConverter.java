@@ -114,10 +114,11 @@ public class JwtAuthenticationConverter
     }
     log.info(claims.toString());
 
-    Person person = personRepository.findByAuthSubject(claims.get(authzSubjectClaim).toString())
+    String principalClaimValue = jwt.getClaimAsString("sub");
+
+    Person person = personRepository.findByAuthSubject(principalClaimValue)
         .orElse(null);
 
-    String principalClaimValue = jwt.getClaimAsString("sub");
 
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, principalClaimValue);
   }
