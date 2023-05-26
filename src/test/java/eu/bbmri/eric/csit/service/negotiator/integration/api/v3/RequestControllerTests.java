@@ -11,10 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
