@@ -109,10 +109,9 @@ public class JwtAuthenticationConverter
         authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
       }
     }
-    log.info(claims.toString());
-
+    log.debug(claims.toString());
     String principalClaimValue = jwt.getClaimAsString("sub");
-    Person person = new Person();
+    Person person;
     try {
      person = personRepository.findByAuthSubject(principalClaimValue)
               .orElseThrow(() -> new EntityNotFoundException(
@@ -120,17 +119,24 @@ public class JwtAuthenticationConverter
               );
     }
     catch (EntityNotFoundException e){
-      person = Person.builder()
-              .authSubject(claims.get("sub").toString())
-              .authName(claims.get("preferred_username").toString())
-              .authEmail(claims.get("email").toString())
-              .build();
-      personRepository.save(person);
-      log.info("Person added to the database");
+      person = saveNewUserToDatabase(claims);
     }
 
 
 
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, principalClaimValue);
+  }
+
+  private Person saveNewUserToDatabase(Map<String, Object> claims) {
+    Person person;
+    person = Person.builder()
+            .authSubject(claims.get("sub").toString())
+            .authName(claims.get("preferred_username").toString())
+            .authEmail(claims.get("email").toString())
+            .build();
+    personRepository.save(person);
+    log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
+    log.debug(person.toString());
+    return person;
   }
 }
