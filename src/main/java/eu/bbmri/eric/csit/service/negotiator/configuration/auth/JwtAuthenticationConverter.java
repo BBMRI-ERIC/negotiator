@@ -15,11 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class to map the Authorities in a JWT to the ones known by the Negotiator
@@ -116,7 +112,7 @@ public class JwtAuthenticationConverter
     log.info(claims.toString());
 
     String principalClaimValue = jwt.getClaimAsString("sub");
-    Person person = null;
+    Person person = new Person();
     try {
      person = personRepository.findByAuthSubject(principalClaimValue)
               .orElseThrow(() -> new EntityNotFoundException(
@@ -124,7 +120,13 @@ public class JwtAuthenticationConverter
               );
     }
     catch (EntityNotFoundException e){
-      log.info("User not found in db");
+      person = Person.builder()
+              .authSubject(claims.get("sub").toString())
+              .authName(claims.get("preferred_username").toString())
+              .authEmail(claims.get("email").toString())
+              .build();
+      personRepository.save(person);
+      log.info("Person added to the database");
     }
 
 

@@ -1,11 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.ToString.Exclude;
 
 import javax.persistence.Column;
@@ -29,6 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "person")
 @NamedEntityGraph(
     name = "person-detailed",
