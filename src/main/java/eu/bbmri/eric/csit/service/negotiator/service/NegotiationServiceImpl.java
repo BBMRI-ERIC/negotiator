@@ -23,6 +23,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -248,5 +249,16 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<NegotiationDTO> findByResourceIds(List<String> resourceIds) {
+    List<Negotiation> negotiations = new ArrayList<>();
+    for(String resourceId: resourceIds){
+      negotiations.addAll(negotiationRepository.findByCollectionId(resourceId));
+    }
+    return negotiations.stream()
+            .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
+            .collect(Collectors.toList());
   }
 }

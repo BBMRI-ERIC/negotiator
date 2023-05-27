@@ -73,12 +73,7 @@ public interface NegotiationService {
    */
   List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
 
-  /**
-   * Changes the state of the negotiation
-   * @param negotiationId id of the negotiation being changed
-   * @param negotiationEvent event transition
-   * @return negotiationDTO
-   */
+  List<NegotiationDTO> findByResourceIds(List<String> resourceIds);
 }
 
 
