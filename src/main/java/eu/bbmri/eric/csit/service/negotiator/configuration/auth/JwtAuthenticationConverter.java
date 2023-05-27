@@ -114,11 +114,10 @@ public class JwtAuthenticationConverter
     Person person;
     try {
      person = personRepository.findByAuthSubject(principalClaimValue)
-              .orElseThrow(() -> new EntityNotFoundException(
-                      String.format("User with sub %s not in the database, adding...", principalClaimValue))
-              );
+              .orElseThrow(() -> new EntityNotFoundException(principalClaimValue));
     }
     catch (EntityNotFoundException e){
+      log.info(String.format("User with sub %s not in the database, adding...", principalClaimValue));
       person = saveNewUserToDatabase(claims);
     }
 
