@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
@@ -115,9 +116,17 @@ public class JwtAuthenticationConverter
     log.info(claims.toString());
 
     String principalClaimValue = jwt.getClaimAsString("sub");
+    Person person = null;
+    try {
+     person = personRepository.findByAuthSubject(principalClaimValue)
+              .orElseThrow(() -> new EntityNotFoundException(
+                      String.format("User with sub %s not in the database, adding...", principalClaimValue))
+              );
+    }
+    catch (EntityNotFoundException e){
+      log.info("User not found in db");
+    }
 
-    Person person = personRepository.findByAuthSubject(principalClaimValue)
-        .orElse(null);
 
 
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, principalClaimValue);
