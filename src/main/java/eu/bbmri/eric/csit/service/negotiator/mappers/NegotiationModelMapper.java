@@ -117,7 +117,7 @@ public class NegotiationModelMapper {
         log.info("Negotiation and resource combination not found");
       }
     }
-    log.info(resourcesStatus.toString());
+    log.debug(resourcesStatus.toString());
     return mapper.valueToTree(resourcesStatus);
   }
 }
