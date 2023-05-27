@@ -40,34 +40,28 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   private final String authzBiobankerValue;
 
 
-  private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders requestHeaders = new HttpHeaders();
-    requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
-    HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
-
-    ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
-        httpEntity, Object.class);
-    Object claims = response.getBody();
-    try {
-      return (LinkedHashMap<String, Object>) claims;
-    } catch (ClassCastException ex) {
-      return new LinkedHashMap<>();
-    }
-  }
-
-  private Map<String, Object> getClaims(Jwt jwt) {
-    if (userInfoEndpoint != null && !userInfoEndpoint.isBlank()) {
-      return getClaimsFromUserEndpoints(jwt);
-    } else {
-      return jwt.getClaims();
-    }
-  }
-
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
     Map<String, Object> claims = getClaims(jwt);
+    log.debug(claims.toString());
+    Collection<GrantedAuthority> authorities = assignAuthorities(claims);
+    String subjectIdentifier = jwt.getClaimAsString("sub");
+    Person person;
+    try {
+     person = personRepository.findByAuthSubject(subjectIdentifier)
+              .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
+    }
+    catch (EntityNotFoundException e){
+      log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
+      person = saveNewUserToDatabase(claims);
+    }
 
+
+
+    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
+  }
+
+  private Collection<GrantedAuthority> assignAuthorities(Map<String, Object> claims) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
     if (claims.containsKey(authzClaim)) {
       List<String> scopes = (List<String>) claims.get(authzClaim);
@@ -82,21 +76,36 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
         authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
       }
     }
-    log.debug(claims.toString());
-    String principalClaimValue = jwt.getClaimAsString("sub");
-    Person person;
+    return authorities;
+  }
+
+  private Map<String, Object> getClaims(Jwt jwt) {
+    if (userInfoEndpoint != null && !userInfoEndpoint.isBlank()) {
+      return getClaimsFromUserEndpoints(jwt);
+    } else {
+      return jwt.getClaims();
+    }
+  }
+
+  private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
+    Object claims = requestClaimsFromUserInfoEndpoint(jwt);
     try {
-     person = personRepository.findByAuthSubject(principalClaimValue)
-              .orElseThrow(() -> new EntityNotFoundException(principalClaimValue));
+      return (LinkedHashMap<String, Object>) claims;
+    } catch (ClassCastException ex) {
+      return new LinkedHashMap<>();
     }
-    catch (EntityNotFoundException e){
-      log.info(String.format("User with sub %s not in the database, adding...", principalClaimValue));
-      person = saveNewUserToDatabase(claims);
-    }
+  }
 
+  private Object requestClaimsFromUserInfoEndpoint(Jwt jwt) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders requestHeaders = new HttpHeaders();
+    requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
+    HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
 
-
-    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, principalClaimValue);
+    ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
+            httpEntity, Object.class);
+    Object claims = response.getBody();
+    return claims;
   }
 
   private Person saveNewUserToDatabase(Map<String, Object> claims) {
