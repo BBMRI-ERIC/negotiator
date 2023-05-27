@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
@@ -73,11 +72,8 @@ public class NegotiationController {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
       negotiations = negotiationService.findByResourceId(collectionId);
-    } else if (userRole != null) {
-      negotiations = negotiationService.findByUserIdAndRole(
-          NegotiatorUserDetailsService.
-              getCurrentlyAuthenticatedUserId(),
-          userRole);
+    } else if (Objects.equals(userRole, "CREATOR")) {
+      negotiations = negotiationService.findByCreatorId(getCreatorId());
     } else {
       negotiations = negotiationService.findAll();
     }

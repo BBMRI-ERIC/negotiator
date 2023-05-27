@@ -22,7 +22,7 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     Person person =
         personRepository
-            .findByAuthNameAndPasswordNotNull(username)
+            .findByAuthName(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
     return new HttpBasicUserDetails(person);
   }

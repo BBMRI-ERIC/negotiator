@@ -83,6 +83,13 @@ public interface NegotiationService {
    * @return  a list of Negotiations
    */
   List<NegotiationDTO> findByResourceIds(List<String> resourceIds);
+
+  /**
+   * Retrives a list of negotiations created by user with id
+   * @param personId id of the creator
+   * @return a list of negotiations
+   */
+  List<NegotiationDTO> findByCreatorId(Long personId);
 }
 
 

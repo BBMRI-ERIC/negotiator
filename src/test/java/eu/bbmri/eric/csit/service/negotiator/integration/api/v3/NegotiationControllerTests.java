@@ -8,6 +8,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@CommonsLog
 public class NegotiationControllerTests {
 
   // Request alrady present in data-h2. It is already assigned to a request
@@ -321,11 +324,21 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("researcher")
   public void testNoNegotiationsAreReturned() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("%s?userRole=RESEARCHER".formatted(NEGOTIATIONS_URL)))
+            MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk()).andExpect(content().json("[]"));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void testGetNegotiationsUserCreated() throws Exception {
+    log.info(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(3)));
   }
 }

@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,4 +53,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "JOIN FETCH rr.resources c "
               + "WHERE c.sourceId = :collectionId")
   List<Negotiation> findByCollectionId(String collectionId);
+
+  List<Negotiation> findByCreatedBy(Person createdBy);
 }

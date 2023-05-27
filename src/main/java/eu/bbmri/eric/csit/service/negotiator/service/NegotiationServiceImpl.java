@@ -261,4 +261,15 @@ public class NegotiationServiceImpl implements NegotiationService {
             .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
             .collect(Collectors.toList());
   }
+
+  @Override
+  public List<NegotiationDTO> findByCreatorId(Long personId) {
+    Person creator = personRepository.findDetailedById(personId).orElseThrow(()
+            -> new EntityNotFoundException("Person not found"));
+    List<Negotiation> negotiations = new ArrayList<>(negotiationRepository.findByCreatedBy(creator));
+    log.info(personId);
+    return negotiations.stream()
+            .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
+            .collect(Collectors.toList());
+  }
 }
