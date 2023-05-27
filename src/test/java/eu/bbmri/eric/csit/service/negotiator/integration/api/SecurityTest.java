@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,5 +79,12 @@ public class SecurityTest {
     @WithMockUser(username = "researcher")
     void testGetAuthUserId() {
         assertNotNull(userDetailsService.loadUserByUsername("researcher"));
+    }
+
+    @Test
+    void testSubStringBetween() {
+        String full = "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.CZ_MMCI.collection.LTS#perun.bbmri-eric.eu";
+        String sub = StringUtils.substringBetween(full, "Directory:", "#perun").replace(".", ":");
+        assertEquals("bbmri-eric:ID:CZ_MMCI:collection:LTS", sub);
     }
 }

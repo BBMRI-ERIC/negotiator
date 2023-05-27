@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepositor
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -65,7 +66,13 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     Collection<GrantedAuthority> authorities = new HashSet<>();
     if (claims.containsKey(authzClaim)) {
       List<String> scopes = (List<String>) claims.get(authzClaim);
-
+      if (scopes.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu")) {
+        for (String scope: scopes){
+          if (scope.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri")){
+            authorities.add(new SimpleGrantedAuthority(StringUtils.substringBetween(scope, "Directory:", "#perun").replace(".", ":")));
+          }
+        }
+      }
       if (scopes.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ADMIN"));
       }
