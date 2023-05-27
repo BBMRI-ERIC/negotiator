@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class to map the Authorities in a JWT to the one knwon by the Negotiator
+ * Class to map the Authorities in a JWT to the ones known by the Negotiator
  */
 @CommonsLog
 public class JwtAuthenticationConverter
