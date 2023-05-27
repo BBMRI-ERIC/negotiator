@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
@@ -21,8 +22,10 @@ import java.util.*;
  * Class to map the Authorities in a JWT to the ones known by the Negotiator
  */
 @CommonsLog
-public class JwtAuthenticationConverter
-    implements Converter<Jwt, AbstractAuthenticationToken> {
+@AllArgsConstructor
+public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+  private final PersonRepository personRepository;
 
   private final String userInfoEndpoint;
 
@@ -36,36 +39,6 @@ public class JwtAuthenticationConverter
 
   private final String authzBiobankerValue;
 
-  PersonRepository personRepository;
-
-  /**
-   * Converter of JWT. It assigns Authorities based on the claims present in the JWT and enhances
-   * the JWT adding the internal Person related to it.
-   *
-   * @param personRepository The Repository to retrieve the Person
-   * @param authzClaim the name of the claim that contains the value of the claim
-   * @param authzSubjectClaim the name of the claim that contains the id of the subject, used to
-   * retrieve the Person from the Repository
-   * @param authzAdminValue the value of the authzClaim for Administrator role
-   * @param authzResearcherValue the value of the authzClaim for Researcher role
-   * @param authzBiobankerValue the value of the authzClaim for Biobanker role
-   */
-  public JwtAuthenticationConverter(
-      PersonRepository personRepository,
-      String userInfoEndpoint,
-      String authzClaim,
-      String authzSubjectClaim,
-      String authzAdminValue,
-      String authzResearcherValue,
-      String authzBiobankerValue) {
-    this.userInfoEndpoint = userInfoEndpoint;
-    this.personRepository = personRepository;
-    this.authzClaim = authzClaim;
-    this.authzAdminValue = authzAdminValue;
-    this.authzResearcherValue = authzResearcherValue;
-    this.authzBiobankerValue = authzBiobankerValue;
-    this.authzSubjectClaim = authzSubjectClaim;
-  }
 
   private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
     RestTemplate restTemplate = new RestTemplate();
