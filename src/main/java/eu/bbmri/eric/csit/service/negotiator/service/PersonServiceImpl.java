@@ -38,9 +38,9 @@ public class PersonServiceImpl implements PersonService {
     return personRepository.findAll();
   }
 
-  public List<PerunUserDTO> createOrUpdate(List<PerunUserDTO> request) {
+  public List<PerunUserDTO> createOrUpdate(List<PerunUserDTO> perunUserDTOS) {
     List<PerunUserDTO> users = new ArrayList<>();
-    for (PerunUserDTO user : request) {
+    for (PerunUserDTO user : perunUserDTOS) {
       Person person = getByAuthSubject(String.valueOf(user.getId()));
       try {
         if (person == null) {
@@ -55,27 +55,5 @@ public class PersonServiceImpl implements PersonService {
     }
     return users;
   }
-
-  //  public Person create(PerunUserDTO perunUserRequest) {
-  //
-  //    Person personEntity = modelMapper.map(perunUserRequest, Person.class);
-  //    try {
-  //      return personRepository.save(personEntity);
-  //    } catch (DataIntegrityViolationException ex) {
-  //      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be
-  // saved");
-  //    }
-  //  }
-  //
-  //  public Person update(Integer id, PerunUserDTO perunUserRequest) {
-  //    Person personEntity = getByAuthSubject(String.format("%s",id));
-  //    modelMapper.map(perunUserRequest, personEntity);
-  //    try {
-  //      return personRepository.save(personEntity);
-  //    } catch (DataIntegrityViolationException ex) {
-  //      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be
-  // saved");
-  //    }
-  //  }
 
 }

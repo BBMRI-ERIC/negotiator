@@ -18,6 +18,4 @@ public interface PersonService {
 
   List<PerunUserDTO> createOrUpdate(List<PerunUserDTO> request);
 
-  PerunUserDTO save();
-
 }
