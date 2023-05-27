@@ -62,17 +62,15 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
   }
 
+  /**
+   * This method parses scopes/claims from the oauth server and assigns user authorities
+   * @param claims  Claims from the oauth authorization provider
+   * @return  authorities for the authenticated user
+   */
   private Collection<GrantedAuthority> assignAuthorities(Map<String, Object> claims) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
     if (claims.containsKey(authzClaim)) {
       List<String> scopes = (List<String>) claims.get(authzClaim);
-      if (scopes.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu")) {
-        for (String scope: scopes){
-          if (scope.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri")){
-            authorities.add(new SimpleGrantedAuthority(StringUtils.substringBetween(scope, "Directory:", "#perun").replace(".", ":")));
-          }
-        }
-      }
       if (scopes.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ADMIN"));
       }
@@ -81,8 +79,21 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
       }
       if (scopes.contains(authzBiobankerValue)) {
         authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
+        authorities.addAll(addResourcePermissionsToAuthorities(scopes));
       }
     }
+    return authorities;
+  }
+
+  private static Collection<GrantedAuthority> addResourcePermissionsToAuthorities(List<String> scopes) {
+    Collection<GrantedAuthority> authorities = new HashSet<>();
+      for (String scope: scopes){
+        if (scope.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri")){
+          String resourceId = StringUtils.substringBetween(scope, "Directory:", "#perun")
+                  .replace(".", ":");
+          authorities.add(new SimpleGrantedAuthority(resourceId));
+        }
+      }
     return authorities;
   }
 
