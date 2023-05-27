@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 /**
- * Class to map the Authorities in a JWT to the ones known by the Negotiator
+ * Class to convert Oauth2 authentication using a JWT, to an internal representation of a user in the Negotiator
  */
 @CommonsLog
 @AllArgsConstructor
