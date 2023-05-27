@@ -79,13 +79,13 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
       }
       if (scopes.contains(authzBiobankerValue)) {
         authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
-        authorities.addAll(addResourcePermissionsToAuthorities(scopes));
+        authorities.addAll(addAuthoritiesForIndividualResources(scopes));
       }
     }
     return authorities;
   }
 
-  private static Collection<GrantedAuthority> addResourcePermissionsToAuthorities(List<String> scopes) {
+  private static Collection<GrantedAuthority> addAuthoritiesForIndividualResources(List<String> scopes) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
       for (String scope: scopes){
         if (scope.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri")){

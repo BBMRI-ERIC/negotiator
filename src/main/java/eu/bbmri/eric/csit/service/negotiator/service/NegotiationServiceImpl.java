@@ -232,12 +232,12 @@ public class NegotiationServiceImpl implements NegotiationService {
   /**
    * Returns a List of Negotiation entities filtered by biobank id
    *
-   * @param collectionId the id in the data source of the biobank of the negotiation
+   * @param resourceId the id in the data source of the biobank of the negotiation
    * @return the List of Negotiation entities found
    */
   @Transactional
-  public List<NegotiationDTO> findByCollectionId(String collectionId) {
-    List<Negotiation> negotiations = negotiationRepository.findByCollectionId(collectionId);
+  public List<NegotiationDTO> findByResourceId(String resourceId) {
+    List<Negotiation> negotiations = negotiationRepository.findByCollectionId(resourceId);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());

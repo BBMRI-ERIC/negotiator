@@ -72,7 +72,7 @@ public class NegotiationController {
     if (biobankId != null) {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
-      negotiations = negotiationService.findByCollectionId(collectionId);
+      negotiations = negotiationService.findByResourceId(collectionId);
     } else if (userRole != null) {
       negotiations = negotiationService.findByUserIdAndRole(
           NegotiatorUserDetailsService.

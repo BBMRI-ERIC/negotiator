@@ -62,8 +62,12 @@ public interface NegotiationService {
   // TODO: change byBiobankId
   List<NegotiationDTO> findByBiobankId(String biobankId);
 
-  // TODO: change to resouceId
-  List<NegotiationDTO> findByCollectionId(String collectionId);
+  /**
+   * Retrieves a list of negotiations related to a specific resource
+   * @param resourceId an id of the resource
+   * @return  a list of Negotiations
+   */
+  List<NegotiationDTO> findByResourceId(String resourceId);
 
   /**
    * Retrieves a list of negotiations of related to the user with id :userId and the role :userRole
@@ -73,6 +77,11 @@ public interface NegotiationService {
    */
   List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
 
+  /**
+   * Retrieves a list of negotiations related to specific resources
+   * @param resourceIds a List of Ids of resources
+   * @return  a list of Negotiations
+   */
   List<NegotiationDTO> findByResourceIds(List<String> resourceIds);
 }
 
