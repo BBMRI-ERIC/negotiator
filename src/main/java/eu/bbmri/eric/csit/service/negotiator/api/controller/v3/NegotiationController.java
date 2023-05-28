@@ -11,10 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -74,10 +85,22 @@ public class NegotiationController {
       negotiations = negotiationService.findByResourceId(collectionId);
     } else if (Objects.equals(userRole, "CREATOR")) {
       negotiations = negotiationService.findByCreatorId(getCreatorId());
+    } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
+      negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
     } else {
       negotiations = negotiationService.findAll();
     }
     return negotiations;
+  }
+
+  private List<String> getResourceIdsFromUserAuthorities() {
+    List<String> resourceIds = new ArrayList<>();
+    for(GrantedAuthority grantedAuthority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
+      if (grantedAuthority.getAuthority().contains("collection")){
+        resourceIds.add(grantedAuthority.getAuthority());
+      }
+    }
+    return Collections.unmodifiableList(resourceIds);
   }
 
   @GetMapping("/negotiations/{id}")

@@ -47,8 +47,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
       value =
           "SELECT DISTINCT r "
               + "FROM Negotiation r "
-              + "JOIN FETCH r.persons pp "
-              + "JOIN FETCH pp.person "
               + "JOIN FETCH r.requests rr "
               + "JOIN FETCH rr.resources c "
               + "WHERE c.sourceId = :collectionId")

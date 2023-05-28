@@ -2,11 +2,11 @@ package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
@@ -335,10 +334,18 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   void testGetNegotiationsUserCreated() throws Exception {
-    log.info(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     mockMvc
             .perform(
                     MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(3)));
+  }
+
+  @Test
+  @WithMockUser(authorities = {"biobank:1:collection:1", "BIOBANKER"})
+  void testGetNegotiationsForCollectionsUserRepresents() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s?userRole=REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
             .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(3)));
   }
 }

@@ -63,7 +63,7 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
   (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3', 'biobank:3:collection:2', 'collection', 3, 1, 1),
   (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 'collection', 3, 1, 1);
 
-insert into person_resource_link (resource_id, person_id) values (1, 102), (4, 103);
+insert into person_resource_link (resource_id, person_id) values (1, 102), (4, 103), (4, 109);
 
 insert into negotiation (id, creation_date, modified_date, created_by, modified_by, payload) values
   ('negotiation-1', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
