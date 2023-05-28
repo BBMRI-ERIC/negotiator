@@ -87,6 +87,7 @@ public class NegotiationController {
       negotiations = negotiationService.findByCreatorId(getCreatorId());
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
+      // TODO: Remove this option
     } else {
       negotiations = negotiationService.findAll();
     }
@@ -96,6 +97,7 @@ public class NegotiationController {
   private List<String> getResourceIdsFromUserAuthorities() {
     List<String> resourceIds = new ArrayList<>();
     for(GrantedAuthority grantedAuthority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
+      // TODO: Fix this for different type of identifiers
       if (grantedAuthority.getAuthority().contains("collection")){
         resourceIds.add(grantedAuthority.getAuthority());
       }

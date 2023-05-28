@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+// TODO: Delete this and all perun DTOs
 @Validated
 @RestController
 @RequestMapping("/perun")
