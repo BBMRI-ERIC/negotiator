@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonDTO;
 import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;

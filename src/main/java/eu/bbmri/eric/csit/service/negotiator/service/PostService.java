@@ -10,6 +10,8 @@ public interface PostService {
 
   List<PostDTO> findByNegotiationId(String negotiationId);
 
+  List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
+
   PostDTO update(PostCreateDTO updateRequest, String negotiationId, String postId);
 
 }

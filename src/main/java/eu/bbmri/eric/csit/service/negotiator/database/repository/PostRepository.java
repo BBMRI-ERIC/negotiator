@@ -28,4 +28,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   )
   Post findByNegotiationIdAndMessageId(String negotiationId, String messageId);
 
+  @Query(
+      value =
+          "SELECT p "
+              + "FROM Post p "
+              + "JOIN FETCH p.negotiation n "
+              + "WHERE n.id = :negotiationId and "
+              + "p.poster.authName in :posters and "
+              + "p.status = 'CREATED' "
+
+  )
+  List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
+
 }

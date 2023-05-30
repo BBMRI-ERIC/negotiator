@@ -47,7 +47,7 @@ public class PostServiceImpl implements PostService {
     Post postEntity = modelMapper.map(postRequest, Post.class);
     try {
       String resourceId = postRequest.getResourceId();
-      Resource resource = resourceRepository.findById(Long.valueOf(resourceId)).orElseThrow(
+      Resource resource = resourceRepository.findBySourceId(resourceId).orElseThrow(
           WrongRequestException::new);
 
       Negotiation negotiation = negotiationRepository.findById(negotiationId)
@@ -73,6 +73,14 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
     List<Post> posts = postRepository.findByNegotiationId(negotiationId);
+    return posts.stream()
+        .map(post -> modelMapper.map(post, PostDTO.class))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters) {
+    List<Post> posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
