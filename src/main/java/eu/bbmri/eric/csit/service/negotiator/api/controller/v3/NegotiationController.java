@@ -83,13 +83,10 @@ public class NegotiationController {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
       negotiations = negotiationService.findByResourceId(collectionId);
-    } else if (Objects.equals(userRole, "CREATOR")) {
-      negotiations = negotiationService.findByCreatorId(getCreatorId());
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
-      // TODO: Remove this option
     } else {
-      negotiations = negotiationService.findAll();
+      negotiations = negotiationService.findByCreatorId(getCreatorId());
     }
     return negotiations;
   }
