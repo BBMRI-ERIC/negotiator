@@ -341,11 +341,11 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = {"biobank:1:collection:1", "BIOBANKER"})
+  @WithMockUser(authorities = {"biobank:1:collection:1"})
   void testGetNegotiationsForCollectionsUserRepresents() throws Exception {
     mockMvc
             .perform(
                     MockMvcRequestBuilders.get("%s?userRole=REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(3)));
+            .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(1)));
   }
 }
