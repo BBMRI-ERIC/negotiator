@@ -26,11 +26,9 @@ import lombok.ToString.Exclude;
 public class AccessCriteriaSection extends BaseEntity implements Comparable<AccessCriteriaSection> {
 
   @NotNull
-  @Column(unique = true)
   private String name;
 
   @NotNull
-  @Column(unique = true)
   private String label;
 
   @NotNull
