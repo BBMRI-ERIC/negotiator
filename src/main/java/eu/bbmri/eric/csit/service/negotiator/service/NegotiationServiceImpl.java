@@ -109,8 +109,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
     Set<Person> owners = res.getPersons();
 
-    //add all the persons to the negotiation, with the role of BIOBANKER
-    Role biobankerRole = roleRepository.findByName("BIOBANKER")
+    //add all the persons to the negotiation, with the role of REPRESENTATIVE
+    Role biobankerRole = roleRepository.findByName("REPRESENTATIVE")
         .orElseThrow(EntityNotStorableException::new);
 
     //update the role for all owners

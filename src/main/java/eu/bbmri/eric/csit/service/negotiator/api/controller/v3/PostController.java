@@ -1,11 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.post.PostCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.post.PostDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
 import java.util.ArrayList;

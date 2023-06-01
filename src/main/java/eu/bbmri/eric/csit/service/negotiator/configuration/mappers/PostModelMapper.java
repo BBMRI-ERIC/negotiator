@@ -1,9 +1,8 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration.mappers;
+package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonDTO;
-import eu.bbmri.eric.csit.service.negotiator.api.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,6 @@ public class PostModelMapper {
         mapper.map(Person::getOrganization, PersonDTO::setOrganization));
 
   }
-
-
 
 
 }
