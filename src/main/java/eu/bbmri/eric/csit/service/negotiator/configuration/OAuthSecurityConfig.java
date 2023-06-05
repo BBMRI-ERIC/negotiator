@@ -94,7 +94,7 @@ public class OAuthSecurityConfig {
         .antMatchers("/v3/projects/**")
         .hasAuthority("RESEARCHER")
         .antMatchers("/directory/create_query")
-        .permitAll()
+        .hasAuthority("EXT_SERV")
         .and()
         .authorizeRequests()
         .anyRequest()
