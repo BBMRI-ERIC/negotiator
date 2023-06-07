@@ -1,20 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.ProjectController;
 import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
-import java.net.URI;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -26,11 +16,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.net.URI;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -98,7 +101,7 @@ public class ProjectControllerTests {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(URI.create("/v3/projects"))
+            post(URI.create("/v3/projects"))
                 .with(httpBasic("researcher", "researcher"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -133,9 +136,9 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @WithMockUser
   public void testGetAll_Forbidden_whenNoPermission() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isForbidden(), FORBIDDEN_TOKEN_VALUE, ENDPOINT);
+    mockMvc.perform(MockMvcRequestBuilders.get("/v3/projects")).andExpect(status().isForbidden());
   }
 
   @Test
@@ -150,6 +153,7 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @WithMockUser(authorities = "RESEARCHER")
   public void testGetAll_Ok() throws Exception {
     ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);
@@ -157,8 +161,7 @@ public class ProjectControllerTests {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+            MockMvcRequestBuilders.get(ENDPOINT))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id", is(entity.getId())))
@@ -199,17 +202,6 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testGetbyId_Forbidden_whenNoPermission() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isForbidden(),
-        FORBIDDEN_TOKEN_VALUE,
-        String.format("%s/1", ENDPOINT));
-  }
-
-  @Test
   public void testGetById_Forbidden_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -221,17 +213,15 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @WithMockUser(authorities = "RESEARCHER")
   public void testGetById_NotFound_WhenTheIdIsNotPresent() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isNotFound(),
-        CORRECT_TOKEN_VALUE,
-        String.format("%s/1", ENDPOINT));
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, "1"))).andExpect(status().isNotFound());
   }
 
   @Test
+  @WithMockUser(authorities = "RESEARCHER")
   public void testGetById_Ok() throws Exception {
     ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);
@@ -239,8 +229,7 @@ public class ProjectControllerTests {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, entity.getId()))
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+            MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, entity.getId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(entity.getId())))

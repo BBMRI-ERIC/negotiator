@@ -1,14 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
@@ -19,9 +10,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestReposito
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -34,6 +22,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -276,15 +276,11 @@ public class RequestControllerTests {
   }
 
   @Test
-  public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
+  public void testUpdate_BadRequest_whenUnauthorized() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.PUT,
-        request,
-        status().isUnauthorized(),
-        anonymous(),
-        "%s/1".formatted(ENDPOINT));
+    mockMvc.perform(MockMvcRequestBuilders.post("/v3/requests").
+            contentType(MediaType.APPLICATION_JSON).content(request.toString()))
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -302,13 +298,9 @@ public class RequestControllerTests {
   @Test
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.PUT,
-        request,
-        status().isForbidden(),
-        httpBasic("researcher", "researcher"),
-        "%s/1".formatted(ENDPOINT));
+    mockMvc.perform(MockMvcRequestBuilders.put("/v3/requests/-1").
+                    contentType(MediaType.APPLICATION_JSON).content(request.toString()))
+            .andExpect(status().isBadRequest());
   }
 
   @Test

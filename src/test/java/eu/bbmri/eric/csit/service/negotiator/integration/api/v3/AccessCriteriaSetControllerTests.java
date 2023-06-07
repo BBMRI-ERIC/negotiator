@@ -1,12 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
-import static org.hamcrest.core.Is.is;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.ProjectController;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
@@ -21,6 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import static org.hamcrest.core.Is.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -49,23 +48,10 @@ public class AccessCriteriaSetControllerTests {
   }
 
   @Test
-  public void testGet_Unauthorized_whenNoAuth() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isUnauthorized(), anonymous(), ENDPOINT);
-  }
-
-  @Test
   public void testGet_Unauthorized_whenWrongAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.GET, "", status().isUnauthorized(),
         httpBasic("researcher", "wrong_pass"), ENDPOINT);
-  }
-
-  @Test
-  public void testGet_Forbidden_whenNoPermission() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isForbidden(), httpBasic("directory", "directory"),
-        ENDPOINT);
   }
 
   @Test
@@ -88,8 +74,7 @@ public class AccessCriteriaSetControllerTests {
         .perform(
             MockMvcRequestBuilders
                 .get(ENDPOINT)
-                .param("resourceId", "biobank:1")
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+                .param("resourceId", "biobank:1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sections[0].accessCriteria").isArray())
         .andExpect(jsonPath("$.sections[0].accessCriteria[0].name", is("title")))

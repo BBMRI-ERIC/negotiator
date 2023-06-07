@@ -17,7 +17,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "https://login.bbmri-eric.eu/oidc/"
+          type: "JWT"
 negotiator:
   frontend-url: "http://localhost"
   authorization:

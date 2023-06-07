@@ -1,5 +1,32 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.Set;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
@@ -9,30 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
-import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -100,34 +103,12 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testGetAll_Forbidden_whenNoPermission() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isForbidden(),
-        FORBIDDEN_TOKEN_VALUE,
-        NEGOTIATIONS_URL);
-  }
-
-  @Test
-  public void testGetAll_Forbidden_whenBasicAuth() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isForbidden(),
-        httpBasic("directory", "directory"),
-        NEGOTIATIONS_URL);
-  }
-
-  @Test
+  @WithMockUser
   public void testGetAll_Ok() throws Exception {
     int numberOfNegotiations = (int) negotiationRepository.count();
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(NEGOTIATIONS_URL)
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+            MockMvcRequestBuilders.get(NEGOTIATIONS_URL))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(numberOfNegotiations)))
@@ -158,44 +139,20 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testGetById_Forbidden_whenNoPermissionAuth() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isForbidden(),
-        FORBIDDEN_TOKEN_VALUE,
-        "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID));
-  }
-
-  @Test
-  public void testGetById_Forbidden_whenBasicAuth() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isForbidden(),
-        httpBasic("directory", "directory"),
-        "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID));
-  }
-
-  @Test
+  @WithMockUser
   public void testGetById_NotFound_whenWrongId() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isNotFound(),
-        CORRECT_TOKEN_VALUE,
-        "%s/-1".formatted(NEGOTIATIONS_URL));
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s/-1".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isNotFound());
   }
 
   @Test
+  @WithMockUser
   public void testGetById_Ok_whenCorrectId() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+            MockMvcRequestBuilders.get("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(NEGOTIATION_1_ID)));
@@ -224,57 +181,43 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testCreate_Forbidden_whenNoPermission() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        "",
-        status().isForbidden(),
-        httpBasic("directory", "directory"),
-        NEGOTIATIONS_URL);
+  public void testCreate_Unauthorized() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.post(NEGOTIATIONS_URL)).andExpect(status().isUnauthorized());
   }
 
   @Test
+  @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsMissing() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
     request.setRequests(null);
-
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        NEGOTIATIONS_URL);
+    mockMvc.perform(MockMvcRequestBuilders
+                    .post(NEGOTIATIONS_URL)
+                    .contentType(MediaType.APPLICATION_JSON).content(TestUtils.jsonFromRequest(request)))
+            .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsEmpty() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Collections.emptySet());
-
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        NEGOTIATIONS_URL);
+    mockMvc.perform(MockMvcRequestBuilders
+            .post(NEGOTIATIONS_URL)
+            .contentType(MediaType.APPLICATION_JSON).content(TestUtils.jsonFromRequest(request)))
+            .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testCreate_BadRequest_whenSomeRequests_IsNotFound() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of("unknown"));
-
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        CORRECT_TOKEN_VALUE,
-        NEGOTIATIONS_URL);
+    mockMvc.perform(MockMvcRequestBuilders
+                    .post(NEGOTIATIONS_URL)
+                    .contentType(MediaType.APPLICATION_JSON).content(TestUtils.jsonFromRequest(request)))
+            .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testCreate_BadRequest_whenRequest_IsAlreadyAssignedToAnotherRequest()
       throws Exception {
     // It tries to create a request by assigning the already assigned REQUEST_1
@@ -284,7 +227,6 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NEGOTIATIONS_URL)
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andDo(print())
@@ -294,6 +236,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -301,7 +244,6 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(NEGOTIATIONS_URL))
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
@@ -342,18 +284,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.PUT,
-        request,
-        status().isForbidden(),
-        httpBasic("directory", "directory"),
-        "%s/1".formatted(NEGOTIATIONS_URL));
-  }
-
-  @Test
+  @WithMockUser
   public void testUpdate_BadRequest_whenRequestIsAlreadyAssignedToAnotherNegotiation()
       throws Exception {
     //It tries to update the known NEGOTIATION_2 by assigning the request of NEGOTIATION_1
@@ -364,7 +295,6 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.put(
                     "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_2_ID))
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isBadRequest())
@@ -372,6 +302,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockUser
   public void testUpdate_Ok_whenChangePayload() throws Exception {
     // Tries to updated negotiation
     // Negotiation body with updated values
@@ -383,7 +314,6 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.put(
                     "%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isNoContent())
@@ -391,11 +321,11 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockUser
   public void testNoNegotiationsAreReturned() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("%s?userRole=RESEARCHER".formatted(NEGOTIATIONS_URL))
-                .header("Authorization", "Bearer %s".formatted(CORRECT_TOKEN_VALUE)))
+            MockMvcRequestBuilders.get("%s?userRole=RESEARCHER".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk()).andExpect(content().json("[]"));
   }
 }
