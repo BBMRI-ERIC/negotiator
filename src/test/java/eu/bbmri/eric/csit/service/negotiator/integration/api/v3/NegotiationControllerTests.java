@@ -348,4 +348,40 @@ public class NegotiationControllerTests {
                     MockMvcRequestBuilders.get("%s?userRole=REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
             .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(1)));
   }
+
+  @Test
+  @WithUserDetails("researcher")
+  void testGetNegotiationUserShouldNotHaveAccessTo() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void testGetNegotiationUserCreatedIsOk() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser(authorities = "biobank:2:collection:2")
+  void testGetNegotiationRepresentativeShouldNotHaveAccessTo() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(authorities = "biobank:1:collection:1")
+  void testGetNegotiationRepresentativeShouldHaveAccessTo() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.id", is("negotiation-1")));
+  }
 }

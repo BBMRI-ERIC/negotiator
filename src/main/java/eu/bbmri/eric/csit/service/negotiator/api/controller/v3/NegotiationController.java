@@ -4,6 +4,9 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDe
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import lombok.extern.apachecommons.CommonsLog;
@@ -13,21 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -49,10 +42,10 @@ public class NegotiationController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationDTO add(@Valid @RequestBody NegotiationCreateDTO request) {
-    return negotiationService.create(request, getCreatorId());
+    return negotiationService.create(request, getCurrentlyAuthenticatedUserInternalId());
   }
 
-  private Long getCreatorId() {
+  private Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException{
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
   }
@@ -86,7 +79,7 @@ public class NegotiationController {
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
     } else {
-      negotiations = negotiationService.findByCreatorId(getCreatorId());
+      negotiations = negotiationService.findByCreatorId(getCurrentlyAuthenticatedUserInternalId());
     }
     return negotiations;
   }
@@ -104,7 +97,39 @@ public class NegotiationController {
 
   @GetMapping("/negotiations/{id}")
   NegotiationDTO retrieve(@Valid @PathVariable String id) {
-    return negotiationService.findById(id, true);
+    NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
+    String userId = null;
+    try {
+      userId = getCurrentlyAuthenticatedUserInternalId().toString();
+    }
+    catch (ClassCastException e){
+      log.info("Could not find user in db");
+    }
+    for(PersonRoleDTO personRoleDTO: negotiationDTO.getPersons()){
+      if (Objects.equals(personRoleDTO.getId(), userId)){
+        log.info(userId);
+        return negotiationDTO;
+      }
+    }
+    for (RequestDTO requestDTO: negotiationDTO.getRequests()){
+      for (ResourceDTO resourceDTO: requestDTO.getResources()){
+        List<String> resourceIds = new ArrayList<>(getResourceIds(resourceDTO, new ArrayList<>()));
+        resourceIds.retainAll(getResourceIdsFromUserAuthorities());
+        if (resourceIds.size() > 0){
+          return negotiationDTO;
+        }
+      }
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+  }
+
+  private List<String> getResourceIds(ResourceDTO resourceDTO, List<String> resourceIds){
+       if (resourceDTO.getChildren() != null){
+         for (ResourceDTO resourceDTOChild: resourceDTO.getChildren())
+           getResourceIds(resourceDTOChild, resourceIds);
+       }
+       resourceIds.add(resourceDTO.getId());
+       return resourceIds;
   }
 
   @PutMapping("/negotiations/{id}/lifecycle/{event}")

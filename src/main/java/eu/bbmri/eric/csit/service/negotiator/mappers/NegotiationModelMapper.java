@@ -81,11 +81,13 @@ public class NegotiationModelMapper {
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
     return personsRoles.stream()
-        .map(
-            personRole ->
-                new PersonRoleDTO(
-                    personRole.getPerson().getAuthName(), personRole.getRole().getName()))
-        .collect(Collectors.toSet());
+            .map(
+                    personRole ->
+                            new PersonRoleDTO(
+                                    personRole.getPerson().getId().toString(),
+                                    personRole.getPerson().getAuthName(),
+                                    personRole.getRole().getName()))
+            .collect(Collectors.toSet());
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
