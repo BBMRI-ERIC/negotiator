@@ -257,6 +257,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     for(String resourceId: resourceIds){
       negotiations.addAll(negotiationRepository.findByCollectionId(resourceId));
     }
+    log.info(negotiations.toString());
     return negotiations.stream()
             .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
             .collect(Collectors.toList());

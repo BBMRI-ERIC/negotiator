@@ -105,7 +105,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("TheResearcher")
   public void testGetAll_Ok() throws Exception {
     int numberOfNegotiations = (int) negotiationRepository.count();
     mockMvc
@@ -113,7 +113,7 @@ public class NegotiationControllerTests {
             MockMvcRequestBuilders.get(NEGOTIATIONS_URL))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(numberOfNegotiations)))
+        .andExpect(jsonPath("$.length()", is(3)))
         .andExpect(jsonPath("$[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$[1].id", is(NEGOTIATION_2_ID)));
   }
@@ -141,7 +141,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("TheResearcher")
   public void testGetById_NotFound_whenWrongId() throws Exception {
     mockMvc
             .perform(
@@ -150,7 +150,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("TheResearcher")
   public void testGetById_Ok_whenCorrectId() throws Exception {
     mockMvc
         .perform(
@@ -346,7 +346,7 @@ public class NegotiationControllerTests {
     mockMvc
             .perform(
                     MockMvcRequestBuilders.get("%s?userRole=REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(1)));
+            .andExpect(status().isOk()).andExpect(jsonPath("$.length()", is(3)));
   }
 
   @Test

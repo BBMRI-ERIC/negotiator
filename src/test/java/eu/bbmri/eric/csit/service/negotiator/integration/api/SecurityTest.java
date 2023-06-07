@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -43,7 +44,7 @@ public class SecurityTest {
     }
 
     @Test
-    @WithMockUser()
+    @WithUserDetails("TheResearcher")
     void testAuthorized() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/v3/negotiations")).andExpect(status().isOk());
     }
