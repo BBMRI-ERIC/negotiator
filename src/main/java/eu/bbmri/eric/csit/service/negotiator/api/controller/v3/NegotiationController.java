@@ -134,7 +134,7 @@ public class NegotiationController {
   private List<String> getResourceIdsFromUserAuthorities() {
     List<String> resourceIds = new ArrayList<>();
     for(GrantedAuthority grantedAuthority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
-      // TODO: Fix this for different type of identifiers
+      // Edit for different groups/resource types
       if (grantedAuthority.getAuthority().contains("collection")){
         resourceIds.add(grantedAuthority.getAuthority());
       }
