@@ -44,6 +44,7 @@ public class NegotiationController {
 
   @Autowired
   private NegotiationStateService negotiationStateService;
+
   /**
    * Create a negotiation
    */
@@ -119,6 +120,9 @@ public class NegotiationController {
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
+    if (!isRepresentative(negotiationService.findById(id, false))){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
     negotiationStateService.sendEvent(id, NegotiationEvent.valueOf(event));
     return negotiationService.findById(id, true);
   }
@@ -134,6 +138,9 @@ public class NegotiationController {
   NegotiationDTO sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                    @Valid @PathVariable String resourceId,
                                                    @Valid @PathVariable String event){
+    if (!getResourceIdsFromUserAuthorities().contains(resourceId)){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
     negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
     return negotiationService.findById(negotiationId, true);
   }
