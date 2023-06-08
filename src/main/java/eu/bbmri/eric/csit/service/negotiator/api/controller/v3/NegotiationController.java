@@ -16,11 +16,22 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -43,11 +54,6 @@ public class NegotiationController {
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationDTO add(@Valid @RequestBody NegotiationCreateDTO request) {
     return negotiationService.create(request, getCurrentlyAuthenticatedUserInternalId());
-  }
-
-  private Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException{
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
   }
 
   /**
@@ -84,52 +90,13 @@ public class NegotiationController {
     return negotiations;
   }
 
-  private List<String> getResourceIdsFromUserAuthorities() {
-    List<String> resourceIds = new ArrayList<>();
-    for(GrantedAuthority grantedAuthority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
-      // TODO: Fix this for different type of identifiers
-      if (grantedAuthority.getAuthority().contains("collection")){
-        resourceIds.add(grantedAuthority.getAuthority());
-      }
-    }
-    return Collections.unmodifiableList(resourceIds);
-  }
-
   @GetMapping("/negotiations/{id}")
   NegotiationDTO retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
-    String userId = null;
-    try {
-      userId = getCurrentlyAuthenticatedUserInternalId().toString();
+    if (isAuthorizedForNegotiation(negotiationDTO)){
+      return negotiationDTO;
     }
-    catch (ClassCastException e){
-      log.info("Could not find user in db");
-    }
-    for(PersonRoleDTO personRoleDTO: negotiationDTO.getPersons()){
-      if (Objects.equals(personRoleDTO.getId(), userId)){
-        log.info(userId);
-        return negotiationDTO;
-      }
-    }
-    for (RequestDTO requestDTO: negotiationDTO.getRequests()){
-      for (ResourceDTO resourceDTO: requestDTO.getResources()){
-        List<String> resourceIds = new ArrayList<>(getResourceIds(resourceDTO, new ArrayList<>()));
-        resourceIds.retainAll(getResourceIdsFromUserAuthorities());
-        if (resourceIds.size() > 0){
-          return negotiationDTO;
-        }
-      }
-    }
-    throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-  }
-
-  private List<String> getResourceIds(ResourceDTO resourceDTO, List<String> resourceIds){
-       if (resourceDTO.getChildren() != null){
-         for (ResourceDTO resourceDTOChild: resourceDTO.getChildren())
-           getResourceIds(resourceDTOChild, resourceIds);
-       }
-       resourceIds.add(resourceDTO.getId());
-       return resourceIds;
+    else throw new ResponseStatusException(HttpStatus.FORBIDDEN);
   }
 
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
@@ -153,9 +120,72 @@ public class NegotiationController {
             .getPossibleEvents(negotiationId, resourceId).stream().map((obj) -> Objects.toString(obj, null))
             .collect(Collectors.toList());
   }
+
   @GetMapping("/negotiations/{id}/lifecycle")
   List<String> getPossibleEvents(@Valid @PathVariable String id){
     return negotiationStateService.getPossibleEvents(id).stream().map((obj) -> Objects.toString(obj, null))
             .collect(Collectors.toList());
+  }
+  private Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException{
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
+  }
+
+  private List<String> getResourceIdsFromUserAuthorities() {
+    List<String> resourceIds = new ArrayList<>();
+    for(GrantedAuthority grantedAuthority: SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
+      // TODO: Fix this for different type of identifiers
+      if (grantedAuthority.getAuthority().contains("collection")){
+        resourceIds.add(grantedAuthority.getAuthority());
+      }
+    }
+    return Collections.unmodifiableList(resourceIds);
+  }
+
+  private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO){
+    if (isCreator(negotiationDTO)) return true;
+    return isRepresentative(negotiationDTO);
+  }
+
+  private String getUserId() {
+    String userId = null;
+    try {
+      userId = getCurrentlyAuthenticatedUserInternalId().toString();
+    }
+    catch (ClassCastException e){
+      log.warn("Could not find user in db");
+    }
+    return userId;
+  }
+
+  private boolean isRepresentative(NegotiationDTO negotiationDTO) {
+    for (RequestDTO requestDTO: negotiationDTO.getRequests()){
+      for (ResourceDTO resourceDTO: requestDTO.getResources()){
+        List<String> resourceIds = new ArrayList<>(getResourceIds(resourceDTO, new ArrayList<>()));
+        resourceIds.retainAll(getResourceIdsFromUserAuthorities());
+        if (resourceIds.size() > 0){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean isCreator(NegotiationDTO negotiationDTO) {
+    for(PersonRoleDTO personRoleDTO: negotiationDTO.getPersons()){
+      if (Objects.equals(personRoleDTO.getId(), getUserId()) && Objects.equals(personRoleDTO.getRole(), "RESEARCHER")){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<String> getResourceIds(ResourceDTO resourceDTO, List<String> resourceIds){
+    if (resourceDTO.getChildren() != null){
+      for (ResourceDTO resourceDTOChild: resourceDTO.getChildren())
+        getResourceIds(resourceDTOChild, resourceIds);
+    }
+    resourceIds.add(resourceDTO.getId());
+    return resourceIds;
   }
 }
