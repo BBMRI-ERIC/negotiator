@@ -71,6 +71,14 @@ public class NegotiationController {
     return negotiationService.update(id, request);
   }
 
+  /**
+   * Fetch a list of Negotiations
+   * @param biobankId to return Negotiations concerning a particular biobank
+   * @param collectionId to return Negotiations concerning a particular collection
+   * @param userRole by the user's role in the Negotiations
+   * @return a list of Negotiations by default returns list of Negotiations created by the user
+   */
+
   @GetMapping("/negotiations")
   List<NegotiationDTO> list(
       @RequestParam(required = false) String biobankId,
@@ -90,6 +98,11 @@ public class NegotiationController {
     return negotiations;
   }
 
+  /**
+   * Fetch a negotiation
+   * @param id of the negotiation
+   * @return  NegotiationDTO or 403
+   */
   @GetMapping("/negotiations/{id}")
   NegotiationDTO retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);

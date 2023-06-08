@@ -366,6 +366,15 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
+  void testGetNonExistentNegotiationReturnsEmptyBody() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get("%s/fake-123".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
   @WithMockUser(authorities = "biobank:2:collection:2")
   void testGetNegotiationRepresentativeShouldNotHaveAccessTo() throws Exception {
     mockMvc
