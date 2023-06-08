@@ -78,7 +78,6 @@ public class NegotiationController {
    * @param userRole by the user's role in the Negotiations
    * @return a list of Negotiations by default returns list of Negotiations created by the user
    */
-
   @GetMapping("/negotiations")
   List<NegotiationDTO> list(
       @RequestParam(required = false) String biobankId,
@@ -112,12 +111,25 @@ public class NegotiationController {
     else throw new ResponseStatusException(HttpStatus.FORBIDDEN);
   }
 
+  /**
+   * Interact with the state of a negotiation by sending an Event
+   * @param id of the negotiation
+   * @param event from NegotiationEvents
+   * @return NegotiationDTO with updated state if valid
+   */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event){
     negotiationStateService.sendEvent(id, NegotiationEvent.valueOf(event));
     return negotiationService.findById(id, true);
   }
 
+  /**
+   * Interact with the state of a resource in a negotiation by sending an Event
+   * @param negotiationId of the Negotiation
+   * @param resourceId external it of the resource
+   * @param event from NegotiationEvents
+   * @return NegotiationDTO with updated state if valid
+   */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
   NegotiationDTO sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                    @Valid @PathVariable String resourceId,
@@ -126,17 +138,28 @@ public class NegotiationController {
     return negotiationService.findById(negotiationId, true);
   }
 
+  /**
+   * Get possible events for a Negotiation
+   * @param id  of the negotiation
+   * @return  a list of possible events to send
+   */
+  @GetMapping("/negotiations/{id}/lifecycle")
+  List<String> getPossibleEvents(@Valid @PathVariable String id){
+    return negotiationStateService.getPossibleEvents(id).stream().map((obj) -> Objects.toString(obj, null))
+            .collect(Collectors.toList());
+  }
+
+  /**
+   * Get possible events for a resource state in a Negotiation
+   * @param negotiationId of the negotiation
+   * @param resourceId of the resource
+   * @return  a list of possible events
+   */
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
                                                        @Valid @PathVariable String resourceId){
     return negotiationStateService
             .getPossibleEvents(negotiationId, resourceId).stream().map((obj) -> Objects.toString(obj, null))
-            .collect(Collectors.toList());
-  }
-
-  @GetMapping("/negotiations/{id}/lifecycle")
-  List<String> getPossibleEvents(@Valid @PathVariable String id){
-    return negotiationStateService.getPossibleEvents(id).stream().map((obj) -> Objects.toString(obj, null))
             .collect(Collectors.toList());
   }
   private Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException{
