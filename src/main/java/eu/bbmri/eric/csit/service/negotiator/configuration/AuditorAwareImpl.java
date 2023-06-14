@@ -2,11 +2,10 @@ package eu.bbmri.eric.csit.service.negotiator.configuration;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
 
 public class AuditorAwareImpl implements AuditorAware<Person> {
 

@@ -1,13 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.perun;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.ValidationGroups;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter

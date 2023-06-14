@@ -3,6 +3,11 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +22,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-
 /**
- * Class to convert Oauth2 authentication using a JWT, to an internal representation of a user in the Negotiator
+ * Class to convert Oauth2 authentication using a JWT, to an internal representation of a user in
+ * the Negotiator
  */
 @CommonsLog
 @AllArgsConstructor
@@ -40,6 +44,21 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
   private final String authzBiobankerValue;
 
+  private final String authzResourceClaimPrefix;
+
+  private Collection<GrantedAuthority> addAuthoritiesForIndividualResources(
+      List<String> scopes) {
+    Collection<GrantedAuthority> authorities = new HashSet<>();
+    for (String scope : scopes) {
+      // TODO: try to generalize the transformation
+      if (scope.contains(authzResourceClaimPrefix)) {
+        String resourceId = StringUtils.substringBetween(scope, authzResourceClaimPrefix, "#perun")
+            .replace(".", ":");
+        authorities.add(new SimpleGrantedAuthority(resourceId));
+      }
+    }
+    return authorities;
+  }
 
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
@@ -49,10 +68,9 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     String subjectIdentifier = jwt.getClaimAsString("sub");
     Person person;
     try {
-     person = personRepository.findByAuthSubject(subjectIdentifier)
-              .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
-    }
-    catch (EntityNotFoundException e){
+      person = personRepository.findByAuthSubject(subjectIdentifier)
+          .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
+    } catch (EntityNotFoundException e) {
       log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
       person = saveNewUserToDatabase(claims);
     }
@@ -62,8 +80,9 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
   /**
    * This method parses scopes/claims from the oauth server and assigns user authorities
-   * @param claims  Claims from the oauth authorization provider
-   * @return  authorities for the authenticated user
+   *
+   * @param claims Claims from the oauth authorization provider
+   * @return authorities for the authenticated user
    */
   private Collection<GrantedAuthority> assignAuthorities(Map<String, Object> claims) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
@@ -80,18 +99,6 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
         authorities.addAll(addAuthoritiesForIndividualResources(scopes));
       }
     }
-    return authorities;
-  }
-
-  private static Collection<GrantedAuthority> addAuthoritiesForIndividualResources(List<String> scopes) {
-    Collection<GrantedAuthority> authorities = new HashSet<>();
-      for (String scope: scopes){
-        if (scope.contains("urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri")){
-          String resourceId = StringUtils.substringBetween(scope, "Directory:", "#perun")
-                  .replace(".", ":");
-          authorities.add(new SimpleGrantedAuthority(resourceId));
-        }
-      }
     return authorities;
   }
 
@@ -119,17 +126,17 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
 
     ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
-            httpEntity, Object.class);
+        httpEntity, Object.class);
     return response.getBody();
   }
 
   private Person saveNewUserToDatabase(Map<String, Object> claims) {
     Person person;
     person = Person.builder()
-            .authSubject(String.valueOf(claims.get("sub")))
-            .authName(String.valueOf(claims.get("preferred_username")))
-            .authEmail(String.valueOf(claims.get("email").toString()))
-            .build();
+        .authSubject(String.valueOf(claims.get("sub")))
+        .authName(String.valueOf(claims.get("preferred_username")))
+        .authEmail(String.valueOf(claims.get("email").toString()))
+        .build();
     personRepository.save(person);
     log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
     log.debug(person);

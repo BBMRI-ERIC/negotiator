@@ -1,14 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AccessCriteriaSetRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service(value = "DefaultAccessCriteriaSetService")
 public class AccessCriteriaSetServiceImpl implements AccessCriteriaSetService {

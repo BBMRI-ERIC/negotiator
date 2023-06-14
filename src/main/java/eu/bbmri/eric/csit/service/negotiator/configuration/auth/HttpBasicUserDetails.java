@@ -1,12 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import java.util.Collection;
+import java.util.HashSet;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.HashSet;
 
 public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails {
 

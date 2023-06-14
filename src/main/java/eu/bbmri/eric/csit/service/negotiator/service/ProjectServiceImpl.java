@@ -1,19 +1,18 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Project;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service(value = "DefaultProjectService")
 public class ProjectServiceImpl implements ProjectService {

@@ -1,12 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.ToString.Exclude;
-
+import java.util.Set;
+import java.util.SortedSet;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
@@ -14,8 +9,12 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
-import java.util.Set;
-import java.util.SortedSet;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @ToString
 @Entity

@@ -1,7 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
@@ -12,9 +10,16 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
@@ -22,12 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service(value = "DefaultNegotiationService")
 @CommonsLog
@@ -88,7 +87,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
 
     // Gets the Role entity. Since this is a new negotiation, the person is the CREATOR of the negotiation
-    Role role = roleRepository.findByName("RESEARCHER").orElseThrow(EntityNotStorableException::new);
+    Role role = roleRepository.findByName("RESEARCHER")
+        .orElseThrow(EntityNotStorableException::new);
 
     // Gets the person and associated roles
     Person creator =
@@ -114,7 +114,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       // Set initial state machine
       negotiationStateService.initializeTheStateMachine(negotiationEntity.getId());
       for (Resource resource : negotiation.getAllResources().getResources()) {
-        negotiationStateService.initializeTheStateMachine(negotiation.getId(), resource.getSourceId());
+        negotiationStateService.initializeTheStateMachine(negotiation.getId(),
+            resource.getSourceId());
       }
       return modelMapper.map(negotiation, NegotiationDTO.class);
     } catch (DataException | DataIntegrityViolationException ex) {
@@ -256,18 +257,19 @@ public class NegotiationServiceImpl implements NegotiationService {
     List<Negotiation> negotiations = negotiationRepository.findByCollectionIds(resourceIds);
     log.info(negotiations);
     return negotiations.stream()
-            .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-            .collect(Collectors.toList());
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
+        .collect(Collectors.toList());
   }
 
   @Override
   public List<NegotiationDTO> findByCreatorId(Long personId) {
     Person creator = personRepository.findDetailedById(personId).orElseThrow(()
-            -> new EntityNotFoundException("Person not found"));
-    List<Negotiation> negotiations = new ArrayList<>(negotiationRepository.findByCreatedBy(creator));
+        -> new EntityNotFoundException("Person not found"));
+    List<Negotiation> negotiations = new ArrayList<>(
+        negotiationRepository.findByCreatedBy(creator));
     log.info(personId);
     return negotiations.stream()
-            .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-            .collect(Collectors.toList());
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
+        .collect(Collectors.toList());
   }
 }

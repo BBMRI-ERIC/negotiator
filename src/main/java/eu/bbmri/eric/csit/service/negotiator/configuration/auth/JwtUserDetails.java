@@ -1,9 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import org.springframework.security.core.GrantedAuthority;
-
 import java.util.Collection;
+import org.springframework.security.core.GrantedAuthority;
 
 public class JwtUserDetails implements NegotiatorUserDetails {
 

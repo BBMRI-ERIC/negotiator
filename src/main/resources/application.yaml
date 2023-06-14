@@ -24,6 +24,7 @@ negotiator:
     researcher-claim-value: ""
     biobanker-claim-value: ""
     subject-claim: ""
+    resource-claim-prefix: ""
 logging:
   level:
     org:

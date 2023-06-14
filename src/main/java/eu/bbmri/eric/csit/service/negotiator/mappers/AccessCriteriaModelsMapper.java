@@ -1,20 +1,19 @@
 package eu.bbmri.eric.csit.service.negotiator.mappers;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
+import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
 import eu.bbmri.eric.csit.service.negotiator.dto.access_criteria.AccessCriteriaDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.access_criteria.AccessCriteriaSectionDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
-import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Configuration
 public class AccessCriteriaModelsMapper {

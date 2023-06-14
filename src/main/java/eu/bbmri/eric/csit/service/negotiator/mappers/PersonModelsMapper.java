@@ -1,13 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.mappers;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
+import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
 
 @Configuration
 public class PersonModelsMapper {

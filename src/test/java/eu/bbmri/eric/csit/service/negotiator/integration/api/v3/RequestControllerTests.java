@@ -1,15 +1,26 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -22,18 +33,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -202,7 +201,8 @@ public class RequestControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath(unassignedRequestSelector).exists())
-        .andExpect(jsonPath(String.format("%s.negotiationId", unassignedRequestSelector)).doesNotExist());
+        .andExpect(
+            jsonPath(String.format("%s.negotiationId", unassignedRequestSelector)).doesNotExist());
     assertEquals(repository.count(), previousCount);
   }
 
@@ -280,7 +280,7 @@ public class RequestControllerTests {
     RequestCreateDTO request = TestUtils.createRequest(false);
     mockMvc.perform(MockMvcRequestBuilders.post("/v3/requests").
             contentType(MediaType.APPLICATION_JSON).content(request.toString()))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -299,8 +299,8 @@ public class RequestControllerTests {
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     mockMvc.perform(MockMvcRequestBuilders.put("/v3/requests/-1").
-                    contentType(MediaType.APPLICATION_JSON).content(request.toString()))
-            .andExpect(status().isBadRequest());
+            contentType(MediaType.APPLICATION_JSON).content(request.toString()))
+        .andExpect(status().isBadRequest());
   }
 
   @Test

@@ -7,6 +7,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
+import java.net.URI;
+import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,9 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.net.URI;
 
 @RestController
 public class QueryV2Controller {
@@ -44,7 +43,8 @@ public class QueryV2Controller {
         created = false;
         if (tokens.length == 1) {
           requestResponse = requestService.create(v3Request);
-          NegotiationDTO negotiationDTO = negotiationService.addRequestToNegotiation(tokens[0], requestResponse.getId());
+          NegotiationDTO negotiationDTO = negotiationService.addRequestToNegotiation(tokens[0],
+              requestResponse.getId());
           requestResponse.setNegotiationId(negotiationDTO.getId());
         } else { // Updating an old request: the requestToken can be ignored
           requestResponse = requestService.update(tokens[1], v3Request);

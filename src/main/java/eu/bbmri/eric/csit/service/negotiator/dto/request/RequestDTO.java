@@ -1,14 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Set;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 @Getter
 @Setter

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
@@ -13,7 +14,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -119,7 +119,7 @@ public class TestUtils {
         .build();
   }
 
-  public static QueryCreateV2DTO createQueryV2Request() {;
+  public static QueryCreateV2DTO createQueryV2Request() {
     CollectionV2DTO collection =
         CollectionV2DTO.builder()
             .collectionId(QUERY_COLLECTION_1_ID)

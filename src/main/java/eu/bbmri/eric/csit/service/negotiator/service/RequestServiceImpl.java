@@ -1,28 +1,27 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "DefaultRequestService")
 public class RequestServiceImpl implements RequestService {
