@@ -44,7 +44,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
     Map<String, Object> claims = getClaims(jwt);
-    log.debug(claims.toString());
+    log.debug(claims);
     Collection<GrantedAuthority> authorities = assignAuthorities(claims);
     String subjectIdentifier = jwt.getClaimAsString("sub");
     Person person;
@@ -56,8 +56,6 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
       log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
       person = saveNewUserToDatabase(claims);
     }
-
-
 
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
   }
@@ -122,20 +120,19 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
     ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
             httpEntity, Object.class);
-    Object claims = response.getBody();
-    return claims;
+    return response.getBody();
   }
 
   private Person saveNewUserToDatabase(Map<String, Object> claims) {
     Person person;
     person = Person.builder()
-            .authSubject(claims.get("sub").toString())
-            .authName(claims.get("preferred_username").toString())
-            .authEmail(claims.get("email").toString())
+            .authSubject(String.valueOf(claims.get("sub")))
+            .authName(String.valueOf(claims.get("preferred_username")))
+            .authEmail(String.valueOf(claims.get("email").toString()))
             .build();
     personRepository.save(person);
     log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
-    log.debug(person.toString());
+    log.debug(person);
     return person;
   }
 }

@@ -84,7 +84,7 @@ public class NegotiationModelMapper {
             .map(
                     personRole ->
                             new PersonRoleDTO(
-                                    personRole.getPerson().getId().toString(),
+                                    String.valueOf(personRole.getPerson().getId()),
                                     personRole.getPerson().getAuthName(),
                                     personRole.getRole().getName()))
             .collect(Collectors.toSet());
@@ -119,7 +119,7 @@ public class NegotiationModelMapper {
         log.info("Negotiation and resource combination not found");
       }
     }
-    log.debug(resourcesStatus.toString());
+    log.debug(resourcesStatus);
     return mapper.valueToTree(resourcesStatus);
   }
 }

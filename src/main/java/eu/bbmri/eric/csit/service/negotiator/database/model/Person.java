@@ -1,7 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.ToString.Exclude;
 
 import javax.persistence.Column;
@@ -19,9 +24,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@ToString
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Getter
 @Setter
