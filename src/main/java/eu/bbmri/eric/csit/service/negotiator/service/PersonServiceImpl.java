@@ -1,18 +1,17 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service(value = "DefaultPersonService")
 public class PersonServiceImpl implements PersonService {
@@ -38,9 +37,9 @@ public class PersonServiceImpl implements PersonService {
     return personRepository.findAll();
   }
 
-  public List<PerunUserDTO> createOrUpdate(List<PerunUserDTO> request) {
+  public List<PerunUserDTO> createOrUpdate(List<PerunUserDTO> perunUserDTOS) {
     List<PerunUserDTO> users = new ArrayList<>();
-    for (PerunUserDTO user : request) {
+    for (PerunUserDTO user : perunUserDTOS) {
       Person person = getByAuthSubject(String.valueOf(user.getId()));
       try {
         if (person == null) {
@@ -55,27 +54,5 @@ public class PersonServiceImpl implements PersonService {
     }
     return users;
   }
-
-  //  public Person create(PerunUserDTO perunUserRequest) {
-  //
-  //    Person personEntity = modelMapper.map(perunUserRequest, Person.class);
-  //    try {
-  //      return personRepository.save(personEntity);
-  //    } catch (DataIntegrityViolationException ex) {
-  //      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be
-  // saved");
-  //    }
-  //  }
-  //
-  //  public Person update(Integer id, PerunUserDTO perunUserRequest) {
-  //    Person personEntity = getByAuthSubject(String.format("%s",id));
-  //    modelMapper.map(perunUserRequest, personEntity);
-  //    try {
-  //      return personRepository.save(personEntity);
-  //    } catch (DataIntegrityViolationException ex) {
-  //      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some data sent cannot be
-  // saved");
-  //    }
-  //  }
 
 }

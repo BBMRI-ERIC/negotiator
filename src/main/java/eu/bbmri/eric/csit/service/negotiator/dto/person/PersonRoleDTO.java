@@ -1,13 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.person;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -16,6 +15,9 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class PersonRoleDTO {
+
+  @NotNull
+  private String id;
 
   @NotNull
   private String name;

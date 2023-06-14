@@ -2,7 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,18 +22,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Class to map the Authorities in a JWT to the one knwon by the Negotiator
+ * Class to convert Oauth2 authentication using a JWT, to an internal representation of a user in
+ * the Negotiator
  */
 @CommonsLog
-public class JwtAuthenticationConverter
-    implements Converter<Jwt, AbstractAuthenticationToken> {
+@AllArgsConstructor
+public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+  private final PersonRepository personRepository;
 
   private final String userInfoEndpoint;
 
@@ -39,51 +44,62 @@ public class JwtAuthenticationConverter
 
   private final String authzBiobankerValue;
 
-  PersonRepository personRepository;
+  private final String authzResourceClaimPrefix;
 
-  /**
-   * Converter of JWT. It assigns Authorities based on the claims present in the JWT and enhances
-   * the JWT adding the internal Person related to it.
-   *
-   * @param personRepository The Repository to retrieve the Person
-   * @param authzClaim the name of the claim that contains the value of the claim
-   * @param authzSubjectClaim the name of the claim that contains the id of the subject, used to
-   * retrieve the Person from the Repository
-   * @param authzAdminValue the value of the authzClaim for Administrator role
-   * @param authzResearcherValue the value of the authzClaim for Researcher role
-   * @param authzBiobankerValue the value of the authzClaim for Biobanker role
-   */
-  public JwtAuthenticationConverter(
-      PersonRepository personRepository,
-      String userInfoEndpoint,
-      String authzClaim,
-      String authzSubjectClaim,
-      String authzAdminValue,
-      String authzResearcherValue,
-      String authzBiobankerValue) {
-    this.userInfoEndpoint = userInfoEndpoint;
-    this.personRepository = personRepository;
-    this.authzClaim = authzClaim;
-    this.authzAdminValue = authzAdminValue;
-    this.authzResearcherValue = authzResearcherValue;
-    this.authzBiobankerValue = authzBiobankerValue;
-    this.authzSubjectClaim = authzSubjectClaim;
+  private Collection<GrantedAuthority> addAuthoritiesForIndividualResources(
+      List<String> scopes) {
+    Collection<GrantedAuthority> authorities = new HashSet<>();
+    for (String scope : scopes) {
+      // TODO: try to generalize the transformation
+      if (scope.contains(authzResourceClaimPrefix)) {
+        String resourceId = StringUtils.substringBetween(scope, authzResourceClaimPrefix, "#perun")
+            .replace(".", ":");
+        authorities.add(new SimpleGrantedAuthority(resourceId));
+      }
+    }
+    return authorities;
   }
 
-  private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders requestHeaders = new HttpHeaders();
-    requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
-    HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
-
-    ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
-        httpEntity, Object.class);
-    Object claims = response.getBody();
+  @Override
+  public final AbstractAuthenticationToken convert(Jwt jwt) {
+    Map<String, Object> claims = getClaims(jwt);
+    log.debug(claims);
+    Collection<GrantedAuthority> authorities = assignAuthorities(claims);
+    String subjectIdentifier = jwt.getClaimAsString("sub");
+    Person person;
     try {
-      return (LinkedHashMap<String, Object>) claims;
-    } catch (ClassCastException ex) {
-      return new LinkedHashMap<>();
+      person = personRepository.findByAuthSubject(subjectIdentifier)
+          .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
+    } catch (EntityNotFoundException e) {
+      log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
+      person = saveNewUserToDatabase(claims);
     }
+
+    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
+  }
+
+  /**
+   * This method parses scopes/claims from the oauth server and assigns user authorities
+   *
+   * @param claims Claims from the oauth authorization provider
+   * @return authorities for the authenticated user
+   */
+  private Collection<GrantedAuthority> assignAuthorities(Map<String, Object> claims) {
+    Collection<GrantedAuthority> authorities = new HashSet<>();
+    if (claims.containsKey(authzClaim)) {
+      List<String> scopes = (List<String>) claims.get(authzClaim);
+      if (scopes.contains(authzAdminValue)) {
+        authorities.add(new SimpleGrantedAuthority("ADMIN"));
+      }
+      if (scopes.contains(authzResearcherValue)) {
+        authorities.add(new SimpleGrantedAuthority("RESEARCHER"));
+      }
+      if (scopes.contains(authzBiobankerValue)) {
+        authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
+        authorities.addAll(addAuthoritiesForIndividualResources(scopes));
+      }
+    }
+    return authorities;
   }
 
   private Map<String, Object> getClaims(Jwt jwt) {
@@ -94,32 +110,36 @@ public class JwtAuthenticationConverter
     }
   }
 
-  @Override
-  public final AbstractAuthenticationToken convert(Jwt jwt) {
-    Map<String, Object> claims = getClaims(jwt);
-
-    Collection<GrantedAuthority> authorities = new HashSet<>();
-    if (claims.containsKey(authzClaim)) {
-      List<String> scopes = (List<String>) claims.get(authzClaim);
-
-      if (scopes.contains(authzAdminValue)) {
-        authorities.add(new SimpleGrantedAuthority("ADMIN"));
-      }
-      if (scopes.contains(authzResearcherValue)) {
-        authorities.add(new SimpleGrantedAuthority("RESEARCHER"));
-      }
-      if (scopes.contains(authzBiobankerValue)) {
-        authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
-      }
+  private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
+    Object claims = requestClaimsFromUserInfoEndpoint(jwt);
+    try {
+      return (LinkedHashMap<String, Object>) claims;
+    } catch (ClassCastException ex) {
+      return new LinkedHashMap<>();
     }
-    log.info(claims.toString());
+  }
 
-    String principalClaimValue = jwt.getClaimAsString("sub");
+  private Object requestClaimsFromUserInfoEndpoint(Jwt jwt) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders requestHeaders = new HttpHeaders();
+    requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
+    HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
 
-    Person person = personRepository.findByAuthSubject(principalClaimValue)
-        .orElse(null);
+    ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
+        httpEntity, Object.class);
+    return response.getBody();
+  }
 
-
-    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, principalClaimValue);
+  private Person saveNewUserToDatabase(Map<String, Object> claims) {
+    Person person;
+    person = Person.builder()
+        .authSubject(String.valueOf(claims.get("sub")))
+        .authName(String.valueOf(claims.get("preferred_username")))
+        .authEmail(String.valueOf(claims.get("email").toString()))
+        .build();
+    personRepository.save(person);
+    log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
+    log.debug(person);
+    return person;
   }
 }
