@@ -57,7 +57,7 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
   (1, 'Test biobank #1', 'This is the first testing biobank', 'biobank:1', 'biobank' ,null, 1, 1),
   (2, 'Test biobank #2', 'This is the second testing biobank', 'biobank:2', 'biobank', null, 1, 1),
   (3, 'Test biobank #3', 'This is the third testing biobank', 'biobank:3', 'biobank', null, 1, 1),
-  (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1', 'bbmri-eric:ID:CZ_MMCI:collection:LTS', 'collection', 1, 1, 1),
+  (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1', 'biobank:1:collection:1', 'collection', 1, 1, 1),
   (5, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1', 'biobank:1:collection:2', 'collection', 1, 1, 1),
   (6, 'Test collection #1 of biobank #2', 'This is the first test collection of biobank 2', 'biobank:2:collection:1', 'collection', 2, 1, 1),
   (7, 'Test collection #1 of biobank #3', 'This is the first test collection of biobank 3', 'biobank:3:collection:1', 'collection', 3, 1, 1),
@@ -66,18 +66,18 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
 
 insert into person_resource_link (resource_id, person_id) values (1, 102), (4, 103), (4, 109);
 
-insert into request (id, url, human_readable, data_source_id) values
-  ('7c48b8a3-2fd2-4907-8af3-fc5bf58011b5', 'http://localhost', '#1: No filters used', 1),
-  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 'http://localhost', '#1: DNA Samples', 1);
+--insert into request (id, url, human_readable, data_source_id) values
+--  ('7c48b8a3-2fd2-4907-8af3-fc5bf58011b5', 'http://localhost', '#1: No filters used', 1),
+--  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 'http://localhost', '#1: DNA Samples', 1);
+--
+--insert into request_resources_link (request_id, resource_id) values
+--  ('7c48b8a3-2fd2-4907-8af3-fc5bf58011b5', 4),
+--  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 5),
+--  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 6);
 
-insert into request_resources_link (request_id, resource_id) values
-  ('7c48b8a3-2fd2-4907-8af3-fc5bf58011b5', 4),
-  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 5),
-  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 6);
+--insert into negotiation (id, creation_date, modified_date, created_by, modified_by, payload) values
+--  ('35763b55-a200-4ec1-af05-1daa5a0815f8', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON ),
+--  ('4d519fb6-4087-462e-98e6-b14e9fa20b10', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'FORMAT JSON );
 
-insert into negotiation (id, creation_date, modified_date, created_by, modified_by, payload) values
-  ('35763b55-a200-4ec1-af05-1daa5a0815f8', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON ),
-  ('4d519fb6-4087-462e-98e6-b14e9fa20b10', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'FORMAT JSON );
-
-insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('35763b55-a200-4ec1-af05-1daa5a0815f8', 108, 4);
-insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('4d519fb6-4087-462e-98e6-b14e9fa20b10', 108, 4);
+--insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('35763b55-a200-4ec1-af05-1daa5a0815f8', 108, 4);
+--insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('4d519fb6-4087-462e-98e6-b14e9fa20b10', 108, 4);
