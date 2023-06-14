@@ -64,7 +64,7 @@ public class NegotiationServiceTest {
 
   @Test
   void testGetNegotiationsForAListOFResources() {
-    when(negotiationRepository.findByCollectionId(any())).thenReturn(List.of(new Negotiation()));
+    when(negotiationRepository.findByCollectionIds(any())).thenReturn(List.of(new Negotiation()));
     assertEquals(1, negotiationService.findByResourceIds(List.of("biobank:1:collection:1")).size());
   }
 }

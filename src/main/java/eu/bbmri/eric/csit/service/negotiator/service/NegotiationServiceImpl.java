@@ -253,10 +253,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public List<NegotiationDTO> findByResourceIds(List<String> resourceIds) {
-    List<Negotiation> negotiations = new ArrayList<>();
-    for(String resourceId: resourceIds){
-      negotiations.addAll(negotiationRepository.findByCollectionId(resourceId));
-    }
+    List<Negotiation> negotiations = negotiationRepository.findByCollectionIds(resourceIds);
     log.info(negotiations);
     return negotiations.stream()
             .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))

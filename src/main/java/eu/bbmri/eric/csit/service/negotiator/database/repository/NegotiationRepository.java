@@ -52,5 +52,14 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "WHERE c.sourceId = :collectionId")
   List<Negotiation> findByCollectionId(String collectionId);
 
+  @Query(
+      value =
+          "SELECT DISTINCT r "
+              + "FROM Negotiation r "
+              + "JOIN FETCH r.requests rr "
+              + "JOIN FETCH rr.resources c "
+              + "WHERE c.sourceId IN :collectionIds")
+  List<Negotiation> findByCollectionIds(List<String> collectionIds);
+
   List<Negotiation> findByCreatedBy(Person createdBy);
 }
