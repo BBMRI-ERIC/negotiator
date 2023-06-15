@@ -238,7 +238,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("researcher")
+  @WithUserDetails("TheResearcher")
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -304,7 +304,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("TheResearcher")
   public void testUpdate_Ok_whenChangePayload() throws Exception {
     // Tries to updated negotiation
     // Negotiation body with updated values

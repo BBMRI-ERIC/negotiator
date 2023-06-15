@@ -22,7 +22,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: "https://login.bbmri-eric.eu/oidc/"
+          jwk-set-uri: "https://testoidc"
           type: "JWT"
 negotiator:
   frontend-url: "http://localhost"

@@ -84,6 +84,6 @@ insert into request_resources_link (request_id, resource_id) values
   ('request-v2', 7),
   ('request-unassigned', 7);
 
-insert into person_negotiation (negotiation_id, person_id, role_id) values ('negotiation-1', 108, 4);
-insert into person_negotiation (negotiation_id, person_id, role_id) values ('negotiation-2', 108, 4);
-insert into person_negotiation (negotiation_id, person_id, role_id) values ('negotiation-v2', 108, 4);
+insert into person_negotiation_role (negotiation_id, person_id, role_id) values ('negotiation-1', 108, 4);
+insert into person_negotiation_role (negotiation_id, person_id, role_id) values ('negotiation-2', 108, 4);
+insert into person_negotiation_role (negotiation_id, person_id, role_id) values ('negotiation-v2', 108, 4);

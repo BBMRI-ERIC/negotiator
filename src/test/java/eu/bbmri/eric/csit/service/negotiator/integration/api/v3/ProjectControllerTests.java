@@ -28,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -152,7 +153,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "RESEARCHER")
+  @WithUserDetails("TheResearcher")
   public void testGetAll_Ok() throws Exception {
     ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);
@@ -221,7 +222,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "RESEARCHER")
+  @WithUserDetails("TheResearcher")
   public void testGetById_Ok() throws Exception {
     ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);

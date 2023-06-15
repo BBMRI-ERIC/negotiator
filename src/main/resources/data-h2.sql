@@ -23,13 +23,6 @@ insert into person (id, auth_email, auth_name, auth_subject, password, organizat
   (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
   (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null);
 
-insert into authorities (person_id, authority) values
-  (101, 'ADMIN'),
-  (102, 'EXT_SERV'),
-  (103, 'PERUN_USER'),
-  (104, 'RESEARCHER'),
-  (108, 'RESEARCHER');
-
 insert into access_criteria_set (id, name) values (1, 'BBMRI Template');
 
 insert into access_criteria_section (id, name, label, description, access_criteria_set_id) values (1, 'project', 'Project', 'Provide information about your project', 1);
