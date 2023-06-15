@@ -56,12 +56,6 @@ public class NegotiationModelMapper {
       }
     };
 
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(personsRoleConverter)
-                .map(Negotiation::getPersons, NegotiationDTO::setPersons));
-
     Converter<String, JsonNode> payloadConverter =
         p -> {
           try {
@@ -71,9 +65,13 @@ public class NegotiationModelMapper {
           }
         };
 
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(personsRoleConverter)
+                .map(Negotiation::getPersons, NegotiationDTO::setPersons));
     typeMap.addMappings(mapper -> mapper.using(payloadConverter)
         .map(Negotiation::getPayload, NegotiationDTO::setPayload));
-
     typeMap.addMappings(mapper -> mapper.using(negotiationStatusConverter)
         .map(Negotiation::getId, NegotiationDTO::setStatus));
     typeMap.addMappings(mapper -> mapper.using(resourcesStatusConverter)
@@ -82,7 +80,8 @@ public class NegotiationModelMapper {
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
-    return personsRoles.stream()
+
+    Set<PersonRoleDTO> roles = personsRoles.stream()
         .map(
             personRole ->
                 new PersonRoleDTO(
@@ -90,6 +89,7 @@ public class NegotiationModelMapper {
                     personRole.getPerson().getAuthName(),
                     personRole.getRole().getName()))
         .collect(Collectors.toSet());
+    return roles;
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {

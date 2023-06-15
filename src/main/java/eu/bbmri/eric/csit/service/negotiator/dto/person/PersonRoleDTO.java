@@ -17,6 +17,7 @@ import lombok.Setter;
 public class PersonRoleDTO {
 
   @NotNull
+  // TODO: is it necessary?
   private String id;
 
   @NotNull

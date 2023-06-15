@@ -14,9 +14,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class PersonNegotiationId implements Serializable {
+public class PersonNegotiationRoleId implements Serializable {
 
   Long person;
 
   String negotiation;
+
+  Long role;
 }

@@ -64,12 +64,23 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
   }
 
+  private void addPersonToNegotiation(Person person, Negotiation negotiationEntity,
+      String roleName) {
+    Role role = roleRepository.findByName(roleName)
+        .orElseThrow(EntityNotStorableException::new);
+    // Creates the association between the Person and the Negotiation
+    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiationEntity, role);
+    // Updates person and negotiation with the person role
+    person.getRoles().add(personRole);
+    negotiationEntity.getPersons().add(personRole);
+  }
+
   /**
    * Creates a Negotiation into the repository.
    *
    * @param negotiationBody the NegotiationCreateDTO DTO sent from to the endpoint
-   * @param creatorId       the ID of the Person that creates the Negotiation (i.e., the
-   *                        authenticated Person that called the API)
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
+   * Person that called the API)
    * @return the created Negotiation entity
    */
   @Transactional
@@ -86,46 +97,17 @@ public class NegotiationServiceImpl implements NegotiationService {
           "One or more negotiationBody object is already assigned to another negotiation");
     }
 
-    // Gets the Role entity. Since this is a new negotiation, the person is the CREATOR of the negotiation
-    Role role = roleRepository.findByName("RESEARCHER")
-        .orElseThrow(EntityNotStorableException::new);
-
-    // Gets the person and associated roles
     Person creator =
-        personRepository.findDetailedById(creatorId).orElseThrow(EntityNotStorableException::new);
+        personRepository.findById(creatorId).orElseThrow(EntityNotStorableException::new);
+    addPersonToNegotiation(creator, negotiationEntity, "RESEARCHER");
 
-    // Creates the association between the Person and the Negotiation
-    PersonNegotiationRole personRole = new PersonNegotiationRole(creator, negotiationEntity, role);
-
-    // Updates person and negotiation with the person role
-    creator.getRoles().add(personRole);
-    negotiationEntity.getPersons().add(personRole);
-
-    // ********** Temporary update for first version of the negotiation flow: get all the persons that are
-    // owning the resource involved in the negotiation; for simplicity, we get onlu 1 resource and
-    // the related persons***********
-
+    // TODO: Change how the resources are taken
     Resource res = requests.get(0).getResources().stream().findFirst().get();
-
     Set<Person> owners = res.getPersons();
-
-    //add all the persons to the negotiation, with the role of REPRESENTATIVE
-    Role biobankerRole = roleRepository.findByName("REPRESENTATIVE")
-        .orElseThrow(EntityNotStorableException::new);
-
     //update the role for all owners
-    List<PersonNegotiationRole> ownersRole = new ArrayList<>();
-    for (Person p : owners) {
-      PersonNegotiationRole pRole = new PersonNegotiationRole(p, negotiationEntity, biobankerRole);
-      ownersRole.add(pRole);
+    for (Person owner : owners) {
+      addPersonToNegotiation(owner, negotiationEntity, "REPRESENTATIVE");
     }
-
-    //Finally, add all new persons to the negotiation
-    Set<PersonNegotiationRole> negotiationPersons = negotiationEntity.getPersons();
-    negotiationPersons.addAll(ownersRole);
-    negotiationEntity.setPersons(negotiationPersons);
-
-    // *************** End of the temporary update *************************************************************
 
     // Updates the bidirectional relationship between negotiationBody and negotiation
     negotiationEntity.setRequests(new HashSet<>(requests));
@@ -136,18 +118,21 @@ public class NegotiationServiceImpl implements NegotiationService {
     try {
       // Finally, save the negotiation. NB: it also cascades operations for other Requests,
       // PersonNegotiationRole
-      Negotiation negotiation = negotiationRepository.save(negotiationEntity);
+      negotiationRepository.save(negotiationEntity);
+
       // Set initial state machine
       negotiationStateService.initializeTheStateMachine(negotiationEntity.getId());
-      for (Resource resource : negotiation.getAllResources().getResources()) {
-        negotiationStateService.initializeTheStateMachine(negotiation.getId(),
+      for (Resource resource : negotiationEntity.getAllResources().getResources()) {
+        negotiationStateService.initializeTheStateMachine(negotiationEntity.getId(),
             resource.getSourceId());
       }
-      return modelMapper.map(negotiation, NegotiationDTO.class);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
+      log.error(ex);
       throw new EntityNotStorableException();
     }
+    NegotiationDTO dto = modelMapper.map(negotiationEntity, NegotiationDTO.class);
+    return dto;
   }
 
   private NegotiationDTO update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
@@ -178,7 +163,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   /**
    * Updates the negotiation with the specified ID.
    *
-   * @param negotiationId   the negotiationId of the negotiation tu update
+   * @param negotiationId the negotiationId of the negotiation tu update
    * @param negotiationBody the NegotiationCreateDTO DTO with the new Negotiation data
    * @return The updated Negotiation entity
    */
@@ -231,7 +216,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    * Returns the Negotiation with the specified negotiationId if exists, otherwise it throws an
    * exception
    *
-   * @param negotiationId  the negotiationId of the Negotiation to retrieve
+   * @param negotiationId the negotiationId of the Negotiation to retrieve
    * @param includeDetails whether the negotiation returned include details
    * @return the Negotiation with specified negotiationId
    */

@@ -11,5 +11,6 @@ import lombok.Setter;
 public class NegotiationResources {
 
   private String negotiationId;
+
   private List<Resource> resources;
 }

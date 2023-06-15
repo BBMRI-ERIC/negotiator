@@ -196,10 +196,7 @@ public class NegotiationController {
   }
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
-    if (isCreator(negotiationDTO)) {
-      return true;
-    }
-    return isRepresentative(negotiationDTO);
+    return isCreator(negotiationDTO) || isRepresentative(negotiationDTO);
   }
 
   private String getUserId() {
@@ -215,7 +212,7 @@ public class NegotiationController {
   private boolean isRepresentative(NegotiationDTO negotiationDTO) {
     for (RequestDTO requestDTO : negotiationDTO.getRequests()) {
       for (ResourceDTO resourceDTO : requestDTO.getResources()) {
-        List<String> resourceIds = new ArrayList<>(getResourceIds(resourceDTO, new ArrayList<>()));
+        List<String> resourceIds = getResourceIds(resourceDTO, new ArrayList<>());
         resourceIds.retainAll(getResourceIdsFromUserAuthorities());
         if (resourceIds.size() > 0) {
           return true;
