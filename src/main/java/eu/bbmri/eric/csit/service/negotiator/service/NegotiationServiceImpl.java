@@ -15,7 +15,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -274,10 +273,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public List<NegotiationDTO> findByCreatorId(Long personId) {
-    Person creator = personRepository.findDetailedById(personId).orElseThrow(()
-        -> new EntityNotFoundException("Person not found"));
-    List<Negotiation> negotiations = new ArrayList<>(
-        negotiationRepository.findByCreatedBy(creator));
+    List<Negotiation> negotiations = negotiationRepository.findByCreatedBy_Id(personId);
     log.info(personId);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))

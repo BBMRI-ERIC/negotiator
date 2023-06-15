@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -60,5 +59,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "WHERE c.sourceId IN :collectionIds")
   List<Negotiation> findByCollectionIds(List<String> collectionIds);
 
-  List<Negotiation> findByCreatedBy(Person createdBy);
+  @EntityGraph(value = "negotiation-with-detailed-children")
+  List<Negotiation> findByCreatedBy_Id(Long personId);
 }
