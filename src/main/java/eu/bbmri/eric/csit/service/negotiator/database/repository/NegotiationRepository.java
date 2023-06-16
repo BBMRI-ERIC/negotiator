@@ -47,6 +47,7 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "FROM Negotiation r "
               + "JOIN FETCH r.requests rr "
               + "JOIN FETCH rr.resources c "
+              + "JOIN FETCH r.persons p "
               + "WHERE c.sourceId = :collectionId")
   List<Negotiation> findByCollectionId(String collectionId);
 
@@ -56,6 +57,10 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "FROM Negotiation r "
               + "JOIN FETCH r.requests rr "
               + "JOIN FETCH rr.resources c "
+              + "JOIN FETCH c.parent p "
+              + "JOIN FETCH r.persons pp "
+              + "JOIN FETCH pp.person "
+              + "JOIN FETCH pp.role "
               + "WHERE c.sourceId IN :collectionIds")
   List<Negotiation> findByCollectionIds(List<String> collectionIds);
 
