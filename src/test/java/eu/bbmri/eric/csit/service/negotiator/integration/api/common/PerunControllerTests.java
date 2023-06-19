@@ -1,17 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.common;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -26,6 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -227,7 +228,7 @@ public class PerunControllerTests {
   public void testUpdate_Ok() throws Exception {
     List<PerunUserDTO> request = TestUtils.createPerunUserRequestList(false, 1);
     Person personEntity = modelMapper.map(request.get(0), Person.class);
-    personRepository.save(personEntity);
+    //personRepository.save(personEntity);
     // Update by changing the organization in the negotiation
     PerunUserDTO updateRequest = request.get(0);
     String updatedOrganization = "UpdatedOrganization";
