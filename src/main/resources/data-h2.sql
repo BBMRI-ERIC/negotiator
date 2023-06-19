@@ -13,15 +13,18 @@ values
    'directory_networks', 'source_prefix', 'false');
 
 insert into person (id, auth_email, auth_name, auth_subject, password, organization, person_image) values
-  (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey', 'BBMRI', null),
-  (102, 'directory@negotiator.dev', 'directory', '2', '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', null),
-  (103, 'perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci', 'BBMRI', null),
-  (104, 'researcher@negotiator.dev', 'researcher', '4', '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', null),
-  (105, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
-  (106, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
-  (107, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
-  (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
-  (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null);
+  (1, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey', 'BBMRI', null),
+  (2, 'directory@negotiator.dev', 'directory', '2', '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', null),
+  (3, 'perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci', 'BBMRI', null),
+  (4, 'researcher@negotiator.dev', 'researcher', '4', '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', null),
+  (5, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
+  (6, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
+  (7, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
+  (8, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
+  (9, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null);
+
+insert into authorities (person_id, authority) values
+  (2, 'EXT_SERV');
 
 insert into access_criteria_set (id, name) values (1, 'BBMRI Template');
 
@@ -57,20 +60,4 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
   (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3', 'biobank:3:collection:2', 'collection', 3, 1, 1),
   (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 'collection', 3, 1, 1);
 
-insert into person_resource_link (resource_id, person_id) values (1, 102), (4, 103), (4, 109);
-
---insert into request (id, url, human_readable, data_source_id) values
---  ('7c48b8a3-2fd2-4907-8af3-fc5bf58011b5', 'http://localhost', '#1: No filters used', 1),
---  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 'http://localhost', '#1: DNA Samples', 1);
---
---insert into request_resources_link (request_id, resource_id) values
---  ('7c48b8a3-2fd2-4907-8af3-fc5bf58011b5', 4),
---  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 5),
---  ('16f75615-e6b6-47f6-a7b4-843da687f7f6', 6);
-
---insert into negotiation (id, creation_date, modified_date, created_by, modified_by, payload) values
---  ('35763b55-a200-4ec1-af05-1daa5a0815f8', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON ),
---  ('4d519fb6-4087-462e-98e6-b14e9fa20b10', '2023-04-12', '2023-04-12', 108, 108, '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}'FORMAT JSON );
-
---insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('35763b55-a200-4ec1-af05-1daa5a0815f8', 108, 4);
---insert into public.person_negotiation (negotiation_id, person_id, role_id) values ('4d519fb6-4087-462e-98e6-b14e9fa20b10', 108, 4);
+insert into person_resource_link (resource_id, person_id) values (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9);
