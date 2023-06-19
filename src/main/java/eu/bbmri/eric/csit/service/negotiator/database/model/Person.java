@@ -1,26 +1,14 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
+import lombok.*;
+import lombok.ToString.Exclude;
+
+import javax.persistence.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString.Exclude;
 
 @Entity
 @NoArgsConstructor(force = true)
@@ -32,7 +20,13 @@ import lombok.ToString.Exclude;
 @NamedEntityGraph(
     name = "person-detailed",
     attributeNodes = {@NamedAttributeNode("roles")})
-public class Person extends BaseEntity {
+@SequenceGenerator(name="person_id_seq", initialValue=300)
+public class Person {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
+  @Column(name = "id")
+  private Long id;
 
   @ManyToMany
   @JoinTable(
