@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.integration.api;
+package eu.bbmri.eric.csit.service.negotiator.e2e.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

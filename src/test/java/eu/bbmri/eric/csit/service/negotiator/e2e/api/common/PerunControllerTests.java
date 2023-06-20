@@ -1,11 +1,11 @@
-package eu.bbmri.eric.csit.service.negotiator.integration.api.common;
+package eu.bbmri.eric.csit.service.negotiator.e2e.api.common;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.e2e.api.v3.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
