@@ -4,12 +4,13 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import java.util.NoSuchElementException;
-import java.util.Set;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 @Service
-public interface NegotiationStateService {
+public interface NegotiationLifecycleService {
 
   /**
    * Initializes the state machine for the first time

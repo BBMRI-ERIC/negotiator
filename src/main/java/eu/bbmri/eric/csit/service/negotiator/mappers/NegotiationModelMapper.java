@@ -13,7 +13,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class NegotiationModelMapper {
   ModelMapper modelMapper;
 
   @Autowired
-  NegotiationStateService negotiationStateService;
+  NegotiationLifecycleService negotiationStateService;
 
 
   @PostConstruct

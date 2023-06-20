@@ -19,11 +19,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Spring State Machine implementation of the NegotiationStateService
+ * Spring State Machine implementation of the NegotiationLifecycleService
  */
 @Service
 @CommonsLog
-public class NegotiationStateServiceImpl implements NegotiationStateService {
+public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleService {
 
   private static final String SEPARATOR = "---";
   @Autowired

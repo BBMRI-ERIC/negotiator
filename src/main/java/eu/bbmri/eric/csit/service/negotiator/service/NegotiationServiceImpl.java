@@ -42,7 +42,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired
   ModelMapper modelMapper;
   @Autowired
-  NegotiationStateService negotiationStateService;
+  NegotiationLifecycleService negotiationStateService;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;

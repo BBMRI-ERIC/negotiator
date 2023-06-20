@@ -8,8 +8,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,14 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class NegotiationStateServiceImplTest {
+public class NegotiationLifecycleServiceImplTest {
 
   final NegotiationState INITIAL_STATE = NegotiationState.SUBMITTED;
   final NegotiationState SECOND_STATE = NegotiationState.APPROVED;
   final NegotiationEvent TRANSITION_EVENT = NegotiationEvent.APPROVE;
   final String NEGOTIATION_ID = "negotiationID-1";
   @Autowired
-  NegotiationStateServiceImpl negotiationStateService;
+  NegotiationLifecycleServiceImpl negotiationStateService;
   @Autowired
   NegotiationService negotiationService;
   @Autowired

@@ -7,8 +7,9 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,7 @@ public class NegotiationController {
   private NegotiationService negotiationService;
 
   @Autowired
-  private NegotiationStateService negotiationStateService;
+  private NegotiationLifecycleService negotiationLifecycleService;
 
   /**
    * Create a negotiation
@@ -127,7 +128,7 @@ public class NegotiationController {
     if (!isRepresentative(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationStateService.sendEvent(id, NegotiationEvent.valueOf(event));
+    negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
     return negotiationService.findById(id, true);
   }
 
@@ -146,7 +147,7 @@ public class NegotiationController {
     if (!getResourceIdsFromUserAuthorities().contains(resourceId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationStateService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
+    negotiationLifecycleService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
     return negotiationService.findById(negotiationId, true);
   }
 
@@ -158,7 +159,7 @@ public class NegotiationController {
    */
   @GetMapping("/negotiations/{id}/lifecycle")
   List<String> getPossibleEvents(@Valid @PathVariable String id) {
-    return negotiationStateService.getPossibleEvents(id).stream()
+    return negotiationLifecycleService.getPossibleEvents(id).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
   }
@@ -173,7 +174,7 @@ public class NegotiationController {
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId) {
-    return negotiationStateService
+    return negotiationLifecycleService
         .getPossibleEvents(negotiationId, resourceId).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
