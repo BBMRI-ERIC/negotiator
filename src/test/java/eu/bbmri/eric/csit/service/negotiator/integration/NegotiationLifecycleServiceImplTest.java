@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.unit.service;
+package eu.bbmri.eric.csit.service.negotiator.integration;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;

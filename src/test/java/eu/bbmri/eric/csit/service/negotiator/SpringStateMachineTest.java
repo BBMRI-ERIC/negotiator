@@ -1,12 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.extern.java.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +22,14 @@ import org.springframework.statemachine.service.DefaultStateMachineService;
 import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 enum TestStates {
   SUBMITTED,
   APPROVED,
@@ -43,7 +44,7 @@ enum TestEvents {
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class StateMachineTest {
+public class SpringStateMachineTest {
 
   @Autowired
   private StateMachineService<TestStates, TestEvents> stateMachineService;
