@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.e2e.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

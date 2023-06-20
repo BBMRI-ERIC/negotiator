@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.e2e;
+package eu.bbmri.eric.csit.service.negotiator.integration;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
@@ -7,7 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDT
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
-import eu.bbmri.eric.csit.service.negotiator.e2e.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import org.junit.jupiter.api.AfterEach;

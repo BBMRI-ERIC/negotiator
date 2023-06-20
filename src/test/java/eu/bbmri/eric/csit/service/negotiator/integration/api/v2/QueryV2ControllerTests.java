@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.e2e.api.v2;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v2;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,7 +14,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
-import eu.bbmri.eric.csit.service.negotiator.e2e.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Optional;
 import java.util.Set;

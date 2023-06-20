@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.e2e.api.v3;
+package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
