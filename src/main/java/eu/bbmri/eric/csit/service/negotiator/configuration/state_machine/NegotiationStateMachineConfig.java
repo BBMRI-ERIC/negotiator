@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
-import java.util.EnumSet;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +16,8 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.state.State;
+
+import java.util.EnumSet;
 
 
 @Configuration
@@ -54,14 +55,19 @@ public class NegotiationStateMachineConfig extends
       throws Exception {
     transitions
         .withExternal()
-        .source(NegotiationState.SUBMITTED).target(NegotiationState.APPROVED)
-        .event(NegotiationEvent.APPROVE)
+        .source(NegotiationState.SUBMITTED).target(NegotiationState.APPROVED).target(NegotiationState.ONGOING)
+          .event(NegotiationEvent.APPROVE)
         .and().withExternal()
-        .source(NegotiationState.SUBMITTED).target(NegotiationState.DECLINED)
-        .event(NegotiationEvent.DECLINE)
+        .source(NegotiationState.SUBMITTED).target(NegotiationState.DECLINED).event(NegotiationEvent.DECLINE)
         .and().withExternal()
-        .source(NegotiationState.APPROVED).target(NegotiationState.CONCLUDED)
-        .event(NegotiationEvent.CONCLUDE)
+        .source(NegotiationState.ONGOING).target(NegotiationState.PAUSED).event(NegotiationEvent.PAUSE)
+        .and().withExternal()
+        .source(NegotiationState.PAUSED).target(NegotiationState.ONGOING).event(NegotiationEvent.UNPAUSE)
+            .and().withExternal()
+            .source(NegotiationState.PAUSED).target(NegotiationState.ABANDONED).event(NegotiationEvent.ABANDON)
+        .and().withExternal()
+        .source(NegotiationState.ONGOING).target(NegotiationState.CONCLUDED)
+            .event(NegotiationEvent.CONCLUDE)
     ;
   }
 

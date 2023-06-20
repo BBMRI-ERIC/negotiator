@@ -5,6 +5,7 @@ public enum NegotiationEvent {
   DECLINE,
   START,
   PAUSE,
+  UNPAUSE,
   ABANDON,
   CONCLUDE
 }
