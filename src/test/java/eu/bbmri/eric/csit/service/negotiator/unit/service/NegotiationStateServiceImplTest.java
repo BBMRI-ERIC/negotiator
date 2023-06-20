@@ -1,9 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
@@ -14,8 +10,6 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateServiceImpl;
-import java.io.IOException;
-import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +22,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.statemachine.data.jpa.JpaStateMachineRepository;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.io.IOException;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -133,7 +134,7 @@ public class NegotiationStateServiceImplTest {
   void resourceStateMachineChangeUpdatesNegotiationDTO() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
-    assertEquals("SUBMITTED",
+    assertEquals("CONTACTED",
         negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus()
             .get("biobank:1:collection:2").textValue());
     negotiationStateService.sendEvent(negotiationDTO.getId(), "biobank:1:collection:2",
