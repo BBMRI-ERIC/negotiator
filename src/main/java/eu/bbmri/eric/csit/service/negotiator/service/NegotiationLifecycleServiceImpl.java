@@ -31,19 +31,10 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   @Autowired
   @Qualifier("negotiationStateMachineService")
   private StateMachineService<NegotiationState, NegotiationEvent> springNegotiationStateMachineService;
-  @Autowired
-  @Qualifier("negotiationResourceStateMachineService")
-  private StateMachineService<NegotiationState, NegotiationEvent> springNegotiationResourceStateMachineService;
 
   @Override
   public void initializeTheStateMachine(String negotiationId) {
     springNegotiationStateMachineService.acquireStateMachine(negotiationId, false);
-  }
-
-  @Override
-  public void initializeTheStateMachine(String negotiationId, String resourceId) {
-    String resourceNegotiationId = createMachineId(negotiationId, resourceId);
-    springNegotiationResourceStateMachineService.acquireStateMachine(resourceNegotiationId, false);
   }
 
   @Override
@@ -53,16 +44,6 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     }
     return this.springNegotiationStateMachineService.acquireStateMachine(negotiationId).getState()
         .getId();
-  }
-
-  @Override
-  public NegotiationState getCurrentState(String negotiationId, String resourceId) {
-    String negotiationResourceId = createMachineId(negotiationId, resourceId);
-    if (!jpaStateMachineRepository.existsById(negotiationResourceId)) {
-      throw new EntityNotFoundException("Combination of Negotiation and Resource does not exist");
-    }
-    return this.springNegotiationResourceStateMachineService.acquireStateMachine(negotiationResourceId)
-        .getState().getId();
   }
 
   @Override
@@ -80,29 +61,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   @Override
-  public Set<NegotiationEvent> getPossibleEvents(String negotiationId, String resourceId) {
-    String machineId = createMachineId(negotiationId, resourceId);
-    if (!jpaStateMachineRepository.existsById(machineId)) {
-      throw new EntityNotFoundException("StateMachine " + machineId + "does not exist.");
-    }
-    StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationResourceStateMachineService.acquireStateMachine(
-        machineId);
-    return stateMachine.getTransitions().stream()
-        .filter(
-            transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
-        .map(transition -> transition.getTrigger().getEvent())
-        .collect(Collectors.toSet());
-  }
-
-  @Override
   public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent) {
     return sendEventToMachine(negotiationId, negotiationEvent);
-  }
-
-  @Override
-  public NegotiationState sendEvent(String negotiationId, String resourceId,
-      NegotiationEvent negotiationEvent) throws WrongRequestException, EntityNotFoundException {
-    return sendEventToMachine(createMachineId(negotiationId, resourceId), negotiationEvent);
   }
 
   private NegotiationState sendEventToMachine(String machineId, NegotiationEvent negotiationEvent) {
@@ -126,7 +86,5 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     springNegotiationStateMachineService.releaseStateMachine(negotiationId);
   }
 
-  private String createMachineId(String negotiationId, String resourceId) {
-    return negotiationId + SEPARATOR + resourceId;
-  }
+
 }
