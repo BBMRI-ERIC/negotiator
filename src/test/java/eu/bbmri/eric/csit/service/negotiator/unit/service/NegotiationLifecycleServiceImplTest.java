@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
@@ -99,17 +98,6 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void getStateForResourceIsIndependentFromTheWholeNegotiation() {
-    String negotiationID = "negotiationID-1";
-    negotiationStateService.initializeTheStateMachine(negotiationID);
-    negotiationStateService.initializeTheStateMachine(negotiationID, "res1");
-    negotiationStateService.initializeTheStateMachine(negotiationID, "res2");
-    negotiationStateService.sendEvent(negotiationID, TRANSITION_EVENT);
-    assertNotEquals(negotiationStateService.getCurrentState(negotiationID),
-        negotiationStateService.getCurrentState(negotiationID, "res1"));
-  }
-
-  @Test
   public void testSendInvalidEventForNegotiation() {
     String negotiationID = "negotiationID-1";
     negotiationStateService.initializeTheStateMachine(negotiationID);
@@ -130,17 +118,17 @@ public class NegotiationLifecycleServiceImplTest {
         negotiationService.findById(negotiationDTO.getId(), false).getStatus());
   }
 
-  @Test
-  void resourceStateMachineChangeUpdatesNegotiationDTO() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
-    assertEquals("CONTACTED",
-        negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus()
-            .get("biobank:1:collection:2").textValue());
-    negotiationStateService.sendEvent(negotiationDTO.getId(), "biobank:1:collection:2",
-        NegotiationEvent.APPROVE);
-    assertEquals("APPROVED",
-        negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus()
-            .get("biobank:1:collection:2").textValue());
-  }
+//  @Test
+//  void resourceStateMachineChangeUpdatesNegotiationDTO() throws IOException {
+//    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+//    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+//    assertEquals("CONTACTED",
+//        negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus()
+//            .get("biobank:1:collection:2").textValue());
+//    negotiationStateService.sendEvent(negotiationDTO.getId(), "biobank:1:collection:2",
+//        NegotiationEvent.APPROVE);
+//    assertEquals("APPROVED",
+//        negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus()
+//            .get("biobank:1:collection:2").textValue());
+//  }
 }

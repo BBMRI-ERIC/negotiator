@@ -1,18 +1,17 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NegotiationLifecycleServiceTest {
 
@@ -38,11 +37,6 @@ public class NegotiationLifecycleServiceTest {
       }
 
       @Override
-      public void initializeTheStateMachine(String negotiationId, String resourceId) {
-        resourceNegotiations.put(negotiationId + "---" + resourceId, INITIAL_STATE);
-      }
-
-      @Override
       public NegotiationState getCurrentState(String negotiationId) {
         if (negotiations.get(negotiationId) != null) {
           return negotiations.get(negotiationId);
@@ -52,22 +46,8 @@ public class NegotiationLifecycleServiceTest {
       }
 
       @Override
-      public NegotiationState getCurrentState(String negotiationId, String resourceId) {
-        return null;
-      }
-
-      @Override
       public Set<NegotiationEvent> getPossibleEvents(String negotiationId) {
         if (negotiations.get(negotiationId) != null) {
-          return Set.of(TRANSITION_EVENT);
-        } else {
-          throw new IllegalArgumentException("Negotiation does not exist");
-        }
-      }
-
-      @Override
-      public Set<NegotiationEvent> getPossibleEvents(String negotiationId, String resourceId) {
-        if (negotiations.get(negotiationId + "---" + resourceId) != null) {
           return Set.of(TRANSITION_EVENT);
         } else {
           throw new IllegalArgumentException("Negotiation does not exist");
@@ -84,12 +64,6 @@ public class NegotiationLifecycleServiceTest {
         } else {
           throw new IllegalArgumentException("Negotiation does not exist");
         }
-      }
-
-      @Override
-      public NegotiationState sendEvent(String negotiationId, String resourceId,
-          NegotiationEvent negotiationEvent) {
-        return null;
       }
     };
   }
@@ -137,17 +111,6 @@ public class NegotiationLifecycleServiceTest {
         IllegalArgumentException.class,
         () -> negotiationLifecycleService.sendEvent("fakeId", TRANSITION_EVENT)
     );
-  }
-
-  @Test
-  void getStateForResourceIsIndependentFromTheWholeNegotiation() {
-    String negotiationID = "negotiationID-1";
-    negotiationLifecycleService.initializeTheStateMachine(negotiationID);
-    negotiationLifecycleService.initializeTheStateMachine(negotiationID, "res1");
-    negotiationLifecycleService.initializeTheStateMachine(negotiationID, "res2");
-    negotiationLifecycleService.sendEvent(negotiationID, TRANSITION_EVENT);
-    assertNotEquals(negotiationLifecycleService.getCurrentState(negotiationID),
-        negotiationLifecycleService.getCurrentState(negotiationID, "res1"));
   }
 
   @Test

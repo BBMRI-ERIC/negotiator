@@ -2,20 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.validation.Valid;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +28,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
@@ -43,6 +45,9 @@ public class NegotiationController {
 
   @Autowired
   private NegotiationLifecycleService negotiationLifecycleService;
+
+  @Autowired
+  private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
   /**
    * Create a negotiation
@@ -147,7 +152,7 @@ public class NegotiationController {
     if (!getResourceIdsFromUserAuthorities().contains(resourceId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationLifecycleService.sendEvent(negotiationId, resourceId, NegotiationEvent.valueOf(event));
+    negotiationResourceLifecycleService.sendEvent(negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
     return negotiationService.findById(negotiationId, true);
   }
 
@@ -174,7 +179,7 @@ public class NegotiationController {
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId) {
-    return negotiationLifecycleService
+    return negotiationResourceLifecycleService
         .getPossibleEvents(negotiationId, resourceId).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
