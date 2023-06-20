@@ -74,6 +74,40 @@ public class PostControllerTests {
   }
 
   @Test
+  public void testCreateUnauthorized() throws Exception {
+    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI,
+        NEGOTIATION_1_ID, POSTS_URI);
+    System.out.println(requestBody);
+    System.out.println(uri);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isUnauthorized());
+
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testCreateWithUnknownResource() throws Exception {
+    PostCreateDTO request = TestUtils.createPost("Unknown", "message", null);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI,
+        NEGOTIATION_1_ID, POSTS_URI);
+    System.out.println(requestBody);
+    System.out.println(uri);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   @WithUserDetails("TheResearcher")
   public void testGetAll() throws Exception {
     int numberOfPosts = (int) postRepository.count();
@@ -143,18 +177,6 @@ public class PostControllerTests {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.status",
             is("READ")));
-
-//    mockMvc
-//        .perform(
-//            MockMvcRequestBuilders.post(URI.create(uri))
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(requestBody))
-//        .andExpect(status().isCreated())
-//        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//        .andExpect(jsonPath("$.text",
-//            is("message")))
-//        .andExpect(jsonPath("$.status",
-//            is("CREATED")));
 
   }
 
