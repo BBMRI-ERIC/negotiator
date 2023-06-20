@@ -1,6 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceEvent;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,7 +27,7 @@ public class StateMachinePersistenceConfig {
   }
 
   @Bean(name = "negotiationResourceStateMachineRuntimePersister")
-  public StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> negotiationResourcestateMachineRuntimePersister(
+  public StateMachineRuntimePersister<NegotiationResourceState, NegotiationResourceEvent, String> negotiationResourcestateMachineRuntimePersister(
           JpaStateMachineRepository jpaStateMachineRepository) {
     return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository) {
     };
@@ -39,9 +41,9 @@ public class StateMachinePersistenceConfig {
   }
 
   @Bean(name = "negotiationResourceStateMachineService")
-  public StateMachineService<NegotiationState, NegotiationEvent> negotiationResourceStateMachineService(
-      StateMachineFactory<NegotiationState, NegotiationEvent> negotiationResourceStateMachineFactory,
-      @Qualifier("negotiationResourceStateMachineRuntimePersister") StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> negotiationResourcestateMachineRuntimePersister) {
+  public StateMachineService<NegotiationResourceState, NegotiationResourceEvent> negotiationResourceStateMachineService(
+      StateMachineFactory<NegotiationResourceState, NegotiationResourceEvent> negotiationResourceStateMachineFactory,
+      @Qualifier("negotiationResourceStateMachineRuntimePersister") StateMachineRuntimePersister<NegotiationResourceState, NegotiationResourceEvent, String> negotiationResourcestateMachineRuntimePersister) {
     return new DefaultStateMachineService<>(negotiationResourceStateMachineFactory,
             negotiationResourcestateMachineRuntimePersister);
   }
