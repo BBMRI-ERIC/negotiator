@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import lombok.NoArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,11 +24,13 @@ import java.util.stream.Collectors;
  */
 @Service
 @CommonsLog
+@NoArgsConstructor
 public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleService {
 
   private static final String SEPARATOR = "---";
   @Autowired
   JpaStateMachineRepository jpaStateMachineRepository;
+
   @Autowired
   @Qualifier("negotiationStateMachineService")
   private StateMachineService<NegotiationState, NegotiationEvent> springNegotiationStateMachineService;
