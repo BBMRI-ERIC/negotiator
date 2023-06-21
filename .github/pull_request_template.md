@@ -2,7 +2,7 @@
 ### Description:
 
 ### Checklist:
-_Please make sure your contributions ticks all boxes bellow as it helps with the maintaining code quality:_
+_Make sure you tick all the boxes bellow if they are true or do not apply:_
 - [ ] I have performed a self review of my code
 - [ ] My code follows the existing coding style
 - [ ] I have added Javadoc for all new public methods
