@@ -9,6 +9,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,25 +51,22 @@ public class PostController {
 
   }
 
+
   @GetMapping("/negotiations/{negotiationId}/posts")
-  List<PostDTO> getAllMessagesByNegotiation(@Valid @PathVariable String negotiationId) {
-    return postService.findByNegotiationId(negotiationId);
-  }
-
-  @GetMapping("/negotiations/{negotiationId}/{roleName}/posts")
-  List<PostDTO> getAllNewMessagesByNegotiationAndPosterRole(
-      @Valid @PathVariable String negotiationId,
-      @Valid @PathVariable String roleName) {
-    //Step 1: find all persons related to the negotiation, with the assigned role
-
+  List<PostDTO> getAllMessagesByNegotiation(@Valid @PathVariable String negotiationId,
+      @RequestParam("role") Optional<String> roleName) {
+    if (roleName.isEmpty()) {
+      return postService.findByNegotiationId(negotiationId);
+    }
     NegotiationDTO n = negotiationService.findById(negotiationId, true);
     List<PersonRoleDTO> negotiationPersonsWithRoles = n.getPersons().stream()
-        .filter(p -> p.getRole().equals(roleName)).toList();
+        .filter(p -> p.getRole().equals(roleName.get())).toList();
     List<String> posters = new ArrayList<>();
     for (PersonRoleDTO pr : negotiationPersonsWithRoles) {
       posters.add(pr.getName());
     }
     return postService.findNewByNegotiationIdAndPosters(negotiationId, posters);
+
   }
 
   @PutMapping("/negotiations/{negotiationId}/posts/{postId}")

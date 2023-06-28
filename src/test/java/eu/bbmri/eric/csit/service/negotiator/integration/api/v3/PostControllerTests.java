@@ -130,8 +130,8 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetResearcherPostsOnly() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    String uri = String.format("%s/%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, RESEARCHER_ROLE, POSTS_URI);
+    String uri = String.format("%s/%s/%s?role=%s", NEGOTIATIONS_URI,
+        NEGOTIATION_1_ID, POSTS_URI, RESEARCHER_ROLE);
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(uri))
@@ -147,8 +147,9 @@ public class PostControllerTests {
   @WithUserDetails("TheBiobanker")
   public void testGetRepresentativePostsOnly() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    String uri = String.format("%s/%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, REPRESENTATIVE_ROLE, POSTS_URI);
+    String uri = String.format("%s/%s/%s?role=%s", NEGOTIATIONS_URI,
+        NEGOTIATION_1_ID, POSTS_URI, REPRESENTATIVE_ROLE);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(uri))
