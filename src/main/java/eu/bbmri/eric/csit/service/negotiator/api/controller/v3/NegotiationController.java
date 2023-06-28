@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
@@ -19,7 +19,6 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +52,8 @@ public class NegotiationController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationDTO add(@Valid @RequestBody NegotiationCreateDTO request) {
-    return negotiationService.create(request, getCurrentlyAuthenticatedUserInternalId());
+    return negotiationService.create(request,
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
   /**
@@ -74,9 +74,9 @@ public class NegotiationController {
   /**
    * Fetch a list of Negotiations
    *
-   * @param biobankId to return Negotiations concerning a particular biobank
+   * @param biobankId    to return Negotiations concerning a particular biobank
    * @param collectionId to return Negotiations concerning a particular collection
-   * @param userRole by the user's role in the Negotiations
+   * @param userRole     by the user's role in the Negotiations
    * @return a list of Negotiations by default returns list of Negotiations created by the user
    */
   @GetMapping("/negotiations")
@@ -93,7 +93,8 @@ public class NegotiationController {
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
     } else {
-      negotiations = negotiationService.findByCreatorId(getCurrentlyAuthenticatedUserInternalId());
+      negotiations = negotiationService.findByCreatorId(
+          NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
     }
     return negotiations;
   }
@@ -117,7 +118,7 @@ public class NegotiationController {
   /**
    * Interact with the state of a negotiation by sending an Event
    *
-   * @param id of the negotiation
+   * @param id    of the negotiation
    * @param event from NegotiationEvents
    * @return NegotiationDTO with updated state if valid
    */
@@ -134,8 +135,8 @@ public class NegotiationController {
    * Interact with the state of a resource in a negotiation by sending an Event
    *
    * @param negotiationId of the Negotiation
-   * @param resourceId external it of the resource
-   * @param event from NegotiationEvents
+   * @param resourceId    external it of the resource
+   * @param event         from NegotiationEvents
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
@@ -166,7 +167,7 @@ public class NegotiationController {
    * Get possible events for a resource state in a Negotiation
    *
    * @param negotiationId of the negotiation
-   * @param resourceId of the resource
+   * @param resourceId    of the resource
    * @return a list of possible events
    */
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
@@ -176,11 +177,6 @@ public class NegotiationController {
         .getPossibleEvents(negotiationId, resourceId).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
-  }
-
-  private Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
   }
 
   private List<String> getResourceIdsFromUserAuthorities() {
@@ -202,7 +198,7 @@ public class NegotiationController {
   private String getUserId() {
     String userId = null;
     try {
-      userId = getCurrentlyAuthenticatedUserInternalId().toString();
+      userId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId().toString();
     } catch (ClassCastException e) {
       log.warn("Could not find user in db");
     }

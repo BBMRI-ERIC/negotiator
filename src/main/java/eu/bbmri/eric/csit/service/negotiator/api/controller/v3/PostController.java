@@ -1,23 +1,19 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetails;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +44,8 @@ public class PostController {
   @ResponseStatus(HttpStatus.CREATED)
   PostDTO add(@Valid @RequestBody PostCreateDTO request,
       @Valid @PathVariable String negotiationId) {
-    return postService.create(request, getPersonId(), negotiationId);
+    return postService.create(request,
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
 
   }
 
@@ -58,14 +55,16 @@ public class PostController {
   }
 
   @GetMapping("/negotiations/{negotiationId}/{roleName}/posts")
-  List<PostDTO> getAllNewMessagesByNegotiationAndPosterRole(@Valid @PathVariable String negotiationId,
+  List<PostDTO> getAllNewMessagesByNegotiationAndPosterRole(
+      @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String roleName) {
     //Step 1: find all persons related to the negotiation, with the assigned role
 
     NegotiationDTO n = negotiationService.findById(negotiationId, true);
-    List <PersonRoleDTO> negotiationPersonsWithRoles = n.getPersons().stream().filter(p->p.getRole().equals(roleName)).toList();
+    List<PersonRoleDTO> negotiationPersonsWithRoles = n.getPersons().stream()
+        .filter(p -> p.getRole().equals(roleName)).toList();
     List<String> posters = new ArrayList<>();
-    for (PersonRoleDTO pr: negotiationPersonsWithRoles){
+    for (PersonRoleDTO pr : negotiationPersonsWithRoles) {
       posters.add(pr.getName());
     }
     return postService.findNewByNegotiationIdAndPosters(negotiationId, posters);
@@ -75,12 +74,6 @@ public class PostController {
   PostDTO update(@Valid @RequestBody PostCreateDTO request,
       @Valid @PathVariable String negotiationId, @Valid @PathVariable String postId) {
     return postService.update(request, negotiationId, postId);
-  }
-
-
-  private Long getPersonId() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
   }
 
 }
