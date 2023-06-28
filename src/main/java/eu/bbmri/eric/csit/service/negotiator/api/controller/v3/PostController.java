@@ -63,10 +63,8 @@ public class PostController {
     //Step 1: find all persons related to the negotiation, with the assigned role
 
     NegotiationDTO n = negotiationService.findById(negotiationId, true);
-    Set<PersonRoleDTO> negotiationPersons = n.getPersons();
-    List <PersonRoleDTO> negotiationPersonsWithRoles = negotiationPersons.stream().filter(p->p.getRole().equals(roleName)).collect(
-        Collectors.toList());
-    List posters = new ArrayList();
+    List <PersonRoleDTO> negotiationPersonsWithRoles = n.getPersons().stream().filter(p->p.getRole().equals(roleName)).toList();
+    List<String> posters = new ArrayList<>();
     for (PersonRoleDTO pr: negotiationPersonsWithRoles){
       posters.add(pr.getName());
     }

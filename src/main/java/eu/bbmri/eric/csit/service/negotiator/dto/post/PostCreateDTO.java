@@ -24,7 +24,6 @@ public class PostCreateDTO {
   @NotEmpty
   private String text;
   @Valid
-  @NotEmpty
   private String resourceId;
 
   @Valid
