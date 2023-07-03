@@ -10,6 +10,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +23,7 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "post")
 public class Post extends AuditEntity {
 
@@ -45,7 +47,7 @@ public class Post extends AuditEntity {
   private Resource resource;
 
   @Lob
-  private String postText;
-  private String postStatus;
-  private Date postDate;
+  private String text;
+  private String status;
+
 }

@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -276,6 +278,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testUpdate_BadRequest_whenUnauthorized() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     mockMvc.perform(MockMvcRequestBuilders.post("/v3/requests").
@@ -296,6 +299,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     mockMvc.perform(MockMvcRequestBuilders.put("/v3/requests/-1").

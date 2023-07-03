@@ -103,5 +103,3 @@ public interface NegotiationService {
    */
   List<NegotiationDTO> findByCreatorId(Long personId);
 }
-
-

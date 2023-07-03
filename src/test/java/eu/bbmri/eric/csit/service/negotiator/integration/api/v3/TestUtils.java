@@ -9,6 +9,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
@@ -253,5 +254,13 @@ public class TestUtils {
                 .content(requestBody))
         .andExpect(statusMatcher);
     //    assertEquals(requestRepository.findAll().size(), 0);
+  }
+
+  public static PostCreateDTO createPost(String resourceId, String text, String status)
+      throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    PostCreateDTO.PostCreateDTOBuilder builder =
+        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status);
+    return builder.build();
   }
 }

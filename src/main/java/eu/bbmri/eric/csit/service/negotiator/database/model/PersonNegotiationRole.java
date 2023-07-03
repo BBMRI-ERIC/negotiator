@@ -13,33 +13,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import lombok.ToString.Exclude;
 
-@ToString
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "person_negotiation")
-@IdClass(PersonNegotiationId.class)
+@Table(name = "person_negotiation_role")
+@IdClass(PersonNegotiationRoleId.class)
 public class PersonNegotiationRole {
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "person_id")
   @Id
-  @Exclude
   private Person person;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "negotiation_id")
   @Id
-  @Exclude
   private Negotiation negotiation;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "role_id")
-  @Exclude
+  @Id
   private Role role;
 }

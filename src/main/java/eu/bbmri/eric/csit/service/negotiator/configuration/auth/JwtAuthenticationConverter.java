@@ -95,7 +95,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
         authorities.add(new SimpleGrantedAuthority("RESEARCHER"));
       }
       if (scopes.contains(authzBiobankerValue)) {
-        authorities.add(new SimpleGrantedAuthority("BIOBANKER"));
+        authorities.add(new SimpleGrantedAuthority("REPRESENTATIVE"));
         authorities.addAll(addAuthoritiesForIndividualResources(scopes));
       }
     }

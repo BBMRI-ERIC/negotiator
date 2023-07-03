@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -48,6 +47,7 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "FROM Negotiation r "
               + "JOIN FETCH r.requests rr "
               + "JOIN FETCH rr.resources c "
+              + "JOIN FETCH r.persons p "
               + "WHERE c.sourceId = :collectionId")
   List<Negotiation> findByCollectionId(String collectionId);
 
@@ -57,8 +57,13 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "FROM Negotiation r "
               + "JOIN FETCH r.requests rr "
               + "JOIN FETCH rr.resources c "
+              + "JOIN FETCH c.parent p "
+              + "JOIN FETCH r.persons pp "
+              + "JOIN FETCH pp.person "
+              + "JOIN FETCH pp.role "
               + "WHERE c.sourceId IN :collectionIds")
   List<Negotiation> findByCollectionIds(List<String> collectionIds);
 
-  List<Negotiation> findByCreatedBy(Person createdBy);
+  @EntityGraph(value = "negotiation-with-detailed-children")
+  List<Negotiation> findByCreatedBy_Id(Long personId);
 }
