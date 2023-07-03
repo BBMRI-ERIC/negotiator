@@ -14,15 +14,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class PersonRoleDTO {
-
-  @NotNull
-  // TODO: is it necessary?
-  private String id;
+public class PersonDTO {
 
   @NotNull
   private String name;
 
   @NotNull
+  private String organization;
+
+  @NotNull
   private String role;
+
 }

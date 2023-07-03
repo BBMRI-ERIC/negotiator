@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.Converter;
@@ -56,12 +57,6 @@ public class NegotiationModelMapper {
       }
     };
 
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(personsRoleConverter)
-                .map(Negotiation::getPersons, NegotiationDTO::setPersons));
-
     Converter<String, JsonNode> payloadConverter =
         p -> {
           try {
@@ -71,9 +66,13 @@ public class NegotiationModelMapper {
           }
         };
 
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(personsRoleConverter)
+                .map(Negotiation::getPersons, NegotiationDTO::setPersons));
     typeMap.addMappings(mapper -> mapper.using(payloadConverter)
         .map(Negotiation::getPayload, NegotiationDTO::setPayload));
-
     typeMap.addMappings(mapper -> mapper.using(negotiationStatusConverter)
         .map(Negotiation::getId, NegotiationDTO::setStatus));
     typeMap.addMappings(mapper -> mapper.using(resourcesStatusConverter)
@@ -82,14 +81,15 @@ public class NegotiationModelMapper {
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
-    return personsRoles.stream()
+
+    Stream<PersonRoleDTO> roles = personsRoles.stream()
         .map(
             personRole ->
                 new PersonRoleDTO(
                     String.valueOf(personRole.getPerson().getId()),
                     personRole.getPerson().getAuthName(),
-                    personRole.getRole().getName()))
-        .collect(Collectors.toSet());
+                    personRole.getRole().getName()));
+        return roles.collect(Collectors.toSet());
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {

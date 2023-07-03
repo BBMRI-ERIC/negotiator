@@ -9,6 +9,9 @@ spring:
     init:
       mode: always
       platform: h2
+  h2:
+    console:
+      enabled: true
   jpa:
     hibernate:
       ddl-auto: create-drop
