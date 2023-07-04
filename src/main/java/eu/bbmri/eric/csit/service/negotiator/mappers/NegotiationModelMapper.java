@@ -6,26 +6,28 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResources;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+
 
 @Configuration
 @CommonsLog
@@ -35,7 +37,10 @@ public class NegotiationModelMapper {
   ModelMapper modelMapper;
 
   @Autowired
-  NegotiationStateService negotiationStateService;
+  private NegotiationLifecycleService negotiationLifecycleService;
+
+  @Autowired
+  private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
 
   @PostConstruct
@@ -102,7 +107,7 @@ public class NegotiationModelMapper {
 
   private String negotiationStatusConverter(String negotiationId) {
     try {
-      return negotiationStateService.getCurrentState(negotiationId).toString();
+      return negotiationLifecycleService.getCurrentState(negotiationId).toString();
     } catch (EntityNotFoundException e) {
       return "";
     }
@@ -112,11 +117,11 @@ public class NegotiationModelMapper {
       throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    Map<String, NegotiationState> resourcesStatus = new HashMap<>();
+    Map<String, NegotiationResourceState> resourcesStatus = new HashMap<>();
     for (Resource resource : negotiationResources.getResources()) {
       try {
         resourcesStatus.put(resource.getSourceId(),
-            negotiationStateService.getCurrentState(negotiationResources.getNegotiationId(),
+            negotiationResourceLifecycleService.getCurrentState(negotiationResources.getNegotiationId(),
                 resource.getSourceId()));
       } catch (EntityNotFoundException e) {
         log.info("Negotiation and resource combination not found");

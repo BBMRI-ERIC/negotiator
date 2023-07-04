@@ -1,21 +1,21 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationStateService;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class NegotiationStateServiceTest {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-  private static NegotiationStateService negotiationStateService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class NegotiationLifecycleServiceTest {
+
+  private static NegotiationLifecycleService negotiationLifecycleService;
 
   final NegotiationState INITIAL_STATE = NegotiationState.SUBMITTED;
   final NegotiationState SECOND_STATE = NegotiationState.APPROVED;
@@ -24,7 +24,7 @@ public class NegotiationStateServiceTest {
 
   @BeforeEach
   void beforeEach() {
-    negotiationStateService = new NegotiationStateService() {
+    negotiationLifecycleService = new NegotiationLifecycleService() {
 
       final Map<String, NegotiationState> negotiations = new HashMap<>();
 
@@ -37,11 +37,6 @@ public class NegotiationStateServiceTest {
       }
 
       @Override
-      public void initializeTheStateMachine(String negotiationId, String resourceId) {
-        resourceNegotiations.put(negotiationId + "---" + resourceId, INITIAL_STATE);
-      }
-
-      @Override
       public NegotiationState getCurrentState(String negotiationId) {
         if (negotiations.get(negotiationId) != null) {
           return negotiations.get(negotiationId);
@@ -51,22 +46,8 @@ public class NegotiationStateServiceTest {
       }
 
       @Override
-      public NegotiationState getCurrentState(String negotiationId, String resourceId) {
-        return null;
-      }
-
-      @Override
       public Set<NegotiationEvent> getPossibleEvents(String negotiationId) {
         if (negotiations.get(negotiationId) != null) {
-          return Set.of(TRANSITION_EVENT);
-        } else {
-          throw new IllegalArgumentException("Negotiation does not exist");
-        }
-      }
-
-      @Override
-      public Set<NegotiationEvent> getPossibleEvents(String negotiationId, String resourceId) {
-        if (negotiations.get(negotiationId + "---" + resourceId) != null) {
           return Set.of(TRANSITION_EVENT);
         } else {
           throw new IllegalArgumentException("Negotiation does not exist");
@@ -84,12 +65,6 @@ public class NegotiationStateServiceTest {
           throw new IllegalArgumentException("Negotiation does not exist");
         }
       }
-
-      @Override
-      public NegotiationState sendEvent(String negotiationId, String resourceId,
-          NegotiationEvent negotiationEvent) {
-        return null;
-      }
     };
   }
 
@@ -97,65 +72,54 @@ public class NegotiationStateServiceTest {
   void getStateForNonExistentNegotiationThrowsIllegalArgException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> negotiationStateService.getCurrentState("fakeId")
+        () -> negotiationLifecycleService.getCurrentState("fakeId")
     );
   }
 
   @Test
   public void getStateReturnsInitialValueAfterInitializingStateMachine() {
-    negotiationStateService.initializeTheStateMachine("negotiationID-1");
-    assertEquals(INITIAL_STATE, negotiationStateService.getCurrentState("negotiationID-1"));
+    negotiationLifecycleService.initializeTheStateMachine("negotiationID-1");
+    assertEquals(INITIAL_STATE, negotiationLifecycleService.getCurrentState("negotiationID-1"));
   }
 
   @Test
   public void getPossibleEventsForExistingNegotiation() {
-    negotiationStateService.initializeTheStateMachine("negotiationID-1");
+    negotiationLifecycleService.initializeTheStateMachine("negotiationID-1");
     assertEquals(Set.of(NegotiationEvent.APPROVE),
-        negotiationStateService.getPossibleEvents("negotiationID-1"));
+        negotiationLifecycleService.getPossibleEvents("negotiationID-1"));
   }
 
   @Test
   public void getPossibleEventsForNonExistingNegotiation() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> negotiationStateService.getPossibleEvents("fakeId")
+        () -> negotiationLifecycleService.getPossibleEvents("fakeId")
     );
   }
 
   @Test
   public void sendValidEventReturnsNewStateAndIsEqualToTheCurrentState() {
     String negotiationID = "negotiationID-1";
-    negotiationStateService.initializeTheStateMachine(negotiationID);
-    assertEquals(SECOND_STATE, negotiationStateService.sendEvent(negotiationID, TRANSITION_EVENT));
-    assertEquals(SECOND_STATE, negotiationStateService.getCurrentState(negotiationID));
+    negotiationLifecycleService.initializeTheStateMachine(negotiationID);
+    assertEquals(SECOND_STATE, negotiationLifecycleService.sendEvent(negotiationID, TRANSITION_EVENT));
+    assertEquals(SECOND_STATE, negotiationLifecycleService.getCurrentState(negotiationID));
   }
 
   @Test
   public void sendEventForNonExistentNegotiationThrowException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> negotiationStateService.sendEvent("fakeId", TRANSITION_EVENT)
+        () -> negotiationLifecycleService.sendEvent("fakeId", TRANSITION_EVENT)
     );
-  }
-
-  @Test
-  void getStateForResourceIsIndependentFromTheWholeNegotiation() {
-    String negotiationID = "negotiationID-1";
-    negotiationStateService.initializeTheStateMachine(negotiationID);
-    negotiationStateService.initializeTheStateMachine(negotiationID, "res1");
-    negotiationStateService.initializeTheStateMachine(negotiationID, "res2");
-    negotiationStateService.sendEvent(negotiationID, TRANSITION_EVENT);
-    assertNotEquals(negotiationStateService.getCurrentState(negotiationID),
-        negotiationStateService.getCurrentState(negotiationID, "res1"));
   }
 
   @Test
   public void testSendInvalidEventForNegotiation() {
     String negotiationID = "negotiationID-1";
-    negotiationStateService.initializeTheStateMachine(negotiationID);
+    negotiationLifecycleService.initializeTheStateMachine(negotiationID);
     assertThrows(
         UnsupportedOperationException.class,
-        () -> negotiationStateService.sendEvent(negotiationID, NegotiationEvent.ABANDON)
+        () -> negotiationLifecycleService.sendEvent(negotiationID, NegotiationEvent.ABANDON)
     );
   }
 }

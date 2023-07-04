@@ -41,8 +41,12 @@ public class NegotiationServiceImpl implements NegotiationService {
   RequestRepository requestRepository;
   @Autowired
   ModelMapper modelMapper;
+
   @Autowired
-  NegotiationStateService negotiationStateService;
+  private NegotiationLifecycleService negotiationLifecycleService;
+
+  @Autowired
+  private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;
@@ -112,10 +116,9 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationRepository.save(negotiationEntity);
 
       // Set initial state machine
-      negotiationStateService.initializeTheStateMachine(negotiationEntity.getId());
+      negotiationLifecycleService.initializeTheStateMachine(negotiationEntity.getId());
       for (Resource resource : negotiationEntity.getAllResources().getResources()) {
-        negotiationStateService.initializeTheStateMachine(negotiationEntity.getId(),
-            resource.getSourceId());
+        negotiationResourceLifecycleService.initializeTheStateMachine(negotiationEntity.getId(), resource.getSourceId());
       }
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
