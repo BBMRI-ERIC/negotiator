@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator;
+package eu.bbmri.eric.csit.service.negotiator.integration;
 
 import lombok.extern.java.Log;
 import org.junit.jupiter.api.BeforeEach;
