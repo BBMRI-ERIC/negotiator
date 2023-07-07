@@ -58,6 +58,7 @@ insert into resource (id, name, description, source_id, type, parent_id, data_so
   (6, 'Test collection #1 of biobank #2', 'This is the first test collection of biobank 2', 'biobank:2:collection:1', 'collection', 2, 1, 1),
   (7, 'Test collection #1 of biobank #3', 'This is the first test collection of biobank 3', 'biobank:3:collection:1', 'collection', 3, 1, 1),
   (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3', 'biobank:3:collection:2', 'collection', 3, 1, 1),
-  (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 'collection', 3, 1, 1);
+  (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'biobank:3:collection:3', 'collection', 3, 1, 1),
+    (10, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3', 'bbmri-eric:ID:CZ_MMCI:collection:LTS', 'collection', 1, 1, 1);
 
 insert into person_resource_link (resource_id, person_id) values (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9);
