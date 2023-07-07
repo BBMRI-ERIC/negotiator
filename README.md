@@ -19,8 +19,10 @@ organizations spanning multiple nations and, each with their own legislation.
 ## State
 
 Negotiator is currently used for mediating access to biological data and samples in BBMRI-ERIC. Using one of BBMRI-ERIC
-discovery services such as the [Directory](https://directory.bbmri-eric.eu/#/) or the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
-can browse and locate collections of bio specimens, and then request access via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/)
+discovery services such as the [Directory](https://directory.bbmri-eric.eu/#/) or
+the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
+can browse and locate collections of bio specimens, and then request access
+via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/)
 by filling out a request form and then following individual steps of the Negotiation lifecycle.
 This is a new implementation of the Negotiator, version 3.0.0 and is still under active development. Documentation for
 the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
@@ -29,11 +31,14 @@ An older version of this service can be found in this [repository](https://githu
 ## Quick Start
 
 ### Prerequisites
+
 - Docker
 
 The following command will run the Negotiator application with the REST API exposed at: http://localhost:8080
-Note: The authentication using OIDC mock server will not work because of issues with docker network, unless the OIDC mock is running
+Note: The authentication using OIDC mock server will not work because of issues with docker network, unless the OIDC
+mock is running
 on an external server.
+
 ```shell
 docker run --rm -e PROFILE=dev -p 8080:8081 negotiator
 ```
@@ -41,16 +46,20 @@ docker run --rm -e PROFILE=dev -p 8080:8081 negotiator
 ## Development
 
 ### Prerequisites
+
 - Java 17
 - Maven
 - Spring
 
 ### Running the backend in dev mode
+
 ```shell
 mvn package
 java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
+
 ### Connection URL for the H2 database:
+
 ``
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``

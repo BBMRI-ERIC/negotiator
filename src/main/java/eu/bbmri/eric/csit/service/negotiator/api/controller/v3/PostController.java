@@ -31,48 +31,45 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class PostController {
 
-  @Autowired
-  private PostServiceImpl postService;
+  @Autowired private PostServiceImpl postService;
 
-  @Autowired
-  private NegotiationService negotiationService;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private NegotiationService negotiationService;
+  @Autowired private ModelMapper modelMapper;
 
   @PostMapping(
       value = "/negotiations/{negotiationId}/posts",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  PostDTO add(@Valid @RequestBody PostCreateDTO request,
-      @Valid @PathVariable String negotiationId) {
-    return postService.create(request,
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
-
+  PostDTO add(
+      @Valid @RequestBody PostCreateDTO request, @Valid @PathVariable String negotiationId) {
+    return postService.create(
+        request,
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+        negotiationId);
   }
 
-
   @GetMapping("/negotiations/{negotiationId}/posts")
-  List<PostDTO> getAllMessagesByNegotiation(@Valid @PathVariable String negotiationId,
-      @RequestParam("role") Optional<String> roleName) {
+  List<PostDTO> getAllMessagesByNegotiation(
+      @Valid @PathVariable String negotiationId, @RequestParam("role") Optional<String> roleName) {
     if (roleName.isEmpty()) {
       return postService.findByNegotiationId(negotiationId);
     }
     NegotiationDTO n = negotiationService.findById(negotiationId, true);
-    List<PersonRoleDTO> negotiationPersonsWithRoles = n.getPersons().stream()
-        .filter(p -> p.getRole().equals(roleName.get())).toList();
+    List<PersonRoleDTO> negotiationPersonsWithRoles =
+        n.getPersons().stream().filter(p -> p.getRole().equals(roleName.get())).toList();
     List<String> posters = new ArrayList<>();
     for (PersonRoleDTO pr : negotiationPersonsWithRoles) {
       posters.add(pr.getName());
     }
     return postService.findNewByNegotiationIdAndPosters(negotiationId, posters);
-
   }
 
   @PutMapping("/negotiations/{negotiationId}/posts/{postId}")
-  PostDTO update(@Valid @RequestBody PostCreateDTO request,
-      @Valid @PathVariable String negotiationId, @Valid @PathVariable String postId) {
+  PostDTO update(
+      @Valid @RequestBody PostCreateDTO request,
+      @Valid @PathVariable String negotiationId,
+      @Valid @PathVariable String postId) {
     return postService.update(request, negotiationId, postId);
   }
-
 }

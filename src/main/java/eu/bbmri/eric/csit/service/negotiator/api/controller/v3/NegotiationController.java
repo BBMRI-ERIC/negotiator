@@ -11,6 +11,12 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,38 +34,26 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
 public class NegotiationController {
 
-  @Autowired
-  private NegotiationService negotiationService;
+  @Autowired private NegotiationService negotiationService;
 
-  @Autowired
-  private NegotiationLifecycleService negotiationLifecycleService;
+  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
-  @Autowired
-  private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
+  @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
-  /**
-   * Create a negotiation
-   */
+  /** Create a negotiation */
   @PostMapping(
       value = "/negotiations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationDTO add(@Valid @RequestBody NegotiationCreateDTO request) {
-    return negotiationService.create(request,
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    return negotiationService.create(
+        request, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
   /**
@@ -72,17 +66,17 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  NegotiationDTO update(@Valid @PathVariable String id,
-      @Valid @RequestBody NegotiationCreateDTO request) {
+  NegotiationDTO update(
+      @Valid @PathVariable String id, @Valid @RequestBody NegotiationCreateDTO request) {
     return negotiationService.update(id, request);
   }
 
   /**
    * Fetch a list of Negotiations
    *
-   * @param biobankId    to return Negotiations concerning a particular biobank
+   * @param biobankId to return Negotiations concerning a particular biobank
    * @param collectionId to return Negotiations concerning a particular collection
-   * @param userRole     by the user's role in the Negotiations
+   * @param userRole by the user's role in the Negotiations
    * @return a list of Negotiations by default returns list of Negotiations created by the user
    */
   @GetMapping("/negotiations")
@@ -99,8 +93,9 @@ public class NegotiationController {
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
     } else {
-      negotiations = negotiationService.findByCreatorId(
-          NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+      negotiations =
+          negotiationService.findByCreatorId(
+              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
     }
     return negotiations;
   }
@@ -124,7 +119,7 @@ public class NegotiationController {
   /**
    * Interact with the state of a negotiation by sending an Event
    *
-   * @param id    of the negotiation
+   * @param id of the negotiation
    * @param event from NegotiationEvents
    * @return NegotiationDTO with updated state if valid
    */
@@ -141,18 +136,20 @@ public class NegotiationController {
    * Interact with the state of a resource in a negotiation by sending an Event
    *
    * @param negotiationId of the Negotiation
-   * @param resourceId    external it of the resource
-   * @param event         from NegotiationEvents
+   * @param resourceId external it of the resource
+   * @param event from NegotiationEvents
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
-  NegotiationDTO sendEventForNegotiationResource(@Valid @PathVariable String negotiationId,
+  NegotiationDTO sendEventForNegotiationResource(
+      @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
     if (!getResourceIdsFromUserAuthorities().contains(resourceId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationResourceLifecycleService.sendEvent(negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
+    negotiationResourceLifecycleService.sendEvent(
+        negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
     return negotiationService.findById(negotiationId, true);
   }
 
@@ -173,22 +170,21 @@ public class NegotiationController {
    * Get possible events for a resource state in a Negotiation
    *
    * @param negotiationId of the negotiation
-   * @param resourceId    of the resource
+   * @param resourceId of the resource
    * @return a list of possible events
    */
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
-  List<String> getPossibleEventsForNegotiationResource(@Valid @PathVariable String negotiationId,
-      @Valid @PathVariable String resourceId) {
-    return negotiationResourceLifecycleService
-        .getPossibleEvents(negotiationId, resourceId).stream()
+  List<String> getPossibleEventsForNegotiationResource(
+      @Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId) {
+    return negotiationResourceLifecycleService.getPossibleEvents(negotiationId, resourceId).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
   }
 
   private List<String> getResourceIdsFromUserAuthorities() {
     List<String> resourceIds = new ArrayList<>();
-    for (GrantedAuthority grantedAuthority : SecurityContextHolder.getContext().getAuthentication()
-        .getAuthorities()) {
+    for (GrantedAuthority grantedAuthority :
+        SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
       // Edit for different groups/resource types
       if (grantedAuthority.getAuthority().contains("collection")) {
         resourceIds.add(grantedAuthority.getAuthority());
@@ -226,8 +222,8 @@ public class NegotiationController {
 
   private boolean isCreator(NegotiationDTO negotiationDTO) {
     for (PersonRoleDTO personRoleDTO : negotiationDTO.getPersons()) {
-      if (Objects.equals(personRoleDTO.getId(), getUserId()) && Objects.equals(
-          personRoleDTO.getRole(), "RESEARCHER")) {
+      if (Objects.equals(personRoleDTO.getId(), getUserId())
+          && Objects.equals(personRoleDTO.getRole(), "RESEARCHER")) {
         return true;
       }
     }

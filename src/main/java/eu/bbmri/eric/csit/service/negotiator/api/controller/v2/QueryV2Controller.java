@@ -20,12 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class QueryV2Controller {
 
-  @Autowired
-  private RequestService requestService;
-  @Autowired
-  private NegotiationService negotiationService;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private RequestService requestService;
+  @Autowired private NegotiationService negotiationService;
+  @Autowired private ModelMapper modelMapper;
 
   @PostMapping(
       value = "/directory/create_query",
@@ -43,8 +40,8 @@ public class QueryV2Controller {
         created = false;
         if (tokens.length == 1) {
           requestResponse = requestService.create(v3Request);
-          NegotiationDTO negotiationDTO = negotiationService.addRequestToNegotiation(tokens[0],
-              requestResponse.getId());
+          NegotiationDTO negotiationDTO =
+              negotiationService.addRequestToNegotiation(tokens[0], requestResponse.getId());
           requestResponse.setNegotiationId(negotiationDTO.getId());
         } else { // Updating an old request: the requestToken can be ignored
           requestResponse = requestService.update(tokens[1], v3Request);

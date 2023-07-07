@@ -46,14 +46,14 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
   private final String authzResourceClaimPrefix;
 
-  private Collection<GrantedAuthority> addAuthoritiesForIndividualResources(
-      List<String> scopes) {
+  private Collection<GrantedAuthority> addAuthoritiesForIndividualResources(List<String> scopes) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
     for (String scope : scopes) {
       // TODO: try to generalize the transformation
       if (scope.contains(authzResourceClaimPrefix)) {
-        String resourceId = StringUtils.substringBetween(scope, authzResourceClaimPrefix, "#perun")
-            .replace(".", ":");
+        String resourceId =
+            StringUtils.substringBetween(scope, authzResourceClaimPrefix, "#perun")
+                .replace(".", ":");
         authorities.add(new SimpleGrantedAuthority(resourceId));
       }
     }
@@ -68,8 +68,10 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     String subjectIdentifier = jwt.getClaimAsString("sub");
     Person person;
     try {
-      person = personRepository.findByAuthSubject(subjectIdentifier)
-          .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
+      person =
+          personRepository
+              .findByAuthSubject(subjectIdentifier)
+              .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
     } catch (EntityNotFoundException e) {
       log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
       person = saveNewUserToDatabase(claims);
@@ -125,18 +127,19 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
     HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
 
-    ResponseEntity<Object> response = restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET,
-        httpEntity, Object.class);
+    ResponseEntity<Object> response =
+        restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET, httpEntity, Object.class);
     return response.getBody();
   }
 
   private Person saveNewUserToDatabase(Map<String, Object> claims) {
     Person person;
-    person = Person.builder()
-        .authSubject(String.valueOf(claims.get("sub")))
-        .authName(String.valueOf(claims.get("preferred_username")))
-        .authEmail(String.valueOf(claims.get("email").toString()))
-        .build();
+    person =
+        Person.builder()
+            .authSubject(String.valueOf(claims.get("sub")))
+            .authName(String.valueOf(claims.get("preferred_username")))
+            .authEmail(String.valueOf(claims.get("email").toString()))
+            .build();
     personRepository.save(person);
     log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
     log.debug(person);

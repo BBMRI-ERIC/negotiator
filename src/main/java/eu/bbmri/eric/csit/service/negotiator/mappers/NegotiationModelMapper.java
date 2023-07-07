@@ -14,13 +14,13 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -28,20 +28,15 @@ import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
 @CommonsLog
 public class NegotiationModelMapper {
 
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired ModelMapper modelMapper;
 
-  @Autowired
-  private NegotiationLifecycleService negotiationLifecycleService;
+  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
-  @Autowired
-  private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
-
+  @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
   @PostConstruct
   void addMappings() {
@@ -51,23 +46,24 @@ public class NegotiationModelMapper {
     Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
         role -> personsRoleConverter(role.getSource());
 
-    Converter<String, String> negotiationStatusConverter = status -> negotiationStatusConverter(
-        status.getSource());
+    Converter<String, String> negotiationStatusConverter =
+        status -> negotiationStatusConverter(status.getSource());
 
-    Converter<NegotiationResources, JsonNode> resourcesStatusConverter = resources -> {
-      try {
-        return resourcesStatusConverter(resources.getSource());
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-    };
+    Converter<NegotiationResources, JsonNode> resourcesStatusConverter =
+        resources -> {
+          try {
+            return resourcesStatusConverter(resources.getSource());
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+          }
+        };
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
           try {
             return payloadConverter(p.getSource());
           } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);  // TODO: raise the correct exception
+            throw new RuntimeException(e); // TODO: raise the correct exception
           }
         };
 
@@ -76,25 +72,34 @@ public class NegotiationModelMapper {
             mapper
                 .using(personsRoleConverter)
                 .map(Negotiation::getPersons, NegotiationDTO::setPersons));
-    typeMap.addMappings(mapper -> mapper.using(payloadConverter)
-        .map(Negotiation::getPayload, NegotiationDTO::setPayload));
-    typeMap.addMappings(mapper -> mapper.using(negotiationStatusConverter)
-        .map(Negotiation::getId, NegotiationDTO::setStatus));
-    typeMap.addMappings(mapper -> mapper.using(resourcesStatusConverter)
-        .map(Negotiation::getAllResources, NegotiationDTO::setResourceStatus));
-
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(payloadConverter)
+                .map(Negotiation::getPayload, NegotiationDTO::setPayload));
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(negotiationStatusConverter)
+                .map(Negotiation::getId, NegotiationDTO::setStatus));
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(resourcesStatusConverter)
+                .map(Negotiation::getAllResources, NegotiationDTO::setResourceStatus));
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
 
-    Stream<PersonRoleDTO> roles = personsRoles.stream()
-        .map(
-            personRole ->
-                new PersonRoleDTO(
-                    String.valueOf(personRole.getPerson().getId()),
-                    personRole.getPerson().getAuthName(),
-                    personRole.getRole().getName()));
-        return roles.collect(Collectors.toSet());
+    Stream<PersonRoleDTO> roles =
+        personsRoles.stream()
+            .map(
+                personRole ->
+                    new PersonRoleDTO(
+                        String.valueOf(personRole.getPerson().getId()),
+                        personRole.getPerson().getAuthName(),
+                        personRole.getRole().getName()));
+    return roles.collect(Collectors.toSet());
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
@@ -120,9 +125,10 @@ public class NegotiationModelMapper {
     Map<String, NegotiationResourceState> resourcesStatus = new HashMap<>();
     for (Resource resource : negotiationResources.getResources()) {
       try {
-        resourcesStatus.put(resource.getSourceId(),
-            negotiationResourceLifecycleService.getCurrentState(negotiationResources.getNegotiationId(),
-                resource.getSourceId()));
+        resourcesStatus.put(
+            resource.getSourceId(),
+            negotiationResourceLifecycleService.getCurrentState(
+                negotiationResources.getNegotiationId(), resource.getSourceId()));
       } catch (EntityNotFoundException e) {
         log.info("Negotiation and resource combination not found");
       }

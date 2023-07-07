@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.mappers;
 
-
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
 import org.modelmapper.ModelMapper;
@@ -11,22 +10,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PostModelMapper {
 
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired ModelMapper modelMapper;
 
   void addMappings() {
-    TypeMap<Person, PersonDTO> typeMap =
-        modelMapper.createTypeMap(Person.class, PersonDTO.class);
+    TypeMap<Person, PersonDTO> typeMap = modelMapper.createTypeMap(Person.class, PersonDTO.class);
 
-    typeMap.addMappings(mapper ->
-        mapper.map(Person::getAuthName, PersonDTO::setName));
+    typeMap.addMappings(mapper -> mapper.map(Person::getAuthName, PersonDTO::setName));
 
-    typeMap.addMappings(mapper ->
-        mapper.map(Person::getOrganization, PersonDTO::setOrganization));
-
+    typeMap.addMappings(mapper -> mapper.map(Person::getOrganization, PersonDTO::setOrganization));
   }
-
-
 }
-
-

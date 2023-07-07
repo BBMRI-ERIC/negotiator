@@ -40,18 +40,12 @@ public class QueryV2ControllerTests {
   private static final String NEGOTIATION_V2_ID = "negotiation-v2";
 
   private static final String ENDPOINT = "/directory/create_query";
-  @Autowired
-  public RequestRepository requestRepository;
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private QueryV2Controller controller;
-  @Autowired
-  private RequestServiceImpl requestService;
-  @Autowired
-  private NegotiationRepository negotiationRepository;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired public RequestRepository requestRepository;
+  @Autowired private WebApplicationContext context;
+  @Autowired private QueryV2Controller controller;
+  @Autowired private RequestServiceImpl requestService;
+  @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
 
@@ -168,10 +162,8 @@ public class QueryV2ControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
-        .andExpect(
-            header().string("Location", containsString("http://localhost/request")))
-        .andExpect(
-            jsonPath("$.redirect_uri", containsString("http://localhost/request")));
+        .andExpect(header().string("Location", containsString("http://localhost/request")))
+        .andExpect(jsonPath("$.redirect_uri", containsString("http://localhost/request")));
     assertEquals(requestRepository.count(), previousCount + 1);
   }
 
@@ -200,10 +192,8 @@ public class QueryV2ControllerTests {
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
-        .andExpect(
-            header().string("Location", containsString("http://localhost/request")))
-        .andExpect(
-            jsonPath("$.redirect_uri", containsString("http://localhost/request")));
+        .andExpect(header().string("Location", containsString("http://localhost/request")))
+        .andExpect(jsonPath("$.redirect_uri", containsString("http://localhost/request")));
   }
 
   @Test
@@ -222,15 +212,16 @@ public class QueryV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isAccepted())
         .andExpect(
-            header().string("Location", containsString(
-                "http://localhost/negotiations/%s/requests"
-                    .formatted(NEGOTIATION_V2_ID))))
+            header()
+                .string(
+                    "Location",
+                    containsString(
+                        "http://localhost/negotiations/%s/requests".formatted(NEGOTIATION_V2_ID))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
-                    "http://localhost/negotiations/%s/requests"
-                        .formatted(NEGOTIATION_V2_ID))));
+                    "http://localhost/negotiations/%s/requests".formatted(NEGOTIATION_V2_ID))));
     assertEquals(requestRepository.count(), previousCount);
   }
 
@@ -249,15 +240,16 @@ public class QueryV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isAccepted())
         .andExpect(
-            header().string("Location", containsString(
-                "http://localhost/negotiations/%s/requests"
-                    .formatted(NEGOTIATION_V2_ID))))
+            header()
+                .string(
+                    "Location",
+                    containsString(
+                        "http://localhost/negotiations/%s/requests".formatted(NEGOTIATION_V2_ID))))
         .andExpect(
             jsonPath(
                 "$.redirect_uri",
                 containsString(
-                    "http://localhost/negotiations/%s/requests"
-                        .formatted(NEGOTIATION_V2_ID))));
+                    "http://localhost/negotiations/%s/requests".formatted(NEGOTIATION_V2_ID))));
     assertEquals(requestRepository.findAll().size(), previousRequestNumber + 1);
   }
 }

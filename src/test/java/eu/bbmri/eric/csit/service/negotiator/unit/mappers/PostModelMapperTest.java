@@ -9,13 +9,12 @@ import org.modelmapper.ModelMapper;
 
 public class PostModelMapperTest {
 
-
   @Test
   public void testAddMappings() {
     Person inputPerson = new Person();
     PersonDTO mappedExpected = new PersonDTO();
 
-    //set the input and the expected result
+    // set the input and the expected result
     String authName = "authName";
     String organization = "org";
     inputPerson.setAuthName(authName);
@@ -28,8 +27,5 @@ public class PostModelMapperTest {
 
     assertEquals(outputMapping.getName(), inputPerson.getAuthName());
     assertEquals(outputMapping.getOrganization(), inputPerson.getOrganization());
-
   }
-
-
 }

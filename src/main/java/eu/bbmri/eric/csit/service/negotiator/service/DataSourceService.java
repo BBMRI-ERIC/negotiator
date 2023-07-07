@@ -21,8 +21,7 @@ public interface DataSourceService {
    * Update the DataSource with id
    *
    * @param id the id of the DataSource to update
-   * @param dataSourceCreateDTO a DataSourceCreateDTO with the new data of the DataSource to
-   * updated
+   * @param dataSourceCreateDTO a DataSourceCreateDTO with the new data of the DataSource to updated
    * @return the DataSourceDTO with the updated data of the DataSource
    */
   DataSourceDTO update(Long id, DataSourceCreateDTO dataSourceCreateDTO)

@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class RequestController {
 
-  @Autowired
-  private RequestService requestService;
+  @Autowired private RequestService requestService;
 
   @GetMapping("/requests")
   List<RequestDTO> list() {

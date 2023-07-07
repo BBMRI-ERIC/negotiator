@@ -1,7 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
@@ -10,6 +8,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
@@ -22,39 +22,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
 
-  @Autowired
-  private PostRepository postRepository;
+  @Autowired private PostRepository postRepository;
 
-  @Autowired
-  private ResourceRepository resourceRepository;
+  @Autowired private ResourceRepository resourceRepository;
 
-  @Autowired
-  private NegotiationRepository negotiationRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
 
-  @Autowired
-  private PersonRepository personRepository;
+  @Autowired private PersonRepository personRepository;
 
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private ModelMapper modelMapper;
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity = modelMapper.map(postRequest, Post.class);
     try {
       String resourceId = postRequest.getResourceId();
-      Resource resource = resourceRepository.findBySourceId(resourceId).orElseThrow(
-          WrongRequestException::new);
+      Resource resource =
+          resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
 
-      Negotiation negotiation = negotiationRepository.findById(negotiationId)
-          .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+      Negotiation negotiation =
+          negotiationRepository
+              .findById(negotiationId)
+              .orElseThrow(() -> new EntityNotFoundException(negotiationId));
 
-      Person person = personRepository.findDetailedById(personId).orElseThrow(
-          WrongRequestException::new);
+      Person person =
+          personRepository.findDetailedById(personId).orElseThrow(WrongRequestException::new);
 
       postEntity.setResource(resource);
       postEntity.setNegotiation(negotiation);
@@ -67,7 +63,6 @@ public class PostServiceImpl implements PostService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
-
   }
 
   @Transactional
@@ -95,6 +90,4 @@ public class PostServiceImpl implements PostService {
     Post updatedPost = postRepository.save(post);
     return modelMapper.map(updatedPost, PostDTO.class);
   }
-
-
 }

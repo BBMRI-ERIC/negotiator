@@ -19,11 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class OAuthSecurityConfig {
 
-  @Autowired
-  public NegotiatorUserDetailsService userDetailsService;
+  @Autowired public NegotiatorUserDetailsService userDetailsService;
 
-  @Autowired
-  public PersonRepository personRepository;
+  @Autowired public PersonRepository personRepository;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
   private String userInfoEndpoint;
@@ -68,19 +66,25 @@ public class OAuthSecurityConfig {
         .frameOptions()
         .disable();
 
-    http
-        .authorizeHttpRequests().antMatchers("/v3/negotiations/**").authenticated()
+    http.authorizeHttpRequests()
+        .antMatchers("/v3/negotiations/**")
+        .authenticated()
         .and()
-        .authorizeHttpRequests().antMatchers(HttpMethod.GET, "/v3/access-criteria/**").permitAll()
+        .authorizeHttpRequests()
+        .antMatchers(HttpMethod.GET, "/v3/access-criteria/**")
+        .permitAll()
         .and()
-        .authorizeHttpRequests().antMatchers(HttpMethod.POST, "/v3/access-criteria/**")
+        .authorizeHttpRequests()
+        .antMatchers(HttpMethod.POST, "/v3/access-criteria/**")
         .hasRole("REPRESENTATIVE")
         .and()
         .authorizeHttpRequests()
-        .antMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**").authenticated()
+        .antMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**")
+        .authenticated()
         .and()
         .authorizeHttpRequests()
-        .antMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**").authenticated()
+        .antMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**")
+        .authenticated()
         .and()
         .authorizeHttpRequests()
         .antMatchers(HttpMethod.POST, "/v3/data-sources/**")
@@ -118,10 +122,11 @@ public class OAuthSecurityConfig {
   @Bean
   public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
-        .jwtProcessorCustomizer(customizer -> {
-          customizer.setJWSTypeVerifier(
-              new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
-        })
+        .jwtProcessorCustomizer(
+            customizer -> {
+              customizer.setJWSTypeVerifier(
+                  new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
+            })
         .build();
   }
 }

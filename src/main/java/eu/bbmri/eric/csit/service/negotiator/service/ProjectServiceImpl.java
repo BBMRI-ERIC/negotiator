@@ -17,10 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service(value = "DefaultProjectService")
 public class ProjectServiceImpl implements ProjectService {
 
-  @Autowired
-  private ProjectRepository projectRepository;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private ProjectRepository projectRepository;
+  @Autowired private ModelMapper modelMapper;
 
   public ProjectDTO create(ProjectCreateDTO projectBody) throws EntityNotStorableException {
     Project projectEntity = modelMapper.map(projectBody, Project.class);
@@ -34,9 +32,8 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Transactional
   public ProjectDTO findById(String id) throws EntityNotFoundException {
-    Project project = projectRepository
-        .findDetailedById(id)
-        .orElseThrow(() -> new EntityNotFoundException(id));
+    Project project =
+        projectRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return modelMapper.map(project, ProjectDTO.class);
   }
 

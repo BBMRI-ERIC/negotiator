@@ -34,11 +34,11 @@ import lombok.ToString.Exclude;
 @NamedEntityGraph(
     name = "resource-with-children",
     attributeNodes = {
-        @NamedAttributeNode("sourceId"),
-        @NamedAttributeNode("name"),
-        @NamedAttributeNode("type"),
-        @NamedAttributeNode("description"),
-        @NamedAttributeNode("parent")
+      @NamedAttributeNode("sourceId"),
+      @NamedAttributeNode("name"),
+      @NamedAttributeNode("type"),
+      @NamedAttributeNode("description"),
+      @NamedAttributeNode("parent")
     })
 public class Resource extends BaseEntity {
 
@@ -47,11 +47,9 @@ public class Resource extends BaseEntity {
   @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 
-  @NotNull
-  private String sourceId;
+  @NotNull private String sourceId;
 
-  @NotNull
-  private String type;
+  @NotNull private String type;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_id")

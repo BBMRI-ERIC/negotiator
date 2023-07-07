@@ -20,19 +20,15 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class NegotiationDTO {
 
-  @NotNull
-  private String id;
+  @NotNull private String id;
 
   private Set<RequestDTO> requests;
 
   private Set<PersonRoleDTO> persons;
 
-  @NotNull
-  private JsonNode payload;
+  @NotNull private JsonNode payload;
 
-  @NotNull
-  private String status;
+  @NotNull private String status;
 
-  @NotNull
-  private JsonNode resourceStatus;
+  @NotNull private JsonNode resourceStatus;
 }

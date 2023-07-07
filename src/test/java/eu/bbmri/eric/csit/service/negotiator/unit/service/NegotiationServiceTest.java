@@ -25,19 +25,13 @@ import org.modelmapper.ModelMapper;
 
 public class NegotiationServiceTest {
 
-  @Mock
-  NegotiationRepository negotiationRepository;
-  @Mock
-  RoleRepository roleRepository;
-  @Mock
-  PersonRepository personRepository;
-  @Mock
-  RequestRepository requestRepository;
-  @Mock
-  ModelMapper modelMapper;
+  @Mock NegotiationRepository negotiationRepository;
+  @Mock RoleRepository roleRepository;
+  @Mock PersonRepository personRepository;
+  @Mock RequestRepository requestRepository;
+  @Mock ModelMapper modelMapper;
 
-  @InjectMocks
-  NegotiationServiceImpl negotiationService;
+  @InjectMocks NegotiationServiceImpl negotiationService;
   private AutoCloseable closeable;
 
   @BeforeEach
@@ -58,8 +52,8 @@ public class NegotiationServiceTest {
 
   @Test
   public void test_FindByUserAndRole_ReturnsEmptyList_whenNotFound() {
-    when(negotiationRepository.findByUserIdAndRole(any(), any())).thenReturn(
-        Collections.emptyList());
+    when(negotiationRepository.findByUserIdAndRole(any(), any()))
+        .thenReturn(Collections.emptyList());
     assertTrue(negotiationService.findByUserIdAndRole("fakeID", "fakeRole").isEmpty());
   }
 

@@ -18,14 +18,11 @@ import org.modelmapper.ModelMapper;
 
 public class AccessCriteriaSetServiceTest {
 
-  @Mock
-  AccessCriteriaSetRepository accessCriteriaSetRepository;
+  @Mock AccessCriteriaSetRepository accessCriteriaSetRepository;
 
-  @Mock
-  ModelMapper modelMapper;
+  @Mock ModelMapper modelMapper;
 
-  @InjectMocks
-  AccessCriteriaSetServiceImpl service;
+  @InjectMocks AccessCriteriaSetServiceImpl service;
 
   private AutoCloseable closeable;
 
@@ -42,8 +39,6 @@ public class AccessCriteriaSetServiceTest {
   @Test
   void testRaiseException_whenAccessCriteriaNotFound() {
     when(accessCriteriaSetRepository.findByResourceId(any())).thenReturn(Optional.empty());
-    assertThrows(EntityNotFoundException.class,
-        () -> service.findByResourceId("aResourceId"));
-
+    assertThrows(EntityNotFoundException.class, () -> service.findByResourceId("aResourceId"));
   }
 }

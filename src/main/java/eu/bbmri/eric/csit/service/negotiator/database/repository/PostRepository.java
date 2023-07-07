@@ -24,8 +24,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
-              + "p.id = :messageId"
-  )
+              + "p.id = :messageId")
   Post findByNegotiationIdAndMessageId(String negotiationId, String messageId);
 
   @Query(
@@ -35,9 +34,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
               + "p.poster.authName in :posters and "
-              + "p.status = 'CREATED' "
-
-  )
+              + "p.status = 'CREATED' ")
   List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
-
 }

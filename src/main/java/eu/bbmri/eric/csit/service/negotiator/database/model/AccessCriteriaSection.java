@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import com.sun.istack.NotNull;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -25,14 +24,11 @@ import lombok.ToString.Exclude;
 @Setter
 public class AccessCriteriaSection extends BaseEntity implements Comparable<AccessCriteriaSection> {
 
-  @NotNull
-  private String name;
+  @NotNull private String name;
 
-  @NotNull
-  private String label;
+  @NotNull private String label;
 
-  @NotNull
-  private String description;
+  @NotNull private String description;
 
   @OneToMany(mappedBy = "accessCriteriaSection")
   @OrderBy("ordering ASC")

@@ -28,11 +28,9 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 public class SecurityTest {
 
-  @Autowired
-  private WebApplicationContext context;
+  @Autowired private WebApplicationContext context;
 
-  @Autowired
-  private UserDetailsService userDetailsService;
+  @Autowired private UserDetailsService userDetailsService;
 
   private MockMvc mockMvc;
 
@@ -43,7 +41,8 @@ public class SecurityTest {
 
   @Test
   void testUnauthenticatedUser() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get("/v3/negotiations"))
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations"))
         .andExpect(status().isUnauthorized());
   }
 
@@ -55,7 +54,8 @@ public class SecurityTest {
 
   @Test
   void testAuthenticatedButMethodNotAllowed() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.put("/v3/access-criteria"))
+    mockMvc
+        .perform(MockMvcRequestBuilders.put("/v3/access-criteria"))
         .andExpect(status().isMethodNotAllowed());
   }
 
@@ -69,15 +69,16 @@ public class SecurityTest {
   void testGetUnauthenticatedUserName() {
     assertThrows(
         NullPointerException.class,
-        () -> SecurityContextHolder.getContext().getAuthentication().getName()
-    );
+        () -> SecurityContextHolder.getContext().getAuthentication().getName());
   }
 
   @Test
   void testCreateQueryWithBasicAuth() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.post("/directory/create_query")
-            .contentType(MediaType.APPLICATION_JSON).with(httpBasic("directory", "directory")))
+        .perform(
+            MockMvcRequestBuilders.post("/directory/create_query")
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(httpBasic("directory", "directory")))
         .andExpect(status().isBadRequest());
   }
 
@@ -89,7 +90,8 @@ public class SecurityTest {
 
   @Test
   void testSubStringBetween() {
-    String full = "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.CZ_MMCI.collection.LTS#perun.bbmri-eric.eu";
+    String full =
+        "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.CZ_MMCI.collection.LTS#perun.bbmri-eric.eu";
     String sub = StringUtils.substringBetween(full, "Directory:", "#perun").replace(".", ":");
     assertEquals("bbmri-eric:ID:CZ_MMCI:collection:LTS", sub);
   }

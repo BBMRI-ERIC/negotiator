@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import java.util.EnumSet;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,24 +18,25 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.persist.StateMachineRuntimePersister;
 import org.springframework.statemachine.state.State;
 
-import java.util.EnumSet;
-
-
 @Configuration
 @EnableStateMachineFactory
 @Log
-public class NegotiationStateMachineConfig extends
-    EnumStateMachineConfigurerAdapter<NegotiationState, NegotiationEvent> {
+public class NegotiationStateMachineConfig
+    extends EnumStateMachineConfigurerAdapter<NegotiationState, NegotiationEvent> {
 
   @Autowired
   @Qualifier("negotiationStateMachineRuntimePersister")
-  private StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachineRuntimePersister;
+  private StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String>
+      stateMachineRuntimePersister;
 
   @Override
   public void configure(
       StateMachineConfigurationConfigurer<NegotiationState, NegotiationEvent> config)
       throws Exception {
-    config.withPersistence().runtimePersister(stateMachineRuntimePersister).and()
+    config
+        .withPersistence()
+        .runtimePersister(stateMachineRuntimePersister)
+        .and()
         .withConfiguration()
         .autoStartup(true)
         .listener(listener());
@@ -55,27 +57,43 @@ public class NegotiationStateMachineConfig extends
       throws Exception {
     transitions
         .withExternal()
-        .source(NegotiationState.SUBMITTED).target(NegotiationState.APPROVED).target(NegotiationState.ONGOING)
-          .event(NegotiationEvent.APPROVE)
-        .and().withExternal()
-        .source(NegotiationState.SUBMITTED).target(NegotiationState.DECLINED).event(NegotiationEvent.DECLINE)
-        .and().withExternal()
-        .source(NegotiationState.ONGOING).target(NegotiationState.PAUSED).event(NegotiationEvent.PAUSE)
-        .and().withExternal()
-        .source(NegotiationState.PAUSED).target(NegotiationState.ONGOING).event(NegotiationEvent.UNPAUSE)
-            .and().withExternal()
-            .source(NegotiationState.PAUSED).target(NegotiationState.ABANDONED).event(NegotiationEvent.ABANDON)
-        .and().withExternal()
-        .source(NegotiationState.ONGOING).target(NegotiationState.CONCLUDED)
-            .event(NegotiationEvent.CONCLUDE)
-    ;
+        .source(NegotiationState.SUBMITTED)
+        .target(NegotiationState.APPROVED)
+        .target(NegotiationState.ONGOING)
+        .event(NegotiationEvent.APPROVE)
+        .and()
+        .withExternal()
+        .source(NegotiationState.SUBMITTED)
+        .target(NegotiationState.DECLINED)
+        .event(NegotiationEvent.DECLINE)
+        .and()
+        .withExternal()
+        .source(NegotiationState.ONGOING)
+        .target(NegotiationState.PAUSED)
+        .event(NegotiationEvent.PAUSE)
+        .and()
+        .withExternal()
+        .source(NegotiationState.PAUSED)
+        .target(NegotiationState.ONGOING)
+        .event(NegotiationEvent.UNPAUSE)
+        .and()
+        .withExternal()
+        .source(NegotiationState.PAUSED)
+        .target(NegotiationState.ABANDONED)
+        .event(NegotiationEvent.ABANDON)
+        .and()
+        .withExternal()
+        .source(NegotiationState.ONGOING)
+        .target(NegotiationState.CONCLUDED)
+        .event(NegotiationEvent.CONCLUDE);
   }
 
   @Bean
   public StateMachineListener<NegotiationState, NegotiationEvent> listener() {
     return new StateMachineListenerAdapter<>() {
       @Override
-      public void stateChanged(State<NegotiationState, NegotiationEvent> from,
+      public void stateChanged(
+          State<NegotiationState, NegotiationEvent> from,
           State<NegotiationState, NegotiationEvent> to) {
         log.info("State change to " + to.getId());
       }

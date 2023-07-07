@@ -36,24 +36,24 @@ import org.hibernate.annotations.TypeDef;
 @NamedEntityGraph(
     name = "negotiation-with-detailed-children",
     attributeNodes = {
-        @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
-        @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
+      @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
+      @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
     },
     subgraphs = {
-        @NamedSubgraph(
-            name = "persons-with-roles",
-            attributeNodes = {
-                @NamedAttributeNode(value = "person"),
-                @NamedAttributeNode(value = "role")
-            }),
-        @NamedSubgraph(
-            name = "requests-detailed",
-            attributeNodes = {
-                @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
-            }),
-        @NamedSubgraph(
-            name = "resources-with-parent",
-            attributeNodes = {@NamedAttributeNode("parent")})
+      @NamedSubgraph(
+          name = "persons-with-roles",
+          attributeNodes = {
+            @NamedAttributeNode(value = "person"),
+            @NamedAttributeNode(value = "role")
+          }),
+      @NamedSubgraph(
+          name = "requests-detailed",
+          attributeNodes = {
+            @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
+          }),
+      @NamedSubgraph(
+          name = "resources-with-parent",
+          attributeNodes = {@NamedAttributeNode("parent")})
     })
 public class Negotiation extends AuditEntity {
 

@@ -34,14 +34,10 @@ public class DataSourceControllerTests {
 
   private static final String ENDPOINT = "/v3/data-sources";
   private MockMvc mockMvc;
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private DataSourceController controller;
-  @Autowired
-  private DataSourceRepository repository;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private WebApplicationContext context;
+  @Autowired private DataSourceController controller;
+  @Autowired private DataSourceRepository repository;
+  @Autowired private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {

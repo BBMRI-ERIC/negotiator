@@ -24,8 +24,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RequestModelsMapper {
 
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired ModelMapper modelMapper;
 
   @Value("${negotiator.frontend-url}")
   private String FRONTEND_URL;
@@ -48,11 +47,13 @@ public class RequestModelsMapper {
         mapper ->
             mapper.using(requestToRedirectUrl).map(Request::getId, RequestDTO::setRedirectUrl));
 
-    Converter<Negotiation, String> negotiationToNegotiationId = q -> convertNegotiationToNegotiationId(
-        q.getSource());
-    typeMap.addMappings(mapper ->
-        mapper.using(negotiationToNegotiationId)
-            .map(Request::getNegotiation, RequestDTO::setNegotiationId));
+    Converter<Negotiation, String> negotiationToNegotiationId =
+        q -> convertNegotiationToNegotiationId(q.getSource());
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .using(negotiationToNegotiationId)
+                .map(Request::getNegotiation, RequestDTO::setNegotiationId));
 
     ///////////////////////////////////////////
     // Mapper from v2 Request to V3 Request
@@ -75,7 +76,8 @@ public class RequestModelsMapper {
     Converter<RequestDTO, String> queryToRedirectUri = q -> convertIdToRedirectUri(q.getSource());
     queryToV3Response.addMappings(
         mapper ->
-            mapper.using(queryToRedirectUri)
+            mapper
+                .using(queryToRedirectUri)
                 .map(requestDTO -> requestDTO, QueryV2DTO::setRedirectUri));
   }
 
@@ -140,8 +142,8 @@ public class RequestModelsMapper {
     if (req.getNegotiationId() == null) {
       return "%s/requests/%s".formatted(FRONTEND_URL, req.getId());
     } else {
-      return "%s/negotiations/%s/requests/%s".formatted(FRONTEND_URL, req.getNegotiationId(),
-          req.getId());
+      return "%s/negotiations/%s/requests/%s"
+          .formatted(FRONTEND_URL, req.getNegotiationId(), req.getId());
     }
   }
 }

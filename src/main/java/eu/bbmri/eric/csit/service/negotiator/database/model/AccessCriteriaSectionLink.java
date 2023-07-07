@@ -35,9 +35,7 @@ public class AccessCriteriaSectionLink {
   @Id
   private AccessCriteriaSection accessCriteriaSection;
 
-  @NotNull
-  private Integer ordering;
+  @NotNull private Integer ordering;
 
-  @NotNull
-  private Boolean required;
+  @NotNull private Boolean required;
 }

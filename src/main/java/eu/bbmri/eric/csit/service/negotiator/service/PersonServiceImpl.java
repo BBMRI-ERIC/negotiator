@@ -16,17 +16,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Service(value = "DefaultPersonService")
 public class PersonServiceImpl implements PersonService {
 
-  @Autowired
-  private PersonRepository personRepository;
+  @Autowired private PersonRepository personRepository;
 
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private ModelMapper modelMapper;
 
   public Person findById(Long id) {
-    return personRepository
-        .findById(id)
-        .orElseThrow(
-            () -> new EntityNotFoundException(id));
+    return personRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   private Person getByAuthSubject(String authSubject) {
@@ -54,5 +49,4 @@ public class PersonServiceImpl implements PersonService {
     }
     return users;
   }
-
 }

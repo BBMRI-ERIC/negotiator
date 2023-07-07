@@ -14,6 +14,5 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ProjectDTO extends ProjectCreateDTO {
 
-  @NotNull
-  private String id;
+  @NotNull private String id;
 }

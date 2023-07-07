@@ -63,5 +63,4 @@ public class DataSourceServiceImpl implements DataSourceService {
         .map(dataSource -> modelMapper.map(dataSource, DataSourceDTO.class))
         .collect(Collectors.toList());
   }
-
 }

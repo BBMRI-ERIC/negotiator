@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class AccessCriteriaSetController {
 
-  @Autowired
-  private AccessCriteriaSetService accessCriteriaSetService;
+  @Autowired private AccessCriteriaSetService accessCriteriaSetService;
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)

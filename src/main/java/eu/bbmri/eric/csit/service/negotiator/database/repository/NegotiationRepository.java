@@ -19,14 +19,16 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
   @EntityGraph(value = "negotiation-with-detailed-children")
   Optional<Negotiation> findDetailedById(String id);
 
-  @Query(value = "SELECT DISTINCT r "
-      + "FROM Negotiation r "
-      + "JOIN FETCH r.persons pp "
-      + "JOIN FETCH pp.person p "
-      + "JOIN FETCH pp.role role "
-      + "where p.authSubject = :userId and role.name = :userRole")
-  List<Negotiation> findByUserIdAndRole(@Param("userId") String userId,
-      @Param("userRole") String userRole);
+  @Query(
+      value =
+          "SELECT DISTINCT r "
+              + "FROM Negotiation r "
+              + "JOIN FETCH r.persons pp "
+              + "JOIN FETCH pp.person p "
+              + "JOIN FETCH pp.role role "
+              + "where p.authSubject = :userId and role.name = :userRole")
+  List<Negotiation> findByUserIdAndRole(
+      @Param("userId") String userId, @Param("userRole") String userRole);
 
   @Query(
       value =

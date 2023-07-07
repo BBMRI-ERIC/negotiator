@@ -15,9 +15,7 @@ import org.springframework.lang.Nullable;
 @Builder
 public class CollectionV2DTO {
 
-  @NotNull
-  private String collectionId;
+  @NotNull private String collectionId;
 
-  @Nullable
-  private String biobankId;
+  @Nullable private String biobankId;
 }

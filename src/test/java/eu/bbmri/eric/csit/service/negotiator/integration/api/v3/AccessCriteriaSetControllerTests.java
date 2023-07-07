@@ -32,14 +32,10 @@ public class AccessCriteriaSetControllerTests {
 
   private MockMvc mockMvc;
 
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private ProjectController controller;
-  @Autowired
-  private ProjectRepository repository;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private WebApplicationContext context;
+  @Autowired private ProjectController controller;
+  @Autowired private ProjectRepository repository;
+  @Autowired private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {
@@ -50,31 +46,40 @@ public class AccessCriteriaSetControllerTests {
   @Test
   public void testGet_Unauthorized_whenWrongAuth() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isUnauthorized(),
-        httpBasic("researcher", "wrong_pass"), ENDPOINT);
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isUnauthorized(),
+        httpBasic("researcher", "wrong_pass"),
+        ENDPOINT);
   }
 
   @Test
   public void testGet_BadRequest_whenMissingResourceId() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isBadRequest(), httpBasic("researcher", "researcher"),
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isBadRequest(),
+        httpBasic("researcher", "researcher"),
         ENDPOINT);
   }
 
   @Test
   public void testGet_NotFound_whenResourceIdIsNotExistent() throws Exception {
     TestUtils.checkErrorResponse(
-        mockMvc, HttpMethod.GET, "", status().isNotFound(), httpBasic("researcher", "researcher"),
+        mockMvc,
+        HttpMethod.GET,
+        "",
+        status().isNotFound(),
+        httpBasic("researcher", "researcher"),
         "%s?resourceId=UNKNOWN".formatted(ENDPOINT));
   }
 
   @Test
   public void testGet_Ok() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders
-                .get(ENDPOINT)
-                .param("resourceId", "biobank:1"))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT).param("resourceId", "biobank:1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sections[0].accessCriteria").isArray())
         .andExpect(jsonPath("$.sections[0].accessCriteria[0].name", is("title")))

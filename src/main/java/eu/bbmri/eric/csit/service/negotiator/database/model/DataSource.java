@@ -24,27 +24,20 @@ import lombok.ToString;
 public class DataSource extends BaseEntity {
 
   private String description;
-  @NotNull
-  private String name;
-  @NotNull
-  private String url;
-  @NotNull
-  private String apiUrl;
-  @NotNull
-  private String apiUsername;
-  @NotNull
-  private String apiPassword;
+  @NotNull private String name;
+  @NotNull private String url;
+  @NotNull private String apiUrl;
+  @NotNull private String apiUsername;
+  @NotNull private String apiPassword;
+
   @Enumerated(EnumType.STRING)
   @NotNull
   private ApiType apiType;
-  @NotNull
-  private String resourceNetwork;
-  @NotNull
-  private String resourceBiobank;
-  @NotNull
-  private String resourceCollection;
-  @NotNull
-  private Boolean syncActive;
+
+  @NotNull private String resourceNetwork;
+  @NotNull private String resourceBiobank;
+  @NotNull private String resourceCollection;
+  @NotNull private Boolean syncActive;
 
   private String sourcePrefix;
   //  @OneToMany(mappedBy = "dataSource")

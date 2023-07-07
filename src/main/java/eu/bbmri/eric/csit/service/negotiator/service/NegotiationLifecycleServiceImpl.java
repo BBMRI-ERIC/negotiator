@@ -4,6 +4,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +18,19 @@ import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-/**
- * Spring State Machine implementation of the NegotiationLifecycleService
- */
+/** Spring State Machine implementation of the NegotiationLifecycleService */
 @Service
 @CommonsLog
 @NoArgsConstructor
 public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleService {
 
   private static final String SEPARATOR = "---";
-  @Autowired
-  JpaStateMachineRepository jpaStateMachineRepository;
+  @Autowired JpaStateMachineRepository jpaStateMachineRepository;
 
   @Autowired
   @Qualifier("negotiationStateMachineService")
-  private StateMachineService<NegotiationState, NegotiationEvent> springNegotiationStateMachineService;
+  private StateMachineService<NegotiationState, NegotiationEvent>
+      springNegotiationStateMachineService;
 
   @Override
   public void initializeTheStateMachine(String negotiationId) {
@@ -45,7 +42,9 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     if (!jpaStateMachineRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException("Negotiation does not exist");
     }
-    return this.springNegotiationStateMachineService.acquireStateMachine(negotiationId).getState()
+    return this.springNegotiationStateMachineService
+        .acquireStateMachine(negotiationId)
+        .getState()
         .getId();
   }
 
@@ -54,8 +53,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     if (!jpaStateMachineRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException("StateMachine " + negotiationId + "does not exist.");
     }
-    StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationStateMachineService.acquireStateMachine(
-        negotiationId);
+    StateMachine<NegotiationState, NegotiationEvent> stateMachine =
+        this.springNegotiationStateMachineService.acquireStateMachine(negotiationId);
     return stateMachine.getTransitions().stream()
         .filter(
             transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
@@ -75,10 +74,12 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
     if (!getPossibleEvents(machineId).contains(negotiationEvent)) {
       throw new WrongRequestException("Unsupported event");
     }
-    StateMachine<NegotiationState, NegotiationEvent> stateMachine = this.springNegotiationStateMachineService.acquireStateMachine(
-        machineId, true);
-    StateMachineEventResult<NegotiationState, NegotiationEvent> newState = stateMachine.sendEvent(
-        Mono.just(MessageBuilder.withPayload(negotiationEvent).build())).blockFirst();
+    StateMachine<NegotiationState, NegotiationEvent> stateMachine =
+        this.springNegotiationStateMachineService.acquireStateMachine(machineId, true);
+    StateMachineEventResult<NegotiationState, NegotiationEvent> newState =
+        stateMachine
+            .sendEvent(Mono.just(MessageBuilder.withPayload(negotiationEvent).build()))
+            .blockFirst();
     if (newState != null) {
       log.info("Event was: " + newState.getResultType().toString());
     }
@@ -88,6 +89,4 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   public void removeStateMachine(String negotiationId) {
     springNegotiationStateMachineService.releaseStateMachine(negotiationId);
   }
-
-
 }

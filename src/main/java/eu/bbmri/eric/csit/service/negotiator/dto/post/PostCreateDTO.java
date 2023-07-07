@@ -20,14 +20,8 @@ import lombok.Setter;
 public class PostCreateDTO {
 
   Set<Attachment> attachments;
-  @Valid
-  @NotEmpty
-  private String text;
-  @Valid
-  private String resourceId;
+  @Valid @NotEmpty private String text;
+  @Valid private String resourceId;
 
-  @Valid
-  private String status;
-
-
+  @Valid private String status;
 }
