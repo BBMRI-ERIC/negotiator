@@ -1,25 +1,30 @@
+# Negotiator
+
 ![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/CI.yml/badge.svg?)
 [![GitHub Super-Linter](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 [![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator-v3/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator-v3)
 ![Static Badge](https://img.shields.io/badge/Java%20Code%20Style-Google-orange)
 ![Static Badge](https://img.shields.io/badge/Docker-bbmrieric%2Fnegotiator-blue)
 
-
-# Negotiator
-
-_An access control service for health data and biological samples._
+Negotiator, an open-source system for streamlining access request workflows in multinational environments.
+Allows defining a custom workflow engine, provides a REST API for interaction with requests and features
+for moderation on national level.
 
 ## Goal
 
-The goal of this project is to provide an access control mechanism by structuring and streamlining negotiation process for resources with restricted access.
+The goal of this project is to provide a highly customizable system, featuring an access control mechanism
+for structuring and streamlining the process of access requests for resources under the jurisdiction of different
+organizations spanning multiple nations and, each with their own legislation.
 
 ## State
 
 Negotiator is currently used for mediating access to biological data and samples in BBMRI-ERIC. Using one of BBMRI-ERIC
 discovery services such as the [Directory](https://directory.bbmri-eric.eu/#/) or the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
-can browse and locate collections of bio specimens, and then request access via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/) by filling out a request form and then following individual steps of the Negotiation lifecycle.
-This is a new implementation of the Negotiator, version 3.0.0 and is still under active development.An older version of
-this service can be found in this repository: https://github.com/BBMRI-ERIC/negotiator.bbmri
+can browse and locate collections of bio specimens, and then request access via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/)
+by filling out a request form and then following individual steps of the Negotiation lifecycle.
+This is a new implementation of the Negotiator, version 3.0.0 and is still under active development. Documentation for
+the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
+An older version of this service can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
 
 ## Quick Start
 
@@ -49,7 +54,3 @@ java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ``
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
-
-### Database Design
-
-The database design can be found here: https://dbdiagram.io/d/5f84671a3a78976d7b774fec
