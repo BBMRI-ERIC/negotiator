@@ -21,5 +21,4 @@ public class AccessCriteriaSetDTO {
   String name;
 
   List<AccessCriteriaSection> sections = new ArrayList<>();
-
 }

@@ -11,8 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PersonModelsMapper {
 
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired ModelMapper modelMapper;
 
   @PostConstruct
   public void setMappings() {

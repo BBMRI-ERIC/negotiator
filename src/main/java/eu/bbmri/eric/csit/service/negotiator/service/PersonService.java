@@ -17,5 +17,4 @@ public interface PersonService {
   List<Person> findAll();
 
   List<PerunUserDTO> createOrUpdate(List<PerunUserDTO> request);
-
 }

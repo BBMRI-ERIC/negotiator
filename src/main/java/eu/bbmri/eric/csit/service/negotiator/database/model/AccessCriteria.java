@@ -22,17 +22,13 @@ import lombok.ToString.Exclude;
 @Setter
 public class AccessCriteria extends BaseEntity implements Comparable<AccessCriteria> {
 
-  @NotNull
-  private String name;
+  @NotNull private String name;
 
-  @NotNull
-  private String label;
+  @NotNull private String label;
 
-  @NotNull
-  private String description;
+  @NotNull private String description;
 
-  @NotNull
-  private String type;
+  @NotNull private String type;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "access_criteria_section_id")

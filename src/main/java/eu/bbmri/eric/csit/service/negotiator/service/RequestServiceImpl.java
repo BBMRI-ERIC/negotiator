@@ -26,14 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service(value = "DefaultRequestService")
 public class RequestServiceImpl implements RequestService {
 
-  @Autowired
-  private RequestRepository requestRepository;
-  @Autowired
-  private ResourceRepository resourceRepository;
-  @Autowired
-  private DataSourceRepository dataSourceRepository;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private RequestRepository requestRepository;
+  @Autowired private ResourceRepository resourceRepository;
+  @Autowired private DataSourceRepository dataSourceRepository;
+  @Autowired private ModelMapper modelMapper;
 
   /**
    * Checks that resources in input conforms to the hierarchy regitered in the negotiator, and if
@@ -44,7 +40,7 @@ public class RequestServiceImpl implements RequestService {
    */
   private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Request requestEntity) {
     Set<Resource> resourcesInQuery = new HashSet<>();
-    resourceDTOs.forEach(  // For each parent
+    resourceDTOs.forEach( // For each parent
         resourceDTO -> {
           // Gets the children
           Set<ResourceDTO> childrenDTOs = resourceDTO.getChildren();
@@ -54,15 +50,15 @@ public class RequestServiceImpl implements RequestService {
               resourceRepository.findBySourceIdInAndParentSourceId(
                   childrenDTOs.stream().map(ResourceDTO::getId).collect(Collectors.toSet()),
                   resourceDTO.getId());
-          // If the Resources in the DB are the same as the one in input, it means they are all correct
+          // If the Resources in the DB are the same as the one in input, it means they are all
+          // correct
           if (childrenResources.size() < childrenDTOs.size()) {
             throw new WrongRequestException(
                 "Some of the specified resources were not found or the hierarchy was not correct");
           } else {
             resourcesInQuery.addAll(childrenResources);
           }
-        }
-    );
+        });
     requestEntity.setResources(resourcesInQuery);
   }
 
@@ -113,8 +109,8 @@ public class RequestServiceImpl implements RequestService {
 
   @Transactional(readOnly = true)
   public RequestDTO findById(String id) throws EntityNotFoundException {
-    Request request = requestRepository.findDetailedById(id)
-        .orElseThrow(() -> new EntityNotFoundException(id));
+    Request request =
+        requestRepository.findDetailedById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return modelMapper.map(request, RequestDTO.class);
   }
 

@@ -15,8 +15,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Collections;
 import java.util.Optional;
@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,22 +44,14 @@ public class RequestControllerTests {
   private static final String NEGOTIATION_1 = "negotiation-1";
   private static final String UNASSIGNED_REQUEST_ID = "request-unassigned";
 
-  @Autowired
-  public RequestServiceImpl service;
-  @Autowired
-  public RequestRepository repository;
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private RequestController controller;
-  @Autowired
-  private RequestServiceImpl requestService;
-  @Autowired
-  private NegotiationServiceImpl negotiationService;
-  @Autowired
-  private NegotiationLifecycleService negotiationStateService;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired public RequestServiceImpl service;
+  @Autowired public RequestRepository repository;
+  @Autowired private WebApplicationContext context;
+  @Autowired private RequestController controller;
+  @Autowired private RequestServiceImpl requestService;
+  @Autowired private NegotiationServiceImpl negotiationService;
+  @Autowired private NegotiationLifecycleService negotiationStateService;
+  @Autowired private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
 
@@ -255,8 +246,9 @@ public class RequestControllerTests {
   @Test
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
-    NegotiationDTO n = negotiationService.create(
-        TestUtils.createNegotiation(Collections.singleton(r.getId())), CREATOR_ID);
+    NegotiationDTO n =
+        negotiationService.create(
+            TestUtils.createNegotiation(Collections.singleton(r.getId())), CREATOR_ID);
 
     long previousCount = repository.count();
 
@@ -281,8 +273,11 @@ public class RequestControllerTests {
   @WithUserDetails("directory")
   public void testUpdate_BadRequest_whenUnauthorized() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
-    mockMvc.perform(MockMvcRequestBuilders.post("/v3/requests").
-            contentType(MediaType.APPLICATION_JSON).content(request.toString()))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/requests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request.toString()))
         .andExpect(status().isBadRequest());
   }
 
@@ -302,8 +297,11 @@ public class RequestControllerTests {
   @WithUserDetails("directory")
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
-    mockMvc.perform(MockMvcRequestBuilders.put("/v3/requests/-1").
-            contentType(MediaType.APPLICATION_JSON).content(request.toString()))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("/v3/requests/-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request.toString()))
         .andExpect(status().isBadRequest());
   }
 

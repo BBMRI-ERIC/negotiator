@@ -55,7 +55,8 @@ public class TestUtils {
   public static final String QUERY_COLLECTION_2_ID = "biobank:2:collection:1";
   public static final String QUERY_COLLECTION_2_NAME = "Test collection #1 of biobank #2";
 
-  public static final String PROJECT_PAYLOAD = "{\"title\":\"Test project\",\"description\":\"This is a test project\"}";
+  public static final String PROJECT_PAYLOAD =
+      "{\"title\":\"Test project\",\"description\":\"This is a test project\"}";
 
   public static final String REQUEST_TITLE = "negotiation title";
   public static final String REQUEST_DESCRIPTION = "negotiation description";
@@ -66,13 +67,12 @@ public class TestUtils {
   public static final String PERUN_USER_STATUS = "perun user status";
   public static final String PERUN_USER_MAIL = "perunusermail@mail.it";
   public static final String[] PERUN_USER_IDENTITIES = {
-      "perun user identity 1", "perun user identity 2"
+    "perun user identity 1", "perun user identity 2"
   };
 
   private static Resource negotiationPayload;
 
-  @Autowired
-  private static ResourceLoader resourceLoader;
+  @Autowired private static ResourceLoader resourceLoader;
 
   public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
@@ -100,11 +100,7 @@ public class TestUtils {
     String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
     ResourceDTO collection =
-        ResourceDTO.builder()
-            .id(collectionId)
-            .name(collectionName)
-            .type("collection")
-            .build();
+        ResourceDTO.builder().id(collectionId).name(collectionName).type("collection").build();
     ResourceDTO biobank =
         ResourceDTO.builder()
             .id(biobankId)
@@ -137,9 +133,7 @@ public class TestUtils {
   public static ProjectCreateDTO createProjectRequest(boolean update) {
     String suffix = update ? "u" : "";
 
-    return ProjectCreateDTO.builder()
-        .payload(PROJECT_PAYLOAD)
-        .build();
+    return ProjectCreateDTO.builder().payload(PROJECT_PAYLOAD).build();
   }
 
   public static List<PerunUserDTO> createPerunUserRequestList(boolean update, int size) {
@@ -162,7 +156,8 @@ public class TestUtils {
   }
 
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
-    String payload = """
+    String payload =
+        """
             {
               "project": {
                 "title": "Title",
@@ -183,9 +178,7 @@ public class TestUtils {
     JsonNode jsonPayload = mapper.readTree(payload);
 
     NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
-        NegotiationCreateDTO.builder()
-            .payload(jsonPayload)
-            .requests(requestsId);
+        NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId);
     return builder.build();
   }
 

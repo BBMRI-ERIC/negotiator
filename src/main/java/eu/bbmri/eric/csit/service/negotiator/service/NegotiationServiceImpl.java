@@ -31,22 +31,15 @@ import org.springframework.transaction.annotation.Transactional;
 @CommonsLog
 public class NegotiationServiceImpl implements NegotiationService {
 
-  @Autowired
-  NegotiationRepository negotiationRepository;
-  @Autowired
-  RoleRepository roleRepository;
-  @Autowired
-  PersonRepository personRepository;
-  @Autowired
-  RequestRepository requestRepository;
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired NegotiationRepository negotiationRepository;
+  @Autowired RoleRepository roleRepository;
+  @Autowired PersonRepository personRepository;
+  @Autowired RequestRepository requestRepository;
+  @Autowired ModelMapper modelMapper;
 
-  @Autowired
-  private NegotiationLifecycleService negotiationLifecycleService;
+  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
-  @Autowired
-  private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
+  @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;
@@ -67,10 +60,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
   }
 
-  private void addPersonToNegotiation(Person person, Negotiation negotiationEntity,
-      String roleName) {
-    Role role = roleRepository.findByName(roleName)
-        .orElseThrow(EntityNotStorableException::new);
+  private void addPersonToNegotiation(
+      Person person, Negotiation negotiationEntity, String roleName) {
+    Role role = roleRepository.findByName(roleName).orElseThrow(EntityNotStorableException::new);
     // Creates the association between the Person and the Negotiation
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiationEntity, role);
     // Updates person and negotiation with the person role
@@ -82,8 +74,8 @@ public class NegotiationServiceImpl implements NegotiationService {
    * Creates a Negotiation into the repository.
    *
    * @param negotiationBody the NegotiationCreateDTO DTO sent from to the endpoint
-   * @param creatorId       the ID of the Person that creates the Negotiation (i.e., the
-   *                        authenticated Person that called the API)
+   * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
+   *     Person that called the API)
    * @return the created Negotiation entity
    */
   @Transactional
@@ -118,7 +110,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       // Set initial state machine
       negotiationLifecycleService.initializeTheStateMachine(negotiationEntity.getId());
       for (Resource resource : negotiationEntity.getAllResources().getResources()) {
-        negotiationResourceLifecycleService.initializeTheStateMachine(negotiationEntity.getId(), resource.getSourceId());
+        negotiationResourceLifecycleService.initializeTheStateMachine(
+            negotiationEntity.getId(), resource.getSourceId());
       }
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
@@ -133,8 +126,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     List<Request> requests = findRequests(request.getRequests());
 
     if (requests.stream()
-        .anyMatch(query -> query.getNegotiation() != null
-            && query.getNegotiation() != negotiationEntity)) {
+        .anyMatch(
+            query ->
+                query.getNegotiation() != null && query.getNegotiation() != negotiationEntity)) {
       throw new WrongRequestException(
           "One or more request object is already assigned to another negotiation");
     }
@@ -157,7 +151,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   /**
    * Updates the negotiation with the specified ID.
    *
-   * @param negotiationId   the negotiationId of the negotiation tu update
+   * @param negotiationId the negotiationId of the negotiation tu update
    * @param negotiationBody the NegotiationCreateDTO DTO with the new Negotiation data
    * @return The updated Negotiation entity
    */
@@ -210,7 +204,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    * Returns the Negotiation with the specified negotiationId if exists, otherwise it throws an
    * exception
    *
-   * @param negotiationId  the negotiationId of the Negotiation to retrieve
+   * @param negotiationId the negotiationId of the Negotiation to retrieve
    * @param includeDetails whether the negotiation returned include details
    * @return the Negotiation with specified negotiationId
    */

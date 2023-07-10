@@ -16,8 +16,7 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class RequestDTO {
 
-  @NotNull
-  private String id;
+  @NotNull private String id;
 
   @NotNull(message = "The url of the original request must be present")
   private String url;
@@ -29,8 +28,7 @@ public class RequestDTO {
   @NotEmpty(message = "At least one resource must be present")
   private Set<ResourceDTO> resources;
 
-  @NotNull
-  private String redirectUrl;
+  @NotNull private String redirectUrl;
 
   private String negotiationId;
 }

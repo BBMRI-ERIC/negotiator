@@ -23,25 +23,13 @@ import lombok.Setter;
 public class PostDTO {
 
   Set<Attachment> attachments;
-  @NotNull
-  private String id;
-  @Valid
-  @NotEmpty
-  private String status;
-  @Valid
-  @NotEmpty
-  private String text;
+  @NotNull private String id;
+  @Valid @NotEmpty private String status;
+  @Valid @NotEmpty private String text;
 
-  @Valid
-  @NotEmpty
-  private LocalDateTime creationDate;
+  @Valid @NotEmpty private LocalDateTime creationDate;
 
-  @Valid
-  @NotEmpty
-  private LocalDateTime modifiedDate;
+  @Valid @NotEmpty private LocalDateTime modifiedDate;
 
-  @Valid
-  @NotEmpty
-  private PersonDTO poster;
-
+  @Valid @NotEmpty private PersonDTO poster;
 }

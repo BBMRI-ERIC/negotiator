@@ -20,9 +20,7 @@ public class PersonRoleDTO {
   // TODO: is it necessary?
   private String id;
 
-  @NotNull
-  private String name;
+  @NotNull private String name;
 
-  @NotNull
-  private String role;
+  @NotNull private String role;
 }

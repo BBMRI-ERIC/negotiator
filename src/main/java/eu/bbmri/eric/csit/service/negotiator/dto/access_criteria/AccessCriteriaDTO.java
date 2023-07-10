@@ -14,19 +14,13 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class AccessCriteriaDTO {
 
-  @NotNull
-  private String name;
+  @NotNull private String name;
 
-  @NotNull
-  private String label;
+  @NotNull private String label;
 
-  @NotNull
-  private String description;
+  @NotNull private String description;
 
-  @NotNull
-  private String type;
+  @NotNull private String type;
 
-  @NotNull
-  private Boolean required;
-
+  @NotNull private Boolean required;
 }

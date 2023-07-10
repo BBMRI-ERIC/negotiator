@@ -40,10 +40,8 @@ public class PostControllerTests {
   private static final String RESEARCHER_ROLE = "RESEARCHER";
   private static final String REPRESENTATIVE_ROLE = "REPRESENTATIVE";
   private static final String POST_ID = "post-1-representative";
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private PostRepository postRepository;
+  @Autowired private WebApplicationContext context;
+  @Autowired private PostRepository postRepository;
   private MockMvc mockMvc;
 
   @BeforeEach
@@ -56,8 +54,7 @@ public class PostControllerTests {
   public void testCreateOK() throws Exception {
     PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null);
     String requestBody = TestUtils.jsonFromRequest(request);
-    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
     System.out.println(uri);
     mockMvc
@@ -67,18 +64,15 @@ public class PostControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.text",
-            is("message")))
-        .andExpect(jsonPath("$.status",
-            is("CREATED")));
+        .andExpect(jsonPath("$.text", is("message")))
+        .andExpect(jsonPath("$.status", is("CREATED")));
   }
 
   @Test
   public void testCreateUnauthorized() throws Exception {
     PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null);
     String requestBody = TestUtils.jsonFromRequest(request);
-    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
     System.out.println(uri);
     mockMvc
@@ -87,7 +81,6 @@ public class PostControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isUnauthorized());
-
   }
 
   @Test
@@ -95,8 +88,7 @@ public class PostControllerTests {
   public void testCreateWithUnknownResource() throws Exception {
     PostCreateDTO request = TestUtils.createPost("Unknown", "message", null);
     String requestBody = TestUtils.jsonFromRequest(request);
-    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
     System.out.println(uri);
     mockMvc
@@ -111,11 +103,9 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetAll() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI);
+    String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(uri))
+        .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(numberOfPosts)))
@@ -123,42 +113,39 @@ public class PostControllerTests {
         .andExpect(jsonPath("$[1].id", is("post-2-researcher")))
         .andExpect(jsonPath("$[2].id", is("post-1-representative")))
         .andExpect(jsonPath("$[3].id", is("post-2-representative")));
-
   }
 
   @Test
   @WithUserDetails("TheResearcher")
   public void testGetResearcherPostsOnly() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    String uri = String.format("%s/%s/%s?role=%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI, RESEARCHER_ROLE);
+    String uri =
+        String.format(
+            "%s/%s/%s?role=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, RESEARCHER_ROLE);
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(uri))
+        .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(2)))
         .andExpect(jsonPath("$[0].id", is("post-1-researcher")))
         .andExpect(jsonPath("$[1].id", is("post-2-researcher")));
-
   }
 
   @Test
   @WithUserDetails("TheBiobanker")
   public void testGetRepresentativePostsOnly() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    String uri = String.format("%s/%s/%s?role=%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI, REPRESENTATIVE_ROLE);
+    String uri =
+        String.format(
+            "%s/%s/%s?role=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, REPRESENTATIVE_ROLE);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(uri))
+        .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(2)))
         .andExpect(jsonPath("$[0].id", is("post-1-representative")))
         .andExpect(jsonPath("$[1].id", is("post-2-representative")));
-
   }
 
   @Test
@@ -167,8 +154,8 @@ public class PostControllerTests {
     int numberOfPosts = (int) postRepository.count();
     PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", "READ");
     String requestBody = TestUtils.jsonFromRequest(request);
-    String uri = String.format("%s/%s/%s/%s", NEGOTIATIONS_URI,
-        NEGOTIATION_1_ID, POSTS_URI, POST_ID);
+    String uri =
+        String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(uri)
@@ -176,10 +163,6 @@ public class PostControllerTests {
                 .content(requestBody))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.status",
-            is("READ")));
-
+        .andExpect(jsonPath("$.status", is("READ")));
   }
-
-
 }

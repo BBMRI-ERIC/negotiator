@@ -9,8 +9,8 @@ public interface PostService {
   /**
    * Creates a new post for the specified Negotiation
    *
-   * @param postRequest   the Post DTO containing request information
-   * @param personId      the ID pf the person that is creating the post
+   * @param postRequest the Post DTO containing request information
+   * @param personId the ID pf the person that is creating the post
    * @param negotiationId thr ID of the negotiation to which the post refers
    * @return the response PostDTO object
    */
@@ -28,7 +28,7 @@ public interface PostService {
    * Finds all the posts related to a negotiation and a list of specific persons (posters)
    *
    * @param negotiationId the ID of the negotiation
-   * @param posters       a list of all the persons that created the posts to be found
+   * @param posters a list of all the persons that created the posts to be found
    * @return the list of all the posts related to the input negotiation ID and persons
    */
   List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
@@ -38,9 +38,8 @@ public interface PostService {
    *
    * @param updateRequest the Post DTO containing post information to be updates
    * @param negotiationId the ID of the negotiation
-   * @param postId        the ID of the post to update
+   * @param postId the ID of the post to update
    * @return the response PostDTO object
    */
   PostDTO update(PostCreateDTO updateRequest, String negotiationId, String postId);
-
 }

@@ -21,11 +21,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public class NegotiatorUserDetailServiceTest {
 
-  @Autowired
-  NegotiatorUserDetailsService negotiatorUserDetailsService;
-  @Autowired
-  PersonRepository personRepository;
-
+  @Autowired NegotiatorUserDetailsService negotiatorUserDetailsService;
+  @Autowired PersonRepository personRepository;
 
   // TODO: Fix basic auth
   @Test
@@ -54,7 +51,6 @@ public class NegotiatorUserDetailServiceTest {
     assertNotNull(p.getPassword());
 
     assertInstanceOf(
-        HttpBasicUserDetails.class,
-        negotiatorUserDetailsService.loadUserByUsername("researcher"));
+        HttpBasicUserDetails.class, negotiatorUserDetailsService.loadUserByUsername("researcher"));
   }
 }

@@ -20,15 +20,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 public class DataSourceServiceTest {
 
-  @Mock
-  DataSourceRepository dataSourceRepository;
+  @Mock DataSourceRepository dataSourceRepository;
 
-  @Mock
-  ModelMapper modelMapper;
+  @Mock ModelMapper modelMapper;
 
-  @InjectMocks
-  DataSourceServiceImpl service;
-
+  @InjectMocks DataSourceServiceImpl service;
 
   private AutoCloseable closeable;
 

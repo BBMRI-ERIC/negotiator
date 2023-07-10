@@ -1,14 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
-import lombok.*;
-import lombok.ToString.Exclude;
-
-import javax.persistence.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.*;
+import lombok.*;
+import lombok.ToString.Exclude;
 
 @Entity
 @NoArgsConstructor(force = true)
@@ -20,7 +19,7 @@ import java.util.Set;
 @NamedEntityGraph(
     name = "person-detailed",
     attributeNodes = {@NamedAttributeNode("roles")})
-@SequenceGenerator(name="person_id_seq", initialValue=300)
+@SequenceGenerator(name = "person_id_seq", initialValue = 300)
 public class Person {
 
   @Id

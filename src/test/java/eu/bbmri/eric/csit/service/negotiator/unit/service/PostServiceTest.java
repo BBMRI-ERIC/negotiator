@@ -21,14 +21,11 @@ import org.modelmapper.ModelMapper;
 
 public class PostServiceTest {
 
-  @Mock
-  PostRepository postRepository;
+  @Mock PostRepository postRepository;
 
-  @Mock
-  ModelMapper modelMapper;
+  @Mock ModelMapper modelMapper;
 
-  @InjectMocks
-  PostServiceImpl postService;
+  @InjectMocks PostServiceImpl postService;
 
   private AutoCloseable closeable;
 
@@ -44,35 +41,32 @@ public class PostServiceTest {
 
   @Test
   public void test_FindByNegotiationId() {
-    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(
-        List.of(new Post(), new Post()));
+    when(postRepository.findByNegotiationId("negotiationId"))
+        .thenReturn(List.of(new Post(), new Post()));
     Assertions.assertEquals(2, postService.findByNegotiationId("negotiationId").size());
   }
 
   @Test
   public void test_FindByNegotiationIdNoResults() {
-    when(postRepository.findByNegotiationId("fakeId")).thenReturn(
-        Collections.emptyList());
+    when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
     Assertions.assertEquals(0, postService.findByNegotiationId("fakeId").size());
   }
 
   @Test
   public void test_FindByNegotiationIdAndPosters() {
-    when(postRepository.findNewByNegotiationIdAndPosters("negotiationId",
-        List.of("p1"))).thenReturn(
-        List.of(new Post(), new Post()));
-    Assertions.assertEquals(2, postService.findNewByNegotiationIdAndPosters(
-        "negotiationId", List.of("p1")).size());
+    when(postRepository.findNewByNegotiationIdAndPosters("negotiationId", List.of("p1")))
+        .thenReturn(List.of(new Post(), new Post()));
+    Assertions.assertEquals(
+        2, postService.findNewByNegotiationIdAndPosters("negotiationId", List.of("p1")).size());
   }
 
   @Test
   public void test_FindByNegotiationIdAndPosters_ReturnsEmptyList_whenNotFound() {
-    when(postRepository.findNewByNegotiationIdAndPosters(any(), any())).thenReturn(
-        Collections.emptyList());
+    when(postRepository.findNewByNegotiationIdAndPosters(any(), any()))
+        .thenReturn(Collections.emptyList());
     assertTrue(
-        postService.findNewByNegotiationIdAndPosters("fakeID", Arrays.asList("fakep1", "fakeP2"))
+        postService
+            .findNewByNegotiationIdAndPosters("fakeID", Arrays.asList("fakep1", "fakeP2"))
             .isEmpty());
   }
-
-
 }

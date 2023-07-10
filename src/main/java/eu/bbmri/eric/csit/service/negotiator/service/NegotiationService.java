@@ -61,7 +61,7 @@ public interface NegotiationService {
    *
    * @param id the id
    * @param includeDetails whether to include details about the resources involved in the
-   * negotiation or not
+   *     negotiation or not
    * @return the NegotiationDTO with the data of the negotiation
    * @throws EntityNotFoundException if the requested negotiation is not found
    */

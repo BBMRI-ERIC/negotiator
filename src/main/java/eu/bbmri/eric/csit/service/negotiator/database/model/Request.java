@@ -36,21 +36,17 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "request")
 @NamedEntityGraph(
     name = "request-with-detailed-resources",
-    attributeNodes = {
-        @NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")
-    },
+    attributeNodes = {@NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")},
     subgraphs = {
-        @NamedSubgraph(
-            name = "resources-with-parent",
-            attributeNodes = {@NamedAttributeNode("parent")})
+      @NamedSubgraph(
+          name = "resources-with-parent",
+          attributeNodes = {@NamedAttributeNode("parent")})
     })
 public class Request {
 
-  @NotNull
-  private String url;
+  @NotNull private String url;
 
-  @NotNull
-  private String humanReadable;
+  @NotNull private String humanReadable;
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -88,8 +84,7 @@ public class Request {
       return false;
     }
     Request request = (Request) o;
-    return Objects.equals(getId(), request.getId())
-        && Objects.equals(getUrl(), request.getUrl());
+    return Objects.equals(getId(), request.getId()) && Objects.equals(getUrl(), request.getUrl());
   }
 
   @Override

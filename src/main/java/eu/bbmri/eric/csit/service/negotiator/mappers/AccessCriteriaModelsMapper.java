@@ -18,8 +18,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AccessCriteriaModelsMapper {
 
-  @Autowired
-  ModelMapper modelMapper;
+  @Autowired ModelMapper modelMapper;
 
   @PostConstruct
   void addMappings() {
@@ -40,22 +39,20 @@ public class AccessCriteriaModelsMapper {
     return sections.stream()
         .map(
             section -> {
-              List<AccessCriteriaDTO> accessCriteria = section.getAccessCriteriaSectionLink()
-                  .stream().map(
-                      criteria -> new AccessCriteriaDTO(
-                          criteria.getAccessCriteria().getName(),
-                          criteria.getAccessCriteria().getLabel(),
-                          criteria.getAccessCriteria().getDescription(),
-                          criteria.getAccessCriteria().getType(),
-                          criteria.getRequired())
-                  ).toList();
+              List<AccessCriteriaDTO> accessCriteria =
+                  section.getAccessCriteriaSectionLink().stream()
+                      .map(
+                          criteria ->
+                              new AccessCriteriaDTO(
+                                  criteria.getAccessCriteria().getName(),
+                                  criteria.getAccessCriteria().getLabel(),
+                                  criteria.getAccessCriteria().getDescription(),
+                                  criteria.getAccessCriteria().getType(),
+                                  criteria.getRequired()))
+                      .toList();
               return new AccessCriteriaSectionDTO(
-                  section.getName(),
-                  section.getLabel(),
-                  section.getDescription(),
-                  accessCriteria);
-            }
-        )
+                  section.getName(), section.getLabel(), section.getDescription(), accessCriteria);
+            })
         .collect(Collectors.toList());
   }
 }

@@ -33,5 +33,4 @@ public interface ProjectService {
    * @throws EntityNotFoundException if the Project is not found
    */
   List<ProjectDTO> findAll();
-
 }

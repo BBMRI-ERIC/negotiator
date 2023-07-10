@@ -20,31 +20,37 @@ import org.springframework.statemachine.service.StateMachineService;
 public class StateMachinePersistenceConfig {
 
   @Bean(name = "negotiationStateMachineRuntimePersister")
-  public StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachineRuntimePersister(
-      JpaStateMachineRepository jpaStateMachineRepository) {
-    return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository) {
-    };
+  public StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String>
+      stateMachineRuntimePersister(JpaStateMachineRepository jpaStateMachineRepository) {
+    return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository) {};
   }
 
   @Bean(name = "negotiationResourceStateMachineRuntimePersister")
-  public StateMachineRuntimePersister<NegotiationResourceState, NegotiationResourceEvent, String> negotiationResourcestateMachineRuntimePersister(
+  public StateMachineRuntimePersister<NegotiationResourceState, NegotiationResourceEvent, String>
+      negotiationResourcestateMachineRuntimePersister(
           JpaStateMachineRepository jpaStateMachineRepository) {
-    return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository) {
-    };
+    return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository) {};
   }
 
   @Bean(name = "negotiationStateMachineService")
   public StateMachineService<NegotiationState, NegotiationEvent> negotiationStateMachineService(
       StateMachineFactory<NegotiationState, NegotiationEvent> stateMachineFactory,
-      @Qualifier("negotiationStateMachineRuntimePersister") StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String> stateMachineRuntimePersister) {
+      @Qualifier("negotiationStateMachineRuntimePersister")
+          StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String>
+              stateMachineRuntimePersister) {
     return new DefaultStateMachineService<>(stateMachineFactory, stateMachineRuntimePersister);
   }
 
   @Bean(name = "negotiationResourceStateMachineService")
-  public StateMachineService<NegotiationResourceState, NegotiationResourceEvent> negotiationResourceStateMachineService(
-      StateMachineFactory<NegotiationResourceState, NegotiationResourceEvent> negotiationResourceStateMachineFactory,
-      @Qualifier("negotiationResourceStateMachineRuntimePersister") StateMachineRuntimePersister<NegotiationResourceState, NegotiationResourceEvent, String> negotiationResourcestateMachineRuntimePersister) {
-    return new DefaultStateMachineService<>(negotiationResourceStateMachineFactory,
-            negotiationResourcestateMachineRuntimePersister);
+  public StateMachineService<NegotiationResourceState, NegotiationResourceEvent>
+      negotiationResourceStateMachineService(
+          StateMachineFactory<NegotiationResourceState, NegotiationResourceEvent>
+              negotiationResourceStateMachineFactory,
+          @Qualifier("negotiationResourceStateMachineRuntimePersister")
+              StateMachineRuntimePersister<
+                      NegotiationResourceState, NegotiationResourceEvent, String>
+                  negotiationResourcestateMachineRuntimePersister) {
+    return new DefaultStateMachineService<>(
+        negotiationResourceStateMachineFactory, negotiationResourcestateMachineRuntimePersister);
   }
 }

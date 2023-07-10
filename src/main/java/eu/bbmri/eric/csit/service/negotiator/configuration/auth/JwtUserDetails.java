@@ -8,8 +8,7 @@ public class JwtUserDetails implements NegotiatorUserDetails {
 
   private final Person person;
 
-  public JwtUserDetails(
-      Person person, Collection<? extends GrantedAuthority> authorities) {
+  public JwtUserDetails(Person person, Collection<? extends GrantedAuthority> authorities) {
     this.person = person;
   }
 

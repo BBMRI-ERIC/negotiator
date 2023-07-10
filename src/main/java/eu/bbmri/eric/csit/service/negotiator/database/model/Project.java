@@ -29,10 +29,7 @@ import org.hibernate.annotations.TypeDefs;
 @TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 @NamedEntityGraph(
     name = "project-detailed",
-    attributeNodes = {
-        @NamedAttributeNode("payload")
-    }
-)
+    attributeNodes = {@NamedAttributeNode("payload")})
 public class Project extends AuditEntity {
 
   @Type(type = "json")
@@ -40,39 +37,39 @@ public class Project extends AuditEntity {
   @NotNull
   private String payload;
 
-//  @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
-//  @Exclude
-//  private Set<Negotiation> negotiations;
+  //  @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+  //  @Exclude
+  //  private Set<Negotiation> negotiations;
 
   @Exclude
   @ManyToMany(mappedBy = "projects")
   private Set<Person> persons;
 
-//  @Override
-//  public boolean equals(Object o) {
-//    if (this == o) {
-//      return true;
-//    }
-//    if (o == null || getClass() != o.getClass()) {
-//      return false;
-//    }
-//    Project project = (Project) o;
-//    return Objects.equals(getTitle(), project.getTitle())
-//        && Objects.equals(getDescription(), project.getDescription())
-//        && Objects.equals(getEthicsVote(), project.getEthicsVote())
-//        && Objects.equals(getIsTestProject(), project.getIsTestProject())
-//        && Objects.equals(getExpectedEndDate(), project.getExpectedEndDate())
-//        && Objects.equals(getExpectedDataGeneration(), project.getExpectedDataGeneration());
-//  }
-//
-//  @Override
-//  public int hashCode() {
-//    return Objects.hash(
-//        getTitle(),
-//        getDescription(),
-//        getEthicsVote(),
-//        getIsTestProject(),
-//        getExpectedEndDate(),
-//        getExpectedDataGeneration());
-//  }
+  //  @Override
+  //  public boolean equals(Object o) {
+  //    if (this == o) {
+  //      return true;
+  //    }
+  //    if (o == null || getClass() != o.getClass()) {
+  //      return false;
+  //    }
+  //    Project project = (Project) o;
+  //    return Objects.equals(getTitle(), project.getTitle())
+  //        && Objects.equals(getDescription(), project.getDescription())
+  //        && Objects.equals(getEthicsVote(), project.getEthicsVote())
+  //        && Objects.equals(getIsTestProject(), project.getIsTestProject())
+  //        && Objects.equals(getExpectedEndDate(), project.getExpectedEndDate())
+  //        && Objects.equals(getExpectedDataGeneration(), project.getExpectedDataGeneration());
+  //  }
+  //
+  //  @Override
+  //  public int hashCode() {
+  //    return Objects.hash(
+  //        getTitle(),
+  //        getDescription(),
+  //        getEthicsVote(),
+  //        getIsTestProject(),
+  //        getExpectedEndDate(),
+  //        getExpectedDataGeneration());
+  //  }
 }

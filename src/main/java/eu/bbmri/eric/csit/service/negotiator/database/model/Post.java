@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.Date;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -46,8 +45,6 @@ public class Post extends AuditEntity {
   @Exclude
   private Resource resource;
 
-  @Lob
-  private String text;
+  @Lob private String text;
   private String status;
-
 }

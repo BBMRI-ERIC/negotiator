@@ -16,13 +16,9 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class PersonDTO {
 
-  @NotNull
-  private String name;
+  @NotNull private String name;
 
-  @NotNull
-  private String organization;
+  @NotNull private String organization;
 
-  @NotNull
-  private String role;
-
+  @NotNull private String role;
 }

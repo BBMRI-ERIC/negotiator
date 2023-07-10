@@ -23,11 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class ProjectController {
 
-  @Autowired
-  private ProjectService projectService;
+  @Autowired private ProjectService projectService;
 
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private ModelMapper modelMapper;
 
   @GetMapping(value = "/projects", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)

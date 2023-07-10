@@ -35,13 +35,9 @@ public abstract class AuditEntity {
   @Column(name = "id")
   private String id;
 
-  @CreatedDate
-  @Exclude
-  private LocalDateTime creationDate;
+  @CreatedDate @Exclude private LocalDateTime creationDate;
 
-  @LastModifiedDate
-  @Exclude
-  private LocalDateTime modifiedDate;
+  @LastModifiedDate @Exclude private LocalDateTime modifiedDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", updatable = false)

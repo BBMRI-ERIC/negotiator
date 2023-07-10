@@ -1,5 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.java.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,14 +29,6 @@ import org.springframework.statemachine.service.DefaultStateMachineService;
 import org.springframework.statemachine.service.StateMachineService;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
 enum TestStates {
   SUBMITTED,
   APPROVED,
@@ -46,8 +45,7 @@ enum TestEvents {
 @ActiveProfiles("test")
 public class SpringStateMachineTest {
 
-  @Autowired
-  private StateMachineService<TestStates, TestEvents> stateMachineService;
+  @Autowired private StateMachineService<TestStates, TestEvents> stateMachineService;
 
   private StateMachine<TestStates, TestEvents> stateMachine;
 
@@ -58,7 +56,6 @@ public class SpringStateMachineTest {
     stateMachine.stopReactively().block();
     stateMachine.startReactively().block();
   }
-
 
   @Test
   public void testGetStateMachineUUID() {
@@ -92,10 +89,12 @@ public class SpringStateMachineTest {
 
   @Test
   public void testGetValidEvent() {
-    assertEquals(Arrays.stream(new TestEvents[]{TestEvents.APPROVE}).toList(),
+    assertEquals(
+        Arrays.stream(new TestEvents[] {TestEvents.APPROVE}).toList(),
         stateMachine.getTransitions().stream()
-            .filter(transition -> transition.getSource().getId()
-                .equals(stateMachine.getState().getId()))
+            .filter(
+                transition ->
+                    transition.getSource().getId().equals(stateMachine.getState().getId()))
             .map(transition -> transition.getTrigger().getEvent())
             .collect(Collectors.toList()));
   }
@@ -112,24 +111,18 @@ public class SpringStateMachineTest {
 @EnableStateMachineFactory(name = "test")
 @Log
 @Profile("test")
-class StateMachineConfig
-    extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
+class StateMachineConfig extends EnumStateMachineConfigurerAdapter<TestStates, TestEvents> {
 
   @Override
   public void configure(StateMachineConfigurationConfigurer<TestStates, TestEvents> config)
       throws Exception {
-    config
-        .withConfiguration()
-        .autoStartup(true);
+    config.withConfiguration().autoStartup(true);
   }
 
   @Override
   public void configure(StateMachineStateConfigurer<TestStates, TestEvents> states)
       throws Exception {
-    states
-        .withStates()
-        .initial(TestStates.SUBMITTED)
-        .states(EnumSet.allOf(TestStates.class));
+    states.withStates().initial(TestStates.SUBMITTED).states(EnumSet.allOf(TestStates.class));
   }
 
   @Override
@@ -155,5 +148,3 @@ class StateMachineConfig
     return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository);
   }
 }
-
-

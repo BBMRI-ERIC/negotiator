@@ -11,5 +11,4 @@ public interface AccessCriteriaSetService {
    * @return an AccessCriteriaSetDTO containing the AccessCriteria of the Resource
    */
   AccessCriteriaSetDTO findByResourceId(String resourceId);
-
 }

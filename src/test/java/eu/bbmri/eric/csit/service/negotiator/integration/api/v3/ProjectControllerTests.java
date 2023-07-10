@@ -47,14 +47,10 @@ public class ProjectControllerTests {
 
   private MockMvc mockMvc;
 
-  @Autowired
-  private WebApplicationContext context;
-  @Autowired
-  private ProjectController controller;
-  @Autowired
-  private ProjectRepository repository;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private WebApplicationContext context;
+  @Autowired private ProjectController controller;
+  @Autowired private ProjectRepository repository;
+  @Autowired private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {
@@ -160,8 +156,7 @@ public class ProjectControllerTests {
     entity = repository.save(entity);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id", is(entity.getId())))
@@ -216,8 +211,7 @@ public class ProjectControllerTests {
   @WithMockUser(authorities = "RESEARCHER")
   public void testGetById_NotFound_WhenTheIdIsNotPresent() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, "1")))
+        .perform(MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, "1")))
         .andExpect(status().isNotFound());
   }
 
@@ -229,8 +223,7 @@ public class ProjectControllerTests {
     entity = repository.save(entity);
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, entity.getId())))
+        .perform(MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, entity.getId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(entity.getId())))

@@ -25,10 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class DataSourceController {
 
-  @Autowired
-  private DataSourceService dataSourceService;
-  @Autowired
-  private ModelMapper modelMapper;
+  @Autowired private DataSourceService dataSourceService;
+  @Autowired private ModelMapper modelMapper;
 
   @GetMapping("/data-sources")
   List<DataSourceDTO> list() {

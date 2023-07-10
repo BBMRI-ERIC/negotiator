@@ -25,33 +25,34 @@ import lombok.ToString.Exclude;
 @NamedEntityGraph(
     name = "access-criteria-set-with-details",
     attributeNodes = {
-        @NamedAttributeNode(value = "name"),
-        @NamedAttributeNode(value = "sections", subgraph = "access-criteria-sections"),
+      @NamedAttributeNode(value = "name"),
+      @NamedAttributeNode(value = "sections", subgraph = "access-criteria-sections"),
     },
     subgraphs = {
-        @NamedSubgraph(
-            name = "access-criteria-sections",
-            attributeNodes = {
-                @NamedAttributeNode(value = "name"),
-                @NamedAttributeNode(value = "label"),
-                @NamedAttributeNode(value = "description"),
-                @NamedAttributeNode(value = "accessCriteriaSectionLink", subgraph = "access-criteria-section-with-details"),
-            }),
-        @NamedSubgraph(
-            name = "access-criteria-section-with-details",
-            attributeNodes = {
-                @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details")
-            }),
-        @NamedSubgraph(
-            name = "access-criteria-with-details",
-            attributeNodes = {
-                @NamedAttributeNode(value = "name"),
-                @NamedAttributeNode(value = "label"),
-                @NamedAttributeNode(value = "description"),
-                @NamedAttributeNode(value = "type")
-            })
-    }
-)
+      @NamedSubgraph(
+          name = "access-criteria-sections",
+          attributeNodes = {
+            @NamedAttributeNode(value = "name"),
+            @NamedAttributeNode(value = "label"),
+            @NamedAttributeNode(value = "description"),
+            @NamedAttributeNode(
+                value = "accessCriteriaSectionLink",
+                subgraph = "access-criteria-section-with-details"),
+          }),
+      @NamedSubgraph(
+          name = "access-criteria-section-with-details",
+          attributeNodes = {
+            @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details")
+          }),
+      @NamedSubgraph(
+          name = "access-criteria-with-details",
+          attributeNodes = {
+            @NamedAttributeNode(value = "name"),
+            @NamedAttributeNode(value = "label"),
+            @NamedAttributeNode(value = "description"),
+            @NamedAttributeNode(value = "type")
+          })
+    })
 public class AccessCriteriaSet extends BaseEntity {
 
   private String name;
@@ -64,5 +65,4 @@ public class AccessCriteriaSet extends BaseEntity {
   @OrderBy("id ASC")
   @Exclude
   private SortedSet<AccessCriteriaSection> sections;
-
 }
