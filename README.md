@@ -1,7 +1,6 @@
 # Negotiator
 
 ![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/CI.yml/badge.svg?)
-[![GitHub Super-Linter](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 [![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator-v3/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator-v3)
 ![Static Badge](https://img.shields.io/badge/Java%20Code%20Style-Google-orange)
 ![Static Badge](https://img.shields.io/badge/Docker-bbmrieric%2Fnegotiator-blue)
