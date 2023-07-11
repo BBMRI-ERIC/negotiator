@@ -18,4 +18,13 @@ public class ResourceTest {
     resource.setSourceId("biobank:collection:1");
     assertEquals("biobank:collection:1", resource.getSourceId());
   }
+
+  @Test
+  void testAssertWithSameSourceIdEqual() {
+    Resource resource = new Resource();
+    resource.setSourceId("biobank:collection:1");
+    Resource resource2 = new Resource();
+    resource2.setSourceId("biobank:collection:1");
+    assertEquals(resource, resource2);
+  }
 }

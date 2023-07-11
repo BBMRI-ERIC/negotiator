@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import com.sun.istack.Nullable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -75,4 +76,17 @@ public class Resource extends BaseEntity {
   @JoinColumn(name = "access_criteria_set_id")
   @Exclude
   private AccessCriteriaSet accessCriteriaSet;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Resource resource = (Resource) o;
+    return Objects.equals(sourceId, resource.sourceId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(sourceId);
+  }
 }
