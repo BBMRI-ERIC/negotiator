@@ -30,7 +30,7 @@ public class RequestModelsMapper {
   private String FRONTEND_URL;
 
   @PostConstruct
-  void addMappings() {
+  public void addMappings() {
     TypeMap<Request, RequestDTO> typeMap =
         modelMapper.createTypeMap(Request.class, RequestDTO.class);
 
