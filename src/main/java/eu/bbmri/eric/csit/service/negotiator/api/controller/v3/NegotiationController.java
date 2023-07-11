@@ -210,9 +210,7 @@ public class NegotiationController {
   private boolean isRepresentative(NegotiationDTO negotiationDTO) {
     for (RequestDTO requestDTO : negotiationDTO.getRequests()) {
       for (ResourceDTO resourceDTO : requestDTO.getResources()) {
-        List<String> resourceIds = getResourceIds(resourceDTO, new ArrayList<>());
-        resourceIds.retainAll(getResourceIdsFromUserAuthorities());
-        if (resourceIds.size() > 0) {
+        if (getResourceIdsFromUserAuthorities().contains(resourceDTO.getId())) {
           return true;
         }
       }
@@ -228,15 +226,5 @@ public class NegotiationController {
       }
     }
     return false;
-  }
-
-  private List<String> getResourceIds(ResourceDTO resourceDTO, List<String> resourceIds) {
-    if (resourceDTO.getChildren() != null) {
-      for (ResourceDTO resourceDTOChild : resourceDTO.getChildren()) {
-        getResourceIds(resourceDTOChild, resourceIds);
-      }
-    }
-    resourceIds.add(resourceDTO.getId());
-    return resourceIds;
   }
 }

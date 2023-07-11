@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,10 +224,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Transactional
   public List<NegotiationDTO> findByBiobankId(String biobankId) {
-    List<Negotiation> negotiations = negotiationRepository.findByBiobankId(biobankId);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
+    throw new NotImplementedException("Not yet implemented");
   }
 
   /**

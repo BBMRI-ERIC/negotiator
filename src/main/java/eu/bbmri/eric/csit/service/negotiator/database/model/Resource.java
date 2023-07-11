@@ -8,8 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,13 +25,6 @@ import lombok.ToString.Exclude;
 @Builder
 @Entity(name = "Resource")
 @Table(name = "resource")
-@NamedEntityGraph(
-    name = "resource",
-    attributeNodes = {
-      @NamedAttributeNode("sourceId"),
-      @NamedAttributeNode("name"),
-      @NamedAttributeNode("description")
-    })
 public class Resource extends BaseEntity {
 
   private String name;

@@ -9,9 +9,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.modelmapper.Converter;
@@ -90,52 +88,26 @@ public class RequestModelsMapper {
   }
 
   private Set<ResourceDTO> convertResourcesToResourcesDTO(Set<Resource> resources) {
-    Map<String, ResourceDTO> parents = new HashMap<>();
+    Set<ResourceDTO> resourceDTOS = new HashSet<>();
     resources.forEach(
-        collection -> {
-          Resource parent = collection.getParent();
-          ResourceDTO parentResource;
-          if (parents.containsKey(parent.getSourceId())) {
-            parentResource = parents.get(parent.getSourceId());
-          } else {
-            parentResource = new ResourceDTO();
-            parentResource.setId(parent.getSourceId());
-            parentResource.setType("biobank");
-            parentResource.setChildren(new HashSet<>());
-            parents.put(parent.getSourceId(), parentResource);
-          }
-          ResourceDTO collectionResource = new ResourceDTO();
-          collectionResource.setType("collection");
-          collectionResource.setId(collection.getSourceId());
-          parentResource.getChildren().add(collectionResource);
+        resource -> {
+          ResourceDTO resourceDTO = new ResourceDTO();
+          resourceDTO.setId(resource.getSourceId());
+          resourceDTO.setName(resource.getName());
         });
 
-    return new HashSet<>(parents.values());
+    return resourceDTOS;
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
-    Map<String, ResourceDTO> resources = new HashMap<>();
+    Set<ResourceDTO> resourceDTOS = new HashSet<>();
     collections.forEach(
         collection -> {
-          String biobankId = collection.getBiobankId();
-
-          ResourceDTO biobankResource;
-          if (resources.containsKey(biobankId)) {
-            biobankResource = resources.get(biobankId);
-          } else {
-            biobankResource = new ResourceDTO();
-            biobankResource.setId(biobankId);
-            biobankResource.setType("biobank");
-            biobankResource.setChildren(new HashSet<>());
-            resources.put(biobankId, biobankResource);
-          }
-          ResourceDTO collectionResource = new ResourceDTO();
-          collectionResource.setType("collection");
-          collectionResource.setId(collection.getCollectionId());
-          biobankResource.getChildren().add(collectionResource);
+            ResourceDTO resourceDTO = new ResourceDTO();
+            resourceDTO.setId(collection.getCollectionId());
         });
 
-    return new HashSet<>(resources.values());
+    return resourceDTOS;
   }
 
   private String convertIdToRedirectUri(RequestDTO req) {

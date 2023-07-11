@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
@@ -40,23 +41,13 @@ public class RequestServiceImpl implements RequestService {
    */
   private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Request requestEntity) {
     Set<Resource> resourcesInQuery = new HashSet<>();
-    resourceDTOs.forEach( // For each parent
+    resourceDTOs.forEach(
         resourceDTO -> {
-          // Gets the children
-          Set<ResourceDTO> childrenDTOs = resourceDTO.getChildren();
-          // Gets from the DB all the Resources with the ids of the children and parentId of the
-          // parent
-          Set<Resource> childrenResources =
-              resourceRepository.findBySourceIdInAndParentSourceId(
-                  childrenDTOs.stream().map(ResourceDTO::getId).collect(Collectors.toSet()),
-                  resourceDTO.getId());
-          // If the Resources in the DB are the same as the one in input, it means they are all
-          // correct
-          if (childrenResources.size() < childrenDTOs.size()) {
+          if (Objects.isNull(resourceRepository.findBySourceId(resourceDTO.getId()))) {
             throw new WrongRequestException(
                 "Some of the specified resources were not found or the hierarchy was not correct");
-          } else {
-            resourcesInQuery.addAll(childrenResources);
+          }else {
+            resourcesInQuery.add(modelMapper.map(resourceDTO, Resource.class));
           }
         });
     requestEntity.setResources(resourcesInQuery);

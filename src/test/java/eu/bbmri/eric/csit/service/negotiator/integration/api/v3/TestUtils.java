@@ -93,19 +93,12 @@ public class TestUtils {
     String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
     ResourceDTO collection =
-        ResourceDTO.builder().id(collectionId).name(collectionName).type("collection").build();
-    ResourceDTO biobank =
-        ResourceDTO.builder()
-            .id(biobankId)
-            .name(biobankName)
-            .type("biobank")
-            .children(Set.of(collection))
-            .build();
+        ResourceDTO.builder().id(collectionId).name(collectionName).build();
 
     return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
-        .resources(Set.of(biobank))
+        .resources(Set.of(collection))
         .build();
   }
 
