@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
@@ -17,12 +16,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -71,8 +66,6 @@ public class TestUtils {
   };
 
   private static Resource negotiationPayload;
-
-  @Autowired private static ResourceLoader resourceLoader;
 
   public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
@@ -134,25 +127,6 @@ public class TestUtils {
     String suffix = update ? "u" : "";
 
     return ProjectCreateDTO.builder().payload(PROJECT_PAYLOAD).build();
-  }
-
-  public static List<PerunUserDTO> createPerunUserRequestList(boolean update, int size) {
-    String suffix = update ? "u" : "";
-    List<PerunUserDTO> perunUserDTOList = new ArrayList<>();
-
-    for (int i = 0; i < size; i++) {
-      PerunUserDTO request =
-          PerunUserDTO.builder()
-              .id(PERUN_USER_ID + i)
-              .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
-              .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
-              .status(String.format("%s_%s", PERUN_USER_STATUS, i))
-              .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
-              .identities(PERUN_USER_IDENTITIES)
-              .build();
-      perunUserDTOList.add(request);
-    }
-    return perunUserDTOList;
   }
 
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
