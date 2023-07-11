@@ -1,10 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ResourceTest {
   @Test
@@ -26,5 +25,14 @@ public class ResourceTest {
     Resource resource2 = new Resource();
     resource2.setSourceId("biobank:collection:1");
     assertEquals(resource, resource2);
+  }
+
+  @Test
+  void testAssertWithDifferentIdsNotEqual() {
+    Resource resource = new Resource();
+    resource.setSourceId("biobank:collection:1");
+    Resource resource2 = new Resource();
+    resource2.setSourceId("biobank:collection:2");
+    assertNotEquals(resource, resource2);
   }
 }
