@@ -102,10 +102,11 @@ public class NegotiationServiceImpl implements NegotiationService {
         request -> {
           request.setNegotiation(negotiationEntity);
         });
+    Negotiation savedNegotiation;
     try {
       // Finally, save the negotiation. NB: it also cascades operations for other Requests,
       // PersonNegotiationRole
-      negotiationRepository.save(negotiationEntity);
+      savedNegotiation = negotiationRepository.save(negotiationEntity);
 
       // Set initial state machine
       negotiationLifecycleService.initializeTheStateMachine(negotiationEntity.getId());
@@ -118,8 +119,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       log.error(ex);
       throw new EntityNotStorableException();
     }
-    NegotiationDTO dto = modelMapper.map(negotiationEntity, NegotiationDTO.class);
-    return dto;
+    return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 
   private NegotiationDTO update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
