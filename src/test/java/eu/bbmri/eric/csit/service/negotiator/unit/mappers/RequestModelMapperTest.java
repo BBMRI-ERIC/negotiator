@@ -32,13 +32,7 @@ public class RequestModelMapperTest {
         Request request = new Request();
         request.setId("newRequest");
         Resource resource = new Resource();
-        resource.setType("biobank");
-        resource.setParent(null);
-        resource.setSourceId("biobank:1");
-        Resource childResource = new Resource();
-        childResource.setType("collection");
-        childResource.setSourceId("collection:1");
-        resource.setChildren(Set.of(childResource));
+        resource.setSourceId("collection:1");
         request.setResources(Set.of(resource));
         assertEquals(request.getId(), this.mapper.map(request, RequestDTO.class).getId());
     }
