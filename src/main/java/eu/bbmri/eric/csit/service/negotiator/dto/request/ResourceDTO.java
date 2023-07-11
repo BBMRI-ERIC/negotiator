@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Set;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,8 +20,4 @@ public class ResourceDTO {
   @NotNull private String id;
 
   @Nullable private String name;
-
-  @NotNull private String type;
-
-  @NotNull private Set<ResourceDTO> children;
 }
