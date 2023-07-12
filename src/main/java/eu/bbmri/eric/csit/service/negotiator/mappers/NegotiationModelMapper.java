@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResources;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
@@ -53,6 +54,9 @@ public class NegotiationModelMapper {
     Converter<String, String> negotiationStatusConverter =
         status -> negotiationStatusConverter(status.getSource());
 
+    Converter<String, Boolean> negotiationPostsEnabledConverter =
+        postsEnabled -> negotiationPostsEnabledConverter(postsEnabled.getSource());
+
     Converter<NegotiationResources, JsonNode> resourcesStatusConverter =
         resources -> {
           try {
@@ -89,6 +93,11 @@ public class NegotiationModelMapper {
     typeMap.addMappings(
         mapper ->
             mapper
+                .using(negotiationPostsEnabledConverter)
+                .map(Negotiation::getId, NegotiationDTO::setPostsEnabled));
+    typeMap.addMappings(
+        mapper ->
+            mapper
                 .using(resourcesStatusConverter)
                 .map(Negotiation::getAllResources, NegotiationDTO::setResourceStatus));
   }
@@ -120,6 +129,19 @@ public class NegotiationModelMapper {
     } catch (EntityNotFoundException e) {
       return "";
     }
+  }
+
+  private Boolean negotiationPostsEnabledConverter(String negotiationId) {
+    boolean postsEnabled = false;
+    try {
+      NegotiationState currentState = negotiationLifecycleService.getCurrentState(negotiationId);
+      if (currentState.equals(NegotiationState.ONGOING)) {
+        postsEnabled = true;
+      }
+    } catch (EntityNotFoundException e) {
+      log.error("Current state not found for the provided negotiationId");
+    }
+    return postsEnabled;
   }
 
   private JsonNode resourcesStatusConverter(NegotiationResources negotiationResources)

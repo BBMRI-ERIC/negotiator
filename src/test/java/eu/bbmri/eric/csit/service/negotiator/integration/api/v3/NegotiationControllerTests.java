@@ -244,6 +244,7 @@ public class NegotiationControllerTests {
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.postsEnabled", is(false)))
         .andExpect(jsonPath("$.payload.project.title", is("Title")))
         .andExpect(jsonPath("$.payload.samples.num-of-subjects", is(10)))
         .andExpect(jsonPath("$.payload.ethics-vote.ethics-vote", is("My ethic vote")));
