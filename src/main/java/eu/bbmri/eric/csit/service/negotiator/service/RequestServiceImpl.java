@@ -75,11 +75,11 @@ public class RequestServiceImpl implements RequestService {
     requestEntity.setDataSource(dataSource);
   }
 
-  private Request saveRequest(RequestCreateDTO queryRequest, Request requestEntity) {
-    checkAndSetResources(queryRequest.getResources(), requestEntity);
-    checkAndSetDataSource(queryRequest.getUrl(), requestEntity);
-    requestEntity.setUrl(queryRequest.getUrl());
-    requestEntity.setHumanReadable(queryRequest.getHumanReadable());
+  private Request saveRequest(RequestCreateDTO requestCreateDTO, Request requestEntity) {
+    checkAndSetResources(requestCreateDTO.getResources(), requestEntity);
+    checkAndSetDataSource(requestCreateDTO.getUrl(), requestEntity);
+    requestEntity.setUrl(requestCreateDTO.getUrl());
+    requestEntity.setHumanReadable(requestCreateDTO.getHumanReadable());
     return requestRepository.save(requestEntity);
   }
 
