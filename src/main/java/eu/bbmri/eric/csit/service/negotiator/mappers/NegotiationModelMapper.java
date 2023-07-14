@@ -91,10 +91,9 @@ public class NegotiationModelMapper {
                 .using(negotiationStatusConverter)
                 .map(Negotiation::getId, NegotiationDTO::setStatus));
     typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(negotiationPostsEnabledConverter)
-                .map(Negotiation::getId, NegotiationDTO::setPostsEnabled));
+       mapper ->
+           mapper
+                .map(Negotiation::getPostsEnabled, NegotiationDTO::setPostsEnabled));
     typeMap.addMappings(
         mapper ->
             mapper

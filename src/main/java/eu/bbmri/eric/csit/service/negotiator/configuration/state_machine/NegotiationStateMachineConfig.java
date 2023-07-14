@@ -1,13 +1,16 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import java.util.EnumSet;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -28,6 +31,9 @@ public class NegotiationStateMachineConfig
   @Qualifier("negotiationStateMachineRuntimePersister")
   private StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String>
       stateMachineRuntimePersister;
+
+  @Autowired
+  private NegotiationRepository negotiationRepository;
 
   @Override
   public void configure(
@@ -60,7 +66,7 @@ public class NegotiationStateMachineConfig
         .source(NegotiationState.SUBMITTED)
         .target(NegotiationState.APPROVED)
         .target(NegotiationState.ONGOING)
-        .event(NegotiationEvent.APPROVE)
+        .event(NegotiationEvent.APPROVE).action(enablePosts())
         .and()
         .withExternal()
         .source(NegotiationState.SUBMITTED)
@@ -86,7 +92,8 @@ public class NegotiationStateMachineConfig
         .source(NegotiationState.ONGOING)
         .target(NegotiationState.CONCLUDED)
         .event(NegotiationEvent.CONCLUDE);
-  }
+    }
+
 
   @Bean
   public StateMachineListener<NegotiationState, NegotiationEvent> listener() {
@@ -99,4 +106,16 @@ public class NegotiationStateMachineConfig
       }
     };
   }
+
+  @Bean
+  public Action<NegotiationState, NegotiationEvent> enablePosts(){
+    return stateContext -> {
+      String negotiationId = stateContext.getStateMachine().getId();
+      Negotiation n = negotiationRepository.findById(negotiationId).get();
+      n.setPostsEnabled(true);
+      negotiationRepository.save(n);
+    };
+
+  }
+
 }
