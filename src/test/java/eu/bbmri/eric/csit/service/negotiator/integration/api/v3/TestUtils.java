@@ -144,7 +144,7 @@ public class TestUtils {
     JsonNode jsonPayload = mapper.readTree(payload);
 
     NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
-        NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId);
+        NegotiationCreateDTO.builder().payload(jsonPayload).requestsIds(requestsId);
     return builder.build();
   }
 

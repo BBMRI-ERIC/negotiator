@@ -20,7 +20,7 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class NegotiationCreateDTO {
 
-  @Valid @NotEmpty private Set<String> requests;
+  @Valid @NotEmpty private Set<String> requestsIds;
 
   @NotNull private JsonNode payload;
 }
