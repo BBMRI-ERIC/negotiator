@@ -9,6 +9,17 @@ Negotiator, an open-source system for streamlining access request workflows in m
 Allows defining a custom workflow engine, provides a REST API for interaction with requests and features
 for moderation on national level.
 
+<!-- TOC -->
+* [Negotiator](#negotiator)
+  * [Goal](#goal)
+  * [State](#state)
+  * [Quick Start](#quick-start)
+  * [Development](#development)
+    * [Prerequisites](#prerequisites)
+    * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
+    * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
+<!-- TOC -->
+
 ## Goal
 
 The goal of this project is to provide a highly customizable system, featuring an access control mechanism
@@ -29,11 +40,8 @@ An older version of this service can be found in this [repository](https://githu
 
 ## Quick Start
 
-### Prerequisites
-
-- Docker
-
-The following command will run the Negotiator application with the REST API exposed at: http://localhost:8080
+The following command will run the Negotiator application with the REST API exposed
+at [port 8080](http://localhost:8080)
 Note: The authentication using OIDC mock server will not work because of issues with docker network, unless the OIDC
 mock is running
 on an external server.
@@ -57,7 +65,7 @@ mvn package
 java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
 
-### Connection URL for the H2 database:
+### Connection URL for the H2 database
 
 ``
 jdbc:h2:tcp://localhost:9092/mem:negotiator
