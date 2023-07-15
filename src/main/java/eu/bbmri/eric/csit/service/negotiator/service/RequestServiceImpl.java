@@ -68,30 +68,27 @@ public class RequestServiceImpl implements RequestService {
     return true;
   }
 
-  private Request saveRequest(RequestCreateDTO requestCreateDTO) {
-    Request request = new Request();
+  private Request saveRequest(RequestCreateDTO requestCreateDTO, Request request) {
     if (resourcesAreValid(requestCreateDTO.getResources())
         && isDataSourceValid(requestCreateDTO.getUrl())) {
+      String requestId = request.getId();
       request = modelMapper.map(requestCreateDTO, Request.class);
-    }
-    return requestRepository.save(request);
-  }
-
-  private Request saveUpdatedRequest(String requestId, RequestCreateDTO requestCreateDTO) {
-    Request request =
-        requestRepository
-            .findById(requestId)
-            .orElseThrow(() -> new EntityNotFoundException(requestId));
-    if (resourcesAreValid(requestCreateDTO.getResources())
-        && isDataSourceValid(requestCreateDTO.getUrl())) {
-      request = modelMapper.map(requestCreateDTO, Request.class);
+      request.setId(requestId);
+      request.setResources(
+          Set.of(
+              Objects.requireNonNull(
+                  resourceRepository
+                      .findBySourceId(requestCreateDTO.getResources().iterator().next().getId())
+                      .orElse(null))));
+      request.setDataSource(dataSourceRepository.findByUrl(requestCreateDTO.getUrl()).orElse(null));
     }
     return requestRepository.save(request);
   }
 
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
-    Request request = saveRequest(requestBody);
+    Request request = new Request();
+    request = saveRequest(requestBody, request);
     return modelMapper.map(request, RequestDTO.class);
   }
 
@@ -115,9 +112,11 @@ public class RequestServiceImpl implements RequestService {
   }
 
   @Transactional
-  public RequestDTO update(String id, RequestCreateDTO queryRequest)
-      throws EntityNotFoundException {
-    Request request = saveUpdatedRequest(id, queryRequest);
+  public RequestDTO update(String id, RequestCreateDTO requestBody) throws EntityNotFoundException {
+    Request request =
+        requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    request = saveRequest(requestBody, request);
+    log.info(request.getId());
     return modelMapper.map(request, RequestDTO.class);
   }
 }
