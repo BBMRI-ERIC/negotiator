@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.RequestModelsMapper;
+import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,10 +25,14 @@ public class RequestModelMapperTest {
     @InjectMocks
     RequestModelsMapper requestModelsMapper;
 
+    @InjectMocks
+    ResourceModelMapper resourceModelMapper;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
         this.requestModelsMapper.addMappings();
+        this.resourceModelMapper.addMappings();
     }
     @Test
     void mapRequestToDTO_Ok() {

@@ -9,6 +9,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceReposit
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.mappers.RequestModelsMapper;
+import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,15 +37,19 @@ public class RequestServiceTest {
 
     @Mock DataSourceRepository dataSourceRepository;
 
-    @Spy ModelMapper modelMapper;
+    @Spy ModelMapper modelMapper = new ModelMapper();
     @InjectMocks RequestService requestService = new RequestServiceImpl();
+
+    @InjectMocks RequestModelsMapper requestModelsMapper;
+    @InjectMocks ResourceModelMapper resourceModelMapper;
 
     private AutoCloseable closeable;
 
     @BeforeEach
     void before() {
-        
         closeable = MockitoAnnotations.openMocks(this);
+        resourceModelMapper.addMappings();
+        requestModelsMapper.addMappings();
     }
     @Test
     void getAll_ReturnsAll(){
@@ -57,7 +63,7 @@ public class RequestServiceTest {
     void getById_Ok(){
         Request request = new Request();
         request.setId("newRequest");
-        when(requestRepository.findById("newRequest")).thenReturn(Optional.of(request));
+        when(requestRepository.findDetailedById("newRequest")).thenReturn(Optional.of(request));
         assertEquals(request.getId(), requestService.findById(request.getId()).getId());
     }
 

@@ -32,14 +32,6 @@ public class RequestModelsMapper {
     TypeMap<Request, RequestDTO> typeMap =
         modelMapper.createTypeMap(Request.class, RequestDTO.class);
 
-    Converter<Set<Resource>, Set<ResourceDTO>> resourcesToResourcesDTO =
-        q -> convertResourcesToResourcesDTO(q.getSource());
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(resourcesToResourcesDTO)
-                .map(Request::getResources, RequestDTO::setResources));
-
     Converter<String, String> requestToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
     typeMap.addMappings(
         mapper ->
