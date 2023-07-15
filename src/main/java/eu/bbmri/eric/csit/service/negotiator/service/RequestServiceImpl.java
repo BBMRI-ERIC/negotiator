@@ -82,7 +82,8 @@ public class RequestServiceImpl implements RequestService {
                       .orElse(null))));
       request.setDataSource(dataSourceRepository.findByUrl(requestCreateDTO.getUrl()).orElse(null));
     }
-    return requestRepository.save(request);
+    Request saved = requestRepository.save(request);
+    return saved;
   }
 
   @Transactional
@@ -115,8 +116,8 @@ public class RequestServiceImpl implements RequestService {
   public RequestDTO update(String id, RequestCreateDTO requestBody) throws EntityNotFoundException {
     Request request =
         requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    request = saveRequest(requestBody, request);
     log.info(request.getId());
+    request = saveRequest(requestBody, request);
     return modelMapper.map(request, RequestDTO.class);
   }
 }
