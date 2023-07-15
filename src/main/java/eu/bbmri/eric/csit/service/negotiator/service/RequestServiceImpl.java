@@ -1,8 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
@@ -14,17 +12,19 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableExcepti
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.apachecommons.CommonsLog;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "DefaultRequestService")
+@CommonsLog
 public class RequestServiceImpl implements RequestService {
 
   @Autowired private RequestRepository requestRepository;
@@ -37,20 +37,17 @@ public class RequestServiceImpl implements RequestService {
    * they do, add the leaf resources to the request
    *
    * @param resourceDTOs The List of Resources in the request negotiation
-   * @param requestEntity The Request Entity to save in the DB
    */
-  private void checkAndSetResources(Set<ResourceDTO> resourceDTOs, Request requestEntity) {
-    Set<Resource> resourcesInQuery = new HashSet<>();
+  private boolean resourcesAreValid(Set<ResourceDTO> resourceDTOs) {
     resourceDTOs.forEach(
         resourceDTO -> {
           if (Objects.isNull(resourceRepository.findBySourceId(resourceDTO.getId()))) {
+            log.warn("Resource: %s requested but not found in DB.".formatted(resourceDTO.getId()));
             throw new WrongRequestException(
                 "Some of the specified resources were not found or the hierarchy was not correct");
-          }else {
-            resourcesInQuery.add(modelMapper.map(resourceDTO, Resource.class));
           }
         });
-    requestEntity.setResources(resourcesInQuery);
+    return true;
   }
 
   /**
@@ -58,35 +55,32 @@ public class RequestServiceImpl implements RequestService {
    * Request entity
    *
    * @param url the url of the DataSource in the incoming request
-   * @param requestEntity the Request entity to fill with the DataSource
    */
-  private void checkAndSetDataSource(String url, Request requestEntity) {
+  private boolean isDataSourceValid(String url) {
     URL dataSourceURL;
     try {
       dataSourceURL = new URL(url);
     } catch (MalformedURLException e) {
       throw new WrongRequestException("URL not valid");
     }
-    DataSource dataSource =
-        dataSourceRepository
-            .findByUrl(
-                String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
-            .orElseThrow(() -> new WrongRequestException("Data source not found"));
-    requestEntity.setDataSource(dataSource);
+    dataSourceRepository
+        .findByUrl(
+            String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
+        .orElseThrow(() -> new WrongRequestException("Data source not found"));
+    return true;
   }
 
-  private Request saveRequest(RequestCreateDTO requestCreateDTO, Request requestEntity) {
-    checkAndSetResources(requestCreateDTO.getResources(), requestEntity);
-    checkAndSetDataSource(requestCreateDTO.getUrl(), requestEntity);
-    requestEntity.setUrl(requestCreateDTO.getUrl());
-    requestEntity.setHumanReadable(requestCreateDTO.getHumanReadable());
-    return requestRepository.save(requestEntity);
+  private Request saveRequest(RequestCreateDTO requestCreateDTO) {
+    Request request = new Request();
+    if (resourcesAreValid(requestCreateDTO.getResources()) && isDataSourceValid(requestCreateDTO.getUrl())){
+      request = modelMapper.map(requestCreateDTO, Request.class);
+    }
+    return requestRepository.save(request);
   }
 
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
-    Request request = new Request();
-    request = saveRequest(requestBody, request);
+    Request request = saveRequest(requestBody);
     return modelMapper.map(request, RequestDTO.class);
   }
 
@@ -112,9 +106,6 @@ public class RequestServiceImpl implements RequestService {
   @Transactional
   public RequestDTO update(String id, RequestCreateDTO queryRequest)
       throws EntityNotFoundException {
-    Request requestEntity =
-        requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    Request request = saveRequest(queryRequest, requestEntity);
-    return modelMapper.map(request, RequestDTO.class);
+    throw new NotYetImplementedException();
   }
 }
