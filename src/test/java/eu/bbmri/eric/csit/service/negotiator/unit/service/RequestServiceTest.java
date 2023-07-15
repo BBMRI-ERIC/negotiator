@@ -44,13 +44,12 @@ public class RequestServiceTest {
   @InjectMocks RequestModelsMapper requestModelsMapper;
   @InjectMocks ResourceModelMapper resourceModelMapper;
 
-  private AutoCloseable closeable;
-
-  @BeforeEach
-  void before() {
-    closeable = MockitoAnnotations.openMocks(this);
-    resourceModelMapper.addMappings();
-    requestModelsMapper.addMappings();
+  private static RequestCreateDTO createSimpleRequestDTO(ResourceDTO resourceDTO) {
+    return RequestCreateDTO.builder()
+            .url("https://directory.com")
+            .humanReadable("I want everything")
+            .resources(Set.of(resourceDTO))
+            .build();
   }
 
   @Test
@@ -69,22 +68,6 @@ public class RequestServiceTest {
     assertEquals(request.getId(), requestService.findById(request.getId()).getId());
   }
 
-  private static RequestCreateDTO createSimpleRequestDTO(ResourceDTO resourceDTO) {
-    RequestCreateDTO requestCreateDTO =
-        RequestCreateDTO.builder()
-            .url("https://directory.com")
-            .humanReadable("I want everything")
-            .resources(Set.of(resourceDTO))
-            .build();
-    return requestCreateDTO;
-  }
-
-  private static ResourceDTO createSimpleResourceDTO() {
-    ResourceDTO resourceDTO =
-        ResourceDTO.builder().id("test:collection").name("My collection").build();
-    return resourceDTO;
-  }
-
   @Test
   void create_validParameters_Ok() {
     ResourceDTO resourceDTO = createSimpleResourceDTO();
@@ -100,16 +83,38 @@ public class RequestServiceTest {
     assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
   }
 
+  private static ResourceDTO createSimpleResourceDTO() {
+    return ResourceDTO.builder().id("test:collection").name("My collection").build();
+  }
+
+  @BeforeEach
+  void before() {
+    MockitoAnnotations.openMocks(this);
+    resourceModelMapper.addMappings();
+    requestModelsMapper.addMappings();
+  }
+
   @Test
   void update_validParameters_Ok() {
-    create_validParameters_Ok();
-    //    RequestCreateDTO updatedRequestCreateDTO = createSimpleRequestDTO(resourceDTO);
-    //    Request updatedSavedRequest = modelMapper.map(updatedRequestCreateDTO, Request.class);
-    //
-    // when(requestRepository.findById("SavedRequest")).thenReturn(Optional.of(requestToBeSaved));
-    //    when(requestRepository.save(requestToBeSaved)).thenReturn(updatedSavedRequest);
+    ResourceDTO resourceDTO = createSimpleResourceDTO();
+    RequestCreateDTO requestCreateDTO = createSimpleRequestDTO(resourceDTO);
+    Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+    Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
+    when(resourceRepository.findBySourceId(resourceDTO.getId()))
+        .thenReturn(Optional.of(resourceToBeSaved));
+    when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
+    when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+    RequestCreateDTO updatedRequestCreateDTO = createSimpleRequestDTO(resourceDTO);
+    updatedRequestCreateDTO.setHumanReadable("Now I want nothing!");
+    Request updatedSavedRequest = modelMapper.map(updatedRequestCreateDTO, Request.class);
+    when(requestRepository.findById("SavedRequest")).thenReturn(Optional.of(updatedSavedRequest));
+    RequestDTO savedRequest = requestService.create(requestCreateDTO);
+    assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
+    assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
+    when(requestRepository.save(requestToBeSaved)).thenReturn(updatedSavedRequest);
     RequestDTO updatedRequest =
         requestService.update("SavedRequest", createSimpleRequestDTO(createSimpleResourceDTO()));
     assertEquals("Now I want nothing!", updatedRequest.getHumanReadable());
+    assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
   }
 }
