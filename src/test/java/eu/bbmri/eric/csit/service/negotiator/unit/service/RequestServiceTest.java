@@ -89,7 +89,7 @@ public class RequestServiceTest {
     Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
     Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
     when(resourceRepository.findBySourceId(resourceDTO.getId()))
-            .thenReturn(Optional.of(resourceToBeSaved));
+        .thenReturn(Optional.of(resourceToBeSaved));
     when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
     when(requestRepository.save(any())).thenReturn(requestToBeSaved);
     RequestCreateDTO updatedRequestCreateDTO = createSimpleRequestDTO(resourceDTO);
@@ -101,7 +101,7 @@ public class RequestServiceTest {
     assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
     when(requestRepository.save(requestToBeSaved)).thenReturn(updatedSavedRequest);
     RequestDTO updatedRequest =
-            requestService.update("SavedRequest", createSimpleRequestDTO(createSimpleResourceDTO()));
+        requestService.update("SavedRequest", createSimpleRequestDTO(createSimpleResourceDTO()));
     assertEquals("Now I want nothing!", updatedRequest.getHumanReadable());
     assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
   }
@@ -112,9 +112,9 @@ public class RequestServiceTest {
 
   private static RequestCreateDTO createSimpleRequestDTO(ResourceDTO resourceDTO) {
     return RequestCreateDTO.builder()
-            .url("https://directory.com")
-            .humanReadable("I want everything")
-            .resources(Set.of(resourceDTO))
-            .build();
+        .url("https://directory.com")
+        .humanReadable("I want everything")
+        .resources(Set.of(resourceDTO))
+        .build();
   }
 }
