@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2DTO;
@@ -81,19 +80,7 @@ public class RequestModelsMapper {
   private String convertIdToRedirectUrl(String requestId) {
     return "%s/requests/%s".formatted(FRONTEND_URL, requestId);
   }
-
-  private Set<ResourceDTO> convertResourcesToResourcesDTO(Set<Resource> resources) {
-    Set<ResourceDTO> resourceDTOS = new HashSet<>();
-    resources.forEach(
-        resource -> {
-          ResourceDTO resourceDTO = new ResourceDTO();
-          resourceDTO.setId(resource.getSourceId());
-          resourceDTO.setName(resource.getName());
-          resourceDTOS.add(resourceDTO);
-        });
-
-    return resourceDTOS;
-  }
+  
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
     Set<ResourceDTO> resourceDTOS = new HashSet<>();
