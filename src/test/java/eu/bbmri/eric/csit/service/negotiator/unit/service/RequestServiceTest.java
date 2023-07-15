@@ -33,81 +33,88 @@ import static org.mockito.Mockito.when;
 @CommonsLog
 public class RequestServiceTest {
 
-    @Mock RequestRepository requestRepository;
+  @Mock RequestRepository requestRepository;
 
-    @Mock ResourceRepository resourceRepository;
+  @Mock ResourceRepository resourceRepository;
 
-    @Mock DataSourceRepository dataSourceRepository;
+  @Mock DataSourceRepository dataSourceRepository;
 
-    @Spy ModelMapper modelMapper = new ModelMapper();
-    @InjectMocks RequestService requestService = new RequestServiceImpl();
+  @Spy ModelMapper modelMapper = new ModelMapper();
+  @InjectMocks RequestService requestService = new RequestServiceImpl();
 
-    @InjectMocks RequestModelsMapper requestModelsMapper;
-    @InjectMocks ResourceModelMapper resourceModelMapper;
+  @InjectMocks RequestModelsMapper requestModelsMapper;
+  @InjectMocks ResourceModelMapper resourceModelMapper;
 
-    private AutoCloseable closeable;
+  private AutoCloseable closeable;
 
-    @BeforeEach
-    void before() {
-        closeable = MockitoAnnotations.openMocks(this);
-        resourceModelMapper.addMappings();
-        requestModelsMapper.addMappings();
-    }
-    @Test
-    void getAll_ReturnsAll(){
+  @BeforeEach
+  void before() {
+    closeable = MockitoAnnotations.openMocks(this);
+    resourceModelMapper.addMappings();
+    requestModelsMapper.addMappings();
+  }
+
+  @Test
+  void getAll_ReturnsAll() {
     when(requestRepository.findAll()).thenReturn(List.of(new Request()));
     assertEquals(1, requestService.findAll().size());
     when(requestRepository.findAll()).thenReturn(List.of(new Request(), new Request()));
     assertEquals(2, requestService.findAll().size());
-    }
+  }
 
-    @Test
-    void getById_Ok(){
-        Request request = new Request();
-        request.setId("newRequest");
-        when(requestRepository.findDetailedById("newRequest")).thenReturn(Optional.of(request));
-        assertEquals(request.getId(), requestService.findById(request.getId()).getId());
-    }
+  @Test
+  void getById_Ok() {
+    Request request = new Request();
+    request.setId("newRequest");
+    when(requestRepository.findDetailedById("newRequest")).thenReturn(Optional.of(request));
+    assertEquals(request.getId(), requestService.findById(request.getId()).getId());
+  }
 
-    @Test
-    void create_Ok() {
-        ResourceDTO resourceDTO = ResourceDTO.builder()
-                .id("test:collection")
-                .name("My collection").build();
-        RequestCreateDTO requestCreateDTO = RequestCreateDTO.builder().url("https://directory.com")
-                .humanReadable("I want everything").resources(Set.of(resourceDTO)).build();
-        Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
-        Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
-        when(resourceRepository.findBySourceId(resourceDTO.getId()))
-            .thenReturn(Optional.of(resourceToBeSaved));
-        when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
-        when(requestRepository.save(any())).thenReturn(requestToBeSaved);
-        RequestDTO savedRequest = requestService.create(requestCreateDTO);
-        assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
-        assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
-    }
+  @Test
+  void create_Ok() {
+    ResourceDTO resourceDTO =
+        ResourceDTO.builder().id("test:collection").name("My collection").build();
+    RequestCreateDTO requestCreateDTO =
+        RequestCreateDTO.builder()
+            .url("https://directory.com")
+            .humanReadable("I want everything")
+            .resources(Set.of(resourceDTO))
+            .build();
+    Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+    Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
+    when(resourceRepository.findBySourceId(resourceDTO.getId()))
+        .thenReturn(Optional.of(resourceToBeSaved));
+    when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
+    when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+    RequestDTO savedRequest = requestService.create(requestCreateDTO);
+    assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
+    assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
+  }
 
-    @Test
-    void update_Ok() {
-        ResourceDTO resourceDTO = ResourceDTO.builder()
-                .id("test:collection")
-                .name("My collection").build();
-        RequestCreateDTO requestCreateDTO = RequestCreateDTO.builder().url("https://directory.com")
-                .humanReadable("I want everything").resources(Set.of(resourceDTO)).build();
-        Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
-        requestToBeSaved.setId("SavedRequest");
-        Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
-        when(resourceRepository.findBySourceId(resourceDTO.getId()))
-                .thenReturn(Optional.of(resourceToBeSaved));
-        when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
-        when(requestRepository.save(any())).thenReturn(requestToBeSaved);
-        when(requestRepository.findById(any())).thenReturn(Optional.of(requestToBeSaved));
-        RequestDTO savedRequest = requestService.create(requestCreateDTO);
-        assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
-        requestCreateDTO.setHumanReadable("Now I want nothing!");
-        requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
-        when(requestRepository.save(any())).thenReturn(requestToBeSaved);
-        RequestDTO updatedRequest = requestService.update(savedRequest.getId(), requestCreateDTO);
-        assertEquals(requestCreateDTO.getHumanReadable(), updatedRequest.getHumanReadable());
-    }
+  @Test
+  void update_Ok() {
+    ResourceDTO resourceDTO =
+        ResourceDTO.builder().id("test:collection").name("My collection").build();
+    RequestCreateDTO requestCreateDTO =
+        RequestCreateDTO.builder()
+            .url("https://directory.com")
+            .humanReadable("I want everything")
+            .resources(Set.of(resourceDTO))
+            .build();
+    Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+    requestToBeSaved.setId("SavedRequest");
+    Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
+    when(resourceRepository.findBySourceId(resourceDTO.getId()))
+        .thenReturn(Optional.of(resourceToBeSaved));
+    when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
+    when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+    when(requestRepository.findById(any())).thenReturn(Optional.of(requestToBeSaved));
+    RequestDTO savedRequest = requestService.create(requestCreateDTO);
+    assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
+    requestCreateDTO.setHumanReadable("Now I want nothing!");
+    requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+    when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+    RequestDTO updatedRequest = requestService.update(savedRequest.getId(), requestCreateDTO);
+    assertEquals(requestCreateDTO.getHumanReadable(), updatedRequest.getHumanReadable());
+  }
 }

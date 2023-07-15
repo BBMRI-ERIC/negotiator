@@ -63,24 +63,27 @@ public class RequestServiceImpl implements RequestService {
       throw new WrongRequestException("URL not valid");
     }
     dataSourceRepository
-        .findByUrl(
-            String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
+        .findByUrl(String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
         .orElseThrow(() -> new WrongRequestException("Data source not found"));
     return true;
   }
 
   private Request saveRequest(RequestCreateDTO requestCreateDTO) {
     Request request = new Request();
-    if (resourcesAreValid(requestCreateDTO.getResources()) && isDataSourceValid(requestCreateDTO.getUrl())){
+    if (resourcesAreValid(requestCreateDTO.getResources())
+        && isDataSourceValid(requestCreateDTO.getUrl())) {
       request = modelMapper.map(requestCreateDTO, Request.class);
     }
     return requestRepository.save(request);
   }
-  
-  private Request saveUpdatedRequest(String requestId, RequestCreateDTO requestCreateDTO){
+
+  private Request saveUpdatedRequest(String requestId, RequestCreateDTO requestCreateDTO) {
     Request request =
-            requestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException(requestId));
-    if (resourcesAreValid(requestCreateDTO.getResources()) && isDataSourceValid(requestCreateDTO.getUrl())){
+        requestRepository
+            .findById(requestId)
+            .orElseThrow(() -> new EntityNotFoundException(requestId));
+    if (resourcesAreValid(requestCreateDTO.getResources())
+        && isDataSourceValid(requestCreateDTO.getUrl())) {
       request = modelMapper.map(requestCreateDTO, Request.class);
     }
     return requestRepository.save(request);

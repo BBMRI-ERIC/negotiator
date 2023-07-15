@@ -69,9 +69,9 @@ public class RequestModelsMapper {
             mapper
                 .using(queryToRedirectUri)
                 .map(requestDTO -> requestDTO, QueryV2DTO::setRedirectUri));
-    
-    TypeMap<RequestCreateDTO, Request> requestCreateDTORequestTypeMap = 
-            modelMapper.createTypeMap(RequestCreateDTO.class, Request.class);
+
+    TypeMap<RequestCreateDTO, Request> requestCreateDTORequestTypeMap =
+        modelMapper.createTypeMap(RequestCreateDTO.class, Request.class);
   }
 
   private String convertNegotiationToNegotiationId(Negotiation negotiation) {
@@ -99,8 +99,8 @@ public class RequestModelsMapper {
     Set<ResourceDTO> resourceDTOS = new HashSet<>();
     collections.forEach(
         collection -> {
-            ResourceDTO resourceDTO = new ResourceDTO();
-            resourceDTO.setId(collection.getCollectionId());
+          ResourceDTO resourceDTO = new ResourceDTO();
+          resourceDTO.setId(collection.getCollectionId());
         });
 
     return resourceDTOS;

@@ -19,69 +19,69 @@ import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
 public class NegotiationMapperTest {
-    @Spy
-    public ModelMapper mapper = new ModelMapper();
+  @Spy public ModelMapper mapper = new ModelMapper();
 
-    @Mock
-    NegotiationLifecycleService negotiationLifecycleService;
-    @Mock
-    NegotiationResourceLifecycleService negotiationResourceLifecycleService;
-    
-    @InjectMocks
-    public NegotiationModelMapper negotiationModelMapper = new NegotiationModelMapper(mapper);
+  @Mock NegotiationLifecycleService negotiationLifecycleService;
+  @Mock NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        this.negotiationModelMapper.addMappings();
-    }
-    
-    @Test
-    void basicMapNegotiationToDTO() {
-        when(negotiationLifecycleService.getCurrentState("newNegotiation")).thenReturn(NegotiationState.APPROVED);
-        when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-                .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-        Negotiation negotiation = new Negotiation();
-        negotiation.setId("newNegotiation");
-        Resource resource = new Resource();
-        resource.setSourceId("collection:1");
-        Request request = new Request();
-        request.setResources(Set.of(resource));
-        negotiation.setRequests(Set.of(request));
-        NegotiationDTO  negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-        assertEquals(negotiation.getId(), negotiationDTO.getId());
-      }
+  @InjectMocks
+  public NegotiationModelMapper negotiationModelMapper = new NegotiationModelMapper(mapper);
 
-    @Test
-    void testStatusMapping() {
-        when(negotiationLifecycleService.getCurrentState("newNegotiation")).thenReturn(NegotiationState.APPROVED);
-        when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-                .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-        Negotiation negotiation = new Negotiation();
-        negotiation.setId("newNegotiation");
-        Resource resource = new Resource();
-        resource.setSourceId("collection:1");
-        Request request = new Request();
-        request.setResources(Set.of(resource));
-        negotiation.setRequests(Set.of(request));
-        NegotiationDTO  negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-        assertEquals("APPROVED", negotiationDTO.getStatus());
-    }
+  @BeforeEach
+  public void setup() {
+    MockitoAnnotations.openMocks(this);
+    this.negotiationModelMapper.addMappings();
+  }
 
-    @Test
-    void testResourceStatesMappings() {
-        when(negotiationLifecycleService.getCurrentState("newNegotiation")).thenReturn(NegotiationState.APPROVED);
-        when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-                .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-        Negotiation negotiation = new Negotiation();
-        negotiation.setId("newNegotiation");
-        Resource resource = new Resource();
-        resource.setSourceId("collection:1");
-        Request request = new Request();
-        request.setResources(Set.of(resource));
-        negotiation.setRequests(Set.of(request));
-        NegotiationDTO  negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-        JsonNode jsonNode = negotiationDTO.getResourceStatus();
-        assertEquals("REPRESENTATIVE_CONTACTED", jsonNode.get("collection:1").textValue());
-    }
+  @Test
+  void basicMapNegotiationToDTO() {
+    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
+        .thenReturn(NegotiationState.APPROVED);
+    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
+        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    Negotiation negotiation = new Negotiation();
+    negotiation.setId("newNegotiation");
+    Resource resource = new Resource();
+    resource.setSourceId("collection:1");
+    Request request = new Request();
+    request.setResources(Set.of(resource));
+    negotiation.setRequests(Set.of(request));
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals(negotiation.getId(), negotiationDTO.getId());
+  }
+
+  @Test
+  void testStatusMapping() {
+    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
+        .thenReturn(NegotiationState.APPROVED);
+    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
+        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    Negotiation negotiation = new Negotiation();
+    negotiation.setId("newNegotiation");
+    Resource resource = new Resource();
+    resource.setSourceId("collection:1");
+    Request request = new Request();
+    request.setResources(Set.of(resource));
+    negotiation.setRequests(Set.of(request));
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals("APPROVED", negotiationDTO.getStatus());
+  }
+
+  @Test
+  void testResourceStatesMappings() {
+    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
+        .thenReturn(NegotiationState.APPROVED);
+    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
+        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    Negotiation negotiation = new Negotiation();
+    negotiation.setId("newNegotiation");
+    Resource resource = new Resource();
+    resource.setSourceId("collection:1");
+    Request request = new Request();
+    request.setResources(Set.of(resource));
+    negotiation.setRequests(Set.of(request));
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    JsonNode jsonNode = negotiationDTO.getResourceStatus();
+    assertEquals("REPRESENTATIVE_CONTACTED", jsonNode.get("collection:1").textValue());
+  }
 }

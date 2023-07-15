@@ -92,8 +92,7 @@ public class TestUtils {
     String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
     String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
-    ResourceDTO collection =
-        ResourceDTO.builder().id(collectionId).name(collectionName).build();
+    ResourceDTO collection = ResourceDTO.builder().id(collectionId).name(collectionName).build();
 
     return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))

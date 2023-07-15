@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public interface ResourceRepository extends JpaRepository<Resource, Long> {
-  
+
   Optional<Resource> findByName(String name);
 
   Optional<Resource> findBySourceId(String sourceId);

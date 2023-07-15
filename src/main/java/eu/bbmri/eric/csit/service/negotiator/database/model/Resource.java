@@ -33,7 +33,7 @@ public class Resource extends BaseEntity {
   private String description;
 
   @NotNull private String sourceId;
-  
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")
   @Exclude

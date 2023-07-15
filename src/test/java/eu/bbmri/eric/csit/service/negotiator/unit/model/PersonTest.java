@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PersonTest {
   @Test
   void testInit() {
-      assertInstanceOf(Person.class, new Person());
+    assertInstanceOf(Person.class, new Person());
   }
 
   @Test
   void getPersonId() {
-      Person person = new Person();
-      assertNull(person.getId());
+    Person person = new Person();
+    assertNull(person.getId());
   }
 }

@@ -51,5 +51,4 @@ public class NegotiationTest {
   void assertNegotiationsWithDifferentIdsNotEqual() {
     assertEquals(new Negotiation(), new Negotiation());
   }
-  
 }

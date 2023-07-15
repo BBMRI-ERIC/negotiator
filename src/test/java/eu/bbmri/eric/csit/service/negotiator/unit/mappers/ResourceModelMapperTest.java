@@ -14,24 +14,26 @@ import org.modelmapper.ModelMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ResourceModelMapperTest {
-    @Spy
-    public ModelMapper mapper = new ModelMapper();
+  @Spy public ModelMapper mapper = new ModelMapper();
 
-    @InjectMocks
-    ResourceModelMapper resourceModelMapper;
+  @InjectMocks ResourceModelMapper resourceModelMapper;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        this.resourceModelMapper.addMappings();
-    }
+  @BeforeEach
+  public void setup() {
+    MockitoAnnotations.openMocks(this);
+    this.resourceModelMapper.addMappings();
+  }
 
   @Test
   void resourceToDTO_map_Ok() {
-      Resource resource = Resource.builder().sourceId("test:collection").name("My collection")
-              .dataSource(new DataSource()).build();
-      ResourceDTO resourceDTO = mapper.map(resource, ResourceDTO.class);
-      assertEquals(resource.getSourceId(), resourceDTO.getId());
-      assertEquals(resource.getName(), resourceDTO.getName());
+    Resource resource =
+        Resource.builder()
+            .sourceId("test:collection")
+            .name("My collection")
+            .dataSource(new DataSource())
+            .build();
+    ResourceDTO resourceDTO = mapper.map(resource, ResourceDTO.class);
+    assertEquals(resource.getSourceId(), resourceDTO.getId());
+    assertEquals(resource.getName(), resourceDTO.getName());
   }
 }

@@ -48,9 +48,8 @@ import org.hibernate.annotations.TypeDef;
           }),
       @NamedSubgraph(
           name = "requests-detailed",
-          attributeNodes = {
-            @NamedAttributeNode(value = "resources")
-          })})
+          attributeNodes = {@NamedAttributeNode(value = "resources")})
+    })
 public class Negotiation extends AuditEntity {
 
   @ManyToMany(mappedBy = "negotiations")
