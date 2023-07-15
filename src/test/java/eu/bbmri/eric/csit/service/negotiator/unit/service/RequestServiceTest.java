@@ -13,6 +13,7 @@ import eu.bbmri.eric.csit.service.negotiator.mappers.RequestModelsMapper;
 import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@CommonsLog
 public class RequestServiceTest {
 
     @Mock RequestRepository requestRepository;
@@ -86,7 +88,26 @@ public class RequestServiceTest {
     }
 
     @Test
-    void update_Ok() {}
-
-
+    void update_Ok() {
+        ResourceDTO resourceDTO = ResourceDTO.builder()
+                .id("test:collection")
+                .name("My collection").build();
+        RequestCreateDTO requestCreateDTO = RequestCreateDTO.builder().url("https://directory.com")
+                .humanReadable("I want everything").resources(Set.of(resourceDTO)).build();
+        Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+        requestToBeSaved.setId("SavedRequest");
+        Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
+        when(resourceRepository.findBySourceId(resourceDTO.getId()))
+                .thenReturn(Optional.of(resourceToBeSaved));
+        when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
+        when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+        when(requestRepository.findById(any())).thenReturn(Optional.of(requestToBeSaved));
+        RequestDTO savedRequest = requestService.create(requestCreateDTO);
+        assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
+        requestCreateDTO.setHumanReadable("Now I want nothing!");
+        requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+        when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+        RequestDTO updatedRequest = requestService.update(savedRequest.getId(), requestCreateDTO);
+        assertEquals(requestCreateDTO.getHumanReadable(), updatedRequest.getHumanReadable());
+    }
 }

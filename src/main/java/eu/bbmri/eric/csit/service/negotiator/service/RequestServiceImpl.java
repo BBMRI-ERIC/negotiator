@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,6 +76,15 @@ public class RequestServiceImpl implements RequestService {
     }
     return requestRepository.save(request);
   }
+  
+  private Request saveUpdatedRequest(String requestId, RequestCreateDTO requestCreateDTO){
+    Request request =
+            requestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException(requestId));
+    if (resourcesAreValid(requestCreateDTO.getResources()) && isDataSourceValid(requestCreateDTO.getUrl())){
+      request = modelMapper.map(requestCreateDTO, Request.class);
+    }
+    return requestRepository.save(request);
+  }
 
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
@@ -106,6 +114,7 @@ public class RequestServiceImpl implements RequestService {
   @Transactional
   public RequestDTO update(String id, RequestCreateDTO queryRequest)
       throws EntityNotFoundException {
-    throw new NotYetImplementedException();
+    Request request = saveUpdatedRequest(id, queryRequest);
+    return modelMapper.map(request, RequestDTO.class);
   }
 }
