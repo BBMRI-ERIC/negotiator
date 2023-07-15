@@ -85,7 +85,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     // Gets the Entities for the requests
     log.debug("Getting request entities");
 
-    List<Request> requests = findRequests(negotiationBody.getRequestsIds());
+    List<Request> requests = findRequests(negotiationBody.getRequests());
     // Check if any negotiationBody is already associated to a negotiation
     if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
       log.error("One or more negotiationBody object is already assigned to another negotiation");
@@ -124,7 +124,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   private NegotiationDTO update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
-    List<Request> requests = findRequests(request.getRequestsIds());
+    List<Request> requests = findRequests(request.getRequests());
 
     if (requests.stream()
         .anyMatch(

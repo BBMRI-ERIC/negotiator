@@ -178,7 +178,7 @@ public class NegotiationControllerTests {
   @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsMissing() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
-    request.setRequestsIds(null);
+    request.setRequests(null);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NEGOTIATIONS_URL)
