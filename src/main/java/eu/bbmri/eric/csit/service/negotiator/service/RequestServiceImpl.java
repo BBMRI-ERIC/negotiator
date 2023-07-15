@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
@@ -72,8 +73,10 @@ public class RequestServiceImpl implements RequestService {
     if (resourcesAreValid(requestCreateDTO.getResources())
         && isDataSourceValid(requestCreateDTO.getUrl())) {
       String requestId = request.getId();
+      Negotiation negotiation = request.getNegotiation();
       request = modelMapper.map(requestCreateDTO, Request.class);
       request.setId(requestId);
+      request.setNegotiation(negotiation);
       request.setResources(
           Set.of(
               Objects.requireNonNull(
