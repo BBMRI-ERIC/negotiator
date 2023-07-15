@@ -33,7 +33,7 @@ public class PostControllerTests {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String NEGOTIATION_2_ID = "negotiation-2";
-  private static final String NEGOTIATION_1_RESOURCE_ID = "biobank:1";
+  private static final String NEGOTIATION_1_RESOURCE_ID = "biobank:1:collection:1";
   private static final String NEGOTIATION_2_RESOURCE_ID = "biobank:2";
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
