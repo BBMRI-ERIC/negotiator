@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
@@ -18,6 +18,7 @@ import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
@@ -69,48 +70,42 @@ public class RequestServiceTest {
 
   @Test
   void create_validParameters_Ok() {
-    ResourceDTO resourceDTO = createSimpleResourceDTO();
-    RequestCreateDTO requestCreateDTO = createSimpleRequestDTO(resourceDTO);
+    RequestCreateDTO requestCreateDTO = buildRequestCreateDTO();
+    ResourceDTO resourceDTO = requestCreateDTO.getResources().iterator().next();
     Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
+    requestToBeSaved.setId("generatedByDB");
     Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
     when(resourceRepository.findBySourceId(resourceDTO.getId()))
         .thenReturn(Optional.of(resourceToBeSaved));
-    when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
-    when(requestRepository.save(any())).thenReturn(requestToBeSaved);
+    when(dataSourceRepository.findByUrl(requestCreateDTO.getUrl())).thenReturn(Optional.of(new DataSource()));
+    when(requestRepository.save(argThat(request -> request.getId() == null))).thenReturn(requestToBeSaved);
     RequestDTO savedRequest = requestService.create(requestCreateDTO);
+    assertEquals(requestToBeSaved.getId(), savedRequest.getId());
     assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
     assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
   }
 
   @Test
-  void update_validParameters_Ok() {
-    ResourceDTO resourceDTO = createSimpleResourceDTO();
-    RequestCreateDTO requestCreateDTO = createSimpleRequestDTO(resourceDTO);
-    Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
-    Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
-    when(resourceRepository.findBySourceId(resourceDTO.getId()))
-        .thenReturn(Optional.of(resourceToBeSaved));
-    when(dataSourceRepository.findByUrl(any())).thenReturn(Optional.of(new DataSource()));
-    when(requestRepository.save(any())).thenReturn(requestToBeSaved);
-    RequestCreateDTO updatedRequestCreateDTO = createSimpleRequestDTO(resourceDTO);
+  void update_newHumanReadable_Ok() {
+    Request savedRequest = modelMapper.map(buildRequestCreateDTO(), Request.class);
+    savedRequest.setId("AlreadySavedRequest");
+    RequestCreateDTO updatedRequestCreateDTO = buildRequestCreateDTO();
     updatedRequestCreateDTO.setHumanReadable("Now I want nothing!");
-    Request updatedSavedRequest = modelMapper.map(updatedRequestCreateDTO, Request.class);
-    when(requestRepository.findById("SavedRequest")).thenReturn(Optional.of(updatedSavedRequest));
-    RequestDTO savedRequest = requestService.create(requestCreateDTO);
-    assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
-    assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
-    when(requestRepository.save(requestToBeSaved)).thenReturn(updatedSavedRequest);
-    RequestDTO updatedRequest =
-        requestService.update("SavedRequest", createSimpleRequestDTO(createSimpleResourceDTO()));
+    when(requestRepository.findById("AlreadySavedRequest")).thenReturn(Optional.of(savedRequest));
+    when(resourceRepository.findBySourceId(
+            updatedRequestCreateDTO.getResources().iterator().next().getId()))
+        .thenReturn(Optional.of(new Resource()));
+    when(dataSourceRepository.findByUrl(updatedRequestCreateDTO.getUrl())).thenReturn(Optional.of(new DataSource()));
+    savedRequest.setHumanReadable(updatedRequestCreateDTO.getHumanReadable());
+    when(requestRepository.save(argThat(request -> Objects.equals(request.getId(), savedRequest.getId()))))
+            .thenReturn(savedRequest);
+    RequestDTO updatedRequest = requestService.update(savedRequest.getId(), updatedRequestCreateDTO);
     assertEquals("Now I want nothing!", updatedRequest.getHumanReadable());
-    assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
   }
 
-  private static ResourceDTO createSimpleResourceDTO() {
-    return ResourceDTO.builder().id("test:collection").name("My collection").build();
-  }
-
-  private static RequestCreateDTO createSimpleRequestDTO(ResourceDTO resourceDTO) {
+  private static RequestCreateDTO buildRequestCreateDTO() {
+    ResourceDTO resourceDTO = ResourceDTO.builder().id("test:collection").
+            name("My collection").build();
     return RequestCreateDTO.builder()
         .url("https://directory.com")
         .humanReadable("I want everything")
