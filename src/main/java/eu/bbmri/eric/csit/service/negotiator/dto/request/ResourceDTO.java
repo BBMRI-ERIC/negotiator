@@ -20,4 +20,9 @@ public class ResourceDTO {
   @NotNull private String id;
 
   @Nullable private String name;
+
+  @Override
+  public String toString() {
+    return "ResourceDTO{" + "id='" + id + '\'' + ", name='" + name + '\'' + '}';
+  }
 }

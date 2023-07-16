@@ -35,6 +35,7 @@ public class RequestServiceImpl implements RequestService {
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
     Request request = new Request();
+    log.info("A new request was submitted with these parameters: " + requestBody.toString());
     request = saveRequest(requestBody, request);
     return modelMapper.map(request, RequestDTO.class);
   }
