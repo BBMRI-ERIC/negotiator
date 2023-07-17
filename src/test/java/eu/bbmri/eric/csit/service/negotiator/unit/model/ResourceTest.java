@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import org.junit.jupiter.api.Test;
 
@@ -19,20 +20,14 @@ public class ResourceTest {
   }
 
   @Test
-  void testAssertWithSameSourceIdEqual() {
-    Resource resource = new Resource();
-    resource.setSourceId("biobank:collection:1");
-    Resource resource2 = new Resource();
-    resource2.setSourceId("biobank:collection:1");
-    assertEquals(resource, resource2);
+  void equals_sameSourceId_equal() {
+    assertEquals(Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
+            Resource.builder().dataSource(new DataSource()).sourceId("resId").build());
   }
 
   @Test
-  void testAssertWithDifferentIdsNotEqual() {
-    Resource resource = new Resource();
-    resource.setSourceId("biobank:collection:1");
-    Resource resource2 = new Resource();
-    resource2.setSourceId("biobank:collection:2");
-    assertNotEquals(resource, resource2);
+  void equals_differentSourceId_notEqual() {
+    assertNotEquals(Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
+            Resource.builder().dataSource(new DataSource()).sourceId("resDiffId").build());
   }
 }
