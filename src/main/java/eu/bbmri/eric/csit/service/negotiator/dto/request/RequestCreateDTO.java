@@ -30,10 +30,16 @@ public class RequestCreateDTO {
 
   @Override
   public String toString() {
-    return "RequestCreateDTO{" +
-            "url='" + url + '\'' + "\n" +
-            ", humanReadable='" + humanReadable + '\'' +
-            ", resources=" + resources.toString() +
-            '}';
+    return "RequestCreateDTO{"
+        + "url='"
+        + url
+        + '\''
+        + "\n"
+        + ", humanReadable='"
+        + humanReadable
+        + '\''
+        + ", resources="
+        + resources.toString()
+        + '}';
   }
 }

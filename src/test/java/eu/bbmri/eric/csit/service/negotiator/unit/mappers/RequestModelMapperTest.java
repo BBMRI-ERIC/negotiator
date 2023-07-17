@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
@@ -7,16 +9,13 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.RequestModelsMapper;
 import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
-
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RequestModelMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();

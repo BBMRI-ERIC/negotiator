@@ -1,9 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ResourceTest {
   @Test

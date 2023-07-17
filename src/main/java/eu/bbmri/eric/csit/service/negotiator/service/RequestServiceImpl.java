@@ -31,11 +31,9 @@ public class RequestServiceImpl implements RequestService {
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
 
-
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
     Request request = new Request();
-    log.info("A new request was submitted with these parameters: " + requestBody.toString());
     request = saveRequest(requestBody, request);
     return modelMapper.map(request, RequestDTO.class);
   }
@@ -43,7 +41,7 @@ public class RequestServiceImpl implements RequestService {
   @Transactional
   public RequestDTO update(String id, RequestCreateDTO requestBody) throws EntityNotFoundException {
     Request request =
-            requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        requestRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     request = saveRequest(requestBody, request);
     return modelMapper.map(request, RequestDTO.class);
   }
@@ -59,11 +57,16 @@ public class RequestServiceImpl implements RequestService {
   private Set<Resource> getValidResources(Set<ResourceDTO> resourceDTOs) {
     Set<Resource> validResources = new HashSet<>();
     resourceDTOs.forEach(
-            resourceDTO -> {
-              Resource resource = resourceRepository.findBySourceId(resourceDTO.getId())
-                      .orElseThrow(() -> new WrongRequestException("Some of the specified resources were not found."));
-              validResources.add(resource);
-            });
+        resourceDTO -> {
+          Resource resource =
+              resourceRepository
+                  .findBySourceId(resourceDTO.getId())
+                  .orElseThrow(
+                      () ->
+                          new WrongRequestException(
+                              "Some of the specified resources were not found."));
+          validResources.add(resource);
+        });
     return validResources;
   }
 
@@ -75,8 +78,8 @@ public class RequestServiceImpl implements RequestService {
       throw new WrongRequestException("URL not valid");
     }
     return dataSourceRepository
-            .findByUrl(String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
-            .orElseThrow(() -> new WrongRequestException("Data source not found"));
+        .findByUrl(String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
+        .orElseThrow(() -> new WrongRequestException("Data source not found"));
   }
 
   @Transactional(readOnly = true)

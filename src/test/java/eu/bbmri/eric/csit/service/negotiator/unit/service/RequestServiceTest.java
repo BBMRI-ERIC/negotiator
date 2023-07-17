@@ -68,6 +68,16 @@ public class RequestServiceTest {
     assertEquals(request.getId(), requestService.findById(request.getId()).getId());
   }
 
+  private static RequestCreateDTO buildRequestCreateDTO() {
+    ResourceDTO resourceDTO =
+        ResourceDTO.builder().id("test:collection").name("My collection").build();
+    return RequestCreateDTO.builder()
+        .url("https://directory.com")
+        .humanReadable("I want everything")
+        .resources(Set.of(resourceDTO))
+        .build();
+  }
+
   @Test
   void create_validParameters_Ok() {
     RequestCreateDTO requestCreateDTO = buildRequestCreateDTO();
@@ -77,8 +87,10 @@ public class RequestServiceTest {
     Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
     when(resourceRepository.findBySourceId(resourceDTO.getId()))
         .thenReturn(Optional.of(resourceToBeSaved));
-    when(dataSourceRepository.findByUrl(requestCreateDTO.getUrl())).thenReturn(Optional.of(new DataSource()));
-    when(requestRepository.save(argThat(request -> request.getId() == null))).thenReturn(requestToBeSaved);
+    when(dataSourceRepository.findByUrl(requestCreateDTO.getUrl()))
+        .thenReturn(Optional.of(new DataSource()));
+    when(requestRepository.save(argThat(request -> request.getId() == null)))
+        .thenReturn(requestToBeSaved);
     RequestDTO savedRequest = requestService.create(requestCreateDTO);
     assertEquals(requestToBeSaved.getId(), savedRequest.getId());
     assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
@@ -95,21 +107,14 @@ public class RequestServiceTest {
     when(resourceRepository.findBySourceId(
             updatedRequestCreateDTO.getResources().iterator().next().getId()))
         .thenReturn(Optional.of(new Resource()));
-    when(dataSourceRepository.findByUrl(updatedRequestCreateDTO.getUrl())).thenReturn(Optional.of(new DataSource()));
+    when(dataSourceRepository.findByUrl(updatedRequestCreateDTO.getUrl()))
+        .thenReturn(Optional.of(new DataSource()));
     savedRequest.setHumanReadable(updatedRequestCreateDTO.getHumanReadable());
-    when(requestRepository.save(argThat(request -> Objects.equals(request.getId(), savedRequest.getId()))))
-            .thenReturn(savedRequest);
-    RequestDTO updatedRequest = requestService.update(savedRequest.getId(), updatedRequestCreateDTO);
+    when(requestRepository.save(
+            argThat(request -> Objects.equals(request.getId(), savedRequest.getId()))))
+        .thenReturn(savedRequest);
+    RequestDTO updatedRequest =
+        requestService.update(savedRequest.getId(), updatedRequestCreateDTO);
     assertEquals("Now I want nothing!", updatedRequest.getHumanReadable());
-  }
-
-  private static RequestCreateDTO buildRequestCreateDTO() {
-    ResourceDTO resourceDTO = ResourceDTO.builder().id("test:collection").
-            name("My collection").build();
-    return RequestCreateDTO.builder()
-        .url("https://directory.com")
-        .humanReadable("I want everything")
-        .resources(Set.of(resourceDTO))
-        .build();
   }
 }

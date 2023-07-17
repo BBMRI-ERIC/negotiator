@@ -35,7 +35,7 @@ public class RequestModelsMapper {
     typeMap.addMappings(
         mapper ->
             mapper.using(requestToRedirectUrl).map(Request::getId, RequestDTO::setRedirectUrl));
-  
+
     Converter<Negotiation, String> negotiationToNegotiationId =
         q -> convertNegotiationToNegotiationId(q.getSource());
     typeMap.addMappings(
@@ -72,6 +72,7 @@ public class RequestModelsMapper {
     TypeMap<RequestCreateDTO, Request> requestCreateDTORequestTypeMap =
         modelMapper.createTypeMap(RequestCreateDTO.class, Request.class);
   }
+
   private String convertNegotiationToNegotiationId(Negotiation negotiation) {
     return negotiation != null ? negotiation.getId() : null;
   }
@@ -79,7 +80,6 @@ public class RequestModelsMapper {
   private String convertIdToRedirectUrl(String requestId) {
     return "%s/requests/%s".formatted(FRONTEND_URL, requestId);
   }
-  
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
     Set<ResourceDTO> resourceDTOS = new HashSet<>();
