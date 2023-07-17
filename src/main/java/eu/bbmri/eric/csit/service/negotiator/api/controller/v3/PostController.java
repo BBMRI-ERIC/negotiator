@@ -6,7 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.PostService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class PostController {
 
-  @Autowired private PostServiceImpl postService;
+  @Autowired private PostService postService;
 
   @Autowired private NegotiationService negotiationService;
   @Autowired private ModelMapper modelMapper;
