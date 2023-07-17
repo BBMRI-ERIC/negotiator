@@ -23,7 +23,6 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.springframework.beans.factory.annotation.Value;
 
 @ToString
 @Entity
@@ -72,8 +71,7 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "jsonb")
   private String payload;
 
-  @Value("false")
-  private Boolean postsEnabled;
+  private Boolean postsEnabled = false;
 
   @Override
   public boolean equals(Object o) {
