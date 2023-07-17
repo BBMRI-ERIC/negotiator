@@ -23,7 +23,8 @@ import org.modelmapper.ModelMapper;
 public class RequestModelMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();
 
-  @InjectMocks RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
+  @InjectMocks
+  RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
 
   @InjectMocks ResourceModelMapper resourceModelMapper;
 
@@ -38,15 +39,15 @@ public class RequestModelMapperTest {
   void map_requestToDTO_Ok() {
     Resource resource =
         Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
-    Request request = Request.builder().id("newRequest")
+    Request request =
+        Request.builder()
+            .id("newRequest")
             .resources(Set.of(resource))
             .dataSource(new DataSource())
             .build();
     RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
     assertEquals(1, requestDTO.getResources().size());
-    assertEquals(
-        resource.getSourceId(),
-        requestDTO.getResources().iterator().next().getId());
+    assertEquals(resource.getSourceId(), requestDTO.getResources().iterator().next().getId());
     assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
   }
 
@@ -54,7 +55,8 @@ public class RequestModelMapperTest {
   public class map_withFrontendUrlTrailingSlash {
     @Spy public ModelMapper mapper = new ModelMapper();
 
-    @InjectMocks RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
+    @InjectMocks
+    RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
 
     @InjectMocks ResourceModelMapper resourceModelMapper;
 
@@ -64,12 +66,15 @@ public class RequestModelMapperTest {
       this.requestModelsMapper.addMappings();
       this.resourceModelMapper.addMappings();
     }
+
     @Test
     void map_frontEndUrlWithTrailingSlash_Ok() {
       this.requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
       Resource resource =
-              Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
-      Request request = Request.builder().id("newRequest")
+          Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
+      Request request =
+          Request.builder()
+              .id("newRequest")
               .resources(Set.of(resource))
               .dataSource(new DataSource())
               .build();
@@ -77,7 +82,6 @@ public class RequestModelMapperTest {
       assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
     }
   }
-  
 
   @Test
   void map_createDTOtoRequest_Ok() {

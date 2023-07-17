@@ -42,7 +42,9 @@ public class RequestServiceTest {
   @Spy ModelMapper modelMapper = new ModelMapper();
   @InjectMocks RequestService requestService = new RequestServiceImpl();
 
-  @InjectMocks RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
+  @InjectMocks
+  RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
+
   @InjectMocks ResourceModelMapper resourceModelMapper;
 
   @BeforeEach
