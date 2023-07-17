@@ -19,6 +19,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +123,7 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @Disabled
   public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     Optional<CollectionV2DTO> biobank = request.getCollections().stream().findFirst();

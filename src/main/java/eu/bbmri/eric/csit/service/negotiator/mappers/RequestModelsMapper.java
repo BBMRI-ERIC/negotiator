@@ -87,6 +87,7 @@ public class RequestModelsMapper {
         collection -> {
           ResourceDTO resourceDTO = new ResourceDTO();
           resourceDTO.setId(collection.getCollectionId());
+          resourceDTOS.add(resourceDTO);
         });
 
     return resourceDTOS;
