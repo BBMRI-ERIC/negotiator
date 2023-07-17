@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.*;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -21,7 +23,7 @@ import org.modelmapper.ModelMapper;
 public class RequestModelMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();
 
-  @InjectMocks RequestModelsMapper requestModelsMapper;
+  @InjectMocks RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
 
   @InjectMocks ResourceModelMapper resourceModelMapper;
 
@@ -34,17 +36,48 @@ public class RequestModelMapperTest {
 
   @Test
   void map_requestToDTO_Ok() {
-    Request request = new Request();
-    request.setId("newRequest");
-    Resource resource = new Resource();
-    resource.setSourceId("collection:1");
-    request.setResources(Set.of(resource));
-    assertEquals(request.getId(), this.mapper.map(request, RequestDTO.class).getId());
-    assertEquals(1, this.mapper.map(request, RequestDTO.class).getResources().size());
+    Resource resource =
+        Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
+    Request request = Request.builder().id("newRequest")
+            .resources(Set.of(resource))
+            .dataSource(new DataSource())
+            .build();
+    RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
+    assertEquals(1, requestDTO.getResources().size());
     assertEquals(
         resource.getSourceId(),
-        this.mapper.map(request, RequestDTO.class).getResources().iterator().next().getId());
+        requestDTO.getResources().iterator().next().getId());
+    assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
   }
+
+  @Nested
+  public class map_withFrontendUrlTrailingSlash {
+    @Spy public ModelMapper mapper = new ModelMapper();
+
+    @InjectMocks RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
+
+    @InjectMocks ResourceModelMapper resourceModelMapper;
+
+    @BeforeEach
+    public void setup() {
+      MockitoAnnotations.openMocks(this);
+      this.requestModelsMapper.addMappings();
+      this.resourceModelMapper.addMappings();
+    }
+    @Test
+    void map_frontEndUrlWithTrailingSlash_Ok() {
+      this.requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
+      Resource resource =
+              Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
+      Request request = Request.builder().id("newRequest")
+              .resources(Set.of(resource))
+              .dataSource(new DataSource())
+              .build();
+      RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
+      assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
+    }
+  }
+  
 
   @Test
   void map_createDTOtoRequest_Ok() {

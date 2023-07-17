@@ -22,10 +22,12 @@ import org.springframework.context.annotation.Configuration;
 public class RequestModelsMapper {
 
   @Autowired ModelMapper modelMapper;
+  
+  private final String FRONTEND_URL;
 
-  @Value("${negotiator.frontend-url}")
-  private String FRONTEND_URL;
-
+  public RequestModelsMapper(@Value("${negotiator.frontend-url}") String frontendUrl){
+    this.FRONTEND_URL = frontendUrl;
+  }
   @PostConstruct
   public void addMappings() {
     TypeMap<Request, RequestDTO> typeMap =
@@ -78,6 +80,9 @@ public class RequestModelsMapper {
   }
 
   private String convertIdToRedirectUrl(String requestId) {
+    if (FRONTEND_URL.endsWith("/")){
+      return "%srequests/%s".formatted(FRONTEND_URL, requestId);
+    }
     return "%s/requests/%s".formatted(FRONTEND_URL, requestId);
   }
 
