@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class PostModelMapper {
+public class PersonModelMapper {
 
   @Autowired ModelMapper modelMapper;
 
-  void addMappings() {
+  public void addMappings() {
     TypeMap<Person, PersonDTO> typeMap = modelMapper.createTypeMap(Person.class, PersonDTO.class);
 
     typeMap.addMappings(mapper -> mapper.map(Person::getAuthName, PersonDTO::setName));
