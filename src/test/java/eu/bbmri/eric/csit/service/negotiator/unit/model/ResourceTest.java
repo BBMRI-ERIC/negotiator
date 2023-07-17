@@ -21,13 +21,15 @@ public class ResourceTest {
 
   @Test
   void equals_sameSourceId_equal() {
-    assertEquals(Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
-            Resource.builder().dataSource(new DataSource()).sourceId("resId").build());
+    assertEquals(
+        Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
+        Resource.builder().dataSource(new DataSource()).sourceId("resId").build());
   }
 
   @Test
   void equals_differentSourceId_notEqual() {
-    assertNotEquals(Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
-            Resource.builder().dataSource(new DataSource()).sourceId("resDiffId").build());
+    assertNotEquals(
+        Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
+        Resource.builder().dataSource(new DataSource()).sourceId("resDiffId").build());
   }
 }

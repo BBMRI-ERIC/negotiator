@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PostModelMapper {
-    @Autowired ModelMapper modelMapper;
-    @PostConstruct
-    public void addMappings(){
-        TypeMap<Post, PostDTO> typeMap = modelMapper.createTypeMap(Post.class, PostDTO.class);
-        
-    }
+  @Autowired ModelMapper modelMapper;
+
+  @PostConstruct
+  public void addMappings() {
+    TypeMap<Post, PostDTO> typeMap = modelMapper.createTypeMap(Post.class, PostDTO.class);
+  }
 }

@@ -70,29 +70,29 @@ public class RequestModelMapperTest {
     RequestCreateDTO requestCreateDTO = mapper.map(queryCreateV2DTO, RequestCreateDTO.class);
     assertEquals(queryCreateV2DTO.getHumanReadable(), requestCreateDTO.getHumanReadable());
     assertEquals(queryCreateV2DTO.getUrl(), requestCreateDTO.getUrl());
-    queryCreateV2DTO.getCollections().forEach(
-            collectionV2DTO -> assertTrue(requestCreateDTO.getResources().stream()
-                    .anyMatch(collection -> Objects.equals(collection.getId(),
-                            collectionV2DTO.getCollectionId())))
-    );
-    
+    queryCreateV2DTO
+        .getCollections()
+        .forEach(
+            collectionV2DTO ->
+                assertTrue(
+                    requestCreateDTO.getResources().stream()
+                        .anyMatch(
+                            collection ->
+                                Objects.equals(
+                                    collection.getId(), collectionV2DTO.getCollectionId()))));
   }
 
   private static QueryCreateV2DTO buildQueryCreateV2DTO() {
     Set<CollectionV2DTO> collectionV2DTOS = new HashSet<>();
-    collectionV2DTOS.add(CollectionV2DTO.builder().
-            collectionId("collection1")
-                    .biobankId("biobank1")
-            .build());
-    collectionV2DTOS.add(CollectionV2DTO.builder().
-            collectionId("collection2")
-            .biobankId("biobank2")
-            .build());
+    collectionV2DTOS.add(
+        CollectionV2DTO.builder().collectionId("collection1").biobankId("biobank1").build());
+    collectionV2DTOS.add(
+        CollectionV2DTO.builder().collectionId("collection2").biobankId("biobank2").build());
     return QueryCreateV2DTO.builder()
-            .url("https://directory.com")
-            .humanReadable("I want everything!")
-            .token("randomlyGeneratedString")
-            .collections(collectionV2DTOS)
-            .build();
+        .url("https://directory.com")
+        .humanReadable("I want everything!")
+        .token("randomlyGeneratedString")
+        .collections(collectionV2DTOS)
+        .build();
   }
 }

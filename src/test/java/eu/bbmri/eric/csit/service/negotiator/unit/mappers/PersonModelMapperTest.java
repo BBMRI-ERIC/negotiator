@@ -14,11 +14,9 @@ import org.modelmapper.ModelMapper;
 
 public class PersonModelMapperTest {
 
-  @Spy
-  public ModelMapper mapper = new ModelMapper();
+  @Spy public ModelMapper mapper = new ModelMapper();
 
-  @InjectMocks
-  PersonModelMapper personModelMapper;
+  @InjectMocks PersonModelMapper personModelMapper;
 
   @BeforeEach
   public void setup() {
@@ -28,7 +26,8 @@ public class PersonModelMapperTest {
 
   @Test
   public void map_PersonToDTO_ok() {
-    Person inputPerson = Person.builder()
+    Person inputPerson =
+        Person.builder()
             .authName("Lucifer Morningstar")
             .organization("Hell")
             .authSubject("666")

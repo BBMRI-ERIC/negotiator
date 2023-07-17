@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
@@ -12,27 +14,26 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class PostModelMapperTest {
-    @Spy
-    public ModelMapper mapper = new ModelMapper();
+  @Spy public ModelMapper mapper = new ModelMapper();
 
-    @InjectMocks
-    PostModelMapper postModelMapper;
+  @InjectMocks PostModelMapper postModelMapper;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        this.postModelMapper.addMappings();
-    }
-    @Test
-    public void map_PostToDTO_ok() {
-    Post post = Post.builder().negotiation(new Negotiation())
+  @BeforeEach
+  public void setup() {
+    MockitoAnnotations.openMocks(this);
+    this.postModelMapper.addMappings();
+  }
+
+  @Test
+  public void map_PostToDTO_ok() {
+    Post post =
+        Post.builder()
+            .negotiation(new Negotiation())
             .poster(new Person())
             .text("This is important")
             .build();
     PostDTO postDTO = mapper.map(post, PostDTO.class);
     assertEquals(post.getText(), postDTO.getText());
-    }
+  }
 }
