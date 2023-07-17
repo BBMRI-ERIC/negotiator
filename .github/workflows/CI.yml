@@ -89,7 +89,7 @@ jobs:
           cache: maven
 
       - name: Run integration tests
-        run: mvn clean verify -B
+        run: mvn clean verify -B -Dfmt.skip
 
   build-image:
     name: Docker image
