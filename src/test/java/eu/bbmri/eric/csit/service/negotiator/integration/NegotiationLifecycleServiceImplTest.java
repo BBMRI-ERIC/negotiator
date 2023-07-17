@@ -103,7 +103,6 @@ public class NegotiationLifecycleServiceImplTest {
         true, negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
     assertNotEquals(
         "SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
-
   }
 
   @Test

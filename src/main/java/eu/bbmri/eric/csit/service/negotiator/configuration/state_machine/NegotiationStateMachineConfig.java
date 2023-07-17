@@ -32,8 +32,7 @@ public class NegotiationStateMachineConfig
   private StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String>
       stateMachineRuntimePersister;
 
-  @Autowired
-  private NegotiationRepository negotiationRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
 
   @Override
   public void configure(
@@ -66,7 +65,8 @@ public class NegotiationStateMachineConfig
         .source(NegotiationState.SUBMITTED)
         .target(NegotiationState.APPROVED)
         .target(NegotiationState.ONGOING)
-        .event(NegotiationEvent.APPROVE).action(enablePosts())
+        .event(NegotiationEvent.APPROVE)
+        .action(enablePosts())
         .and()
         .withExternal()
         .source(NegotiationState.SUBMITTED)
@@ -92,8 +92,7 @@ public class NegotiationStateMachineConfig
         .source(NegotiationState.ONGOING)
         .target(NegotiationState.CONCLUDED)
         .event(NegotiationEvent.CONCLUDE);
-    }
-
+  }
 
   @Bean
   public StateMachineListener<NegotiationState, NegotiationEvent> listener() {
@@ -108,14 +107,12 @@ public class NegotiationStateMachineConfig
   }
 
   @Bean
-  public Action<NegotiationState, NegotiationEvent> enablePosts(){
+  public Action<NegotiationState, NegotiationEvent> enablePosts() {
     return stateContext -> {
       String negotiationId = stateContext.getStateMachine().getId();
       Negotiation n = negotiationRepository.findById(negotiationId).get();
       n.setPostsEnabled(true);
       negotiationRepository.save(n);
     };
-
   }
-
 }
