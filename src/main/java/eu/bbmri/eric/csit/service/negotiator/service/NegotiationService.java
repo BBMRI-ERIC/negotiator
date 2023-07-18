@@ -102,4 +102,11 @@ public interface NegotiationService {
    * @return a list of negotiations
    */
   List<NegotiationDTO> findByCreatorId(Long personId);
+
+  /**
+   * Sets the enabledPosts attrubute to true for the input Negotiation
+   *
+   * @param negotiationId the ID of the Negotiation
+   */
+  void enablePosts(String negotiationId);
 }
