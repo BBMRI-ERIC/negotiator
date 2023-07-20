@@ -90,6 +90,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>eu/bbmri/eric/csit/service/negotiator/configuration/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
