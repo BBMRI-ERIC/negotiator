@@ -26,9 +26,9 @@ public class RequestModelsMapper {
   private final String frontendUrl;
 
   public RequestModelsMapper(@Value("${negotiator.frontend-url}") String frontendUrl) {
-    if (frontendUrl.endsWith("/")){
+    if (frontendUrl.endsWith("/")) {
       this.frontendUrl = frontendUrl.substring(0, frontendUrl.length() - 1);
-    }else {
+    } else {
       this.frontendUrl = frontendUrl;
     }
   }
@@ -89,9 +89,9 @@ public class RequestModelsMapper {
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
-    return collections.stream().map(collection -> ResourceDTO.builder()
-            .id(collection.getCollectionId()).build())
-            .collect(Collectors.toSet());
+    return collections.stream()
+        .map(collection -> ResourceDTO.builder().id(collection.getCollectionId()).build())
+        .collect(Collectors.toSet());
   }
 
   private String convertIdToRedirectUri(RequestDTO req) {

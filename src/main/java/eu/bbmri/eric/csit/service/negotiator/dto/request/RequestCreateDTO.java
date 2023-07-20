@@ -30,6 +30,7 @@ public class RequestCreateDTO {
 
   @Override
   public String toString() {
-    return "RequestCreateDTO{url='%s',\n humanReadable='%s',\nresources=%s}".formatted(url, humanReadable, resources);
+    return "RequestCreateDTO{url='%s',\n humanReadable='%s',\nresources=%s}"
+        .formatted(url, humanReadable, resources);
   }
 }
