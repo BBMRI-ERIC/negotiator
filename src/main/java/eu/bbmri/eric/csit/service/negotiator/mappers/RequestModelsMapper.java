@@ -26,7 +26,11 @@ public class RequestModelsMapper {
   private final String frontendUrl;
 
   public RequestModelsMapper(@Value("${negotiator.frontend-url}") String frontendUrl) {
-    this.frontendUrl = frontendUrl;
+    if (frontendUrl.endsWith("/")){
+      this.frontendUrl = frontendUrl.substring(0, frontendUrl.length() - 1);
+    }else {
+      this.frontendUrl = frontendUrl;
+    }
   }
 
   @PostConstruct
@@ -81,9 +85,6 @@ public class RequestModelsMapper {
   }
 
   private String convertIdToRedirectUrl(String requestId) {
-    if (frontendUrl.endsWith("/")) {
-      return "%srequests/%s".formatted(frontendUrl, requestId);
-    }
     return "%s/requests/%s".formatted(frontendUrl, requestId);
   }
 
