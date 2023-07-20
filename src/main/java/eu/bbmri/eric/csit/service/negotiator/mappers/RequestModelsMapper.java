@@ -23,10 +23,10 @@ public class RequestModelsMapper {
 
   @Autowired ModelMapper modelMapper;
 
-  private final String FRONTEND_URL;
+  private final String frontendUrl;
 
   public RequestModelsMapper(@Value("${negotiator.frontend-url}") String frontendUrl) {
-    this.FRONTEND_URL = frontendUrl;
+    this.frontendUrl = frontendUrl;
   }
 
   @PostConstruct
@@ -81,10 +81,10 @@ public class RequestModelsMapper {
   }
 
   private String convertIdToRedirectUrl(String requestId) {
-    if (FRONTEND_URL.endsWith("/")) {
-      return "%srequests/%s".formatted(FRONTEND_URL, requestId);
+    if (frontendUrl.endsWith("/")) {
+      return "%srequests/%s".formatted(frontendUrl, requestId);
     }
-    return "%s/requests/%s".formatted(FRONTEND_URL, requestId);
+    return "%s/requests/%s".formatted(frontendUrl, requestId);
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
@@ -101,10 +101,10 @@ public class RequestModelsMapper {
 
   private String convertIdToRedirectUri(RequestDTO req) {
     if (req.getNegotiationId() == null) {
-      return "%s/requests/%s".formatted(FRONTEND_URL, req.getId());
+      return "%s/requests/%s".formatted(frontendUrl, req.getId());
     } else {
       return "%s/negotiations/%s/requests/%s"
-          .formatted(FRONTEND_URL, req.getNegotiationId(), req.getId());
+          .formatted(frontendUrl, req.getNegotiationId(), req.getId());
     }
   }
 }
