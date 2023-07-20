@@ -14,7 +14,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -36,12 +35,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "request")
 @NamedEntityGraph(
     name = "request-with-detailed-resources",
-    attributeNodes = {@NamedAttributeNode(value = "resources", subgraph = "resources-with-parent")},
-    subgraphs = {
-      @NamedSubgraph(
-          name = "resources-with-parent",
-          attributeNodes = {@NamedAttributeNode("parent")})
-    })
+    attributeNodes = {@NamedAttributeNode(value = "resources")})
 public class Request {
 
   @NotNull private String url;

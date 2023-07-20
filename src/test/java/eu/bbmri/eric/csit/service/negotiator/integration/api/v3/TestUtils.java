@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.perun.PerunUserDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
@@ -17,12 +16,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,8 +67,6 @@ public class TestUtils {
 
   private static Resource negotiationPayload;
 
-  @Autowired private static ResourceLoader resourceLoader;
-
   public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
     return DataSourceCreateDTO.builder()
@@ -99,20 +92,12 @@ public class TestUtils {
     String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
     String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
-    ResourceDTO collection =
-        ResourceDTO.builder().id(collectionId).name(collectionName).type("collection").build();
-    ResourceDTO biobank =
-        ResourceDTO.builder()
-            .id(biobankId)
-            .name(biobankName)
-            .type("biobank")
-            .children(Set.of(collection))
-            .build();
+    ResourceDTO collection = ResourceDTO.builder().id(collectionId).name(collectionName).build();
 
     return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
         .url(QUERY_URL)
-        .resources(Set.of(biobank))
+        .resources(Set.of(collection))
         .build();
   }
 
@@ -136,44 +121,23 @@ public class TestUtils {
     return ProjectCreateDTO.builder().payload(PROJECT_PAYLOAD).build();
   }
 
-  public static List<PerunUserDTO> createPerunUserRequestList(boolean update, int size) {
-    String suffix = update ? "u" : "";
-    List<PerunUserDTO> perunUserDTOList = new ArrayList<>();
-
-    for (int i = 0; i < size; i++) {
-      PerunUserDTO request =
-          PerunUserDTO.builder()
-              .id(PERUN_USER_ID + i)
-              .displayName(String.format("%s_%s", PERUN_USER_DISPLAY_NAME, i))
-              .organization(String.format("%s_%s", PERUN_USER_ORGANIZATION, i))
-              .status(String.format("%s_%s", PERUN_USER_STATUS, i))
-              .mail(String.format("%s_%s", PERUN_USER_MAIL, i))
-              .identities(PERUN_USER_IDENTITIES)
-              .build();
-      perunUserDTOList.add(request);
-    }
-    return perunUserDTOList;
-  }
-
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
     String payload =
-        """
-            {
-              "project": {
-                "title": "Title",
-                "description": "Description"
-              },
-              "samples": {
-                "sample-type": "DNA",
-                "num-of-subjects": 10,
-                "num-of-samples": 20,
-                "volume-per-sample": 5
-              },
-              "ethics-vote": {
-                "ethics-vote": "My ethic vote"
-              }
-            }
-        """;
+        "    {\n"
+            + "      \"project\": {\n"
+            + "        \"title\": \"Title\",\n"
+            + "        \"description\": \"Description\"\n"
+            + "      },\n"
+            + "      \"samples\": {\n"
+            + "        \"sample-type\": \"DNA\",\n"
+            + "        \"num-of-subjects\": 10,\n"
+            + "        \"num-of-samples\": 20,\n"
+            + "        \"volume-per-sample\": 5\n"
+            + "      },\n"
+            + "      \"ethics-vote\": {\n"
+            + "        \"ethics-vote\": \"My ethic vote\"\n"
+            + "      }\n"
+            + "    }\n";
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 

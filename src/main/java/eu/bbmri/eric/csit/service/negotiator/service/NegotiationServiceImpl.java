@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,10 +103,11 @@ public class NegotiationServiceImpl implements NegotiationService {
         request -> {
           request.setNegotiation(negotiationEntity);
         });
+    Negotiation savedNegotiation;
     try {
       // Finally, save the negotiation. NB: it also cascades operations for other Requests,
       // PersonNegotiationRole
-      negotiationRepository.save(negotiationEntity);
+      savedNegotiation = negotiationRepository.save(negotiationEntity);
 
       // Set initial state machine
       negotiationLifecycleService.initializeTheStateMachine(negotiationEntity.getId());
@@ -118,8 +120,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       log.error(ex);
       throw new EntityNotStorableException();
     }
-    NegotiationDTO dto = modelMapper.map(negotiationEntity, NegotiationDTO.class);
-    return dto;
+    return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 
   private NegotiationDTO update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
@@ -223,10 +224,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Transactional
   public List<NegotiationDTO> findByBiobankId(String biobankId) {
-    List<Negotiation> negotiations = negotiationRepository.findByBiobankId(biobankId);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
+    throw new NotImplementedException("Not yet implemented");
   }
 
   /**

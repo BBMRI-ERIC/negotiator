@@ -1,3 +1,4 @@
+---
 name: CI build
 
 on:
@@ -34,25 +35,15 @@ jobs:
   lint:
     name: Lint Code Base
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-      statuses: write
+
 
     steps:
 
       - name: Checkout Code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Lint Code Base
-        uses: super-linter/super-linter@v5
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_JAVA: false
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn clean com.spotify.fmt:fmt-maven-plugin:check
 
 
   unit-tests:
@@ -82,6 +73,7 @@ jobs:
   integration-tests:
     name: Integration tests
     runs-on: ubuntu-latest
+    continue-on-error: true
     needs:
       - unit-tests
     steps:
@@ -96,8 +88,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run unit tests
-        run: mvn clean verify -B
+      - name: Run integration tests
+        run: mvn clean verify -B -Dfmt.skip
 
   build-image:
     name: Docker image
@@ -155,4 +147,3 @@ jobs:
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
-

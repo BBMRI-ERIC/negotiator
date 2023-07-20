@@ -27,4 +27,10 @@ public class RequestCreateDTO {
   @NotNull
   @NotEmpty(message = "At least one resource must be present")
   private Set<ResourceDTO> resources;
+
+  @Override
+  public String toString() {
+    return "RequestCreateDTO{url='%s',\n humanReadable='%s',\nresources=%s}"
+        .formatted(url, humanReadable, resources);
+  }
 }

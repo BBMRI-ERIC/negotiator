@@ -28,8 +28,6 @@ public class NegotiationLifecycleServiceTest {
 
           final Map<String, NegotiationState> negotiations = new HashMap<>();
 
-          final Map<String, NegotiationState> resourceNegotiations = new HashMap<>();
-
           @Override
           public void initializeTheStateMachine(String negotiationId) {
             negotiations.put(negotiationId, INITIAL_STATE);

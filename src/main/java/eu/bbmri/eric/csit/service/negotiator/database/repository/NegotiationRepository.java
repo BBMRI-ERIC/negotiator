@@ -32,19 +32,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
 
   @Query(
       value =
-          "SELECT r "
-              + "FROM Negotiation r "
-              + "JOIN FETCH r.persons pp "
-              + "JOIN FETCH pp.person "
-              + "JOIN FETCH pp.role "
-              + "JOIN FETCH r.requests rr "
-              + "JOIN FETCH rr.resources c "
-              + "JOIN FETCH c.parent p "
-              + "WHERE p.id = :biobankId")
-  List<Negotiation> findByBiobankId(String biobankId);
-
-  @Query(
-      value =
           "SELECT DISTINCT r "
               + "FROM Negotiation r "
               + "JOIN FETCH r.requests rr "
@@ -59,7 +46,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "FROM Negotiation r "
               + "JOIN FETCH r.requests rr "
               + "JOIN FETCH rr.resources c "
-              + "JOIN FETCH c.parent p "
               + "JOIN FETCH r.persons pp "
               + "JOIN FETCH pp.person "
               + "JOIN FETCH pp.role "

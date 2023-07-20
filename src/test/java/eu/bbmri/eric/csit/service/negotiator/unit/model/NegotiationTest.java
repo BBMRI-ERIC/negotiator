@@ -37,4 +37,18 @@ public class NegotiationTest {
     negotiation.setRequests(new HashSet<>(List.of(request)));
     assertEquals(List.of(resource), negotiation.getAllResources().getResources());
   }
+
+  @Test
+  void assertNegotiationsWithSameIdEqual() {
+    Negotiation negotiation = new Negotiation();
+    negotiation.setId("sameId");
+    Negotiation negotiation2 = new Negotiation();
+    negotiation2.setId("sameId");
+    assertEquals(negotiation, negotiation2);
+  }
+
+  @Test
+  void assertNegotiationsWithDifferentIdsNotEqual() {
+    assertEquals(new Negotiation(), new Negotiation());
+  }
 }

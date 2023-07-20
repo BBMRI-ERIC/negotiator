@@ -2,17 +2,14 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -26,21 +23,20 @@ public class RequestModelsMapper {
 
   @Autowired ModelMapper modelMapper;
 
-  @Value("${negotiator.frontend-url}")
-  private String FRONTEND_URL;
+  private final String frontendUrl;
+
+  public RequestModelsMapper(@Value("${negotiator.frontend-url}") String frontendUrl) {
+    if (frontendUrl.endsWith("/")) {
+      this.frontendUrl = frontendUrl.substring(0, frontendUrl.length() - 1);
+    } else {
+      this.frontendUrl = frontendUrl;
+    }
+  }
 
   @PostConstruct
-  void addMappings() {
+  public void addMappings() {
     TypeMap<Request, RequestDTO> typeMap =
         modelMapper.createTypeMap(Request.class, RequestDTO.class);
-
-    Converter<Set<Resource>, Set<ResourceDTO>> resourcesToResourcesDTO =
-        q -> convertResourcesToResourcesDTO(q.getSource());
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(resourcesToResourcesDTO)
-                .map(Request::getResources, RequestDTO::setResources));
 
     Converter<String, String> requestToRedirectUrl = q -> convertIdToRedirectUrl(q.getSource());
     typeMap.addMappings(
@@ -79,6 +75,9 @@ public class RequestModelsMapper {
             mapper
                 .using(queryToRedirectUri)
                 .map(requestDTO -> requestDTO, QueryV2DTO::setRedirectUri));
+
+    TypeMap<RequestCreateDTO, Request> requestCreateDTORequestTypeMap =
+        modelMapper.createTypeMap(RequestCreateDTO.class, Request.class);
   }
 
   private String convertNegotiationToNegotiationId(Negotiation negotiation) {
@@ -86,64 +85,21 @@ public class RequestModelsMapper {
   }
 
   private String convertIdToRedirectUrl(String requestId) {
-    return "%s/requests/%s".formatted(FRONTEND_URL, requestId);
-  }
-
-  private Set<ResourceDTO> convertResourcesToResourcesDTO(Set<Resource> resources) {
-    Map<String, ResourceDTO> parents = new HashMap<>();
-    resources.forEach(
-        collection -> {
-          Resource parent = collection.getParent();
-          ResourceDTO parentResource;
-          if (parents.containsKey(parent.getSourceId())) {
-            parentResource = parents.get(parent.getSourceId());
-          } else {
-            parentResource = new ResourceDTO();
-            parentResource.setId(parent.getSourceId());
-            parentResource.setType("biobank");
-            parentResource.setChildren(new HashSet<>());
-            parents.put(parent.getSourceId(), parentResource);
-          }
-          ResourceDTO collectionResource = new ResourceDTO();
-          collectionResource.setType("collection");
-          collectionResource.setId(collection.getSourceId());
-          parentResource.getChildren().add(collectionResource);
-        });
-
-    return new HashSet<>(parents.values());
+    return "%s/requests/%s".formatted(frontendUrl, requestId);
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
-    Map<String, ResourceDTO> resources = new HashMap<>();
-    collections.forEach(
-        collection -> {
-          String biobankId = collection.getBiobankId();
-
-          ResourceDTO biobankResource;
-          if (resources.containsKey(biobankId)) {
-            biobankResource = resources.get(biobankId);
-          } else {
-            biobankResource = new ResourceDTO();
-            biobankResource.setId(biobankId);
-            biobankResource.setType("biobank");
-            biobankResource.setChildren(new HashSet<>());
-            resources.put(biobankId, biobankResource);
-          }
-          ResourceDTO collectionResource = new ResourceDTO();
-          collectionResource.setType("collection");
-          collectionResource.setId(collection.getCollectionId());
-          biobankResource.getChildren().add(collectionResource);
-        });
-
-    return new HashSet<>(resources.values());
+    return collections.stream()
+        .map(collection -> ResourceDTO.builder().id(collection.getCollectionId()).build())
+        .collect(Collectors.toSet());
   }
 
   private String convertIdToRedirectUri(RequestDTO req) {
     if (req.getNegotiationId() == null) {
-      return "%s/requests/%s".formatted(FRONTEND_URL, req.getId());
+      return "%s/requests/%s".formatted(frontendUrl, req.getId());
     } else {
       return "%s/negotiations/%s/requests/%s"
-          .formatted(FRONTEND_URL, req.getNegotiationId(), req.getId());
+          .formatted(frontendUrl, req.getNegotiationId(), req.getId());
     }
   }
 }

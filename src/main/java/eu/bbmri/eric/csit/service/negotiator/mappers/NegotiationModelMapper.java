@@ -38,8 +38,12 @@ public class NegotiationModelMapper {
 
   @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
+  public NegotiationModelMapper(ModelMapper modelMapper) {
+    this.modelMapper = modelMapper;
+  }
+
   @PostConstruct
-  void addMappings() {
+  public void addMappings() {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 

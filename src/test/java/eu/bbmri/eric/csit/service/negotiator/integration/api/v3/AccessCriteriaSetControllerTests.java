@@ -79,7 +79,7 @@ public class AccessCriteriaSetControllerTests {
   @Test
   public void testGet_Ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(ENDPOINT).param("resourceId", "biobank:1"))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT).param("resourceId", "biobank:1:collection:1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sections[0].accessCriteria").isArray())
         .andExpect(jsonPath("$.sections[0].accessCriteria[0].name", is("title")))

@@ -6,12 +6,11 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.PostService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,10 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class PostController {
 
-  @Autowired private PostServiceImpl postService;
+  @Autowired private PostService postService;
 
   @Autowired private NegotiationService negotiationService;
-  @Autowired private ModelMapper modelMapper;
 
   @PostMapping(
       value = "/negotiations/{negotiationId}/posts",

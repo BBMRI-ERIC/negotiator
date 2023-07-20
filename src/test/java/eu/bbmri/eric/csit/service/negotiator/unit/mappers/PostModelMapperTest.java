@@ -2,30 +2,38 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
+import eu.bbmri.eric.csit.service.negotiator.mappers.PostModelMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
 public class PostModelMapperTest {
+  @Spy public ModelMapper mapper = new ModelMapper();
+
+  @InjectMocks PostModelMapper postModelMapper;
+
+  @BeforeEach
+  public void setup() {
+    MockitoAnnotations.openMocks(this);
+    this.postModelMapper.addMappings();
+  }
 
   @Test
-  public void testAddMappings() {
-    Person inputPerson = new Person();
-    PersonDTO mappedExpected = new PersonDTO();
-
-    // set the input and the expected result
-    String authName = "authName";
-    String organization = "org";
-    inputPerson.setAuthName(authName);
-    inputPerson.setOrganization(organization);
-    mappedExpected.setName(authName);
-    mappedExpected.setOrganization(organization);
-
-    ModelMapper modelMapper = new ModelMapper();
-    PersonDTO outputMapping = modelMapper.map(inputPerson, PersonDTO.class);
-
-    assertEquals(outputMapping.getName(), inputPerson.getAuthName());
-    assertEquals(outputMapping.getOrganization(), inputPerson.getOrganization());
+  public void map_PostToDTO_ok() {
+    Post post =
+        Post.builder()
+            .negotiation(new Negotiation())
+            .poster(new Person())
+            .text("This is important")
+            .build();
+    PostDTO postDTO = mapper.map(post, PostDTO.class);
+    assertEquals(post.getText(), postDTO.getText());
   }
 }
