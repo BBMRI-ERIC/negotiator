@@ -97,7 +97,10 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
     assertEquals(
         "SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
+    assertEquals(false, negotiationDTO.getPostsEnabled());
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(
+        true, negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
     assertNotEquals(
         "SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
   }

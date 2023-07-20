@@ -266,4 +266,11 @@ public class NegotiationServiceImpl implements NegotiationService {
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
   }
+
+  @Transactional
+  public void enablePosts(String negotiationId) {
+    Negotiation negotiation = negotiationRepository.findById(negotiationId).get();
+    negotiation.setPostsEnabled(true);
+    negotiationRepository.save(negotiation);
+  }
 }

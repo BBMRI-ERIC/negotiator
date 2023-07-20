@@ -29,6 +29,8 @@ public class NegotiationStateMachineConfig
   private StateMachineRuntimePersister<NegotiationState, NegotiationEvent, String>
       stateMachineRuntimePersister;
 
+  @Autowired private NegotiationStateMachineActions actions;
+
   @Override
   public void configure(
       StateMachineConfigurationConfigurer<NegotiationState, NegotiationEvent> config)
@@ -61,6 +63,7 @@ public class NegotiationStateMachineConfig
         .target(NegotiationState.APPROVED)
         .target(NegotiationState.ONGOING)
         .event(NegotiationEvent.APPROVE)
+        .action(actions.enablePosts())
         .and()
         .withExternal()
         .source(NegotiationState.SUBMITTED)
