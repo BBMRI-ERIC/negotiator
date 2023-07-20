@@ -55,19 +55,10 @@ public class RequestServiceImpl implements RequestService {
   }
 
   private Set<Resource> getValidResources(Set<ResourceDTO> resourceDTOs) {
-    Set<Resource> validResources = new HashSet<>();
-    resourceDTOs.forEach(
-        resourceDTO -> {
-          Resource resource =
-              resourceRepository
-                  .findBySourceId(resourceDTO.getId())
-                  .orElseThrow(
-                      () ->
-                          new WrongRequestException(
-                              "Some of the specified resources were not found."));
-          validResources.add(resource);
-        });
-    return validResources;
+    return resourceDTOs.stream().map( resourceDTO -> resourceRepository.
+            findBySourceId(resourceDTO.getId())
+            .orElseThrow(() -> new WrongRequestException( "Some of the specified resources were not found.")))
+            .collect(Collectors.toSet());
   }
 
   private DataSource getValidDataSource(String url) {
