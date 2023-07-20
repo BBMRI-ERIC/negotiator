@@ -14,7 +14,8 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableExcepti
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
