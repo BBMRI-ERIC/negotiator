@@ -47,7 +47,7 @@ mock is running
 on an external server.
 
 ```shell
-docker run --rm -e PROFILE=dev -p 8080:8081 negotiator
+docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
 ```
 
 ## Development

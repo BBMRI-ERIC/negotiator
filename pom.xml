@@ -90,6 +90,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>eu/bbmri/eric/csit/service/negotiator/configuration/**</exclude>
+                        <exclude>eu/bbmri/eric/csit/service/negotiator/NegotiatorApplication.java</exclude>
+                        <exclude>eu/bbmri/eric/csit/service/negotiator/ServletInitializer.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
