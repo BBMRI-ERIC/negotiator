@@ -80,7 +80,7 @@ public class OAuthSecurityConfig {
         .and()
         .authorizeHttpRequests()
         .antMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**")
-        .authenticated()
+            .permitAll()
         .and()
         .authorizeHttpRequests()
         .antMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**")
