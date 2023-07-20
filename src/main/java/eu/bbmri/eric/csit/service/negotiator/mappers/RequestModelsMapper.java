@@ -8,8 +8,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -89,15 +89,9 @@ public class RequestModelsMapper {
   }
 
   private Set<ResourceDTO> convertCollectionV2ToResourceV3(Set<CollectionV2DTO> collections) {
-    Set<ResourceDTO> resourceDTOS = new HashSet<>();
-    collections.forEach(
-        collection -> {
-          ResourceDTO resourceDTO = new ResourceDTO();
-          resourceDTO.setId(collection.getCollectionId());
-          resourceDTOS.add(resourceDTO);
-        });
-
-    return resourceDTOS;
+    return collections.stream().map(collection -> ResourceDTO.builder()
+            .id(collection.getCollectionId()).build())
+            .collect(Collectors.toSet());
   }
 
   private String convertIdToRedirectUri(RequestDTO req) {
