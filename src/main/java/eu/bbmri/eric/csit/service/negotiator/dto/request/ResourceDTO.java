@@ -2,11 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 @Getter
@@ -14,15 +10,11 @@ import org.springframework.lang.Nullable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ResourceDTO {
 
   @NotNull private String id;
 
   @Nullable private String name;
-
-  @Override
-  public String toString() {
-    return "ResourceDTO{" + "id='" + id + '\'' + ", name='" + name + '\'' + '}';
-  }
 }
