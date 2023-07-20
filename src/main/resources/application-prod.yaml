@@ -6,14 +6,14 @@ spring:
     url: jdbc:postgresql://localhost:5432/negotiator
     username: negotiator
     password: negotiator
-    initialize: true
   sql:
     init:
-      mode: never
+      mode: always
       platform: postgres
+      continue-on-error: true
+      data-locations: classpath:data.sql
   jpa:
     hibernate:
-      show-sql: false
       ddl-auto: update
     defer-datasource-initialization: true
     properties:
@@ -21,8 +21,3 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   jackson:
     date-format: "yyyy-MM-dd"
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri:

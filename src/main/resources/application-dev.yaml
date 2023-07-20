@@ -4,11 +4,11 @@ spring:
     url: jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
     username: negotiator
     password: negotiator
-    initialize: true
   sql:
     init:
       mode: always
       platform: h2
+      data-locations: classpath:data.sql
   h2:
     console:
       enabled: true
