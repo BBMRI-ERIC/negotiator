@@ -4,14 +4,13 @@ spring:
     url: jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
     username: negotiator
     password: negotiator
-    initialize: true
   sql:
     init:
       mode: always
       platform: test
+      data-locations: classpath:data-test.sql
   jpa:
     hibernate:
-      show-sql: true
       ddl-auto: create-drop
     defer-datasource-initialization: true
     properties:
