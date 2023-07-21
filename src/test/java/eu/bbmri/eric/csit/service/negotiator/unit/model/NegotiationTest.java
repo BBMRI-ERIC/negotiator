@@ -1,14 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class NegotiationTest {
@@ -56,10 +53,30 @@ public class NegotiationTest {
   }
 
   @Test
-  void setStatus_ok() {
-    Negotiation negotiation = Negotiation.builder().currentState(NegotiationState.SUBMITTED).build();
+  void getCurrentState_defaultConstructor_isNull() {
+    assertNull(new Negotiation().getCurrentState());
+  }
+
+  @Test
+  void setCurrentState_Ok() {
+    Negotiation negotiation =
+        Negotiation.builder().currentState(NegotiationState.SUBMITTED).build();
     assertEquals(NegotiationState.SUBMITTED, negotiation.getCurrentState());
     negotiation.setCurrentState(NegotiationState.APPROVED);
     assertEquals(NegotiationState.APPROVED, negotiation.getCurrentState());
+  }
+
+  @Test
+  void getCurrentStatesPerResource_defaultConstructor_isNull() {
+    assertEquals(Map.of(), new Negotiation().getCurrentStatePerResource());
+  }
+
+  @Test
+  void setResourcesStates_oneResource_Ok() {
+    Negotiation negotiation = Negotiation.builder().build();
+    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+    assertEquals(
+        NegotiationResourceState.SUBMITTED,
+        negotiation.getCurrentStatePerResource().get("collection:1"));
   }
 }

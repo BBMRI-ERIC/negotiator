@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -14,12 +15,7 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -74,6 +70,15 @@ public class Negotiation extends AuditEntity {
   private Boolean postsEnabled = false;
   
   private NegotiationState currentState;
+
+  @Type(type = "json")
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
+  private HashMap<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+
+  public void setStateForResource(String resourceId, NegotiationResourceState state){
+    currentStatePerResource.put(resourceId, state);
+  }
 
   @Override
   public boolean equals(Object o) {
