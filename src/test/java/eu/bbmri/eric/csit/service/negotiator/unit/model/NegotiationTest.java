@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import java.util.HashSet;
@@ -13,13 +14,15 @@ import org.junit.jupiter.api.Test;
 public class NegotiationTest {
 
   @Test
-  void createNegotiation() {
+  void createNegotiation_ConstructorAndBuilder_Ok() {
     Negotiation negotiation = new Negotiation();
     assertInstanceOf(Negotiation.class, negotiation);
+    Negotiation negotiationFromBuilder = Negotiation.builder().build();
+    assertInstanceOf(Negotiation.class, negotiationFromBuilder);
   }
 
   @Test
-  void getNegotiationRequests() {
+  void getNegotiationRequests_Ok() {
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     negotiation.setRequests(new HashSet<>(List.of(request)));
@@ -28,7 +31,7 @@ public class NegotiationTest {
   }
 
   @Test
-  void getNegotiationResources() {
+  void getNegotiationResources_Ok() {
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     Resource resource = new Resource();
@@ -39,7 +42,7 @@ public class NegotiationTest {
   }
 
   @Test
-  void assertNegotiationsWithSameIdEqual() {
+  void equals_sameIds_equal() {
     Negotiation negotiation = new Negotiation();
     negotiation.setId("sameId");
     Negotiation negotiation2 = new Negotiation();
@@ -48,7 +51,15 @@ public class NegotiationTest {
   }
 
   @Test
-  void assertNegotiationsWithDifferentIdsNotEqual() {
+  void equals_noIds_equal() {
     assertEquals(new Negotiation(), new Negotiation());
+  }
+
+  @Test
+  void setStatus_ok() {
+    Negotiation negotiation = Negotiation.builder().currentState(NegotiationState.SUBMITTED).build();
+    assertEquals(NegotiationState.SUBMITTED, negotiation.getCurrentState());
+    negotiation.setCurrentState(NegotiationState.APPROVED);
+    assertEquals(NegotiationState.APPROVED, negotiation.getCurrentState());
   }
 }

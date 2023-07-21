@@ -72,6 +72,8 @@ public class Negotiation extends AuditEntity {
   private String payload;
 
   private Boolean postsEnabled = false;
+  
+  private NegotiationState currentState;
 
   @Override
   public boolean equals(Object o) {
