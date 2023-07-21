@@ -34,7 +34,7 @@ public class NegotiationMapperTest {
   }
 
   @Test
-  void basicMapNegotiationToDTO() {
+  void map_NegotiationToDTO_Ok() {
     when(negotiationLifecycleService.getCurrentState("newNegotiation"))
         .thenReturn(NegotiationState.APPROVED);
     when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
@@ -51,24 +51,30 @@ public class NegotiationMapperTest {
   }
 
   @Test
-  void testStatusMapping() {
-    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
-        .thenReturn(NegotiationState.APPROVED);
+  void map_currentState_ok() {
     when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
         .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    Negotiation negotiation = new Negotiation();
+    Request request =
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .dataSource(new DataSource())
+                        .build()))
+            .build();
+    Negotiation negotiation =
+        Negotiation.builder()
+            .requests(Set.of(request))
+            .currentState(NegotiationState.SUBMITTED)
+            .build();
     negotiation.setId("newNegotiation");
-    Resource resource = new Resource();
-    resource.setSourceId("collection:1");
-    Request request = new Request();
-    request.setResources(Set.of(resource));
-    negotiation.setRequests(Set.of(request));
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    assertEquals("APPROVED", negotiationDTO.getStatus());
+    assertEquals("SUBMITTED", negotiationDTO.getStatus());
   }
 
   @Test
-  void testResourceStatesMappings() {
+  void map_statePerResource_Ok() {
     when(negotiationLifecycleService.getCurrentState("newNegotiation"))
         .thenReturn(NegotiationState.APPROVED);
     when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
