@@ -9,7 +9,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +29,6 @@ import org.springframework.context.annotation.Configuration;
 public class NegotiationModelMapper {
 
   @Autowired ModelMapper modelMapper;
-
-  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
   @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
@@ -91,7 +88,7 @@ public class NegotiationModelMapper {
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
-    if (Objects.isNull(personsRoles)){
+    if (Objects.isNull(personsRoles)) {
       return null;
     }
     Stream<PersonRoleDTO> roles =
@@ -114,7 +111,7 @@ public class NegotiationModelMapper {
   }
 
   private String negotiationStatusConverter(NegotiationState currentState) {
-    if (Objects.isNull(currentState)){
+    if (Objects.isNull(currentState)) {
       return "";
     }
     return currentState.name();
