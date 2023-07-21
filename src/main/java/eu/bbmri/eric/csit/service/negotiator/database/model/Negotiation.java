@@ -1,20 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.*;
+import javax.persistence.*;
 import lombok.*;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
@@ -68,15 +56,21 @@ public class Negotiation extends AuditEntity {
   private String payload;
 
   private Boolean postsEnabled = false;
-  
+
   private NegotiationState currentState;
 
-  @Type(type = "json")
+  @ElementCollection
+  @CollectionTable(
+      name = "resources_states",
+      joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
+  @MapKeyColumn(name = "resource_id")
+  @Enumerated(EnumType.STRING)
+  @Column(name = "current_state")
   @Setter(AccessLevel.NONE)
   @Builder.Default
-  private HashMap<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+  private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
 
-  public void setStateForResource(String resourceId, NegotiationResourceState state){
+  public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
   }
 

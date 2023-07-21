@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -47,7 +46,7 @@ public class NegotiationModelMapper {
     Converter<NegotiationState, String> negotiationStatusConverter =
         status -> negotiationStatusConverter(status.getSource());
 
-    Converter<NegotiationResources, JsonNode> resourcesStatusConverter =
+    Converter<Map<String, NegotiationResourceState>, JsonNode> resourcesStatusConverter =
         resources -> {
           try {
             return resourcesStatusConverter(resources.getSource());
@@ -84,7 +83,7 @@ public class NegotiationModelMapper {
         mapper ->
             mapper
                 .using(resourcesStatusConverter)
-                .map(Negotiation::getAllResources, NegotiationDTO::setResourceStatus));
+                .map(Negotiation::getCurrentStatePerResource, NegotiationDTO::setResourceStatus));
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
@@ -117,22 +116,14 @@ public class NegotiationModelMapper {
     return currentState.name();
   }
 
-  private JsonNode resourcesStatusConverter(NegotiationResources negotiationResources)
+  private JsonNode resourcesStatusConverter(
+      Map<String, NegotiationResourceState> currentStatePerResource)
       throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    Map<String, NegotiationResourceState> resourcesStatus = new HashMap<>();
-    for (Resource resource : negotiationResources.getResources()) {
-      try {
-        resourcesStatus.put(
-            resource.getSourceId(),
-            negotiationResourceLifecycleService.getCurrentState(
-                negotiationResources.getNegotiationId(), resource.getSourceId()));
-      } catch (EntityNotFoundException e) {
-        log.info("Negotiation and resource combination not found");
-      }
+    if (Objects.isNull(currentStatePerResource)) {
+      return JsonNodeFactory.instance.objectNode();
     }
-    log.debug(resourcesStatus);
-    return mapper.valueToTree(resourcesStatus);
+    return mapper.valueToTree(currentStatePerResource);
   }
 }

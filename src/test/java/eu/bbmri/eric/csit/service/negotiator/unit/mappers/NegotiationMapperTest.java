@@ -52,22 +52,7 @@ public class NegotiationMapperTest {
 
   @Test
   void map_currentState_ok() {
-    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    Request request =
-        Request.builder()
-            .resources(
-                Set.of(
-                    Resource.builder()
-                        .sourceId("collection:1")
-                        .dataSource(new DataSource())
-                        .build()))
-            .build();
-    Negotiation negotiation =
-        Negotiation.builder()
-            .requests(Set.of(request))
-            .currentState(NegotiationState.SUBMITTED)
-            .build();
+    Negotiation negotiation = buildNegotiation();
     negotiation.setId("newNegotiation");
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     assertEquals("SUBMITTED", negotiationDTO.getStatus());
@@ -75,19 +60,26 @@ public class NegotiationMapperTest {
 
   @Test
   void map_statePerResource_Ok() {
-    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
-        .thenReturn(NegotiationState.APPROVED);
-    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    Negotiation negotiation = new Negotiation();
-    negotiation.setId("newNegotiation");
-    Resource resource = new Resource();
-    resource.setSourceId("collection:1");
-    Request request = new Request();
-    request.setResources(Set.of(resource));
-    negotiation.setRequests(Set.of(request));
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     JsonNode jsonNode = negotiationDTO.getResourceStatus();
-    assertEquals("REPRESENTATIVE_CONTACTED", jsonNode.get("collection:1").textValue());
+    assertEquals("SUBMITTED", jsonNode.get("collection:1").textValue());
+  }
+
+  private static Negotiation buildNegotiation() {
+    Request request =
+            Request.builder()
+                    .resources(
+                            Set.of(
+                                    Resource.builder()
+                                            .sourceId("collection:1")
+                                            .dataSource(new DataSource())
+                                            .build()))
+                    .build();
+    return Negotiation.builder()
+            .requests(Set.of(request))
+            .currentState(NegotiationState.SUBMITTED)
+            .build();
   }
 }
