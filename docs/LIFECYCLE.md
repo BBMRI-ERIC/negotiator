@@ -13,4 +13,6 @@ example of how a simple state machine in this context can look like:
 
 ## Implementation
 The Negotiator uses the [Spring state machine framework](https://docs.spring.io/spring-statemachine/docs/current/reference/#preface)
-for handling the exact implementation of the workflow engine.
+for handling the exact implementation of the workflow engine. Updating of the appropriate entities is handled
+by following the [Persist](https://docs.spring.io/spring-statemachine/docs/current/reference/#statemachine-recipes-persist)
+recipe.
