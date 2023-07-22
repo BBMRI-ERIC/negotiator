@@ -12,16 +12,11 @@ import org.springframework.stereotype.Service;
 @CommonsLog
 public class PersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
-  public PersistStateChangeListener() {
-    log.warn("heree");
-  }
 
   @Override
   public void onPersist(
       State<String, String> state,
       Message<String> message,
       Transition<String, String> transition,
-      StateMachine<String, String> stateMachine) {
-    log.warn("got here");
-  }
+      StateMachine<String, String> stateMachine) {}
 }
