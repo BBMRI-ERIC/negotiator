@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
@@ -50,16 +51,23 @@ public class NegotiationMapperTest {
     assertEquals("SUBMITTED", jsonNode.get("collection:1").textValue());
   }
 
+  @Test
+  void map_entityToDtoPayload_throwsRuntimeException() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setPayload("Wrong json string");
+    assertThrows(RuntimeException.class, () -> this.mapper.map(negotiation, NegotiationDTO.class));
+  }
+
   private static Negotiation buildNegotiation() {
     Request request =
-            Request.builder()
-                    .resources(
-                            Set.of(
-                                    Resource.builder()
-                                            .sourceId("collection:1")
-                                            .dataSource(new DataSource())
-                                            .build()))
-                    .build();
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .dataSource(new DataSource())
+                        .build()))
+            .build();
     return Negotiation.builder()
             .requests(Set.of(request))
             .currentState(NegotiationState.SUBMITTED)

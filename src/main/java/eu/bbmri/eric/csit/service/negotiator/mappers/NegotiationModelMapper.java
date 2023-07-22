@@ -44,13 +44,7 @@ public class NegotiationModelMapper {
         status -> negotiationStatusConverter(status.getSource());
 
     Converter<Map<String, NegotiationResourceState>, JsonNode> resourcesStatusConverter =
-        resources -> {
-          try {
-            return resourcesStatusConverter(resources.getSource());
-          } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-          }
-        };
+        resources -> resourcesStatusConverter(resources.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -114,8 +108,7 @@ public class NegotiationModelMapper {
   }
 
   private JsonNode resourcesStatusConverter(
-      Map<String, NegotiationResourceState> currentStatePerResource)
-      throws JsonProcessingException {
+      Map<String, NegotiationResourceState> currentStatePerResource) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     if (Objects.isNull(currentStatePerResource)) {
