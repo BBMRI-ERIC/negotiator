@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.persistence.*;
 import lombok.*;
 import lombok.ToString.Exclude;
@@ -91,14 +92,9 @@ public class Negotiation extends AuditEntity {
     return Objects.hash(getId());
   }
 
-  public NegotiationResources getAllResources() {
-    NegotiationResources negotiationResources = new NegotiationResources();
-    Set<Resource> resources = new HashSet<>();
-    for (Request request : requests) {
-      resources.addAll(request.getResources());
-    }
-    negotiationResources.setNegotiationId(getId());
-    negotiationResources.setResources(resources.stream().toList());
-    return negotiationResources;
+  public Set<Resource> getAllResources() {
+    return requests.stream()
+        .flatMap(request -> request.getResources().stream())
+        .collect(Collectors.toUnmodifiableSet());
   }
 }

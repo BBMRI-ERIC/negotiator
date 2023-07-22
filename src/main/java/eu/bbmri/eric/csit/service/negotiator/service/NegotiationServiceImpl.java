@@ -111,7 +111,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
       // Set initial state machine
       negotiationLifecycleService.initializeTheStateMachine(negotiationEntity.getId());
-      for (Resource resource : negotiationEntity.getAllResources().getResources()) {
+      for (Resource resource : negotiationEntity.getAllResources()) {
         negotiationResourceLifecycleService.initializeTheStateMachine(
             negotiationEntity.getId(), resource.getSourceId());
       }

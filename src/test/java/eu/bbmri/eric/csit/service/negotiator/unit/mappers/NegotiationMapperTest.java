@@ -27,7 +27,7 @@ public class NegotiationMapperTest {
   }
 
   @Test
-  void map_NegotiationToDTO_Ok() {
+  void map_NegotiationToDTOid_Ok() {
     Negotiation negotiation = buildNegotiation();
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     assertEquals(negotiation.getId(), negotiationDTO.getId());

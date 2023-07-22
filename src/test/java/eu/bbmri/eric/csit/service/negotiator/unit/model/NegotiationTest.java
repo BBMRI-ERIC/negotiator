@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class NegotiationTest {
@@ -35,7 +36,7 @@ public class NegotiationTest {
     resource.setSourceId("fancyId");
     request.setResources(new HashSet<>(List.of(resource)));
     negotiation.setRequests(new HashSet<>(List.of(request)));
-    assertEquals(List.of(resource), negotiation.getAllResources().getResources());
+    assertEquals(Set.of(resource), negotiation.getAllResources());
   }
 
   @Test
