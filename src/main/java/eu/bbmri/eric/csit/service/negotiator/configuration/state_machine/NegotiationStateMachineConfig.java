@@ -2,11 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -17,7 +21,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 @EnableStateMachine(name = "negotiationStateMachine")
 public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
 
-  @Autowired private NegotiationStateMachineActions actions;
+  @Autowired @Lazy NegotiationService negotiationService;
 
   @Override
   public void configure(StateMachineConfigurationConfigurer<String, String> config)
@@ -41,7 +45,7 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .target(NegotiationState.APPROVED.name())
         .target(NegotiationState.ONGOING.name())
         .event(NegotiationEvent.APPROVE.name())
-        .action(actions.enablePosts())
+        .action(enablePosts())
         .and()
         .withExternal()
         .source(NegotiationState.SUBMITTED.name())
@@ -67,5 +71,10 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .source(NegotiationState.ONGOING.name())
         .target(NegotiationState.CONCLUDED.name())
         .event(NegotiationEvent.CONCLUDE.name());
+  }
+
+  @Bean
+  public Action<String, String> enablePosts() {
+    return new EnablePostsAction();
   }
 }
