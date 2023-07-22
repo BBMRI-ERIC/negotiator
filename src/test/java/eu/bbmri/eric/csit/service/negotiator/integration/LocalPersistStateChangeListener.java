@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 @Service("testListener")
 public class LocalPersistStateChangeListener implements PersistStateMachineHandler.PersistStateChangeListener {
 
-    public LocalPersistStateChangeListener(){
-        log.error("hereee");
-    }
 
     @Autowired
     NegotiationRepository negotiationRepository;
@@ -24,6 +21,6 @@ public class LocalPersistStateChangeListener implements PersistStateMachineHandl
 
     @Override
     public void onPersist(State<String, String> state, Message<String> message, Transition<String, String> transition, StateMachine<String, String> stateMachine) {
-        log.error("fuck off");
+        log.error("got here");
     }
 }
