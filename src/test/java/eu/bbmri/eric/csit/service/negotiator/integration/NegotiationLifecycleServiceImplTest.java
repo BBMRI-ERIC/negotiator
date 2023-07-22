@@ -1,18 +1,14 @@
 package eu.bbmri.eric.csit.service.negotiator.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceEvent;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleServiceImpl;
@@ -42,98 +38,43 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired JpaStateMachineRepository jpaStateMachineRepository;
 
   @Test
-  void init() {
-    negotiationStateService.initializeTheStateMachine("idk");
+  void getState_createNegotiation_isSubmitted() throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+    assertEquals(NegotiationState.SUBMITTED, NegotiationState.valueOf(negotiationDTO.getStatus()));
   }
 
   @Test
-  void getStateForNonExistentNegotiationThrowsIllegalArgException() {
-    negotiationStateService.initializeTheStateMachine(NEGOTIATION_ID);
+  void getState_fakeNegotiation_ThrowsEntityNotFoundException() {
     assertThrows(
         EntityNotFoundException.class, () -> negotiationStateService.getCurrentState("fake"));
   }
 
   @Test
-  public void getStateReturnsInitialValueAfterInitializingStateMachine() {
-    negotiationStateService.initializeTheStateMachine(NEGOTIATION_ID);
-    assertEquals(INITIAL_STATE, negotiationStateService.getCurrentState(NEGOTIATION_ID));
-  }
-
-  @Test
-  public void getPossibleEventsForExistingNegotiation() {
-    negotiationStateService.initializeTheStateMachine(NEGOTIATION_ID);
-    assertEquals(INITIAL_STATE, negotiationStateService.getCurrentState(NEGOTIATION_ID));
+  public void getPossibleEvents_existingNegotiation_Ok() throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
     assertEquals(
         Set.of(NegotiationEvent.APPROVE, NegotiationEvent.DECLINE),
-        negotiationStateService.getPossibleEvents(NEGOTIATION_ID));
+        negotiationStateService.getPossibleEvents(negotiationDTO.getId()));
   }
 
   @Test
-  public void getPossibleEventsForNonExistingNegotiation() {
+  public void getPossibleEvents_nonExistentId_throwsEntityNotFoundException() {
     assertThrows(
         EntityNotFoundException.class, () -> negotiationStateService.getPossibleEvents("fakeId"));
   }
 
   @Test
-  public void sendEventForNonExistentNegotiationThrowException() {
-    assertThrows(
-        EntityNotFoundException.class,
-        () -> negotiationStateService.sendEvent("fakeId", TRANSITION_EVENT));
-  }
-
-  @Test
-  public void testSendInvalidEventForNegotiation() {
-    String negotiationID = "negotiationID-1";
-    negotiationStateService.initializeTheStateMachine(negotiationID);
-    assertThrows(
-        WrongRequestException.class,
-        () -> negotiationStateService.sendEvent(negotiationID, NegotiationEvent.ABANDON));
-  }
-
-  @Test
-  void stateMachineChangeUpdatesNegotiationDTO() throws IOException {
+  void sendEvent_approveNewNegotiation_isOngoing() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
     assertEquals(
-        "SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
-    assertEquals(false, negotiationDTO.getPostsEnabled());
-    negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+        NegotiationState.ONGOING,
+        negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
-        true, negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
-    assertNotEquals(
-        "SUBMITTED", negotiationService.findById(negotiationDTO.getId(), false).getStatus());
-  }
-
-  @Test
-  void resourceStateMachineChangeUpdatesNegotiationDTO() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
-    assertEquals(
-        NegotiationResourceState.SUBMITTED.name(),
-        negotiationService
-            .findById(negotiationDTO.getId(), false)
-            .getResourceStatus()
-            .get("biobank:1:collection:2")
-            .textValue());
-    negotiationResourceLifecycleService.sendEvent(
-        negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT);
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED.name(),
-        negotiationService
-            .findById(negotiationDTO.getId(), false)
-            .getResourceStatus()
-            .get("biobank:1:collection:2")
-            .textValue());
-    negotiationResourceLifecycleService.sendEvent(
-        negotiationDTO.getId(),
-        "biobank:1:collection:2",
-        NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY);
-    assertEquals(
-        NegotiationResourceState.CHECKING_AVAILABILITY.name(),
-        negotiationService
-            .findById(negotiationDTO.getId(), false)
-            .getResourceStatus()
-            .get("biobank:1:collection:2")
-            .textValue());
+        NegotiationState.ONGOING,
+        NegotiationState.valueOf(
+            negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
 }
