@@ -5,7 +5,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -15,8 +14,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
 @Configuration
-@EnableStateMachine
-@Log
+@EnableStateMachine(name = "negotiationStateMachine")
 public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
 
   @Autowired private NegotiationStateMachineActions actions;

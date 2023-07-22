@@ -42,6 +42,11 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired JpaStateMachineRepository jpaStateMachineRepository;
 
   @Test
+  void init() {
+    negotiationStateService.initializeTheStateMachine("idk");
+  }
+
+  @Test
   void getStateForNonExistentNegotiationThrowsIllegalArgException() {
     negotiationStateService.initializeTheStateMachine(NEGOTIATION_ID);
     assertThrows(
