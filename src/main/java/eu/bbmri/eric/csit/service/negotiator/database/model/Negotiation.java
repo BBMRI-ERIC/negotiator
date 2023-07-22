@@ -58,7 +58,8 @@ public class Negotiation extends AuditEntity {
 
   private Boolean postsEnabled = false;
 
-  private NegotiationState currentState;
+  @Builder.Default
+  private NegotiationState currentState = NegotiationState.SUBMITTED;
 
   @ElementCollection
   @CollectionTable(

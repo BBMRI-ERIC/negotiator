@@ -54,11 +54,6 @@ public class NegotiationTest {
   }
 
   @Test
-  void getCurrentState_defaultConstructor_isNull() {
-    assertNull(new Negotiation().getCurrentState());
-  }
-
-  @Test
   void setCurrentState_Ok() {
     Negotiation negotiation =
         Negotiation.builder().currentState(NegotiationState.SUBMITTED).build();
@@ -79,5 +74,10 @@ public class NegotiationTest {
     assertEquals(
         NegotiationResourceState.SUBMITTED,
         negotiation.getCurrentStatePerResource().get("collection:1"));
+  }
+
+  @Test
+  void newNegotiationCurrentState_hasDefaultValue() {
+    assertInstanceOf(NegotiationState.class, Negotiation.builder().build().getCurrentState());
   }
 }
