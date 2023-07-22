@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -28,8 +27,6 @@ import org.springframework.context.annotation.Configuration;
 public class NegotiationModelMapper {
 
   @Autowired ModelMapper modelMapper;
-
-  @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
   public NegotiationModelMapper(ModelMapper modelMapper) {
     this.modelMapper = modelMapper;
