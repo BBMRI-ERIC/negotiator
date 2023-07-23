@@ -4,7 +4,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -109,12 +108,6 @@ public class NegotiationServiceImpl implements NegotiationService {
       // PersonNegotiationRole
       savedNegotiation = negotiationRepository.save(negotiationEntity);
 
-      // Set initial state machine
-      negotiationLifecycleService.initializeTheStateMachine(negotiationEntity.getId());
-      for (Resource resource : negotiationEntity.getAllResources()) {
-        negotiationResourceLifecycleService.initializeTheStateMachine(
-            negotiationEntity.getId(), resource.getSourceId());
-      }
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
       log.error(ex);
