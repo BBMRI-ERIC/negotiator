@@ -34,8 +34,6 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   @Autowired NegotiationRepository negotiationRepository;
 
-  @Override
-  public void initializeTheStateMachine(String negotiationId) {}
 
   @Override
   public NegotiationState getCurrentState(String negotiationId) throws EntityNotFoundException {

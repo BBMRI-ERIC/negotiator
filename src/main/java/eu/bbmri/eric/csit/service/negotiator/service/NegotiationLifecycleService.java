@@ -10,12 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface NegotiationLifecycleService {
 
-  /**
-   * Initializes the state machine for the first time
-   *
-   * @param negotiationId for which the state machine is created
-   */
-  void initializeTheStateMachine(String negotiationId);
 
   /**
    * Returns the current state of a Negotiation
