@@ -27,10 +27,6 @@ import org.springframework.test.context.ActiveProfiles;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NegotiationLifecycleServiceImplTest {
 
-  final NegotiationState INITIAL_STATE = NegotiationState.SUBMITTED;
-  final NegotiationState SECOND_STATE = NegotiationState.APPROVED;
-  final NegotiationEvent TRANSITION_EVENT = NegotiationEvent.APPROVE;
-  final String NEGOTIATION_ID = "negotiationID-1";
   @Autowired NegotiationLifecycleServiceImpl negotiationStateService;
   @Autowired NegotiationResourceLifecycleServiceImpl negotiationResourceLifecycleService;
 
@@ -39,8 +35,7 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   void getState_createNegotiation_isSubmitted() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+    NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(NegotiationState.SUBMITTED, NegotiationState.valueOf(negotiationDTO.getStatus()));
   }
 
@@ -52,8 +47,7 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   public void getPossibleEvents_existingNegotiation_Ok() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+    NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         Set.of(NegotiationEvent.APPROVE, NegotiationEvent.DECLINE),
         negotiationStateService.getPossibleEvents(negotiationDTO.getId()));
@@ -67,8 +61,7 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   void sendEvent_approveNewNegotiation_isOngoing() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
+    NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         NegotiationState.ONGOING,
         negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
@@ -76,5 +69,20 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.ONGOING,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
+  }
+
+  private NegotiationDTO saveNegotiation() throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    return negotiationService.create(negotiationCreateDTO, 101L);
+  }
+
+  @Test
+  void sendEvent_wrongEvent_noChangeInState() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(NegotiationState.SUBMITTED, negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
+    assertEquals(
+            NegotiationState.SUBMITTED,
+            NegotiationState.valueOf(
+                    negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
 }
