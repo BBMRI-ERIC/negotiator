@@ -73,7 +73,11 @@ public class Negotiation extends AuditEntity {
   @Builder.Default
   private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
 
-  @OneToMany(fetch = FetchType.LAZY)
+  @OneToMany(
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.ALL})
+  @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
+  @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
 
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
