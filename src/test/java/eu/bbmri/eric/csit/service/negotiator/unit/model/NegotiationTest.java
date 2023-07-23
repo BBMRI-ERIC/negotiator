@@ -80,4 +80,18 @@ public class NegotiationTest {
   void newNegotiationCurrentState_hasDefaultValue() {
     assertInstanceOf(NegotiationState.class, Negotiation.builder().build().getCurrentState());
   }
+
+  @Test
+  void getLifecycleHistory_newNegotiation_hasOneEntry() {
+    Negotiation negotiation = Negotiation.builder().build();
+    assertEquals(1, negotiation.getLifecycleHistory().size());
+  }
+
+  @Test
+  void getLifeCycleHistory_newNegotiation_entryForSubmitted() {
+    Negotiation negotiation = Negotiation.builder().build();
+    assertEquals(
+        NegotiationState.SUBMITTED,
+        negotiation.getLifecycleHistory().iterator().next().getChangedTo());
+  }
 }

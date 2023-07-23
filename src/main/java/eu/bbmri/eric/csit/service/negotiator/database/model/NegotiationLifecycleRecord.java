@@ -1,22 +1,22 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.time.ZonedDateTime;
+import javax.persistence.*;
 import lombok.*;
 
-public record NegotiationLifecycleRecord(
-    ZonedDateTime recordTime, Person madeBy, NegotiationState newState) {
-  @Override
-  public ZonedDateTime recordTime() {
-    return recordTime;
-  }
+@Builder
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public final class NegotiationLifecycleRecord {
 
-  @Override
-  public Person madeBy() {
-    return madeBy;
-  }
+  @Id @GeneratedValue private Long id;
+  private ZonedDateTime recordedAt;
 
-  @Override
-  public NegotiationState newState() {
-    return newState;
-  }
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+  @JoinColumn(name = "person_id")
+  private Person changedBy;
+
+  private NegotiationState changedTo;
 }

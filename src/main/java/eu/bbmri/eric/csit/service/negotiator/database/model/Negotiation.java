@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.persistence.*;
@@ -71,6 +72,17 @@ public class Negotiation extends AuditEntity {
   @Setter(AccessLevel.NONE)
   @Builder.Default
   private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+
+  @OneToMany(fetch = FetchType.LAZY)
+  private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
+
+  private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
+    return Set.of(
+        NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(NegotiationState.SUBMITTED)
+            .build());
+  }
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
