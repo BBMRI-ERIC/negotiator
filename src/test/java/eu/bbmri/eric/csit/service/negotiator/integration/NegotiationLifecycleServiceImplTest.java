@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
@@ -84,5 +83,15 @@ public class NegotiationLifecycleServiceImplTest {
             NegotiationState.SUBMITTED,
             NegotiationState.valueOf(
                     negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
+  }
+
+  @Test
+  void sendEvent_approveCorrectly_calledActionEnablePost() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
+    assertEquals(
+            NegotiationState.ONGOING,
+            negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
   }
 }
