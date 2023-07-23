@@ -17,6 +17,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
+/** Configuration of the SpringStateMachine(SSM) for the Negotiation Lifecycle. */
 @Configuration
 @EnableStateMachine(name = "negotiationStateMachine")
 public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {

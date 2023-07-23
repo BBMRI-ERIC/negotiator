@@ -13,6 +13,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 
+/** Listener for changes in the Negotiation lifecycle state machine. */
 @Service("persistListener")
 @CommonsLog
 public class PersistStateChangeListener

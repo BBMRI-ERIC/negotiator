@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 
+/** Configuration of the Persist handler for SSM Negotiation Lifecycle. */
 @Configuration
 public class PersistHandlerConfig {
 

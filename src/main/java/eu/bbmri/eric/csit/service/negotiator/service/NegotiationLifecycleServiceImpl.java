@@ -17,7 +17,7 @@ import org.springframework.statemachine.recipes.persist.PersistStateMachineHandl
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
-/** Spring State Machine implementation of the NegotiationLifecycleService */
+/** Spring State Machine implementation of the NegotiationLifecycleService. */
 @Service
 @CommonsLog
 @NoArgsConstructor
