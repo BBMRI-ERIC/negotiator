@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface NegotiationLifecycleService {
 
-
   /**
    * Returns the current state of a Negotiation
    *

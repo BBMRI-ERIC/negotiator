@@ -18,5 +18,4 @@ public final class NegotiationLifecycleRecord {
 
   private ZonedDateTime recordedAt;
   private NegotiationState changedTo;
-  
 }

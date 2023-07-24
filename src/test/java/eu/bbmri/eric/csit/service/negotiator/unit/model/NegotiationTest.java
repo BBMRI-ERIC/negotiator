@@ -99,10 +99,9 @@ public class NegotiationTest {
   void setCurrentState_correctly_updatesHistory() {
     Negotiation negotiation = Negotiation.builder().build();
     assertEquals(
-            NegotiationState.SUBMITTED,
-            negotiation.getLifecycleHistory().iterator().next().getChangedTo());
+        NegotiationState.SUBMITTED,
+        negotiation.getLifecycleHistory().iterator().next().getChangedTo());
     negotiation.setCurrentState(NegotiationState.ONGOING);
-    assertEquals(
-            2, negotiation.getLifecycleHistory().size());
+    assertEquals(2, negotiation.getLifecycleHistory().size());
   }
 }

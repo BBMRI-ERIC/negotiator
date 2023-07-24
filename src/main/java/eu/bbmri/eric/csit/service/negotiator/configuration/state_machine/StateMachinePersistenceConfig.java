@@ -24,7 +24,6 @@ public class StateMachinePersistenceConfig {
     return new JpaPersistingStateMachineInterceptor<>(jpaStateMachineRepository) {};
   }
 
-
   @Bean(name = "negotiationResourceStateMachineService")
   public StateMachineService<NegotiationResourceState, NegotiationResourceEvent>
       negotiationResourceStateMachineService(

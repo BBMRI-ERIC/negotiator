@@ -69,8 +69,8 @@ public class NegotiationMapperTest {
                         .build()))
             .build();
     return Negotiation.builder()
-            .requests(Set.of(request))
-            .currentState(NegotiationState.SUBMITTED)
-            .build();
+        .requests(Set.of(request))
+        .currentState(NegotiationState.SUBMITTED)
+        .build();
   }
 }

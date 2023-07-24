@@ -76,11 +76,13 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   void sendEvent_wrongEvent_noChangeInState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertEquals(NegotiationState.SUBMITTED, negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
     assertEquals(
-            NegotiationState.SUBMITTED,
-            NegotiationState.valueOf(
-                    negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
+        NegotiationState.SUBMITTED,
+        negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
+    assertEquals(
+        NegotiationState.SUBMITTED,
+        NegotiationState.valueOf(
+            negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
 
   @Test
@@ -88,8 +90,8 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
     assertEquals(
-            NegotiationState.ONGOING,
-            negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+        NegotiationState.ONGOING,
+        negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
   }
 
@@ -97,8 +99,11 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEvent_approveCorrectly_historyIsUpdated() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    Set<NegotiationLifecycleRecord> history = negotiationRepository.findById(negotiationDTO.getId()).get().getLifecycleHistory();
+    Set<NegotiationLifecycleRecord> history =
+        negotiationRepository.findById(negotiationDTO.getId()).get().getLifecycleHistory();
     assertEquals(2, history.size());
-    assertTrue(history.stream().anyMatch(record -> record.getChangedTo().equals(NegotiationState.ONGOING)));
+    assertTrue(
+        history.stream()
+            .anyMatch(record -> record.getChangedTo().equals(NegotiationState.ONGOING)));
   }
 }

@@ -81,23 +81,25 @@ public class Negotiation extends AuditEntity {
   @Setter(AccessLevel.NONE)
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
-  
-  public void setCurrentState(NegotiationState negotiationState){
+
+  public void setCurrentState(NegotiationState negotiationState) {
     this.currentState = negotiationState;
-    this.lifecycleHistory.add(NegotiationLifecycleRecord.builder()
+    this.lifecycleHistory.add(
+        NegotiationLifecycleRecord.builder()
             .recordedAt(ZonedDateTime.now())
-            .changedTo(currentState).build());
+            .changedTo(currentState)
+            .build());
   }
 
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
-    history.add(NegotiationLifecycleRecord.builder()
+    history.add(
+        NegotiationLifecycleRecord.builder()
             .recordedAt(ZonedDateTime.now())
             .changedTo(NegotiationState.SUBMITTED)
             .build());
     return history;
   }
-  
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);

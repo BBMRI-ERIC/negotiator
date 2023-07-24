@@ -33,10 +33,9 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   @Autowired NegotiationRepository negotiationRepository;
 
-
   @Override
   public NegotiationState getCurrentState(String negotiationId) throws EntityNotFoundException {
-   return getCurrentStateForNegotiation(negotiationId);
+    return getCurrentStateForNegotiation(negotiationId);
   }
 
   @Override
@@ -59,36 +58,35 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
             MessageBuilder.withPayload(negotiationEvent.name())
                 .setHeader("negotiationId", negotiationId)
                 .build(),
-                getCurrentStateForNegotiation(negotiationId).name())
+            getCurrentStateForNegotiation(negotiationId).name())
         .subscribe();
   }
 
   private NegotiationState getCurrentStateForNegotiation(String negotiationId) {
     return negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException("Negotiation not found.")).getCurrentState();
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException("Negotiation not found."))
+        .getCurrentState();
   }
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine() {
     return stateMachine.getTransitions().stream()
-            .filter(
-                    transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
-            .map(transition -> transition.getTrigger().getEvent())
-            .map(NegotiationEvent::valueOf)
-            .collect(Collectors.toSet());
+        .filter(
+            transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
+        .map(transition -> transition.getTrigger().getEvent())
+        .map(NegotiationEvent::valueOf)
+        .collect(Collectors.toSet());
   }
 
   private void rehydrateStateMachineForNegotiation(String negotiationId) {
-    NegotiationState currentState =
-            getCurrentStateForNegotiation(negotiationId);
+    NegotiationState currentState = getCurrentStateForNegotiation(negotiationId);
     stateMachine
-            .getStateMachineAccessor()
-            .doWithAllRegions(
-                    accessor ->
-                            accessor
-                                    .resetStateMachineReactively(
-                                            new DefaultStateMachineContext<>(
-                                                    currentState.name(), null, null, null))
-                                    .subscribe());
+        .getStateMachineAccessor()
+        .doWithAllRegions(
+            accessor ->
+                accessor
+                    .resetStateMachineReactively(
+                        new DefaultStateMachineContext<>(currentState.name(), null, null, null))
+                    .subscribe());
   }
 }
