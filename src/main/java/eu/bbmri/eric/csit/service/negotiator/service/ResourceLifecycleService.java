@@ -7,6 +7,10 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+/**
+ * This interface provides a specification for Lifecycle management operations
+ * on a Resource level.
+ */
 public interface ResourceLifecycleService {
 
   /**

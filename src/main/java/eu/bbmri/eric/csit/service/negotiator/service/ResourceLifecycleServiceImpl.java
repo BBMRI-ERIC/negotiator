@@ -17,9 +17,7 @@ import org.springframework.statemachine.recipes.persist.PersistStateMachineHandl
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
-/**
- * Service for interacting with the Resource State Machine
- */
+/** Spring State Machine implementation of the ResourceLifecycleService. */
 @Service
 @CommonsLog
 public class ResourceLifecycleServiceImpl
