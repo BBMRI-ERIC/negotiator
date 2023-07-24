@@ -39,7 +39,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
-  @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
+  @Autowired private ResourceLifecycleService resourceLifecycleService;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;

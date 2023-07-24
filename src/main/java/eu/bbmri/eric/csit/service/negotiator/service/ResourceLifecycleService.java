@@ -7,7 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public interface NegotiationResourceLifecycleService {
+public interface ResourceLifecycleService {
 
   /**
    * Returns all possible events that can be sent for this resource negotiation

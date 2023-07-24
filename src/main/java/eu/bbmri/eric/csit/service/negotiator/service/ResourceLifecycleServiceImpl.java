@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @CommonsLog
-public class NegotiationResourceLifecycleServiceImpl
-    implements NegotiationResourceLifecycleService {
+public class ResourceLifecycleServiceImpl
+    implements ResourceLifecycleService {
 
   @Autowired NegotiationRepository negotiationRepository;
 

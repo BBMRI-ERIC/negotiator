@@ -14,8 +14,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +31,8 @@ import org.springframework.test.context.ActiveProfiles;
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationStateService;
-  @Autowired NegotiationResourceLifecycleService negotiationResourceLifecycleService;
+  @Autowired
+  ResourceLifecycleService resourceLifecycleService;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
 
@@ -130,7 +131,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertThrows(
             EntityNotFoundException.class,
         () ->
-            negotiationResourceLifecycleService.sendEvent(
+            resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),
                 "biobank:1:collection:2",
                 NegotiationResourceEvent.CONTACT));
@@ -149,7 +150,7 @@ public class NegotiationLifecycleServiceImplTest {
             .get("biobank:1:collection:2"));
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        negotiationResourceLifecycleService.sendEvent(
+        resourceLifecycleService.sendEvent(
             negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
   }
 
@@ -159,7 +160,7 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.SUBMITTED,
-        negotiationResourceLifecycleService.sendEvent(
+        resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
@@ -171,17 +172,17 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        negotiationResourceLifecycleService.sendEvent(
+        resourceLifecycleService.sendEvent(
             negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
-        negotiationResourceLifecycleService.sendEvent(
+        resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
     assertEquals(
         NegotiationResourceState.RESOURCE_AVAILABLE,
-        negotiationResourceLifecycleService.sendEvent(
+        resourceLifecycleService.sendEvent(
             negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.MARK_AS_AVAILABLE));
@@ -209,7 +210,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertThrows(
         EntityNotFoundException.class,
         () ->
-            negotiationResourceLifecycleService.getPossibleEvents(
+            resourceLifecycleService.getPossibleEvents(
                 negotiationDTO.getId(), "biobank:1:collection:2"));
   }
 
@@ -219,7 +220,7 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         Set.of(NegotiationResourceEvent.MARK_AS_UNREACHABLE, NegotiationResourceEvent.CONTACT),
-        negotiationResourceLifecycleService.getPossibleEvents(
+        resourceLifecycleService.getPossibleEvents(
             negotiationDTO.getId(), "biobank:1:collection:2"));
   }
 }
