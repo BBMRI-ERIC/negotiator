@@ -3,8 +3,12 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import com.sun.istack.NotNull;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -22,8 +26,13 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AccessCriteriaSection extends BaseEntity implements Comparable<AccessCriteriaSection> {
+public class AccessCriteriaSection implements Comparable<AccessCriteriaSection> {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
+  
   @NotNull private String name;
 
   @NotNull private String label;
