@@ -60,6 +60,7 @@ public class Negotiation extends AuditEntity {
   private Boolean postsEnabled = false;
 
   @Builder.Default
+  @Setter(AccessLevel.NONE)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
   @ElementCollection
@@ -77,16 +78,26 @@ public class Negotiation extends AuditEntity {
       fetch = FetchType.LAZY,
       cascade = {CascadeType.ALL})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
+  @Setter(AccessLevel.NONE)
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
+  
+  public void setCurrentState(NegotiationState negotiationState){
+    this.currentState = negotiationState;
+    this.lifecycleHistory.add(NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(currentState).build());
+  }
 
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
-    return Set.of(
-        NegotiationLifecycleRecord.builder()
+    Set<NegotiationLifecycleRecord> history = new HashSet<>();
+    history.add(NegotiationLifecycleRecord.builder()
             .recordedAt(ZonedDateTime.now())
             .changedTo(NegotiationState.SUBMITTED)
             .build());
+    return history;
   }
+  
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);

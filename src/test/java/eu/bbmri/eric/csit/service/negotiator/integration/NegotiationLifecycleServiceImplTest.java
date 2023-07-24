@@ -4,20 +4,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.io.IOException;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.statemachine.data.jpa.JpaStateMachineRepository;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -27,10 +27,8 @@ import org.springframework.test.context.ActiveProfiles;
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationStateService;
-  @Autowired NegotiationResourceLifecycleServiceImpl negotiationResourceLifecycleService;
-
+  @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
-  @Autowired JpaStateMachineRepository jpaStateMachineRepository;
 
   @Test
   void getState_createNegotiation_isSubmitted() throws IOException {
@@ -93,5 +91,14 @@ public class NegotiationLifecycleServiceImplTest {
             NegotiationState.ONGOING,
             negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
+  }
+
+  @Test
+  void sendEvent_approveCorrectly_historyIsUpdated() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Set<NegotiationLifecycleRecord> history = negotiationRepository.findById(negotiationDTO.getId()).get().getLifecycleHistory();
+    assertEquals(2, history.size());
+    assertTrue(history.stream().anyMatch(record -> record.getChangedTo().equals(NegotiationState.ONGOING)));
   }
 }
