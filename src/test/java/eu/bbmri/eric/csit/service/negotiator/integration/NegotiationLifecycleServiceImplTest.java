@@ -5,14 +5,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.io.IOException;
 import java.util.Map;
@@ -29,6 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationStateService;
+  @Autowired NegotiationResourceLifecycleService negotiationResourceLifecycleService;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
 
@@ -123,5 +127,15 @@ public class NegotiationLifecycleServiceImplTest {
     Map<String, NegotiationResourceState> states = negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
     assertTrue(states.containsKey("biobank:1:collection:2"));
     assertEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
+  }
+
+  @Test
+  void sendEventForResource_notApprovedNegotiation_throwsWrongRequest() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertThrows(WrongRequestException.class, () -> negotiationResourceLifecycleService.sendEvent(
+            negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.CONTACT
+    ));
   }
 }
