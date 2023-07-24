@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
@@ -111,9 +110,6 @@ public class NegotiationModelMapper {
       Map<String, NegotiationResourceState> currentStatePerResource) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    if (Objects.isNull(currentStatePerResource)) {
-      return JsonNodeFactory.instance.objectNode();
-    }
     return mapper.valueToTree(currentStatePerResource);
   }
 }
