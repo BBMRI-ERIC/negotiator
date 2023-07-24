@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSection;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,5 +19,5 @@ public class AccessCriteriaSetDTO {
 
   String name;
 
-  List<AccessCriteriaSection> sections = new ArrayList<>();
+  List<AccessCriteriaSectionDTO> sections = new ArrayList<>();
 }
