@@ -61,7 +61,7 @@ docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
 ### Running the backend in dev mode
 
 ```shell
-mvn package
+mvn clean package
 java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
 
