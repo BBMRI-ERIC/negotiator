@@ -24,6 +24,7 @@ import org.hibernate.annotations.TypeDef;
     attributeNodes = {
       @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
       @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
+            @NamedAttributeNode(value = "currentStatePerResource")
     },
     subgraphs = {
       @NamedSubgraph(
