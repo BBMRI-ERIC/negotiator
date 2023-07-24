@@ -62,7 +62,15 @@ public class NegotiationMapperTest {
   void map_personRoles_Ok() {
     Negotiation negotiation = buildNegotiation();
     PersonNegotiationRole personNegotiationRole =
-        new PersonNegotiationRole(Person.builder().authSubject("823").authName("John").authEmail("test@test.com").id(1L).build(), negotiation, new Role("CREATOR"));
+        new PersonNegotiationRole(
+            Person.builder()
+                .authSubject("823")
+                .authName("John")
+                .authEmail("test@test.com")
+                .id(1L)
+                .build(),
+            negotiation,
+            new Role("CREATOR"));
     negotiation.setPersons(Set.of(personNegotiationRole));
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     assertEquals("CREATOR", negotiationDTO.getPersons().iterator().next().getRole());

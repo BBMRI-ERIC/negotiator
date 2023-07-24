@@ -32,7 +32,7 @@ public class AccessCriteriaSection implements Comparable<AccessCriteriaSection> 
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
-  
+
   @NotNull private String name;
 
   @NotNull private String label;
