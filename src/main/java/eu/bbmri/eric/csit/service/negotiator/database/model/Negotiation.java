@@ -64,7 +64,7 @@ public class Negotiation extends AuditEntity {
 
   @ElementCollection
   @CollectionTable(
-      name = "resources_states",
+      name = "resource_state_per_negotiation",
       joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
   @MapKeyColumn(name = "resource_id")
   @Enumerated(EnumType.STRING)
