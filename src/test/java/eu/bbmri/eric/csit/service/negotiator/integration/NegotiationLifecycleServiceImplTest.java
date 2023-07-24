@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
@@ -14,6 +15,7 @@ import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,5 +107,19 @@ public class NegotiationLifecycleServiceImplTest {
     assertTrue(
         history.stream()
             .anyMatch(record -> record.getChangedTo().equals(NegotiationState.ONGOING)));
+  }
+
+  @Test
+  void createNegotiation_initialHistoryForEachResource_isEmpty() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    Map<String, NegotiationResourceState> statePerResource = negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
+    assertTrue(statePerResource.isEmpty());
+  }
+
+  @Test
+  void createNegotiation_approve_eachResourceHasState() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertTrue(negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource().containsKey("biobank:1:collection:2"));
   }
 }
