@@ -11,14 +11,6 @@ import org.springframework.stereotype.Service;
 public interface NegotiationLifecycleService {
 
   /**
-   * Returns the current state of a Negotiation
-   *
-   * @param negotiationId for which state is requested
-   * @return NegotiationState
-   */
-  NegotiationState getCurrentState(String negotiationId) throws EntityNotFoundException;
-
-  /**
    * Returns all possible events that can be sent for this negotiation
    *
    * @param negotiationId of the Negotiation

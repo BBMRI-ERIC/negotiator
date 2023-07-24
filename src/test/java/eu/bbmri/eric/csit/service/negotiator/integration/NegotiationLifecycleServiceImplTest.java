@@ -42,12 +42,6 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void getState_fakeNegotiation_ThrowsEntityNotFoundException() {
-    assertThrows(
-        EntityNotFoundException.class, () -> negotiationStateService.getCurrentState("fake"));
-  }
-
-  @Test
   public void getPossibleEvents_existingNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
@@ -194,13 +188,9 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void getCurrentState_newNegotiation_throwsEntityNotFound() throws IOException {
+  void getCurrentStateForResource_newNegotiation_isNull() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertThrows(
-        EntityNotFoundException.class,
-        () ->
-            negotiationResourceLifecycleService.getCurrentState(
-                negotiationDTO.getId(), "biobank:1:collection:2"));
+    assertNull(negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus().get("biobank:1:collection:2"));
   }
 
   @Test
@@ -209,8 +199,7 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.SUBMITTED,
-        negotiationResourceLifecycleService.getCurrentState(
-            negotiationDTO.getId(), "biobank:1:collection:2"));
+        NegotiationResourceState.valueOf(negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus().get("biobank:1:collection:2").textValue()));
   }
 
   @Test

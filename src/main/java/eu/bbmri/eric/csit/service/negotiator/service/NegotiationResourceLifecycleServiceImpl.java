@@ -35,11 +35,6 @@ public class NegotiationResourceLifecycleServiceImpl
   @Qualifier("resourceStateMachine")
   private StateMachine<String, String> stateMachine;
   
-  @Override
-  public NegotiationResourceState getCurrentState(String negotiationId, String resourceId)
-      throws EntityNotFoundException {
-    return getCurrentStateForResource(negotiationId, resourceId);
-  }
 
   @Override
   public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)

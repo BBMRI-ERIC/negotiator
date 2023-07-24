@@ -8,15 +8,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public interface NegotiationResourceLifecycleService {
-  /**
-   * Returns the current state of a Resource Negotiation
-   *
-   * @param negotiationId for which state is requested
-   * @param resourceId for which state is requested
-   * @return Current state
-   */
-  NegotiationResourceState getCurrentState(String negotiationId, String resourceId)
-      throws EntityNotFoundException;
 
   /**
    * Returns all possible events that can be sent for this resource negotiation
