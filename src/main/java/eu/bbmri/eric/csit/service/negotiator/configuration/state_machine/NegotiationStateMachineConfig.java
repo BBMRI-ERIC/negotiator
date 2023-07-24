@@ -43,7 +43,6 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
     transitions
         .withExternal()
         .source(NegotiationState.SUBMITTED.name())
-        .target(NegotiationState.APPROVED.name())
         .target(NegotiationState.ONGOING.name())
         .event(NegotiationEvent.APPROVE.name())
         .action(enablePosts())
