@@ -17,6 +17,9 @@ import org.springframework.statemachine.recipes.persist.PersistStateMachineHandl
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for interacting with the Resource State Machine
+ */
 @Service
 @CommonsLog
 public class NegotiationResourceLifecycleServiceImpl
@@ -31,10 +34,7 @@ public class NegotiationResourceLifecycleServiceImpl
   @Autowired
   @Qualifier("resourceStateMachine")
   private StateMachine<String, String> stateMachine;
-
-  @Override
-  public void initializeTheStateMachine(String negotiationId, String resourceId) {}
-
+  
   @Override
   public NegotiationResourceState getCurrentState(String negotiationId, String resourceId)
       throws EntityNotFoundException {

@@ -9,14 +9,6 @@ import java.util.Set;
 
 public interface NegotiationResourceLifecycleService {
   /**
-   * Initializes the state machine for the first time for a specific resource in a Negotiation
-   *
-   * @param negotiationId for which the state machine is created
-   * @param resourceId for which the state machine is created
-   */
-  void initializeTheStateMachine(String negotiationId, String resourceId);
-
-  /**
    * Returns the current state of a Resource Negotiation
    *
    * @param negotiationId for which state is requested
