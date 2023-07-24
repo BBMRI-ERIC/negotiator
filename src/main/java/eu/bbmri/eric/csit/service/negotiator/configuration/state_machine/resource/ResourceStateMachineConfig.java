@@ -16,30 +16,24 @@ import org.springframework.statemachine.guard.Guard;
 
 @Configuration
 @EnableStateMachine(name = "resourceStateMachine")
-public class ResourceStateMachineConfig
-    extends StateMachineConfigurerAdapter<String, String> {
+public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
 
   @Override
-  public void configure(
-          StateMachineConfigurationConfigurer<String, String> config)
+  public void configure(StateMachineConfigurationConfigurer<String, String> config)
       throws Exception {
-    config
-        .withConfiguration()
-        .autoStartup(true);
+    config.withConfiguration().autoStartup(true);
   }
 
   @Override
-  public void configure(
-          StateMachineStateConfigurer<String, String> states)
-      throws Exception {
+  public void configure(StateMachineStateConfigurer<String, String> states) throws Exception {
     Set<String> stringStates = new HashSet<>();
-    EnumSet.allOf(NegotiationResourceState.class).forEach(entity -> stringStates.add(entity.name()));
+    EnumSet.allOf(NegotiationResourceState.class)
+        .forEach(entity -> stringStates.add(entity.name()));
     states.withStates().initial(NegotiationResourceState.SUBMITTED.name()).states(stringStates);
   }
 
   @Override
-  public void configure(
-          StateMachineTransitionConfigurer<String, String> transitions)
+  public void configure(StateMachineTransitionConfigurer<String, String> transitions)
       throws Exception {
     transitions
         .withExternal()
@@ -82,14 +76,11 @@ public class ResourceStateMachineConfig
         .event(NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE.name())
         .target(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name());
 
-    transitions
-            .withExternal()
-            .guard(negotiationIsApproved());
+    transitions.withExternal().guard(negotiationIsApproved());
   }
 
   @Bean
   public Guard<String, String> negotiationIsApproved() {
     return new NegotiationIsApprovedGuard();
   }
-
 }

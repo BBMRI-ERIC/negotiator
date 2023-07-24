@@ -18,7 +18,6 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 @Configuration
 @EnableStateMachine(name = "negotiationStateMachine")
 public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
-  
 
   @Override
   public void configure(StateMachineConfigurationConfigurer<String, String> config)

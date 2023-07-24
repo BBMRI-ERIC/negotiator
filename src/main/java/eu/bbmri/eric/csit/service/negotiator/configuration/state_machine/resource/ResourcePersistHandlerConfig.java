@@ -9,18 +9,18 @@ import org.springframework.statemachine.recipes.persist.PersistStateMachineHandl
 
 @Configuration
 public class ResourcePersistHandlerConfig {
-    @Autowired
-    @Qualifier("resourceStateMachine")
-    private StateMachine<String, String> stateMachine;
+  @Autowired
+  @Qualifier("resourceStateMachine")
+  private StateMachine<String, String> stateMachine;
 
-    @Autowired
-    @Qualifier("resourcePersistListener")
-    private ResourcePersistStateChangeListener persistStateChangeListener;
+  @Autowired
+  @Qualifier("resourcePersistListener")
+  private ResourcePersistStateChangeListener persistStateChangeListener;
 
-    @Bean(name = "resourcePersistHandler")
-    public PersistStateMachineHandler persistStateMachineHandler() {
-        PersistStateMachineHandler handler = new PersistStateMachineHandler(stateMachine);
-        handler.addPersistStateChangeListener(persistStateChangeListener);
-        return handler;
-    }
+  @Bean(name = "resourcePersistHandler")
+  public PersistStateMachineHandler persistStateMachineHandler() {
+    PersistStateMachineHandler handler = new PersistStateMachineHandler(stateMachine);
+    handler.addPersistStateChangeListener(persistStateChangeListener);
+    return handler;
+  }
 }
