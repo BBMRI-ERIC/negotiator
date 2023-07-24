@@ -63,7 +63,7 @@ public class Negotiation extends AuditEntity {
   @Setter(AccessLevel.NONE)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(
       name = "resource_state_per_negotiation",
       joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
@@ -75,7 +75,7 @@ public class Negotiation extends AuditEntity {
   private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
 
   @OneToMany(
-      fetch = FetchType.LAZY,
+      fetch = FetchType.EAGER,
       cascade = {CascadeType.ALL})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
