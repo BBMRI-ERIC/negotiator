@@ -8,8 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * This interface provides a specification for Lifecycle management operations
- * on a Resource level.
+ * This interface provides a specification for Lifecycle management operations on a Resource level.
  */
 public interface ResourceLifecycleService {
 

@@ -20,8 +20,7 @@ import org.springframework.stereotype.Service;
 /** Spring State Machine implementation of the ResourceLifecycleService. */
 @Service
 @CommonsLog
-public class ResourceLifecycleServiceImpl
-    implements ResourceLifecycleService {
+public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   @Autowired NegotiationRepository negotiationRepository;
 
@@ -32,7 +31,6 @@ public class ResourceLifecycleServiceImpl
   @Autowired
   @Qualifier("resourceStateMachine")
   private StateMachine<String, String> stateMachine;
-  
 
   @Override
   public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)
@@ -66,11 +64,12 @@ public class ResourceLifecycleServiceImpl
 
   private NegotiationResourceState getCurrentStateForResource(
       String negotiationId, String resourceId) throws EntityNotFoundException {
-    NegotiationResourceState currentState = negotiationRepository
-        .findById(negotiationId)
-        .orElseThrow(() -> new EntityNotFoundException(negotiationId))
-        .getCurrentStatePerResource()
-        .get(resourceId);
+    NegotiationResourceState currentState =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId))
+            .getCurrentStatePerResource()
+            .get(resourceId);
     if (Objects.isNull(currentState)) {
       throw new EntityNotFoundException(resourceId);
     }
@@ -93,7 +92,11 @@ public class ResourceLifecycleServiceImpl
             accessor ->
                 accessor
                     .resetStateMachineReactively(
-                        new DefaultStateMachineContext<>(getCurrentStateForResource(negotiationId, resourceId).name(), null, null, null))
+                        new DefaultStateMachineContext<>(
+                            getCurrentStateForResource(negotiationId, resourceId).name(),
+                            null,
+                            null,
+                            null))
                     .subscribe());
   }
 }

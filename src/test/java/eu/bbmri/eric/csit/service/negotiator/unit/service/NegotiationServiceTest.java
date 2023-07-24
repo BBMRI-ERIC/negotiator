@@ -16,8 +16,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDT
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
-import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -39,8 +39,7 @@ public class NegotiationServiceTest {
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;
   @Mock NegotiationLifecycleService negotiationLifecycleService;
-  @Mock
-  ResourceLifecycleService resourceLifecycleService;
+  @Mock ResourceLifecycleService resourceLifecycleService;
   @InjectMocks NegotiationServiceImpl negotiationService;
   private AutoCloseable closeable;
 

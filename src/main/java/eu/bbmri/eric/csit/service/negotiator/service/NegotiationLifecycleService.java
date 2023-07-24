@@ -8,8 +8,8 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 /**
- * This interface provides a specification for Lifecycle management operations
- * on a Negotiation level.
+ * This interface provides a specification for Lifecycle management operations on a Negotiation
+ * level.
  */
 @Service
 public interface NegotiationLifecycleService {

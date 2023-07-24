@@ -31,8 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationLifecycleService;
-  @Autowired
-  ResourceLifecycleService resourceLifecycleService;
+  @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
 
@@ -53,7 +52,8 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   public void getPossibleEvents_nonExistentId_throwsEntityNotFoundException() {
     assertThrows(
-        EntityNotFoundException.class, () -> negotiationLifecycleService.getPossibleEvents("fakeId"));
+        EntityNotFoundException.class,
+        () -> negotiationLifecycleService.getPossibleEvents("fakeId"));
   }
 
   @Test
@@ -126,10 +126,11 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void sendEventForResource_notApprovedNegotiation_throwsEntityNotFoundException() throws IOException {
+  void sendEventForResource_notApprovedNegotiation_throwsEntityNotFoundException()
+      throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-            EntityNotFoundException.class,
+        EntityNotFoundException.class,
         () ->
             resourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),
@@ -191,7 +192,11 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   void getCurrentStateForResource_newNegotiation_isNull() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertNull(negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus().get("biobank:1:collection:2"));
+    assertNull(
+        negotiationService
+            .findById(negotiationDTO.getId(), false)
+            .getResourceStatus()
+            .get("biobank:1:collection:2"));
   }
 
   @Test
@@ -200,7 +205,12 @@ public class NegotiationLifecycleServiceImplTest {
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.SUBMITTED,
-        NegotiationResourceState.valueOf(negotiationService.findById(negotiationDTO.getId(), false).getResourceStatus().get("biobank:1:collection:2").textValue()));
+        NegotiationResourceState.valueOf(
+            negotiationService
+                .findById(negotiationDTO.getId(), false)
+                .getResourceStatus()
+                .get("biobank:1:collection:2")
+                .textValue()));
   }
 
   @Test
