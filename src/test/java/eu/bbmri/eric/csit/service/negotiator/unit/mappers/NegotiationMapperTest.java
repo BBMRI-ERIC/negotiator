@@ -58,6 +58,18 @@ public class NegotiationMapperTest {
     assertThrows(RuntimeException.class, () -> this.mapper.map(negotiation, NegotiationDTO.class));
   }
 
+  @Test
+  void map_personRoles_Ok() {
+    Negotiation negotiation = buildNegotiation();
+    PersonNegotiationRole personNegotiationRole =
+        new PersonNegotiationRole(Person.builder().authSubject("823").authName("John").authEmail("test@test.com").id(1L).build(), negotiation, new Role("CREATOR"));
+    negotiation.setPersons(Set.of(personNegotiationRole));
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals("CREATOR", negotiationDTO.getPersons().iterator().next().getRole());
+    assertEquals("John", negotiationDTO.getPersons().iterator().next().getName());
+    assertEquals(String.valueOf(1L), negotiationDTO.getPersons().iterator().next().getId());
+  }
+
   private static Negotiation buildNegotiation() {
     Request request =
         Request.builder()
