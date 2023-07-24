@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
@@ -16,5 +17,31 @@ public class NegotiationLifecycleRecordTest {
             .changedTo(NegotiationState.APPROVED)
             .build();
     assertEquals(NegotiationState.APPROVED, negotiationLifecycleRecord.getChangedTo());
+  }
+
+  @Test
+  void equals_sameId_equal() {
+    assertEquals(NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(NegotiationState.APPROVED)
+            .id(1L)
+            .build(), NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(NegotiationState.SUBMITTED)
+            .id(1L)
+            .build());
+  }
+
+  @Test
+  void equals_differentId_equal() {
+    assertNotEquals(NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(NegotiationState.APPROVED)
+            .id(2L)
+            .build(), NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(NegotiationState.APPROVED)
+            .id(1L)
+            .build());
   }
 }

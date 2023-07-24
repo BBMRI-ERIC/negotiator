@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import javax.persistence.*;
 import lombok.*;
 
@@ -18,4 +19,17 @@ public final class NegotiationLifecycleRecord {
 
   private ZonedDateTime recordedAt;
   private NegotiationState changedTo;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    NegotiationLifecycleRecord that = (NegotiationLifecycleRecord) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
 }
