@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine;
+package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation;
 
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import org.springframework.beans.factory.annotation.Autowired;
