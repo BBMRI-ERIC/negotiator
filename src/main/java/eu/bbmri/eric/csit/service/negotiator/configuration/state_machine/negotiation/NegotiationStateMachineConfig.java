@@ -46,6 +46,7 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .target(NegotiationState.ONGOING.name())
         .event(NegotiationEvent.APPROVE.name())
         .action(enablePosts())
+        .action(initializeStateForResources())
         .and()
         .withExternal()
         .source(NegotiationState.SUBMITTED.name())
@@ -76,5 +77,10 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
   @Bean
   public Action<String, String> enablePosts() {
     return new EnablePostsAction();
+  }
+
+  @Bean
+  public Action<String, String> initializeStateForResources() {
+    return new InitializeStateForResourceAction();
   }
 }

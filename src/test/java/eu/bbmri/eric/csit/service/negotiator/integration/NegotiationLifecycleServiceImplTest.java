@@ -120,6 +120,8 @@ public class NegotiationLifecycleServiceImplTest {
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    assertTrue(negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource().containsKey("biobank:1:collection:2"));
+    Map<String, NegotiationResourceState> states = negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
+    assertTrue(states.containsKey("biobank:1:collection:2"));
+    assertEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
   }
 }
