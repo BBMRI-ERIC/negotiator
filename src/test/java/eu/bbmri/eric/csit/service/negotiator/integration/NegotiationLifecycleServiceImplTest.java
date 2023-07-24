@@ -12,7 +12,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
@@ -132,10 +131,10 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void sendEventForResource_notApprovedNegotiation_throwsWrongRequest() throws IOException {
+  void sendEventForResource_notApprovedNegotiation_throwsEntityNotFoundException() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-        WrongRequestException.class,
+            EntityNotFoundException.class,
         () ->
             negotiationResourceLifecycleService.sendEvent(
                 negotiationDTO.getId(),

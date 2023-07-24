@@ -38,11 +38,7 @@ public class NegotiationResourceLifecycleServiceImpl
   @Override
   public NegotiationResourceState getCurrentState(String negotiationId, String resourceId)
       throws EntityNotFoundException {
-    NegotiationResourceState currentState = getCurrentStateForResource(negotiationId, resourceId);
-    if (Objects.isNull(currentState)) {
-      throw new EntityNotFoundException(resourceId);
-    }
-    return currentState;
+    return getCurrentStateForResource(negotiationId, resourceId);
   }
 
   @Override
@@ -60,22 +56,13 @@ public class NegotiationResourceLifecycleServiceImpl
   public NegotiationResourceState sendEvent(
       String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException {
-    NegotiationResourceState currentState =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException("No such negotiation found."))
-            .getCurrentStatePerResource()
-            .get(resourceId);
-    if (Objects.isNull(currentState)) {
-      throw new WrongRequestException();
-    }
     persistStateMachineHandler
         .handleEventWithStateReactively(
             MessageBuilder.withPayload(negotiationEvent.name())
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("resourceId", resourceId)
                 .build(),
-            currentState.name())
+            getCurrentStateForResource(negotiationId, resourceId).name())
         .subscribe();
     return negotiationRepository
         .findById(negotiationId)
@@ -85,12 +72,16 @@ public class NegotiationResourceLifecycleServiceImpl
   }
 
   private NegotiationResourceState getCurrentStateForResource(
-      String negotiationId, String resourceId) {
-    return negotiationRepository
+      String negotiationId, String resourceId) throws EntityNotFoundException {
+    NegotiationResourceState currentState = negotiationRepository
         .findById(negotiationId)
-        .orElseThrow(() -> new EntityNotFoundException("Negotiation not found."))
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId))
         .getCurrentStatePerResource()
         .get(resourceId);
+    if (Objects.isNull(currentState)) {
+      throw new EntityNotFoundException(resourceId);
+    }
+    return currentState;
   }
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine() {
@@ -103,14 +94,13 @@ public class NegotiationResourceLifecycleServiceImpl
   }
 
   private void rehydrateStateMachineForResource(String negotiationId, String resourceId) {
-    NegotiationResourceState currentState = getCurrentStateForResource(negotiationId, resourceId);
     stateMachine
         .getStateMachineAccessor()
         .doWithAllRegions(
             accessor ->
                 accessor
                     .resetStateMachineReactively(
-                        new DefaultStateMachineContext<>(currentState.name(), null, null, null))
+                        new DefaultStateMachineContext<>(getCurrentStateForResource(negotiationId, resourceId).name(), null, null, null))
                     .subscribe());
   }
 }
