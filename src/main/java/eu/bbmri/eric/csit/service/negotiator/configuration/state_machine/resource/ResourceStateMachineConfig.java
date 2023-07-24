@@ -5,12 +5,14 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceS
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.guard.Guard;
 
 @Configuration
 @EnableStateMachine(name = "resourceStateMachine")
@@ -79,5 +81,15 @@ public class ResourceStateMachineConfig
         .source(NegotiationResourceState.ACCESS_CONDITIONS_MET.name())
         .event(NegotiationResourceEvent.GRANT_ACCESS_TO_RESOURCE.name())
         .target(NegotiationResourceState.RESOURCE_MADE_AVAILABLE.name());
+
+    transitions
+            .withExternal()
+            .guard(negotiationIsApproved());
   }
+
+  @Bean
+  public Guard<String, String> negotiationIsApproved() {
+    return new NegotiationIsApprovedGuard();
+  }
+
 }

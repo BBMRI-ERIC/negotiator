@@ -114,7 +114,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void createNegotiation_initialHistoryForEachResource_isEmpty() throws IOException {
+  void createNegotiation_statePerResource_isEmpty() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Map<String, NegotiationResourceState> statePerResource = negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
     assertTrue(statePerResource.isEmpty());
@@ -137,5 +137,39 @@ public class NegotiationLifecycleServiceImplTest {
             "biobank:1:collection:2",
             NegotiationResourceEvent.CONTACT
     ));
+  }
+
+  @Test
+  void sendEventForResource_approvedNegotiation_Ok() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(NegotiationResourceState.SUBMITTED, negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource().get("biobank:1:collection:2"));
+    assertEquals(NegotiationResourceState.REPRESENTATIVE_CONTACTED, negotiationResourceLifecycleService.sendEvent(negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.CONTACT));
+  }
+
+  @Test
+  void sendEventForResource_approvedNegotiationWrongEvent_noChange() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(NegotiationResourceState.SUBMITTED, negotiationResourceLifecycleService.sendEvent(negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+  }
+
+  @Test
+  void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationStateService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(NegotiationResourceState.REPRESENTATIVE_CONTACTED, negotiationResourceLifecycleService.sendEvent(negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.CONTACT));
+    assertEquals(NegotiationResourceState.CHECKING_AVAILABILITY, negotiationResourceLifecycleService.sendEvent(negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+    assertEquals(NegotiationResourceState.RESOURCE_AVAILABLE, negotiationResourceLifecycleService.sendEvent(negotiationDTO.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.MARK_AS_AVAILABLE));
   }
 }
