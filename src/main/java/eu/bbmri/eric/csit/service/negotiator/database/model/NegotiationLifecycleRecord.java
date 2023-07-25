@@ -17,6 +17,7 @@ public final class NegotiationLifecycleRecord {
   private Long id;
 
   private ZonedDateTime recordedAt;
+
   @Enumerated(EnumType.STRING)
   private NegotiationState changedTo;
 }
