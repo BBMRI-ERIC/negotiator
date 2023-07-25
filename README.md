@@ -38,7 +38,13 @@ by filling out a request form and then following individual steps of the Negotia
 This is a new implementation of the Negotiator, version 3.0.0 and is still under active development. Documentation for
 the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
 An older version of this service can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
-
+## Key concepts of the domain
+Key concepts for understanding the terminology:
+- **Resource**: Any resource/entity that is made available and discoverable in a data discovery service that has a unique and persistent identifier
+(e.g., collection of biological samples, research service, specialized treatment...)
+- **Request**: A request originating from a data discovery service specifying the resource of interest and the filtering criteria.
+- **Negotiation**: An access application consisting of multiple requests linked to an authenticated user
+- **Representative**: A physical person responsible for mediating access to a resource in their jurisdiction
 ## Quick Start
 
 The following command will run the Negotiator application with the REST API exposed
@@ -73,7 +79,7 @@ jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
 ### Architecture
 Negotiator follows a classic repository-service pattern. Key components:
-- REST API
+- [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
-- Notification service
-- Sync service
+- Notification service (UPCOMING)
+- Sync service (UPCOMING)
