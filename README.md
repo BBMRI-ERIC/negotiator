@@ -35,7 +35,9 @@ the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
 can browse and locate collections of bio specimens, and then request access
 via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/)
 by filling out a request form and then following individual steps of the Negotiation lifecycle.
-This is a new implementation of the Negotiator, version 3.0.0 and is still under active development. Documentation for
+This is a new implementation of the Negotiator, version 3.0.0 and is still under active development.
+Reference UI implementation for BBMRI can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator-v3-frontend).
+Documentation for
 the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
 An older version of this service can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
 ## Key concepts of the domain
