@@ -18,6 +18,7 @@ for moderation on national level.
     * [Prerequisites](#prerequisites)
     * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
     * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
+    * [Architecture](#architecture)
 <!-- TOC -->
 
 ## Goal
@@ -70,3 +71,9 @@ java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ``
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
+### Architecture
+Negotiator follows a classic repository-service pattern. Key components:
+- REST API
+- [Workflow engine](docs/LIFECYCLE.md)
+- Notification service
+- Sync service
