@@ -62,6 +62,7 @@ public class Negotiation extends AuditEntity {
 
   @Builder.Default
   @Setter(AccessLevel.NONE)
+  @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
   @ElementCollection(fetch = FetchType.EAGER)
