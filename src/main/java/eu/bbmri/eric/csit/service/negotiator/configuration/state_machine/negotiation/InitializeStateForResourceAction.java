@@ -11,6 +11,9 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * SSM action for initializing states per Resource.
+ */
 @Component
 @CommonsLog
 public class InitializeStateForResourceAction implements Action<String, String> {
