@@ -10,7 +10,8 @@ import org.springframework.statemachine.guard.Guard;
 import org.springframework.stereotype.Component;
 
 /**
- * SSM Guard for verifying that the Negotiation is ONGOING before any interaction can be made with the resource SM.
+ * SSM Guard for verifying that the Negotiation is ONGOING before any interaction can be made with
+ * the resource SM.
  */
 @Component
 public class NegotiationIsApprovedGuard implements Guard<String, String> {

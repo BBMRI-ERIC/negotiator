@@ -13,9 +13,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 
-/**
- * Listener for changes to the Resource State Machine.
- */
+/** Listener for changes to the Resource State Machine. */
 @Service("resourcePersistListener")
 @CommonsLog
 public class ResourcePersistStateChangeListener

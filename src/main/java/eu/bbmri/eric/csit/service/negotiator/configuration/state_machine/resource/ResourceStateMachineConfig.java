@@ -14,9 +14,7 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 
-/**
- * Configuration for the Resource State Machine.
- */
+/** Configuration for the Resource State Machine. */
 @Configuration
 @EnableStateMachine(name = "resourceStateMachine")
 public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<String, String> {
