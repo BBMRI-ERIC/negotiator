@@ -13,12 +13,14 @@ for moderation on national level.
 * [Negotiator](#negotiator)
   * [Goal](#goal)
   * [State](#state)
+  * [Key concepts of the domain](#key-concepts-of-the-domain)
   * [Quick Start](#quick-start)
   * [Development](#development)
     * [Prerequisites](#prerequisites)
     * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
     * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
     * [Architecture](#architecture)
+  * [License](#license)
 <!-- TOC -->
 
 ## Goal
@@ -85,3 +87,10 @@ Negotiator follows a classic repository-service pattern. Key components:
 - [Workflow engine](docs/LIFECYCLE.md)
 - Notification service (UPCOMING)
 - Sync service (UPCOMING)
+## License
+Copyright 2020-2023 [BBMRI-ERIC](https://bbmri-eric.eu).
+
+Licensed under GNU Affero General Public License v3.0 (the "License");
+you may not use this file except in compliance with the License.
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
