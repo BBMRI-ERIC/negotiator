@@ -42,7 +42,7 @@ Reference UI implementation for BBMRI can be found in this [repository](https://
 Documentation for
 the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
 An older version of this service can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
-## Key concepts of the domain
+## Key domain terms:
 Key concepts for understanding the terminology:
 - **Resource**: Any resource/entity that is made available and discoverable in a data discovery service that has a unique and persistent identifier
 (e.g., collection of biological samples, research service, specialized treatment...)
