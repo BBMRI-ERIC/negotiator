@@ -1,28 +1,22 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.NegotiationModelMapper;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
 public class NegotiationMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();
-
-  @Mock NegotiationLifecycleService negotiationLifecycleService;
-  @Mock NegotiationResourceLifecycleService negotiationResourceLifecycleService;
 
   @InjectMocks
   public NegotiationModelMapper negotiationModelMapper = new NegotiationModelMapper(mapper);
@@ -34,54 +28,69 @@ public class NegotiationMapperTest {
   }
 
   @Test
-  void basicMapNegotiationToDTO() {
-    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
-        .thenReturn(NegotiationState.APPROVED);
-    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    Negotiation negotiation = new Negotiation();
-    negotiation.setId("newNegotiation");
-    Resource resource = new Resource();
-    resource.setSourceId("collection:1");
-    Request request = new Request();
-    request.setResources(Set.of(resource));
-    negotiation.setRequests(Set.of(request));
+  void map_NegotiationToDTOid_Ok() {
+    Negotiation negotiation = buildNegotiation();
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     assertEquals(negotiation.getId(), negotiationDTO.getId());
   }
 
   @Test
-  void testStatusMapping() {
-    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
-        .thenReturn(NegotiationState.APPROVED);
-    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    Negotiation negotiation = new Negotiation();
+  void map_currentState_ok() {
+    Negotiation negotiation = buildNegotiation();
     negotiation.setId("newNegotiation");
-    Resource resource = new Resource();
-    resource.setSourceId("collection:1");
-    Request request = new Request();
-    request.setResources(Set.of(resource));
-    negotiation.setRequests(Set.of(request));
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    assertEquals("APPROVED", negotiationDTO.getStatus());
+    assertEquals("SUBMITTED", negotiationDTO.getStatus());
   }
 
   @Test
-  void testResourceStatesMappings() {
-    when(negotiationLifecycleService.getCurrentState("newNegotiation"))
-        .thenReturn(NegotiationState.APPROVED);
-    when(negotiationResourceLifecycleService.getCurrentState("newNegotiation", "collection:1"))
-        .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    Negotiation negotiation = new Negotiation();
-    negotiation.setId("newNegotiation");
-    Resource resource = new Resource();
-    resource.setSourceId("collection:1");
-    Request request = new Request();
-    request.setResources(Set.of(resource));
-    negotiation.setRequests(Set.of(request));
+  void map_statePerResource_Ok() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     JsonNode jsonNode = negotiationDTO.getResourceStatus();
-    assertEquals("REPRESENTATIVE_CONTACTED", jsonNode.get("collection:1").textValue());
+    assertEquals("SUBMITTED", jsonNode.get("collection:1").textValue());
+  }
+
+  @Test
+  void map_entityToDtoPayload_throwsRuntimeException() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setPayload("Wrong json string");
+    assertThrows(RuntimeException.class, () -> this.mapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  @Test
+  void map_personRoles_Ok() {
+    Negotiation negotiation = buildNegotiation();
+    PersonNegotiationRole personNegotiationRole =
+        new PersonNegotiationRole(
+            Person.builder()
+                .authSubject("823")
+                .authName("John")
+                .authEmail("test@test.com")
+                .id(1L)
+                .build(),
+            negotiation,
+            new Role("CREATOR"));
+    negotiation.setPersons(Set.of(personNegotiationRole));
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals("CREATOR", negotiationDTO.getPersons().iterator().next().getRole());
+    assertEquals("John", negotiationDTO.getPersons().iterator().next().getName());
+    assertEquals(String.valueOf(1L), negotiationDTO.getPersons().iterator().next().getId());
+  }
+
+  private static Negotiation buildNegotiation() {
+    Request request =
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .dataSource(new DataSource())
+                        .build()))
+            .build();
+    return Negotiation.builder()
+        .requests(Set.of(request))
+        .currentState(NegotiationState.SUBMITTED)
+        .build();
   }
 }

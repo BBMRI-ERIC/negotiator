@@ -1,25 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.persistence.*;
+import lombok.*;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -38,6 +24,7 @@ import org.hibernate.annotations.TypeDef;
     attributeNodes = {
       @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
       @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
+      @NamedAttributeNode(value = "currentStatePerResource")
     },
     subgraphs = {
       @NamedSubgraph(
@@ -73,6 +60,53 @@ public class Negotiation extends AuditEntity {
 
   private Boolean postsEnabled = false;
 
+  @Builder.Default
+  @Setter(AccessLevel.NONE)
+  @Enumerated(EnumType.STRING)
+  private NegotiationState currentState = NegotiationState.SUBMITTED;
+
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(
+      name = "resource_state_per_negotiation",
+      joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
+  @MapKeyColumn(name = "resource_id")
+  @Enumerated(EnumType.STRING)
+  @Column(name = "current_state")
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
+  private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+
+  @OneToMany(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.ALL})
+  @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
+  private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
+
+  public void setCurrentState(NegotiationState negotiationState) {
+    this.currentState = negotiationState;
+    this.lifecycleHistory.add(
+        NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(currentState)
+            .build());
+  }
+
+  private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
+    Set<NegotiationLifecycleRecord> history = new HashSet<>();
+    history.add(
+        NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(NegotiationState.SUBMITTED)
+            .build());
+    return history;
+  }
+
+  public void setStateForResource(String resourceId, NegotiationResourceState state) {
+    currentStatePerResource.put(resourceId, state);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -90,14 +124,9 @@ public class Negotiation extends AuditEntity {
     return Objects.hash(getId());
   }
 
-  public NegotiationResources getAllResources() {
-    NegotiationResources negotiationResources = new NegotiationResources();
-    Set<Resource> resources = new HashSet<>();
-    for (Request request : requests) {
-      resources.addAll(request.getResources());
-    }
-    negotiationResources.setNegotiationId(getId());
-    negotiationResources.setResources(resources.stream().toList());
-    return negotiationResources;
+  public Set<Resource> getAllResources() {
+    return requests.stream()
+        .flatMap(request -> request.getResources().stream())
+        .collect(Collectors.toUnmodifiableSet());
   }
 }

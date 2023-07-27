@@ -7,24 +7,10 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public interface NegotiationResourceLifecycleService {
-  /**
-   * Initializes the state machine for the first time for a specific resource in a Negotiation
-   *
-   * @param negotiationId for which the state machine is created
-   * @param resourceId for which the state machine is created
-   */
-  void initializeTheStateMachine(String negotiationId, String resourceId);
-
-  /**
-   * Returns the current state of a Resource Negotiation
-   *
-   * @param negotiationId for which state is requested
-   * @param resourceId for which state is requested
-   * @return Current state
-   */
-  NegotiationResourceState getCurrentState(String negotiationId, String resourceId)
-      throws EntityNotFoundException;
+/**
+ * This interface provides a specification for Lifecycle management operations on a Resource level.
+ */
+public interface ResourceLifecycleService {
 
   /**
    * Returns all possible events that can be sent for this resource negotiation

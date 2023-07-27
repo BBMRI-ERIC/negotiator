@@ -13,11 +13,14 @@ for moderation on national level.
 * [Negotiator](#negotiator)
   * [Goal](#goal)
   * [State](#state)
+  * [Key concepts of the domain](#key-concepts-of-the-domain)
   * [Quick Start](#quick-start)
   * [Development](#development)
     * [Prerequisites](#prerequisites)
     * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
     * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
+    * [Architecture](#architecture)
+  * [License](#license)
 <!-- TOC -->
 
 ## Goal
@@ -34,10 +37,18 @@ the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
 can browse and locate collections of bio specimens, and then request access
 via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/)
 by filling out a request form and then following individual steps of the Negotiation lifecycle.
-This is a new implementation of the Negotiator, version 3.0.0 and is still under active development. Documentation for
+This is a new implementation of the Negotiator, version 3.0.0 and is still under active development.
+Reference UI implementation for BBMRI can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator-v3-frontend).
+Documentation for
 the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
 An older version of this service can be found in this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
-
+## Key concepts of the domain
+Key concepts for understanding the terminology:
+- **Resource**: Any resource/entity that is made available and discoverable in a data discovery service that has a unique and persistent identifier
+(e.g., collection of biological samples, research service, specialized treatment...)
+- **Request**: A request originating from a data discovery service specifying the resource of interest and the filtering criteria.
+- **Negotiation**: An access application consisting of multiple requests linked to an authenticated user
+- **Representative**: A physical person responsible for mediating access to a resource in their jurisdiction
 ## Quick Start
 
 The following command will run the Negotiator application with the REST API exposed
@@ -61,7 +72,7 @@ docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
 ### Running the backend in dev mode
 
 ```shell
-mvn package
+mvn clean package
 java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
 
@@ -70,3 +81,16 @@ java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ``
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
+### Architecture
+Negotiator follows a classic repository-service pattern. Key components:
+- [REST API](docs/REST.md)
+- [Workflow engine](docs/LIFECYCLE.md)
+- Notification service (UPCOMING)
+- Sync service (UPCOMING)
+## License
+Copyright 2020-2023 [BBMRI-ERIC](https://bbmri-eric.eu).
+
+Licensed under GNU Affero General Public License v3.0 (the "License");
+you may not use this file except in compliance with the License.
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

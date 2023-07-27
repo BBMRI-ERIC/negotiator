@@ -9,8 +9,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +43,7 @@ public class NegotiationController {
 
   @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
-  @Autowired private NegotiationResourceLifecycleService negotiationResourceLifecycleService;
+  @Autowired private ResourceLifecycleService resourceLifecycleService;
 
   /** Create a negotiation */
   @PostMapping(
@@ -148,7 +148,7 @@ public class NegotiationController {
     if (!getResourceIdsFromUserAuthorities().contains(resourceId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationResourceLifecycleService.sendEvent(
+    resourceLifecycleService.sendEvent(
         negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
     return negotiationService.findById(negotiationId, true);
   }
@@ -176,7 +176,7 @@ public class NegotiationController {
   @GetMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle")
   List<String> getPossibleEventsForNegotiationResource(
       @Valid @PathVariable String negotiationId, @Valid @PathVariable String resourceId) {
-    return negotiationResourceLifecycleService.getPossibleEvents(negotiationId, resourceId).stream()
+    return resourceLifecycleService.getPossibleEvents(negotiationId, resourceId).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
   }

@@ -7,26 +7,15 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
+/**
+ * This interface provides a specification for Lifecycle management operations on a Negotiation
+ * level.
+ */
 @Service
 public interface NegotiationLifecycleService {
 
   /**
-   * Initializes the state machine for the first time
-   *
-   * @param negotiationId for which the state machine is created
-   */
-  void initializeTheStateMachine(String negotiationId);
-
-  /**
-   * Returns the current state of a Negotiation
-   *
-   * @param negotiationId for which state is requested
-   * @return NegotiationState
-   */
-  NegotiationState getCurrentState(String negotiationId) throws EntityNotFoundException;
-
-  /**
-   * Returns all possible events that can be sent for this negotiation
+   * Returns all possible Lifecycle events that can be sent to this Negotiation.
    *
    * @param negotiationId of the Negotiation
    * @return a lists of all possible events
@@ -34,7 +23,7 @@ public interface NegotiationLifecycleService {
   Set<NegotiationEvent> getPossibleEvents(String negotiationId) throws EntityNotFoundException;
 
   /**
-   * Send an event to a particular negotiation
+   * Send an event to a particular Negotiation.
    *
    * @return the new status of the Negotiation
    */

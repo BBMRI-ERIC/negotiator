@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -16,12 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@AllArgsConstructor
 public class AccessCriteriaModelsMapper {
 
   @Autowired ModelMapper modelMapper;
 
   @PostConstruct
-  void addMappings() {
+  public void addMappings() {
     TypeMap<AccessCriteriaSet, AccessCriteriaSetDTO> typeMap =
         modelMapper.createTypeMap(AccessCriteriaSet.class, AccessCriteriaSetDTO.class);
 
