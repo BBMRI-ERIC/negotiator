@@ -13,13 +13,14 @@ for moderation on national level.
 * [Negotiator](#negotiator)
   * [Goal](#goal)
   * [State](#state)
-  * [Key concepts of the domain](#key-concepts-of-the-domain)
+  * [Key domain terms:](#key-domain-terms)
   * [Quick Start](#quick-start)
   * [Development](#development)
     * [Prerequisites](#prerequisites)
     * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
     * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
     * [Architecture](#architecture)
+  * [Integration](#integration)
   * [License](#license)
 <!-- TOC -->
 
@@ -82,11 +83,17 @@ java -jar -Dspring.profiles.active=dev target/negotiator.jar
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
 ### Architecture
-Negotiator follows a classic repository-service pattern. Key components:
+Negotiator follows a classic repository-service architectural pattern. Key components:
 - [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
 - Notification service (UPCOMING)
 - Sync service (UPCOMING)
+
+## Integration
+The diagram below shows an oversimplified version of where does the Negotiator fit in, in relation to other
+BBMRI-ERIC IT services.
+![BBMRI-ERIC ecosystem](docs/bbmri-it.png)
+
 ## License
 Copyright 2020-2023 [BBMRI-ERIC](https://bbmri-eric.eu).
 
