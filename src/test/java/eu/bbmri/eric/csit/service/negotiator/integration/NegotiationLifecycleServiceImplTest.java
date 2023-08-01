@@ -241,5 +241,5 @@ public class NegotiationLifecycleServiceImplTest {
     assertTrue(
         negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).stream()
             .allMatch(dto -> Objects.equals(dto.getStatus(), NegotiationState.SUBMITTED.name())));
-    }
+  }
 }
