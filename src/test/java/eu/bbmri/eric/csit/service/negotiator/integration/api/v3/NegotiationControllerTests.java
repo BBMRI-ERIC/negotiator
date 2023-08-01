@@ -378,4 +378,20 @@ public class NegotiationControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is("negotiation-1")));
   }
+
+  @Test
+  @WithMockUser(authorities = "ADMIN")
+  void getNegotiationsForAdmin_hasRoleAdmin_Ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("%s?userRole=ADMIN".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser(authorities = "biobank:1:collection:1")
+  void getNegotiationsForAdmin_doesNotHaveRoleAdmin_Forbidden() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("%s?userRole=ADMIN".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isForbidden());
+  }
 }

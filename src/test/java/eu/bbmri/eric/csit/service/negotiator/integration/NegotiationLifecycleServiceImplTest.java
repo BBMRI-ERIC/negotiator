@@ -233,4 +233,16 @@ public class NegotiationLifecycleServiceImplTest {
         resourceLifecycleService.getPossibleEvents(
             negotiationDTO.getId(), "biobank:1:collection:2"));
   }
+
+  @Test
+  void newNegotiation_findAllWithState_oneWithSubmitted() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(
+        negotiationDTO.getId(),
+        negotiationService
+            .findAllWithCurrentState(NegotiationState.SUBMITTED)
+            .iterator()
+            .next()
+            .getId());
+  }
 }

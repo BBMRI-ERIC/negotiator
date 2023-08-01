@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceEvent;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
@@ -92,6 +93,12 @@ public class NegotiationController {
       negotiations = negotiationService.findByResourceId(collectionId);
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
+    } else if (Objects.equals(userRole, "ADMIN")) {
+      if (isAdmin()) {
+        negotiations = negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED);
+      } else {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+      }
     } else {
       negotiations =
           negotiationService.findByCreatorId(
@@ -216,6 +223,11 @@ public class NegotiationController {
       }
     }
     return false;
+  }
+
+  private boolean isAdmin() {
+    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ADMIN"));
   }
 
   private boolean isCreator(NegotiationDTO negotiationDTO) {
