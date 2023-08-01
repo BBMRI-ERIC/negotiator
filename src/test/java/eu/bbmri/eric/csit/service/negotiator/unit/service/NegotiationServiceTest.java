@@ -90,4 +90,37 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
   }
+
+  @Test
+  void findAllWithCurrentState_stateIsSubmitted_Ok() {
+    Negotiation negotiation = buildNegotiation();
+    NegotiationDTO negotiationDTO =
+        NegotiationDTO.builder()
+            .id(negotiation.getId())
+            .status(negotiation.getCurrentState().name())
+            .build();
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(negotiationDTO);
+    when(negotiationRepository.findByCurrentState(NegotiationState.SUBMITTED))
+        .thenReturn(List.of(negotiation));
+    assertEquals(1, negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).size());
+    assertEquals(
+        NegotiationState.SUBMITTED.name(),
+        negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
+  }
+
+  private static Negotiation buildNegotiation() {
+    Request request =
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .dataSource(new DataSource())
+                        .build()))
+            .build();
+    return Negotiation.builder()
+        .requests(Set.of(request))
+        .currentState(NegotiationState.SUBMITTED)
+        .build();
+  }
 }

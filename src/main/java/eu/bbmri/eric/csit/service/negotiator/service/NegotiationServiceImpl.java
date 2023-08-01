@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
@@ -265,5 +266,12 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiation = negotiationRepository.findById(negotiationId).get();
     negotiation.setPostsEnabled(true);
     negotiationRepository.save(negotiation);
+  }
+
+  @Override
+  public List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState) {
+    return negotiationRepository.findByCurrentState(negotiationState).stream()
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
+        .collect(Collectors.toList());
   }
 }

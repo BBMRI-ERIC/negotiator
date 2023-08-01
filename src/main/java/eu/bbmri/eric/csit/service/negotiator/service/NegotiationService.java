@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -109,4 +110,12 @@ public interface NegotiationService {
    * @param negotiationId the ID of the Negotiation
    */
   void enablePosts(String negotiationId);
+
+  /**
+   * Retrieves all Negotiations with specific current state.
+   *
+   * @param negotiationState current state of interest.
+   * @return A list of NegotiationDTOs with specific state.
+   */
+  List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState);
 }
