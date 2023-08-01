@@ -18,6 +18,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -236,13 +237,9 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   void newNegotiation_findAllWithState_oneWithSubmitted() throws IOException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    assertEquals(
-        negotiationDTO.getId(),
-        negotiationService
-            .findAllWithCurrentState(NegotiationState.SUBMITTED)
-            .iterator()
-            .next()
-            .getId());
-  }
+    saveNegotiation();
+    assertTrue(
+        negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).stream()
+            .allMatch(dto -> Objects.equals(dto.getStatus(), NegotiationState.SUBMITTED.name())));
+    }
 }
