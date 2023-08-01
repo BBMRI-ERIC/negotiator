@@ -35,7 +35,7 @@ negotiator:
   frontend-url: "http://localhost:8080"
   authorization:
     claim: "eduperson_entitlement"
-    admin-claim-value: ""
+    admin-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu"
     researcher-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu"
     biobanker-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu"
     subject-claim: "sub"
