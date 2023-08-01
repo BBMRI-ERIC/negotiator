@@ -394,4 +394,14 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("%s?userRole=ADMIN".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  @WithMockUser(authorities = "biobank:1:collection:1")
+  void updateLifecycle_doesNotHaveRoleAdmin_Forbidden() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isForbidden());
+  }
 }
