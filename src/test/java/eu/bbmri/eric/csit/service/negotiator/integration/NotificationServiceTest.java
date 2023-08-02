@@ -1,10 +1,14 @@
 package eu.bbmri.eric.csit.service.negotiator.integration;
 
 
-import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import eu.bbmri.eric.csit.service.negotiator.service.NotificationService;
+import eu.bbmri.eric.csit.service.negotiator.service.NotificationServiceImpl;
+import org.junit.jupiter.api.Test;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-public class NotificationServiceTest {}
+public class NotificationServiceTest {
+  private final NotificationService notificationService = new NotificationServiceImpl();
+  @Test
+  void sendEmail_nullRecipient_returnsFalse() {
+
+  }
+}
