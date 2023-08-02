@@ -92,7 +92,10 @@ public class NegotiationController {
     } else if (collectionId != null) {
       negotiations = negotiationService.findByResourceId(collectionId);
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
-      negotiations = negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities());
+      negotiations =
+          negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities()).stream()
+              .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.ONGOING.name()))
+              .toList();
     } else if (Objects.equals(userRole, "ADMIN")) {
       if (isAdmin()) {
         negotiations = negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED);
