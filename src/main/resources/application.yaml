@@ -3,6 +3,9 @@ server:
   servlet:
     context-path: "/api"
 spring:
+  mail:
+    host: ""
+    port: 0
   application:
     name: "Negotiator"
   jackson:

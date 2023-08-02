@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.integration;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import eu.bbmri.eric.csit.service.negotiator.service.NotificationService;
@@ -15,10 +14,10 @@ public class NotificationServiceTest {
   @BeforeEach
   void setUp() {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-    mailSender.setHost("");
-    mailSender.setHost("");
+    mailSender.setHost("0.0.0.0");
+    mailSender.setPort(1025);
     notificationService = new NotificationServiceImpl(mailSender);
-    }
+  }
 
   @Test
   void sendEmail_nullRecipient_returnsFalse() {
@@ -32,6 +31,10 @@ public class NotificationServiceTest {
 
   @Test
   void sendEmail_validRecipientInvalidSMTPConfig_returnsFalse() {
+    JavaMailSenderImpl invalidSender = new JavaMailSenderImpl();
+    invalidSender.setHost("idk");
+    invalidSender.setPort(0);
+    this.notificationService = new NotificationServiceImpl(invalidSender);
     assertFalse(notificationService.sendEmail("test@test.com"));
   }
 }
