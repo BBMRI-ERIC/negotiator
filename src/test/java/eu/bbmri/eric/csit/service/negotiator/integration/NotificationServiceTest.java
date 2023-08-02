@@ -17,7 +17,7 @@ public class NotificationServiceTest {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
     mailSender.setHost("");
     mailSender.setHost("");
-    notificationService = new NotificationServiceImpl(mailSender, true);
+    notificationService = new NotificationServiceImpl(mailSender);
     }
 
   @Test

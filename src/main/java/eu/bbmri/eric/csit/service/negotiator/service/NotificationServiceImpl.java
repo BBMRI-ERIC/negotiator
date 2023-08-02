@@ -4,31 +4,35 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 @AllArgsConstructor
+@CommonsLog
 public class NotificationServiceImpl implements NotificationService {
     JavaMailSender javaMailSender;
-    boolean devMode;
     @Override
     public boolean sendEmail(String recipientAddress) {
         if (!isValidEmailAddress(recipientAddress)){
+            log.error("Failed to send email. Invalid recipient email address.");
             return false;
         }
         try{
-            javaMailSender.send(buildMessage());
+            javaMailSender.send(buildMessage(recipientAddress));
         }catch (MailSendException e){
+            log.error("Failed to send email. Check SMTP configuration.");
             return false;
         }
+        log.info("Email sent.");
         return true;
     }
     
-    private static SimpleMailMessage buildMessage() {
+    private static SimpleMailMessage buildMessage(String recipientAddress) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("noreply@baeldung.com");
-        message.setTo("idk");
+        message.setTo(recipientAddress);
         message.setSubject("idk");
         message.setText("idk");
         return message;
