@@ -404,4 +404,11 @@ public class NegotiationControllerTests {
                 "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  void getPossibleLifecycleStages_noAuth_Ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("%s/lifecycle".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
 }

@@ -13,6 +13,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -189,6 +190,11 @@ public class NegotiationController {
     return resourceLifecycleService.getPossibleEvents(negotiationId, resourceId).stream()
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
+  }
+
+  @GetMapping("/negotiations/lifecycle")
+  List<NegotiationState> getPossibleEventsForNegotiationResource() {
+    return Arrays.stream(NegotiationState.values()).toList();
   }
 
   private List<String> getResourceIdsFromUserAuthorities() {
