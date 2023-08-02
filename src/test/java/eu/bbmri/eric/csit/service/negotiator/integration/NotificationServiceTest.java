@@ -1,15 +1,25 @@
 package eu.bbmri.eric.csit.service.negotiator.integration;
 
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import eu.bbmri.eric.csit.service.negotiator.service.NotificationService;
 import eu.bbmri.eric.csit.service.negotiator.service.NotificationServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 public class NotificationServiceTest {
-  private final NotificationService notificationService = new NotificationServiceImpl();
+  private NotificationService notificationService;
+
+  @BeforeEach
+  void setUp() {
+    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    mailSender.setHost("");
+    mailSender.setHost("");
+    notificationService = new NotificationServiceImpl(mailSender, true);
+    }
+
   @Test
   void sendEmail_nullRecipient_returnsFalse() {
     assertFalse(notificationService.sendEmail(null));
@@ -21,7 +31,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  void sendEmail_validRecipientEmail_returns() {
-    assertTrue(notificationService.sendEmail("test@test.com"));
+  void sendEmail_validRecipientInvalidSMTPConfig_returnsFalse() {
+    assertFalse(notificationService.sendEmail("test@test.com"));
   }
 }
