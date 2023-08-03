@@ -27,7 +27,7 @@ import org.hibernate.annotations.GenericGenerator;
 public class Attachment {
 
   @ManyToOne
-  @JoinColumn(name = "negotiation_id", updatable = false)
+  @JoinColumn(name = "negotiation_id")
   @Exclude
   Negotiation negotiation;
 

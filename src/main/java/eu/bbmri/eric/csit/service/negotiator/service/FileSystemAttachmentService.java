@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.stream.Stream;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,13 +26,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileSystemAttachmentService implements AttachmentService {
 
   private final Path rootLocation;
-
+  @Autowired
   private final AttachmentRepository attachmentRepository;
+  //  private final ModelMapper modelMapper;
 
   @Autowired
-  public FileSystemAttachmentService(AttachmentRepository attachmentRepository) {
+  public FileSystemAttachmentService(
+      AttachmentRepository attachmentRepository) {
     this.rootLocation = Paths.get("/tmp");
     this.attachmentRepository = attachmentRepository;
+    //    this.modelMapper = modelMapper;
   }
 
   @Override
