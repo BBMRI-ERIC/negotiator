@@ -26,22 +26,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileSystemAttachmentService implements AttachmentService {
 
   private final Path rootLocation;
-  @Autowired
-  private final AttachmentRepository attachmentRepository;
-  //  private final ModelMapper modelMapper;
+  @Autowired private final AttachmentRepository attachmentRepository;
+  private final ModelMapper modelMapper;
 
   @Autowired
   public FileSystemAttachmentService(
-      AttachmentRepository attachmentRepository) {
+      AttachmentRepository attachmentRepository, ModelMapper modelMapper) {
     this.rootLocation = Paths.get("/tmp");
     this.attachmentRepository = attachmentRepository;
-    //    this.modelMapper = modelMapper;
+    this.modelMapper = modelMapper;
   }
 
   @Override
   public AttachmentDTO create(MultipartFile file) {
     Attachment attachment = Attachment.builder().name(file.getOriginalFilename()).build();
-    attachmentRepository.save(attachment);
+    attachment = attachmentRepository.save(attachment);
     try {
       if (file.isEmpty()) {
         throw new StorageException("Failed to store empty file.");
@@ -61,7 +60,8 @@ public class FileSystemAttachmentService implements AttachmentService {
     } catch (IOException e) {
       throw new StorageException("Failed to store file.", e);
     }
-    return AttachmentDTO.builder().id(attachment.getId()).name(attachment.getName()).build();
+    return modelMapper.map(attachment, AttachmentDTO.class);
+    //    return AttachmentDTO.builder().id(attachment.getId()).name(attachment.getName()).build();
   }
 
   @Override
