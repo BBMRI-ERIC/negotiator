@@ -86,7 +86,7 @@ jdbc:h2:tcp://localhost:9092/mem:negotiator
 Negotiator follows a classic repository-service architectural pattern. Key components:
 - [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
-- Notification service (UPCOMING)
+- [Notification service](docs/NOTIFICATIONS.md)
 - Sync service (UPCOMING)
 
 ## Integration
