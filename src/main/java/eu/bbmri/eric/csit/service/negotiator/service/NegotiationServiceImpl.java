@@ -54,9 +54,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private List<Attachment> findAttachments(Set<AttachmentDTO> attachmentDTOs) {
     List<Attachment> entities =
         attachmentRepository.findAllById(
-            attachmentDTOs.stream()
-                .map(AttachmentDTO::getId)
-                .collect(Collectors.toList()));
+            attachmentDTOs.stream().map(AttachmentDTO::getId).collect(Collectors.toList()));
     if (entities.size() < attachmentDTOs.size()) {
       throw new WrongRequestException("One or more of the specified attachments do not exist");
     }
@@ -98,7 +96,10 @@ public class NegotiationServiceImpl implements NegotiationService {
     log.debug("Getting request entities");
 
     List<Request> requests = findRequests(negotiationBody.getRequests());
-    List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
+    List<Attachment> attachments = null;
+    if (negotiationBody.getAttachments() != null) {
+      attachments = findAttachments(negotiationBody.getAttachments());
+    }
 
     // Check if any negotiationBody is already associated to a negotiation
     if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
@@ -118,11 +119,13 @@ public class NegotiationServiceImpl implements NegotiationService {
           request.setNegotiation(negotiationEntity);
         });
 
-    negotiationEntity.setAttachments(new HashSet<>(attachments));
-    attachments.forEach(
-        attachment -> {
-          attachment.setNegotiation(negotiationEntity);
-        });
+    if (negotiationBody.getAttachments() != null) {
+      negotiationEntity.setAttachments(new HashSet<>(attachments));
+      attachments.forEach(
+          attachment -> {
+            attachment.setNegotiation(negotiationEntity);
+          });
+    }
 
     Negotiation savedNegotiation;
     try {
