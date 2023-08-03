@@ -37,10 +37,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired PersonRepository personRepository;
   @Autowired RequestRepository requestRepository;
   @Autowired ModelMapper modelMapper;
-
-  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
-
-  @Autowired private ResourceLifecycleService resourceLifecycleService;
+  @Autowired NotificationService notificationService;
 
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities;
@@ -114,6 +111,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       log.error(ex);
       throw new EntityNotStorableException();
     }
+    notificationService.sendEmail(
+        "radovan.tomasik@bbmri-eric.eu", "New negotiation", "Hi, new negotiation was added.");
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 
