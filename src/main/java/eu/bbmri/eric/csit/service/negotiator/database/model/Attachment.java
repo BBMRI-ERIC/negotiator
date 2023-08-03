@@ -1,19 +1,20 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.GenericGenerator;
 
 @ToString
 @Entity
@@ -21,58 +22,28 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "attachment")
-public class Attachment extends AuditEntity {
+public class Attachment {
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_post_link",
-      joinColumns = @JoinColumn(name = "post_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @ManyToOne
+  @JoinColumn(name = "negotiation_id", updatable = false)
   @Exclude
-  Set<Post> posts;
+  Negotiation negotiation;
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_project_link",
-      joinColumns = @JoinColumn(name = "project_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  @Exclude
-  Set<Project> projects;
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @Column(name = "id")
+  private String id;
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_request_link",
-      joinColumns = @JoinColumn(name = "request_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  @Exclude
-  Set<Negotiation> negotiations;
+  private String name;
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_private_post_link",
-      joinColumns = @JoinColumn(name = "post_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  @Exclude
-  Set<Post> Posts;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
-
-  private String fileName;
-
-  private String fileHash;
-
-  private String fileSize;
-
-  private String fileExtension;
-
-  private String attachmentScope;
+  //  private String hash;
+  //
+  //  private String size;
+  //
+  //  private String extension;
+  //
+  //  private String scope;
 }

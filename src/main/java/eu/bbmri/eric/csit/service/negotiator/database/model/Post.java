@@ -27,10 +27,10 @@ import lombok.ToString.Exclude;
 @Builder
 @Table(name = "post")
 public class Post extends AuditEntity {
-
-  @ManyToMany(mappedBy = "posts")
-  @Exclude
-  Set<Attachment> attachments;
+//
+//  @ManyToMany(mappedBy = "posts")
+//  @Exclude
+//  Set<Attachment> attachments;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")

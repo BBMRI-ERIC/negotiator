@@ -41,7 +41,7 @@ import org.hibernate.annotations.TypeDef;
     })
 public class Negotiation extends AuditEntity {
 
-  @ManyToMany(mappedBy = "negotiations")
+  @OneToMany(mappedBy = "negotiation")
   @Exclude
   Set<Attachment> attachments;
 
