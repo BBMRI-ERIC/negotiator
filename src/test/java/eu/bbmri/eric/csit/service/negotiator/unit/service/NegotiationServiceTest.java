@@ -41,8 +41,7 @@ public class NegotiationServiceTest {
   @Mock ModelMapper modelMapper;
   @Mock NegotiationLifecycleService negotiationLifecycleService;
   @Mock ResourceLifecycleService resourceLifecycleService;
-  @Mock
-  NotificationService notificationService;
+  @Mock NotificationService notificationService;
   @InjectMocks NegotiationServiceImpl negotiationService;
   private AutoCloseable closeable;
 
