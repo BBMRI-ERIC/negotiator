@@ -6,6 +6,8 @@ spring:
   mail:
     host: ""
     port: 0
+    username: ""
+    password: ""
   application:
     name: "Negotiator"
   jackson:
