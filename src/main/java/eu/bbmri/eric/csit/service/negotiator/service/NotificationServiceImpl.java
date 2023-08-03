@@ -45,7 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
   private static SimpleMailMessage buildMessage(
       @NonNull String recipientAddress, @NonNull String subject, @NonNull String mailBody) {
     SimpleMailMessage message = new SimpleMailMessage();
-    message.setFrom("noreply@bbmri-eric.com");
+    message.setFrom("noreply@bbmri-eric.eu");
     message.setTo(recipientAddress);
     message.setSubject(subject);
     message.setText(mailBody);

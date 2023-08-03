@@ -111,8 +111,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       log.error(ex);
       throw new EntityNotStorableException();
     }
-    notificationService.sendEmail(
-        "radovan.tomasik@bbmri-eric.eu", "New negotiation", "Hi, new negotiation was added.");
+    // TODO: Add call to send email.
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 
