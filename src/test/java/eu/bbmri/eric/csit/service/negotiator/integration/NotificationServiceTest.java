@@ -21,12 +21,12 @@ public class NotificationServiceTest {
 
   @Test
   void sendEmail_nullRecipient_returnsFalse() {
-    assertFalse(notificationService.sendEmail(null));
+    assertFalse(notificationService.sendEmail(null, "", ""));
   }
 
   @Test
   void sendEmail_recipientIsRandomString_returnsFalse() {
-    assertFalse(notificationService.sendEmail("random"));
+    assertFalse(notificationService.sendEmail("random", "", ""));
   }
 
   @Test
@@ -35,6 +35,6 @@ public class NotificationServiceTest {
     invalidSender.setHost("idk");
     invalidSender.setPort(0);
     this.notificationService = new NotificationServiceImpl(invalidSender);
-    assertFalse(notificationService.sendEmail("test@test.com"));
+    assertFalse(notificationService.sendEmail("test@test.com", "", ""));
   }
 }
