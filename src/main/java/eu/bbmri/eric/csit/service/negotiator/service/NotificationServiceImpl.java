@@ -2,7 +2,6 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
-import javax.validation.constraints.NotEmpty;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +26,9 @@ public class NotificationServiceImpl implements NotificationService {
       log.error("Failed to send email. Invalid recipient email address.");
       return false;
     }
-    try{
+    try {
       message = buildMessage(recipientAddress, subject, mailBody);
-    }
-    catch (NullPointerException e){
+    } catch (NullPointerException e) {
       log.error("Failed to send email. Check message content.");
       return false;
     }
@@ -43,8 +41,9 @@ public class NotificationServiceImpl implements NotificationService {
     log.info("Email message sent.");
     return true;
   }
-  
-  private static SimpleMailMessage buildMessage(@NonNull @NotEmpty String recipientAddress, @NonNull @NotEmpty  String subject, @NonNull @NotEmpty  String mailBody) {
+
+  private static SimpleMailMessage buildMessage(
+      @NonNull String recipientAddress, @NonNull String subject, @NonNull String mailBody) {
     SimpleMailMessage message = new SimpleMailMessage();
     message.setFrom("noreply@bbmri-eric.com");
     message.setTo(recipientAddress);
