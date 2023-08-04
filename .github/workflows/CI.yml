@@ -64,7 +64,7 @@ jobs:
           cache: maven
 
       - name: Run unit tests
-        run: mvn mvn --quiet clean test -B --file pom.xml
+        run: mvn --quiet clean test -B --file pom.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -91,7 +91,7 @@ jobs:
           cache: maven
 
       - name: Run integration tests
-        run: mvn mvn --quiet clean verify -B -Dfmt.skip
+        run: mvn --quiet clean verify -B -Dfmt.skip
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
