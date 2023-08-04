@@ -105,7 +105,7 @@ jobs:
     timeout-minutes: 120
     permissions:
       actions: read
-      contents: read
+      contents: write
       security-events: write
 
     steps:
