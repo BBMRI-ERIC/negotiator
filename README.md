@@ -63,6 +63,7 @@ docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
 ```
 
 ## Development
+For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md).
 
 ### Prerequisites
 
