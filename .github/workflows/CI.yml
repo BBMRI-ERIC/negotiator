@@ -97,6 +97,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: integration
+
+
   analyze:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
@@ -105,10 +107,6 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'java' ]
 
     steps:
       - name: Checkout repository
@@ -124,7 +122,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
-          languages: ${{ matrix.language }}
+          languages: java
 
       - name: Compile with maven
         run: mvn --quiet -B clean package -Dmaven.test.skip=true
@@ -132,7 +130,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
         with:
-          category: "/language:${{matrix.language}}"
+          category: java
 
       - name: Update dependency graph
         uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
