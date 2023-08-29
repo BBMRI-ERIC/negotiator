@@ -46,5 +46,8 @@ public class Post extends AuditEntity {
   private Resource resource;
 
   @Lob private String text;
+
   private String status;
+
+  private PostType type;
 }

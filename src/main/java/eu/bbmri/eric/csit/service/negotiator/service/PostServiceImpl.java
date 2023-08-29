@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -14,6 +15,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -66,16 +68,27 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findByNegotiationId(String negotiationId) {
-    List<Post> posts = postRepository.findByNegotiationId(negotiationId);
+  public List<PostDTO> findByNegotiationId(String negotiationId, Optional<PostType> type) {
+    List<Post> posts;
+    if (type.isEmpty()) {
+      posts = postRepository.findByNegotiationId(negotiationId);
+    }
+    else {
+      posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
+    }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
 
   @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters) {
-    List<Post> posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
+  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters, Optional<PostType> type) {
+    List<Post> posts;
+    if (type.isEmpty()) {
+      posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
+    } else {
+      posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
+      }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());

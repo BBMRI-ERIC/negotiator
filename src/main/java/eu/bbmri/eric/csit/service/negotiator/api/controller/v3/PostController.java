@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -49,9 +50,9 @@ public class PostController {
 
   @GetMapping("/negotiations/{negotiationId}/posts")
   List<PostDTO> getAllMessagesByNegotiation(
-      @Valid @PathVariable String negotiationId, @RequestParam("role") Optional<String> roleName) {
+      @Valid @PathVariable String negotiationId, @RequestParam("role") Optional<String> roleName, @RequestParam("type") Optional<PostType> type) {
     if (roleName.isEmpty()) {
-      return postService.findByNegotiationId(negotiationId);
+      return postService.findByNegotiationId(negotiationId, type);
     }
     NegotiationDTO n = negotiationService.findById(negotiationId, true);
     List<PersonRoleDTO> negotiationPersonsWithRoles =
@@ -60,7 +61,7 @@ public class PostController {
     for (PersonRoleDTO pr : negotiationPersonsWithRoles) {
       posters.add(pr.getName());
     }
-    return postService.findNewByNegotiationIdAndPosters(negotiationId, posters);
+    return postService.findNewByNegotiationIdAndPosters(negotiationId, posters, type);
   }
 
   @PutMapping("/negotiations/{negotiationId}/posts/{postId}")

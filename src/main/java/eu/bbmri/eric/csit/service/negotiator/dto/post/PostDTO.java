@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -32,4 +33,8 @@ public class PostDTO {
   @Valid @NotEmpty private LocalDateTime modifiedDate;
 
   @Valid @NotEmpty private PersonDTO poster;
+
+  @Valid private String resourceId;
+
+  @Valid @NotEmpty private PostType type;
 }
