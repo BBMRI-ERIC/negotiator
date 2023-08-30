@@ -25,6 +25,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
+              + "p.type = :type "
+  )
+  List<Post> findByNegotiationIdAndType(String negotiationId, Optional<PostType> type);
+
+  @Query(
+      value =
+          "SELECT p "
+              + "FROM Post p "
+              + "JOIN FETCH p.negotiation n "
+              + "WHERE n.id = :negotiationId and "
               + "p.id = :messageId")
   Post findByNegotiationIdAndMessageId(String negotiationId, String messageId);
 
@@ -55,7 +65,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
           "SELECT p "
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
-              + "WHERE n.id = :negotiationId and "
-              + "p.type = :type")
-  List<Post> findByNegotiationIdAndType(String negotiationId, Optional<PostType> type);
+              + "JOIN FETCH p.resource r "
+              + "WHERE n.id = :negotiationId and r.id = p.resource and "
+              + "p.poster.authName in :posters and "
+              + "p.status = 'CREATED' and "
+              + "p.type = :type and "
+              + "r.sourceId = :resourceId"
+  )
+  List<Post> findNewByNegotiationIdAndPostersAndTypeAndResource(String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId);
+
+  @Query(
+      value =
+          "SELECT p "
+              + "FROM Post p "
+              + "JOIN FETCH p.negotiation n "
+              + "JOIN FETCH p.resource r "
+              + "WHERE n.id = :negotiationId and r.id = p.resource and "
+              + "p.type = :type and "
+              + "r.sourceId = :resourceId"
+  )
+  List<Post> findByNegotiationIdAndTypeAndResource(String negotiationId, Optional<PostType> type, Optional<String> resourceId);
 }

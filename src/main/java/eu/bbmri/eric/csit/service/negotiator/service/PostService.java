@@ -24,7 +24,7 @@ public interface PostService {
    * @param negotiationId the ID of the negotiation
    * @return the list of all the posts related to the input negotiation ID
    */
-  List<PostDTO> findByNegotiationId(String negotiationId, Optional<PostType> type);
+  List<PostDTO> findByNegotiationId(String negotiationId, Optional<PostType> type, Optional<String> resourceId);
 
   /**
    * Finds all the posts related to a negotiation and a list of specific persons (posters)
@@ -33,7 +33,7 @@ public interface PostService {
    * @param posters a list of all the persons that created the posts to be found
    * @return the list of all the posts related to the input negotiation ID and persons
    */
-  List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters, Optional<PostType> type);
+  List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId);
 
   /**
    * Updates a specific post

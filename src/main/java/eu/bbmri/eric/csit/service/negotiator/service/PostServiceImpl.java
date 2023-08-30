@@ -42,10 +42,13 @@ public class PostServiceImpl implements PostService {
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity = modelMapper.map(postRequest, Post.class);
     try {
-      String resourceId = postRequest.getResourceId();
-      Resource resource =
-          resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
-
+      Resource resource = null;
+      if (postRequest.getType().equals(PostType.PRIVATE)) {
+        // A private post is always associated and related to a Resource
+        String resourceId = postRequest.getResourceId();
+        resource =
+            resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
+      }
       Negotiation negotiation =
           negotiationRepository
               .findById(negotiationId)
@@ -68,13 +71,16 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findByNegotiationId(String negotiationId, Optional<PostType> type) {
+  public List<PostDTO> findByNegotiationId(String negotiationId, Optional<PostType> type, Optional<String> resourceId) {
     List<Post> posts;
     if (type.isEmpty()) {
       posts = postRepository.findByNegotiationId(negotiationId);
     }
-    else {
+    else if (resourceId.isEmpty()){
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
+    }
+    else {
+      posts = postRepository.findByNegotiationIdAndTypeAndResource(negotiationId, type, resourceId);
     }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -82,12 +88,16 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters, Optional<PostType> type) {
+  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId) {
     List<Post> posts;
     if (type.isEmpty()) {
       posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
-    } else {
+    }
+    else if (resourceId.isEmpty()){
       posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
+    }
+    else {
+      posts = postRepository.findNewByNegotiationIdAndPostersAndTypeAndResource(negotiationId, posters, type, resourceId);
       }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
