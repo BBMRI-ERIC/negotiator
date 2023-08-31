@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -16,6 +17,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
@@ -213,11 +215,11 @@ public class TestUtils {
     //    assertEquals(requestRepository.findAll().size(), 0);
   }
 
-  public static PostCreateDTO createPost(String resourceId, String text, String status)
+  public static PostCreateDTO createPost(String resourceId, String text, String status, PostType type)
       throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     PostCreateDTO.PostCreateDTOBuilder builder =
-        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status);
+        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status).type(type);
     return builder.build();
   }
 }

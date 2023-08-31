@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import java.net.URI;
@@ -51,8 +52,8 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  public void testCreateOK() throws Exception {
-    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null);
+  public void testCreatPublicPostOK() throws Exception {
+    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -69,8 +70,8 @@ public class PostControllerTests {
   }
 
   @Test
-  public void testCreateUnauthorized() throws Exception {
-    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null);
+  public void testCreatePublicPostUnauthorized() throws Exception {
+    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -85,8 +86,8 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  public void testCreateWithUnknownResource() throws Exception {
-    PostCreateDTO request = TestUtils.createPost("Unknown", "message", null);
+  public void testCreatePrivatePostWithUnknownResource() throws Exception {
+    PostCreateDTO request = TestUtils.createPost("Unknown", "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -150,9 +151,9 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheBiobanker")
-  public void testMarkPostAsRead() throws Exception {
+  public void testMarkPublicPostPostAsRead() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", "READ");
+    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", "READ", PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri =
         String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
