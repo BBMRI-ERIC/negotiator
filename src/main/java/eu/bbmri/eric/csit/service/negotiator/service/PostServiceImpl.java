@@ -71,15 +71,14 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findByNegotiationId(String negotiationId, Optional<PostType> type, Optional<String> resourceId) {
+  public List<PostDTO> findByNegotiationId(
+      String negotiationId, Optional<PostType> type, Optional<String> resourceId) {
     List<Post> posts;
     if (type.isEmpty()) {
       posts = postRepository.findByNegotiationId(negotiationId);
-    }
-    else if (resourceId.isEmpty()){
+    } else if (resourceId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
-    }
-    else {
+    } else {
       posts = postRepository.findByNegotiationIdAndTypeAndResource(negotiationId, type, resourceId);
     }
     return posts.stream()
@@ -88,17 +87,18 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId) {
+  public List<PostDTO> findNewByNegotiationIdAndPosters(
+      String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId) {
     List<Post> posts;
     if (type.isEmpty()) {
       posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
-    }
-    else if (resourceId.isEmpty()){
+    } else if (resourceId.isEmpty()) {
       posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
+    } else {
+      posts =
+          postRepository.findNewByNegotiationIdAndPostersAndTypeAndResource(
+              negotiationId, posters, type, resourceId);
     }
-    else {
-      posts = postRepository.findNewByNegotiationIdAndPostersAndTypeAndResource(negotiationId, posters, type, resourceId);
-      }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());

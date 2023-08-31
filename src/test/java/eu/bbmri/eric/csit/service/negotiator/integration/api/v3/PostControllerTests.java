@@ -175,7 +175,8 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testCreatePrivatePostOK() throws Exception {
-    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
+    PostCreateDTO request =
+        TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -193,7 +194,8 @@ public class PostControllerTests {
 
   @Test
   public void testCreatePrivatePostUnauthorized() throws Exception {
-    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
+    PostCreateDTO request =
+        TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -210,7 +212,8 @@ public class PostControllerTests {
   @WithUserDetails("TheBiobanker")
   public void testMarkPrivatePostPostAsRead() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    PostCreateDTO request = TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", "READ", PostType.PRIVATE);
+    PostCreateDTO request =
+        TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", "READ", PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri =
         String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
@@ -228,7 +231,8 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetPrivatePostsOnly() throws Exception {
     int numberOfPrivatePosts = 3;
-    String uri = String.format("%s/%s/%s?type=PRIVATE", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+    String uri =
+        String.format("%s/%s/%s?type=PRIVATE", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
@@ -243,7 +247,10 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetPrivatePostsForSpecificResource() throws Exception {
     int numberOfPrivatePosts = 2;
-    String uri = String.format("%s/%s/%s?type=PRIVATE&resource=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, NEGOTIATION_1_RESOURCE_ID);
+    String uri =
+        String.format(
+            "%s/%s/%s?type=PRIVATE&resource=%s",
+            NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, NEGOTIATION_1_RESOURCE_ID);
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
@@ -251,7 +258,5 @@ public class PostControllerTests {
         .andExpect(jsonPath("$.length()", is(numberOfPrivatePosts)))
         .andExpect(jsonPath("$[0].id", is("post-3-researcher")))
         .andExpect(jsonPath("$[1].id", is("post-3-representative")));
-
   }
-
 }

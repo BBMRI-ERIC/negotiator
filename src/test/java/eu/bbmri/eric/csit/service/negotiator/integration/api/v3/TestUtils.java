@@ -17,7 +17,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
@@ -215,8 +214,8 @@ public class TestUtils {
     //    assertEquals(requestRepository.findAll().size(), 0);
   }
 
-  public static PostCreateDTO createPost(String resourceId, String text, String status, PostType type)
-      throws IOException {
+  public static PostCreateDTO createPost(
+      String resourceId, String text, String status, PostType type) throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     PostCreateDTO.PostCreateDTOBuilder builder =
         PostCreateDTO.builder().resourceId(resourceId).text(text).status(status).type(type);

@@ -25,8 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
-              + "p.type = :type "
-  )
+              + "p.type = :type ")
   List<Post> findByNegotiationIdAndType(String negotiationId, Optional<PostType> type);
 
   @Query(
@@ -56,9 +55,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "WHERE n.id = :negotiationId and "
               + "p.poster.authName in :posters and "
               + "p.status = 'CREATED' and "
-              + "p.type = :type "
-  )
-  List<Post> findNewByNegotiationIdAndPostersAndType(String negotiationId, List posters, Optional<PostType> type);
+              + "p.type = :type ")
+  List<Post> findNewByNegotiationIdAndPostersAndType(
+      String negotiationId, List posters, Optional<PostType> type);
 
   @Query(
       value =
@@ -70,9 +69,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "p.poster.authName in :posters and "
               + "p.status = 'CREATED' and "
               + "p.type = :type and "
-              + "r.sourceId = :resourceId"
-  )
-  List<Post> findNewByNegotiationIdAndPostersAndTypeAndResource(String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId);
+              + "r.sourceId = :resourceId")
+  List<Post> findNewByNegotiationIdAndPostersAndTypeAndResource(
+      String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId);
 
   @Query(
       value =
@@ -82,7 +81,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.resource r "
               + "WHERE n.id = :negotiationId and r.id = p.resource and "
               + "p.type = :type and "
-              + "r.sourceId = :resourceId"
-  )
-  List<Post> findByNegotiationIdAndTypeAndResource(String negotiationId, Optional<PostType> type, Optional<String> resourceId);
+              + "r.sourceId = :resourceId")
+  List<Post> findByNegotiationIdAndTypeAndResource(
+      String negotiationId, Optional<PostType> type, Optional<String> resourceId);
 }

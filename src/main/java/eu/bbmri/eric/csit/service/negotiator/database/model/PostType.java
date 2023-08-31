@@ -4,6 +4,4 @@ public enum PostType {
   PRIVATE,
 
   PUBLIC
-
-
 }
