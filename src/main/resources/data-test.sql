@@ -116,12 +116,18 @@ insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-v2', 108, 4);
 
 insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, request_id, poster_id,
-                  resource_id)
+                  resource_id, type)
 values ('post-1-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-researcher-message', 108, 108,
-        'negotiation-1', 108, 4),
+        'negotiation-1', 108, null, 1),
        ('post-2-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
-        'negotiation-1', 108, 4),
+        'negotiation-1', 108, null, 1),
+        ('post-3-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
+                'negotiation-1', 108, 4, 0),
        ('post-1-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-representative-message', 109, 109,
-        'negotiation-1', 109, 4),
+        'negotiation-1', 109, null, 1),
        ('post-2-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
-        'negotiation-1', 109, 4);
+        'negotiation-1', 109, null, 1),
+       ('post-3-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
+                'negotiation-1', 109, 4, 0),
+       ('post-4-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
+                                'negotiation-1', 109, 5, 0);
