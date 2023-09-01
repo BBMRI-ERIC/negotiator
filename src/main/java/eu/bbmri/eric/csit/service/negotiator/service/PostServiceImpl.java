@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
@@ -60,7 +61,7 @@ public class PostServiceImpl implements PostService {
       postEntity.setResource(resource);
       postEntity.setNegotiation(negotiation);
       postEntity.setPoster(person);
-      postEntity.setStatus("CREATED");
+      postEntity.setStatus(PostStatus.CREATED);
 
       Post post = postRepository.save(postEntity);
       return modelMapper.map(post, PostDTO.class);

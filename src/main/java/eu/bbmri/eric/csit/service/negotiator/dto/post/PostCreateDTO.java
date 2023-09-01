@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import java.util.Set;
 import javax.validation.Valid;
@@ -25,7 +26,7 @@ public class PostCreateDTO {
 
   @Valid private String resourceId;
 
-  @Valid private String status;
+  @Valid private PostStatus status;
 
   @Valid private PostType type;
 }

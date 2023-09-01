@@ -9,7 +9,9 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
+import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,37 +36,23 @@ public class PostServiceTest {
   private AutoCloseable closeable;
 
   private Post publicPost1;
-
   private Post publicPost2;
-
   private Post privatePost1;
-
   private Post privatePost2;
 
   @BeforeEach
-  void before() {
+  void before() throws IOException {
     closeable = MockitoAnnotations.openMocks(this);
     Negotiation n = new Negotiation();
     Resource r1 = new Resource();
     r1.setSourceId("r1");
     Resource r2 = new Resource();
-    r2.setSourceId("r1");
-    publicPost1 = new Post();
-    publicPost1.setType(PostType.PUBLIC);
-    publicPost1.setNegotiation(n);
-    publicPost1.setText("public post 1");
-    publicPost2 = new Post();
-    publicPost2.setType(PostType.PUBLIC);
-    publicPost2.setNegotiation(n);
-    publicPost2.setText("public post 2");
-    privatePost1 = new Post();
-    privatePost1.setType(PostType.PRIVATE);
-    privatePost1.setResource(r1);
-    privatePost1.setText("private post 1");
-    privatePost2 = new Post();
-    privatePost2.setType(PostType.PRIVATE);
-    privatePost2.setResource(r2);
-    privatePost2.setText("private post 2");
+    r2.setSourceId("r2");
+
+    publicPost1 = TestUtils.createPost(n, null, "public post 1", PostType.PUBLIC);
+    publicPost2 = TestUtils.createPost(n, null, "public post 2", PostType.PUBLIC);
+    privatePost1 = TestUtils.createPost(n, r1, "private post 1", PostType.PRIVATE);
+    privatePost2 = TestUtils.createPost(n, r2, "private post 2", PostType.PRIVATE);
   }
 
   @AfterEach

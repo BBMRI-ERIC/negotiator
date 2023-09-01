@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -53,7 +54,7 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testCreatePublicPostOK() throws Exception {
-    PostCreateDTO request = TestUtils.createPost(null, "message", null, PostType.PUBLIC);
+    PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -71,7 +72,7 @@ public class PostControllerTests {
 
   @Test
   public void testCreatePublicPostUnauthorized() throws Exception {
-    PostCreateDTO request = TestUtils.createPost(null, "message", null, PostType.PUBLIC);
+    PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -87,7 +88,7 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testCreatePrivatePostWithUnknownResource() throws Exception {
-    PostCreateDTO request = TestUtils.createPost("Unknown", "message", null, PostType.PRIVATE);
+    PostCreateDTO request = TestUtils.createPostDTO("Unknown", "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -158,7 +159,8 @@ public class PostControllerTests {
   @WithUserDetails("TheBiobanker")
   public void testMarkPublicPostPostAsRead() throws Exception {
     int numberOfPosts = (int) postRepository.count();
-    PostCreateDTO request = TestUtils.createPost(null, "message", "READ", PostType.PUBLIC);
+    PostCreateDTO request =
+        TestUtils.createPostDTO(null, "message", PostStatus.READ, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri =
         String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
@@ -176,7 +178,7 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   public void testCreatePrivatePostOK() throws Exception {
     PostCreateDTO request =
-        TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
+        TestUtils.createPostDTO(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -195,7 +197,7 @@ public class PostControllerTests {
   @Test
   public void testCreatePrivatePostUnauthorized() throws Exception {
     PostCreateDTO request =
-        TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
+        TestUtils.createPostDTO(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
     System.out.println(requestBody);
@@ -213,7 +215,8 @@ public class PostControllerTests {
   public void testMarkPrivatePostPostAsRead() throws Exception {
     int numberOfPosts = (int) postRepository.count();
     PostCreateDTO request =
-        TestUtils.createPost(NEGOTIATION_1_RESOURCE_ID, "message", "READ", PostType.PRIVATE);
+        TestUtils.createPostDTO(
+            NEGOTIATION_1_RESOURCE_ID, "message", PostStatus.READ, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri =
         String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
