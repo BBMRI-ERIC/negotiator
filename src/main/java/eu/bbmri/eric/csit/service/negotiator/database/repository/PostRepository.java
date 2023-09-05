@@ -44,7 +44,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
               + "p.poster.authName in :posters and "
-              + "p.status = 0 ")
+              + "p.status = 'CREATED' ")
   List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
 
   @Query(
@@ -54,7 +54,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
               + "p.poster.authName in :posters and "
-              + "p.status = 0 and "
+              + "p.status = 'CREATED' and "
               + "p.type = :type ")
   List<Post> findNewByNegotiationIdAndPostersAndType(
       String negotiationId, List posters, Optional<PostType> type);
@@ -67,7 +67,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.resource r "
               + "WHERE n.id = :negotiationId and r.id = p.resource and "
               + "p.poster.authName in :posters and "
-              + "p.status = 0 and "
+              + "p.status = 'CREATED' and "
               + "p.type = :type and "
               + "r.sourceId = :resourceId")
   List<Post> findNewByNegotiationIdAndPostersAndTypeAndResource(
