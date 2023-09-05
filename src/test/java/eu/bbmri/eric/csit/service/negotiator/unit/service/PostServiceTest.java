@@ -43,16 +43,16 @@ public class PostServiceTest {
   @BeforeEach
   void before() throws IOException {
     closeable = MockitoAnnotations.openMocks(this);
-    Negotiation n = new Negotiation();
-    Resource r1 = new Resource();
-    r1.setSourceId("r1");
-    Resource r2 = new Resource();
-    r2.setSourceId("r2");
+    Negotiation negotiation = new Negotiation();
+    Resource resource1 = new Resource();
+    resource1.setSourceId("resource1");
+    Resource resource2 = new Resource();
+    resource2.setSourceId("resource2");
 
-    publicPost1 = TestUtils.createPost(n, null, "public post 1", PostType.PUBLIC);
-    publicPost2 = TestUtils.createPost(n, null, "public post 2", PostType.PUBLIC);
-    privatePost1 = TestUtils.createPost(n, r1, "private post 1", PostType.PRIVATE);
-    privatePost2 = TestUtils.createPost(n, r2, "private post 2", PostType.PRIVATE);
+    publicPost1 = TestUtils.createPost(negotiation, null, "public post 1", PostType.PUBLIC);
+    publicPost2 = TestUtils.createPost(negotiation, null, "public post 2", PostType.PUBLIC);
+    privatePost1 = TestUtils.createPost(negotiation, resource1, "private post 1", PostType.PRIVATE);
+    privatePost2 = TestUtils.createPost(negotiation, resource2, "private post 2", PostType.PRIVATE);
   }
 
   @AfterEach
@@ -115,12 +115,13 @@ public class PostServiceTest {
   @Test
   public void test_FindAllPrivatePostsByResource() {
     when(postRepository.findByNegotiationIdAndTypeAndResource(
-            "negotiationId", Optional.of(PostType.PRIVATE), Optional.of("r1")))
+            "negotiationId", Optional.of(PostType.PRIVATE), Optional.of("resource1")))
         .thenReturn(List.of(privatePost1));
     Assertions.assertEquals(
         1,
         postService
-            .findByNegotiationId("negotiationId", Optional.of(PostType.PRIVATE), Optional.of("r1"))
+            .findByNegotiationId(
+                "negotiationId", Optional.of(PostType.PRIVATE), Optional.of("resource1"))
             .size());
   }
 }

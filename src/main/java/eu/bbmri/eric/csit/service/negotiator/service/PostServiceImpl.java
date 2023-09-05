@@ -60,7 +60,6 @@ public class PostServiceImpl implements PostService {
 
       postEntity.setResource(resource);
       postEntity.setNegotiation(negotiation);
-      postEntity.setPoster(person);
       postEntity.setStatus(PostStatus.CREATED);
 
       Post post = postRepository.save(postEntity);

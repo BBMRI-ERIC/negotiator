@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-  Optional<Post> findByPosterId(Long id);
+  Optional<Post> findByCreatedBy(Long id);
 
   @Query(
       value =
@@ -43,7 +43,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
-              + "p.poster.authName in :posters and "
+              + "p.createdBy.authName in :posters and "
               + "p.status = 'CREATED' ")
   List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
 
@@ -53,7 +53,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
-              + "p.poster.authName in :posters and "
+              + "p.createdBy.authName in :posters and "
               + "p.status = 'CREATED' and "
               + "p.type = :type ")
   List<Post> findNewByNegotiationIdAndPostersAndType(
@@ -66,7 +66,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.negotiation n "
               + "JOIN FETCH p.resource r "
               + "WHERE n.id = :negotiationId and r.id = p.resource and "
-              + "p.poster.authName in :posters and "
+              + "p.createdBy.authName in :posters and "
               + "p.status = 'CREATED' and "
               + "p.type = :type and "
               + "r.sourceId = :resourceId")

@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.PostModelMapper;
@@ -27,12 +26,7 @@ public class PostModelMapperTest {
 
   @Test
   public void map_PostToDTO_ok() {
-    Post post =
-        Post.builder()
-            .negotiation(new Negotiation())
-            .poster(new Person())
-            .text("This is important")
-            .build();
+    Post post = Post.builder().negotiation(new Negotiation()).text("This is important").build();
     PostDTO postDTO = mapper.map(post, PostDTO.class);
     assertEquals(post.getText(), postDTO.getText());
   }

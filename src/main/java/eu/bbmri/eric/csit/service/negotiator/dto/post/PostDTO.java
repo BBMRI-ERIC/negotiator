@@ -33,7 +33,7 @@ public class PostDTO {
 
   @Valid @NotEmpty private LocalDateTime modifiedDate;
 
-  @Valid @NotEmpty private PersonDTO poster;
+  @Valid @NotEmpty private PersonDTO createdBy;
 
   @Valid private String resourceId;
 
