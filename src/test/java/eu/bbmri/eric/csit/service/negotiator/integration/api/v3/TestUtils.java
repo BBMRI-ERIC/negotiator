@@ -6,6 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -17,7 +22,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -64,8 +68,6 @@ public class TestUtils {
   public static final String[] PERUN_USER_IDENTITIES = {
     "perun user identity 1", "perun user identity 2"
   };
-
-  private static Resource negotiationPayload;
 
   public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
     String suffix = update ? "u" : "";
@@ -213,11 +215,19 @@ public class TestUtils {
     //    assertEquals(requestRepository.findAll().size(), 0);
   }
 
-  public static PostCreateDTO createPost(String resourceId, String text, String status)
-      throws IOException {
+  public static PostCreateDTO createPostDTO(
+      String resourceId, String text, PostStatus status, PostType type) throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     PostCreateDTO.PostCreateDTOBuilder builder =
-        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status);
+        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status).type(type);
+    return builder.build();
+  }
+
+  public static Post createPost(
+      Negotiation negotiation, Resource resource, String text, PostType type) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    Post.PostBuilder builder =
+        Post.builder().negotiation(negotiation).resource(resource).text(text).type(type);
     return builder.build();
   }
 }

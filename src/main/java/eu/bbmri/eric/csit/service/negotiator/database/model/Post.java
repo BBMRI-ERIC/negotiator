@@ -1,10 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -36,15 +38,16 @@ public class Post extends AuditEntity {
   private Negotiation negotiation;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "poster_id")
-  @Exclude
-  private Person poster;
-
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "resource_id")
   @Exclude
   private Resource resource;
 
-  @Lob private String text;
-  private String status;
+  @Column(columnDefinition = "TEXT")
+  private String text;
+
+  @Enumerated(EnumType.STRING)
+  private PostStatus status;
+
+  @Enumerated(EnumType.STRING)
+  private PostType type;
 }

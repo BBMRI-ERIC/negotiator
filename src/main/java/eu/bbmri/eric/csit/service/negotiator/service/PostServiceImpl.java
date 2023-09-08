@@ -3,6 +3,8 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -14,6 +16,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -40,10 +43,13 @@ public class PostServiceImpl implements PostService {
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity = modelMapper.map(postRequest, Post.class);
     try {
-      String resourceId = postRequest.getResourceId();
-      Resource resource =
-          resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
-
+      Resource resource = null;
+      if (postRequest.getType().equals(PostType.PRIVATE)) {
+        // A private post is always associated and related to a Resource
+        String resourceId = postRequest.getResourceId();
+        resource =
+            resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
+      }
       Negotiation negotiation =
           negotiationRepository
               .findById(negotiationId)
@@ -54,8 +60,7 @@ public class PostServiceImpl implements PostService {
 
       postEntity.setResource(resource);
       postEntity.setNegotiation(negotiation);
-      postEntity.setPoster(person);
-      postEntity.setStatus("CREATED");
+      postEntity.setStatus(PostStatus.CREATED);
 
       Post post = postRepository.save(postEntity);
       return modelMapper.map(post, PostDTO.class);
@@ -66,16 +71,34 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findByNegotiationId(String negotiationId) {
-    List<Post> posts = postRepository.findByNegotiationId(negotiationId);
+  public List<PostDTO> findByNegotiationId(
+      String negotiationId, Optional<PostType> type, Optional<String> resourceId) {
+    List<Post> posts;
+    if (type.isEmpty()) {
+      posts = postRepository.findByNegotiationId(negotiationId);
+    } else if (resourceId.isEmpty()) {
+      posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
+    } else {
+      posts = postRepository.findByNegotiationIdAndTypeAndResource(negotiationId, type, resourceId);
+    }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
 
   @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndPosters(String negotiationId, List posters) {
-    List<Post> posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
+  public List<PostDTO> findNewByNegotiationIdAndPosters(
+      String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId) {
+    List<Post> posts;
+    if (type.isEmpty()) {
+      posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
+    } else if (resourceId.isEmpty()) {
+      posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
+    } else {
+      posts =
+          postRepository.findNewByNegotiationIdAndPostersAndTypeAndResource(
+              negotiationId, posters, type, resourceId);
+    }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
