@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;

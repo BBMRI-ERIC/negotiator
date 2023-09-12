@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
