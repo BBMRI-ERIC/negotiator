@@ -42,6 +42,11 @@ public class Resource extends BaseEntity {
   private DataSource dataSource;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "organization_id")
+  @Exclude
+  private Organization organization;
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "access_criteria_set_id")
   @Exclude
   private AccessCriteriaSet accessCriteriaSet;
