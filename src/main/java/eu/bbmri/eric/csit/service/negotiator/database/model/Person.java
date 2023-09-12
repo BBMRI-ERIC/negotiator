@@ -50,12 +50,10 @@ public class Person {
   @Column(unique = true)
   @NotNull
   private String authSubject;
-
-  @Column(unique = true)
+  
   @NotNull
   private String authName;
-
-  @Column(unique = true)
+  
   @NotNull
   private String authEmail;
 
