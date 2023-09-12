@@ -50,12 +50,10 @@ public class Person {
   @Column(unique = true)
   @NotNull
   private String authSubject;
-  
-  @NotNull
-  private String authName;
-  
-  @NotNull
-  private String authEmail;
+
+  @NotNull private String authName;
+
+  @NotNull private String authEmail;
 
   private String password; // can be null if the user is authenticated via OIDC
 
