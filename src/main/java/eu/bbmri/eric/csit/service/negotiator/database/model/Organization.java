@@ -3,27 +3,23 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.NonNull;
 
 /** Class representing an Institution/Organization such as a Biobank. */
 @Getter
 @Entity
 @Builder
 @AllArgsConstructor
-public class Organization {
-
-  @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
-  private final String id;
+public class Organization extends BaseEntity {
+  /** A unique and persistent identifier issued by an appropriate institution. */
+  @NonNull @NotNull private final String externalId;
 
   private String name;
 
@@ -35,7 +31,7 @@ public class Organization {
   private Set<Resource> resources;
 
   protected Organization() {
-    id = null;
+    externalId = null;
   }
 
   @Override
@@ -43,11 +39,11 @@ public class Organization {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Organization that = (Organization) o;
-    return Objects.equals(id, that.id);
+    return Objects.equals(externalId, that.externalId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id);
+    return Objects.hash(externalId);
   }
 }

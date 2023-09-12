@@ -38,8 +38,10 @@ public class OrganizationRepositoryTest {
   @Test
   void save_validId_uuidIsGenerated() {
     assertEquals(0, organizationRepository.count());
-    Organization savedOrganization = organizationRepository.save(Organization.builder().build());
+    Organization savedOrganization =
+        organizationRepository.save(Organization.builder().externalId("ExternalId").build());
     assertEquals(1, organizationRepository.count());
+    assertEquals("ExternalId", savedOrganization.getExternalId());
     assertNotNull(savedOrganization.getId());
   }
 }
