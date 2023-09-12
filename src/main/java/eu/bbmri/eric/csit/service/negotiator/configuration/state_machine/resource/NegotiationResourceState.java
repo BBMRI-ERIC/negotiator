@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.database.model;
+package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource;
 
 public enum NegotiationResourceState {
   SUBMITTED,

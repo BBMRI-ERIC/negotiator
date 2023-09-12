@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
