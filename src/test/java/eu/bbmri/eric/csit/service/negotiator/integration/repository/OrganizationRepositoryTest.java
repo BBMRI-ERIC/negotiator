@@ -12,7 +12,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepos
 import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +19,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = NegotiatorApplication.class, properties = "spring.sql.init.mode=never")
+@SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class OrganizationRepositoryTest {
@@ -72,19 +71,15 @@ public class OrganizationRepositoryTest {
                 .name("")
                 .syncActive(true)
                 .build());
-    Resource savedResource =
-        resourceRepository.save(
-            Resource.builder()
-                .name("test Resource")
-                .sourceId("collection:1")
-                .dataSource(savedDataSource)
-                .build());
     Organization savedOrganization =
-        organizationRepository.save(
-            Organization.builder()
-                .externalId("ExternalId")
-                .resources(Set.of(savedResource))
-                .build());
+        organizationRepository.save(Organization.builder().externalId("ExternalId").build());
+    resourceRepository.save(
+        Resource.builder()
+            .name("test Resource")
+            .sourceId("collection:1")
+            .dataSource(savedDataSource)
+            .organization(savedOrganization)
+            .build());
     assertEquals(
         "test Resource",
         organizationRepository

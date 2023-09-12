@@ -2,12 +2,12 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,11 +28,7 @@ public class Organization extends BaseEntity {
 
   private String name;
 
-  @ManyToMany
-  @JoinTable(
-      name = "organization_resources_link",
-      joinColumns = @JoinColumn(name = "organization_id"),
-      inverseJoinColumns = @JoinColumn(name = "resource_id"))
+  @OneToMany(mappedBy = "organization", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   private Set<Resource> resources;
 
   // For JPA compatability
