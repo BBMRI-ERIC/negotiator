@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import java.time.ZonedDateTime;
 import javax.persistence.*;
 import lombok.*;

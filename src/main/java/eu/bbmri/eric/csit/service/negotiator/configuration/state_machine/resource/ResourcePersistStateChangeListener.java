@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;

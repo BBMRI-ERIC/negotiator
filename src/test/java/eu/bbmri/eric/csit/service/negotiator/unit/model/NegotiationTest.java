@@ -2,6 +2,8 @@ package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import java.util.HashSet;
 import java.util.List;

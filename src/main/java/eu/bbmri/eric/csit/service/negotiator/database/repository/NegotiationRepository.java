@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;

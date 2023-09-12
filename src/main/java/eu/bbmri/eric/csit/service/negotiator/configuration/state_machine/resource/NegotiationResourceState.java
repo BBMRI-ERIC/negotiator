@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.database.model;
+package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource;
 
 public enum NegotiationResourceState {
   SUBMITTED,
@@ -7,8 +7,10 @@ public enum NegotiationResourceState {
   RETURNED_FOR_RESUBMISSION,
   CHECKING_AVAILABILITY,
   RESOURCE_AVAILABLE,
+  RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT,
   RESOURCE_UNAVAILABLE,
   ACCESS_CONDITIONS_INDICATED,
   ACCESS_CONDITIONS_MET,
+  RESOURCE_NOT_MADE_AVAILABLE,
   RESOURCE_MADE_AVAILABLE,
 }

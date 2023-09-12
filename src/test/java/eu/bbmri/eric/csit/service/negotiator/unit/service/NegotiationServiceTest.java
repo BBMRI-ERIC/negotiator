@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;

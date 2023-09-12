@@ -1,6 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;

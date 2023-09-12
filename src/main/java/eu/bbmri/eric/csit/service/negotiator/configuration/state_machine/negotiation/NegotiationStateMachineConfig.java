@@ -1,7 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationEvent;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationState;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;

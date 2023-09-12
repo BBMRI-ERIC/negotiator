@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;

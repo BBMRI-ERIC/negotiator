@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceEvent;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceState;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.NoSuchElementException;
