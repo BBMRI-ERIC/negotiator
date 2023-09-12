@@ -40,5 +40,4 @@ public class OrganizationTest {
   void getResources_null_null() {
     assertNull(Organization.builder().externalId("validId").build().getResources());
   }
-  
 }

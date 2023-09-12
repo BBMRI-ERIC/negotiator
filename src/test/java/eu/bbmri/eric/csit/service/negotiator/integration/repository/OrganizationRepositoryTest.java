@@ -5,8 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +26,10 @@ import org.springframework.test.context.ActiveProfiles;
 public class OrganizationRepositoryTest {
 
   @Autowired OrganizationRepository organizationRepository;
+
+  @Autowired ResourceRepository resourceRepository;
+
+  @Autowired DataSourceRepository dataSourceRepository;
 
   @Test
   void count_emptyTable_0() {
@@ -43,5 +53,46 @@ public class OrganizationRepositoryTest {
     assertEquals(1, organizationRepository.count());
     assertEquals("ExternalId", savedOrganization.getExternalId());
     assertNotNull(savedOrganization.getId());
+  }
+
+  @Test
+  void getDetailedResources_ok() {
+    DataSource savedDataSource =
+        dataSourceRepository.save(
+            DataSource.builder()
+                .sourcePrefix("")
+                .apiPassword("")
+                .apiType(DataSource.ApiType.MOLGENIS)
+                .apiUrl("")
+                .apiUsername("")
+                .url("")
+                .resourceBiobank("")
+                .resourceCollection("")
+                .resourceNetwork("")
+                .name("")
+                .syncActive(true)
+                .build());
+    Resource savedResource =
+        resourceRepository.save(
+            Resource.builder()
+                .name("test Resource")
+                .sourceId("collection:1")
+                .dataSource(savedDataSource)
+                .build());
+    Organization savedOrganization =
+        organizationRepository.save(
+            Organization.builder()
+                .externalId("ExternalId")
+                .resources(Set.of(savedResource))
+                .build());
+    assertEquals(
+        "test Resource",
+        organizationRepository
+            .findDetailedById(savedOrganization.getId())
+            .orElseThrow(() -> new NoSuchElementException("Value is empty"))
+            .getResources()
+            .iterator()
+            .next()
+            .getName());
   }
 }

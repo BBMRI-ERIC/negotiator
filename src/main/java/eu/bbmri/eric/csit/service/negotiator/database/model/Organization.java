@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +19,9 @@ import lombok.NonNull;
 @Entity
 @Builder
 @AllArgsConstructor
+@NamedEntityGraph(
+    name = "organization-with-detailed-resources",
+    attributeNodes = {@NamedAttributeNode(value = "resources")})
 public class Organization extends BaseEntity {
   /** A unique and persistent identifier issued by an appropriate institution. */
   @NonNull @NotNull private final String externalId;
@@ -30,6 +35,7 @@ public class Organization extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   private Set<Resource> resources;
 
+  // For JPA compatability
   protected Organization() {
     externalId = null;
   }
