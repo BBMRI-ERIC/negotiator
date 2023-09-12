@@ -38,9 +38,13 @@ import org.hibernate.annotations.GenericGenerator;
     attributeNodes = {@NamedAttributeNode(value = "resources")})
 public class Request {
 
-  @NotNull private String url;
+  @NotNull
+  @Column(columnDefinition = "TEXT")
+  private String url;
 
-  @NotNull private String humanReadable;
+  @NotNull
+  @Column(columnDefinition = "TEXT")
+  private String humanReadable;
 
   @Id
   @GeneratedValue(generator = "uuid")
