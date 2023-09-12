@@ -2,26 +2,41 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 /** Class representing an Institution/Organization such as a Biobank. */
 @Getter
-@Setter
+@Entity
 @Builder
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class Organization {
 
-  @NonNull private final String id;
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  private final String id;
 
   private String name;
 
+  @ManyToMany
+  @JoinTable(
+      name = "organization_resources_link",
+      joinColumns = @JoinColumn(name = "organization_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
   private Set<Resource> resources;
+
+  protected Organization() {
+    id = null;
+  }
 
   @Override
   public boolean equals(Object o) {
