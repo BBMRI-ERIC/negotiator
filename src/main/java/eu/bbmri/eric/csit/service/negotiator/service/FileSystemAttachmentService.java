@@ -76,7 +76,7 @@ public class FileSystemAttachmentService implements AttachmentService {
   }
 
   @Override
-  public List<AttachmentMetadataDTO> getAllFiles() {
+  public List<AttachmentMetadataDTO> getAllAttachments() {
     return null;
   }
 

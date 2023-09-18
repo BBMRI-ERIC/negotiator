@@ -7,6 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataD
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,6 @@ public class DBAttachmentService implements AttachmentService {
 
   @Override
   public AttachmentMetadataDTO create(MultipartFile file) {
-
     Attachment attachment;
     try {
       attachment =
@@ -45,18 +45,20 @@ public class DBAttachmentService implements AttachmentService {
 
   @Override
   public AttachmentMetadataDTO findMetadataById(String id) {
-    Attachment attachment = attachmentRepository.findMetadataById(id).orElseThrow();
+    Attachment attachment =
+        attachmentRepository.findMetadataById(id).orElseThrow(EntityNotFoundException::new);
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
   @Override
   public AttachmentDTO findById(String id) {
-    Attachment attachment = attachmentRepository.findById(id).orElseThrow();
+    Attachment attachment =
+        attachmentRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     return modelMapper.map(attachment, AttachmentDTO.class);
   }
 
   @Override
-  public List<AttachmentMetadataDTO> getAllFiles() {
+  public List<AttachmentMetadataDTO> getAllAttachments() {
     return attachmentRepository.findAll().stream()
         .map((element) -> modelMapper.map(element, AttachmentMetadataDTO.class))
         .collect(Collectors.toList());

@@ -38,7 +38,7 @@ public class AttachmentController {
 
   @GetMapping(value = "/attachments", produces = MediaType.APPLICATION_JSON_VALUE)
   public List<AttachmentMetadataDTO> list() {
-    return storageService.getAllFiles();
+    return storageService.getAllAttachments();
   }
 
   @GetMapping(value = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

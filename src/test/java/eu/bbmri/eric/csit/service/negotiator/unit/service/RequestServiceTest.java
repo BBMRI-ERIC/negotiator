@@ -40,6 +40,7 @@ public class RequestServiceTest {
   @Mock DataSourceRepository dataSourceRepository;
 
   @Spy ModelMapper modelMapper = new ModelMapper();
+
   @InjectMocks RequestService requestService = new RequestServiceImpl();
 
   @InjectMocks

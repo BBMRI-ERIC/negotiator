@@ -15,5 +15,5 @@ public interface AttachmentService {
 
   AttachmentDTO findById(String id);
 
-  List<AttachmentMetadataDTO> getAllFiles();
+  List<AttachmentMetadataDTO> getAllAttachments();
 }
