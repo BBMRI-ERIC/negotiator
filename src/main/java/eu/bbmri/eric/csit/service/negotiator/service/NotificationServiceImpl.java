@@ -19,6 +19,24 @@ public class NotificationServiceImpl implements NotificationService {
     this.javaMailSender = javaMailSender;
   }
 
+  private static SimpleMailMessage buildMessage(
+      @NonNull String recipientAddress, @NonNull String subject, @NonNull String mailBody) {
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setFrom("noreply@bbmri-eric.eu");
+    message.setTo(recipientAddress);
+    message.setSubject(subject);
+    message.setText(mailBody);
+    return message;
+  }
+
+  private static boolean isValidEmailAddress(String recipientAddress) {
+    if (Objects.isNull(recipientAddress)) {
+      return false;
+    }
+    String regexPattern = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+    return Pattern.compile(regexPattern).matcher(recipientAddress).matches();
+  }
+
   @Override
   public boolean sendEmail(String recipientAddress, String subject, String mailBody) {
     SimpleMailMessage message;
@@ -40,23 +58,5 @@ public class NotificationServiceImpl implements NotificationService {
     }
     log.info("Email message sent.");
     return true;
-  }
-
-  private static SimpleMailMessage buildMessage(
-      @NonNull String recipientAddress, @NonNull String subject, @NonNull String mailBody) {
-    SimpleMailMessage message = new SimpleMailMessage();
-    message.setFrom("noreply@bbmri-eric.eu");
-    message.setTo(recipientAddress);
-    message.setSubject(subject);
-    message.setText(mailBody);
-    return message;
-  }
-
-  private static boolean isValidEmailAddress(String recipientAddress) {
-    if (Objects.isNull(recipientAddress)) {
-      return false;
-    }
-    String regexPattern = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
-    return Pattern.compile(regexPattern).matcher(recipientAddress).matches();
   }
 }

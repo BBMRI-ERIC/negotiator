@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import javax.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,5 +19,14 @@ public class AttachmentMapper {
   public void addMappings() {
     TypeMap<Attachment, AttachmentDTO> typeMap =
         modelMapper.createTypeMap(Attachment.class, AttachmentDTO.class);
+
+    TypeMap<Attachment, AttachmentMetadataDTO> typeMapMetadata =
+        modelMapper.createTypeMap(Attachment.class, AttachmentMetadataDTO.class);
+
+//    typeMapMetadata.addMappings(
+//        mapper ->
+//            mapper
+//                .using(personsRoleConverter)
+//                .map(Attachment::getId, AttachmentMetadataDTO::setUrl));
   }
 }

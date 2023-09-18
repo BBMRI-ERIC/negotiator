@@ -46,6 +46,22 @@ public class NegotiationServiceTest {
   @InjectMocks NegotiationServiceImpl negotiationService;
   private AutoCloseable closeable;
 
+  private static Negotiation buildNegotiation() {
+    Request request =
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .dataSource(new DataSource())
+                        .build()))
+            .build();
+    return Negotiation.builder()
+        .requests(Set.of(request))
+        .currentState(NegotiationState.SUBMITTED)
+        .build();
+  }
+
   @BeforeEach
   void before() {
     closeable = MockitoAnnotations.openMocks(this);
@@ -110,21 +126,5 @@ public class NegotiationServiceTest {
     assertEquals(
         NegotiationState.SUBMITTED.name(),
         negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
-  }
-
-  private static Negotiation buildNegotiation() {
-    Request request =
-        Request.builder()
-            .resources(
-                Set.of(
-                    Resource.builder()
-                        .sourceId("collection:1")
-                        .dataSource(new DataSource())
-                        .build()))
-            .build();
-    return Negotiation.builder()
-        .requests(Set.of(request))
-        .currentState(NegotiationState.SUBMITTED)
-        .build();
   }
 }

@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.StorageException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.StorageFileNotFoundException;
 import java.io.IOException;
@@ -12,17 +13,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service(value = "DefaultAttachmentService")
+// @Service(value = "DefaultAttachmentService")
 public class FileSystemAttachmentService implements AttachmentService {
 
   private final Path rootLocation;
@@ -38,7 +39,7 @@ public class FileSystemAttachmentService implements AttachmentService {
   }
 
   @Override
-  public AttachmentDTO create(MultipartFile file) {
+  public AttachmentMetadataDTO create(MultipartFile file) {
     Attachment attachment = Attachment.builder().name(file.getOriginalFilename()).build();
     attachment = attachmentRepository.save(attachment);
     try {
@@ -60,11 +61,25 @@ public class FileSystemAttachmentService implements AttachmentService {
     } catch (IOException e) {
       throw new StorageException("Failed to store file.", e);
     }
-    return modelMapper.map(attachment, AttachmentDTO.class);
+    return modelMapper.map(attachment, AttachmentMetadataDTO.class);
     //    return AttachmentDTO.builder().id(attachment.getId()).name(attachment.getName()).build();
   }
 
   @Override
+  public AttachmentDTO findById(String id) {
+    return null;
+  }
+
+  @Override
+  public AttachmentMetadataDTO findMetadataById(String id) {
+    return null;
+  }
+
+  @Override
+  public List<AttachmentMetadataDTO> getAllFiles() {
+    return null;
+  }
+
   public Stream<Path> loadAll() {
     try {
       return Files.walk(this.rootLocation, 1)
@@ -75,12 +90,10 @@ public class FileSystemAttachmentService implements AttachmentService {
     }
   }
 
-  @Override
   public Path load(String filename) {
     return rootLocation.resolve(filename);
   }
 
-  @Override
   public Resource loadAsResource(String filename) {
     try {
       Path file = load(filename);
@@ -95,12 +108,10 @@ public class FileSystemAttachmentService implements AttachmentService {
     }
   }
 
-  @Override
   public void deleteAll() {
     FileSystemUtils.deleteRecursively(rootLocation.toFile());
   }
 
-  @Override
   public void init() {
     try {
       Files.createDirectories(rootLocation);

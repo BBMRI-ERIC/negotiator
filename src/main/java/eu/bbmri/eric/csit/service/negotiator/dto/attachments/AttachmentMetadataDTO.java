@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AttachmentDTO {
+public class AttachmentMetadataDTO {
   @NotNull String id;
 
   String name;
@@ -21,5 +21,5 @@ public class AttachmentDTO {
 
   Long size;
 
-  byte[] payload;
+  //  String url;
 }

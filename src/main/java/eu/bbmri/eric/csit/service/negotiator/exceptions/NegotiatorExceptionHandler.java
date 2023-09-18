@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @ControllerAdvice
 public class NegotiatorExceptionHandler {
@@ -40,7 +41,8 @@ public class NegotiatorExceptionHandler {
   @ExceptionHandler({
     EntityNotStorableException.class,
     WrongRequestException.class,
-    ConstraintViolationException.class
+    ConstraintViolationException.class,
+    MaxUploadSizeExceededException.class
   })
   public final ResponseEntity<ErrorResponse> handleBadRequestExceptions(
       RuntimeException ex, WebRequest request) {

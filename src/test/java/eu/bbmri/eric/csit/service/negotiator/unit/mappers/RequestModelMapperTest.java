@@ -28,6 +28,20 @@ public class RequestModelMapperTest {
 
   @InjectMocks ResourceModelMapper resourceModelMapper;
 
+  private static QueryCreateV2DTO buildQueryCreateV2DTO() {
+    Set<CollectionV2DTO> collectionV2DTOS = new HashSet<>();
+    collectionV2DTOS.add(
+        CollectionV2DTO.builder().collectionId("collection1").biobankId("biobank1").build());
+    collectionV2DTOS.add(
+        CollectionV2DTO.builder().collectionId("collection2").biobankId("biobank2").build());
+    return QueryCreateV2DTO.builder()
+        .url("https://directory.com")
+        .humanReadable("I want everything!")
+        .token("randomlyGeneratedString")
+        .collections(collectionV2DTOS)
+        .build();
+  }
+
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
@@ -49,38 +63,6 @@ public class RequestModelMapperTest {
     assertEquals(1, requestDTO.getResources().size());
     assertEquals(resource.getSourceId(), requestDTO.getResources().iterator().next().getId());
     assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
-  }
-
-  @Nested
-  public class map_withFrontendUrlTrailingSlash {
-    @Spy public ModelMapper mapper = new ModelMapper();
-
-    @InjectMocks
-    RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
-
-    @InjectMocks ResourceModelMapper resourceModelMapper;
-
-    @BeforeEach
-    public void setup() {
-      MockitoAnnotations.openMocks(this);
-      this.requestModelsMapper.addMappings();
-      this.resourceModelMapper.addMappings();
-    }
-
-    @Test
-    void map_frontEndUrlWithTrailingSlash_Ok() {
-      this.requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
-      Resource resource =
-          Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
-      Request request =
-          Request.builder()
-              .id("newRequest")
-              .resources(Set.of(resource))
-              .dataSource(new DataSource())
-              .build();
-      RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
-      assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
-    }
   }
 
   @Test
@@ -119,17 +101,35 @@ public class RequestModelMapperTest {
                                     collection.getId(), collectionV2DTO.getCollectionId()))));
   }
 
-  private static QueryCreateV2DTO buildQueryCreateV2DTO() {
-    Set<CollectionV2DTO> collectionV2DTOS = new HashSet<>();
-    collectionV2DTOS.add(
-        CollectionV2DTO.builder().collectionId("collection1").biobankId("biobank1").build());
-    collectionV2DTOS.add(
-        CollectionV2DTO.builder().collectionId("collection2").biobankId("biobank2").build());
-    return QueryCreateV2DTO.builder()
-        .url("https://directory.com")
-        .humanReadable("I want everything!")
-        .token("randomlyGeneratedString")
-        .collections(collectionV2DTOS)
-        .build();
+  @Nested
+  public class map_withFrontendUrlTrailingSlash {
+    @Spy public ModelMapper mapper = new ModelMapper();
+
+    @InjectMocks
+    RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
+
+    @InjectMocks ResourceModelMapper resourceModelMapper;
+
+    @BeforeEach
+    public void setup() {
+      MockitoAnnotations.openMocks(this);
+      this.requestModelsMapper.addMappings();
+      this.resourceModelMapper.addMappings();
+    }
+
+    @Test
+    void map_frontEndUrlWithTrailingSlash_Ok() {
+      this.requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
+      Resource resource =
+          Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
+      Request request =
+          Request.builder()
+              .id("newRequest")
+              .resources(Set.of(resource))
+              .dataSource(new DataSource())
+              .build();
+      RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
+      assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
+    }
   }
 }

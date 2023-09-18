@@ -4,5 +4,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface NotificationService {
-  public boolean sendEmail(String recipientAddress, String subject, String mailBody);
+  boolean sendEmail(String recipientAddress, String subject, String mailBody);
 }

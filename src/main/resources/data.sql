@@ -25,8 +25,8 @@ insert into access_criteria_section (id, name, label, description, access_criter
 values (2, 'request', 'Request', 'Provide information the resources you are requesting', 1);
 insert into access_criteria_section (id, name, label, description, access_criteria_set_id)
 values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?', 1);
---insert into access_criteria_section (id, name, label, description, access_criteria_set_id)
---values (4, 'attachments', 'Attachments', 'Upload attachments:', 1);
+insert into access_criteria_section (id, name, label, description, access_criteria_set_id)
+values (4, 'attachments', 'Attachments', 'Upload attachments:', 1);
 
 insert into access_criteria (id, name, label, description, type)
 values (1, 'title', 'Title', 'Give a title', 'text');
@@ -42,7 +42,7 @@ values (1, 1, 1, 'true'),
        (1, 2, 2, 'false'),
        (2, 2, 1, 'true'),
        (3, 3, 1, 'false'),
-       (3, 4, 2, 'false');
+       (4, 4, 1, 'false');
 
 insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id)
 values (1, 'Test collection', 'This is the fist test collection',

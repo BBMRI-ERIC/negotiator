@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.dto.negotiation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import java.time.LocalDateTime;
@@ -40,5 +41,5 @@ public class NegotiationDTO {
 
   @NotNull private LocalDateTime modifiedDate;
 
-  private Set<AttachmentDTO> attachments;
+  private Set<AttachmentMetadataDTO> attachments;
 }

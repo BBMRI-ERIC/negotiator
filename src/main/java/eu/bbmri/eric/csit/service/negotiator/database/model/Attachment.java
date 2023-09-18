@@ -1,11 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,30 +22,35 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Getter
 @Setter
-@Builder
 @Table(name = "attachment")
-public class Attachment {
+@NamedEntityGraph(
+    name = "attachment-metadata",
+    attributeNodes = {
+      @NamedAttributeNode(value = "id"),
+      @NamedAttributeNode(value = "name"),
+      @NamedAttributeNode(value = "size"),
+      @NamedAttributeNode(value = "contentType"),
+    })
+public class Attachment extends AuditEntity {
 
   @ManyToOne
   @JoinColumn(name = "negotiation_id")
   @Exclude
   Negotiation negotiation;
 
-  @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
-  @Column(name = "id")
-  private String id;
+  //  @Id
+  //  @GeneratedValue(generator = "uuid")
+  //  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  //  private String id;
 
   private String name;
 
-  //  private String hash;
-  //
-  //  private String size;
-  //
-  //  private String extension;
-  //
-  //  private String scope;
+  @Lob private byte[] payload;
+
+  private Long size;
+
+  private String contentType;
 }

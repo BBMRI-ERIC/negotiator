@@ -20,6 +20,11 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
     return SecurityContextHolder.getContext().getAuthentication().getName();
   }
 
+  public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
+  }
+
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -28,10 +33,5 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
             .findByAuthName(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
     return new HttpBasicUserDetails(person);
-  }
-
-  public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
   }
 }

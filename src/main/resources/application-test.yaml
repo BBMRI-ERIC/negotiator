@@ -4,6 +4,10 @@ spring:
     url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON;
     username: negotiator
     password: negotiator
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
   sql:
     init:
       mode: always
