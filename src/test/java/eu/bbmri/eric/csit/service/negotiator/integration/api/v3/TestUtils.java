@@ -217,7 +217,6 @@ public class TestUtils {
 
   public static PostCreateDTO createPostDTO(
       String resourceId, String text, PostStatus status, PostType type) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
     PostCreateDTO.PostCreateDTOBuilder builder =
         PostCreateDTO.builder().resourceId(resourceId).text(text).status(status).type(type);
     return builder.build();
@@ -225,7 +224,6 @@ public class TestUtils {
 
   public static Post createPost(
       Negotiation negotiation, Resource resource, String text, PostType type) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
     Post.PostBuilder builder =
         Post.builder().negotiation(negotiation).resource(resource).text(text).type(type);
     return builder.build();

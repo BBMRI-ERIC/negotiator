@@ -4,10 +4,10 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,14 +46,16 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   public AttachmentMetadataDTO findMetadataById(String id) {
     Attachment attachment =
-        attachmentRepository.findMetadataById(id).orElseThrow(EntityNotFoundException::new);
+        attachmentRepository
+            .findMetadataById(id)
+            .orElseThrow(() -> new EntityNotFoundException(id));
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
   @Override
   public AttachmentDTO findById(String id) {
     Attachment attachment =
-        attachmentRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return modelMapper.map(attachment, AttachmentDTO.class);
   }
 

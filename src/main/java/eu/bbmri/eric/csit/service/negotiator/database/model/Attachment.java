@@ -1,10 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
@@ -16,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 @ToString
 @Entity
@@ -41,14 +39,11 @@ public class Attachment extends AuditEntity {
   @Exclude
   Negotiation negotiation;
 
-  //  @Id
-  //  @GeneratedValue(generator = "uuid")
-  //  @GenericGenerator(name = "uuid", strategy = "uuid2")
-  //  private String id;
-
   private String name;
 
-  @Lob private byte[] payload;
+  @Type(type = "org.hibernate.type.BinaryType")
+  @Column(columnDefinition = "BYTEA")
+  private byte[] payload;
 
   private Long size;
 

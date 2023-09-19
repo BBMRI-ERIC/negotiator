@@ -23,10 +23,10 @@ public class AttachmentMapper {
     TypeMap<Attachment, AttachmentMetadataDTO> typeMapMetadata =
         modelMapper.createTypeMap(Attachment.class, AttachmentMetadataDTO.class);
 
-//    typeMapMetadata.addMappings(
-//        mapper ->
-//            mapper
-//                .using(personsRoleConverter)
-//                .map(Attachment::getId, AttachmentMetadataDTO::setUrl));
+    //    typeMapMetadata.addMappings(
+    //        mapper ->
+    //            mapper
+    //                .using(personsRoleConverter)
+    //                .map(Attachment::getId, AttachmentMetadataDTO::setUrl));
   }
 }
