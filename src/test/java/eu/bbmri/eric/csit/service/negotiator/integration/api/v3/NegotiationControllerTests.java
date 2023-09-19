@@ -49,7 +49,8 @@ public class NegotiationControllerTests {
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String NEGOTIATION_2_ID = "negotiation-2";
   private static final String NEGOTIATION_3_ID = "negotiation-3";
-
+  private static final String NEGOTIATION_1_CREATION_DATE = "2023-04-12T00:00:00";
+  private static final String NEGOTIATION_1_MODIFIED_DATE = "2023-04-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
@@ -147,7 +148,9 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id", is(NEGOTIATION_1_ID)));
+        .andExpect(jsonPath("$.id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$.creationDate", is(NEGOTIATION_1_CREATION_DATE)))
+        .andExpect(jsonPath("$.modifiedDate", is(NEGOTIATION_1_MODIFIED_DATE)));
   }
 
   @Test
