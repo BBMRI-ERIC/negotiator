@@ -67,7 +67,7 @@ public class PostServiceTest {
     Assertions.assertEquals(
         2,
         postService
-            .findByNegotiationId("negotiationId", Optional.empty(), Optional.empty())
+            .findByNegotiationId("negotiationId", null, null)
             .size());
   }
 
@@ -75,7 +75,7 @@ public class PostServiceTest {
   public void test_FindPostByNegotiationIdNoResults() {
     when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
     Assertions.assertEquals(
-        0, postService.findByNegotiationId("fakeId", Optional.empty(), Optional.empty()).size());
+        0, postService.findByNegotiationId("fakeId", null, null).size());
   }
 
   @Test
@@ -86,7 +86,7 @@ public class PostServiceTest {
         2,
         postService
             .findNewByNegotiationIdAndPosters(
-                "negotiationId", List.of("p1"), Optional.empty(), Optional.empty())
+                "negotiationId", List.of("p1"), null, null)
             .size());
   }
 
@@ -97,31 +97,24 @@ public class PostServiceTest {
     assertTrue(
         postService
             .findNewByNegotiationIdAndPosters(
-                "fakeID", Arrays.asList("fakep1", "fakeP2"), Optional.empty(), Optional.empty())
+                "fakeID", Arrays.asList("fakep1", "fakeP2"), null, null)
             .isEmpty());
   }
 
   @Test
   public void test_FindAllPrivatePosts() {
-    when(postRepository.findByNegotiationIdAndType("negotiationId", Optional.of(PostType.PRIVATE)))
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PRIVATE))
         .thenReturn(List.of(privatePost1, privatePost2));
     Assertions.assertEquals(
-        2,
-        postService
-            .findByNegotiationId("negotiationId", Optional.of(PostType.PRIVATE), Optional.empty())
-            .size());
+        2, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
   }
 
   @Test
   public void test_FindAllPrivatePostsByResource() {
     when(postRepository.findByNegotiationIdAndTypeAndResource(
-            "negotiationId", Optional.of(PostType.PRIVATE), Optional.of("resource1")))
+            "negotiationId", PostType.PRIVATE, "resource1"))
         .thenReturn(List.of(privatePost1));
     Assertions.assertEquals(
-        1,
-        postService
-            .findByNegotiationId(
-                "negotiationId", Optional.of(PostType.PRIVATE), Optional.of("resource1"))
-            .size());
+        1, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, "resource1").size());
   }
 }

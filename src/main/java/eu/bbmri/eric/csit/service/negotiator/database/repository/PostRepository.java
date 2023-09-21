@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import java.util.List;
@@ -26,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "JOIN FETCH p.negotiation n "
               + "WHERE n.id = :negotiationId and "
               + "p.type = :type ")
-  List<Post> findByNegotiationIdAndType(String negotiationId, Optional<PostType> type);
+  List<Post> findByNegotiationIdAndType(String negotiationId, PostType type);
 
   @Query(
       value =
@@ -45,7 +46,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "WHERE n.id = :negotiationId and "
               + "p.createdBy.authName in :posters and "
               + "p.status = 'CREATED' ")
-  List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List posters);
+  List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List<String> posters);
 
   @Query(
       value =
@@ -57,7 +58,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "p.status = 'CREATED' and "
               + "p.type = :type ")
   List<Post> findNewByNegotiationIdAndPostersAndType(
-      String negotiationId, List posters, Optional<PostType> type);
+      String negotiationId, List<String> posters, PostType type);
 
   @Query(
       value =
@@ -71,7 +72,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "p.type = :type and "
               + "r.sourceId = :resourceId")
   List<Post> findNewByNegotiationIdAndPostersAndTypeAndResource(
-      String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId);
+      String negotiationId, List<String> posters, PostType type, String resourceId);
 
   @Query(
       value =
@@ -83,5 +84,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "p.type = :type and "
               + "r.sourceId = :resourceId")
   List<Post> findByNegotiationIdAndTypeAndResource(
-      String negotiationId, Optional<PostType> type, Optional<String> resourceId);
+      String negotiationId, PostType type, String resourceId);
 }
