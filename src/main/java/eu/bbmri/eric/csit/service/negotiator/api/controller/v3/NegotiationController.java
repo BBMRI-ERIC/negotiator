@@ -98,7 +98,7 @@ public class NegotiationController {
               .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.ONGOING.name()))
               .toList();
     } else if (Objects.equals(userRole, "ADMIN")) {
-      if (isAdmin()) {
+      if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
         negotiations = negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED);
       } else {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -136,7 +136,7 @@ public class NegotiationController {
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
-    if (!isAdmin()) {
+    if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
@@ -210,7 +210,9 @@ public class NegotiationController {
   }
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
-    return isCreator(negotiationDTO) || isRepresentative(negotiationDTO) || isAdmin();
+    return isCreator(negotiationDTO)
+        || isRepresentative(negotiationDTO)
+        || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private String getUserId() {
@@ -232,11 +234,6 @@ public class NegotiationController {
       }
     }
     return false;
-  }
-
-  private boolean isAdmin() {
-    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ADMIN"));
   }
 
   private boolean isCreator(NegotiationDTO negotiationDTO) {

@@ -11,4 +11,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, String> 
 
   @EntityGraph(value = "attachment-metadata")
   Optional<Attachment> findMetadataById(String id);
+
+  //  @EntityGraph(value = "attachment-metadata")
+  //  Optional<Attachment> findMetadataById(String id);
 }

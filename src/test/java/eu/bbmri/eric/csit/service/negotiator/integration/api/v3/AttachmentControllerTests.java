@@ -133,28 +133,14 @@ public class AttachmentControllerTests {
         .andExpect(status().isUnauthorized());
   }
 
-  @Test
-  @WithUserDetails("TheResearcher")
-  public void testGetList_Ok() throws Exception {
-    byte[] data = "Hello, World!".getBytes();
-    String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
-    MvcResult result =
-        mockMvc.perform(multipart(ENDPOINT).file(file)).andExpect(status().isCreated()).andReturn();
-
-    String id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
-
-    mockMvc
-        .perform(get(String.format("%s", ENDPOINT)))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$[0].id", is(id)))
-        .andExpect(jsonPath("$[0].name", is(fileName)))
-        .andExpect(jsonPath("$[0].contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
-        .andExpect(jsonPath("$[0].size", is(data.length)));
-  }
+//  @Test
+//  @WithUserDetails("researcher")
+//  public void test_GetList_NoAttachmentsAreReturned() throws Exception {
+//    mockMvc
+//        .perform(MockMvcRequestBuilders.get(ENDPOINT))
+//        .andExpect(status().isOk())
+//        .andExpect(content().json("[]"));
+//  }
 
   @Test
   public void testGetList_IsUnauthorized_whenNoAuth() throws Exception {

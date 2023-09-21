@@ -16,13 +16,18 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
 
   @Autowired private PersonRepository personRepository;
 
-  public static String getCurrentlyAuthenticatedUserId() {
+  public static String getCurrentlyAuthenticatedUserName() {
     return SecurityContextHolder.getContext().getAuthentication().getName();
   }
 
   public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
+  }
+
+  public static boolean isCurrentlyAuthenticatedUserAdmin() {
+    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ADMIN"));
   }
 
   @Override

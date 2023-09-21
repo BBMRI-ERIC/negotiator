@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.attachments;
 
+import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,8 +19,6 @@ public class AttachmentDTO {
   String name;
 
   String contentType;
-
-  Long size;
 
   byte[] payload;
 }

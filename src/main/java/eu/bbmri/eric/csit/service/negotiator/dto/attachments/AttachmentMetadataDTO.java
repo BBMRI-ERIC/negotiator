@@ -21,5 +21,4 @@ public class AttachmentMetadataDTO {
 
   Long size;
 
-  //  String url;
 }
