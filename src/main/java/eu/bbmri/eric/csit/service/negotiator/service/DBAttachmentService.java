@@ -17,10 +17,12 @@ import java.util.List;
 import java.util.Objects;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service(value = "DefaultAttachmentService")
 public class DBAttachmentService implements AttachmentService {
@@ -39,30 +41,8 @@ public class DBAttachmentService implements AttachmentService {
     this.modelMapper = modelMapper;
   }
 
-  private AttachmentMetadataDTO saveAttachment(Attachment attachment) {
-    Attachment saved = attachmentRepository.save(attachment);
-    return modelMapper.map(saved, AttachmentMetadataDTO.class);
-  }
-
   @Override
-  public AttachmentMetadataDTO create(MultipartFile file) {
-    Attachment attachment;
-    try {
-      attachment =
-          Attachment.builder()
-              .name(file.getOriginalFilename())
-              .payload(file.getBytes())
-              .contentType(file.getContentType())
-              .size(file.getSize())
-              .build();
-      return saveAttachment(attachment);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public AttachmentMetadataDTO createForNegotiation(String negotiationId, MultipartFile file) {
+  public AttachmentMetadataDTO create(String negotiationId, MultipartFile file) {
     Attachment attachment;
     try {
       Negotiation negotiation =
@@ -99,7 +79,27 @@ public class DBAttachmentService implements AttachmentService {
   public AttachmentDTO findById(String id) {
     Attachment attachment =
         attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    if (!isAuthorizedForAttachment(attachment)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
     return modelMapper.map(attachment, AttachmentDTO.class);
+  }
+
+  @Override
+  public List<AttachmentMetadataDTO> findByNegotiation(String id) {
+    List<Attachment> attachments = attachmentRepository.findByNegotiation_Id(id);
+    return attachments.stream()
+        .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
+        .toList();
+  }
+
+  @Override
+  public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
+    Attachment attachment =
+        attachmentRepository
+            .findByIdAndNegotiation_Id(id, negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(id));
+    return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
   private boolean isCreator(Attachment attachment) {

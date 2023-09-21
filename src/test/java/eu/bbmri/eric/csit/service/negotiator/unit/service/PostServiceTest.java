@@ -63,18 +63,13 @@ public class PostServiceTest {
   public void test_FindPostByNegotiationId() {
     when(postRepository.findByNegotiationId("negotiationId"))
         .thenReturn(List.of(publicPost1, publicPost2));
-    Assertions.assertEquals(
-        2,
-        postService
-            .findByNegotiationId("negotiationId", null, null)
-            .size());
+    Assertions.assertEquals(2, postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
   @Test
   public void test_FindPostByNegotiationIdNoResults() {
     when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
-    Assertions.assertEquals(
-        0, postService.findByNegotiationId("fakeId", null, null).size());
+    Assertions.assertEquals(0, postService.findByNegotiationId("fakeId", null, null).size());
   }
 
   @Test
@@ -84,8 +79,7 @@ public class PostServiceTest {
     Assertions.assertEquals(
         2,
         postService
-            .findNewByNegotiationIdAndPosters(
-                "negotiationId", List.of("p1"), null, null)
+            .findNewByNegotiationIdAndPosters("negotiationId", List.of("p1"), null, null)
             .size());
   }
 

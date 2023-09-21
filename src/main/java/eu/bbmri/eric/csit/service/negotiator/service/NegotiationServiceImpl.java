@@ -96,10 +96,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     log.debug("Getting request entities");
 
     List<Request> requests = findRequests(negotiationBody.getRequests());
-    List<Attachment> attachments = null;
-    if (negotiationBody.getAttachments() != null) {
-      attachments = findAttachments(negotiationBody.getAttachments());
-    }
 
     // Check if any negotiationBody is already associated to a negotiation
     if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
@@ -118,14 +114,6 @@ public class NegotiationServiceImpl implements NegotiationService {
         request -> {
           request.setNegotiation(negotiationEntity);
         });
-
-    if (negotiationBody.getAttachments() != null) {
-      negotiationEntity.setAttachments(new HashSet<>(attachments));
-      attachments.forEach(
-          attachment -> {
-            attachment.setNegotiation(negotiationEntity);
-          });
-    }
 
     Negotiation savedNegotiation;
     try {
@@ -184,7 +172,10 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Transactional
   public NegotiationDTO addRequestToNegotiation(String negotiationId, String requestId) {
     Negotiation negotiationEntity = findEntityById(negotiationId, false);
-    Request requestEntity = requestRepository.getById(requestId);
+    Request requestEntity =
+        requestRepository
+            .findById(requestId)
+            .orElseThrow(() -> new EntityNotFoundException(requestId));
     negotiationEntity.getRequests().add(requestEntity);
     requestEntity.setNegotiation(negotiationEntity);
     try {
@@ -288,7 +279,10 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Transactional
   public void enablePosts(String negotiationId) {
-    Negotiation negotiation = negotiationRepository.findById(negotiationId).get();
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
     negotiation.setPostsEnabled(true);
     negotiationRepository.save(negotiation);
   }

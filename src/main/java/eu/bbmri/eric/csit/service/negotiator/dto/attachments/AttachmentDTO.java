@@ -19,5 +19,7 @@ public class AttachmentDTO {
 
   String contentType;
 
+  Long size;
+
   byte[] payload;
 }

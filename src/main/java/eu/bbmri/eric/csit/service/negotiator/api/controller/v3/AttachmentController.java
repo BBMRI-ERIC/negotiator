@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.AttachmentService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,22 +31,29 @@ public class AttachmentController {
   }
 
   @PostMapping(
-      value = "/attachments",
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.CREATED)
-  public AttachmentMetadataDTO create(@RequestParam("file") MultipartFile file) {
-    return storageService.create(file);
-  }
-
-  @PostMapping(
       value = "/negotiations/{negotiationId}/attachments",
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   public AttachmentMetadataDTO createForNegotiation(
       @PathVariable String negotiationId, @RequestParam("file") MultipartFile file) {
-    return storageService.createForNegotiation(negotiationId, file);
+    return storageService.create(negotiationId, file);
+  }
+
+  @GetMapping(
+      value = "/negotiations/{negotiationId}/attachments",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public List<AttachmentMetadataDTO> listByNegotiation(@PathVariable String negotiationId) {
+    return storageService.findByNegotiation(negotiationId);
+  }
+
+  @GetMapping(
+      value = "/negotiations/{negotiationId}/attachments/{attachmentId}",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public List<AttachmentMetadataDTO> getByNegotiationAndId(@PathVariable String negotiationId) {
+    return storageService.findByNegotiation(negotiationId);
   }
 
   @GetMapping(value = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
