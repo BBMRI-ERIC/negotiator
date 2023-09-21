@@ -9,6 +9,8 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.NegotiationModelMapper;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,6 +82,15 @@ public class NegotiationMapperTest {
     assertEquals(String.valueOf(1L), negotiationDTO.getPersons().iterator().next().getId());
   }
 
+  @Test
+  void map_creationDate_ok() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId("newNegotiation");
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals(
+        LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00), negotiationDTO.getCreationDate());
+  }
+
   private static Negotiation buildNegotiation() {
     Request request =
         Request.builder()
@@ -90,9 +101,14 @@ public class NegotiationMapperTest {
                         .dataSource(new DataSource())
                         .build()))
             .build();
-    return Negotiation.builder()
-        .requests(Set.of(request))
-        .currentState(NegotiationState.SUBMITTED)
-        .build();
+
+    Negotiation negotiation =
+        Negotiation.builder()
+            .requests(Set.of(request))
+            .currentState(NegotiationState.SUBMITTED)
+            .build();
+
+    negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
+    return negotiation;
   }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import java.time.LocalDateTime;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,4 +34,8 @@ public class NegotiationDTO {
   @NotNull private JsonNode resourceStatus;
 
   @NotNull private Boolean postsEnabled;
+
+  @NotNull private LocalDateTime creationDate;
+
+  @NotNull private LocalDateTime modifiedDate;
 }
