@@ -11,4 +11,5 @@ assignees: ''
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
 **Desired functionality acceptance criteria**
-A clear and concise description of scenarios relevant to the feature and what is the desired behavior.
+A clear and concise description of scenarios relevant to the feature and what is the desired
+behavior.

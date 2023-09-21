@@ -20,5 +20,4 @@ public class AttachmentMetadataDTO {
   String contentType;
 
   Long size;
-
 }

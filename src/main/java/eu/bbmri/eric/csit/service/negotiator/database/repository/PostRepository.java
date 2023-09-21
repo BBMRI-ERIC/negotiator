@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import java.util.List;

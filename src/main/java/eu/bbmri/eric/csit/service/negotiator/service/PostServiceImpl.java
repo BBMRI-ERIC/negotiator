@@ -88,7 +88,10 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findNewByNegotiationIdAndPosters(
-      String negotiationId, List<String> posters, @Nullable PostType type, @Nullable String resourceId) {
+      String negotiationId,
+      List<String> posters,
+      @Nullable PostType type,
+      @Nullable String resourceId) {
     List<Post> posts;
     if (type == null) {
       posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
