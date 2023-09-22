@@ -52,8 +52,9 @@ public class AttachmentController {
       value = "/negotiations/{negotiationId}/attachments/{attachmentId}",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public List<AttachmentMetadataDTO> getByNegotiationAndId(@PathVariable String negotiationId) {
-    return storageService.findByNegotiation(negotiationId);
+  public AttachmentMetadataDTO getByNegotiationAndId(
+      @PathVariable String negotiationId, @PathVariable String attachmentId) {
+    return storageService.findByIdAndNegotiation(attachmentId, negotiationId);
   }
 
   @GetMapping(value = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

@@ -6,6 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,7 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
 @CommonsLog
 public class AttachmentControllerTests {
 
-  private static final String ENDPOINT = "/v3/attachments";
+  private static final String ENDPOINT = "/v3/negotiations/negotiation-1/attachments";
   private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private ModelMapper modelMapper;
@@ -109,14 +110,20 @@ public class AttachmentControllerTests {
     mockMvc
         .perform(get(String.format("%s/%s", ENDPOINT, id)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
-        .andExpect(content().bytes(data));
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.name", is(fileName)))
+        .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
+        .andExpect(jsonPath("$.size", is((int) file.getSize())));
   }
 
   @Test
   @WithUserDetails("TheResearcher")
   public void testGetById_NotFound() throws Exception {
-    mockMvc.perform(get(String.format("%s/unknown", ENDPOINT))).andExpect(status().isNotFound());
+    mockMvc
+        .perform(get(String.format("%s/unknown", ENDPOINT)))
+        .andDo(print())
+        .andExpect(status().isNotFound());
   }
 
   @Test

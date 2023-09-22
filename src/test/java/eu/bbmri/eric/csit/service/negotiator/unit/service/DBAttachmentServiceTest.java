@@ -17,12 +17,10 @@ import eu.bbmri.eric.csit.service.negotiator.mappers.AttachmentMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.DBAttachmentService;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
@@ -69,6 +66,9 @@ public class DBAttachmentServiceTest {
     closeable.close();
   }
 
+  /**
+   * Tests a correct file upload.
+   */
   @Test
   public void test_UploadFile_OK() {
     byte[] data = "Hello, World!".getBytes();
@@ -97,6 +97,10 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(metadataDTO.getSize(), data.length);
   }
 
+  /**
+   * Tests that, in case the Negotiation of the attachment is not found, the attachment is not created and
+   * an appropriate Exception is thrown
+   */
   @Test
   public void test_UploadFile_NegotiationNotFound() {
     byte[] data = "Hello, World!".getBytes();
@@ -122,6 +126,10 @@ public class DBAttachmentServiceTest {
         });
   }
 
+  /**
+   * Tests that, in case an IOException is thrown, the attachment is not created and
+   * an appropriate Exception is thrown
+   */
   @Test
   public void test_UploadFile_FailWhenIOException() throws IOException {
     Negotiation negotiation = Negotiation.builder().build();
@@ -133,12 +141,13 @@ public class DBAttachmentServiceTest {
     Assertions.assertThrows(RuntimeException.class, () -> service.create("abcd", file));
   }
 
+  /**
+   * Tests a correct retrieval of the metadata of all the attachments belonging to a Negotiation
+   */
   @Test
   public void test_GetAllForNegotiation_OK() {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
-    MockMultipartFile file =
-        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
 
     Attachment attachment =
         Attachment.builder()
@@ -157,6 +166,10 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(attachments.get(0).getSize(), data.length);
   }
 
+  /**
+   * Tests a correct retrieval of the metadata of all the attachments belonging to a Negotiation in
+   * case of empty list
+   */
   @Test
   public void test_GetAllForNegotiation_EmptyList() {
     when(attachmentRepository.findByNegotiation_Id("abcd")).thenReturn(Collections.emptyList());
@@ -165,8 +178,11 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(attachments.size(), 0);
   }
 
+  /**
+   * Tests correct retrieval of an attachment's metadata by negotiation id and attachment id
+   */
   @Test
-  public void test_RetrieveByNegotiationAndId_OK() {
+  public void test_RetrieveByIdAndNegotiation_OK() {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
     Attachment attachment =
@@ -187,6 +203,9 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(attachments.getSize(), data.length);
   }
 
+  /**
+   * Tests failure of  attachment's retrieval in case one of negotiation id or attachment id is not found
+   */
   @Test
   public void test_RetrieveByNegotiationAndId_NotFound() {
     when(attachmentRepository.findByIdAndNegotiation_Id("attachment-id", "negotiation-id"))
@@ -198,17 +217,20 @@ public class DBAttachmentServiceTest {
   }
 
   private void setAuthenticationContext(
-      Person authenticatedUser, @Nullable Collection<SimpleGrantedAuthority> authorities) {
-    NegotiatorUserDetails userDetails = Mockito.mock(NegotiatorUserDetails.class);
+      Person authenticatedUser, @Nullable List<SimpleGrantedAuthority> authorities) {
+    NegotiatorUserDetails userDetails = mock(NegotiatorUserDetails.class);
     when(userDetails.getPerson()).thenReturn(authenticatedUser);
-    Authentication authentication = Mockito.mock(Authentication.class);
+    Authentication authentication = mock(Authentication.class);
     when(authentication.getPrincipal()).thenReturn(userDetails);
 
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-    Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+    SecurityContext securityContext = mock(SecurityContext.class);
+    when(securityContext.getAuthentication()).thenReturn(authentication);
     SecurityContextHolder.setContext(securityContext);
   }
 
+  /**
+   * Test correct download of an attachment when the creator of the attachment is authenticated user
+   */
   @Test
   public void test_DownloadById_Ok_WhenCreatorIsTheAuthenticatedUser() {
     Person authenticatedUser = mock(Person.class);
@@ -236,36 +258,46 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(Arrays.toString(attachmentDTO.getPayload()), Arrays.toString(data));
   }
 
-  //  @Test
-  //  public void test_DownloadById_Ok_WhenAuthenticatedUserIsAdmin() {
-  //    Person authenticatedUser = mock(Person.class);
-  //    when(authenticatedUser.getId()).thenReturn(2L);
-  //    Collection<SimpleGrantedAuthority> authorities = Set.of(new
-  // SimpleGrantedAuthority("ADMIN"));
-  //    setAuthenticationContext(authenticatedUser, authorities);
-  //
-  //    Person owner = mock(Person.class);
-  //    when(owner.getId()).thenReturn(1L);
-  //    byte[] data = "Hello, World!".getBytes();
-  //    String fileName = "text.txt";
-  //    Attachment attachment =
-  //        Attachment.builder()
-  //            .name(fileName)
-  //            .payload(data)
-  //            .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  //            .size((long) data.length)
-  //            .build();
-  //    attachment.setCreatedBy(owner);
-  //
-  //    when(attachmentRepository.findById("attachment-id")).thenReturn(Optional.of(attachment));
-  //
-  //    AttachmentDTO attachmentDTO = service.findById("attachment-id");
-  //    Assertions.assertEquals(attachmentDTO.getName(), fileName);
-  //    Assertions.assertEquals(
-  //        attachmentDTO.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
-  //    Assertions.assertEquals(attachmentDTO.getSize(), attachment.getSize());
-  //    Assertions.assertEquals(Arrays.toString(attachmentDTO.getPayload()), Arrays.toString(data));
-  //  }
+  /**
+   * Test correct download of an attachment when the creator of the negotiation is the authenticated user
+   * even if he is different then the attachment's owner
+   */
+  @Test
+  public void test_DownloadById_Ok_WhenNegotiationCreatorIsAuthenticatedUser() {
+    Person authenticatedUser = mock(Person.class);
+    when(authenticatedUser.getId()).thenReturn(2L);
+    setAuthenticationContext(authenticatedUser, null);
+
+
+    Person attachmentOwner = mock(Person.class);
+    when(attachmentOwner.getId()).thenReturn(1L);
+    setAuthenticationContext(attachmentOwner, null);
+
+    Negotiation negotiation = mock(Negotiation.class);
+    when(negotiation.getCreatedBy()).thenReturn(authenticatedUser);
+
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    Attachment attachment =
+        Attachment.builder()
+            .name(fileName)
+            .payload(data)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .size((long) data.length)
+            .negotiation(negotiation)
+            .build();
+    attachment.setCreatedBy(attachmentOwner);
+
+    when(attachmentRepository.findById("attachment-id")).thenReturn(Optional.of(attachment));
+
+    AttachmentDTO attachmentDTO = service.findById("attachment-id");
+    Assertions.assertEquals(attachmentDTO.getName(), fileName);
+    Assertions.assertEquals(
+        attachmentDTO.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    Assertions.assertEquals(attachmentDTO.getSize(), attachment.getSize());
+    Assertions.assertEquals(Arrays.toString(attachmentDTO.getPayload()), Arrays.toString(data));
+  }
+
 
   /**
    * Test that, if the creator of the attachment is not the authenticated person, it fails with
