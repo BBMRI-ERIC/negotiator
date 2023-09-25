@@ -36,7 +36,9 @@ import org.springframework.web.context.WebApplicationContext;
 @CommonsLog
 public class AttachmentControllerTests {
 
-  private static final String ENDPOINT = "/v3/negotiations/negotiation-1/attachments";
+  private static final String WITH_NEGOTIATIONS_ENDPOINT =
+      "/v3/negotiations/negotiation-1/attachments";
+  private static final String WITHOUT_NEGOTIATIONS_ENDPOINT = "/v3/attachments";
   private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private ModelMapper modelMapper;
@@ -55,14 +57,14 @@ public class AttachmentControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  public void test_Create_Ok() throws Exception {
+  public void test_CreateForNegotiation_Ok() throws Exception {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
     MockMultipartFile file =
         new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
 
     mockMvc
-        .perform(multipart(ENDPOINT).file(file))
+        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
@@ -72,26 +74,74 @@ public class AttachmentControllerTests {
   }
 
   @Test
-  public void testCreate_IsUnauthorized_whenNoAuth() throws Exception {
+  public void testCreateWithoutNegotiation_IsUnauthorized_whenNoAuth() throws Exception {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
     MockMultipartFile file =
         new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
 
     mockMvc
-        .perform(multipart(ENDPOINT).file(file).with(anonymous()))
+        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file).with(anonymous()))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
-  public void testCreate_IsUnauthorized_whenBasicAuth() throws Exception {
+  public void testCreateWithoutNegotiation_IsUnauthorized_whenBasicAuth() throws Exception {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
     MockMultipartFile file =
         new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
 
     mockMvc
-        .perform(multipart(ENDPOINT).file(file).with(httpBasic("researcher", "wrong_pass")))
+        .perform(
+            multipart(WITH_NEGOTIATIONS_ENDPOINT)
+                .file(file)
+                .with(httpBasic("researcher", "wrong_pass")))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void test_CreateWithoutNegotiation_Ok() throws Exception {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    mockMvc
+        .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.name", is(fileName)))
+        .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
+        .andExpect(jsonPath("$.size", is(data.length)));
+  }
+
+  @Test
+  public void testCreateForNegotiation_IsUnauthorized_whenNoAuth() throws Exception {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    mockMvc
+        .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file).with(anonymous()))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  public void testCreateForNegotiation_IsUnauthorized_whenBasicAuth() throws Exception {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    mockMvc
+        .perform(
+            multipart(WITHOUT_NEGOTIATIONS_ENDPOINT)
+                .file(file)
+                .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
   }
 
@@ -104,11 +154,14 @@ public class AttachmentControllerTests {
         new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
 
     MvcResult result =
-        mockMvc.perform(multipart(ENDPOINT).file(file)).andExpect(status().isCreated()).andReturn();
+        mockMvc
+            .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+            .andExpect(status().isCreated())
+            .andReturn();
 
     String id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     mockMvc
-        .perform(get(String.format("%s/%s", ENDPOINT, id)))
+        .perform(get(String.format("%s/%s", WITH_NEGOTIATIONS_ENDPOINT, id)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
@@ -121,7 +174,7 @@ public class AttachmentControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetById_NotFound() throws Exception {
     mockMvc
-        .perform(get(String.format("%s/unknown", ENDPOINT)))
+        .perform(get(String.format("%s/unknown", WITH_NEGOTIATIONS_ENDPOINT)))
         .andDo(print())
         .andExpect(status().isNotFound());
   }
@@ -129,14 +182,16 @@ public class AttachmentControllerTests {
   @Test
   public void testGetById_IsUnauthorized_whenNoAuth() throws Exception {
     mockMvc
-        .perform(get(String.format("%s/1", ENDPOINT)).with(anonymous()))
+        .perform(get(String.format("%s/1", WITH_NEGOTIATIONS_ENDPOINT)).with(anonymous()))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   public void testGetById_IsUnauthorized_whenBasicAuth() throws Exception {
     mockMvc
-        .perform(get(String.format("%s/1", ENDPOINT)).with(httpBasic("researcher", "wrong_pass")))
+        .perform(
+            get(String.format("%s/1", WITH_NEGOTIATIONS_ENDPOINT))
+                .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
   }
 
@@ -152,14 +207,16 @@ public class AttachmentControllerTests {
   @Test
   public void testGetList_IsUnauthorized_whenNoAuth() throws Exception {
     mockMvc
-        .perform(get(String.format("%s", ENDPOINT)).with(anonymous()))
+        .perform(get(String.format("%s", WITH_NEGOTIATIONS_ENDPOINT)).with(anonymous()))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   public void testGetList_IsUnauthorized_whenBasicAuth() throws Exception {
     mockMvc
-        .perform(get(String.format("%s", ENDPOINT)).with(httpBasic("researcher", "wrong_pass")))
+        .perform(
+            get(String.format("%s", WITH_NEGOTIATIONS_ENDPOINT))
+                .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
   }
 }

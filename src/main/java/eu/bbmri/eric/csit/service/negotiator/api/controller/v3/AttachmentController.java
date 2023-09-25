@@ -37,7 +37,7 @@ public class AttachmentController {
   @ResponseStatus(HttpStatus.CREATED)
   public AttachmentMetadataDTO createForNegotiation(
       @PathVariable String negotiationId, @RequestParam("file") MultipartFile file) {
-    return storageService.create(negotiationId, file);
+    return storageService.createForNegotiation(negotiationId, file);
   }
 
   @GetMapping(
@@ -55,6 +55,15 @@ public class AttachmentController {
   public AttachmentMetadataDTO getByNegotiationAndId(
       @PathVariable String negotiationId, @PathVariable String attachmentId) {
     return storageService.findByIdAndNegotiation(attachmentId, negotiationId);
+  }
+
+  @PostMapping(
+      value = "/attachments",
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  public AttachmentMetadataDTO create(@RequestParam("file") MultipartFile file) {
+    return storageService.create(file);
   }
 
   @GetMapping(value = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

@@ -65,10 +65,15 @@ public class OAuthSecurityConfig {
         .headers()
         .frameOptions()
         .disable();
+
     http.authorizeHttpRequests()
         .antMatchers(HttpMethod.GET, "/v3/negotiations/lifecycle")
         .permitAll()
         .antMatchers("/v3/negotiations/*/attachments/*")
+        .authenticated()
+        .and()
+        .authorizeHttpRequests()
+        .antMatchers("/v3/attachments/**")
         .authenticated()
         .and()
         .authorizeHttpRequests()

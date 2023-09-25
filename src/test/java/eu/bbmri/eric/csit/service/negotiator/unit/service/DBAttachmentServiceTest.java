@@ -32,10 +32,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
-import org.springframework.lang.Nullable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,11 +64,9 @@ public class DBAttachmentServiceTest {
     closeable.close();
   }
 
-  /**
-   * Tests a correct file upload.
-   */
+  /** Tests a correct file upload. */
   @Test
-  public void test_UploadFile_OK() {
+  public void test_UploadFileForNegotiation_OK() {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
     MockMultipartFile file =
@@ -91,18 +87,18 @@ public class DBAttachmentServiceTest {
         .thenReturn(attachment);
     when(negotiationRepository.findById("abcd")).thenReturn(Optional.of(negotiation));
 
-    AttachmentMetadataDTO metadataDTO = service.create("abcd", file);
+    AttachmentMetadataDTO metadataDTO = service.createForNegotiation("abcd", file);
     Assertions.assertEquals(metadataDTO.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
     Assertions.assertEquals(metadataDTO.getName(), fileName);
     Assertions.assertEquals(metadataDTO.getSize(), data.length);
   }
 
   /**
-   * Tests that, in case the Negotiation of the attachment is not found, the attachment is not created and
-   * an appropriate Exception is thrown
+   * Tests that, in case the Negotiation of the attachment is not found, the attachment is not
+   * created and an appropriate Exception is thrown
    */
   @Test
-  public void test_UploadFile_NegotiationNotFound() {
+  public void test_UploadFileForNegotiation_NegotiationNotFound() {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
     MockMultipartFile file =
@@ -122,13 +118,13 @@ public class DBAttachmentServiceTest {
     Assertions.assertThrows(
         EntityNotFoundException.class,
         () -> {
-          service.create("abcd", file);
+          service.createForNegotiation("abcd", file);
         });
   }
 
   /**
-   * Tests that, in case an IOException is thrown, the attachment is not created and
-   * an appropriate Exception is thrown
+   * Tests that, in case an IOException is thrown, the attachment is not created and an appropriate
+   * Exception is thrown
    */
   @Test
   public void test_UploadFile_FailWhenIOException() throws IOException {
@@ -138,12 +134,36 @@ public class DBAttachmentServiceTest {
     MultipartFile file = mock(MultipartFile.class);
     when(file.getBytes()).thenThrow(IOException.class);
 
-    Assertions.assertThrows(RuntimeException.class, () -> service.create("abcd", file));
+    Assertions.assertThrows(
+        RuntimeException.class, () -> service.createForNegotiation("abcd", file));
   }
 
-  /**
-   * Tests a correct retrieval of the metadata of all the attachments belonging to a Negotiation
-   */
+  /** Tests a correct file upload. */
+  @Test
+  public void test_UploadFileWithoutNegotiation_OK() {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    Attachment attachment =
+        Attachment.builder()
+            .name(fileName)
+            .payload(data)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .size((long) data.length)
+            .build();
+
+    when(attachmentRepository.save(argThat(f -> Objects.equals(f.getName(), fileName))))
+        .thenReturn(attachment);
+
+    AttachmentMetadataDTO metadataDTO = service.create(file);
+    Assertions.assertEquals(metadataDTO.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    Assertions.assertEquals(metadataDTO.getName(), fileName);
+    Assertions.assertEquals(metadataDTO.getSize(), data.length);
+  }
+
+  /** Tests a correct retrieval of the metadata of all the attachments belonging to a Negotiation */
   @Test
   public void test_GetAllForNegotiation_OK() {
     byte[] data = "Hello, World!".getBytes();
@@ -178,9 +198,7 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(attachments.size(), 0);
   }
 
-  /**
-   * Tests correct retrieval of an attachment's metadata by negotiation id and attachment id
-   */
+  /** Tests correct retrieval of an attachment's metadata by negotiation id and attachment id */
   @Test
   public void test_RetrieveByIdAndNegotiation_OK() {
     byte[] data = "Hello, World!".getBytes();
@@ -204,7 +222,8 @@ public class DBAttachmentServiceTest {
   }
 
   /**
-   * Tests failure of  attachment's retrieval in case one of negotiation id or attachment id is not found
+   * Tests failure of attachment's retrieval in case one of negotiation id or attachment id is not
+   * found
    */
   @Test
   public void test_RetrieveByNegotiationAndId_NotFound() {
@@ -216,8 +235,7 @@ public class DBAttachmentServiceTest {
         () -> service.findByIdAndNegotiation("attachment-id", "negotiation-id"));
   }
 
-  private void setAuthenticationContext(
-      Person authenticatedUser, @Nullable List<SimpleGrantedAuthority> authorities) {
+  private void setAuthenticationContext(Person authenticatedUser) {
     NegotiatorUserDetails userDetails = mock(NegotiatorUserDetails.class);
     when(userDetails.getPerson()).thenReturn(authenticatedUser);
     Authentication authentication = mock(Authentication.class);
@@ -235,7 +253,7 @@ public class DBAttachmentServiceTest {
   public void test_DownloadById_Ok_WhenCreatorIsTheAuthenticatedUser() {
     Person authenticatedUser = mock(Person.class);
     when(authenticatedUser.getId()).thenReturn(2L);
-    setAuthenticationContext(authenticatedUser, null);
+    setAuthenticationContext(authenticatedUser);
 
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
@@ -259,19 +277,18 @@ public class DBAttachmentServiceTest {
   }
 
   /**
-   * Test correct download of an attachment when the creator of the negotiation is the authenticated user
-   * even if he is different then the attachment's owner
+   * Test correct download of an attachment when the creator of the negotiation is the authenticated
+   * user even if he is different then the attachment's owner
    */
   @Test
   public void test_DownloadById_Ok_WhenNegotiationCreatorIsAuthenticatedUser() {
     Person authenticatedUser = mock(Person.class);
     when(authenticatedUser.getId()).thenReturn(2L);
-    setAuthenticationContext(authenticatedUser, null);
-
+    setAuthenticationContext(authenticatedUser);
 
     Person attachmentOwner = mock(Person.class);
     when(attachmentOwner.getId()).thenReturn(1L);
-    setAuthenticationContext(attachmentOwner, null);
+    setAuthenticationContext(attachmentOwner);
 
     Negotiation negotiation = mock(Negotiation.class);
     when(negotiation.getCreatedBy()).thenReturn(authenticatedUser);
@@ -298,7 +315,6 @@ public class DBAttachmentServiceTest {
     Assertions.assertEquals(Arrays.toString(attachmentDTO.getPayload()), Arrays.toString(data));
   }
 
-
   /**
    * Test that, if the creator of the attachment is not the authenticated person, it fails with
    * forbidden
@@ -307,7 +323,7 @@ public class DBAttachmentServiceTest {
   public void test_DownloadById_Forbidden() {
     Person authenticatedUser = mock(Person.class);
     when(authenticatedUser.getId()).thenReturn(2L);
-    setAuthenticationContext(authenticatedUser, null);
+    setAuthenticationContext(authenticatedUser);
 
     Person owner = mock(Person.class);
     when(owner.getId()).thenReturn(1L);

@@ -42,7 +42,7 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Override
-  public AttachmentMetadataDTO create(String negotiationId, MultipartFile file) {
+  public AttachmentMetadataDTO createForNegotiation(String negotiationId, MultipartFile file) {
     Attachment attachment;
     try {
       Negotiation negotiation =
@@ -57,6 +57,25 @@ public class DBAttachmentService implements AttachmentService {
               .contentType(file.getContentType())
               .size(file.getSize())
               .negotiation(negotiation)
+              .build();
+
+      Attachment saved = attachmentRepository.save(attachment);
+      return modelMapper.map(saved, AttachmentMetadataDTO.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public AttachmentMetadataDTO create(MultipartFile file) {
+    Attachment attachment;
+    try {
+      attachment =
+          Attachment.builder()
+              .name(file.getOriginalFilename())
+              .payload(file.getBytes())
+              .contentType(file.getContentType())
+              .size(file.getSize())
               .build();
 
       Attachment saved = attachmentRepository.save(attachment);

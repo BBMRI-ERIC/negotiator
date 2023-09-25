@@ -7,7 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface AttachmentService {
 
-  AttachmentMetadataDTO create(String negotiationId, MultipartFile file);
+  AttachmentMetadataDTO create(MultipartFile file);
+
+  AttachmentMetadataDTO createForNegotiation(String negotiationId, MultipartFile file);
 
   AttachmentMetadataDTO findMetadataById(String id);
 

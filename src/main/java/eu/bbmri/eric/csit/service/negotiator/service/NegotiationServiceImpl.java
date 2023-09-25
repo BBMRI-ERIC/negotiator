@@ -12,7 +12,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
-import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -51,10 +51,10 @@ public class NegotiationServiceImpl implements NegotiationService {
     return entities;
   }
 
-  private List<Attachment> findAttachments(Set<AttachmentDTO> attachmentDTOs) {
+  private List<Attachment> findAttachments(Set<AttachmentMetadataDTO> attachmentDTOs) {
     List<Attachment> entities =
         attachmentRepository.findAllById(
-            attachmentDTOs.stream().map(AttachmentDTO::getId).collect(Collectors.toList()));
+            attachmentDTOs.stream().map(AttachmentMetadataDTO::getId).collect(Collectors.toList()));
     if (entities.size() < attachmentDTOs.size()) {
       throw new WrongRequestException("One or more of the specified attachments do not exist");
     }
@@ -96,6 +96,14 @@ public class NegotiationServiceImpl implements NegotiationService {
     log.debug("Getting request entities");
 
     List<Request> requests = findRequests(negotiationBody.getRequests());
+    if (negotiationBody.getAttachments() != null) {
+      List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
+      negotiationEntity.setAttachments(new HashSet<>(attachments));
+      attachments.forEach(
+          attachment -> {
+            attachment.setNegotiation(negotiationEntity);
+          });
+    }
 
     // Check if any negotiationBody is already associated to a negotiation
     if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
