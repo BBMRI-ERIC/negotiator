@@ -358,37 +358,4 @@ public class DBAttachmentServiceTest {
     when(attachmentRepository.findById("abcd")).thenReturn(Optional.empty());
     Assert.assertThrows(EntityNotFoundException.class, () -> service.findById("abcd"));
   }
-
-  //  /**
-  //   * Tests a correct file retrieval. Check that the returned DTO contains the correct
-  // information,
-  //   * included the payload
-  //   */
-  //  @Test
-  //  @WithUserDetails("TheResearcher")
-  //  public void test_findById_Ok() {
-  //    byte[] data = "Hello, World!".getBytes();
-  //    String fileName = "text.txt";
-  //    Attachment attachment =
-  //        Attachment.builder()
-  //            .name(fileName)
-  //            .payload(data)
-  //            .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  //            .size((long) data.length)
-  //            .build();
-  //    Person person = Person.builder()
-  //        .id(104L)
-  //        .authName("TheResearcher")
-  //        .authSubject("researcher")
-  //        .authEmail("researcher@negotiator.dev")
-  //        .build();
-  //    attachment.setCreatedBy(person);
-  //
-  //    when(attachmentRepository.findById("abcd")).thenReturn(Optional.of(attachment));
-  //    AttachmentDTO attachmentDTO = service.findById("abcd");
-  //    Assertions.assertEquals(attachmentDTO.getName(), fileName);
-  //    Assertions.assertEquals(
-  //        attachmentDTO.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
-  //    Assertions.assertEquals(Arrays.toString(attachmentDTO.getPayload()), Arrays.toString(data));
-  //  }
 }
