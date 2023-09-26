@@ -40,6 +40,7 @@ public class DataSource extends BaseEntity {
   @NotNull private Boolean syncActive;
 
   private String sourcePrefix;
+
   //  @OneToMany(mappedBy = "dataSource")
   //  private Set<User> users;
 

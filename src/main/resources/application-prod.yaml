@@ -4,6 +4,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/negotiator
     username: negotiator
     password: negotiator
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
   sql:
     init:
       mode: always

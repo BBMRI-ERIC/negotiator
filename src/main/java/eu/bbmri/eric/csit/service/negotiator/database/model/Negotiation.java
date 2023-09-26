@@ -41,9 +41,11 @@ import org.hibernate.annotations.TypeDef;
     })
 public class Negotiation extends AuditEntity {
 
-  @ManyToMany(mappedBy = "negotiations")
-  @Exclude
-  Set<Attachment> attachments;
+  @OneToMany(
+      mappedBy = "negotiation",
+      cascade = {CascadeType.MERGE},
+      fetch = FetchType.LAZY)
+  private Set<Attachment> attachments;
 
   @OneToMany(
       mappedBy = "negotiation",
@@ -86,15 +88,6 @@ public class Negotiation extends AuditEntity {
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
 
-  public void setCurrentState(NegotiationState negotiationState) {
-    this.currentState = negotiationState;
-    this.lifecycleHistory.add(
-        NegotiationLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
-            .changedTo(currentState)
-            .build());
-  }
-
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
     history.add(
@@ -103,6 +96,15 @@ public class Negotiation extends AuditEntity {
             .changedTo(NegotiationState.SUBMITTED)
             .build());
     return history;
+  }
+
+  public void setCurrentState(NegotiationState negotiationState) {
+    this.currentState = negotiationState;
+    this.lifecycleHistory.add(
+        NegotiationLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(currentState)
+            .build());
   }
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {

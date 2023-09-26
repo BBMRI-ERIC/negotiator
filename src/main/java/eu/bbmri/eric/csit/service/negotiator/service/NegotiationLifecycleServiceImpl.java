@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 @NoArgsConstructor
 public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleService {
 
+  @Autowired NegotiationRepository negotiationRepository;
+
   @Autowired
   @Qualifier("persistHandler")
   private PersistStateMachineHandler persistStateMachineHandler;
@@ -30,8 +32,6 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   @Autowired
   @Qualifier("negotiationStateMachine")
   private StateMachine<String, String> stateMachine;
-
-  @Autowired NegotiationRepository negotiationRepository;
 
   @Override
   public Set<NegotiationEvent> getPossibleEvents(String negotiationId)

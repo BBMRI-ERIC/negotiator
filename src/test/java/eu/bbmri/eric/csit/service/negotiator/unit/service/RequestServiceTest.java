@@ -40,12 +40,23 @@ public class RequestServiceTest {
   @Mock DataSourceRepository dataSourceRepository;
 
   @Spy ModelMapper modelMapper = new ModelMapper();
+
   @InjectMocks RequestService requestService = new RequestServiceImpl();
 
   @InjectMocks
   RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
 
   @InjectMocks ResourceModelMapper resourceModelMapper;
+
+  private static RequestCreateDTO buildRequestCreateDTO() {
+    ResourceDTO resourceDTO =
+        ResourceDTO.builder().id("test:collection").name("My collection").build();
+    return RequestCreateDTO.builder()
+        .url("https://directory.com")
+        .humanReadable("I want everything")
+        .resources(Set.of(resourceDTO))
+        .build();
+  }
 
   @BeforeEach
   void before() {
@@ -68,16 +79,6 @@ public class RequestServiceTest {
     request.setId("newRequest");
     when(requestRepository.findDetailedById("newRequest")).thenReturn(Optional.of(request));
     assertEquals(request.getId(), requestService.findById(request.getId()).getId());
-  }
-
-  private static RequestCreateDTO buildRequestCreateDTO() {
-    ResourceDTO resourceDTO =
-        ResourceDTO.builder().id("test:collection").name("My collection").build();
-    return RequestCreateDTO.builder()
-        .url("https://directory.com")
-        .humanReadable("I want everything")
-        .resources(Set.of(resourceDTO))
-        .build();
   }
 
   @Test

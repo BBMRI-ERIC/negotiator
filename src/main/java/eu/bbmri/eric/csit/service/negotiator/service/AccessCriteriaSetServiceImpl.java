@@ -4,7 +4,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.AccessCriteriaSet;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AccessCriteriaSetRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
-import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +23,11 @@ public class AccessCriteriaSetServiceImpl implements AccessCriteriaSetService {
 
   @Transactional
   public AccessCriteriaSetDTO findByResourceId(String resourceEntityId) {
-    Optional<AccessCriteriaSet> acs =
-        accessCriteriaSetRepository.findByResourceId(resourceEntityId);
-    acs.orElseThrow(() -> new EntityNotFoundException(resourceEntityId));
+    AccessCriteriaSet acs =
+        accessCriteriaSetRepository
+            .findByResourceId(resourceEntityId)
+            .orElseThrow(() -> new EntityNotFoundException(resourceEntityId));
+
     return modelMapper.map(acs, AccessCriteriaSetDTO.class);
   }
 }

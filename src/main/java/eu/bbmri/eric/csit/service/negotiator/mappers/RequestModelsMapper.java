@@ -21,9 +21,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RequestModelsMapper {
 
-  @Autowired ModelMapper modelMapper;
-
   private final String frontendUrl;
+  @Autowired ModelMapper modelMapper;
 
   public RequestModelsMapper(@Value("${negotiator.frontend-url}") String frontendUrl) {
     if (frontendUrl.endsWith("/")) {

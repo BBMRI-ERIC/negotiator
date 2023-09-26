@@ -1,9 +1,13 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
+    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
     username: negotiator
     password: negotiator
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
   sql:
     init:
       mode: always
@@ -25,7 +29,6 @@ spring:
       hibernate:
         enable_lazy_load_no_trans: true
         dialect: org.hibernate.dialect.H2Dialect
-
   jackson:
     date-format: "yyyy-MM-dd"
   security:

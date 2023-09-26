@@ -1,78 +1,51 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.Type;
 
 @ToString
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Getter
 @Setter
 @Table(name = "attachment")
+@NamedEntityGraph(
+    name = "attachment-metadata",
+    attributeNodes = {
+      @NamedAttributeNode(value = "id"),
+      @NamedAttributeNode(value = "name"),
+      @NamedAttributeNode(value = "size"),
+      @NamedAttributeNode(value = "contentType"),
+    })
 public class Attachment extends AuditEntity {
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_post_link",
-      joinColumns = @JoinColumn(name = "post_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
+  @ManyToOne
+  @JoinColumn(name = "negotiation_id")
   @Exclude
-  Set<Post> posts;
+  Negotiation negotiation;
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_project_link",
-      joinColumns = @JoinColumn(name = "project_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  @Exclude
-  Set<Project> projects;
+  private String name;
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_request_link",
-      joinColumns = @JoinColumn(name = "request_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  @Exclude
-  Set<Negotiation> negotiations;
+  @Type(type = "org.hibernate.type.BinaryType")
+  @Column(columnDefinition = "BYTEA")
+  private byte[] payload;
 
-  @ManyToMany
-  @JoinTable(
-      name = "attachment_private_post_link",
-      joinColumns = @JoinColumn(name = "post_id"),
-      inverseJoinColumns = @JoinColumn(name = "attachment_id"))
-  @Exclude
-  Set<Post> Posts;
+  private Long size;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", insertable = false, updatable = false)
-  @Exclude
-  private Person createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "modified_by", insertable = false, updatable = false)
-  @Exclude
-  private Person modifiedBy;
-
-  private String fileName;
-
-  private String fileHash;
-
-  private String fileSize;
-
-  private String fileExtension;
-
-  private String attachmentScope;
+  private String contentType;
 }

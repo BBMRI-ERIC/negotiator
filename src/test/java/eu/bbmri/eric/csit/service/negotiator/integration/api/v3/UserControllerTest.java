@@ -25,9 +25,8 @@ import org.springframework.web.context.WebApplicationContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @CommonsLog
 public class UserControllerTest {
-  @Autowired private WebApplicationContext context;
-
   private static final String ROLES_ENDPOINT = "/v3/users/roles";
+  @Autowired private WebApplicationContext context;
   private MockMvc mockMvc;
 
   @BeforeEach

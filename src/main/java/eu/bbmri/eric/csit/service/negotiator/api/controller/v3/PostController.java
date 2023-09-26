@@ -8,9 +8,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PostService;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,19 +49,19 @@ public class PostController {
   @GetMapping("/negotiations/{negotiationId}/posts")
   List<PostDTO> getAllMessagesByNegotiation(
       @Valid @PathVariable String negotiationId,
-      @RequestParam("role") Optional<String> roleName,
-      @RequestParam("type") Optional<PostType> type,
-      @RequestParam("resource") Optional<String> resource) {
-    if (roleName.isEmpty()) {
+      @RequestParam(value = "role", required = false) String roleName,
+      @RequestParam(value = "type", required = false) PostType type,
+      @RequestParam(value = "resource", required = false) String resource) {
+    if (roleName == null || roleName.isEmpty()) {
       return postService.findByNegotiationId(negotiationId, type, resource);
     }
     NegotiationDTO n = negotiationService.findById(negotiationId, true);
+
     List<PersonRoleDTO> negotiationPersonsWithRoles =
-        n.getPersons().stream().filter(p -> p.getRole().equals(roleName.get())).toList();
-    List<String> posters = new ArrayList<>();
-    for (PersonRoleDTO pr : negotiationPersonsWithRoles) {
-      posters.add(pr.getName());
-    }
+        n.getPersons().stream().filter(p -> p.getRole().equals(roleName)).toList();
+    List<String> posters =
+        negotiationPersonsWithRoles.stream().map(PersonRoleDTO::getName).toList();
+
     return postService.findNewByNegotiationIdAndPosters(negotiationId, posters, type, resource);
   }
 

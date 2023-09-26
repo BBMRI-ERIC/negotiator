@@ -1,13 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -27,10 +25,10 @@ import lombok.ToString.Exclude;
 @Builder
 @Table(name = "post")
 public class Post extends AuditEntity {
-
-  @ManyToMany(mappedBy = "posts")
-  @Exclude
-  Set<Attachment> attachments;
+  //
+  //  @ManyToMany(mappedBy = "posts")
+  //  @Exclude
+  //  Set<Attachment> attachments;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")

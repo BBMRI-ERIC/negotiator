@@ -16,13 +16,13 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,11 +72,11 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(
-      String negotiationId, Optional<PostType> type, Optional<String> resourceId) {
+      String negotiationId, @Nullable PostType type, @Nullable String resourceId) {
     List<Post> posts;
-    if (type.isEmpty()) {
+    if (type == null) {
       posts = postRepository.findByNegotiationId(negotiationId);
-    } else if (resourceId.isEmpty()) {
+    } else if (resourceId == null || resourceId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
     } else {
       posts = postRepository.findByNegotiationIdAndTypeAndResource(negotiationId, type, resourceId);
@@ -88,11 +88,14 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findNewByNegotiationIdAndPosters(
-      String negotiationId, List posters, Optional<PostType> type, Optional<String> resourceId) {
+      String negotiationId,
+      List<String> posters,
+      @Nullable PostType type,
+      @Nullable String resourceId) {
     List<Post> posts;
-    if (type.isEmpty()) {
+    if (type == null) {
       posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
-    } else if (resourceId.isEmpty()) {
+    } else if (resourceId == null || resourceId.isEmpty()) {
       posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
     } else {
       posts =
@@ -106,7 +109,6 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
-
     Post post = postRepository.findByNegotiationIdAndMessageId(negotiationId, messageId);
     post.setStatus(request.getStatus());
     post.setText(request.getText());
