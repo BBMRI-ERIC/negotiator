@@ -94,16 +94,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiationEntity = modelMapper.map(negotiationBody, Negotiation.class);
     // Gets the Entities for the requests
     log.debug("Getting request entities");
-
+    log.info(negotiationEntity.getAttachments().size());
     List<Request> requests = findRequests(negotiationBody.getRequests());
-    if (negotiationBody.getAttachments() != null) {
-      List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
-      negotiationEntity.setAttachments(new HashSet<>(attachments));
-      attachments.forEach(
-          attachment -> {
-            attachment.setNegotiation(negotiationEntity);
-          });
-    }
 
     // Check if any negotiationBody is already associated to a negotiation
     if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
@@ -133,6 +125,14 @@ public class NegotiationServiceImpl implements NegotiationService {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
       log.error(ex);
       throw new EntityNotStorableException();
+    }
+    if (negotiationBody.getAttachments() != null) {
+      List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
+      negotiationEntity.setAttachments(new HashSet<>(attachments));
+      attachments.forEach(
+          attachment -> {
+            attachment.setNegotiation(negotiationEntity);
+          });
     }
     // TODO: Add call to send email.
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
