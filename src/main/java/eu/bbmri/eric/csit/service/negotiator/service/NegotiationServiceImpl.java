@@ -94,7 +94,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiationEntity = modelMapper.map(negotiationBody, Negotiation.class);
     // Gets the Entities for the requests
     log.debug("Getting request entities");
-    log.info(negotiationEntity.getAttachments().size());
     List<Request> requests = findRequests(negotiationBody.getRequests());
 
     // Check if any negotiationBody is already associated to a negotiation
