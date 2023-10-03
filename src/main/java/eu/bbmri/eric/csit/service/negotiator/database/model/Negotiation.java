@@ -44,7 +44,7 @@ public class Negotiation extends AuditEntity {
   @OneToMany(
       mappedBy = "negotiation",
       cascade = {CascadeType.MERGE},
-      fetch = FetchType.LAZY)
+      fetch = FetchType.EAGER)
   private Set<Attachment> attachments;
 
   @OneToMany(
