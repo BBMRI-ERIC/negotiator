@@ -26,6 +26,7 @@ import org.hibernate.annotations.TypeDef;
     attributeNodes = {
       @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
       @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
+      @NamedAttributeNode(value = "attachments"),
       @NamedAttributeNode(value = "currentStatePerResource")
     },
     subgraphs = {
@@ -44,7 +45,7 @@ public class Negotiation extends AuditEntity {
   @OneToMany(
       mappedBy = "negotiation",
       cascade = {CascadeType.MERGE},
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   private Set<Attachment> attachments;
 
   @OneToMany(
