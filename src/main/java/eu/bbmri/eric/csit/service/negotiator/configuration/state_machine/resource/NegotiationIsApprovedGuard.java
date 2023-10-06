@@ -22,7 +22,7 @@ public class NegotiationIsApprovedGuard implements Guard<String, String> {
   public boolean evaluate(StateContext<String, String> context) {
     String negotiationId = context.getMessage().getHeaders().get("negotiationId", String.class);
     return Objects.equals(
-        NegotiationState.ONGOING.name(),
+        NegotiationState.IN_PROGRESS.name(),
         negotiationService.findById(negotiationId, false).getStatus());
   }
 }

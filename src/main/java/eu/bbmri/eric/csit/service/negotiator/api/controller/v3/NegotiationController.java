@@ -94,7 +94,7 @@ public class NegotiationController {
     } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
       negotiations =
           negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities()).stream()
-              .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.ONGOING.name()))
+              .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.IN_PROGRESS.name()))
               .toList();
     } else if (Objects.equals(userRole, "ADMIN")) {
       if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
@@ -135,7 +135,8 @@ public class NegotiationController {
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
-    if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
+        || !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
@@ -202,7 +203,7 @@ public class NegotiationController {
         SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
       // Edit for different groups/resource types
       if (grantedAuthority.getAuthority().contains("collection")) {
-        resourceIds.add(grantedAuthority.getAuthority());
+        resourceIds.add(grantedAuthority.getAuthority().replace("ROLE_REPRESENTATIVE", ""));
       }
     }
     return Collections.unmodifiableList(resourceIds);

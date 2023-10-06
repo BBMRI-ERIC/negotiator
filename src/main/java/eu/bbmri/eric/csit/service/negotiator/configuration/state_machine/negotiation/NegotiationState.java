@@ -4,7 +4,7 @@ public enum NegotiationState {
   SUBMITTED,
   APPROVED,
   DECLINED,
-  ONGOING,
+  IN_PROGRESS,
   PAUSED,
   CONCLUDED,
   ABANDONED

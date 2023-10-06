@@ -74,10 +74,10 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEvent_approveNewNegotiation_isOngoing() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
-        NegotiationState.ONGOING,
+        NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
-        NegotiationState.ONGOING,
+        NegotiationState.IN_PROGRESS,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
@@ -105,7 +105,7 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
     assertEquals(
-        NegotiationState.ONGOING,
+        NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
   }
@@ -120,7 +120,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(2, history.size());
     assertTrue(
         history.stream()
-            .anyMatch(record -> record.getChangedTo().equals(NegotiationState.ONGOING)));
+            .anyMatch(record -> record.getChangedTo().equals(NegotiationState.IN_PROGRESS)));
   }
 
   @Test
