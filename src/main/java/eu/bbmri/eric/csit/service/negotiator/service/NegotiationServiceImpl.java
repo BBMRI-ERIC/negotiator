@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "DefaultNegotiationService")
 @CommonsLog
+@Transactional
 public class NegotiationServiceImpl implements NegotiationService {
 
   @Autowired NegotiationRepository negotiationRepository;
@@ -89,21 +90,11 @@ public class NegotiationServiceImpl implements NegotiationService {
    *     Person that called the API)
    * @return the created Negotiation entity
    */
-  @Transactional
   public NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) {
     Negotiation negotiationEntity = modelMapper.map(negotiationBody, Negotiation.class);
     // Gets the Entities for the requests
     log.debug("Getting request entities");
-
     List<Request> requests = findRequests(negotiationBody.getRequests());
-    if (negotiationBody.getAttachments() != null) {
-      List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
-      negotiationEntity.setAttachments(new HashSet<>(attachments));
-      attachments.forEach(
-          attachment -> {
-            attachment.setNegotiation(negotiationEntity);
-          });
-    }
 
     // Check if any negotiationBody is already associated to a negotiation
     if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
@@ -133,6 +124,14 @@ public class NegotiationServiceImpl implements NegotiationService {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
       log.error(ex);
       throw new EntityNotStorableException();
+    }
+    if (negotiationBody.getAttachments() != null) {
+      List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
+      negotiationEntity.setAttachments(new HashSet<>(attachments));
+      attachments.forEach(
+          attachment -> {
+            attachment.setNegotiation(negotiationEntity);
+          });
     }
     // TODO: Add call to send email.
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
@@ -171,13 +170,11 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @param negotiationBody the NegotiationCreateDTO DTO with the new Negotiation data
    * @return The updated Negotiation entity
    */
-  @Transactional
   public NegotiationDTO update(String negotiationId, NegotiationCreateDTO negotiationBody) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     return update(negotiationEntity, negotiationBody);
   }
 
-  @Transactional
   public NegotiationDTO addRequestToNegotiation(String negotiationId, String requestId) {
     Negotiation negotiationEntity = findEntityById(negotiationId, false);
     Request requestEntity =
@@ -199,7 +196,6 @@ public class NegotiationServiceImpl implements NegotiationService {
    *
    * @return the List of Negotiation entities
    */
-  @Transactional
   public List<NegotiationDTO> findAll() {
     List<Negotiation> negotiations = negotiationRepository.findAll();
     return negotiations.stream()
@@ -227,7 +223,6 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @param includeDetails whether the negotiation returned include details
    * @return the Negotiation with specified negotiationId
    */
-  @Transactional
   public NegotiationDTO findById(String negotiationId, boolean includeDetails)
       throws EntityNotFoundException {
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
@@ -240,7 +235,6 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @param biobankId the id in the data source of the biobank of the negotiation
    * @return the List of Negotiation entities found
    */
-  @Transactional
   public List<NegotiationDTO> findByBiobankId(String biobankId) {
     throw new NotImplementedException("Not yet implemented");
   }
@@ -251,7 +245,6 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @param resourceId the id in the data source of the biobank of the negotiation
    * @return the List of Negotiation entities found
    */
-  @Transactional
   public List<NegotiationDTO> findByResourceId(String resourceId) {
     List<Negotiation> negotiations = negotiationRepository.findByCollectionId(resourceId);
     return negotiations.stream()
@@ -259,7 +252,6 @@ public class NegotiationServiceImpl implements NegotiationService {
         .collect(Collectors.toList());
   }
 
-  @Transactional
   public List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole) {
     List<Negotiation> negotiations = negotiationRepository.findByUserIdAndRole(userId, userRole);
     return negotiations.stream()

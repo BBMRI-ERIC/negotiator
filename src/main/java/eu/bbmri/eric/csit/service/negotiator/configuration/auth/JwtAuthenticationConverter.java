@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -76,7 +77,6 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
       log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
       person = saveNewUserToDatabase(claims);
     }
-
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
   }
 
@@ -140,9 +140,14 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
             .authName(String.valueOf(claims.get("preferred_username")))
             .authEmail(String.valueOf(claims.get("email").toString()))
             .build();
-    personRepository.save(person);
+    try {
+      personRepository.save(person);
+    } catch (DataIntegrityViolationException e) {
+      log.info(
+          String.format("User with sub: %s already present in the db", person.getAuthSubject()));
+      return person;
+    }
     log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
-    log.debug(person);
     return person;
   }
 }
