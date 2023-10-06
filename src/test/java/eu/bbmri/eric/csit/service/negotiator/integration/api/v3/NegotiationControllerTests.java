@@ -372,7 +372,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "biobank:1:collection:1")
+  @WithMockUser(authorities = "ROLE_REPRESENTATIVE_biobank:1:collection:1")
   void testGetNegotiationRepresentativeShouldHaveAccessTo() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
@@ -381,7 +381,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "ADMIN")
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void getNegotiationsForAdmin_hasRoleAdmin_Ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s?userRole=ADMIN".formatted(NEGOTIATIONS_URL)))

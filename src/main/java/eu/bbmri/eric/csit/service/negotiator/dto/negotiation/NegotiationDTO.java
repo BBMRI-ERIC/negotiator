@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,4 +43,10 @@ public class NegotiationDTO {
   @NotNull private LocalDateTime modifiedDate;
 
   private Set<AttachmentMetadataDTO> attachments;
+
+  public Set<ResourceDTO> getAllResources() {
+    return requests.stream()
+        .flatMap(request -> request.getResources().stream())
+        .collect(Collectors.toUnmodifiableSet());
+  }
 }

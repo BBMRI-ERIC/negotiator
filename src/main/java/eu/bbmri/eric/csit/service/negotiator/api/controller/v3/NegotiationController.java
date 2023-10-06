@@ -211,7 +211,10 @@ public class NegotiationController {
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
-        || isRepresentative(negotiationDTO)
+        || NegotiatorUserDetailsService.isRepresentativeAny(
+            negotiationDTO.getAllResources().stream()
+                .map(ResourceDTO::getId)
+                .collect(Collectors.toList()))
         || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
