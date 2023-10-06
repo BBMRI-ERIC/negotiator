@@ -55,7 +55,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
         String resourceId =
             StringUtils.substringBetween(scope, authzResourceClaimPrefix, "#perun")
                 .replace(".", ":");
-        authorities.add(new SimpleGrantedAuthority(resourceId));
+        authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE_" + resourceId));
       }
     }
     return authorities;
