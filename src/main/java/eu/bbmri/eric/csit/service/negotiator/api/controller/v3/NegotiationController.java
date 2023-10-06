@@ -7,7 +7,6 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
@@ -156,7 +155,7 @@ public class NegotiationController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
-    if (!getResourceIdsFromUserAuthorities().contains(resourceId)) {
+    if (!NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     resourceLifecycleService.sendEvent(
@@ -226,17 +225,6 @@ public class NegotiationController {
       log.warn("Could not find user in db");
     }
     return userId;
-  }
-
-  private boolean isRepresentative(NegotiationDTO negotiationDTO) {
-    for (RequestDTO requestDTO : negotiationDTO.getRequests()) {
-      for (ResourceDTO resourceDTO : requestDTO.getResources()) {
-        if (getResourceIdsFromUserAuthorities().contains(resourceDTO.getId())) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   private boolean isCreator(NegotiationDTO negotiationDTO) {

@@ -13,7 +13,12 @@ public class AuditorAwareImpl implements AuditorAware<Person> {
   public Optional<Person> getCurrentAuditor() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth != null) {
-      return Optional.ofNullable(((NegotiatorUserDetails) auth.getPrincipal()).getPerson());
+      try {
+        return Optional.ofNullable(((NegotiatorUserDetails) auth.getPrincipal()).getPerson());
+      } catch (ClassCastException e) {
+        return Optional.empty();
+      }
+
     } else {
       return Optional.empty();
     }
