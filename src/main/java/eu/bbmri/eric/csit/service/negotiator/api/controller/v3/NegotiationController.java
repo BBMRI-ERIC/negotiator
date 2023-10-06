@@ -203,7 +203,7 @@ public class NegotiationController {
         SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
       // Edit for different groups/resource types
       if (grantedAuthority.getAuthority().contains("collection")) {
-        resourceIds.add(grantedAuthority.getAuthority().replace("ROLE_REPRESENTATIVE", ""));
+        resourceIds.add(grantedAuthority.getAuthority().replace("ROLE_REPRESENTATIVE_", ""));
       }
     }
     return Collections.unmodifiableList(resourceIds);
