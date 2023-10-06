@@ -91,13 +91,13 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     if (claims.containsKey(authzClaim)) {
       List<String> scopes = (List<String>) claims.get(authzClaim);
       if (scopes.contains(authzAdminValue)) {
-        authorities.add(new SimpleGrantedAuthority("ADMIN"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
       }
       if (scopes.contains(authzResearcherValue)) {
-        authorities.add(new SimpleGrantedAuthority("RESEARCHER"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_RESEARCHER"));
       }
       if (scopes.contains(authzBiobankerValue)) {
-        authorities.add(new SimpleGrantedAuthority("REPRESENTATIVE"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
         authorities.addAll(addAuthoritiesForIndividualResources(scopes));
       }
     }
@@ -137,7 +137,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     person =
         Person.builder()
             .authSubject(String.valueOf(claims.get("sub")))
-            .authName(String.valueOf(claims.get("preferred_username")))
+            .authName(String.valueOf(claims.get("name")))
             .authEmail(String.valueOf(claims.get("email").toString()))
             .build();
     try {

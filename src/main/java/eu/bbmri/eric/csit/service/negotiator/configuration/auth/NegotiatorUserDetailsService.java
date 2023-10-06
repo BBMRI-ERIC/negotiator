@@ -27,7 +27,7 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
 
   public static boolean isCurrentlyAuthenticatedUserAdmin() {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ADMIN"));
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }
 
   @Override
