@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +42,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       throw new EntityNotFoundException(resourceId);
     }
     rehydrateStateMachineForResource(negotiationId, resourceId);
-    return getPossibleEventsForCurrentStateMachine();
+    return getPossibleEventsForCurrentStateMachine(negotiationId);
   }
 
   @Override
@@ -76,13 +78,32 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     return currentState;
   }
 
-  private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine() {
+  private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
+      String negotiationId) {
     return stateMachine.getTransitions().stream()
         .filter(
             transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
+        .filter(transition -> isSecurityRuleMet(transition.getSecurityRule(), negotiationId))
         .map(transition -> transition.getTrigger().getEvent())
         .map(NegotiationResourceEvent::valueOf)
         .collect(Collectors.toSet());
+  }
+
+  private boolean isSecurityRuleMet(SecurityRule securityRule, String negotiationId) {
+    if (securityRule == null) {
+      return true;
+    }
+    if (securityRule.getExpression().equals("isCreator")) {
+      Long creatorId;
+      try {
+        creatorId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
+      } catch (ClassCastException e) {
+        return false;
+      }
+      return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
+    } else {
+      return true;
+    }
   }
 
   private void rehydrateStateMachineForResource(String negotiationId, String resourceId) {
