@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,13 +43,20 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       throw new EntityNotFoundException(resourceId);
     }
     rehydrateStateMachineForResource(negotiationId, resourceId);
-    return getPossibleEventsForCurrentStateMachine(negotiationId);
+    return getPossibleEventsForCurrentStateMachine(negotiationId, resourceId);
   }
 
   @Override
   public NegotiationResourceState sendEvent(
       String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException {
+    if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationEvent)) {
+      return negotiationRepository
+          .findById(negotiationId)
+          .orElseThrow(() -> new EntityNotFoundException("No such negotiation found."))
+          .getCurrentStatePerResource()
+          .get(resourceId);
+    }
     persistStateMachineHandler
         .handleEventWithStateReactively(
             MessageBuilder.withPayload(negotiationEvent.name())
@@ -79,17 +87,20 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   }
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
-      String negotiationId) {
+      String negotiationId, String resourceId) {
     return stateMachine.getTransitions().stream()
         .filter(
             transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
-        .filter(transition -> isSecurityRuleMet(transition.getSecurityRule(), negotiationId))
+        .filter(
+            transition ->
+                isSecurityRuleMet(transition.getSecurityRule(), negotiationId, resourceId))
         .map(transition -> transition.getTrigger().getEvent())
         .map(NegotiationResourceEvent::valueOf)
         .collect(Collectors.toSet());
   }
 
-  private boolean isSecurityRuleMet(SecurityRule securityRule, String negotiationId) {
+  private boolean isSecurityRuleMet(
+      SecurityRule securityRule, String negotiationId, String resourceId) {
     if (securityRule == null) {
       return true;
     }
@@ -101,6 +112,8 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
         return false;
       }
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
+    } else if (securityRule.getExpression().equals("isRepresentative")) {
+      return NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId));
     } else {
       return true;
     }

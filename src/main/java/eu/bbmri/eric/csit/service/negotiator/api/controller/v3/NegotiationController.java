@@ -136,7 +136,7 @@ public class NegotiationController {
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
     if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
-        || !isCreator(negotiationService.findById(id, false))) {
+        && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
@@ -156,7 +156,8 @@ public class NegotiationController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
-    if (!NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId))) {
+    if (!NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId))
+        && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     resourceLifecycleService.sendEvent(

@@ -156,7 +156,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void sendEventForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -187,7 +187,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -220,7 +220,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void getCurrentStateForResource_approvedNegotiation_isSubmitted() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -246,7 +246,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void getPossibleEventsForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
