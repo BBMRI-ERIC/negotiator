@@ -335,7 +335,8 @@ public class NegotiationControllerTests {
   void testGetNegotiationsForCollectionsUserRepresents() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("%s?userRole=REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
+            MockMvcRequestBuilders.get(
+                "%s?userRole=ROLE_REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
 
@@ -384,7 +385,7 @@ public class NegotiationControllerTests {
   @WithMockUser(authorities = "ROLE_ADMIN")
   void getNegotiationsForAdmin_hasRoleAdmin_Ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?userRole=ADMIN".formatted(NEGOTIATIONS_URL)))
+        .perform(MockMvcRequestBuilders.get("%s?userRole=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
 
@@ -392,7 +393,7 @@ public class NegotiationControllerTests {
   @WithMockUser(authorities = "biobank:1:collection:1")
   void getNegotiationsForAdmin_doesNotHaveRoleAdmin_Forbidden() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?userRole=ADMIN".formatted(NEGOTIATIONS_URL)))
+        .perform(MockMvcRequestBuilders.get("%s?userRole=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isForbidden());
   }
 
