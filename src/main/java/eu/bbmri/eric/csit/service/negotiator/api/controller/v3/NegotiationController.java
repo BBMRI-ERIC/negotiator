@@ -91,12 +91,12 @@ public class NegotiationController {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
       negotiations = negotiationService.findByResourceId(collectionId);
-    } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
+    } else if (Objects.equals(userRole, "ROLE_REPRESENTATIVE")) {
       negotiations =
           negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities()).stream()
               .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.IN_PROGRESS.name()))
               .toList();
-    } else if (Objects.equals(userRole, "ADMIN")) {
+    } else if (Objects.equals(userRole, "ROLE_ADMIN")) {
       if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
         negotiations = negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED);
       } else {
