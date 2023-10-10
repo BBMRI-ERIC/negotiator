@@ -95,7 +95,7 @@ public class NegotiationServiceTest {
   @Test
   void testCreateNegotiation() throws IOException {
     when(personRepository.findById(100L)).thenReturn(Optional.of(new Person()));
-    when(roleRepository.findByName("RESEARCHER")).thenReturn(Optional.of(new Role()));
+    when(roleRepository.findByName("ROLE_RESEARCHER")).thenReturn(Optional.of(new Role()));
     NegotiationCreateDTO negotiationCreateDTO = createNegotiation(Set.of("requestID"));
     Negotiation negotiation = new Negotiation();
     Request request = new Request();

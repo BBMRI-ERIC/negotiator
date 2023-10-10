@@ -103,7 +103,7 @@ public class NegotiationTest {
     assertEquals(
         NegotiationState.SUBMITTED,
         negotiation.getLifecycleHistory().iterator().next().getChangedTo());
-    negotiation.setCurrentState(NegotiationState.ONGOING);
+    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
     assertEquals(2, negotiation.getLifecycleHistory().size());
   }
 }

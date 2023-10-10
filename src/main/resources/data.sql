@@ -1,9 +1,5 @@
 insert into role (id, name)
-values (1, 'CREATOR'),
-       (2, 'ADMINISTRATOR'),
-       (3, 'MANAGER'),
-       (4, 'RESEARCHER'),
-       (5, 'REPRESENTATIVE');
+values (4, 'ROLE_RESEARCHER');
 
 insert into data_source (url, api_username, api_password, api_type, api_url, description, name,
                          resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
@@ -14,7 +10,8 @@ values ('https://bbmritestnn.gcc.rug.nl', 'user', 'password', 'MOLGENIS', 'https
 insert into person (id, auth_email, auth_name, auth_subject, password, organization, person_image)
 values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
        (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null),
-        (3, 'for-backwards-compatability', 'directory', '', '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, null);
+       (3, 'for-backwards-compatability', 'directory', '',
+        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, null);
 
 insert into access_criteria_set (id, name)
 values (1, 'BBMRI Template');
@@ -44,8 +41,13 @@ values (1, 1, 1, 'true'),
        (3, 3, 1, 'false'),
        (3, 4, 2, 'false');
 
-insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id)
+insert into ORGANIZATION (EXTERNAL_ID, NAME)
+VALUES ('bbmri-eric:ID:SE_890', 'Biobank Väst'),
+       ('bbmri-eric:ID:CZ_MMCI',
+        'Masaryk Memorial Cancer Institute');
+
+insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id, ORGANIZATION_ID)
 values (1, 'Test collection', 'This is the fist test collection',
-        'bbmri-eric:ID:SE_890:collection:dummy_collection', 1, 1),
+        'bbmri-eric:ID:SE_890:collection:dummy_collection', 1, 1, 1),
        (2, 'Test collection 2', 'This is the second test collection',
-        'bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 1);
+        'bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 1, 2);

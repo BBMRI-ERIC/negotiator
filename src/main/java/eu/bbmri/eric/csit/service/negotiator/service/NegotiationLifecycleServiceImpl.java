@@ -1,10 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
+import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
@@ -65,9 +69,18 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine() {
+    List<String> roles = NegotiatorUserDetailsService.getRoles();
     return stateMachine.getTransitions().stream()
         .filter(
             transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
+        .filter(
+            transition ->
+                Optional.ofNullable(transition.getSecurityRule())
+                    .map(SecurityRule::getAttributes)
+                    .isPresent())
+        .filter(
+            transition ->
+                transition.getSecurityRule().getAttributes().stream().anyMatch(roles::contains))
         .map(transition -> transition.getTrigger().getEvent())
         .map(NegotiationEvent::valueOf)
         .collect(Collectors.toSet());

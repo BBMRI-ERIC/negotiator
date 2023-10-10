@@ -105,7 +105,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
     Person creator =
         personRepository.findById(creatorId).orElseThrow(EntityNotStorableException::new);
-    addPersonToNegotiation(creator, negotiationEntity, "RESEARCHER");
+    addPersonToNegotiation(creator, negotiationEntity, "ROLE_RESEARCHER");
 
     // Updates the bidirectional relationship between negotiation and requests
     negotiationEntity.setRequests(new HashSet<>(requests));

@@ -11,6 +11,7 @@ import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.security.SecurityRule;
 
 /** Configuration of the SpringStateMachine(SSM) for the Negotiation Lifecycle. */
 @Configuration
@@ -20,7 +21,7 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
   @Override
   public void configure(StateMachineConfigurationConfigurer<String, String> config)
       throws Exception {
-    config.withConfiguration().autoStartup(true);
+    config.withSecurity().enabled(true).and().withConfiguration().autoStartup(true);
   }
 
   @Override
@@ -36,8 +37,9 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
     transitions
         .withExternal()
         .source(NegotiationState.SUBMITTED.name())
-        .target(NegotiationState.ONGOING.name())
+        .target(NegotiationState.IN_PROGRESS.name())
         .event(NegotiationEvent.APPROVE.name())
+        .secured("ROLE_ADMIN", SecurityRule.ComparisonType.ALL)
         .action(enablePosts())
         .action(initializeStateForResources())
         .and()
@@ -45,15 +47,16 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .source(NegotiationState.SUBMITTED.name())
         .target(NegotiationState.DECLINED.name())
         .event(NegotiationEvent.DECLINE.name())
+        .secured("ROLE_ADMIN", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
-        .source(NegotiationState.ONGOING.name())
+        .source(NegotiationState.IN_PROGRESS.name())
         .target(NegotiationState.PAUSED.name())
         .event(NegotiationEvent.PAUSE.name())
         .and()
         .withExternal()
         .source(NegotiationState.PAUSED.name())
-        .target(NegotiationState.ONGOING.name())
+        .target(NegotiationState.IN_PROGRESS.name())
         .event(NegotiationEvent.UNPAUSE.name())
         .and()
         .withExternal()
@@ -62,7 +65,12 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .event(NegotiationEvent.ABANDON.name())
         .and()
         .withExternal()
-        .source(NegotiationState.ONGOING.name())
+        .source(NegotiationState.IN_PROGRESS.name())
+        .target(NegotiationState.ABANDONED.name())
+        .event(NegotiationEvent.ABANDON.name())
+        .and()
+        .withExternal()
+        .source(NegotiationState.IN_PROGRESS.name())
         .target(NegotiationState.CONCLUDED.name())
         .event(NegotiationEvent.CONCLUDE.name());
   }

@@ -23,8 +23,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
@@ -35,6 +38,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
+  @Autowired private WebApplicationContext context;
 
   @Test
   void getState_createNegotiation_isSubmitted() throws IOException {
@@ -43,7 +47,8 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  public void getPossibleEvents_existingNegotiation_Ok() throws IOException {
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  public void getPossibleEvents_existingNegotiationAndIsAdmin_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         Set.of(NegotiationEvent.APPROVE, NegotiationEvent.DECLINE),
@@ -58,13 +63,21 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithUserDetails("researcher")
+  public void getPossibleEvents_existingIdNotAdmin_returnsEmptySet() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(Set.of(), negotiationLifecycleService.getPossibleEvents(negotiationDTO.getId()));
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_approveNewNegotiation_isOngoing() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
-        NegotiationState.ONGOING,
+        NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
-        NegotiationState.ONGOING,
+        NegotiationState.IN_PROGRESS,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
@@ -87,16 +100,18 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_calledActionEnablePost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
     assertEquals(
-        NegotiationState.ONGOING,
+        NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
   }
 
   @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_historyIsUpdated() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -105,7 +120,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(2, history.size());
     assertTrue(
         history.stream()
-            .anyMatch(record -> record.getChangedTo().equals(NegotiationState.ONGOING)));
+            .anyMatch(record -> record.getChangedTo().equals(NegotiationState.IN_PROGRESS)));
   }
 
   @Test
@@ -117,6 +132,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -140,6 +156,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void sendEventForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -157,6 +174,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEventForResource_approvedNegotiationWrongEvent_noChange() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -169,6 +187,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -201,6 +220,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void getCurrentStateForResource_approvedNegotiation_isSubmitted() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -226,6 +246,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void getPossibleEventsForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);

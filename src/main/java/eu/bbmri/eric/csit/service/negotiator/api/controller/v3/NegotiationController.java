@@ -7,7 +7,6 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
@@ -92,12 +91,12 @@ public class NegotiationController {
       negotiations = negotiationService.findByBiobankId(biobankId);
     } else if (collectionId != null) {
       negotiations = negotiationService.findByResourceId(collectionId);
-    } else if (Objects.equals(userRole, "REPRESENTATIVE")) {
+    } else if (Objects.equals(userRole, "ROLE_REPRESENTATIVE")) {
       negotiations =
           negotiationService.findByResourceIds(getResourceIdsFromUserAuthorities()).stream()
-              .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.ONGOING.name()))
+              .filter(dto -> Objects.equals(dto.getStatus(), NegotiationState.IN_PROGRESS.name()))
               .toList();
-    } else if (Objects.equals(userRole, "ADMIN")) {
+    } else if (Objects.equals(userRole, "ROLE_ADMIN")) {
       if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
         negotiations = negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED);
       } else {
@@ -136,7 +135,8 @@ public class NegotiationController {
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
-    if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
+        && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
@@ -156,7 +156,8 @@ public class NegotiationController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
-    if (!getResourceIdsFromUserAuthorities().contains(resourceId)) {
+    if (!NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId))
+        && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     resourceLifecycleService.sendEvent(
@@ -203,7 +204,7 @@ public class NegotiationController {
         SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
       // Edit for different groups/resource types
       if (grantedAuthority.getAuthority().contains("collection")) {
-        resourceIds.add(grantedAuthority.getAuthority());
+        resourceIds.add(grantedAuthority.getAuthority().replace("ROLE_REPRESENTATIVE_", ""));
       }
     }
     return Collections.unmodifiableList(resourceIds);
@@ -211,7 +212,10 @@ public class NegotiationController {
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
-        || isRepresentative(negotiationDTO)
+        || NegotiatorUserDetailsService.isRepresentativeAny(
+            negotiationDTO.getAllResources().stream()
+                .map(ResourceDTO::getId)
+                .collect(Collectors.toList()))
         || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
@@ -225,21 +229,10 @@ public class NegotiationController {
     return userId;
   }
 
-  private boolean isRepresentative(NegotiationDTO negotiationDTO) {
-    for (RequestDTO requestDTO : negotiationDTO.getRequests()) {
-      for (ResourceDTO resourceDTO : requestDTO.getResources()) {
-        if (getResourceIdsFromUserAuthorities().contains(resourceDTO.getId())) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   private boolean isCreator(NegotiationDTO negotiationDTO) {
     for (PersonRoleDTO personRoleDTO : negotiationDTO.getPersons()) {
       if (Objects.equals(personRoleDTO.getId(), getUserId())
-          && Objects.equals(personRoleDTO.getRole(), "RESEARCHER")) {
+          && Objects.equals(personRoleDTO.getRole(), "ROLE_RESEARCHER")) {
         return true;
       }
     }

@@ -58,4 +58,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
 
   @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findByCurrentState(NegotiationState negotiationState);
+
+  boolean existsByIdAndCreatedBy_Id(String negotiationId, Long personId);
 }
