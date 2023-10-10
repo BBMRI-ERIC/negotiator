@@ -112,7 +112,7 @@ public class OAuthSecurityConfig {
         .and()
         .authorizeHttpRequests()
         .antMatchers("/v3/projects/**")
-        .hasAuthority("RESEARCHER")
+        .hasAuthority("ROLE_RESEARCHER")
         .and()
         .authorizeHttpRequests()
         .anyRequest()

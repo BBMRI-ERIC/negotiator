@@ -28,7 +28,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -91,6 +90,7 @@ public class ProjectControllerTests {
 
   @Test
   @Order(1)
+  @WithMockUser(authorities = "ROLE_RESEARCHER")
   public void testCreate_Ok_whenIsTestProject_isDefault() throws Exception {
     ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -98,7 +98,6 @@ public class ProjectControllerTests {
     mockMvc
         .perform(
             post(URI.create("/v3/projects"))
-                .with(httpBasic("researcher", "researcher"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
@@ -149,7 +148,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
+  @WithMockUser(authorities = "ROLE_RESEARCHER")
   public void testGetAll_Ok() throws Exception {
     ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);
@@ -208,7 +207,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "RESEARCHER")
+  @WithMockUser(authorities = "ROLE_RESEARCHER")
   public void testGetById_NotFound_WhenTheIdIsNotPresent() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(String.format("%s/%s", ENDPOINT, "1")))
@@ -216,7 +215,7 @@ public class ProjectControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
+  @WithMockUser(authorities = "ROLE_RESEARCHER")
   public void testGetById_Ok() throws Exception {
     ProjectCreateDTO projectRequest = TestUtils.createProjectRequest(false);
     Project entity = modelMapper.map(projectRequest, Project.class);

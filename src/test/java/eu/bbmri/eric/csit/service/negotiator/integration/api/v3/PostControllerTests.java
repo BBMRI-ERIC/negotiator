@@ -39,7 +39,7 @@ public class PostControllerTests {
   private static final String NEGOTIATION_2_RESOURCE_ID = "biobank:2";
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
-  private static final String RESEARCHER_ROLE = "RESEARCHER";
+  private static final String RESEARCHER_ROLE = "ROLE_RESEARCHER";
   private static final String REPRESENTATIVE_ROLE = "REPRESENTATIVE";
   private static final String POST_ID = "post-1-representative";
   @Autowired private WebApplicationContext context;

@@ -50,13 +50,13 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(authorities = {"biobank:1:collection:1", "RESEARCHER"})
+  @WithMockUser(authorities = {"biobank:1:collection:1", "ROLE_RESEARCHER"})
   void getInfo_mockUserMultipleAuthorities_responseIsOk() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(ROLES_ENDPOINT))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$")
-                .value(Matchers.containsInAnyOrder("biobank:1:collection:1", "RESEARCHER")));
+                .value(Matchers.containsInAnyOrder("biobank:1:collection:1", "ROLE_RESEARCHER")));
   }
 }

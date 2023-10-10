@@ -232,7 +232,7 @@ public class NegotiationController {
   private boolean isCreator(NegotiationDTO negotiationDTO) {
     for (PersonRoleDTO personRoleDTO : negotiationDTO.getPersons()) {
       if (Objects.equals(personRoleDTO.getId(), getUserId())
-          && Objects.equals(personRoleDTO.getRole(), "RESEARCHER")) {
+          && Objects.equals(personRoleDTO.getRole(), "ROLE_RESEARCHER")) {
         return true;
       }
     }
