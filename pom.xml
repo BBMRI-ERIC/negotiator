@@ -13,9 +13,7 @@
   <version>3.0.1</version>
   <name>BBMRI-ERIC Negotiator</name>
   <packaging>jar</packaging>
-  <description>The BBMRI-ERIC Negotiator service for structured temp with biological
-    resources dealing with human data and/or biological samples.
-  </description>
+  <description>A web based application for managing access negotiations.</description>
 
   <properties>
     <java.version>17</java.version>
