@@ -65,7 +65,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "JOIN FETCH p.resource r "
-              + "WHERE n.id = :negotiationId and r.id = p.resource and "
+              + "WHERE n.id = :negotiationId and r.id = p.resource.id and "
               + "p.createdBy.authName in :posters and "
               + "p.status = 'CREATED' and "
               + "p.type = :type and "
@@ -79,7 +79,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
               + "FROM Post p "
               + "JOIN FETCH p.negotiation n "
               + "JOIN FETCH p.resource r "
-              + "WHERE n.id = :negotiationId and r.id = p.resource and "
+              + "WHERE n.id = :negotiationId and r.id = p.resource.id and "
               + "p.type = :type and "
               + "r.sourceId = :resourceId")
   List<Post> findByNegotiationIdAndTypeAndResource(

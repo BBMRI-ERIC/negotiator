@@ -90,7 +90,7 @@ values ('negotiation-1', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-2', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
-       ('negotiation-v2', '2023-04-12','SUBMITTED', '2023-04-12', 108, 108,
+       ('negotiation-v2', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON);
 
 insert into request (id, url, human_readable, data_source_id, negotiation_id)
@@ -121,13 +121,13 @@ values ('post-1-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-rese
         'negotiation-1', null, 'PUBLIC'),
        ('post-2-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
-        ('post-3-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
-                'negotiation-1', 4, 'PRIVATE'),
+       ('post-3-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
+        'negotiation-1', 4, 'PRIVATE'),
        ('post-1-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-representative-message', 109, 109,
         'negotiation-1', null, 'PUBLIC'),
        ('post-2-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
         'negotiation-1', null, 'PUBLIC'),
        ('post-3-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
-                'negotiation-1', 4, 'PRIVATE'),
+        'negotiation-1', 4, 'PRIVATE'),
        ('post-4-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
-                                'negotiation-1', 5, 'PRIVATE');
+        'negotiation-1', 5, 'PRIVATE');

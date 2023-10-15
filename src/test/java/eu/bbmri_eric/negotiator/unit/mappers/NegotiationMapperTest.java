@@ -25,6 +25,27 @@ public class NegotiationMapperTest {
   @InjectMocks
   public NegotiationModelMapper negotiationModelMapper = new NegotiationModelMapper(mapper);
 
+  private static Negotiation buildNegotiation() {
+    Request request =
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .dataSource(new DataSource())
+                        .build()))
+            .build();
+
+    Negotiation negotiation =
+        Negotiation.builder()
+            .requests(Set.of(request))
+            .currentState(NegotiationState.SUBMITTED)
+            .build();
+
+    negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
+    return negotiation;
+  }
+
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
@@ -89,26 +110,5 @@ public class NegotiationMapperTest {
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     assertEquals(
         LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00), negotiationDTO.getCreationDate());
-  }
-
-  private static Negotiation buildNegotiation() {
-    Request request =
-        Request.builder()
-            .resources(
-                Set.of(
-                    Resource.builder()
-                        .sourceId("collection:1")
-                        .dataSource(new DataSource())
-                        .build()))
-            .build();
-
-    Negotiation negotiation =
-        Negotiation.builder()
-            .requests(Set.of(request))
-            .currentState(NegotiationState.SUBMITTED)
-            .build();
-
-    negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
-    return negotiation;
   }
 }
