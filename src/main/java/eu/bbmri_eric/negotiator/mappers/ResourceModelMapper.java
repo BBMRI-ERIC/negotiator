@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.dto.request.ResourceDTO;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;

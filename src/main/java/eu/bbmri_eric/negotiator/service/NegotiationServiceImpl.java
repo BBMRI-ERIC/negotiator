@@ -18,13 +18,13 @@ import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
+import jakarta.persistence.PersistenceException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.NotImplementedException;
-import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -120,7 +120,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       // PersonNegotiationRole
       savedNegotiation = negotiationRepository.save(negotiationEntity);
 
-    } catch (DataException | DataIntegrityViolationException ex) {
+    } catch (PersistenceException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
       log.error(ex);
       throw new EntityNotStorableException();
@@ -158,7 +158,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     try {
       Negotiation negotiation = negotiationRepository.save(negotiationEntity);
       return modelMapper.map(negotiation, NegotiationDTO.class);
-    } catch (DataException | DataIntegrityViolationException ex) {
+    } catch (PersistenceException ex) {
       throw new EntityNotStorableException();
     }
   }

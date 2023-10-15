@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.lang.Nullable;
 

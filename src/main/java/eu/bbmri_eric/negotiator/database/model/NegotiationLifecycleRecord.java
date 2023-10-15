@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.database.model;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import jakarta.persistence.*;
 import java.time.ZonedDateTime;
-import javax.persistence.*;
 import lombok.*;
 
 @Builder

@@ -2,9 +2,9 @@ package eu.bbmri_eric.negotiator.dto.datasource;
 
 import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

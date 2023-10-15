@@ -3,14 +3,14 @@ package eu.bbmri_eric.negotiator.database.model;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.persistence.*;
 import lombok.*;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @ToString
 @Entity
@@ -20,7 +20,7 @@ import org.hibernate.annotations.TypeDef;
 @Setter
 @Builder
 @Table(name = "negotiation")
-@TypeDef(typeClass = JsonType.class, name = "json")
+@Convert(converter = JsonType.class, attributeName = "json")
 @NamedEntityGraph(
     name = "negotiation-with-detailed-children",
     attributeNodes = {
@@ -59,7 +59,7 @@ public class Negotiation extends AuditEntity {
   @Exclude
   private Set<Request> requests;
 
-  @Type(type = "json")
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
   private String payload;
 

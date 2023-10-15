@@ -3,8 +3,6 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.request.*;
-import eu.bbmri.eric.negotiator.dto.request.*;
 import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;

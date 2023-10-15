@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
-import eu.bbmri.eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;

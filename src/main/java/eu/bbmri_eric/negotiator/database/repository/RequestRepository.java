@@ -1,13 +1,13 @@
 package eu.bbmri_eric.negotiator.database.repository;
 
 import eu.bbmri_eric.negotiator.database.model.Request;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
-import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
