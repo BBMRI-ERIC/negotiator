@@ -3,13 +3,10 @@ package eu.bbmri_eric.negotiator.database.repository;
 import eu.bbmri_eric.negotiator.database.model.Post;
 import eu.bbmri_eric.negotiator.database.model.PostType;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-
-  Optional<Post> findByCreatedBy(Long id);
 
   @Query(
       value =

@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -55,84 +58,56 @@ public class OAuthSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .cors()
-        .disable()
-        .csrf()
-        .disable()
-        .headers()
-        .frameOptions()
-        .disable();
-
-    http.authorizeHttpRequests()
-        .requestMatchers(HttpMethod.GET, "/v3/negotiations/lifecycle")
-        .permitAll()
-        .requestMatchers("/v3/negotiations/*/attachments/*")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers("/v3/attachments/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers("/v3/negotiations/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers(HttpMethod.GET, "/v3/access-criteria/**")
-        .permitAll()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers(HttpMethod.POST, "/v3/access-criteria/**")
-        .hasRole("REPRESENTATIVE")
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**")
-        .permitAll()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers(HttpMethod.POST, "/v3/data-sources/**")
-        .hasAuthority("ADMIN")
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers(HttpMethod.PUT, "/v3/data-sources/**")
-        .hasAuthority("ADMIN")
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers("/v3/users/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .requestMatchers("/v3/projects/**")
-        .hasAuthority("ROLE_RESEARCHER")
-        .and()
-        .authorizeHttpRequests()
-        .anyRequest()
-        .permitAll()
-        .and()
-        .httpBasic();
+    http.csrf(AbstractHttpConfigurer::disable)
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .httpBasic(Customizer.withDefaults())
+        .authorizeHttpRequests(
+            authz ->
+                authz
+                    .requestMatchers(HttpMethod.GET, "/v3/negotiations/lifecycle")
+                    .permitAll()
+                    .requestMatchers("/v3/negotiations/*/attachments/*")
+                    .authenticated()
+                    .requestMatchers("/v3/attachments/**")
+                    .authenticated()
+                    .requestMatchers("/v3/negotiations/**")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/v3/access-criteria/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v3/access-criteria/**")
+                    .hasAuthority("REPRESENTATIVE")
+                    .requestMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.POST, "/v3/data-sources/**")
+                    .hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/v3/data-sources/**")
+                    .hasAuthority("ADMIN")
+                    .requestMatchers("/v3/users/**")
+                    .authenticated()
+                    .requestMatchers("/v3/projects/**")
+                    .hasRole("RESEARCHER")
+                    .anyRequest()
+                    .permitAll());
 
     if (!jwtIssuer.isEmpty()) {
-      http.oauth2ResourceServer()
-          .jwt()
-          .jwtAuthenticationConverter(
-              new JwtAuthenticationConverter(
-                  personRepository,
-                  userInfoEndpoint,
-                  authzClaim,
-                  authzSubjectClaim,
-                  authzAdminValue,
-                  authzResearcherValue,
-                  authzBiobankerValue,
-                  authzResourceIdPrefixClaim));
+      http.oauth2ResourceServer(
+          oauth ->
+              oauth.jwt(
+                  jwt ->
+                      jwt.jwtAuthenticationConverter(
+                          new JwtAuthenticationConverter(
+                              personRepository,
+                              userInfoEndpoint,
+                              authzClaim,
+                              authzSubjectClaim,
+                              authzAdminValue,
+                              authzResearcherValue,
+                              authzBiobankerValue,
+                              authzResourceIdPrefixClaim))));
     }
     return http.build();
   }

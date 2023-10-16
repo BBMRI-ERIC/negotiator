@@ -6,14 +6,14 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>3.0.9</version>
+        <version>3.1.2</version>
     </parent>
     <groupId>eu.bbmri_eric.negotiator</groupId>
     <artifactId>negotiator</artifactId>
     <version>3.0.1</version>
     <name>BBMRI-ERIC Negotiator</name>
     <packaging>jar</packaging>
-    <description>A web based application for managing access negotiations.</description>
+    <description>A web-based application for managing access negotiations.</description>
 
     <properties>
         <java.version>17</java.version>
@@ -83,9 +83,9 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>eu/bbmri/eric/csit/service/negotiator/configuration/**</exclude>
-                        <exclude>eu/bbmri/eric/csit/service/negotiator/NegotiatorApplication.java</exclude>
-                        <exclude>eu/bbmri/eric/csit/service/negotiator/ServletInitializer.java</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/configuration/**</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.java</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/ServletInitializer.java</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -116,6 +116,11 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>6.0.11</version>
+        </dependency>
+        <dependency>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <groupId>org.springframework.boot</groupId>
             <version>3.1.2</version>
@@ -123,34 +128,25 @@
         <dependency>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.0.7</version>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-security</artifactId>
             <groupId>org.springframework.boot</groupId>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-web</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.0</version>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>2.5.4</version>
-        </dependency>
-        <dependency>
-            <artifactId>spring-statemachine-core</artifactId>
-            <groupId>org.springframework.statemachine</groupId>
-            <version>3.2.0</version>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
             <artifactId>spring-statemachine-starter</artifactId>
-            <groupId>org.springframework.statemachine</groupId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <artifactId>spring-statemachine-recipes-common</artifactId>
             <groupId>org.springframework.statemachine</groupId>
             <version>3.2.1</version>
         </dependency>
@@ -162,9 +158,25 @@
         <dependency>
             <artifactId>spring-context-support</artifactId>
             <groupId>org.springframework</groupId>
-            <version>6.0.10</version>
+            <version>6.0.11</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/jakarta.activation/jakarta.activation-api -->
+        <dependency>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <version>3.1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>spring-security-test</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <version>6.1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <version>3.1.2</version>
+        </dependency>
         <dependency>
             <artifactId>jakarta.activation-api</artifactId>
             <groupId>jakarta.activation</groupId>
@@ -195,16 +207,7 @@
             <groupId>org.modelmapper.extensions</groupId>
             <version>3.1.0</version>
         </dependency>
-        <dependency>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <groupId>org.springframework.boot</groupId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>spring-security-test</artifactId>
-            <groupId>org.springframework.security</groupId>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <artifactId>jackson-annotations</artifactId>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -214,10 +217,7 @@
             <groupId>com.vladmihalcea</groupId>
             <version>2.14.0</version>
         </dependency>
-        <dependency>
-            <artifactId>spring-boot-starter-validation</artifactId>
-            <groupId>org.springframework.boot</groupId>
-        </dependency>
+
         <dependency>
             <artifactId>junit-jupiter-api</artifactId>
             <groupId>org.junit.jupiter</groupId>
@@ -260,14 +260,14 @@
             <version>3.0.2</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>6.0.11</version>
-        </dependency>
-        <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
             <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.statemachine</groupId>
+            <artifactId>spring-statemachine-recipes-common</artifactId>
+            <version>3.2.1</version>
         </dependency>
     </dependencies>
 </project>
