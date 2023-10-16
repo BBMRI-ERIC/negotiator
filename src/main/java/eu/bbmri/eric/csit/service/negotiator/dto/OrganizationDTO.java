@@ -1,11 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -17,6 +17,6 @@ import lombok.ToString;
 @ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class OrganizationDTO {
-  @NonNull private String externalId;
+  @NotNull private String externalId;
   private String name;
 }

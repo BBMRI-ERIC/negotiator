@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.dto.request;
+package eu.bbmri.eric.csit.service.negotiator.dto.resource;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;

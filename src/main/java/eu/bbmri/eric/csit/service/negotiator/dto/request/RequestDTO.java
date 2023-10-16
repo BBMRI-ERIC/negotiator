@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

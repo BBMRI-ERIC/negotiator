@@ -7,6 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.*;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.RequestModelsMapper;
 import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
 import java.util.HashSet;

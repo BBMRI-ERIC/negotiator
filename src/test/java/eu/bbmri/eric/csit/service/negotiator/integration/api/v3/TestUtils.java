@@ -18,7 +18,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Set;

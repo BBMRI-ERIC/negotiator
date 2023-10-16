@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,8 +35,6 @@ public class NegotiationDTO {
 
   @NotNull private String status;
 
-  @NotNull private JsonNode resourceStatus;
-
   @NotNull private Boolean postsEnabled;
 
   @NotNull private LocalDateTime creationDate;
@@ -44,9 +43,5 @@ public class NegotiationDTO {
 
   private Set<AttachmentMetadataDTO> attachments;
 
-  public Set<ResourceDTO> getAllResources() {
-    return requests.stream()
-        .flatMap(request -> request.getResources().stream())
-        .collect(Collectors.toUnmodifiableSet());
-  }
+  public Set<ResourceWithStatusDTO> resources;
 }

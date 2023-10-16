@@ -7,7 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
@@ -213,8 +213,8 @@ public class NegotiationController {
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
         || NegotiatorUserDetailsService.isRepresentativeAny(
-            negotiationDTO.getAllResources().stream()
-                .map(ResourceDTO::getId)
+            negotiationDTO.getResources().stream()
+                .map(ResourceWithStatusDTO::getId)
                 .collect(Collectors.toList()))
         || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
