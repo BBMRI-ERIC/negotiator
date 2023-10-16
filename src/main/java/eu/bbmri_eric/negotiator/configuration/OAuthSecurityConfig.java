@@ -18,6 +18,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 public class OAuthSecurityConfig {
@@ -57,7 +59,13 @@ public class OAuthSecurityConfig {
   private String authzResourceIdPrefixClaim;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+    return new MvcRequestMatcher.Builder(introspector);
+  }
+
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
+      throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .sessionManagement(
@@ -66,29 +74,31 @@ public class OAuthSecurityConfig {
         .authorizeHttpRequests(
             authz ->
                 authz
-                    .requestMatchers(HttpMethod.GET, "/v3/negotiations/lifecycle")
+                    .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations/lifecycle"))
                     .permitAll()
-                    .requestMatchers("/v3/negotiations/*/attachments/*")
+                    .requestMatchers(mvc.pattern("/v3/negotiations/*/attachments/*"))
                     .authenticated()
-                    .requestMatchers("/v3/attachments/**")
+                    .requestMatchers(mvc.pattern("/v3/attachments/**"))
                     .authenticated()
-                    .requestMatchers("/v3/negotiations/**")
+                    .requestMatchers(mvc.pattern("/v3/negotiations/**"))
                     .authenticated()
-                    .requestMatchers(HttpMethod.GET, "/v3/access-criteria/**")
+                    .requestMatchers(mvc.pattern("/v3/access-criteria"))
                     .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/v3/access-criteria/**")
-                    .hasAuthority("REPRESENTATIVE")
-                    .requestMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**")
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/directory/create_query"))
                     .permitAll()
-                    .requestMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**")
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/requests"))
+                    .permitAll()
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/directory/create_query"))
                     .authenticated()
-                    .requestMatchers(HttpMethod.POST, "/v3/data-sources/**")
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/requests/**"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/data-sources/**"))
                     .hasAuthority("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/v3/data-sources/**")
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/data-sources/**"))
                     .hasAuthority("ADMIN")
-                    .requestMatchers("/v3/users/**")
+                    .requestMatchers(mvc.pattern("/v3/users/**"))
                     .authenticated()
-                    .requestMatchers("/v3/projects/**")
+                    .requestMatchers(mvc.pattern("/v3/projects/**"))
                     .hasRole("RESEARCHER")
                     .anyRequest()
                     .permitAll());
