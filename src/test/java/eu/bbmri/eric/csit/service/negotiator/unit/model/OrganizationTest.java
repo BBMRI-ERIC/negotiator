@@ -12,11 +12,6 @@ import org.junit.jupiter.api.Test;
 public class OrganizationTest {
 
   @Test
-  void initOrganization_nullId_exception() {
-    assertThrows(NullPointerException.class, () -> Organization.builder().externalId(null).build());
-  }
-
-  @Test
   void initOrganization_ok() {
     Organization organization = Organization.builder().externalId("validId").build();
     assertInstanceOf(Organization.class, organization);

@@ -11,20 +11,20 @@ values ('http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasou
         'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
         'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization, person_image)
+insert into person (id, auth_email, auth_name, auth_subject, password, organization)
 values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey',
-        'BBMRI', null),
+        'BBMRI'),
        (102, 'directory@negotiator.dev', 'directory', '2',
-        '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', null),
+        '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI'),
        (103, 'perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci',
-        'BBMRI', null),
+        'BBMRI'),
        (104, 'researcher@negotiator.dev', 'researcher', '4',
-        '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', null),
-       (105, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', null),
-       (106, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', null),
-       (107, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', null),
-       (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
-       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null);
+        '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI'),
+       (105, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank'),
+       (106, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection'),
+       (107, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network'),
+       (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI'),
+       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI');
 
 insert into authorities (person_id, authority)
 values (101, 'ADMIN'),
@@ -67,25 +67,30 @@ values (1, 1, 1, 'true'),
        (2, 6, 4, 'false'),
        (3, 7, 1, 'true');
 
-insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id)
+insert into organization (id, name, external_id)
+values (4, 'Biobank #1', 'biobank:1'),
+       (5, 'Biobank #2', 'biobank:2'),
+       (6, 'Biobank #3', 'biobank:3');
+
+insert into resource (id, name, description, source_id, data_source_id, organization_id, access_criteria_set_id)
 values (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1',
-        'biobank:1:collection:1', 1, 1),
+        'biobank:1:collection:1', 1, 4, 1),
        (5, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1',
-        'biobank:1:collection:2', 1, 1),
+        'biobank:1:collection:2', 1, 4, 1),
        (6, 'Test collection #1 of biobank #2', 'This is the first test collection of biobank 2',
-        'biobank:2:collection:1', 1, 1),
+        'biobank:2:collection:1', 1, 5, 1),
        (7, 'Test collection #1 of biobank #3', 'This is the first test collection of biobank 3',
-        'biobank:3:collection:1', 1, 1),
+        'biobank:3:collection:1', 1, 6, 1),
        (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3',
-        'biobank:3:collection:2', 1, 1),
+        'biobank:3:collection:2', 1, 6, 1),
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:3', 1, 1);
+        'biobank:3:collection:3', 1, 6, 1);
 
 insert into person_resource_link (resource_id, person_id)
 values (4, 103),
        (4, 109);
 
-insert into negotiation (id, creation_date, CURRENT_STATE, modified_date, created_by, modified_by, payload)
+insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload)
 values ('negotiation-1', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-2', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
@@ -105,6 +110,10 @@ values ('request-1', 4),
        ('request-2', 6),
        ('request-v2', 7),
        ('request-unassigned', 7);
+
+insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
+    values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
+           ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED');
 
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-1', 108, 4);

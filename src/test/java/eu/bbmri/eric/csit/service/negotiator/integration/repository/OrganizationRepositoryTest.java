@@ -31,25 +31,18 @@ public class OrganizationRepositoryTest {
   @Autowired DataSourceRepository dataSourceRepository;
 
   @Test
-  void count_emptyTable_0() {
-    assertEquals(0, organizationRepository.count());
-  }
-
-  @Test
   void save_null_InvalidDataAccessApiUsageException() {
     assertThrows(
         InvalidDataAccessApiUsageException.class,
-        () -> {
-          organizationRepository.save(null);
-        });
+        () -> organizationRepository.save(null));
   }
 
   @Test
   void save_validId_uuidIsGenerated() {
-    assertEquals(0, organizationRepository.count());
+    assertEquals(3, organizationRepository.count());
     Organization savedOrganization =
         organizationRepository.save(Organization.builder().externalId("ExternalId").build());
-    assertEquals(1, organizationRepository.count());
+    assertEquals(4, organizationRepository.count());
     assertEquals("ExternalId", savedOrganization.getExternalId());
     assertNotNull(savedOrganization.getId());
   }
@@ -71,8 +64,10 @@ public class OrganizationRepositoryTest {
                 .name("")
                 .syncActive(true)
                 .build());
+
     Organization savedOrganization =
         organizationRepository.save(Organization.builder().externalId("ExternalId").build());
+
     resourceRepository.save(
         Resource.builder()
             .name("test Resource")

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.*;
@@ -53,7 +54,12 @@ public class RequestModelMapperTest {
   @Test
   void map_requestToDTO_Ok() {
     Resource resource =
-        Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
+        Resource.builder()
+            .sourceId("collection:1")
+            .dataSource(new DataSource())
+            .organization(
+                Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+            .build();
     Request request =
         Request.builder()
             .id("newRequest")
@@ -122,7 +128,12 @@ public class RequestModelMapperTest {
     void map_frontEndUrlWithTrailingSlash_Ok() {
       this.requestModelsMapper = new RequestModelsMapper("http://localhost:8080/");
       Resource resource =
-          Resource.builder().sourceId("collection:1").dataSource(new DataSource()).build();
+          Resource.builder()
+              .sourceId("collection:1")
+              .dataSource(new DataSource())
+              .organization(
+                  Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+              .build();
       Request request =
           Request.builder()
               .id("newRequest")

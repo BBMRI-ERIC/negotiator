@@ -11,6 +11,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -94,7 +95,12 @@ public class TestUtils {
     String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
     String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
-    ResourceDTO collection = ResourceDTO.builder().id(collectionId).name(collectionName).build();
+    ResourceDTO collection =
+        ResourceDTO.builder()
+            .id(collectionId)
+            .name(collectionName)
+            .organization(OrganizationDTO.builder().externalId(biobankId).name(biobankName).build())
+            .build();
 
     return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
@@ -126,26 +132,24 @@ public class TestUtils {
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
     String payload =
         "    {\n"
-            + "      \"project\": {\n"
-            + "        \"title\": \"Title\",\n"
-            + "        \"description\": \"Description\"\n"
-            + "      },\n"
-            + "      \"samples\": {\n"
-            + "        \"sample-type\": \"DNA\",\n"
-            + "        \"num-of-subjects\": 10,\n"
-            + "        \"num-of-samples\": 20,\n"
-            + "        \"volume-per-sample\": 5\n"
-            + "      },\n"
-            + "      \"ethics-vote\": {\n"
-            + "        \"ethics-vote\": \"My ethic vote\"\n"
-            + "      }\n"
-            + "    }\n";
+            +   "\"project\": {\n"
+            +     "\"title\": \"Title\",\n"
+            +     "\"description\": \"Description\"\n"
+            +   "},\n"
+            + " \"samples\": {\n"
+            + "   \"sample-type\": \"DNA\",\n"
+            + "   \"num-of-subjects\": 10,\n"
+            + "   \"num-of-samples\": 20,\n"
+            + "   \"volume-per-sample\": 5\n"
+            + " },\n"
+            + " \"ethics-vote\": {\n"
+            + "   \"ethics-vote\": \"My ethic vote\"\n"
+            + " }\n"
+            + "}\n";
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 
-    NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
-        NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId);
-    return builder.build();
+    return NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId).build();
   }
 
   public static String jsonFromRequest(Object request) throws JsonProcessingException {

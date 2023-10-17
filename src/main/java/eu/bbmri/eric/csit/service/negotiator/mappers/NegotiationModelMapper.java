@@ -90,17 +90,22 @@ public class NegotiationModelMapper {
         .flatMap(
             request ->
                 request.getResources().stream()
-                    .map(
-                        (resource) ->
-                            ResourceWithStatusDTO.builder()
-                                .id(resource.getSourceId())
-                                .name(resource.getName())
-                                .status(statePerResource.get(resource.getSourceId()).name())
-                                .organization(
-                                    modelMapper.map(
-                                        resource.getOrganization(), OrganizationDTO.class))
-                                .build()))
+                    .map(resource -> buildResourceWithStatus(resource, statePerResource)))
         .collect(Collectors.toSet());
+  }
+
+  private ResourceWithStatusDTO buildResourceWithStatus(
+      Resource resource, Map<String, NegotiationResourceState> statePerResource) {
+    ResourceWithStatusDTO.ResourceWithStatusDTOBuilder builder =
+        ResourceWithStatusDTO.builder()
+            .id(resource.getSourceId())
+            .name(resource.getName())
+            .organization(modelMapper.map(resource.getOrganization(), OrganizationDTO.class));
+    NegotiationResourceState state = statePerResource.get(resource.getSourceId());
+    if (state != null) {
+      builder.status(state.name());
+    }
+    return builder.build();
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
