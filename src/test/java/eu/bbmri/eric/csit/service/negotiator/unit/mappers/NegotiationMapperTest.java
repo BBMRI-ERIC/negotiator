@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
@@ -46,13 +45,30 @@ public class NegotiationMapperTest {
     assertEquals("SUBMITTED", negotiationDTO.getStatus());
   }
 
-  @Test
-  void map_statePerResource_Ok() {
-    Negotiation negotiation = buildNegotiation();
+  private static Negotiation buildNegotiation() {
+    Request request =
+        Request.builder()
+            .resources(
+                Set.of(
+                    Resource.builder()
+                        .sourceId("collection:1")
+                        .organization(
+                            Organization.builder()
+                                .name("Test Biobank")
+                                .externalId("biobank:1")
+                                .build())
+                        .dataSource(DataSource.builder().build())
+                        .build()))
+            .build();
+
+    Negotiation negotiation =
+        Negotiation.builder()
+            .requests(Set.of(request))
+            .currentState(NegotiationState.SUBMITTED)
+            .build();
+    negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
     negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
-    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    JsonNode jsonNode = negotiationDTO.getResourceStatus();
-    assertEquals("SUBMITTED", jsonNode.get("collection:1").textValue());
+    return negotiation;
   }
 
   @Test
@@ -91,24 +107,13 @@ public class NegotiationMapperTest {
         LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00), negotiationDTO.getCreationDate());
   }
 
-  private static Negotiation buildNegotiation() {
-    Request request =
-        Request.builder()
-            .resources(
-                Set.of(
-                    Resource.builder()
-                        .sourceId("collection:1")
-                        .dataSource(new DataSource())
-                        .build()))
-            .build();
+  @Test
+  void map_statePerResource_Ok() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
 
-    Negotiation negotiation =
-        Negotiation.builder()
-            .requests(Set.of(request))
-            .currentState(NegotiationState.SUBMITTED)
-            .build();
-
-    negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
-    return negotiation;
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    String status = negotiationDTO.getStatusForResource("collection:1");
+    assertEquals("SUBMITTED", status);
   }
 }
