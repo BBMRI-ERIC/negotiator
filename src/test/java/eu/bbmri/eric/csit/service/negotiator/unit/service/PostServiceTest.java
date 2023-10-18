@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
@@ -71,7 +72,8 @@ public class PostServiceTest {
 
   @Test
   public void test_FindPostByNegotiationIdAndPosters() {
-    when(postRepository.findNewByNegotiationIdAndPosters("negotiationId", List.of("p1")))
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+            "negotiationId", PostStatus.CREATED, List.of("p1")))
         .thenReturn(List.of(publicPost1, publicPost2));
     Assertions.assertEquals(
         2,
@@ -82,7 +84,8 @@ public class PostServiceTest {
 
   @Test
   public void test_FindPostByNegotiationIdAndPosters_ReturnsEmptyList_whenNotFound() {
-    when(postRepository.findNewByNegotiationIdAndPosters(any(), any()))
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+            any(), eq(PostStatus.CREATED), any()))
         .thenReturn(Collections.emptyList());
     assertTrue(
         postService
@@ -101,7 +104,7 @@ public class PostServiceTest {
 
   @Test
   public void test_FindAllPrivatePostsByOrganization() {
-    when(postRepository.findByNegotiationIdAndTypeAndOrganization(
+    when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             "negotiationId", PostType.PRIVATE, "organization1"))
         .thenReturn(List.of(privatePost1));
     Assertions.assertEquals(

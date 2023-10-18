@@ -151,7 +151,7 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheBiobanker")
-  public void testMarkPublicPostPostAsRead() throws Exception {
+  public void testMarkPublicPostAsRead() throws Exception {
     PostCreateDTO request =
         TestUtils.createPostDTO(null, "message", PostStatus.READ, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -203,8 +203,7 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheBiobanker")
-  public void testMarkPrivatePostPostAsRead() throws Exception {
-    int numberOfPosts = (int) postRepository.count();
+  public void testMarkPrivatePostAsRead() throws Exception {
     PostCreateDTO request =
         TestUtils.createPostDTO(
             NEGOTIATION_1_ORGANIZATION_ID, "message", PostStatus.READ, PostType.PRIVATE);

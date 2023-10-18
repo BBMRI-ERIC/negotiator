@@ -73,7 +73,7 @@ public class PostServiceImpl implements PostService {
     } else if (organizationId == null || organizationId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
     } else {
-      posts = postRepository.findByNegotiationIdAndTypeAndOrganization(negotiationId, type, organizationId);
+      posts = postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(negotiationId, type, organizationId);
     }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -88,13 +88,17 @@ public class PostServiceImpl implements PostService {
       @Nullable String organizationId) {
     List<Post> posts;
     if (type == null) {
-      posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
+      posts =
+          postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+              negotiationId, PostStatus.CREATED, posters);
     } else if (organizationId == null || organizationId.isEmpty()) {
-      posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
+      posts =
+          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+              negotiationId, PostStatus.CREATED, type, posters);
     } else {
       posts =
-          postRepository.findNewByNegotiationIdAndPostersAndTypeAndOrganizationId(
-              negotiationId, posters, type, organizationId);
+          postRepository.findByNegotiationIdAndTypeAndAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+              negotiationId, type, PostStatus.CREATED, posters, organizationId);
     }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -103,7 +107,7 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
-    Post post = postRepository.findByNegotiationIdAndId(negotiationId, messageId);
+    Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
     post.setStatus(request.getStatus());
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);

@@ -1,12 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
@@ -18,65 +18,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @EntityGraph("post-with-details")
   List<Post> findByNegotiationIdAndType(String negotiationId, PostType type);
 
-  //  @Query(
-  //      value =
-  //          "SELECT p "
-  //              + "FROM Post p "
-  //              + "JOIN FETCH p.negotiation n "
-  //              + "WHERE n.id = :negotiationId and "
-  //              + "p.id = :id")
   @EntityGraph("post-with-details")
-  Post findByNegotiationIdAndId(String negotiationId, String id);
+  Post findByIdAndNegotiationId(String negotiationId, String id);
 
-  @Query(
-      value =
-          "SELECT p "
-              + "FROM Post p "
-              + "JOIN FETCH p.negotiation n "
-              + "WHERE n.id = :negotiationId and "
-              + "p.createdBy.authName in :posters and "
-              + "p.status = 'CREATED' ")
-  //  @EntityGraph("post-with-details")
-  List<Post> findNewByNegotiationIdAndPosters(String negotiationId, List<String> posters);
+  @EntityGraph("post-with-details")
+  List<Post> findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+      String negotiationId, PostStatus status, List<String> authors);
 
-  @Query(
-      value =
-          "SELECT p "
-              + "FROM Post p "
-              + "JOIN FETCH p.negotiation n "
-              + "WHERE n.id = :negotiationId and "
-              + "p.createdBy.authName in :posters and "
-              + "p.status = 'CREATED' and "
-              + "p.type = :type ")
-  //  @EntityGraph("post-with-details")
-  List<Post> findNewByNegotiationIdAndPostersAndType(
-      String negotiationId, List<String> posters, PostType type);
+  @EntityGraph("post-with-details")
+  List<Post> findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+      String negotiationId, PostStatus status, PostType type, List<String> authors);
 
-  @Query(
-      value =
-          "SELECT p "
-              + "FROM Post p "
-              + "JOIN FETCH p.negotiation n "
-              + "JOIN FETCH p.organization o "
-              + "WHERE n.id = :negotiationId and o.id = p.organization and "
-              + "p.createdBy.authName in :posters and "
-              + "p.status = 'CREATED' and "
-              + "p.type = :type and "
-              + "o.externalId = :organizationId")
-  //  @EntityGraph("post-with-details")
-  List<Post> findNewByNegotiationIdAndPostersAndTypeAndOrganizationId(
-      String negotiationId, List<String> posters, PostType type, String organizationId);
+  @EntityGraph("post-with-details")
+  List<Post> findByNegotiationIdAndTypeAndAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+      String negotiationId, PostType type, PostStatus status, List<String> posters, String organizationId);
 
-    @Query(
-        value =
-            "SELECT p "
-                + "FROM Post p "
-                + "JOIN FETCH p.negotiation n "
-                + "JOIN FETCH p.organization r "
-                + "WHERE n.id = :negotiationId and r.id = p.organization and "
-                + "p.type = :type and "
-                + "r.externalId = :organizationId")
-//  @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndTypeAndOrganization(
+  @EntityGraph("post-with-details")
+  List<Post> findByNegotiationIdAndTypeAndOrganization_ExternalId(
       String negotiationId, PostType type, String organizationId);
 }
