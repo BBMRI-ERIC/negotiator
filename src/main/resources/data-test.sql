@@ -125,7 +125,7 @@ insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-v2', 108, 4);
 
 insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, request_id,
-                  resource_id, type)
+                  organization_id, type)
 values ('post-1-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
        ('post-2-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,

@@ -19,5 +19,5 @@ public class ResourceDTO {
 
   @Nullable private String name;
 
-  @Nullable private OrganizationDTO organization;
+  @NotNull private OrganizationDTO organization;
 }

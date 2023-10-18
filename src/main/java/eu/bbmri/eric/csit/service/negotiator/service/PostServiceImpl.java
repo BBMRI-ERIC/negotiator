@@ -1,15 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -28,10 +20,12 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
+  @Autowired
+  private OrganizationRepository organizationRepository;
 
   @Autowired private PostRepository postRepository;
 
-  @Autowired private ResourceRepository resourceRepository;
+//  @Autowired private ResourceRepository resourceRepository;
 
   @Autowired private NegotiationRepository negotiationRepository;
 
@@ -42,26 +36,26 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity = modelMapper.map(postRequest, Post.class);
-    try {
-      Resource resource = null;
-      if (postRequest.getType().equals(PostType.PRIVATE)) {
-        // A private post is always associated and related to a Resource
-        String resourceId = postRequest.getResourceId();
-        resource =
-            resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
+
+    if (postRequest.getType().equals(PostType.PRIVATE)) {
+      // A private post is always associated and related to a Resource
+      if (postRequest.getOrganizationId() != null) {
+        String resourceId = postRequest.getOrganizationId();
+        Organization organization =
+            organizationRepository.findByExternalId(resourceId).orElseThrow(WrongRequestException::new);
+        postEntity.setOrganization(organization);
       }
-      Negotiation negotiation =
-          negotiationRepository
-              .findById(negotiationId)
-              .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    }
 
-      Person person =
-          personRepository.findDetailedById(personId).orElseThrow(WrongRequestException::new);
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
 
-      postEntity.setResource(resource);
-      postEntity.setNegotiation(negotiation);
-      postEntity.setStatus(PostStatus.CREATED);
+    postEntity.setNegotiation(negotiation);
+    postEntity.setStatus(PostStatus.CREATED);
 
+    try {
       Post post = postRepository.save(postEntity);
       return modelMapper.map(post, PostDTO.class);
 
@@ -72,14 +66,14 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(
-      String negotiationId, @Nullable PostType type, @Nullable String resourceId) {
+      String negotiationId, @Nullable PostType type, @Nullable String organizationId) {
     List<Post> posts;
     if (type == null) {
       posts = postRepository.findByNegotiationId(negotiationId);
-    } else if (resourceId == null || resourceId.isEmpty()) {
+    } else if (organizationId == null || organizationId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
     } else {
-      posts = postRepository.findByNegotiationIdAndTypeAndResource(negotiationId, type, resourceId);
+      posts = postRepository.findByNegotiationIdAndTypeAndOrganization(negotiationId, type, organizationId);
     }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -91,16 +85,16 @@ public class PostServiceImpl implements PostService {
       String negotiationId,
       List<String> posters,
       @Nullable PostType type,
-      @Nullable String resourceId) {
+      @Nullable String organizationId) {
     List<Post> posts;
     if (type == null) {
       posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
-    } else if (resourceId == null || resourceId.isEmpty()) {
+    } else if (organizationId == null || organizationId.isEmpty()) {
       posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
     } else {
       posts =
-          postRepository.findNewByNegotiationIdAndPostersAndTypeAndResource(
-              negotiationId, posters, type, resourceId);
+          postRepository.findNewByNegotiationIdAndPostersAndTypeAndOrganizationId(
+              negotiationId, posters, type, organizationId);
     }
     return posts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -109,7 +103,7 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
-    Post post = postRepository.findByNegotiationIdAndMessageId(negotiationId, messageId);
+    Post post = postRepository.findByNegotiationIdAndId(negotiationId, messageId);
     post.setStatus(request.getStatus());
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);

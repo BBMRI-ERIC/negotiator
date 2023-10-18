@@ -9,4 +9,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
   @EntityGraph(value = "organization-with-detailed-resources")
   Optional<Organization> findDetailedById(Long id);
+
+  Optional<Organization> findByExternalId(String externalId);
 }

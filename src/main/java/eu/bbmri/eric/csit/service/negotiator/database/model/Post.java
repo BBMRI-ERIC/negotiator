@@ -1,19 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import javax.persistence.*;
+import lombok.*;
 import lombok.ToString.Exclude;
 
 @ToString
@@ -24,11 +12,21 @@ import lombok.ToString.Exclude;
 @Setter
 @Builder
 @Table(name = "post")
+@NamedEntityGraph(
+        name = "post-with-details",
+        attributeNodes = {
+                @NamedAttributeNode(value = "text"),
+                @NamedAttributeNode(value = "type"),
+                @NamedAttributeNode(value = "createdBy"),
+                @NamedAttributeNode(value = "organization", subgraph = "organization_details")
+        },
+        subgraphs = {
+                @NamedSubgraph(name = "organization_details", attributeNodes = {
+                        @NamedAttributeNode(value = "externalId")
+                })
+        }
+)
 public class Post extends AuditEntity {
-  //
-  //  @ManyToMany(mappedBy = "posts")
-  //  @Exclude
-  //  Set<Attachment> attachments;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "request_id")
@@ -36,9 +34,9 @@ public class Post extends AuditEntity {
   private Negotiation negotiation;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "resource_id")
+  @JoinColumn(name = "organization_id")
   @Exclude
-  private Resource resource;
+  private Organization organization;
 
   @Column(columnDefinition = "TEXT")
   private String text;

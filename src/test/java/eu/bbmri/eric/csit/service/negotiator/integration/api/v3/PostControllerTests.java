@@ -34,9 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 public class PostControllerTests {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
-  private static final String NEGOTIATION_2_ID = "negotiation-2";
-  private static final String NEGOTIATION_1_RESOURCE_ID = "biobank:1:collection:1";
-  private static final String NEGOTIATION_2_RESOURCE_ID = "biobank:2";
+  private static final String NEGOTIATION_1_ORGANIZATION_ID = "biobank:1";
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
   private static final String RESEARCHER_ROLE = "ROLE_RESEARCHER";
@@ -57,8 +55,7 @@ public class PostControllerTests {
     PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
-    System.out.println(requestBody);
-    System.out.println(uri);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(uri))
@@ -75,8 +72,7 @@ public class PostControllerTests {
     PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
-    System.out.println(requestBody);
-    System.out.println(uri);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(uri))
@@ -91,8 +87,7 @@ public class PostControllerTests {
     PostCreateDTO request = TestUtils.createPostDTO("Unknown", "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
-    System.out.println(requestBody);
-    System.out.println(uri);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(uri))
@@ -123,7 +118,6 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testGetResearcherPostsOnly() throws Exception {
-    int numberOfPosts = (int) postRepository.count();
     String uri =
         String.format(
             "%s/%s/%s?role=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, RESEARCHER_ROLE);
@@ -158,7 +152,6 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheBiobanker")
   public void testMarkPublicPostPostAsRead() throws Exception {
-    int numberOfPosts = (int) postRepository.count();
     PostCreateDTO request =
         TestUtils.createPostDTO(null, "message", PostStatus.READ, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -178,11 +171,10 @@ public class PostControllerTests {
   @WithUserDetails("TheResearcher")
   public void testCreatePrivatePostOK() throws Exception {
     PostCreateDTO request =
-        TestUtils.createPostDTO(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
+        TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
-    System.out.println(requestBody);
-    System.out.println(uri);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(uri))
@@ -197,11 +189,10 @@ public class PostControllerTests {
   @Test
   public void testCreatePrivatePostUnauthorized() throws Exception {
     PostCreateDTO request =
-        TestUtils.createPostDTO(NEGOTIATION_1_RESOURCE_ID, "message", null, PostType.PRIVATE);
+        TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
-    System.out.println(requestBody);
-    System.out.println(uri);
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(URI.create(uri))
@@ -216,7 +207,7 @@ public class PostControllerTests {
     int numberOfPosts = (int) postRepository.count();
     PostCreateDTO request =
         TestUtils.createPostDTO(
-            NEGOTIATION_1_RESOURCE_ID, "message", PostStatus.READ, PostType.PRIVATE);
+            NEGOTIATION_1_ORGANIZATION_ID, "message", PostStatus.READ, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri =
         String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
@@ -248,12 +239,12 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
-  public void testGetPrivatePostsForSpecificResource() throws Exception {
+  public void testGetPrivatePostsForSpecificOrganization() throws Exception {
     int numberOfPrivatePosts = 2;
     String uri =
         String.format(
             "%s/%s/%s?type=PRIVATE&resource=%s",
-            NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, NEGOTIATION_1_RESOURCE_ID);
+            NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, NEGOTIATION_1_ORGANIZATION_ID);
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())

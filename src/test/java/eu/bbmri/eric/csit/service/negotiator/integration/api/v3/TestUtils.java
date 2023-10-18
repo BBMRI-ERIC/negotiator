@@ -5,12 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
@@ -220,16 +216,22 @@ public class TestUtils {
   }
 
   public static PostCreateDTO createPostDTO(
-      String resourceId, String text, PostStatus status, PostType type) throws IOException {
-    PostCreateDTO.PostCreateDTOBuilder builder =
-        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status).type(type);
-    return builder.build();
+      String organizationId, String text, PostStatus status, PostType type) {
+    return PostCreateDTO.builder()
+        .organizationId(organizationId)
+        .text(text)
+        .status(status)
+        .type(type)
+        .build();
   }
 
   public static Post createPost(
-      Negotiation negotiation, Resource resource, String text, PostType type) throws IOException {
-    Post.PostBuilder builder =
-        Post.builder().negotiation(negotiation).resource(resource).text(text).type(type);
-    return builder.build();
+      Negotiation negotiation, Organization organization, String text, PostType type) {
+    return Post.builder()
+        .negotiation(negotiation)
+        .organization(organization)
+        .text(text)
+        .type(type)
+        .build();
   }
 }

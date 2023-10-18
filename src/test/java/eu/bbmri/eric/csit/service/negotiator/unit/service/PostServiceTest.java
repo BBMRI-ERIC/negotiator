@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
@@ -43,15 +40,15 @@ public class PostServiceTest {
   void before() throws IOException {
     closeable = MockitoAnnotations.openMocks(this);
     Negotiation negotiation = new Negotiation();
-    Resource resource1 = new Resource();
-    resource1.setSourceId("resource1");
-    Resource resource2 = new Resource();
-    resource2.setSourceId("resource2");
+    Organization organization1 = Organization.builder().externalId("organization1").build();
+    Organization organization2 = Organization.builder().externalId("organization2").build();
 
     publicPost1 = TestUtils.createPost(negotiation, null, "public post 1", PostType.PUBLIC);
     publicPost2 = TestUtils.createPost(negotiation, null, "public post 2", PostType.PUBLIC);
-    privatePost1 = TestUtils.createPost(negotiation, resource1, "private post 1", PostType.PRIVATE);
-    privatePost2 = TestUtils.createPost(negotiation, resource2, "private post 2", PostType.PRIVATE);
+    privatePost1 =
+        TestUtils.createPost(negotiation, organization1, "private post 1", PostType.PRIVATE);
+    privatePost2 =
+        TestUtils.createPost(negotiation, organization2, "private post 2", PostType.PRIVATE);
   }
 
   @AfterEach
@@ -103,11 +100,12 @@ public class PostServiceTest {
   }
 
   @Test
-  public void test_FindAllPrivatePostsByResource() {
-    when(postRepository.findByNegotiationIdAndTypeAndResource(
-            "negotiationId", PostType.PRIVATE, "resource1"))
+  public void test_FindAllPrivatePostsByOrganization() {
+    when(postRepository.findByNegotiationIdAndTypeAndOrganization(
+            "negotiationId", PostType.PRIVATE, "organization1"))
         .thenReturn(List.of(privatePost1));
     Assertions.assertEquals(
-        1, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, "resource1").size());
+        1,
+        postService.findByNegotiationId("negotiationId", PostType.PRIVATE, "organization1").size());
   }
 }
