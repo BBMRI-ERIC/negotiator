@@ -8,6 +8,7 @@ import lombok.*;
 
 /** Class representing an Institution/Organization such as a Biobank. */
 @Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor

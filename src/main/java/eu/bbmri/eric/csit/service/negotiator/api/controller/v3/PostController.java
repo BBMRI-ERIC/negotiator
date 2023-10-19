@@ -59,6 +59,7 @@ public class PostController {
 
     List<PersonRoleDTO> negotiationPersonsWithRoles =
         n.getPersons().stream().filter(p -> p.getRole().equals(roleName)).toList();
+
     List<String> posters =
         negotiationPersonsWithRoles.stream().map(PersonRoleDTO::getName).toList();
 

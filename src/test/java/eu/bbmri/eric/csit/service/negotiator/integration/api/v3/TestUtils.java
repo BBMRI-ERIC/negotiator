@@ -226,12 +226,19 @@ public class TestUtils {
   }
 
   public static Post createPost(
-      Negotiation negotiation, Organization organization, String text, PostType type) {
-    return Post.builder()
-        .negotiation(negotiation)
-        .organization(organization)
-        .text(text)
-        .type(type)
-        .build();
+      Negotiation negotiation,
+      Person author,
+      Organization organization,
+      String text,
+      PostType type) {
+    Post post =
+        Post.builder()
+            .negotiation(negotiation)
+            .organization(organization)
+            .text(text)
+            .type(type)
+            .build();
+    post.setCreatedBy(author);
+    return post;
   }
 }

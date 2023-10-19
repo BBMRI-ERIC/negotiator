@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -76,6 +77,7 @@ public class PostServiceImpl implements PostService {
       posts = postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(negotiationId, type, organizationId);
     }
     return posts.stream()
+        .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
@@ -101,6 +103,7 @@ public class PostServiceImpl implements PostService {
               negotiationId, type, PostStatus.CREATED, posters, organizationId);
     }
     return posts.stream()
+        .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
@@ -112,5 +115,29 @@ public class PostServiceImpl implements PostService {
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);
     return modelMapper.map(updatedPost, PostDTO.class);
+  }
+
+  private boolean isRepresentative(Organization organization) {
+    return NegotiatorUserDetailsService.isRepresentativeAny(
+        organization.getResources().stream().map(Resource::getSourceId).toList());
+  }
+
+  private boolean isAdmin() {
+    return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  private boolean isAuthorized(Post post) {
+    return isAdmin() // Negotiator administrator can see everything
+        || post.isPublic() // The post is public so everyone in the negotiation can see it
+        || post.isCreator(
+            NegotiatorUserDetailsService
+                .getCurrentlyAuthenticatedUserInternalId()) // The creator of the post can see his/her posts
+        || post.getNegotiation()
+            .isCreator(
+                NegotiatorUserDetailsService
+                    .getCurrentlyAuthenticatedUserInternalId()) // The creator of the negotiation can see all the posts
+        || (post.getOrganization() != null
+            && isRepresentative(
+                post.getOrganization())); // The representative of the organization which is recipient of the post can see it
   }
 }

@@ -106,7 +106,7 @@ public class DBAttachmentService implements AttachmentService {
 
   @Override
   public List<AttachmentMetadataDTO> findByNegotiation(String id) {
-    List<Attachment> attachments = attachmentRepository.findByNegotiation_Id(id);
+    List<Attachment> attachments = attachmentRepository.findByNegotiationId(id);
     return attachments.stream()
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
         .toList();
@@ -116,7 +116,7 @@ public class DBAttachmentService implements AttachmentService {
   public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
     Attachment attachment =
         attachmentRepository
-            .findByIdAndNegotiation_Id(id, negotiationId)
+            .findByIdAndNegotiationId(id, negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(id));
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }

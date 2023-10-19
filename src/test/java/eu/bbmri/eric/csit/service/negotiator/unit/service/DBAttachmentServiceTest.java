@@ -177,7 +177,7 @@ public class DBAttachmentServiceTest {
             .size((long) data.length)
             .build();
 
-    when(attachmentRepository.findByNegotiation_Id("abcd")).thenReturn(List.of(attachment));
+    when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(List.of(attachment));
 
     List<AttachmentMetadataDTO> attachments = service.findByNegotiation("abcd");
     Assertions.assertEquals(
@@ -192,7 +192,7 @@ public class DBAttachmentServiceTest {
    */
   @Test
   public void test_GetAllForNegotiation_EmptyList() {
-    when(attachmentRepository.findByNegotiation_Id("abcd")).thenReturn(Collections.emptyList());
+    when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(Collections.emptyList());
 
     List<AttachmentMetadataDTO> attachments = service.findByNegotiation("abcd");
     Assertions.assertEquals(attachments.size(), 0);
@@ -211,7 +211,7 @@ public class DBAttachmentServiceTest {
             .size((long) data.length)
             .build();
 
-    when(attachmentRepository.findByIdAndNegotiation_Id("attachment-id", "negotiation-id"))
+    when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(attachment));
 
     AttachmentMetadataDTO attachments =
@@ -227,7 +227,7 @@ public class DBAttachmentServiceTest {
    */
   @Test
   public void test_RetrieveByNegotiationAndId_NotFound() {
-    when(attachmentRepository.findByIdAndNegotiation_Id("attachment-id", "negotiation-id"))
+    when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.empty());
 
     Assertions.assertThrows(
