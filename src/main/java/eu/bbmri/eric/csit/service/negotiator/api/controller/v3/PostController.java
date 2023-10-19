@@ -63,7 +63,7 @@ public class PostController {
     List<String> posters =
         negotiationPersonsWithRoles.stream().map(PersonRoleDTO::getName).toList();
 
-    return postService.findNewByNegotiationIdAndPosters(negotiationId, posters, type, resource);
+    return postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource);
   }
 
   @PutMapping("/negotiations/{negotiationId}/posts/{postId}")

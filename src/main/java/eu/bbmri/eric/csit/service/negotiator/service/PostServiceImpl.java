@@ -69,10 +69,12 @@ public class PostServiceImpl implements PostService {
   public List<PostDTO> findByNegotiationId(
       String negotiationId, @Nullable PostType type, @Nullable String organizationId) {
     List<Post> posts;
-    if (type == null) {
+    if (type == null && organizationId == null) {
       posts = postRepository.findByNegotiationId(negotiationId);
     } else if (organizationId == null || organizationId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
+    } else if (type == null) {
+      posts = postRepository.findByNegotiationIdAndOrganizationId(negotiationId, organizationId);
     } else {
       posts = postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(negotiationId, type, organizationId);
     }
@@ -83,25 +85,32 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndPosters(
+  public List<PostDTO> findNewByNegotiationIdAndAuthors(
       String negotiationId,
-      List<String> posters,
+      List<String> authors,
       @Nullable PostType type,
       @Nullable String organizationId) {
     List<Post> posts;
-    if (type == null) {
+    if (type == null && organizationId == null) {
       posts =
           postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
-              negotiationId, PostStatus.CREATED, posters);
+              negotiationId, PostStatus.CREATED, authors);
     } else if (organizationId == null || organizationId.isEmpty()) {
       posts =
           postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
-              negotiationId, PostStatus.CREATED, type, posters);
+              negotiationId, PostStatus.CREATED, type, authors);
+    } else if (type == null) {
+      posts =
+          postRepository
+              .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+                  negotiationId, PostStatus.CREATED, authors, organizationId);
     } else {
       posts =
-          postRepository.findByNegotiationIdAndTypeAndAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-              negotiationId, type, PostStatus.CREATED, posters, organizationId);
+          postRepository
+              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                  negotiationId, PostStatus.CREATED, type, authors, organizationId);
     }
+
     return posts.stream()
         .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))

@@ -52,11 +52,6 @@ public abstract class AuditEntity {
   private Person modifiedBy;
 
   public boolean isCreator(Long userId) {
-    if (this.getClass() == Post.class) {
-      System.out.println(this.createdBy.getId());
-      System.out.println(userId);
-      System.out.println(this.createdBy.getId().equals(userId));
-    }
     return this.createdBy.getId().equals(userId);
   }
 }

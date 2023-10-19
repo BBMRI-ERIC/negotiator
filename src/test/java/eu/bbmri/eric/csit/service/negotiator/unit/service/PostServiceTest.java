@@ -4,10 +4,10 @@ import static org.mockito.Mockito.when;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
-import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
@@ -63,6 +63,9 @@ public class PostServiceTest {
   private Post privateResToOrg2;
   private Post privateBio1ToOrg1;
   private Post privateBio2ToOrg2;
+  private List<Post> allPosts;
+  private List<Post> publicPosts;
+  private List<Post> privatePosts;
 
   @BeforeEach
   void before() {
@@ -91,6 +94,7 @@ public class PostServiceTest {
             .authEmail(BIOBANKER_2_AUTH_EMAIL)
             .authSubject(BIOBANKER_2_AUTH_SUBJECT)
             .build();
+
     DataSource dataSource = new DataSource();
 
     Organization organization1 = Organization.builder().externalId(ORG_1).build();
@@ -134,11 +138,31 @@ public class PostServiceTest {
     privateBio2ToOrg2 =
         TestUtils.createPost(
             negotiation, biobanker2, organization2, "private post from biobanker 2 to organization 2", PostType.PRIVATE);
+
+    publicPosts = List.of(publicPost1, publicPost2);
+    privatePosts =
+        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+    allPosts =
+        List.of(
+            publicPost1,
+            publicPost2,
+            privateResToOrg1,
+            privateResToOrg2,
+            privateBio2ToOrg2,
+            privateBio1ToOrg1);
   }
 
   @AfterEach
   void after() throws Exception {
     closeable.close();
+  }
+
+  // ############ Start tests findByNegotiationId #############
+
+  @Test
+  public void test_findByNegotiationId_NoResults() {
+    when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
+    Assertions.assertEquals(0, postService.findByNegotiationId("fakeId", null, null).size());
   }
 
   /** Tests that the admin gets all the posts of a negotiation */
@@ -149,18 +173,10 @@ public class PostServiceTest {
       authSubject = ADMIN_AUTH_SUBJECT,
       authEmail = ADMIN_AUTH_EMAIL,
       authorities = {"ROLE_ADMIN"})
-  public void test_FindAllByNegotiationId_AsAdmin() {
-    List<Post> posts =
-        List.of(
-            publicPost1,
-            publicPost2,
-            privateResToOrg1,
-            privateResToOrg2,
-            privateBio2ToOrg2,
-            privateBio1ToOrg1);
-    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(posts);
+  public void test_findByNegotiationId_AsAdmin_All() {
+    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(allPosts);
     Assertions.assertEquals(
-        posts.size(), postService.findByNegotiationId("negotiationId", null, null).size());
+        allPosts.size(), postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
   /** Tests that the researcger gets all the posts of a negotiation */
@@ -170,19 +186,11 @@ public class PostServiceTest {
       authName = RESEARCHER_AUTH_NAME,
       authSubject = RESEARCHER_AUTH_SUBJECT,
       authEmail = RESEARCHER_AUTH_EMAIL,
-      authorities = {"RESEARCHER"})
-  public void test_FindAllPostByNegotiationId_AsResearcher() {
-    List<Post> posts =
-        List.of(
-            publicPost1,
-            publicPost2,
-            privateResToOrg1,
-            privateResToOrg2,
-            privateBio2ToOrg2,
-            privateBio1ToOrg1);
-    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(posts);
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findByNegotiationId_AsResearcher_All() {
+    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(allPosts);
     Assertions.assertEquals(
-        4, postService.findByNegotiationId("negotiationId", null, null).size());
+        allPosts.size(), postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
   /** Tests that the biobanker gets the public posts and the ones sent to their organization */
@@ -193,78 +201,584 @@ public class PostServiceTest {
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
-  public void test_FindAllPostByNegotiationId_AsBiobanker() {
-    List<Post> posts =
-        List.of(
-            publicPost1,
-            publicPost2,
-            privateResToOrg1,
-            privateResToOrg2,
-            privateBio2ToOrg2,
-            privateBio1ToOrg1);
-
-    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(posts);
+  public void test_findByNegotiationId_AsBiobanker_All() {
+    when(postRepository.findByNegotiationId("negotiationId")).thenReturn(allPosts);
     Assertions.assertEquals(
         4, postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
-  //  @Test
-  //  @WithMockUser
-  //  public void test_FindPostByNegotiationId() {
-  //    when(postRepository.findByNegotiationId("negotiationId"))
-  //        .thenReturn(List.of(publicPost1, publicPost2));
-  //    Assertions.assertEquals(2, postService.findByNegotiationId("negotiationId", null,
-  // null).size());
-  //  }
-  //
-  //  @Test
-  //  public void test_FindPostByNegotiationIdNoResults() {
-  //    when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
-  //    Assertions.assertEquals(0, postService.findByNegotiationId("fakeId", null, null).size());
-  //  }
-  //
-  //  @Test
-  //  public void test_FindPostByNegotiationIdAndPosters() {
-  //    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
-  //            "negotiationId", PostStatus.CREATED, List.of("p1")))
-  //        .thenReturn(List.of(publicPost1, publicPost2));
-  //    Assertions.assertEquals(
-  //        2,
-  //        postService
-  //            .findNewByNegotiationIdAndPosters("negotiationId", List.of("p1"), null, null)
-  //            .size());
-  //  }
-  //
-  //  @Test
-  //  public void test_FindPostByNegotiationIdAndPosters_ReturnsEmptyList_whenNotFound() {
-  //    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
-  //            any(), eq(PostStatus.CREATED), any()))
-  //        .thenReturn(Collections.emptyList());
-  //    assertTrue(
-  //        postService
-  //            .findNewByNegotiationIdAndPosters(
-  //                "fakeID", Arrays.asList("fakep1", "fakeP2"), null, null)
-  //            .isEmpty());
-  //  }
-  //
-  //  @Test
-  //  public void test_FindAllPrivatePosts() {
-  //    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PRIVATE))
-  //        .thenReturn(List.of(privateResToOrg1, privateResToOrg2));
-  //    Assertions.assertEquals(
-  //        2, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
-  //  }
-  //
-  //  @Test
-  //  @WithMockUser(
-  //      username = "admin",
-  //      au = {"ADMIN"})
-  //  public void test_FindAllPrivatePostsByOrganization() {
-  //    when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
-  //            "negotiationId", PostType.PRIVATE, "organization1"))
-  //        .thenReturn(List.of(privateResToOrg1));
-  //    Assertions.assertEquals(
-  //        1, postService.findByNegotiationId("negotiationId", PostType.PRIVATE,
-  // "resource1").size());
-  //  }
+  /** Tests that the admin gets all the public posts of a negotiation */
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findByNegotiationId_AsAdmin_Public() {
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PUBLIC))
+        .thenReturn(publicPosts);
+    Assertions.assertEquals(
+        publicPosts.size(),
+        postService.findByNegotiationId("negotiationId", PostType.PUBLIC, null).size());
+  }
+
+  /** Tests that the researcher gets all the public posts */
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findByNegotiationId_AsResearcher_Public() {
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PUBLIC))
+        .thenReturn(publicPosts);
+    Assertions.assertEquals(
+        publicPosts.size(),
+        postService.findByNegotiationId("negotiationId", PostType.PUBLIC, null).size());
+  }
+
+  /** Tests that the biobanker gets the public posts */
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findByNegotiationId_AsBiobanker_Public() {
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PUBLIC))
+        .thenReturn(publicPosts);
+    Assertions.assertEquals(
+        publicPosts.size(),
+        postService.findByNegotiationId("negotiationId", PostType.PUBLIC, null).size());
+  }
+
+  /** Tests that the admin gets all the private posts of a negotiation */
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findByNegotiationId_AsAdmin_Private() {
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PRIVATE))
+        .thenReturn(privatePosts);
+    Assertions.assertEquals(
+        privatePosts.size(),
+        postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
+  }
+
+  /** Tests that the researcher gets all the private posts */
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findByNegotiationId_AsResearcher_Private() {
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PRIVATE))
+        .thenReturn(privatePosts);
+    Assertions.assertEquals(
+        privatePosts.size(),
+        postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
+  }
+
+  /** Tests that the biobanker gets the private posts sent to their organization */
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findByNegotiationId_AsBiobanker_Private() {
+    when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PRIVATE))
+        .thenReturn(privatePosts);
+    Assertions.assertEquals(
+        2, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
+  }
+
+  /**
+   * Tests that the admin gets all the private posts of a negotiation sent to a specific
+   * organization
+   */
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findByNegotiationId_AsAdmin_Private_withOrganizationId() {
+    List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
+    when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
+            "negotiationId", PostType.PRIVATE, "organization:1"))
+        .thenReturn(posts);
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findByNegotiationId("negotiationId", PostType.PRIVATE, "organization:1")
+            .size());
+  }
+
+  /** Tests that the researcher gets all the public posts */
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findByNegotiationId_AsResearcher_Private_withOrganizationId() {
+    List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
+    when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
+            "negotiationId", PostType.PRIVATE, "organization:1"))
+        .thenReturn(posts);
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findByNegotiationId("negotiationId", PostType.PRIVATE, "organization:1")
+            .size());
+  }
+
+  /** Tests that the biobanker gets the public posts */
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findByNegotiationId_AsBiobanker_Private_withOrganizationId() {
+    List<Post> posts = List.of(privateResToOrg1, privateBio1ToOrg1);
+    when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
+            "negotiationId", PostType.PRIVATE, "organization:1"))
+        .thenReturn(posts);
+    Assertions.assertEquals(
+        2,
+        postService
+            .findByNegotiationId("negotiationId", PostType.PRIVATE, "organization:1")
+            .size());
+  }
+
+  @Test
+  public void test_findNewByNegotiationIdAndAuthors_NoResults() {
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, authors))
+        .thenReturn(Collections.emptyList());
+    Assertions.assertEquals(
+        0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findNewByNegotiationIdAndAuthors_AsAdmin_All() {
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, authors))
+        .thenReturn(allPosts);
+
+    Assertions.assertEquals(
+        allPosts.size(),
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findNewByNegotiationIdAndAuthors__AsResearcher_All() {
+    List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, authors))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findNewByNegotiationIdAndAuthors__AsBiobanker_All() {
+    List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, authors))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findNewByNegotiationIdAndAuthors_AsAdmin_Public() {
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
+        .thenReturn(allPosts);
+
+    Assertions.assertEquals(
+        allPosts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, null)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findNewByNegotiationIdAndAuthors_AsResearcher_Public() {
+    List<Post> posts = List.of(publicPost1, publicPost2);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, null)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findNewByNegotiationIdAndAuthors_AsBiobanker_Public() {
+    List<Post> posts = List.of(publicPost1, publicPost2);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, null)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findNewByNegotiationIdAndAuthors_AsAdmin_Private() {
+    List<String> authors =
+        List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
+        .thenReturn(privatePosts);
+
+    Assertions.assertEquals(
+        privatePosts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, null)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findNewByNegotiationIdAndAuthors_AsResearcher_Private() {
+    List<Post> posts =
+        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+    List<String> authors =
+        List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, null)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findNewByNegotiationIdAndAuthors_AsBiobanker_Private() {
+    List<Post> posts =
+        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+    List<String> authors =
+        List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
+
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+            "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        2,
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, null)
+            .size());
+  }
+
+  // ##################################################################################################################
+  @Test
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_NoResults() {
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, null, authors, ORG_1))
+        .thenReturn(Collections.emptyList());
+    Assertions.assertEquals(
+        0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_AsAdmin_All() {
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, authors, ORG_1))
+        .thenReturn(allPosts);
+
+    Assertions.assertEquals(
+        allPosts.size(),
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_AsResearcher_All() {
+    List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, authors, ORG_1))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_AsBiobanker_All() {
+    List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, authors, ORG_1))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_Public_AsAdmin() {
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+        .thenReturn(allPosts);
+
+    Assertions.assertEquals(
+        allPosts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_Public_AsResearcher() {
+    List<Post> posts = List.of(publicPost1, publicPost2);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_Public_AsBiobanker() {
+    List<Post> posts = List.of(publicPost1, publicPost2);
+    List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 1L,
+      authName = ADMIN_AUTH_NAME,
+      authSubject = ADMIN_AUTH_SUBJECT,
+      authEmail = ADMIN_AUTH_EMAIL,
+      authorities = {"ROLE_ADMIN"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_Private_AsAdmin() {
+    List<String> authors =
+        List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+        .thenReturn(privatePosts);
+
+    Assertions.assertEquals(
+        privatePosts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = RESEARCHER_ID,
+      authName = RESEARCHER_AUTH_NAME,
+      authSubject = RESEARCHER_AUTH_SUBJECT,
+      authEmail = RESEARCHER_AUTH_EMAIL,
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_Private_AsResearcher() {
+    List<Post> posts =
+        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+    List<String> authors =
+        List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        posts.size(),
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_1_ID,
+      authName = BIOBANKER_1_AUTH_NAME,
+      authSubject = BIOBANKER_1_AUTH_SUBJECT,
+      authEmail = BIOBANKER_1_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_Private_AsBiobanker() {
+    List<Post> posts =
+        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+    List<String> authors =
+        List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
+
+    when(postRepository
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+        .thenReturn(posts);
+
+    Assertions.assertEquals(
+        2,
+        postService
+            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .size());
+  }
 }

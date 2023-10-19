@@ -19,6 +19,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   List<Post> findByNegotiationIdAndType(String negotiationId, PostType type);
 
   @EntityGraph("post-with-details")
+  List<Post> findByNegotiationIdAndOrganizationId(String negotiationId, String organizationId);
+
+  @EntityGraph("post-with-details")
   Post findByIdAndNegotiationId(String negotiationId, String id);
 
   @EntityGraph("post-with-details")
@@ -30,8 +33,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       String negotiationId, PostStatus status, PostType type, List<String> authors);
 
   @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndTypeAndAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-      String negotiationId, PostType type, PostStatus status, List<String> posters, String organizationId);
+  List<Post> findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+      String negotiationId, PostStatus status, List<String> authors, String organizationId);
+
+  @EntityGraph("post-with-details")
+  List<Post> findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+      String negotiationId,
+      PostStatus status,
+      PostType type,
+      List<String> authors,
+      String organizationId);
 
   @EntityGraph("post-with-details")
   List<Post> findByNegotiationIdAndTypeAndOrganization_ExternalId(
