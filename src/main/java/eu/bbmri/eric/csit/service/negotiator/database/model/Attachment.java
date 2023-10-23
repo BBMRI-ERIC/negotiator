@@ -47,4 +47,8 @@ public class Attachment extends AuditEntity {
   private Long size;
 
   private String contentType;
+
+  public boolean isPublic() {
+    return this.organization == null;
+  }
 }

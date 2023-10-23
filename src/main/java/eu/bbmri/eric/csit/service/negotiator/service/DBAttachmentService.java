@@ -8,20 +8,15 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRep
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service(value = "DefaultAttachmentService")
 public class DBAttachmentService implements AttachmentService {
@@ -42,6 +37,7 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Override
+  @Transactional
   public AttachmentMetadataDTO createForNegotiation(
       String negotiationId, @Nullable String organizationId, MultipartFile file) {
 
@@ -81,6 +77,7 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Override
+  @Transactional
   public AttachmentMetadataDTO create(MultipartFile file) {
     Attachment attachment;
     try {
@@ -100,74 +97,55 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Override
+  @Transactional
   public AttachmentMetadataDTO findMetadataById(String id) {
     Attachment attachment =
         attachmentRepository
             .findMetadataById(id)
             .orElseThrow(() -> new EntityNotFoundException(id));
+    if (!isAuthorizedForAttachment(attachment)) {
+      throw new ForbiddenRequestException();
+    }
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
   @Override
+  @Transactional
   public AttachmentDTO findById(String id) {
     Attachment attachment =
         attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     if (!isAuthorizedForAttachment(attachment)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+      throw new ForbiddenRequestException();
     }
     return modelMapper.map(attachment, AttachmentDTO.class);
   }
 
   @Override
+  @Transactional
   public List<AttachmentMetadataDTO> findByNegotiation(String id) {
     List<Attachment> attachments = attachmentRepository.findByNegotiationId(id);
     return attachments.stream()
+        .filter(this::isAuthorizedForAttachment)
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
         .toList();
   }
 
   @Override
+  @Transactional
   public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
     Attachment attachment =
         attachmentRepository
             .findByIdAndNegotiationId(id, negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(id));
+    if (!this.isAuthorizedForAttachment(attachment)) {
+      throw new ForbiddenRequestException();
+    }
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
-  private boolean isCreator(Attachment attachment) {
-    return Objects.equals(
-        attachment.getCreatedBy().getId(),
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
-  }
-
-  private boolean isNegotiationCreator(Negotiation negotiation) {
-    return Objects.equals(
-        negotiation.getCreatedBy().getId(),
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
-  }
-
-  private List<String> getResourceIdsFromUserAuthorities() {
-    List<String> resourceIds = new ArrayList<>();
-    for (GrantedAuthority grantedAuthority :
-        SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-      // Edit for different groups/resource types
-      if (grantedAuthority.getAuthority().contains("collection")) {
-        resourceIds.add(grantedAuthority.getAuthority());
-      }
-    }
-    return Collections.unmodifiableList(resourceIds);
-  }
-
-  private boolean isRepresentative(Negotiation negotiation) {
-    for (Request request : negotiation.getRequests()) {
-      for (Resource resource : request.getResources()) {
-        if (getResourceIdsFromUserAuthorities().contains(resource.getSourceId())) {
-          return true;
-        }
-      }
-    }
-    return false;
+  private boolean isRepresentative(Organization organization) {
+    return NegotiatorUserDetailsService.isRepresentativeAny(
+        organization.getResources().stream().map(Resource::getSourceId).toList());
   }
 
   private boolean isAdmin() {
@@ -177,12 +155,24 @@ public class DBAttachmentService implements AttachmentService {
   private boolean isAuthorizedForAttachment(Attachment attachment) {
     Negotiation negotiation = attachment.getNegotiation();
     if (negotiation == null) {
-      return isCreator(attachment) || isAdmin();
-    } else {
-      return isCreator(attachment)
-          || isNegotiationCreator(negotiation)
-          || isRepresentative(negotiation)
+      return attachment.isCreator(
+              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
           || isAdmin();
+    } else {
+      return isAdmin()
+          || attachment.isPublic()
+          || attachment.isCreator(
+              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+          || attachment
+              .getNegotiation()
+              .isCreator(
+                  NegotiatorUserDetailsService
+                      .getCurrentlyAuthenticatedUserInternalId()) // The creator of the negotiation
+          // can see all the posts
+          || (attachment.getOrganization() != null
+              && isRepresentative(
+                  attachment.getOrganization())); // The representative of the organization which is
+      // recipient of the post can see it
     }
   }
 }

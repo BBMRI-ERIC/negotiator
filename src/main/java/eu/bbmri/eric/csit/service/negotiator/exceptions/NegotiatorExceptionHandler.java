@@ -50,4 +50,11 @@ public class NegotiatorExceptionHandler {
         new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(ForbiddenRequestException.class)
+  public final ResponseEntity<ErrorResponse> handleForbiddenException(
+      EntityNotFoundException ex, WebRequest request) {
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+  }
 }
