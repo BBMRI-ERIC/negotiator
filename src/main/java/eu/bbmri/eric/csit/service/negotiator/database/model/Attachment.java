@@ -1,12 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.Table;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +32,11 @@ public class Attachment extends AuditEntity {
   @JoinColumn(name = "negotiation_id")
   @Exclude
   Negotiation negotiation;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "organization_id")
+  @Exclude
+  private Organization organization;
 
   private String name;
 

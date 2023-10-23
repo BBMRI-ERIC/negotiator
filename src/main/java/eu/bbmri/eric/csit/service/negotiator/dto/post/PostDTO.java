@@ -24,8 +24,6 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class PostDTO {
 
-  Set<Attachment> attachments;
-
   @NotNull private String id;
 
   @Valid @NotEmpty private PostStatus status;
@@ -37,8 +35,6 @@ public class PostDTO {
   @Valid @NotEmpty private PersonDTO createdBy;
 
   @Valid private String organizationId;
-
-//  @Valid private PersonDTO personRecipient;
 
   @Valid @NotEmpty private PostType type;
 }

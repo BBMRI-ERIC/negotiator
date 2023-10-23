@@ -27,10 +27,6 @@ public class PostCreateDTO {
 
   @Valid private String organizationId;
 
-  //  @Valid private String resourceId;
-
-  //  @Valid private String personRecipientSubject;
-
   @Valid private PostStatus status;
 
   @Valid private PostType type;

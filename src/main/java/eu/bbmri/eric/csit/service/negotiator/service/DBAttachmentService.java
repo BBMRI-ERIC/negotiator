@@ -1,12 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -18,6 +16,7 @@ import java.util.Objects;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ public class DBAttachmentService implements AttachmentService {
   @Autowired private final AttachmentRepository attachmentRepository;
   @Autowired private final ModelMapper modelMapper;
   @Autowired private final NegotiationRepository negotiationRepository;
+  @Autowired private OrganizationRepository organizationRepository;
 
   @Autowired
   public DBAttachmentService(
@@ -42,14 +42,27 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Override
-  public AttachmentMetadataDTO createForNegotiation(String negotiationId, MultipartFile file) {
-    Attachment attachment;
-    try {
-      Negotiation negotiation =
-          negotiationRepository
-              .findById(negotiationId)
-              .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+  public AttachmentMetadataDTO createForNegotiation(
+      String negotiationId, @Nullable String organizationId, MultipartFile file) {
 
+    Attachment attachment;
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+
+    Organization organization;
+    if (organizationId != null) {
+      organization =
+          organizationRepository
+              .findByExternalId(organizationId)
+              .orElseThrow(() -> new EntityNotFoundException(organizationId));
+
+    } else {
+      organization = null;
+    }
+
+    try {
       attachment =
           Attachment.builder()
               .name(file.getOriginalFilename())
@@ -57,6 +70,7 @@ public class DBAttachmentService implements AttachmentService {
               .contentType(file.getContentType())
               .size(file.getSize())
               .negotiation(negotiation)
+              .organization(organization)
               .build();
 
       Attachment saved = attachmentRepository.save(attachment);

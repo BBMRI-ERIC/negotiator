@@ -87,7 +87,7 @@ public class DBAttachmentServiceTest {
         .thenReturn(attachment);
     when(negotiationRepository.findById("abcd")).thenReturn(Optional.of(negotiation));
 
-    AttachmentMetadataDTO metadataDTO = service.createForNegotiation("abcd", file);
+    AttachmentMetadataDTO metadataDTO = service.createForNegotiation("abcd", null, file);
     Assertions.assertEquals(metadataDTO.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
     Assertions.assertEquals(metadataDTO.getName(), fileName);
     Assertions.assertEquals(metadataDTO.getSize(), data.length);
@@ -118,7 +118,7 @@ public class DBAttachmentServiceTest {
     Assertions.assertThrows(
         EntityNotFoundException.class,
         () -> {
-          service.createForNegotiation("abcd", file);
+          service.createForNegotiation("abcd", null, file);
         });
   }
 
@@ -135,7 +135,7 @@ public class DBAttachmentServiceTest {
     when(file.getBytes()).thenThrow(IOException.class);
 
     Assertions.assertThrows(
-        RuntimeException.class, () -> service.createForNegotiation("abcd", file));
+        RuntimeException.class, () -> service.createForNegotiation("abcd", null, file));
   }
 
   /** Tests a correct file upload. */
