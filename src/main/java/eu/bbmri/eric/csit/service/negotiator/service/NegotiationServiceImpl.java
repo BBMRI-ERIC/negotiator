@@ -1,12 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -260,18 +256,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public List<NegotiationDTO> findByResourceIds(List<String> resourceIds) {
-    List<Negotiation> negotiations = negotiationRepository.findByCollectionIds(resourceIds);
-    log.info(negotiations);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
-  }
-
-  @Override
   public List<NegotiationDTO> findByCreatorId(Long personId) {
     List<Negotiation> negotiations = negotiationRepository.findByCreatedBy_Id(personId);
-    log.info(personId);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
@@ -290,6 +276,28 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState) {
     return negotiationRepository.findByCurrentState(negotiationState).stream()
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
+        .collect(Collectors.toList());
+  }
+
+  public static boolean isNegotiationCreator(Negotiation negotiation) {
+    return negotiation.isCreator(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+  }
+
+  public static boolean isAuthorizedForNegotiation(Negotiation negotiation) {
+    return isNegotiationCreator(negotiation)
+        || NegotiatorUserDetailsService.isRepresentativeAny(
+            negotiation.getResources().stream()
+                .map(Resource::getSourceId)
+                .collect(Collectors.toList()));
+  }
+
+  @Override
+  public List<NegotiationDTO> findByResourceIds(List<String> resourceIds) {
+    List<Negotiation> negotiations = negotiationRepository.findByCollectionIds(resourceIds);
+
+    return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
   }

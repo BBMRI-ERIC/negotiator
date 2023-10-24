@@ -31,7 +31,8 @@ values (101, 'ADMIN'),
        (102, 'EXT_SERV'),
        (103, 'PERUN_USER'),
        (104, 'RESEARCHER'),
-       (108, 'RESEARCHER');
+       (108, 'RESEARCHER'),
+       (109, 'ROLE_REPRESENTATIVE_biobank:1:collection:1');
 
 insert into access_criteria_set (id, name)
 values (1, 'BBMRI Template');
@@ -124,8 +125,7 @@ values ('negotiation-2', 108, 4);
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-v2', 108, 4);
 
-insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, request_id,
-                  organization_id, type)
+insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, request_id, organization_id, type)
 values ('post-1-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
        ('post-2-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,

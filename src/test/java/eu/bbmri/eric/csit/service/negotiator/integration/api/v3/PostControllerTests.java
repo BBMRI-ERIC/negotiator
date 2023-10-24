@@ -133,7 +133,6 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheBiobanker")
   public void testGetRepresentativePostsOnly() throws Exception {
-    int numberOfPosts = (int) postRepository.count();
     String uri =
         String.format(
             "%s/%s/%s?role=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, REPRESENTATIVE_ROLE);
