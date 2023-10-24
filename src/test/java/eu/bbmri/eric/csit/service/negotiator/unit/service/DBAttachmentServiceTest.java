@@ -78,16 +78,7 @@ public class DBAttachmentServiceTest {
             .authSubject(RESEARCHER_AUTH_SUBJECT)
             .build();
 
-    Person biobanker1 =
-        Person.builder()
-            .id(BIOBANKER_1_ID)
-            .authName(BIOBANKER_1_AUTH_NAME)
-            .authEmail(BIOBANKER_1_AUTH_EMAIL)
-            .authSubject(BIOBANKER_1_AUTH_SUBJECT)
-            .build();
-
     DataSource dataSource = new DataSource();
-
     Organization organization1 = Organization.builder().externalId(ORG_1).build();
     Organization organization2 = Organization.builder().externalId(ORG_2).build();
 
@@ -110,7 +101,9 @@ public class DBAttachmentServiceTest {
     organization1.setResources(Set.of(resource1));
     organization2.setResources(Set.of(resource2));
 
-    Negotiation negotiation = Negotiation.builder().build();
+    Request request = Request.builder().resources(Set.of(resource1)).build();
+
+    Negotiation negotiation = Negotiation.builder().requests(Set.of(request)).build();
     negotiation.setCreatedBy(researcher);
 
     byte[] data = "Hello, World!".getBytes();
@@ -243,7 +236,7 @@ public class DBAttachmentServiceTest {
       authSubject = RESEARCHER_AUTH_SUBJECT,
       authEmail = RESEARCHER_AUTH_EMAIL,
       authorities = {"ROLE_RESEARCHER"})
-  public void test_findByNegotiation_All_AsResearcher() {
+  public void test_FindByNegotiation_All_AsResearcher() {
     List<Attachment> attachments =
         List.of(publicNegotiationAttachment, privateNegotiationAttachment);
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
@@ -265,7 +258,7 @@ public class DBAttachmentServiceTest {
       authSubject = ADMIN_AUTH_SUBJECT,
       authEmail = ADMIN_AUTH_EMAIL,
       authorities = {"ROLE_ADMIN"})
-  public void test_findByNegotiation_All_AsAdmin() {
+  public void test_FindByNegotiation_All_AsAdmin() {
     List<Attachment> attachments =
         List.of(publicNegotiationAttachment, privateNegotiationAttachment);
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
@@ -286,8 +279,8 @@ public class DBAttachmentServiceTest {
       authName = BIOBANKER_1_AUTH_NAME,
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
-      authorities = {"ROLE_REPRESENTATIVE"})
-  public void test_findByNegotiation_All_AsBiobanker() {
+      authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:1"})
+  public void test_FindByNegotiation_All_AsBiobanker() {
     List<Attachment> attachments =
         List.of(publicNegotiationAttachment, privateNegotiationAttachment);
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
@@ -303,7 +296,23 @@ public class DBAttachmentServiceTest {
   }
 
   @Test
-  public void test_findByNegotiation_EmptyList() {
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_2_ID,
+      authName = BIOBANKER_2_AUTH_NAME,
+      authSubject = BIOBANKER_2_AUTH_SUBJECT,
+      authEmail = BIOBANKER_2_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:2"})
+  public void test_FindByNegotiation_EmptyList_WhenTheUser_IsNotAuthorizedForNegotiation() {
+    List<Attachment> attachments =
+        List.of(publicNegotiationAttachment, privateNegotiationAttachment);
+    when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
+
+    List<AttachmentMetadataDTO> attachmentsMetadata = service.findByNegotiation("abcd");
+    Assertions.assertEquals(attachmentsMetadata.size(), 0);
+  }
+
+  @Test
+  public void test_FindByNegotiation_EmptyList() {
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(Collections.emptyList());
     List<AttachmentMetadataDTO> attachments = service.findByNegotiation("abcd");
     Assertions.assertEquals(attachments.size(), 0);
@@ -353,7 +362,7 @@ public class DBAttachmentServiceTest {
       authName = BIOBANKER_1_AUTH_NAME,
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
-      authorities = {"ROLE_REPRESENTATIVE"})
+      authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findByIdAndNegotiation_whenPublic_OK_AsBiobanker() {
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(publicNegotiationAttachment));
@@ -410,7 +419,7 @@ public class DBAttachmentServiceTest {
       authName = BIOBANKER_1_AUTH_NAME,
       authSubject = BIOBANKER_1_AUTH_SUBJECT,
       authEmail = BIOBANKER_1_AUTH_EMAIL,
-      authorities = {"ROLE_REPRESENTATIVE"})
+      authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findByIdAndNegotiation_whenPrivate_Forbiddend_AsBiobanker() {
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(privateNegotiationAttachment));
@@ -427,6 +436,22 @@ public class DBAttachmentServiceTest {
 
     Assertions.assertThrows(
         EntityNotFoundException.class,
+        () -> service.findByIdAndNegotiation("attachment-id", "negotiation-id"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = BIOBANKER_2_ID,
+      authName = BIOBANKER_2_AUTH_NAME,
+      authSubject = BIOBANKER_2_AUTH_SUBJECT,
+      authEmail = BIOBANKER_2_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:2"})
+  public void test_FindByIdAndNegotiation_Forbidden_WhenTheUserIsNotAuthorizedForNegotiation() {
+    when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
+        .thenReturn(Optional.of(publicNegotiationAttachment));
+
+    Assertions.assertThrows(
+        ForbiddenRequestException.class,
         () -> service.findByIdAndNegotiation("attachment-id", "negotiation-id"));
   }
 
@@ -488,6 +513,20 @@ public class DBAttachmentServiceTest {
     Assertions.assertThrows(
         ForbiddenRequestException.class, () -> service.findById("attachment-id"));
   }
+
+  @Test
+  @WithMockNegotiatorUser(
+          id = BIOBANKER_2_ID,
+          authName = BIOBANKER_2_AUTH_NAME,
+          authSubject = BIOBANKER_2_AUTH_SUBJECT,
+          authEmail = BIOBANKER_2_AUTH_EMAIL,
+          authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:2"})
+  public void test_FindById_Forbidden_WhenTheAuthenticatedUser_IsNotAuthorizedForNegotiation() {
+    when(attachmentRepository.findById("attachment-id")).thenReturn(Optional.of(privateAttachment));
+    Assertions.assertThrows(
+            ForbiddenRequestException.class, () -> service.findById("attachment-id"));
+  }
+
 
   @Test
   @WithMockNegotiatorUser(

@@ -11,6 +11,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -152,27 +153,37 @@ public class DBAttachmentService implements AttachmentService {
     return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
+  private boolean isAuthorizedForNegotiation(Negotiation negotiation) {
+    return negotiation.isCreator(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+        || NegotiatorUserDetailsService.isRepresentativeAny(
+            negotiation.getResources().stream()
+                .map(Resource::getSourceId)
+                .collect(Collectors.toList()));
+  }
+
   private boolean isAuthorizedForAttachment(Attachment attachment) {
+    // The administrator of the negotiator is authorized to all attachements
+    if (isAdmin()) return true;
+
     Negotiation negotiation = attachment.getNegotiation();
     if (negotiation == null) {
+      // If the attachment is not associated to a Negotiation yet, it can be accessed only by the
+      // creator of the attachment
       return attachment.isCreator(
-              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
-          || isAdmin();
+          NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
     } else {
-      return isAdmin()
-          || attachment.isPublic()
-          || attachment.isCreator(
-              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
-          || attachment
-              .getNegotiation()
-              .isCreator(
-                  NegotiatorUserDetailsService
-                      .getCurrentlyAuthenticatedUserInternalId()) // The creator of the negotiation
-          // can see all the posts
-          || (attachment.getOrganization() != null
-              && isRepresentative(
-                  attachment.getOrganization())); // The representative of the organization which is
-      // recipient of the post can see it
+      // otherwise the user has to be authorized for the negotiation and
+      // the attachment should be
+      // 1. either public (in the negotiation)
+      // 2. created by the currently authenticated user
+      // 3. addressed to the organization represented by the authenticated user
+      return isAuthorizedForNegotiation(negotiation)
+          && (attachment.isPublic()
+              || attachment.isCreator(
+                  NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+              || (attachment.getOrganization() != null
+                  && isRepresentative(attachment.getOrganization())));
     }
   }
 }
