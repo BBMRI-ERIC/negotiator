@@ -1,11 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

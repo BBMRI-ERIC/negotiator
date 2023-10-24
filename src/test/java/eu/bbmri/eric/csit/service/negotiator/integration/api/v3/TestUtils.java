@@ -128,10 +128,10 @@ public class TestUtils {
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
     String payload =
         "    {\n"
-            +   "\"project\": {\n"
-            +     "\"title\": \"Title\",\n"
-            +     "\"description\": \"Description\"\n"
-            +   "},\n"
+            + "\"project\": {\n"
+            + "\"title\": \"Title\",\n"
+            + "\"description\": \"Description\"\n"
+            + "},\n"
             + " \"samples\": {\n"
             + "   \"sample-type\": \"DNA\",\n"
             + "   \"num-of-subjects\": 10,\n"

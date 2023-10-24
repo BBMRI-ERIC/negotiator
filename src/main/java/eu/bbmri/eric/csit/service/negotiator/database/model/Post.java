@@ -13,19 +13,18 @@ import lombok.ToString.Exclude;
 @Builder
 @Table(name = "post")
 @NamedEntityGraph(
-        name = "post-with-details",
-        attributeNodes = {
-                @NamedAttributeNode(value = "text"),
-                @NamedAttributeNode(value = "type"),
-                @NamedAttributeNode(value = "createdBy"),
-                @NamedAttributeNode(value = "organization", subgraph = "organization_details")
-        },
-        subgraphs = {
-                @NamedSubgraph(name = "organization_details", attributeNodes = {
-                        @NamedAttributeNode(value = "externalId")
-                })
-        }
-)
+    name = "post-with-details",
+    attributeNodes = {
+      @NamedAttributeNode(value = "text"),
+      @NamedAttributeNode(value = "type"),
+      @NamedAttributeNode(value = "createdBy"),
+      @NamedAttributeNode(value = "organization", subgraph = "organization_details")
+    },
+    subgraphs = {
+      @NamedSubgraph(
+          name = "organization_details",
+          attributeNodes = {@NamedAttributeNode(value = "externalId")})
+    })
 public class Post extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)

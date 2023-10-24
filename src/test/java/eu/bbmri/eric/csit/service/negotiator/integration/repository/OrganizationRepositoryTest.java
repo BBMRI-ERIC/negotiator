@@ -32,9 +32,7 @@ public class OrganizationRepositoryTest {
 
   @Test
   void save_null_InvalidDataAccessApiUsageException() {
-    assertThrows(
-        InvalidDataAccessApiUsageException.class,
-        () -> organizationRepository.save(null));
+    assertThrows(InvalidDataAccessApiUsageException.class, () -> organizationRepository.save(null));
   }
 
   @Test

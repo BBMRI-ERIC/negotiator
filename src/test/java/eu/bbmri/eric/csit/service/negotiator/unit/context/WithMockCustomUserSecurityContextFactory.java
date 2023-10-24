@@ -14,8 +14,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
 /**
- * SecurityContext to be used in unit tests. It creates a mock NegotiatorJwtAuthenticationToken
- * with Person, authorities and roles taken from the WithMockNegotiationUser.
+ * SecurityContext to be used in unit tests. It creates a mock NegotiatorJwtAuthenticationToken with
+ * Person, authorities and roles taken from the WithMockNegotiationUser.
  */
 public class WithMockCustomUserSecurityContextFactory
     implements WithSecurityContextFactory<WithMockNegotiatorUser> {
@@ -36,7 +36,8 @@ public class WithMockCustomUserSecurityContextFactory
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-    // No need to put truthful information in the JWT since they are not needed at this unit tests level
+    // No need to put truthful information in the JWT since they are not needed at this unit tests
+    // level
     HashMap<String, Object> headers = new HashMap<>();
     headers.put("typ", "JWT");
     HashMap<String, Object> claims = new HashMap<>();

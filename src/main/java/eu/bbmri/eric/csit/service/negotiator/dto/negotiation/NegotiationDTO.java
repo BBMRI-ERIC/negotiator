@@ -25,28 +25,20 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class NegotiationDTO {
 
-  @NotNull private String id;
-
-  private Set<RequestDTO> requests;
-
-  private Set<PersonRoleDTO> persons;
-
-  @NotNull private JsonNode payload;
-
-  @NotNull private String status;
-
-  @NotNull private Boolean postsEnabled;
-
-  @NotNull private LocalDateTime creationDate;
-
-  @NotNull private LocalDateTime modifiedDate;
-
   public Set<ResourceWithStatusDTO> resources;
+  @NotNull private String id;
+  private Set<RequestDTO> requests;
+  private Set<PersonRoleDTO> persons;
+  @NotNull private JsonNode payload;
+  @NotNull private String status;
+  @NotNull private Boolean postsEnabled;
+  @NotNull private LocalDateTime creationDate;
+  @NotNull private LocalDateTime modifiedDate;
 
   @JsonIgnore
   public String getStatusForResource(String resourceId) {
     Optional<ResourceWithStatusDTO> resource =
         this.resources.stream().filter(r -> Objects.equals(r.getId(), resourceId)).findFirst();
-      return resource.map(ResourceWithStatusDTO::getStatus).orElse(null);
+    return resource.map(ResourceWithStatusDTO::getStatus).orElse(null);
   }
 }

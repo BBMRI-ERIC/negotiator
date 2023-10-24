@@ -24,27 +24,6 @@ public class NegotiationMapperTest {
   @InjectMocks
   public NegotiationModelMapper negotiationModelMapper = new NegotiationModelMapper(mapper);
 
-  @BeforeEach
-  public void setup() {
-    MockitoAnnotations.openMocks(this);
-    this.negotiationModelMapper.addMappings();
-  }
-
-  @Test
-  void map_NegotiationToDTOid_Ok() {
-    Negotiation negotiation = buildNegotiation();
-    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    assertEquals(negotiation.getId(), negotiationDTO.getId());
-  }
-
-  @Test
-  void map_currentState_ok() {
-    Negotiation negotiation = buildNegotiation();
-    negotiation.setId("newNegotiation");
-    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    assertEquals("SUBMITTED", negotiationDTO.getStatus());
-  }
-
   private static Negotiation buildNegotiation() {
     Request request =
         Request.builder()
@@ -69,6 +48,27 @@ public class NegotiationMapperTest {
     negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
     negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
     return negotiation;
+  }
+
+  @BeforeEach
+  public void setup() {
+    MockitoAnnotations.openMocks(this);
+    this.negotiationModelMapper.addMappings();
+  }
+
+  @Test
+  void map_NegotiationToDTOid_Ok() {
+    Negotiation negotiation = buildNegotiation();
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals(negotiation.getId(), negotiationDTO.getId());
+  }
+
+  @Test
+  void map_currentState_ok() {
+    Negotiation negotiation = buildNegotiation();
+    negotiation.setId("newNegotiation");
+    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
+    assertEquals("SUBMITTED", negotiationDTO.getStatus());
   }
 
   @Test

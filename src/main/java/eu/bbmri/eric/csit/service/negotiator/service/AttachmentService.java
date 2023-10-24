@@ -12,7 +12,8 @@ public interface AttachmentService {
 
   AttachmentMetadataDTO create(MultipartFile file);
 
-  AttachmentMetadataDTO createForNegotiation(String negotiationId, @Nullable String organizationId, MultipartFile file);
+  AttachmentMetadataDTO createForNegotiation(
+      String negotiationId, @Nullable String organizationId, MultipartFile file);
 
   AttachmentMetadataDTO findMetadataById(String id);
 

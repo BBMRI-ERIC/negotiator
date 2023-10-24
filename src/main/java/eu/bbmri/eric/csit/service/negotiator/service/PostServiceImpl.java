@@ -21,12 +21,11 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
-  @Autowired
-  private OrganizationRepository organizationRepository;
+  @Autowired private OrganizationRepository organizationRepository;
 
   @Autowired private PostRepository postRepository;
 
-//  @Autowired private ResourceRepository resourceRepository;
+  //  @Autowired private ResourceRepository resourceRepository;
 
   @Autowired private NegotiationRepository negotiationRepository;
 
@@ -43,7 +42,9 @@ public class PostServiceImpl implements PostService {
       if (postRequest.getOrganizationId() != null) {
         String resourceId = postRequest.getOrganizationId();
         Organization organization =
-            organizationRepository.findByExternalId(resourceId).orElseThrow(WrongRequestException::new);
+            organizationRepository
+                .findByExternalId(resourceId)
+                .orElseThrow(WrongRequestException::new);
         postEntity.setOrganization(organization);
       }
     }
@@ -76,7 +77,9 @@ public class PostServiceImpl implements PostService {
     } else if (type == null) {
       posts = postRepository.findByNegotiationIdAndOrganizationId(negotiationId, organizationId);
     } else {
-      posts = postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(negotiationId, type, organizationId);
+      posts =
+          postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
+              negotiationId, type, organizationId);
     }
     return posts.stream()
         .filter(this::isAuthorized)

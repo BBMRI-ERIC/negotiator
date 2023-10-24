@@ -40,6 +40,19 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired ModelMapper modelMapper;
   @Autowired NotificationService notificationService;
 
+  public static boolean isNegotiationCreator(Negotiation negotiation) {
+    return negotiation.isCreator(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+  }
+
+  public static boolean isAuthorizedForNegotiation(Negotiation negotiation) {
+    return isNegotiationCreator(negotiation)
+        || NegotiatorUserDetailsService.isRepresentativeAny(
+            negotiation.getResources().stream()
+                .map(Resource::getSourceId)
+                .collect(Collectors.toList()));
+  }
+
   private List<Request> findRequests(Set<String> requestsId) {
     List<Request> entities = requestRepository.findAllById(requestsId);
     if (entities.size() < requestsId.size()) {
@@ -278,19 +291,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiationRepository.findByCurrentState(negotiationState).stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
-  }
-
-  public static boolean isNegotiationCreator(Negotiation negotiation) {
-    return negotiation.isCreator(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
-  }
-
-  public static boolean isAuthorizedForNegotiation(Negotiation negotiation) {
-    return isNegotiationCreator(negotiation)
-        || NegotiatorUserDetailsService.isRepresentativeAny(
-            negotiation.getResources().stream()
-                .map(Resource::getSourceId)
-                .collect(Collectors.toList()));
   }
 
   @Override

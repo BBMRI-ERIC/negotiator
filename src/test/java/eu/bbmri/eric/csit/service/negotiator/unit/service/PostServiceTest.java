@@ -26,39 +26,30 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration
 public class PostServiceTest {
 
-  @Mock PostRepository postRepository;
-
-  @Mock ModelMapper modelMapper;
-
-  @InjectMocks PostServiceImpl postService;
-
   private static final long RESEARCHER_ID = 2L;
   private static final String RESEARCHER_AUTH_NAME = "researcher";
   private static final String RESEARCHER_AUTH_SUBJECT = "researcher@aai.eu";
   private static final String RESEARCHER_AUTH_EMAIL = "researcher@aai.eu";
-
   private static final long BIOBANKER_1_ID = 3L;
   private static final String BIOBANKER_1_AUTH_NAME = "biobanker_1";
   private static final String BIOBANKER_1_AUTH_SUBJECT = "biobanker_1@aai.eu";
   private static final String BIOBANKER_1_AUTH_EMAIL = "biobanker_1@aai.eu";
-
   private static final long BIOBANKER_2_ID = 4L;
   private static final String BIOBANKER_2_AUTH_NAME = "biobanker_2";
   private static final String BIOBANKER_2_AUTH_SUBJECT = "biobanker_2@aai.eu";
   private static final String BIOBANKER_2_AUTH_EMAIL = "biobanker_2@aai.eu";
-
   private static final long BIOBANKER_3_ID = 5L;
   private static final String BIOBANKER_3_AUTH_NAME = "biobanker_3";
   private static final String BIOBANKER_3_AUTH_SUBJECT = "biobanker_3@aai.eu";
   private static final String BIOBANKER_3_AUTH_EMAIL = "biobanker_3@aai.eu";
-
   private static final String ADMIN_AUTH_NAME = "admin";
   private static final String ADMIN_AUTH_SUBJECT = "admin@aai.eu";
   private static final String ADMIN_AUTH_EMAIL = "admin@aai.eu";
-
   private static final String ORG_1 = "Organization_1";
   private static final String ORG_2 = "Organization_2";
-
+  @Mock PostRepository postRepository;
+  @Mock ModelMapper modelMapper;
+  @InjectMocks PostServiceImpl postService;
   private AutoCloseable closeable;
 
   private Post publicPost1;

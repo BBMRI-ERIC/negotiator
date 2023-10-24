@@ -32,10 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 @ContextConfiguration
 public class DBAttachmentServiceTest {
 
-  @Mock AttachmentRepository attachmentRepository;
-
-  @Mock NegotiationRepository negotiationRepository;
-
   private static final long RESEARCHER_ID = 2L;
   private static final String RESEARCHER_AUTH_NAME = "researcher";
   private static final String RESEARCHER_AUTH_SUBJECT = "researcher@aai.eu";
@@ -55,6 +51,8 @@ public class DBAttachmentServiceTest {
   private static final String ORG_1 = "Organization_1";
   private static final String ORG_2 = "Organization_2";
   private static Person researcher;
+  @Mock AttachmentRepository attachmentRepository;
+  @Mock NegotiationRepository negotiationRepository;
   @Spy ModelMapper modelMapper = new ModelMapper();
 
   @InjectMocks DBAttachmentService service;
