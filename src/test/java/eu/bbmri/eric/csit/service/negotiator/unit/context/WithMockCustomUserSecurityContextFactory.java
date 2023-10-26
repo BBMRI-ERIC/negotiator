@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.context;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationToken;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
@@ -42,7 +43,9 @@ public class WithMockCustomUserSecurityContextFactory
     headers.put("typ", "JWT");
     HashMap<String, Object> claims = new HashMap<>();
     claims.put("sub", customUser.authSubject());
-    Jwt jwt = new Jwt("testToken", Instant.now(), Instant.now(), headers, claims);
+    Jwt jwt =
+        new Jwt(
+            "testToken", Instant.now(), Instant.now().plus(3L, ChronoUnit.HOURS), headers, claims);
 
     Authentication auth =
         new NegotiatorJwtAuthenticationToken(principal, jwt, authorities, customUser.authSubject());
