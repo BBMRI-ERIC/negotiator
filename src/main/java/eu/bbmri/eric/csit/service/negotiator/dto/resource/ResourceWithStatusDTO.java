@@ -6,9 +6,7 @@ import javax.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
-/**
- * Resource DTO containing the status of the Resource, to be used as part of the Negotiation
- */
+/** Resource DTO containing the status of the Resource, to be used as part of the Negotiation */
 @Getter
 @Setter
 @Builder

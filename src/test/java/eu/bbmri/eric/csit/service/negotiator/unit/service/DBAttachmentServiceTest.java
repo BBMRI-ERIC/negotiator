@@ -514,17 +514,16 @@ public class DBAttachmentServiceTest {
 
   @Test
   @WithMockNegotiatorUser(
-          id = BIOBANKER_2_ID,
-          authName = BIOBANKER_2_AUTH_NAME,
-          authSubject = BIOBANKER_2_AUTH_SUBJECT,
-          authEmail = BIOBANKER_2_AUTH_EMAIL,
-          authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:2"})
+      id = BIOBANKER_2_ID,
+      authName = BIOBANKER_2_AUTH_NAME,
+      authSubject = BIOBANKER_2_AUTH_SUBJECT,
+      authEmail = BIOBANKER_2_AUTH_EMAIL,
+      authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:2"})
   public void test_FindById_Forbidden_WhenTheAuthenticatedUser_IsNotAuthorizedForNegotiation() {
     when(attachmentRepository.findById("attachment-id")).thenReturn(Optional.of(privateAttachment));
     Assertions.assertThrows(
-            ForbiddenRequestException.class, () -> service.findById("attachment-id"));
+        ForbiddenRequestException.class, () -> service.findById("attachment-id"));
   }
-
 
   @Test
   @WithMockNegotiatorUser(

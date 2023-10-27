@@ -124,16 +124,32 @@ public class PostServiceTest {
         TestUtils.createPost(negotiation, researcher, null, "public post 2", PostType.PUBLIC);
     privateResToOrg1 =
         TestUtils.createPost(
-            negotiation, researcher, organization1, "private post from resercher to organization 1", PostType.PRIVATE);
+            negotiation,
+            researcher,
+            organization1,
+            "private post from resercher to organization 1",
+            PostType.PRIVATE);
     privateResToOrg2 =
         TestUtils.createPost(
-            negotiation, researcher, organization2, "private post from resercher to organization 1", PostType.PRIVATE);
+            negotiation,
+            researcher,
+            organization2,
+            "private post from resercher to organization 1",
+            PostType.PRIVATE);
     privateBio1ToOrg1 =
         TestUtils.createPost(
-            negotiation, biobanker1, organization1, "private post from biobanker 1 to organization 1", PostType.PRIVATE);
+            negotiation,
+            biobanker1,
+            organization1,
+            "private post from biobanker 1 to organization 1",
+            PostType.PRIVATE);
     privateBio2ToOrg2 =
         TestUtils.createPost(
-            negotiation, biobanker2, organization2, "private post from biobanker 2 to organization 2", PostType.PRIVATE);
+            negotiation,
+            biobanker2,
+            organization2,
+            "private post from biobanker 2 to organization 2",
+            PostType.PRIVATE);
 
     publicPosts = List.of(publicPost1, publicPost2);
     privatePosts =
@@ -199,8 +215,7 @@ public class PostServiceTest {
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findByNegotiationId_AsBiobanker_All() {
     when(postRepository.findByNegotiationId("negotiationId")).thenReturn(allPosts);
-    Assertions.assertEquals(
-        4, postService.findByNegotiationId("negotiationId", null, null).size());
+    Assertions.assertEquals(4, postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
   /** Tests that a person not involved in the negotiation, gets no posts */
