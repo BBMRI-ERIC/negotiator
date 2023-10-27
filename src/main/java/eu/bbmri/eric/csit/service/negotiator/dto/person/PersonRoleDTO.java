@@ -20,10 +20,6 @@ public class PersonRoleDTO {
   // TODO: is it necessary?
   private String id;
 
-  @NotNull
-  // TODO: is it necessary?
-  private String authSubject;
-
   @NotNull private String name;
 
   @NotNull private String role;
