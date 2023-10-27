@@ -11,7 +11,7 @@ insert into person (id, auth_email, auth_name, auth_subject, password, organizat
 values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI'),
        (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI'),
        (3, 'for-backwards-compatability', 'directory', '',
-        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, null);
+        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null);
 
 insert into access_criteria_set (id, name)
 values (1, 'BBMRI Template');
