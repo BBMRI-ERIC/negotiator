@@ -137,16 +137,9 @@ public class PostServiceImpl implements PostService {
 
   private boolean isAuthorized(Post post) {
     Negotiation negotiation = post.getNegotiation();
-    // admin and negotiation creator see all posts
     if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
-    // For the user to access the post, he/she has to be authorized for the negotiation and the post
-    // must be either:
-    // 1. public (in the negotiation)
-    // 2. created by the authenticated user
-    // 3. addressed to the organization represented by the authenticated user
-    boolean negoauth = NegotiationServiceImpl.isAuthorizedForNegotiation(negotiation);
     return NegotiationServiceImpl.isAuthorizedForNegotiation(negotiation)
-        && (post.isPublic() // The post is public so everyone in the negotiation can see it
+        && (post.isPublic()
             || post.isCreator(
                 NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
             || (post.getOrganization() != null && isRepresentative(post.getOrganization())));
