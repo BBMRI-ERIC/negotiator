@@ -24,6 +24,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/v3")
@@ -148,9 +148,9 @@ public class NegotiationController {
       return ResponseEntity.ok(result);
     } else {
       // Return an error response
-      return ResponseEntity.badRequest().body("Wrong request \""+event+"\" is not a valid negotiation lifecycle value.");
+      return ResponseEntity.badRequest()
+          .body("Wrong request \"" + event + "\" is not a valid negotiation lifecycle value.");
     }
-
   }
 
   /**
@@ -177,12 +177,13 @@ public class NegotiationController {
     if (isValidNegotiationResourceEventValue(event)) {
       // Process the request
       resourceLifecycleService.sendEvent(
-              negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
+          negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
       NegotiationDTO result = negotiationService.findById(negotiationId, true);
       return ResponseEntity.ok(result);
     } else {
       // Return an error response
-      return ResponseEntity.badRequest().body("Wrong request \""+event+"\" is not a valid negotiation lifecycle value.");
+      return ResponseEntity.badRequest()
+          .body("Wrong request \"" + event + "\" is not a valid negotiation lifecycle value.");
     }
   }
 
@@ -270,6 +271,7 @@ public class NegotiationController {
       return false;
     }
   }
+
   private boolean isValidNegotiationResourceEventValue(String value) {
     // Implement your ENUM validation logic here
     try {
