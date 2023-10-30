@@ -12,7 +12,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestReposito
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.RequestModelsMapper;
 import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestService;

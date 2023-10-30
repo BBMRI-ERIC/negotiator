@@ -1,15 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -28,40 +21,39 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
+  @Autowired private OrganizationRepository organizationRepository;
 
   @Autowired private PostRepository postRepository;
 
-  @Autowired private ResourceRepository resourceRepository;
-
   @Autowired private NegotiationRepository negotiationRepository;
-
-  @Autowired private PersonRepository personRepository;
 
   @Autowired private ModelMapper modelMapper;
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity = modelMapper.map(postRequest, Post.class);
-    try {
-      Resource resource = null;
-      if (postRequest.getType().equals(PostType.PRIVATE)) {
-        // A private post is always associated and related to a Resource
-        String resourceId = postRequest.getResourceId();
-        resource =
-            resourceRepository.findBySourceId(resourceId).orElseThrow(WrongRequestException::new);
+
+    if (postRequest.getType().equals(PostType.PRIVATE)) {
+      // A private post is always associated and related to a Resource
+      if (postRequest.getOrganizationId() != null) {
+        String resourceId = postRequest.getOrganizationId();
+        Organization organization =
+            organizationRepository
+                .findByExternalId(resourceId)
+                .orElseThrow(WrongRequestException::new);
+        postEntity.setOrganization(organization);
       }
-      Negotiation negotiation =
-          negotiationRepository
-              .findById(negotiationId)
-              .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    }
 
-      Person person =
-          personRepository.findDetailedById(personId).orElseThrow(WrongRequestException::new);
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
 
-      postEntity.setResource(resource);
-      postEntity.setNegotiation(negotiation);
-      postEntity.setStatus(PostStatus.CREATED);
+    postEntity.setNegotiation(negotiation);
+    postEntity.setStatus(PostStatus.CREATED);
 
+    try {
       Post post = postRepository.save(postEntity);
       return modelMapper.map(post, PostDTO.class);
 
@@ -72,47 +64,83 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(
-      String negotiationId, @Nullable PostType type, @Nullable String resourceId) {
+      String negotiationId, @Nullable PostType type, @Nullable String organizationId) {
     List<Post> posts;
-    if (type == null) {
+    if (type == null && organizationId == null) {
       posts = postRepository.findByNegotiationId(negotiationId);
-    } else if (resourceId == null || resourceId.isEmpty()) {
+    } else if (organizationId == null || organizationId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
+    } else if (type == null) {
+      posts = postRepository.findByNegotiationIdAndOrganizationId(negotiationId, organizationId);
     } else {
-      posts = postRepository.findByNegotiationIdAndTypeAndResource(negotiationId, type, resourceId);
+      posts =
+          postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
+              negotiationId, type, organizationId);
     }
     return posts.stream()
+        .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
 
   @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndPosters(
+  public List<PostDTO> findNewByNegotiationIdAndAuthors(
       String negotiationId,
-      List<String> posters,
+      List<String> authors,
       @Nullable PostType type,
-      @Nullable String resourceId) {
+      @Nullable String organizationId) {
     List<Post> posts;
-    if (type == null) {
-      posts = postRepository.findNewByNegotiationIdAndPosters(negotiationId, posters);
-    } else if (resourceId == null || resourceId.isEmpty()) {
-      posts = postRepository.findNewByNegotiationIdAndPostersAndType(negotiationId, posters, type);
+    if (type == null && organizationId == null) {
+      posts =
+          postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+              negotiationId, PostStatus.CREATED, authors);
+    } else if (organizationId == null || organizationId.isEmpty()) {
+      posts =
+          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+              negotiationId, PostStatus.CREATED, type, authors);
+    } else if (type == null) {
+      posts =
+          postRepository
+              .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+                  negotiationId, PostStatus.CREATED, authors, organizationId);
     } else {
       posts =
-          postRepository.findNewByNegotiationIdAndPostersAndTypeAndResource(
-              negotiationId, posters, type, resourceId);
+          postRepository
+              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+                  negotiationId, PostStatus.CREATED, type, authors, organizationId);
     }
+
     return posts.stream()
+        .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
-    Post post = postRepository.findByNegotiationIdAndMessageId(negotiationId, messageId);
+    Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
     post.setStatus(request.getStatus());
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);
     return modelMapper.map(updatedPost, PostDTO.class);
+  }
+
+  private boolean isRepresentative(Organization organization) {
+    return NegotiatorUserDetailsService.isRepresentativeAny(
+        organization.getResources().stream().map(Resource::getSourceId).toList());
+  }
+
+  private boolean isAdmin() {
+    return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  private boolean isAuthorized(Post post) {
+    Negotiation negotiation = post.getNegotiation();
+    if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
+    return NegotiationServiceImpl.isAuthorizedForNegotiation(negotiation)
+        && (post.isPublic()
+            || post.isCreator(
+                NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+            || (post.getOrganization() != null && isRepresentative(post.getOrganization())));
   }
 }

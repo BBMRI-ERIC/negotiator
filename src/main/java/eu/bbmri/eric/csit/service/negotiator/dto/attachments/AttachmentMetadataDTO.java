@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 @Getter
 @Setter
@@ -13,11 +14,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class AttachmentMetadataDTO {
-  @NotNull String id;
+  @NotNull private String id;
 
-  String name;
+  @Nullable private String organizationId;
 
-  String contentType;
+  @NotNull private String name;
 
-  Long size;
+  @NotNull private String contentType;
+
+  @NotNull private Long size;
 }

@@ -14,8 +14,8 @@ public interface AttachmentRepository extends JpaRepository<Attachment, String> 
   Optional<Attachment> findMetadataById(String id);
 
   @EntityGraph(value = "attachment-metadata")
-  List<Attachment> findByNegotiation_Id(String negotiationId);
+  List<Attachment> findByNegotiationId(String negotiationId);
 
   @EntityGraph(value = "attachment-metadata")
-  Optional<Attachment> findByIdAndNegotiation_Id(String id, String negotiationId);
+  Optional<Attachment> findByIdAndNegotiationId(String id, String negotiationId);
 }

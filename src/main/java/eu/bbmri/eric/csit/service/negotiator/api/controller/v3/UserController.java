@@ -28,4 +28,18 @@ public class UserController {
         .map((obj) -> Objects.toString(obj, null))
         .collect(Collectors.toList());
   }
+
+  /**
+   * Returns the resources represented by the current user
+   *
+   * @return a List of resources id.
+   */
+  @GetMapping(value = "/users/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  List<String> getRepresentedResources() {
+    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+        .filter(authority -> authority.getAuthority().startsWith("ROLE_REPRESENTATIVE_"))
+        .map((authority -> authority.getAuthority().replace("ROLE_REPRESENTATIVE_", "")))
+        .collect(Collectors.toList());
+  }
 }

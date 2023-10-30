@@ -1,15 +1,15 @@
 package eu.bbmri.eric.csit.service.negotiator.mappers;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -44,8 +44,8 @@ public class NegotiationModelMapper {
     Converter<NegotiationState, String> negotiationStatusConverter =
         status -> negotiationStatusConverter(status.getSource());
 
-    Converter<Map<String, NegotiationResourceState>, JsonNode> resourcesStatusConverter =
-        resources -> resourcesStatusConverter(resources.getSource());
+    Converter<Negotiation, Set<ResourceWithStatusDTO>> resourcesConverter =
+        negotiation -> resourceConverter(negotiation.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -61,21 +61,51 @@ public class NegotiationModelMapper {
             mapper
                 .using(personsRoleConverter)
                 .map(Negotiation::getPersons, NegotiationDTO::setPersons));
+
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(payloadConverter)
                 .map(Negotiation::getPayload, NegotiationDTO::setPayload));
+
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(negotiationStatusConverter)
                 .map(Negotiation::getCurrentState, NegotiationDTO::setStatus));
+
     typeMap.addMappings(
         mapper ->
             mapper
-                .using(resourcesStatusConverter)
-                .map(Negotiation::getCurrentStatePerResource, NegotiationDTO::setResourceStatus));
+                .using(resourcesConverter)
+                .map(negotiation -> negotiation, NegotiationDTO::setResources));
+  }
+
+  private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {
+    Set<Request> requests = negotiation.getRequests();
+    final Map<String, NegotiationResourceState> statePerResource =
+        negotiation.getCurrentStatePerResource();
+
+    return requests.stream()
+        .flatMap(
+            request ->
+                request.getResources().stream()
+                    .map(resource -> buildResourceWithStatus(resource, statePerResource)))
+        .collect(Collectors.toSet());
+  }
+
+  private ResourceWithStatusDTO buildResourceWithStatus(
+      Resource resource, Map<String, NegotiationResourceState> statePerResource) {
+    ResourceWithStatusDTO.ResourceWithStatusDTOBuilder builder =
+        ResourceWithStatusDTO.builder()
+            .id(resource.getSourceId())
+            .name(resource.getName())
+            .organization(modelMapper.map(resource.getOrganization(), OrganizationDTO.class));
+    NegotiationResourceState state = statePerResource.get(resource.getSourceId());
+    if (state != null) {
+      builder.status(state.name());
+    }
+    return builder.build();
   }
 
   private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
@@ -106,12 +136,5 @@ public class NegotiationModelMapper {
       return "";
     }
     return currentState.name();
-  }
-
-  private JsonNode resourcesStatusConverter(
-      Map<String, NegotiationResourceState> currentStatePerResource) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    return mapper.valueToTree(currentStatePerResource);
   }
 }

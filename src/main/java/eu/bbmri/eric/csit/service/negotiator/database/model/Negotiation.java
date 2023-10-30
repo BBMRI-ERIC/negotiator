@@ -129,7 +129,7 @@ public class Negotiation extends AuditEntity {
     return Objects.hash(getId());
   }
 
-  public Set<Resource> getAllResources() {
+  public Set<Resource> getResources() {
     return requests.stream()
         .flatMap(request -> request.getResources().stream())
         .collect(Collectors.toUnmodifiableSet());

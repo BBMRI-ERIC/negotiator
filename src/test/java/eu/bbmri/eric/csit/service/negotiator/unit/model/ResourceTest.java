@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import org.junit.jupiter.api.Test;
 
@@ -22,14 +23,34 @@ public class ResourceTest {
   @Test
   void equals_sameSourceId_equal() {
     assertEquals(
-        Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
-        Resource.builder().dataSource(new DataSource()).sourceId("resId").build());
+        Resource.builder()
+            .dataSource(new DataSource())
+            .organization(
+                Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+            .sourceId("resId")
+            .build(),
+        Resource.builder()
+            .dataSource(new DataSource())
+            .organization(
+                Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+            .sourceId("resId")
+            .build());
   }
 
   @Test
   void equals_differentSourceId_notEqual() {
     assertNotEquals(
-        Resource.builder().dataSource(new DataSource()).sourceId("resId").build(),
-        Resource.builder().dataSource(new DataSource()).sourceId("resDiffId").build());
+        Resource.builder()
+            .dataSource(new DataSource())
+            .organization(
+                Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+            .sourceId("resId")
+            .build(),
+        Resource.builder()
+            .dataSource(new DataSource())
+            .organization(
+                Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+            .sourceId("resDiffId")
+            .build());
   }
 }

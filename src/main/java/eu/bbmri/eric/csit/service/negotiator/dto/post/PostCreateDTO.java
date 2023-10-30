@@ -22,9 +22,10 @@ import lombok.Setter;
 public class PostCreateDTO {
 
   Set<Attachment> attachments;
+
   @Valid @NotEmpty private String text;
 
-  @Valid private String resourceId;
+  @Valid private String organizationId;
 
   @Valid private PostStatus status;
 

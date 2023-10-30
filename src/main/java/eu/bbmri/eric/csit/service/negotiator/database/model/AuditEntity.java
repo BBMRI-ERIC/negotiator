@@ -50,4 +50,8 @@ public abstract class AuditEntity {
   @LastModifiedBy
   @Exclude
   private Person modifiedBy;
+
+  public boolean isCreator(Long userId) {
+    return this.createdBy.getId().equals(userId);
+  }
 }

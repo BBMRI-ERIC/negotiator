@@ -7,11 +7,11 @@ values ('https://bbmritestnn.gcc.rug.nl', 'user', 'password', 'MOLGENIS', 'https
         'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
         'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization, person_image)
-values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', null),
-       (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', null),
+insert into person (id, auth_email, auth_name, auth_subject, password, organization)
+values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI'),
+       (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI'),
        (3, 'for-backwards-compatability', 'directory', '',
-        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, null);
+        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null);
 
 insert into access_criteria_set (id, name)
 values (1, 'BBMRI Template');
@@ -41,13 +41,13 @@ values (1, 1, 1, 'true'),
        (3, 3, 1, 'false'),
        (3, 4, 2, 'false');
 
-insert into ORGANIZATION (EXTERNAL_ID, NAME)
-VALUES ('bbmri-eric:ID:SE_890', 'Biobank Väst'),
+insert into organization (external_id, name)
+values ('bbmri-eric:ID:SE_890', 'Biobank Väst'),
        ('bbmri-eric:ID:CZ_MMCI',
         'Masaryk Memorial Cancer Institute');
 
-insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id, ORGANIZATION_ID)
-values (1, 'Test collection', 'This is the fist test collection',
+insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id, organization_id)
+values (1, 'Dummy test collection', 'This is the fist test collection',
         'bbmri-eric:ID:SE_890:collection:dummy_collection', 1, 1, 1),
        (2, 'Test collection 2', 'This is the second test collection',
         'bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 1, 2);

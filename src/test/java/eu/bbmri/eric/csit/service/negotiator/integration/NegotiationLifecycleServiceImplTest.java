@@ -215,8 +215,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertNull(
         negotiationService
             .findById(negotiationDTO.getId(), false)
-            .getResourceStatus()
-            .get("biobank:1:collection:2"));
+            .getStatusForResource("biobank:1:collection:2"));
   }
 
   @Test
@@ -229,9 +228,7 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationResourceState.valueOf(
             negotiationService
                 .findById(negotiationDTO.getId(), false)
-                .getResourceStatus()
-                .get("biobank:1:collection:2")
-                .textValue()));
+                .getStatusForResource("biobank:1:collection:2")));
   }
 
   @Test

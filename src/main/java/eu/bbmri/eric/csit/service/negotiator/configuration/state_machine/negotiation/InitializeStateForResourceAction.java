@@ -24,7 +24,7 @@ public class InitializeStateForResourceAction implements Action<String, String> 
     String negotiationId = context.getMessage().getHeaders().get("negotiationId", String.class);
     Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).orElseThrow();
     negotiation
-        .getAllResources()
+        .getResources()
         .forEach(
             resource ->
                 negotiation.setStateForResource(

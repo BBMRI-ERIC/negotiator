@@ -54,6 +54,11 @@ public class NegotiationServiceTest {
                     Resource.builder()
                         .sourceId("collection:1")
                         .dataSource(new DataSource())
+                        .organization(
+                            Organization.builder()
+                                .externalId("biobank:1")
+                                .name("TestBiobank")
+                                .build())
                         .build()))
             .build();
     return Negotiation.builder()

@@ -7,7 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;

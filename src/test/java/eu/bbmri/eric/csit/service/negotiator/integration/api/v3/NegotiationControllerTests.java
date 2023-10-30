@@ -15,8 +15,6 @@ import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationContro
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.net.URI;
 import java.util.Collections;
@@ -45,15 +43,10 @@ public class NegotiationControllerTests {
   // Request alrady present in data-h2. It is already assigned to a request
   private static final String REQUEST_1_ID = "request-1";
   private static final String REQUEST_2_ID = "request-2";
-  private static final String REQUEST_3_ID = "request-3";
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String NEGOTIATION_2_ID = "negotiation-2";
-  private static final String NEGOTIATION_3_ID = "negotiation-3";
   private static final String NEGOTIATION_1_CREATION_DATE = "2023-04-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
-  private static final String CORRECT_TOKEN_VALUE = "researcher";
-  private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
-  private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";
 
   @Autowired private WebApplicationContext context;
   @Autowired private NegotiationController negotiationController;
@@ -67,11 +60,6 @@ public class NegotiationControllerTests {
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-  }
-
-  private RequestDTO createRequestEntity() {
-    RequestCreateDTO queryRequest = TestUtils.createRequest(false);
-    return requestService.create(queryRequest);
   }
 
   @Test

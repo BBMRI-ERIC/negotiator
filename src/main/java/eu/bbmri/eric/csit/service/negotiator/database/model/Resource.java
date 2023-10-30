@@ -44,6 +44,7 @@ public class Resource extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "organization_id")
   @Exclude
+  @NotNull
   private Organization organization;
 
   @ManyToOne(fetch = FetchType.LAZY)

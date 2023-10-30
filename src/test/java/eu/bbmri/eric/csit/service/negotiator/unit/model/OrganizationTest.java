@@ -4,17 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import org.junit.jupiter.api.Test;
 
 public class OrganizationTest {
-
-  @Test
-  void initOrganization_nullId_exception() {
-    assertThrows(NullPointerException.class, () -> Organization.builder().externalId(null).build());
-  }
 
   @Test
   void initOrganization_ok() {

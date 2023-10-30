@@ -59,10 +59,11 @@ public class PostController {
 
     List<PersonRoleDTO> negotiationPersonsWithRoles =
         n.getPersons().stream().filter(p -> p.getRole().equals(roleName)).toList();
+
     List<String> posters =
         negotiationPersonsWithRoles.stream().map(PersonRoleDTO::getName).toList();
 
-    return postService.findNewByNegotiationIdAndPosters(negotiationId, posters, type, resource);
+    return postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource);
   }
 
   @PutMapping("/negotiations/{negotiationId}/posts/{postId}")

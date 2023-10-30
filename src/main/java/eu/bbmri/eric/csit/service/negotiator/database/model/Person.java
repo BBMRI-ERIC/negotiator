@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.sun.istack.NotNull;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -57,8 +56,6 @@ public class Person {
 
   private String password; // can be null if the user is authenticated via OIDC
 
-  private byte[] personImage;
-
   private String organization;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
@@ -77,7 +74,6 @@ public class Person {
         && Objects.equals(getAuthName(), person.getAuthName())
         && Objects.equals(getAuthEmail(), person.getAuthEmail())
         && Objects.equals(getPassword(), person.getPassword())
-        && Arrays.equals(getPersonImage(), person.getPersonImage())
         && Objects.equals(getOrganization(), person.getOrganization());
   }
 
@@ -86,7 +82,7 @@ public class Person {
     int result =
         Objects.hash(
             getAuthSubject(), getAuthName(), getAuthEmail(), getPassword(), getOrganization());
-    result = 31 * result + Arrays.hashCode(getPersonImage());
+    result = 31 * result;
     return result;
   }
 }

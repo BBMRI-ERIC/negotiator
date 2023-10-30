@@ -32,7 +32,7 @@ public interface PostService {
    * @param posters a list of all the persons that created the posts to be found
    * @return the list of all the posts related to the input negotiation ID and persons
    */
-  List<PostDTO> findNewByNegotiationIdAndPosters(
+  List<PostDTO> findNewByNegotiationIdAndAuthors(
       String negotiationId, List<String> posters, PostType type, String resourceId);
 
   /**

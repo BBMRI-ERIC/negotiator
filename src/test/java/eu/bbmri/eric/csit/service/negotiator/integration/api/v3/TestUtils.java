@@ -5,12 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
@@ -18,7 +15,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.request.ResourceDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
@@ -94,7 +91,12 @@ public class TestUtils {
     String biobankId = update ? QUERY_BIOBANK_2_ID : QUERY_BIOBANK_1_ID;
     String biobankName = update ? QUERY_BIOBANK_2_NAME : QUERY_BIOBANK_1_NAME;
 
-    ResourceDTO collection = ResourceDTO.builder().id(collectionId).name(collectionName).build();
+    ResourceDTO collection =
+        ResourceDTO.builder()
+            .id(collectionId)
+            .name(collectionName)
+            .organization(OrganizationDTO.builder().externalId(biobankId).name(biobankName).build())
+            .build();
 
     return RequestCreateDTO.builder()
         .humanReadable(String.format("%s%s", QUERY_HUMAN_READABLE, suffix))
@@ -126,26 +128,24 @@ public class TestUtils {
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
     String payload =
         "    {\n"
-            + "      \"project\": {\n"
-            + "        \"title\": \"Title\",\n"
-            + "        \"description\": \"Description\"\n"
-            + "      },\n"
-            + "      \"samples\": {\n"
-            + "        \"sample-type\": \"DNA\",\n"
-            + "        \"num-of-subjects\": 10,\n"
-            + "        \"num-of-samples\": 20,\n"
-            + "        \"volume-per-sample\": 5\n"
-            + "      },\n"
-            + "      \"ethics-vote\": {\n"
-            + "        \"ethics-vote\": \"My ethic vote\"\n"
-            + "      }\n"
-            + "    }\n";
+            + "\"project\": {\n"
+            + "\"title\": \"Title\",\n"
+            + "\"description\": \"Description\"\n"
+            + "},\n"
+            + " \"samples\": {\n"
+            + "   \"sample-type\": \"DNA\",\n"
+            + "   \"num-of-subjects\": 10,\n"
+            + "   \"num-of-samples\": 20,\n"
+            + "   \"volume-per-sample\": 5\n"
+            + " },\n"
+            + " \"ethics-vote\": {\n"
+            + "   \"ethics-vote\": \"My ethic vote\"\n"
+            + " }\n"
+            + "}\n";
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 
-    NegotiationCreateDTO.NegotiationCreateDTOBuilder builder =
-        NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId);
-    return builder.build();
+    return NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId).build();
   }
 
   public static String jsonFromRequest(Object request) throws JsonProcessingException {
@@ -216,16 +216,29 @@ public class TestUtils {
   }
 
   public static PostCreateDTO createPostDTO(
-      String resourceId, String text, PostStatus status, PostType type) throws IOException {
-    PostCreateDTO.PostCreateDTOBuilder builder =
-        PostCreateDTO.builder().resourceId(resourceId).text(text).status(status).type(type);
-    return builder.build();
+      String organizationId, String text, PostStatus status, PostType type) {
+    return PostCreateDTO.builder()
+        .organizationId(organizationId)
+        .text(text)
+        .status(status)
+        .type(type)
+        .build();
   }
 
   public static Post createPost(
-      Negotiation negotiation, Resource resource, String text, PostType type) throws IOException {
-    Post.PostBuilder builder =
-        Post.builder().negotiation(negotiation).resource(resource).text(text).type(type);
-    return builder.build();
+      Negotiation negotiation,
+      Person author,
+      Organization organization,
+      String text,
+      PostType type) {
+    Post post =
+        Post.builder()
+            .negotiation(negotiation)
+            .organization(organization)
+            .text(text)
+            .type(type)
+            .build();
+    post.setCreatedBy(author);
+    return post;
   }
 }
