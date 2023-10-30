@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/v3")
@@ -134,13 +135,22 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
-  NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
+  ResponseEntity<?> sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
     if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
-    return negotiationService.findById(id, true);
+    // Validate the ENUM value
+    if (isValidNegotiationEventValue(event)) {
+      // Process the request
+      negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
+      NegotiationDTO result = negotiationService.findById(id, true);
+      return ResponseEntity.ok(result);
+    } else {
+      // Return an error response
+      return ResponseEntity.badRequest().body("Wrong request \""+event+"\" is not a valid negotiation lifecycle value.");
+    }
+
   }
 
   /**
@@ -152,7 +162,7 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
-  NegotiationDTO sendEventForNegotiationResource(
+  ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
@@ -162,9 +172,18 @@ public class NegotiationController {
         && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    resourceLifecycleService.sendEvent(
-        negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
-    return negotiationService.findById(negotiationId, true);
+
+    // Validate the ENUM value
+    if (isValidNegotiationResourceEventValue(event)) {
+      // Process the request
+      resourceLifecycleService.sendEvent(
+              negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
+      NegotiationDTO result = negotiationService.findById(negotiationId, true);
+      return ResponseEntity.ok(result);
+    } else {
+      // Return an error response
+      return ResponseEntity.badRequest().body("Wrong request \""+event+"\" is not a valid negotiation lifecycle value.");
+    }
   }
 
   /**
@@ -240,5 +259,24 @@ public class NegotiationController {
       }
     }
     return false;
+  }
+
+  private boolean isValidNegotiationEventValue(String value) {
+    // Implement your ENUM validation logic here
+    try {
+      NegotiationEvent.valueOf(value);
+      return true;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+  }
+  private boolean isValidNegotiationResourceEventValue(String value) {
+    // Implement your ENUM validation logic here
+    try {
+      NegotiationResourceEvent.valueOf(value);
+      return true;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 }
