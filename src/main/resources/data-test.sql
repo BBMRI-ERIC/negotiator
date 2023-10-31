@@ -96,7 +96,7 @@ values ('negotiation-1', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-2', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
-       ('negotiation-v2', '2023-04-12','SUBMITTED', '2023-04-12', 108, 108,
+       ('negotiation-v2', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON);
 
 insert into request (id, url, human_readable, data_source_id, negotiation_id)
@@ -113,8 +113,8 @@ values ('request-1', 4),
        ('request-unassigned', 7);
 
 insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
-    values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
-           ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED');
+values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
+       ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED');
 
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-1', 108, 4);
@@ -125,18 +125,19 @@ values ('negotiation-2', 108, 4);
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-v2', 108, 4);
 
-insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, request_id, organization_id, type)
+insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, request_id, organization_id,
+                  type)
 values ('post-1-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
        ('post-2-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
-        ('post-3-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
-                'negotiation-1', 4, 'PRIVATE'),
+       ('post-3-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-researcher-message', 108, 108,
+        'negotiation-1', 4, 'PRIVATE'),
        ('post-1-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-representative-message', 109, 109,
         'negotiation-1', null, 'PUBLIC'),
        ('post-2-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
         'negotiation-1', null, 'PUBLIC'),
        ('post-3-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
-                'negotiation-1', 4, 'PRIVATE'),
+        'negotiation-1', 4, 'PRIVATE'),
        ('post-4-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
-                                'negotiation-1', 5, 'PRIVATE');
+        'negotiation-1', 5, 'PRIVATE');

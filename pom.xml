@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>negotiator</artifactId>
   <build>
@@ -103,7 +103,7 @@
     <dependency>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
       <groupId>org.springframework.boot</groupId>
-        <version>3.1.2</version>
+      <version>3.1.2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -201,7 +201,7 @@
     <dependency>
       <artifactId>hibernate-types-55</artifactId>
       <groupId>com.vladmihalcea</groupId>
-        <version>2.14.0</version>
+      <version>2.14.0</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-validation</artifactId>
@@ -233,16 +233,16 @@
       <groupId>io.projectreactor</groupId>
       <version>3.4.23</version>
     </dependency>
-      <dependency>
-          <groupId>jakarta.validation</groupId>
-          <artifactId>jakarta.validation-api</artifactId>
-          <version>3.0.2</version>
-      </dependency>
-      <dependency>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-tx</artifactId>
-          <version>6.0.11</version>
-      </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>6.0.11</version>
+    </dependency>
   </dependencies>
   <description>The BBMRI-ERIC Negotiator service for structured temp with biological
     resources dealing with human data and/or biological samples.
