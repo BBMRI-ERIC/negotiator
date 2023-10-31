@@ -88,7 +88,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   private void addPersonToNegotiation(
-          Person person, Negotiation negotiationEntity, String roleName) {
+      Person person, Negotiation negotiationEntity, String roleName) {
     Role role = roleRepository.findByName(roleName).orElseThrow(EntityNotStorableException::new);
     // Creates the association between the Person and the Negotiation
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiationEntity, role);

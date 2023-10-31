@@ -221,7 +221,7 @@ public class TestUtils {
   }
 
   public static PostCreateDTO createPostDTO(
-          String organizationId, String text, PostStatus status, PostType type) {
+      String organizationId, String text, PostStatus status, PostType type) {
     return PostCreateDTO.builder()
         .organizationId(organizationId)
         .text(text)

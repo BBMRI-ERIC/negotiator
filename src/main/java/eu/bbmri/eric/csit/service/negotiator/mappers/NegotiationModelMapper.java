@@ -98,7 +98,7 @@ public class NegotiationModelMapper {
   }
 
   private ResourceWithStatusDTO buildResourceWithStatus(
-          Resource resource, Map<String, NegotiationResourceState> statePerResource) {
+      Resource resource, Map<String, NegotiationResourceState> statePerResource) {
     ResourceWithStatusDTO.ResourceWithStatusDTOBuilder builder =
         ResourceWithStatusDTO.builder()
             .id(resource.getSourceId())
