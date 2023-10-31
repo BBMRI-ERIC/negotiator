@@ -4,13 +4,11 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-
-  Optional<Post> findByCreatedBy(Long id);
+  
 
   @EntityGraph("post-with-details")
   List<Post> findByNegotiationId(String negotiationId);
@@ -19,7 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   List<Post> findByNegotiationIdAndType(String negotiationId, PostType type);
 
   @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndOrganizationId(String negotiationId, String organizationId);
+  List<Post> findByNegotiationIdAndOrganizationId(String negotiationId, Long organizationId);
 
   @EntityGraph("post-with-details")
   Post findByIdAndNegotiationId(String negotiationId, String id);

@@ -71,7 +71,9 @@ public class PostServiceImpl implements PostService {
     } else if (organizationId == null || organizationId.isEmpty()) {
       posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
     } else if (type == null) {
-      posts = postRepository.findByNegotiationIdAndOrganizationId(negotiationId, organizationId);
+      posts =
+          postRepository.findByNegotiationIdAndOrganizationId(
+              negotiationId, Long.valueOf(organizationId));
     } else {
       posts =
           postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(

@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import jakarta.persistence.*;
+import java.sql.Types;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +10,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @ToString
 @Entity
@@ -41,7 +41,7 @@ public class Attachment extends AuditEntity {
 
   private String name;
 
-  @JdbcTypeCode(SqlTypes.ARRAY)
+  @JdbcTypeCode(Types.VARBINARY)
   @Column(columnDefinition = "BYTEA")
   private byte[] payload;
 

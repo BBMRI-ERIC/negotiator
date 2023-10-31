@@ -6,7 +6,6 @@ import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import java.util.Set;
 import java.util.SortedSet;
 import lombok.AllArgsConstructor;
@@ -62,7 +61,6 @@ public class AccessCriteriaSet extends BaseEntity {
   private Set<Resource> resources;
 
   @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
-  @OrderBy("id ASC")
   @Exclude
   private SortedSet<AccessCriteriaSection> sections;
 }
