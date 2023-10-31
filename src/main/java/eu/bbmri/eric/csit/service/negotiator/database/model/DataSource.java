@@ -1,6 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AllArgsConstructor;

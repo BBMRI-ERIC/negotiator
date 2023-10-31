@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource.ApiType;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
@@ -216,7 +221,7 @@ public class TestUtils {
   }
 
   public static PostCreateDTO createPostDTO(
-      String organizationId, String text, PostStatus status, PostType type) {
+          String organizationId, String text, PostStatus status, PostType type) {
     return PostCreateDTO.builder()
         .organizationId(organizationId)
         .text(text)

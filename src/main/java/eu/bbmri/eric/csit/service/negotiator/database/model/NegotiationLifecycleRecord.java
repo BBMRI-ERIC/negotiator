@@ -1,9 +1,19 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import jakarta.persistence.*;
 import java.time.ZonedDateTime;
-import lombok.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter

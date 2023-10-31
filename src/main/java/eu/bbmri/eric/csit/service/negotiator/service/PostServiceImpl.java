@@ -1,8 +1,15 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;

@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
@@ -95,7 +98,7 @@ public class NegotiationModelMapper {
   }
 
   private ResourceWithStatusDTO buildResourceWithStatus(
-      Resource resource, Map<String, NegotiationResourceState> statePerResource) {
+          Resource resource, Map<String, NegotiationResourceState> statePerResource) {
     ResourceWithStatusDTO.ResourceWithStatusDTOBuilder builder =
         ResourceWithStatusDTO.builder()
             .id(resource.getSourceId())

@@ -2,7 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
 import static org.mockito.Mockito.when;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;

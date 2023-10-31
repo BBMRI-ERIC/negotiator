@@ -2,7 +2,13 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri.eric.csit.service.negotiator.database.model.*;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -82,7 +88,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   private void addPersonToNegotiation(
-      Person person, Negotiation negotiationEntity, String roleName) {
+          Person person, Negotiation negotiationEntity, String roleName) {
     Role role = roleRepository.findByName(roleName).orElseThrow(EntityNotStorableException::new);
     // Creates the association between the Person and the Negotiation
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiationEntity, role);
