@@ -1,23 +1,23 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @ToString
 @Entity
@@ -25,21 +25,17 @@ import org.hibernate.annotations.TypeDefs;
 @AllArgsConstructor
 @Getter
 @Setter
+@Convert(converter = JsonType.class, attributeName = "json")
 @Table(name = "project")
-@TypeDefs({@TypeDef(name = "json", typeClass = JsonType.class)})
 @NamedEntityGraph(
     name = "project-detailed",
     attributeNodes = {@NamedAttributeNode("payload")})
 public class Project extends AuditEntity {
 
-  @Type(type = "json")
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
   @NotNull
   private String payload;
-
-  //  @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
-  //  @Exclude
-  //  private Set<Negotiation> negotiations;
 
   @Exclude
   @ManyToMany(mappedBy = "projects")

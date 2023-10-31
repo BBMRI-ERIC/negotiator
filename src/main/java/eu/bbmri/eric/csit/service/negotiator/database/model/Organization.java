@@ -1,9 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import lombok.*;
 
 /** Class representing an Institution/Organization such as a Biobank. */

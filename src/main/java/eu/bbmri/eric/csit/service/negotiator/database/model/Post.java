@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.ToString.Exclude;
 

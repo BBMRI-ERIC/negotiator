@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
+import static org.springframework.security.config.http.MatcherType.mvc;
+
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
@@ -10,11 +12,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 public class OAuthSecurityConfig {
@@ -54,85 +61,65 @@ public class OAuthSecurityConfig {
   private String authzResourceIdPrefixClaim;
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .cors()
-        .disable()
-        .csrf()
-        .disable()
-        .headers()
-        .frameOptions()
-        .disable();
+  MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+    return new MvcRequestMatcher.Builder(introspector);
+  }
 
-    http.authorizeHttpRequests()
-        .antMatchers(HttpMethod.GET, "/v3/negotiations/lifecycle")
-        .permitAll()
-        .antMatchers("/v3/negotiations/*/attachments/*")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers("/v3/attachments/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers("/v3/negotiations/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers(HttpMethod.GET, "/v3/access-criteria/**")
-        .permitAll()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers(HttpMethod.POST, "/v3/access-criteria/**")
-        .hasRole("REPRESENTATIVE")
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers(HttpMethod.POST, "/directory/create_query", "/v3/requests/**")
-        .permitAll()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers(HttpMethod.PUT, "/directory/create_query", "/v3/requests/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers(HttpMethod.POST, "/v3/data-sources/**")
-        .hasAuthority("ADMIN")
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers(HttpMethod.PUT, "/v3/data-sources/**")
-        .hasAuthority("ADMIN")
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers("/v3/users/**")
-        .authenticated()
-        .and()
-        .authorizeHttpRequests()
-        .antMatchers("/v3/projects/**")
-        .hasAuthority("ROLE_RESEARCHER")
-        .and()
-        .authorizeHttpRequests()
-        .anyRequest()
-        .permitAll()
-        .and()
-        .httpBasic();
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
+      throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .httpBasic(Customizer.withDefaults())
+        .authorizeHttpRequests(
+            authz ->
+                authz
+                    .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations/lifecycle"))
+                    .permitAll()
+                    .requestMatchers(mvc.pattern("/v3/negotiations/*/attachments/*"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern("/v3/attachments/**"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern("/v3/negotiations/**"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern("/v3/access-criteria"))
+                    .permitAll()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/directory/create_query"))
+                    .permitAll()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/requests"))
+                    .permitAll()
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/directory/create_query"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/requests/**"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/data-sources/**"))
+                    .hasAuthority("ADMIN")
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/data-sources/**"))
+                    .hasAuthority("ADMIN")
+                    .requestMatchers(mvc.pattern("/v3/users/**"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern("/v3/projects/**"))
+                    .hasRole("RESEARCHER")
+                    .anyRequest()
+                    .permitAll());
 
     if (!jwtIssuer.isEmpty()) {
-      http.oauth2ResourceServer()
-          .jwt()
-          .jwtAuthenticationConverter(
-              new JwtAuthenticationConverter(
-                  personRepository,
-                  userInfoEndpoint,
-                  authzClaim,
-                  authzSubjectClaim,
-                  authzAdminValue,
-                  authzResearcherValue,
-                  authzBiobankerValue,
-                  authzResourceIdPrefixClaim));
+      http.oauth2ResourceServer(
+          oauth ->
+              oauth.jwt(
+                  jwt ->
+                      jwt.jwtAuthenticationConverter(
+                          new JwtAuthenticationConverter(
+                              personRepository,
+                              userInfoEndpoint,
+                              authzClaim,
+                              authzSubjectClaim,
+                              authzAdminValue,
+                              authzResearcherValue,
+                              authzBiobankerValue,
+                              authzResourceIdPrefixClaim))));
     }
     return http.build();
   }

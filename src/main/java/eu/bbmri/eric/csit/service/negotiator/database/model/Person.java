@@ -1,10 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import com.sun.istack.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.*;
 import lombok.*;
 import lombok.ToString.Exclude;
 

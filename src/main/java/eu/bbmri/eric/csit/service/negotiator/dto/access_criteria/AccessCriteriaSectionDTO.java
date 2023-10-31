@@ -1,7 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.access_criteria;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sun.istack.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;

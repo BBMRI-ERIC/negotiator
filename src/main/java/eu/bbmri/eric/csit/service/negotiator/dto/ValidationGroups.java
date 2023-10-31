@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.dto;
 
-import javax.validation.groups.Default;
+import jakarta.validation.groups.Default;
 
 public interface ValidationGroups {
 

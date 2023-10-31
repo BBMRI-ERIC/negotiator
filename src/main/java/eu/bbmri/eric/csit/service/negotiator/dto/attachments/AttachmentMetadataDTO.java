@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.attachments;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
