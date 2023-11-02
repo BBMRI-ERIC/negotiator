@@ -1,14 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
 import java.util.Set;
 import java.util.SortedSet;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,7 +61,6 @@ public class AccessCriteriaSet extends BaseEntity {
   private Set<Resource> resources;
 
   @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
-  @OrderBy("id ASC")
   @Exclude
   private SortedSet<AccessCriteriaSection> sections;
 }

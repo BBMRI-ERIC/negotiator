@@ -4,7 +4,9 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAut
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

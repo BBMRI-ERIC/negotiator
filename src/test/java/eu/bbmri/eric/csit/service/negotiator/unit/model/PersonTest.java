@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import org.junit.jupiter.api.Test;

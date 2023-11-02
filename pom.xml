@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <artifactId>negotiator</artifactId>
   <build>
@@ -27,7 +27,7 @@
           </includes>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.0.0-M5</version>
+        <version>3.1.2</version>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -45,8 +45,8 @@
             <id>integration-tests</id>
           </execution>
         </executions>
-        <groupId>org.apache.maven.plugins</groupId> <!-- Adjust version as needed -->
-        <version>3.0.0-M5</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.1.2</version>
       </plugin>
       <plugin>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -62,7 +62,7 @@
           </execution>
         </executions>
         <groupId>org.springframework.boot</groupId>
-        <version>2.7.5</version>
+        <version>3.1.2</version>
       </plugin>
       <plugin>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -95,7 +95,7 @@
           </execution>
         </executions>
         <groupId>org.jacoco</groupId>
-        <version>0.8.8</version>
+        <version>0.8.10</version>
       </plugin>
     </plugins>
   </build>
@@ -103,11 +103,12 @@
     <dependency>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <version>3.1.2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>3.0.7</version>
+      <version>3.1.2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -116,24 +117,24 @@
     <dependency>
       <artifactId>spring-boot-starter-web</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>3.1.0</version>
+      <version>3.1.2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>2.5.4</version>
+      <version>3.1.2</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core -->
     <dependency>
       <artifactId>spring-statemachine-core</artifactId>
       <groupId>org.springframework.statemachine</groupId>
-      <version>3.2.0</version>
+      <version>3.2.1</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-data-jpa -->
     <dependency>
       <artifactId>spring-statemachine-starter</artifactId>
       <groupId>org.springframework.statemachine</groupId>
-      <version>3.0.1</version>
+      <version>3.2.1</version>
     </dependency>
     <dependency>
       <artifactId>spring-statemachine-recipes-common</artifactId>
@@ -148,7 +149,7 @@
     <dependency>
       <artifactId>spring-context-support</artifactId>
       <groupId>org.springframework</groupId>
-      <version>6.0.10</version>
+      <version>6.0.11</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/jakarta.activation/jakarta.activation-api -->
     <dependency>
@@ -184,11 +185,13 @@
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <version>3.1.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <artifactId>spring-security-test</artifactId>
       <groupId>org.springframework.security</groupId>
+      <version>6.1.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -213,7 +216,7 @@
     <dependency>
       <artifactId>springdoc-openapi-ui</artifactId>
       <groupId>org.springdoc</groupId>
-      <version>1.6.12</version>
+      <version>1.7.0</version>
     </dependency>
     <dependency>
       <artifactId>junit</artifactId>
@@ -230,6 +233,16 @@
       <groupId>io.projectreactor</groupId>
       <version>3.4.23</version>
     </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>6.0.11</version>
+    </dependency>
   </dependencies>
   <description>The BBMRI-ERIC Negotiator service for structured temp with biological
     resources dealing with human data and/or biological samples.
@@ -242,13 +255,11 @@
   <parent>
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
-    <version>2.7.4</version> <!-- lookup parent from repository -->
+    <version>3.1.2</version> <!-- lookup parent from repository -->
   </parent>
 
   <properties>
     <java.version>17</java.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
   </properties>
   <version>3.0.1</version>
 </project>

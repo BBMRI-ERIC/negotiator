@@ -2,8 +2,13 @@ package eu.bbmri.eric.csit.service.negotiator.dto.resource;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
-import javax.validation.constraints.NotNull;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.lang.Nullable;
 
 /** Resource DTO containing the status of the Resource, to be used as part of the Negotiation */
