@@ -396,7 +396,25 @@ public class NegotiationControllerTests {
                 "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isForbidden());
   }
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void updateLifecycle_invalidValue_BadRequest() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.put(
+                            "%s/negotiation-1/lifecycle/NONE_EXISTING_VALUE".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isBadRequest());
+  }
 
+  @Test
+  @WithMockUser(authorities = "ROLE_REPRESENTATIVE_biobank:1:collection:1")
+  void updateLifecycleResource_invalidValue_BadRequest() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.put(
+                            "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/NONE_EXISTING_VALUE".formatted(NEGOTIATIONS_URL)))
+            .andExpect(status().isBadRequest());
+  }
   @Test
   void getPossibleLifecycleStages_noAuth_Ok() throws Exception {
     mockMvc
