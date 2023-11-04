@@ -337,14 +337,10 @@ public class RequestControllerTests {
 
   @Test
   void createRequest_resourceNotInDB_fetchedFromMolgenis() throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode actualObj = mapper.createObjectNode();
     String collectionId = "bbmri:eric:collection:99";
-    actualObj.put("id", collectionId);
-    actualObj.put("name", "Collection 1");
-    actualObj.put("not_relevant_string", "not_relevant_value");
+    ObjectNode actualObj = getJsonNodes(collectionId);
     stubFor(
-        get(urlEqualTo("/directory/api/v2/collections/bbmri:eric:collection:99"))
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
             .willReturn(
                 aResponse()
                     .withHeader("Content-Type", "application/json")
@@ -359,5 +355,20 @@ public class RequestControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated());
+  }
+
+  private static ObjectNode getJsonNodes(String collectionId) {
+    String biobankId = "bbmri-eric:ID:BB";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode actualObj = mapper.createObjectNode();
+    ObjectNode biobank = mapper.createObjectNode();
+    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
+    biobank.put("id", biobankId);
+    biobank.put("name", "Biobank 1");
+    actualObj.put("id", collectionId);
+    actualObj.put("name", "Collection 1");
+    actualObj.put("not_relevant_string", "not_relevant_value");
+    actualObj.putIfAbsent("biobank", biobank);
+    return actualObj;
   }
 }

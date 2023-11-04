@@ -1,11 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
@@ -36,6 +35,8 @@ public class RequestServiceImpl implements RequestService {
   @Autowired private ResourceRepository resourceRepository;
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
+  @Autowired private OrganizationRepository organizationRepository;
+  @Autowired private AccessCriteriaSetRepository accessCriteriaSetRepository;
 
   @Value("${negotiator.molgenis-url}")
   private String molgenisURL;
@@ -94,7 +95,15 @@ public class RequestServiceImpl implements RequestService {
     Optional<MolgenisCollection> molgenisCollection = molgenisService.findCollectionById(id);
     if (molgenisCollection.isPresent()) {
       Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
+      Organization organization =
+          Organization.builder()
+              .externalId(molgenisCollection.get().getBiobank().getId())
+              .name(molgenisCollection.get().getBiobank().getName())
+              .build();
+      resource.setOrganization(organizationRepository.save(organization));
       resource.setDataSource(dataSourceRepository.findById(1L).get());
+      resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
+      // TODO: Fix primary key violation
       resourceRepository.save(resource);
       return Optional.of(resource);
     }

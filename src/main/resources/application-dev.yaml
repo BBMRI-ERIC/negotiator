@@ -40,6 +40,7 @@ spring:
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
           type: "JWT"
 negotiator:
+  molgenis-url: "https://bbmritestnn.gcc.rug.nl"
   frontend-url: "http://localhost:8080"
   authorization:
     claim: "eduperson_entitlement"
