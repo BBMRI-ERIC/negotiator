@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
+import java.util.Optional;
 
 public interface MolgenisService {
   /**
@@ -8,7 +9,13 @@ public interface MolgenisService {
    *
    * @return true | false
    */
-  public boolean isReachable();
+  boolean isReachable();
 
-  public MolgenisCollection findCollectionById(String id);
+  /**
+   * Fetch a BBMRI-ERIC, MIABIS defined collection by its ID.
+   *
+   * @param id
+   * @return
+   */
+  Optional<MolgenisCollection> findCollectionById(String id);
 }

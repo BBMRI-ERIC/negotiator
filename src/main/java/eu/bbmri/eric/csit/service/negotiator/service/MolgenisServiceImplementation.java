@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import java.util.Objects;
+import java.util.Optional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
@@ -30,8 +31,15 @@ public class MolgenisServiceImplementation implements MolgenisService {
   }
 
   @Override
-  public MolgenisCollection findCollectionById(String id) {
+  public Optional<MolgenisCollection> findCollectionById(String id) {
     Objects.requireNonNull(id, "Collection Id must not be null!");
-    return new MolgenisCollection("id", "name");
+    MolgenisCollection molgenisCollection =
+        webClient
+            .get()
+            .uri("/api/v2/collections/" + id)
+            .retrieve()
+            .bodyToMono(MolgenisCollection.class)
+            .block();
+    return Optional.of(molgenisCollection);
   }
 }
