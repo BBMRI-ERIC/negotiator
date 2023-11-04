@@ -46,7 +46,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
               .retrieve()
               .bodyToMono(MolgenisCollection.class)
               .block());
-    } catch (WebClientResponseException e) {
+    } catch (WebClientResponseException | WebClientRequestException e) {
       return Optional.empty();
     }
   }
@@ -62,7 +62,8 @@ public class MolgenisServiceImplementation implements MolgenisService {
               .retrieve()
               .bodyToMono(MolgenisBiobank.class)
               .block());
-    } catch (WebClientResponseException e) {
+    } catch (WebClientResponseException | WebClientRequestException e) {
+      log.warn("Molgenis is not reachable!");
       return Optional.empty();
     }
   }
