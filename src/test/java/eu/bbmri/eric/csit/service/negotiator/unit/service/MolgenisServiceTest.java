@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri.eric.csit.service.negotiator.service.MolgenisServiceImplementation;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -46,7 +47,9 @@ public class MolgenisServiceTest {
   void findByCollectionId_valid_Ok() {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode actualObj = mapper.createObjectNode();
-    actualObj.put("id", "bbmri:eric:collection:1");
+    String collectionId = "bbmri:eric:collection:1";
+    String baseUrl = "http://localhost:8080/directory";
+    actualObj.put("id", collectionId);
     actualObj.put("name", "Collection 1");
     actualObj.put("not_relevant_string", "not_relevant_value");
     stubFor(
@@ -56,20 +59,33 @@ public class MolgenisServiceTest {
                     .withHeader("Content-Type", "application/json")
                     .withJsonBody(actualObj)));
     assertTrue(
-        new MolgenisServiceImplementation(WebClient.create("http://localhost:8080/directory"))
-            .findCollectionById("bbmri:eric:collection:1")
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findCollectionById(collectionId)
             .isPresent());
     assertEquals(
         "Collection 1",
-        new MolgenisServiceImplementation(WebClient.create("http://localhost:8080/directory"))
-            .findCollectionById("bbmri:eric:collection:1")
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findCollectionById(collectionId)
             .get()
             .getName());
     assertEquals(
-        "bbmri:eric:collection:1",
-        new MolgenisServiceImplementation(WebClient.create("http://localhost:8080/directory"))
-            .findCollectionById("bbmri:eric:collection:1")
+        collectionId,
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findCollectionById(collectionId)
             .get()
             .getId());
+  }
+
+  @Test
+  void findByCollectionId_invalidId_empty() {
+    String collectionId = "bbmri:eric:collection:1";
+    String baseUrl = "http://localhost:8080/directory";
+    stubFor(
+        get(urlEqualTo("/directory/api/v2/collections/bbmri:eric:collection:1"))
+            .willReturn(aResponse().withStatus(404)));
+    assertEquals(
+        Optional.empty(),
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findCollectionById(collectionId));
   }
 }
