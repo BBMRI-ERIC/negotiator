@@ -35,4 +35,13 @@ public class MolgenisServiceTest {
         new MolgenisServiceImplementation(WebClient.create("http://localhost:8080/directory"))
             .isReachable());
   }
+
+  @Test
+  void findByCollectionId_null_throwsNullPointer() {
+    assertThrows(
+        NullPointerException.class,
+        () ->
+            new MolgenisServiceImplementation(WebClient.create("http://localhost:8080/directory"))
+                .findCollectionById(null));
+  }
 }
