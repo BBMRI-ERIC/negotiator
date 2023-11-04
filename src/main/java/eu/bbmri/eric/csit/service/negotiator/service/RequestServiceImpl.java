@@ -6,22 +6,27 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import jakarta.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service(value = "DefaultRequestService")
 @CommonsLog
@@ -31,6 +36,16 @@ public class RequestServiceImpl implements RequestService {
   @Autowired private ResourceRepository resourceRepository;
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
+
+  @Value("${negotiator.molgenis-url}")
+  private String molgenisURL;
+
+  private MolgenisService molgenisService = null;
+
+  @PostConstruct
+  public void init() {
+    molgenisService = new MolgenisServiceImplementation(WebClient.create(molgenisURL));
+  }
 
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
@@ -59,13 +74,31 @@ public class RequestServiceImpl implements RequestService {
     return resourceDTOs.stream()
         .map(
             resourceDTO ->
-                resourceRepository
-                    .findBySourceId(resourceDTO.getId())
+                findResourceById(resourceDTO.getId())
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
                                 "Some of the specified resources were not found.")))
         .collect(Collectors.toSet());
+  }
+
+  private Optional<Resource> findResourceById(String id) {
+    Optional<Resource> resource = resourceRepository.findBySourceId(id);
+    if (resource.isPresent()) {
+      return resource;
+    }
+    return fetchResourceFromMolgenis(id);
+  }
+
+  private Optional<Resource> fetchResourceFromMolgenis(String id) {
+    Optional<MolgenisCollection> molgenisCollection = molgenisService.findCollectionById(id);
+    if (molgenisCollection.isPresent()) {
+      Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
+      resource.setDataSource(dataSourceRepository.findById(1L).get());
+      resourceRepository.save(resource);
+      return Optional.of(resource);
+    }
+    return Optional.empty();
   }
 
   private DataSource getValidDataSource(String url) {

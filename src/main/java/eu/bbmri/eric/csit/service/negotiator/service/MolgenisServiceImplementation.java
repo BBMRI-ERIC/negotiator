@@ -3,11 +3,13 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+@CommonsLog
 public class MolgenisServiceImplementation implements MolgenisService {
 
   private final WebClient webClient;
@@ -27,6 +29,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
                   .block())
           .is2xxSuccessful();
     } catch (WebClientRequestException e) {
+      log.warn("Molgenis is not reachable!");
       return false;
     }
   }
