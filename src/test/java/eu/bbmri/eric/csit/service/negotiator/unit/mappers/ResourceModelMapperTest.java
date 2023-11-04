@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisBiobank;
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelMapper;
@@ -46,7 +47,7 @@ public class ResourceModelMapperTest {
   @Test
   void molgenisCollectionToResource_map_ok() {
     MolgenisCollection molgenisCollection =
-        new MolgenisCollection("bbmri:eric:collection:1", "Collection 1");
+        new MolgenisCollection("bbmri:eric:collection:1", "Collection 1", new MolgenisBiobank());
     Resource resource = mapper.map(molgenisCollection, Resource.class);
     assertEquals(molgenisCollection.getId(), resource.getSourceId());
     assertEquals(molgenisCollection.getName(), resource.getName());

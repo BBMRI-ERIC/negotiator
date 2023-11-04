@@ -45,15 +45,21 @@ public class MolgenisServiceTest {
 
   @Test
   void findByCollectionId_valid_Ok() {
+    String collectionId = "bbmri:eric:collection:1";
+    String biobankId = "bbmri-eric:ID:BB";
+    String baseUrl = "http://localhost:8080/directory";
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode actualObj = mapper.createObjectNode();
-    String collectionId = "bbmri:eric:collection:1";
-    String baseUrl = "http://localhost:8080/directory";
+    ObjectNode biobank = mapper.createObjectNode();
+    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
+    biobank.put("id", biobankId);
+    biobank.put("name", "Biobank 1");
     actualObj.put("id", collectionId);
     actualObj.put("name", "Collection 1");
     actualObj.put("not_relevant_string", "not_relevant_value");
+    actualObj.putIfAbsent("biobank", biobank);
     stubFor(
-        get(urlEqualTo("/directory/api/v2/collections/bbmri:eric:collection:1"))
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:1"))
             .willReturn(
                 aResponse()
                     .withHeader("Content-Type", "application/json")
@@ -74,6 +80,13 @@ public class MolgenisServiceTest {
             .findCollectionById(collectionId)
             .get()
             .getId());
+    assertEquals(
+        biobankId,
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findCollectionById(collectionId)
+            .get()
+            .getBiobank()
+            .getId());
   }
 
   @Test
@@ -81,11 +94,32 @@ public class MolgenisServiceTest {
     String collectionId = "bbmri:eric:collection:1";
     String baseUrl = "http://localhost:8080/directory";
     stubFor(
-        get(urlEqualTo("/directory/api/v2/collections/bbmri:eric:collection:1"))
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:1"))
             .willReturn(aResponse().withStatus(404)));
     assertEquals(
         Optional.empty(),
         new MolgenisServiceImplementation(WebClient.create(baseUrl))
             .findCollectionById(collectionId));
+  }
+
+  @Test
+  void findByBiobankId_validId_Ok() {
+    String baseUrl = "http://localhost:8080/directory";
+    String biobankId = "bbmri-eric:ID:BB";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode biobank = mapper.createObjectNode();
+    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
+    biobank.put("id", biobankId);
+    biobank.put("name", "Biobank 1");
+    stubFor(
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB"))
+            .willReturn(
+                aResponse().withHeader("Content-Type", "application/json").withJsonBody(biobank)));
+    assertEquals(
+        biobankId,
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findBiobankById(biobankId)
+            .get()
+            .getId());
   }
 }

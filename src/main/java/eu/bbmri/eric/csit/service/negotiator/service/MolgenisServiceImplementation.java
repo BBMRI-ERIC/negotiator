@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisBiobank;
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,9 +42,25 @@ public class MolgenisServiceImplementation implements MolgenisService {
       return Optional.ofNullable(
           webClient
               .get()
-              .uri("/api/v2/collections/" + id)
+              .uri("/api/v2/eu_bbmri_eric_collections/" + id)
               .retrieve()
               .bodyToMono(MolgenisCollection.class)
+              .block());
+    } catch (WebClientResponseException e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public Optional<MolgenisBiobank> findBiobankById(String id) {
+    Objects.requireNonNull(id, "Biobank Id must not be null!");
+    try {
+      return Optional.ofNullable(
+          webClient
+              .get()
+              .uri("/api/v2/eu_bbmri_eric_biobanks/" + id)
+              .retrieve()
+              .bodyToMono(MolgenisBiobank.class)
               .block());
     } catch (WebClientResponseException e) {
       return Optional.empty();

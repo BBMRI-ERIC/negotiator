@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MolgenisCollection {
-  private String id;
-  private String name;
-  private MolgenisBiobank biobank;
+public class MolgenisBiobank {
+  String id;
+  String name;
+  String _href;
 }
