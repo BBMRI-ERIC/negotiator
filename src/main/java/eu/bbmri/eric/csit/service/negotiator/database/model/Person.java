@@ -38,14 +38,7 @@ import lombok.ToString.Exclude;
 @SequenceGenerator(name = "person_id_seq", initialValue = 300)
 public class Person {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
-  @Column(name = "id")
-  private Long id;
-
   @ManyToMany
-
-
   @JoinTable(
       name = "person_resource_link",
       joinColumns = @JoinColumn(name = "person_id"),
@@ -65,6 +58,10 @@ public class Person {
   @Exclude
   Set<PersonNegotiationRole> roles = new HashSet<>();
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
+  @Column(name = "id")
+  private Long id;
 
   @Column(unique = true)
   @NotNull

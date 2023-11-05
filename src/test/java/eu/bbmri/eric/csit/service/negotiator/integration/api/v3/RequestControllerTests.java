@@ -61,6 +61,20 @@ public class RequestControllerTests {
 
   private MockMvc mockMvc;
 
+  private static ObjectNode getMockCollectionJsonBody(String collectionId, String biobankId) {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode actualObj = mapper.createObjectNode();
+    ObjectNode biobank = mapper.createObjectNode();
+    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
+    biobank.put("id", biobankId);
+    biobank.put("name", "Biobank 1");
+    actualObj.put("id", collectionId);
+    actualObj.put("name", "Collection 1");
+    actualObj.put("not_relevant_string", "not_relevant_value");
+    actualObj.putIfAbsent("biobank", biobank);
+    return actualObj;
+  }
+
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
@@ -377,19 +391,5 @@ public class RequestControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated());
-  }
-
-  private static ObjectNode getMockCollectionJsonBody(String collectionId, String biobankId) {
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode actualObj = mapper.createObjectNode();
-    ObjectNode biobank = mapper.createObjectNode();
-    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
-    biobank.put("id", biobankId);
-    biobank.put("name", "Biobank 1");
-    actualObj.put("id", collectionId);
-    actualObj.put("name", "Collection 1");
-    actualObj.put("not_relevant_string", "not_relevant_value");
-    actualObj.putIfAbsent("biobank", biobank);
-    return actualObj;
   }
 }
