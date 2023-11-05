@@ -41,9 +41,9 @@ values (1, 1, 1, 'true'),
        (3, 3, 1, 'false'),
        (3, 4, 2, 'false');
 
-insert into organization (external_id, name)
-values ('bbmri-eric:ID:SE_890', 'Biobank Väst'),
-       ('bbmri-eric:ID:CZ_MMCI',
+insert into organization (ID, external_id, name)
+values (1, 'bbmri-eric:ID:SE_890', 'Biobank Väst'),
+       (2, 'bbmri-eric:ID:CZ_MMCI',
         'Masaryk Memorial Cancer Institute');
 
 insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id, organization_id)
