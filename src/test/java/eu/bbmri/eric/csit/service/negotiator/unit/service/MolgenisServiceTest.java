@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import eu.bbmri.eric.csit.service.negotiator.service.MolgenisServiceImplementation;
 import java.util.Optional;
+import lombok.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -48,6 +50,24 @@ public class MolgenisServiceTest {
     String collectionId = "bbmri:eric:collection:1";
     String biobankId = "bbmri-eric:ID:BB";
     String baseUrl = "http://localhost:8080/directory";
+    ObjectNode actualObj = creatJsonBody(biobankId, collectionId);
+    stubFor(
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:1"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withJsonBody(actualObj)));
+    Optional<MolgenisCollection> molgenisCollection =
+        new MolgenisServiceImplementation(WebClient.create(baseUrl))
+            .findCollectionById(collectionId);
+    assertTrue(molgenisCollection.isPresent());
+    assertEquals("Collection 1", molgenisCollection.get().getName());
+    assertEquals(collectionId, molgenisCollection.get().getId());
+    assertEquals(biobankId, molgenisCollection.get().getBiobank().getId());
+  }
+
+  @NonNull
+  private static ObjectNode creatJsonBody(String biobankId, String collectionId) {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode actualObj = mapper.createObjectNode();
     ObjectNode biobank = mapper.createObjectNode();
@@ -58,35 +78,7 @@ public class MolgenisServiceTest {
     actualObj.put("name", "Collection 1");
     actualObj.put("not_relevant_string", "not_relevant_value");
     actualObj.putIfAbsent("biobank", biobank);
-    stubFor(
-        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:1"))
-            .willReturn(
-                aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withJsonBody(actualObj)));
-    assertTrue(
-        new MolgenisServiceImplementation(WebClient.create(baseUrl))
-            .findCollectionById(collectionId)
-            .isPresent());
-    assertEquals(
-        "Collection 1",
-        new MolgenisServiceImplementation(WebClient.create(baseUrl))
-            .findCollectionById(collectionId)
-            .get()
-            .getName());
-    assertEquals(
-        collectionId,
-        new MolgenisServiceImplementation(WebClient.create(baseUrl))
-            .findCollectionById(collectionId)
-            .get()
-            .getId());
-    assertEquals(
-        biobankId,
-        new MolgenisServiceImplementation(WebClient.create(baseUrl))
-            .findCollectionById(collectionId)
-            .get()
-            .getBiobank()
-            .getId());
+    return actualObj;
   }
 
   @Test
