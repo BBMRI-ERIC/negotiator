@@ -109,22 +109,21 @@ public class RequestServiceImpl implements RequestService {
 
   private Resource prepareResourceForPersisting(Optional<MolgenisCollection> molgenisCollection) {
     Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
-    resource.setOrganization(getParentOrganization(molgenisCollection, resource));
+    resource.setOrganization(getParentOrganization(molgenisCollection));
     resource.setDataSource(dataSourceRepository.findById(1L).get());
     resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
     return resource;
   }
 
-  private Organization getParentOrganization(Optional<MolgenisCollection> molgenisCollection, Resource resource) {
-    if (!organizationRepository.existsByExternalId(
-        molgenisCollection.get().getBiobank().getId())) {
-      log.info("Parent organization not found in database. Fetching from Molgenis and saving to DB.");
+  private Organization getParentOrganization(Optional<MolgenisCollection> molgenisCollection) {
+    if (!organizationRepository.existsByExternalId(molgenisCollection.get().getBiobank().getId())) {
+      log.info(
+          "Parent organization not found in database. Fetching from Molgenis and saving to DB.");
       return saveParentOrganization(molgenisCollection);
     } else {
-      return
-          organizationRepository
-              .findByExternalId(molgenisCollection.get().getBiobank().getId())
-              .get();
+      return organizationRepository
+          .findByExternalId(molgenisCollection.get().getBiobank().getId())
+          .get();
     }
   }
 
