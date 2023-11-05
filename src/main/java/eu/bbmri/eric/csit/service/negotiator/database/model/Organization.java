@@ -4,9 +4,13 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
@@ -26,7 +30,13 @@ import lombok.Setter;
 @NamedEntityGraph(
     name = "organization-with-detailed-resources",
     attributeNodes = {@NamedAttributeNode(value = "resources")})
-public class Organization extends BaseEntity {
+public class Organization {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resource_id_seq")
+  @SequenceGenerator(name = "resource_id_seq", initialValue = 10000)
+  private Long id;
+
   /** A unique and persistent identifier issued by an appropriate institution. */
   @NotNull
   @Column(unique = true)

@@ -23,6 +23,8 @@ public class ResourceModelMapper {
 
     typeMap.addMappings(mapper -> mapper.map(ResourceDTO::getName, Resource::setName));
 
+    typeMap.addMappings(mapper -> mapper.skip(Resource::setId));
+
     TypeMap<Resource, ResourceDTO> resourceToDTOTypeMap =
         modelMapper.createTypeMap(Resource.class, ResourceDTO.class);
 
@@ -35,5 +37,6 @@ public class ResourceModelMapper {
         modelMapper.createTypeMap(MolgenisCollection.class, Resource.class);
     molgenisCollectionResourceTypeMap.addMappings(
         mapper -> mapper.map(MolgenisCollection::getId, Resource::setSourceId));
+    molgenisCollectionResourceTypeMap.addMappings(mapper -> mapper.skip(Resource::setId));
   }
 }

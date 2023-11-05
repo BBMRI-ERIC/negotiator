@@ -95,12 +95,20 @@ public class RequestServiceImpl implements RequestService {
     Optional<MolgenisCollection> molgenisCollection = molgenisService.findCollectionById(id);
     if (molgenisCollection.isPresent()) {
       Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
-      Organization organization =
-          Organization.builder()
-              .externalId(molgenisCollection.get().getBiobank().getId())
-              .name(molgenisCollection.get().getBiobank().getName())
-              .build();
-      resource.setOrganization(organizationRepository.save(organization));
+      if (!organizationRepository.existsByExternalId(
+          molgenisCollection.get().getBiobank().getId())) {
+        Organization organization =
+            Organization.builder()
+                .externalId(molgenisCollection.get().getBiobank().getId())
+                .name(molgenisCollection.get().getBiobank().getName())
+                .build();
+        resource.setOrganization(organizationRepository.save(organization));
+      } else {
+        resource.setOrganization(
+            organizationRepository
+                .findByExternalId(molgenisCollection.get().getBiobank().getId())
+                .get());
+      }
       resource.setDataSource(dataSourceRepository.findById(1L).get());
       resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
       // TODO: Fix primary key violation

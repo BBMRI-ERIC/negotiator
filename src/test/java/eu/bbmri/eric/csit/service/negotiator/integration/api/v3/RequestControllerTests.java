@@ -338,7 +338,7 @@ public class RequestControllerTests {
   @Test
   void createRequest_resourceNotInDB_fetchedFromMolgenis() throws Exception {
     String collectionId = "bbmri:eric:collection:99";
-    ObjectNode actualObj = getJsonNodes(collectionId);
+    ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "bbmri-eric:ID:BB");
     stubFor(
         get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
             .willReturn(
@@ -357,8 +357,29 @@ public class RequestControllerTests {
         .andExpect(status().isCreated());
   }
 
-  private static ObjectNode getJsonNodes(String collectionId) {
-    String biobankId = "bbmri-eric:ID:BB";
+  @Test
+  void createRequest_resourceNotInDBOrganizationInDB_Ok() throws Exception {
+    String collectionId = "bbmri:eric:collection:99";
+    ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "biobank:1");
+    stubFor(
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withJsonBody(actualObj)));
+    RequestCreateDTO request = TestUtils.createRequest(false);
+    request.getResources().stream().findFirst().get().setId(collectionId);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ENDPOINT)
+                .with(httpBasic("directory", "directory"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated());
+  }
+
+  private static ObjectNode getMockCollectionJsonBody(String collectionId, String biobankId) {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode actualObj = mapper.createObjectNode();
     ObjectNode biobank = mapper.createObjectNode();
