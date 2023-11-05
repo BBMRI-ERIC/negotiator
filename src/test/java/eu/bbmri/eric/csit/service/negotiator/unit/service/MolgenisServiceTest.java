@@ -122,4 +122,12 @@ public class MolgenisServiceTest {
             .get()
             .getId());
   }
+
+  @Test
+  void findByCollectionId_notReachableMolgenis_returnsEmpty() {
+    assertEquals(
+        Optional.empty(),
+        new MolgenisServiceImplementation(WebClient.create(""))
+            .findCollectionById("does not matter"));
+  }
 }
