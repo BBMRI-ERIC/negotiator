@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,7 @@ public class RequestServiceImpl implements RequestService {
     return resourceDTOs.stream()
         .map(
             resourceDTO ->
-                findResourceById(resourceDTO.getId())
+                findResourceByExternalId(resourceDTO.getId())
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
@@ -83,39 +84,59 @@ public class RequestServiceImpl implements RequestService {
         .collect(Collectors.toSet());
   }
 
-  private Optional<Resource> findResourceById(String id) {
+  private Optional<Resource> findResourceByExternalId(String id) {
     Optional<Resource> resource = resourceRepository.findBySourceId(id);
     if (resource.isPresent()) {
       return resource;
     }
+    log.info("Resource not found in database. Fetching from Molgenis...");
     return fetchResourceFromMolgenis(id);
   }
 
   private Optional<Resource> fetchResourceFromMolgenis(String id) {
     Optional<MolgenisCollection> molgenisCollection = molgenisService.findCollectionById(id);
     if (molgenisCollection.isPresent()) {
-      Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
-      if (!organizationRepository.existsByExternalId(
-          molgenisCollection.get().getBiobank().getId())) {
-        Organization organization =
-            Organization.builder()
-                .externalId(molgenisCollection.get().getBiobank().getId())
-                .name(molgenisCollection.get().getBiobank().getName())
-                .build();
-        resource.setOrganization(organizationRepository.save(organization));
-      } else {
-        resource.setOrganization(
-            organizationRepository
-                .findByExternalId(molgenisCollection.get().getBiobank().getId())
-                .get());
-      }
-      resource.setDataSource(dataSourceRepository.findById(1L).get());
-      resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
-      // TODO: Fix primary key violation
-      resourceRepository.save(resource);
-      return Optional.of(resource);
+      return persistAsResource(molgenisCollection);
     }
     return Optional.empty();
+  }
+
+  private Optional<Resource> persistAsResource(Optional<MolgenisCollection> molgenisCollection) {
+    Resource resource = prepareResourceForPersisting(molgenisCollection);
+    resourceRepository.save(resource);
+    return Optional.of(resource);
+  }
+
+  private Resource prepareResourceForPersisting(Optional<MolgenisCollection> molgenisCollection) {
+    Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
+    resource.setOrganization(getParentOrganization(molgenisCollection, resource));
+    resource.setDataSource(dataSourceRepository.findById(1L).get());
+    resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
+    return resource;
+  }
+
+  private Organization getParentOrganization(Optional<MolgenisCollection> molgenisCollection, Resource resource) {
+    if (!organizationRepository.existsByExternalId(
+        molgenisCollection.get().getBiobank().getId())) {
+      log.info("Parent organization not found in database. Fetching from Molgenis and saving to DB.");
+      return saveParentOrganization(molgenisCollection);
+    } else {
+      return
+          organizationRepository
+              .findByExternalId(molgenisCollection.get().getBiobank().getId())
+              .get();
+    }
+  }
+
+  @NonNull
+  private Organization saveParentOrganization(Optional<MolgenisCollection> molgenisCollection) {
+    Organization organization =
+        Organization.builder()
+            .externalId(molgenisCollection.get().getBiobank().getId())
+            .name(molgenisCollection.get().getBiobank().getName())
+            .build();
+    organization = organizationRepository.save(organization);
+    return organization;
   }
 
   private DataSource getValidDataSource(String url) {
