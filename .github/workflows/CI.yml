@@ -206,16 +206,20 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator && cd /opt/negotiator
+        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
 
       - name: Run docker compose
-        run: docker compose up -d negotiator
+        run: cd /opt/negotiator && docker compose up -d negotiator
 
       - name: Wait
         run: sleep 30
 
       - name: Get docker logs
         run: docker logs negotiator
+
+
+      - name: Checkout codebase
+        uses: actions/checkout@v3
 
       - name: Check health
         run: .github/scripts/check_health.sh negotiator
@@ -234,10 +238,10 @@ jobs:
           path: /tmp
 
       - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator && cd /opt/negotiator
+        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
 
       - name: Run docker compose
-        run: docker compose up -d negotiator
+        run: cd /opt/negotiator && docker compose up -d negotiator
 
       - name: Wait
         run: sleep 30
@@ -261,6 +265,9 @@ jobs:
 
       - name: Get docker logs
         run: docker logs negotiator
+
+      - name: Checkout codebase
+        uses: actions/checkout@v3
 
       - name: Check health
         run: .github/scripts/check_health.sh negotiator
