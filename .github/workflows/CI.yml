@@ -186,7 +186,7 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@master
         with:
-          name: parsing-module
+          name: negotiator
           path: /tmp/negotiator.tar
 
   system-test:
