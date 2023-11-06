@@ -1,0 +1,36 @@
+name: branch-deploy
+
+on:
+  issue_comment:
+    types: [ created ]
+
+permissions:
+  pull-requests: write
+  deployments: write
+  contents: write
+  checks: read
+
+jobs:
+  deploy:
+    environment: development
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: github/branch-deploy@v8.1.1
+        id: branch-deploy
+
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        env:
+          BACKEND_DEPLOY_TAG: ${{ github.ref_name }}
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER}}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script_stop: true
+          envs: BACKEND_DEPLOY_TAG
+          script: |
+            export BACKEND_DEPLOY_TAG
+            source deploy
