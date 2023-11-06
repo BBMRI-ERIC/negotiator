@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: github/branch-deploy@v8.1.1
         id: branch-deploy
+        with:
+          skip_reviews: "development"
+          skip_ci: "development"
 
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
