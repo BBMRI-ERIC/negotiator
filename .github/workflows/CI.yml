@@ -8,6 +8,8 @@ on:
     branches:
       - master
   pull_request:
+env:
+  image_tag: latest
 
 jobs:
 
@@ -33,6 +35,8 @@ jobs:
   build-and-run:
     name: Run application
     runs-on: ubuntu-latest
+    needs:
+      - compile
 
     steps:
 
@@ -50,7 +54,10 @@ jobs:
         run: mvn --quiet clean package -DskipTests=True
 
       - name: Run jar file
-        run: java -jar -Dspring.profiles.active=dev target/negotiator.jar
+        run: nohup java -jar -Dspring.profiles.active=dev target/negotiator.jar > /dev/null 2>&1 &
+
+      - name: Wait for application to start
+        run: .github/scripts/wait_for_url.sh  localhost:8081/api/actuator/health
 
 
   lint:
@@ -157,10 +164,12 @@ jobs:
 
 
   build-image:
-    name: Docker image
-    runs-on: ubuntu-latest
+    name: Build docker image
+    runs-on: ubuntu-latestx§
     needs:
       - integration-tests
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
     steps:
 
       - name: Checkout codebase
@@ -196,11 +205,89 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: false
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
-  # Run the image
-  # Check health
-  # Run latest stable
-  # Stop
-  # Run new image to see how it performs with data in DB
+          outputs: type=docker,dest=/tmp/negotiator.tar
+
+      - name: Upload image
+        uses: actions/upload-artifact@master
+        with:
+          name: parsing-module
+          path: /tmp/negotiator.tar
+
+  system-test:
+    name: System tests
+    runs-on: ubuntu-latest
+    needs:
+      - build-image
+    steps:
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: negotiator
+          path: /tmp
+
+      - name: Load image
+        run: docker load --input /tmp/negotiator.tar
+
+      - name: Clone deployment repo
+        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator && cd /opt/negotiator
+
+      - name: Run docker compose
+        run: docker compose up -d negotiator
+
+      - name: Wait
+        run: sleep 30
+
+      - name: Get docker logs
+        run: docker logs parsing-module
+
+      - name: Check health
+        run: .github/scripts/check_health.sh negotiator
+
+  backwards-compatibility:
+    name: Backwards database compatibility
+    runs-on: ubuntu-latest
+    needs:
+      - system-test
+    steps:
+      - env:
+          OUTPUT1: ${{needs.build-image.outputs.image_tag}}
+        run: echo "$OUTPUT1"
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: negotiator
+          path: /tmp
+
+      - name: Clone deployment repo
+        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator && cd /opt/negotiator
+
+      - name: Run docker compose
+        run: docker compose up -d negotiator
+
+      - name: Wait
+        run: sleep 30
+
+      - name: Run docker compose
+        run: docker compose down
+
+      - name: Load image
+        run: docker load --input /tmp/negotiator.tar
+
+      - name: Run docker compose
+        env:
+          OUTPUT1: ${{needs.build-image.outputs.image_tag}}
+        run: docker compose up -d negotiator
+
+      - name: Wait
+        run: sleep 30
+
+      - name: Get docker logs
+        run: docker logs parsing-module
+
+      - name: Check health
+        run: .github/scripts/check_health.sh negotiator
