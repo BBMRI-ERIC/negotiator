@@ -26,7 +26,7 @@ jobs:
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         env:
-          BACKEND_DEPLOY_TAG: ${{ github.event.number }}
+          BACKEND_DEPLOY_TAG: ${{ github.event.pull_request.number || github.event.issue.number }}
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER}}
