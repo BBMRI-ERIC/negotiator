@@ -22,6 +22,7 @@ jobs:
         with:
           skip_reviews: "development"
           skip_ci: "development"
+          permissions: "maintain"
 
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
