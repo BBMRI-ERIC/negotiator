@@ -110,7 +110,7 @@ Negotiator follows a classic repository-service architectural pattern. Key compo
 - [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
 - [Notification service](docs/NOTIFICATIONS.md)
-- Sync service (UPCOMING)
+- [External services interface](docs/EXTERNAL_SERVICES.md)
 
 ## Integration
 
