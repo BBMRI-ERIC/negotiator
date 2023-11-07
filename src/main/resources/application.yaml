@@ -34,6 +34,7 @@ spring:
           issuer-uri: ""
           jwks-url: ""
 negotiator:
+  molgenis-url: ""
   frontend-url: ""
   authorization:
     claim: ""

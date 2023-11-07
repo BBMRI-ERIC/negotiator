@@ -1,27 +1,32 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
-import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.*;
+import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import jakarta.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service(value = "DefaultRequestService")
 @CommonsLog
@@ -31,6 +36,18 @@ public class RequestServiceImpl implements RequestService {
   @Autowired private ResourceRepository resourceRepository;
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
+  @Autowired private OrganizationRepository organizationRepository;
+  @Autowired private AccessCriteriaSetRepository accessCriteriaSetRepository;
+
+  @Value("${negotiator.molgenis-url}")
+  private String molgenisURL;
+
+  private MolgenisService molgenisService = null;
+
+  @PostConstruct
+  public void init() {
+    molgenisService = new MolgenisServiceImplementation(WebClient.create(molgenisURL));
+  }
 
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
@@ -59,13 +76,66 @@ public class RequestServiceImpl implements RequestService {
     return resourceDTOs.stream()
         .map(
             resourceDTO ->
-                resourceRepository
-                    .findBySourceId(resourceDTO.getId())
+                findResourceByExternalId(resourceDTO.getId())
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
                                 "Some of the specified resources were not found.")))
         .collect(Collectors.toSet());
+  }
+
+  private Optional<Resource> findResourceByExternalId(String id) {
+    Optional<Resource> resource = resourceRepository.findBySourceId(id);
+    if (resource.isPresent()) {
+      return resource;
+    }
+    log.info("Resource not found in database. Fetching from Molgenis...");
+    return fetchResourceFromMolgenis(id);
+  }
+
+  private Optional<Resource> fetchResourceFromMolgenis(String id) {
+    Optional<MolgenisCollection> molgenisCollection = molgenisService.findCollectionById(id);
+    if (molgenisCollection.isPresent()) {
+      return persistAsResource(molgenisCollection);
+    }
+    return Optional.empty();
+  }
+
+  private Optional<Resource> persistAsResource(Optional<MolgenisCollection> molgenisCollection) {
+    Resource resource = prepareResourceForPersisting(molgenisCollection);
+    resourceRepository.save(resource);
+    return Optional.of(resource);
+  }
+
+  private Resource prepareResourceForPersisting(Optional<MolgenisCollection> molgenisCollection) {
+    Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
+    resource.setOrganization(getParentOrganization(molgenisCollection));
+    resource.setDataSource(dataSourceRepository.findById(1L).get());
+    resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
+    return resource;
+  }
+
+  private Organization getParentOrganization(Optional<MolgenisCollection> molgenisCollection) {
+    if (!organizationRepository.existsByExternalId(molgenisCollection.get().getBiobank().getId())) {
+      log.info(
+          "Parent organization not found in database. Fetching from Molgenis and saving to DB.");
+      return saveParentOrganization(molgenisCollection);
+    } else {
+      return organizationRepository
+          .findByExternalId(molgenisCollection.get().getBiobank().getId())
+          .get();
+    }
+  }
+
+  @NonNull
+  private Organization saveParentOrganization(Optional<MolgenisCollection> molgenisCollection) {
+    Organization organization =
+        Organization.builder()
+            .externalId(molgenisCollection.get().getBiobank().getId())
+            .name(molgenisCollection.get().getBiobank().getName())
+            .build();
+    organization = organizationRepository.save(organization);
+    return organization;
   }
 
   private DataSource getValidDataSource(String url) {

@@ -41,12 +41,11 @@ public class PostServiceImpl implements PostService {
     Post postEntity = modelMapper.map(postRequest, Post.class);
 
     if (postRequest.getType().equals(PostType.PRIVATE)) {
-      // A private post is always associated and related to a Resource
-      if (postRequest.getOrganizationId() != null) {
-        String resourceId = postRequest.getOrganizationId();
+      if (postRequest.getBiobankId() != null) {
+        String organizationId = postRequest.getBiobankId();
         Organization organization =
             organizationRepository
-                .findByExternalId(resourceId)
+                .findByExternalId(organizationId)
                 .orElseThrow(WrongRequestException::new);
         postEntity.setOrganization(organization);
       }

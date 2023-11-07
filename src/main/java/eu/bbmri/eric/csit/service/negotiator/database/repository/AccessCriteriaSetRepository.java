@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccessCriteriaSetRepository extends JpaRepository<AccessCriteriaSet, Long> {
 
+  Optional<AccessCriteriaSet> findById(Long id);
+
   @Query(
       value =
           "SELECT DISTINCT a "

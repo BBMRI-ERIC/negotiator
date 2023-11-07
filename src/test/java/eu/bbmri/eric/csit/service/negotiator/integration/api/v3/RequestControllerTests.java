@@ -1,5 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,6 +10,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
@@ -16,7 +21,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.util.Collections;
 import java.util.Optional;
@@ -37,6 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@WireMockTest(httpPort = 8088)
 public class RequestControllerTests {
 
   private static final Long CREATOR_ID = 104L;
@@ -49,11 +55,25 @@ public class RequestControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired private RequestController controller;
   @Autowired private RequestServiceImpl requestService;
-  @Autowired private NegotiationServiceImpl negotiationService;
+  @Autowired private NegotiationService negotiationService;
   @Autowired private NegotiationLifecycleService negotiationLifecycleService;
   @Autowired private ModelMapper modelMapper;
 
   private MockMvc mockMvc;
+
+  private static ObjectNode getMockCollectionJsonBody(String collectionId, String biobankId) {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode actualObj = mapper.createObjectNode();
+    ObjectNode biobank = mapper.createObjectNode();
+    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
+    biobank.put("id", biobankId);
+    biobank.put("name", "Biobank 1");
+    actualObj.put("id", collectionId);
+    actualObj.put("name", "Collection 1");
+    actualObj.put("not_relevant_string", "not_relevant_value");
+    actualObj.putIfAbsent("biobank", biobank);
+    return actualObj;
+  }
 
   @BeforeEach
   public void before() {
@@ -327,5 +347,49 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:2:collection:1")));
     assertEquals(repository.count(), previousCount);
+  }
+
+  @Test
+  void createRequest_resourceNotInDB_fetchedFromMolgenis() throws Exception {
+    String collectionId = "bbmri:eric:collection:99";
+    ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "bbmri-eric:ID:BB");
+    stubFor(
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withJsonBody(actualObj)));
+    RequestCreateDTO request = TestUtils.createRequest(false);
+    request.getResources().stream().findFirst().get().setId(collectionId);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ENDPOINT)
+                .with(httpBasic("directory", "directory"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated());
+  }
+
+  @Test
+  void createRequest_resourceNotInDBOrganizationInDB_Ok() throws Exception {
+    String collectionId = "bbmri:eric:collection:99";
+    ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "biobank:1");
+    stubFor(
+        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withJsonBody(actualObj)));
+    RequestCreateDTO request = TestUtils.createRequest(false);
+    request.getResources().stream().findFirst().get().setId(collectionId);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ENDPOINT)
+                .with(httpBasic("directory", "directory"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated());
   }
 }

@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
   Optional<Organization> findDetailedById(Long id);
 
   Optional<Organization> findByExternalId(String externalId);
+
+  boolean existsByExternalId(@NotNull String externalId);
 }
