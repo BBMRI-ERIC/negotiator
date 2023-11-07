@@ -189,6 +189,40 @@ jobs:
           name: negotiator
           path: /tmp/negotiator.tar
 
+  image-scan:
+    needs: build-image
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: negotiator
+          path: /tmp
+
+      - name: Load image
+        run: docker load --input /tmp/negotiator.tar
+
+      - name: Check out Git repository
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bbmrieric/negotiator:latest
+          format: sarif
+          output: trivy-results.sarif
+          severity: 'CRITICAL,HIGH'
+          timeout: '15m0s'
+
+      - name: Upload Trivy Scan Results to GitHub Security Tab
+        if: ${{ (github.repository_owner == 'bbmri-eric') || (vars.IMAGE_SCAN_UPLOAD == 'true') }}
+        uses: github/codeql-action/upload-sarif@0116bc2df50751f9724a2e35ef1f24d22f90e4e1 # v2
+        with:
+          sarif_file: trivy-results.sarif
+
   system-test:
     name: System tests
     runs-on: ubuntu-latest
