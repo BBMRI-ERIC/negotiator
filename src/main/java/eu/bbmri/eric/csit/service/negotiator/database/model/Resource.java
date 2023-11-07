@@ -33,7 +33,7 @@ public class Resource {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resource_id_seq")
-  @SequenceGenerator(name = "resource_id_seq", initialValue = 10000)
+  @SequenceGenerator(name = "resource_id_seq", initialValue = 10000, allocationSize = 1)
   private Long id;
 
   private String name;
