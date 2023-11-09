@@ -38,11 +38,12 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
-    Post postEntity = modelMapper.map(postRequest, Post.class);
+    Post postEntity =
+        Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
 
     if (postRequest.getType().equals(PostType.PRIVATE)) {
-      if (postRequest.getBiobankId() != null) {
-        String organizationId = postRequest.getBiobankId();
+      if (postRequest.getOrganizationId() != null) {
+        String organizationId = postRequest.getOrganizationId();
         Organization organization =
             organizationRepository
                 .findByExternalId(organizationId)
