@@ -25,7 +25,7 @@ public class PostCreateDTO {
 
   @Valid @NotEmpty private String text;
 
-  @Valid private String biobankId;
+  @Valid private String organizationId;
 
   @Valid private PostStatus status;
 

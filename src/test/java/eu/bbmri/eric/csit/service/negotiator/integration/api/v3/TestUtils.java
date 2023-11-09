@@ -223,7 +223,7 @@ public class TestUtils {
   public static PostCreateDTO createPostDTO(
       String organizationId, String text, PostStatus status, PostType type) {
     return PostCreateDTO.builder()
-        .biobankId(organizationId)
+        .organizationId(organizationId)
         .text(text)
         .status(status)
         .type(type)
