@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
+import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
 import java.util.List;
 
 public interface UserNotificationService {
@@ -11,5 +11,5 @@ public interface UserNotificationService {
    * @param userId the id of the user.
    * @return a list of notifications.
    */
-  List<Notification> getNotificationsForUser(Long userId);
+  List<NotificationDTO> getNotificationsForUser(Long userId);
 }

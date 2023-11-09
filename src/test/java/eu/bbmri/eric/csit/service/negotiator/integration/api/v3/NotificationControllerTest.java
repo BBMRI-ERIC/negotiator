@@ -1,10 +1,18 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
+import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +34,9 @@ import org.springframework.web.context.WebApplicationContext;
 public class NotificationControllerTest {
 
   @Autowired private WebApplicationContext context;
+  @Autowired private NotificationRepository notificationRepository;
+  @Autowired private PersonRepository personRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
   private MockMvc mockMvc;
 
   @BeforeEach
@@ -41,5 +52,21 @@ public class NotificationControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().string("[]"));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void getNotifications_3new_Ok() throws Exception {
+    Person person = personRepository.findByAuthName("TheResearcher").get();
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    for (int i = 0; i < 3; i++) {
+      notificationRepository.save(
+          Notification.builder().recipient(person).negotiation(negotiation).build());
+    }
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/notifications"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.length()", is(3)));
   }
 }
