@@ -7,11 +7,11 @@ values ('https://bbmritestnn.gcc.rug.nl', 'user', 'password', 'MOLGENIS', 'https
         'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
         'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization)
-values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI'),
-       (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI'),
+insert into person (id, auth_email, auth_name, auth_subject, password, organization, admin)
+values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
+       (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false),
        (3, 'for-backwards-compatability', 'directory', '',
-        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null);
+        '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false);
 
 insert into access_criteria_set (id, name)
 values (1, 'BBMRI Template');

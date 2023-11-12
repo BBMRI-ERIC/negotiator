@@ -76,7 +76,6 @@ public class NegotiationServiceTest {
   @BeforeEach
   void before() {
     closeable = MockitoAnnotations.openMocks(this);
-    when(notificationService.sendEmail(any(), any(), any())).thenReturn(true);
   }
 
   @AfterEach

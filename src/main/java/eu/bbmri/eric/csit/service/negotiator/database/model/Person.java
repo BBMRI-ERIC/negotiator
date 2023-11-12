@@ -46,6 +46,8 @@ public class Person {
   @Exclude
   Set<Resource> resources;
 
+  boolean admin;
+
   @ManyToMany
   @JoinTable(
       name = "person_project_link",

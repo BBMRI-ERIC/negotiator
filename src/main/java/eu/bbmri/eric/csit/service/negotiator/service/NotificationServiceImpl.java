@@ -38,25 +38,24 @@ public class NotificationServiceImpl implements NotificationService {
   }
 
   @Override
-  public boolean sendEmail(String recipientAddress, String subject, String mailBody) {
+  public void sendEmail(String recipientAddress, String subject, String mailBody) {
     SimpleMailMessage message;
     if (!isValidEmailAddress(recipientAddress)) {
       log.error("Failed to send email. Invalid recipient email address.");
-      return false;
+      return;
     }
     try {
       message = buildMessage(recipientAddress, subject, mailBody);
     } catch (NullPointerException e) {
       log.error("Failed to send email. Check message content.");
-      return false;
+      return;
     }
     try {
       javaMailSender.send(message);
     } catch (MailSendException e) {
       log.error("Failed to send email. Check SMTP configuration.");
-      return false;
+      return;
     }
     log.info("Email message sent.");
-    return true;
   }
 }

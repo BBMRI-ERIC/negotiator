@@ -45,6 +45,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired AttachmentRepository attachmentRepository;
   @Autowired ModelMapper modelMapper;
   @Autowired NotificationService notificationService;
+  @Autowired UserNotificationService userNotificationService;
 
   public static boolean isNegotiationCreator(Negotiation negotiation) {
     return negotiation.isCreator(
@@ -149,6 +150,7 @@ public class NegotiationServiceImpl implements NegotiationService {
           });
     }
     // TODO: Add call to send email.
+    userNotificationService.notifyAdmins(negotiationEntity);
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 

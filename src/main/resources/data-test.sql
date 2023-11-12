@@ -11,20 +11,20 @@ values ('http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasou
         'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
         'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization)
+insert into person (id, auth_email, auth_name, auth_subject, password, organization, admin)
 values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey',
-        'BBMRI'),
+        'BBMRI', true),
        (102, 'directory@negotiator.dev', 'directory', '2',
-        '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI'),
+        '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', false),
        (103, 'perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci',
-        'BBMRI'),
+        'BBMRI', false),
        (104, 'researcher@negotiator.dev', 'researcher', '4',
-        '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI'),
-       (105, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank'),
-       (106, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection'),
-       (107, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network'),
-       (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI'),
-       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI');
+        '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', false),
+       (105, 'manager@testbiobank.dev', 'test_biobank_manager', '5', null, 'Test Biobank', false),
+       (106, 'manager@testcollection.dev', 'test_collection_manager', '6', null, 'Test Collection', false),
+       (107, 'manager@testnetwork.dev', 'test_network_manager', '7', null, 'Test Network', false),
+       (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
+       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false);
 
 insert into authorities (person_id, authority)
 values (101, 'ADMIN'),
