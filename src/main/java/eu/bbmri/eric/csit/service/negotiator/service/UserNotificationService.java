@@ -20,4 +20,6 @@ public interface UserNotificationService {
    * @param negotiation that was created.
    */
   void notifyAdmins(Negotiation negotiation);
+
+  void notifyUsersAboutNewNotifications();
 }

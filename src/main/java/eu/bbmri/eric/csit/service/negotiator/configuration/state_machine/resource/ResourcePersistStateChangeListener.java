@@ -1,7 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ public class ResourcePersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired NotificationRepository notificationRepository;
 
   @Override
   public void onPersist(
@@ -34,7 +38,14 @@ public class ResourcePersistStateChangeListener
     }
     if (Objects.nonNull(negotiation)) {
       negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
-      negotiationRepository.save(negotiation);
+      negotiation = negotiationRepository.save(negotiation);
+      notificationRepository.save(
+          Notification.builder()
+              .recipient(negotiation.getCreatedBy())
+              .status(NotificationStatus.EMAIL_NOT_SENT)
+              .negotiation(negotiation)
+              .message("State change")
+              .build());
     }
   }
 }

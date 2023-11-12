@@ -1,8 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -22,4 +24,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
   Optional<Person> deleteByAuthSubject(String authSubject);
 
   List<Person> findAllByAdminIsTrue();
+
+  List<Person> findAllByResourcesIn(Set<Resource> resources);
 }

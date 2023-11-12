@@ -1,7 +1,12 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,8 @@ public class PersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired PersonRepository personRepository;
+  @Autowired NotificationRepository notificationRepository;
 
   @Override
   public void onPersist(
@@ -34,6 +41,18 @@ public class PersistStateChangeListener
     if (Objects.nonNull(negotiation)) {
       negotiation.setCurrentState(NegotiationState.valueOf(state.getId()));
       negotiationRepository.save(negotiation);
+      if (state.getId().equals(NegotiationState.IN_PROGRESS.name())) {
+        for (Person representative :
+            personRepository.findAllByResourcesIn(negotiation.getResources())) {
+          notificationRepository.save(
+              Notification.builder()
+                  .recipient(representative)
+                  .status(NotificationStatus.EMAIL_NOT_SENT)
+                  .negotiation(negotiation)
+                  .message("New negotiation concerning your resources was created.")
+                  .build());
+        }
+      }
     }
   }
 }

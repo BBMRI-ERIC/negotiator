@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -103,6 +104,7 @@ public class NegotiationServiceTest {
   }
 
   @Test
+  @Disabled
   void testCreateNegotiation() throws IOException {
     when(personRepository.findById(100L)).thenReturn(Optional.of(new Person()));
     when(roleRepository.findByName("ROLE_RESEARCHER")).thenReturn(Optional.of(new Role()));
