@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negoti
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
@@ -47,7 +47,7 @@ public class PersistStateChangeListener
           notificationRepository.save(
               Notification.builder()
                   .recipient(representative)
-                  .status(NotificationStatus.EMAIL_NOT_SENT)
+                  .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
                   .negotiation(negotiation)
                   .message("New negotiation concerning your resources was created.")
                   .build());

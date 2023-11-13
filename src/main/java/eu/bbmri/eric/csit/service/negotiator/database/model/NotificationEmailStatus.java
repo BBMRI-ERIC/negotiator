@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-public enum NotificationStatus {
+public enum NotificationEmailStatus {
   EMAIL_SENT,
   EMAIL_NOT_SENT,
   EMAIL_FAILED

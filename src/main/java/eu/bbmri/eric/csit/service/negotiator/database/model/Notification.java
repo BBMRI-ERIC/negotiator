@@ -38,7 +38,7 @@ public class Notification {
   private String message;
 
   @Enumerated(EnumType.STRING)
-  private NotificationStatus status;
+  private NotificationEmailStatus emailStatus;
 
   @CreatedDate private LocalDateTime creationDate;
 }

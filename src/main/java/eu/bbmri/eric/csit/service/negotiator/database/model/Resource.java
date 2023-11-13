@@ -8,11 +8,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +45,14 @@ public class Resource {
   private String description;
 
   @NotNull private String sourceId;
+
+  @ManyToMany
+  @JoinTable(
+      name = "resource_representation",
+      joinColumns = @JoinColumn(name = "resource_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  @Exclude
+  private Set<Person> representatives;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id")

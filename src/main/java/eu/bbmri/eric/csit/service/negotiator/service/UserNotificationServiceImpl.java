@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -39,7 +39,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       notificationRepository.save(
           Notification.builder()
               .negotiation(negotiation)
-              .status(NotificationStatus.EMAIL_SENT)
+              .emailStatus(NotificationEmailStatus.EMAIL_SENT)
               .recipient(admin)
               .message("New")
               .build());
@@ -54,13 +54,13 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   public void notifyUsersAboutNewNotifications() {
     log.info("Sending new email notifications.");
     Set<Person> recipients =
-        notificationRepository.findByStatus(NotificationStatus.EMAIL_NOT_SENT).stream()
+        notificationRepository.findByStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
             .map(Notification::getRecipient)
             .collect(Collectors.toSet());
     for (Person recipient : recipients) {
       List<Notification> notifications =
           notificationRepository.findByRecipientIdAndStatus(
-              recipient.getId(), NotificationStatus.EMAIL_NOT_SENT);
+              recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
       notificationService.sendEmail(
           recipient.getAuthEmail(),
           "New Notifications",
