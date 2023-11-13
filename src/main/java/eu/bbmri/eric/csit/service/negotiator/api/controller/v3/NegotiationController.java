@@ -88,7 +88,6 @@ public class NegotiationController {
       @RequestParam(required = false) String biobankId,
       @RequestParam(required = false) String collectionId,
       @RequestParam(required = false) String userRole) {
-    log.info(SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString());
     List<NegotiationDTO> negotiations;
     if (biobankId != null) {
       negotiations = negotiationService.findByBiobankId(biobankId);
@@ -99,14 +98,10 @@ public class NegotiationController {
           resourceRepresentativeService.findNegotiationsConcerningRepresentative(
               NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
     } else if (Objects.equals(userRole, "ROLE_ADMIN")) {
-      if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
-        negotiations = negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED);
-      } else {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-      }
+      negotiations = negotiationService.findNegotiationsToReview();
     } else {
       negotiations =
-          negotiationService.findByCreatorId(
+          negotiationService.findAllNegotiationsCreatedBy(
               NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
     }
     return negotiations;

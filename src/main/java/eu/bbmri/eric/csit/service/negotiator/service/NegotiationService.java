@@ -102,7 +102,7 @@ public interface NegotiationService {
    * @param personId id of the creator
    * @return a list of negotiations
    */
-  List<NegotiationDTO> findByCreatorId(Long personId);
+  List<NegotiationDTO> findAllNegotiationsCreatedBy(Long personId);
 
   /**
    * Sets the enabledPosts attrubute to true for the input Negotiation
@@ -118,4 +118,6 @@ public interface NegotiationService {
    * @return A list of NegotiationDTOs with specific state.
    */
   List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState);
+
+  List<NegotiationDTO> findNegotiationsToReview();
 }

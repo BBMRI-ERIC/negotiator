@@ -19,6 +19,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDT
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.HashSet;
 import java.util.List;
@@ -277,7 +278,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public List<NegotiationDTO> findByCreatorId(Long personId) {
+  public List<NegotiationDTO> findAllNegotiationsCreatedBy(Long personId) {
     List<Negotiation> negotiations = negotiationRepository.findByCreatedBy_Id(personId);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
@@ -299,6 +300,14 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiationRepository.findByCurrentState(negotiationState).stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<NegotiationDTO> findNegotiationsToReview() {
+    if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+      return findAllWithCurrentState(NegotiationState.SUBMITTED);
+    }
+    throw new ForbiddenRequestException("Only admins can access this endpoint");
   }
 
   @Override
