@@ -48,7 +48,7 @@ public class Resource {
 
   @ManyToMany
   @JoinTable(
-      name = "resource_representation",
+      name = "resource_representative_link",
       joinColumns = @JoinColumn(name = "resource_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
   @Exclude

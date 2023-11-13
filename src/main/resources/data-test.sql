@@ -87,7 +87,7 @@ values (4, 'Test collection #1 of biobank #1', 'This is the first test collectio
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
         'biobank:3:collection:3', 1, 6, 1);
 
-insert into person_resource_link (resource_id, person_id)
+insert into RESOURCE_REPRESENTATIVE_LINK (resource_id, person_id)
 values (4, 103),
        (4, 109);
 
