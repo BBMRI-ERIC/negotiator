@@ -9,7 +9,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
   List<Notification> findByRecipientId(Long personId);
 
-  List<Notification> findByStatus(NotificationEmailStatus status);
+  List<Notification> findByEmailStatus(NotificationEmailStatus status);
 
-  List<Notification> findByRecipientIdAndStatus(Long recipientId, NotificationEmailStatus status);
+  List<Notification> findByRecipientIdAndEmailStatus(
+      Long recipientId, NotificationEmailStatus status);
 }

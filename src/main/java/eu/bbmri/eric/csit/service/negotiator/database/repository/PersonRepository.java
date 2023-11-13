@@ -26,4 +26,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
   List<Person> findAllByAdminIsTrue();
 
   List<Person> findAllByResourcesIn(Set<Resource> resources);
+
+  boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
 }

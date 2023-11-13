@@ -54,12 +54,12 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   public void notifyUsersAboutNewNotifications() {
     log.info("Sending new email notifications.");
     Set<Person> recipients =
-        notificationRepository.findByStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
+        notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
             .map(Notification::getRecipient)
             .collect(Collectors.toSet());
     for (Person recipient : recipients) {
       List<Notification> notifications =
-          notificationRepository.findByRecipientIdAndStatus(
+          notificationRepository.findByRecipientIdAndEmailStatus(
               recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
       notificationService.sendEmail(
           recipient.getAuthEmail(),

@@ -1,7 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
@@ -33,39 +32,10 @@ import org.hibernate.type.SqlTypes;
 public class Project extends AuditEntity {
 
   @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "jsonb")
   @NotNull
   private String payload;
 
   @Exclude
   @ManyToMany(mappedBy = "projects")
   private Set<Person> persons;
-
-  //  @Override
-  //  public boolean equals(Object o) {
-  //    if (this == o) {
-  //      return true;
-  //    }
-  //    if (o == null || getClass() != o.getClass()) {
-  //      return false;
-  //    }
-  //    Project project = (Project) o;
-  //    return Objects.equals(getTitle(), project.getTitle())
-  //        && Objects.equals(getDescription(), project.getDescription())
-  //        && Objects.equals(getEthicsVote(), project.getEthicsVote())
-  //        && Objects.equals(getIsTestProject(), project.getIsTestProject())
-  //        && Objects.equals(getExpectedEndDate(), project.getExpectedEndDate())
-  //        && Objects.equals(getExpectedDataGeneration(), project.getExpectedDataGeneration());
-  //  }
-  //
-  //  @Override
-  //  public int hashCode() {
-  //    return Objects.hash(
-  //        getTitle(),
-  //        getDescription(),
-  //        getEthicsVote(),
-  //        getIsTestProject(),
-  //        getExpectedEndDate(),
-  //        getExpectedDataGeneration());
-  //  }
 }

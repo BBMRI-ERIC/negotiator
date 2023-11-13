@@ -83,7 +83,6 @@ public class Negotiation extends AuditEntity {
   private Set<Request> requests;
 
   @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "jsonb")
   private String payload;
 
   private Boolean postsEnabled = false;
