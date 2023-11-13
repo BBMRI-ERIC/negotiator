@@ -321,7 +321,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = {"biobank:1:collection:1"})
+  @WithUserDetails("TheBiobanker")
   void testGetNegotiationsForCollectionsUserRepresents() throws Exception {
     mockMvc
         .perform(
