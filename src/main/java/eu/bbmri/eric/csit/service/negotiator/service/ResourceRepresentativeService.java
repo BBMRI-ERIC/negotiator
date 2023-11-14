@@ -14,4 +14,6 @@ public interface ResourceRepresentativeService {
       throws EntityNotFoundException;
 
   List<Resource> getRepresentedResourcesForUser(Long personId) throws EntityNotFoundException;
+
+  boolean isRepresentativeAny(Long personId, List<String> resourceIds);
 }

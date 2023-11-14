@@ -14,6 +14,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +57,8 @@ public class PostServiceTest {
   private static final String ORG_1 = "Organization_1";
   private static final String ORG_2 = "Organization_2";
   @Mock PostRepository postRepository;
+
+  @Mock ResourceRepresentativeService resourceRepresentativeService;
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
   private AutoCloseable closeable;
@@ -223,6 +226,8 @@ public class PostServiceTest {
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findByNegotiationId_AsBiobanker_All() {
     when(postRepository.findByNegotiationId("negotiationId")).thenReturn(allPosts);
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     Assertions.assertEquals(4, postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
@@ -355,6 +360,8 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsBiobanker_Private() {
     when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PRIVATE))
         .thenReturn(privatePosts);
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     Assertions.assertEquals(
         2, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
   }
@@ -435,6 +442,8 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             "negotiationId", PostType.PRIVATE, "organization:1"))
         .thenReturn(posts);
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     Assertions.assertEquals(
         2,
         postService
@@ -521,7 +530,8 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_AsBiobanker_All() {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
-
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
@@ -695,7 +705,8 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
             "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(posts);
-
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     Assertions.assertEquals(
         2,
         postService
@@ -790,7 +801,8 @@ public class PostServiceTest {
             .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
-
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     Assertions.assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
@@ -973,7 +985,8 @@ public class PostServiceTest {
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
-
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+        .thenReturn(true);
     Assertions.assertEquals(
         2,
         postService

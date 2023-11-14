@@ -36,6 +36,8 @@ public class PostServiceImpl implements PostService {
 
   @Autowired private ModelMapper modelMapper;
 
+  @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
     Post postEntity =
@@ -135,7 +137,8 @@ public class PostServiceImpl implements PostService {
   }
 
   private boolean isRepresentative(Organization organization) {
-    return NegotiatorUserDetailsService.isRepresentativeAny(
+    return resourceRepresentativeService.isRepresentativeAny(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
         organization.getResources().stream().map(Resource::getSourceId).toList());
   }
 

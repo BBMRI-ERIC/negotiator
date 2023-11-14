@@ -153,7 +153,9 @@ public class NegotiationController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
-    if (!NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId))
+    if (!resourceRepresentativeService.isRepresentativeAny(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+            List.of(resourceId))
         && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
@@ -209,7 +211,8 @@ public class NegotiationController {
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
-        || NegotiatorUserDetailsService.isRepresentativeAny(
+        || resourceRepresentativeService.isRepresentativeAny(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             negotiationDTO.getResources().stream()
                 .map(ResourceWithStatusDTO::getId)
                 .collect(Collectors.toList()))
