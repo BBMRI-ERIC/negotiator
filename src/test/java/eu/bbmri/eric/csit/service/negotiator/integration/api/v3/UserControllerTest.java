@@ -68,6 +68,10 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$").value(Matchers.containsInAnyOrder("biobank:1:collection:1")));
+        .andExpect(
+            jsonPath("$")
+                .value(
+                    Matchers.containsInAnyOrder(
+                        "biobank:1:collection:1", "biobank:1:collection:2")));
   }
 }

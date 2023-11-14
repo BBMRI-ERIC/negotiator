@@ -29,17 +29,20 @@ public class DBAttachmentService implements AttachmentService {
   @Autowired private final NegotiationRepository negotiationRepository;
   @Autowired private OrganizationRepository organizationRepository;
   @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired private NegotiationService negotiationService;
 
   @Autowired
   public DBAttachmentService(
       AttachmentRepository attachmentRepository,
       NegotiationRepository negotiationRepository,
       ResourceRepresentativeService resourceRepresentativeService,
+      NegotiationService negotiationService,
       ModelMapper modelMapper) {
     this.attachmentRepository = attachmentRepository;
     this.negotiationRepository = negotiationRepository;
     this.modelMapper = modelMapper;
     this.resourceRepresentativeService = resourceRepresentativeService;
+    this.negotiationService = negotiationService;
   }
 
   @Override
@@ -175,7 +178,7 @@ public class DBAttachmentService implements AttachmentService {
       // 1. public (in the negotiation)
       // 2. created by the currently authenticated user
       // 3. addressed to the organization represented by the authenticated user
-      return NegotiationServiceImpl.isAuthorizedForNegotiation(negotiation)
+      return negotiationService.isAuthorizedForNegotiation(negotiation)
           && (attachment.isPublic()
               || attachment.isCreator(
                   NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())

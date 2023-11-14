@@ -37,6 +37,7 @@ public class PostServiceImpl implements PostService {
   @Autowired private ModelMapper modelMapper;
 
   @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired private NegotiationService negotiationService;
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
@@ -149,7 +150,7 @@ public class PostServiceImpl implements PostService {
   private boolean isAuthorized(Post post) {
     Negotiation negotiation = post.getNegotiation();
     if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
-    return NegotiationServiceImpl.isAuthorizedForNegotiation(negotiation)
+    return negotiationService.isAuthorizedForNegotiation(negotiation)
         && (post.isPublic()
             || post.isCreator(
                 NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())

@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
@@ -13,6 +14,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
@@ -59,6 +61,8 @@ public class PostServiceTest {
   @Mock PostRepository postRepository;
 
   @Mock ResourceRepresentativeService resourceRepresentativeService;
+
+  @Mock NegotiationService negotiationService;
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
   private AutoCloseable closeable;
@@ -228,6 +232,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationId("negotiationId")).thenReturn(allPosts);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(4, postService.findByNegotiationId("negotiationId", null, null).size());
   }
 
@@ -293,6 +298,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsBiobanker_Public() {
     when(postRepository.findByNegotiationIdAndType("negotiationId", PostType.PUBLIC))
         .thenReturn(publicPosts);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         publicPosts.size(),
         postService.findByNegotiationId("negotiationId", PostType.PUBLIC, null).size());
@@ -362,6 +368,7 @@ public class PostServiceTest {
         .thenReturn(privatePosts);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         2, postService.findByNegotiationId("negotiationId", PostType.PRIVATE, null).size());
   }
@@ -442,6 +449,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             "negotiationId", PostType.PRIVATE, "organization:1"))
         .thenReturn(posts);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
     Assertions.assertEquals(
@@ -535,7 +543,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
@@ -617,7 +625,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
             "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(posts);
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         posts.size(),
         postService
@@ -707,6 +715,7 @@ public class PostServiceTest {
         .thenReturn(posts);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         2,
         postService
@@ -801,6 +810,7 @@ public class PostServiceTest {
             .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
     Assertions.assertEquals(
@@ -889,7 +899,7 @@ public class PostServiceTest {
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         posts.size(),
         postService
@@ -985,6 +995,7 @@ public class PostServiceTest {
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
     Assertions.assertEquals(

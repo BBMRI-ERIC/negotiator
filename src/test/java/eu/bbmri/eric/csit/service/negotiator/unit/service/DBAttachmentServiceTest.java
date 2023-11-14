@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.service;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri.eric.csit.service.negotiator.mappers.AttachmentMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.DBAttachmentService;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.io.IOException;
@@ -69,6 +71,8 @@ public class DBAttachmentServiceTest {
   @Mock NegotiationRepository negotiationRepository;
 
   @Mock ResourceRepresentativeService resourceRepresentativeService;
+
+  @Mock NegotiationService negotiationService;
   @Spy ModelMapper modelMapper = new ModelMapper();
 
   @InjectMocks DBAttachmentService service;
@@ -254,7 +258,7 @@ public class DBAttachmentServiceTest {
     List<Attachment> attachments =
         List.of(publicNegotiationAttachment, privateNegotiationAttachment);
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     List<AttachmentMetadataDTO> attachmentsMetadata = service.findByNegotiation("abcd");
     Assertions.assertEquals(attachmentsMetadata.size(), attachments.size());
     Assertions.assertEquals(
@@ -300,6 +304,7 @@ public class DBAttachmentServiceTest {
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     List<AttachmentMetadataDTO> attachmentsMetadata = service.findByNegotiation("abcd");
     Assertions.assertEquals(attachmentsMetadata.size(), 1);
     Assertions.assertEquals(
@@ -321,7 +326,7 @@ public class DBAttachmentServiceTest {
     List<Attachment> attachments =
         List.of(publicNegotiationAttachment, privateNegotiationAttachment);
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(false);
     List<AttachmentMetadataDTO> attachmentsMetadata = service.findByNegotiation("abcd");
     Assertions.assertEquals(attachmentsMetadata.size(), 0);
   }
@@ -343,7 +348,7 @@ public class DBAttachmentServiceTest {
   public void test_findByIdAndNegotiation_whenPublic_OK_AsResearcher() {
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(publicNegotiationAttachment));
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     AttachmentMetadataDTO attachments =
         service.findByIdAndNegotiation("attachment-id", "negotiation-id");
 
@@ -381,10 +386,10 @@ public class DBAttachmentServiceTest {
   public void test_findByIdAndNegotiation_whenPublic_OK_AsBiobanker() {
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(publicNegotiationAttachment));
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
 
     AttachmentMetadataDTO attachments =
         service.findByIdAndNegotiation("attachment-id", "negotiation-id");
-
     Assertions.assertEquals(attachments.getContentType(), MediaType.APPLICATION_OCTET_STREAM_VALUE);
     Assertions.assertEquals(attachments.getName(), publicNegotiationAttachment.getName());
     Assertions.assertEquals(attachments.getSize(), publicNegotiationAttachment.getSize());
@@ -400,7 +405,7 @@ public class DBAttachmentServiceTest {
   public void test_findByIdAndNegotiation_whenPrivate_OK_AsResearcher() {
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(publicNegotiationAttachment));
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     AttachmentMetadataDTO attachments =
         service.findByIdAndNegotiation("attachment-id", "negotiation-id");
 
@@ -436,6 +441,7 @@ public class DBAttachmentServiceTest {
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findByIdAndNegotiation_whenPrivate_Forbiddend_AsBiobanker() {
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(false);
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(privateNegotiationAttachment));
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
@@ -465,7 +471,7 @@ public class DBAttachmentServiceTest {
   public void test_FindByIdAndNegotiation_Forbidden_WhenTheUserIsNotAuthorizedForNegotiation() {
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(publicNegotiationAttachment));
-
+    when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(false);
     Assertions.assertThrows(
         ForbiddenRequestException.class,
         () -> service.findByIdAndNegotiation("attachment-id", "negotiation-id"));
