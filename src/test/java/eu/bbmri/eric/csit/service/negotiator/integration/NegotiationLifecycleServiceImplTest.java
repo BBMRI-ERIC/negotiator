@@ -20,6 +20,7 @@ import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
@@ -160,7 +161,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -178,7 +179,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiationWrongEvent_noChange() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -191,7 +192,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -247,7 +248,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void getPossibleEventsForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);

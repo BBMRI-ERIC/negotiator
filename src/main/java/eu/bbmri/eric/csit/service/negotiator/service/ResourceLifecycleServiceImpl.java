@@ -35,6 +35,9 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   @Qualifier("resourceStateMachine")
   private StateMachine<String, String> stateMachine;
 
+  @Autowired
+  private ResourceRepresentativeService resourceRepresentativeService;
+
   @Override
   public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)
       throws EntityNotFoundException {
@@ -113,7 +116,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       }
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
     } else if (securityRule.getExpression().equals("isRepresentative")) {
-      return NegotiatorUserDetailsService.isRepresentativeAny(List.of(resourceId));
+      return resourceRepresentativeService.isRepresentativeAny(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),List.of(resourceId));
     } else {
       return true;
     }

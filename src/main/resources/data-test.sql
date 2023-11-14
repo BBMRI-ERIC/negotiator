@@ -89,7 +89,8 @@ values (4, 'Test collection #1 of biobank #1', 'This is the first test collectio
 
 insert into RESOURCE_REPRESENTATIVE_LINK (resource_id, person_id)
 values (4, 103),
-       (4, 109);
+       (4, 109),
+       (5, 109);
 
 insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload)
 values ('negotiation-1', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
