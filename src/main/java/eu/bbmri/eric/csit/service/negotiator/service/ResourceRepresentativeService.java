@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
@@ -11,4 +12,6 @@ public interface ResourceRepresentativeService {
 
   List<NegotiationDTO> findNegotiationsConcerningRepresentative(Long personId)
       throws EntityNotFoundException;
+
+  List<Resource> getRepresentedResourcesForUser(Long personId) throws EntityNotFoundException;
 }

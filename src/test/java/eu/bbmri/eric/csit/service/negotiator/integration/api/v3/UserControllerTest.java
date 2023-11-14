@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 @CommonsLog
 public class UserControllerTest {
   private static final String ROLES_ENDPOINT = "/v3/users/roles";
+  private static final String RESOURCES_ENDPOINT = "/v3/users/resources";
   @Autowired private WebApplicationContext context;
   private MockMvc mockMvc;
 
@@ -58,5 +60,14 @@ public class UserControllerTest {
         .andExpect(
             jsonPath("$")
                 .value(Matchers.containsInAnyOrder("biobank:1:collection:1", "ROLE_RESEARCHER")));
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  void getRepresentedResources_oneResource_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(Matchers.containsInAnyOrder("biobank:1:collection:1")));
   }
 }

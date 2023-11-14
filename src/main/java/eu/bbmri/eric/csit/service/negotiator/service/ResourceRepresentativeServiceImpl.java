@@ -52,4 +52,15 @@ public class ResourceRepresentativeServiceImpl implements ResourceRepresentative
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
   }
+
+  @Override
+  public List<Resource> getRepresentedResourcesForUser(Long personId)
+      throws EntityNotFoundException {
+    return personRepository
+        .findById(personId)
+        .orElseThrow(() -> new EntityNotFoundException("Person with id " + personId + " not found"))
+        .getResources()
+        .stream()
+        .toList();
+  }
 }

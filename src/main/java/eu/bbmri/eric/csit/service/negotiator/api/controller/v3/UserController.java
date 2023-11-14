@@ -1,9 +1,13 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 @CommonsLog
 public class UserController {
+  @Autowired ResourceRepresentativeService resourceRepresentativeService;
+
   /**
    * Fetches Spring Roles for currently authenticated user.
    *
@@ -37,9 +43,11 @@ public class UserController {
   @GetMapping(value = "/users/resources", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   List<String> getRepresentedResources() {
-    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-        .filter(authority -> authority.getAuthority().startsWith("ROLE_REPRESENTATIVE_"))
-        .map((authority -> authority.getAuthority().replace("ROLE_REPRESENTATIVE_", "")))
+    return resourceRepresentativeService
+        .getRepresentedResourcesForUser(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+        .stream()
+        .map(Resource::getSourceId)
         .collect(Collectors.toList());
   }
 }
