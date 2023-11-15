@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
-import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
+import eu.bbmri.eric.csit.service.negotiator.service.RepresentativeNegotiationService;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 @CommonsLog
 public class UserController {
-  @Autowired ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired RepresentativeNegotiationService representativeNegotiationService;
 
   @Autowired PersonService personService;
 

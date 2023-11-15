@@ -5,7 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
 
 /** Service for managing negotiable Resource and their Representation. */
-public interface ResourceRepresentativeService {
+public interface RepresentativeNegotiationService {
 
   List<NegotiationDTO> findNegotiationsConcerningRepresentative(Long personId)
       throws EntityNotFoundException;

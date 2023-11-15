@@ -47,7 +47,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired ModelMapper modelMapper;
   @Autowired NotificationService notificationService;
   @Autowired UserNotificationService userNotificationService;
-  @Autowired ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired RepresentativeNegotiationService representativeNegotiationService;
   @Autowired PersonService personService;
 
   public static boolean isNegotiationCreator(Negotiation negotiation) {

@@ -11,8 +11,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
+import eu.bbmri.eric.csit.service.negotiator.service.RepresentativeNegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
-import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ public class NegotiationController {
 
   @Autowired private ResourceLifecycleService resourceLifecycleService;
 
-  @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired private RepresentativeNegotiationService representativeNegotiationService;
 
   @Autowired private PersonService personService;
 
@@ -98,7 +98,7 @@ public class NegotiationController {
       negotiations = negotiationService.findByResourceId(collectionId);
     } else if (Objects.equals(userRole, "ROLE_REPRESENTATIVE")) {
       negotiations =
-          resourceRepresentativeService.findNegotiationsConcerningRepresentative(
+          representativeNegotiationService.findNegotiationsConcerningRepresentative(
               NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
     } else if (Objects.equals(userRole, "ROLE_ADMIN")) {
       negotiations = negotiationService.findNegotiationsToReview();
