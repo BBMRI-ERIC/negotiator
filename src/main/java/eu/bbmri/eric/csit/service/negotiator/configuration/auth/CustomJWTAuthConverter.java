@@ -36,15 +36,12 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private final String authzClaim;
 
-  private final String authzSubjectClaim;
-
   private final String authzAdminValue;
 
   private final String authzResearcherValue;
 
   private final String authzBiobankerValue;
 
-  private final String authzResourceClaimPrefix;
 
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {

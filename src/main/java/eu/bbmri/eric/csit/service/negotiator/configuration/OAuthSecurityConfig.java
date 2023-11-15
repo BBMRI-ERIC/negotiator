@@ -113,11 +113,9 @@ public class OAuthSecurityConfig {
                               personRepository,
                               userInfoEndpoint,
                               authzClaim,
-                              authzSubjectClaim,
                               authzAdminValue,
                               authzResearcherValue,
-                              authzBiobankerValue,
-                              authzResourceIdPrefixClaim))));
+                              authzBiobankerValue))));
     }
     return http.build();
   }
