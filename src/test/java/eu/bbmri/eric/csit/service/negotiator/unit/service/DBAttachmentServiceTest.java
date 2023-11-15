@@ -157,7 +157,7 @@ public class DBAttachmentServiceTest {
             .build();
     privateNegotiationAttachment.setCreatedBy(researcher);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
-            .thenReturn(true);
+        .thenReturn(true);
   }
 
   @Test

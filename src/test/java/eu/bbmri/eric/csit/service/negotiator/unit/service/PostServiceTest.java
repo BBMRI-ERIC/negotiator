@@ -178,7 +178,7 @@ public class PostServiceTest {
             privateBio2ToOrg2,
             privateBio1ToOrg1);
     when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
-            .thenReturn(true);
+        .thenReturn(true);
   }
 
   @AfterEach
