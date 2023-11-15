@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
@@ -26,6 +27,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired PersonRepository personRepository;
   @Autowired ModelMapper modelMapper;
   @Autowired NotificationService notificationService;
+  @Autowired ResourceLifecycleService resourceLifecycleService;
 
   @Override
   public List<NotificationDTO> getNotificationsForUser(Long userId) {
@@ -65,6 +67,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
               .recipient(representative)
               .message("New")
               .build());
+      resourceLifecycleService.sendEvent(
+          negotiation.getId(), "idk", NegotiationResourceEvent.CONTACT);
     }
   }
 

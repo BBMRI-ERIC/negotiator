@@ -12,6 +12,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class UserNotificationServiceTest {
   @Autowired PersonRepository personRepository;
   @Autowired NotificationRepository notificationRepository;
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired ResourceRepository resourceRepository;
 
   @Test
   void getNotifications_nonExistentUser_0() {
@@ -92,5 +94,17 @@ public class UserNotificationServiceTest {
                   notification ->
                       notification.getNegotiation().getId().equals(negotiation.getId())));
     }
+  }
+
+  @Test
+  void notifyRepresentatives_sameRepFor2Resources_oneNotification() {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Resource resource1 = resourceRepository.findBySourceId("biobank:1:collection:2").get();
+    Set<Resource> resources = negotiation.getRequests().iterator().next().getResources();
+    resources.add(resource1);
+    negotiation.getRequests().iterator().next().setResources(resources);
+    negotiation = negotiationRepository.save(negotiation);
+    assertEquals(2, negotiation.getResources().size());
+    // TODO finish this test
   }
 }
