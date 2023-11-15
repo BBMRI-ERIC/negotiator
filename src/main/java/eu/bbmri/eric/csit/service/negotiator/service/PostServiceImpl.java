@@ -36,7 +36,7 @@ public class PostServiceImpl implements PostService {
 
   @Autowired private ModelMapper modelMapper;
 
-  @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired private PersonService personService;
   @Autowired private NegotiationService negotiationService;
 
   @Transactional
@@ -138,7 +138,7 @@ public class PostServiceImpl implements PostService {
   }
 
   private boolean isRepresentative(Organization organization) {
-    return resourceRepresentativeService.isRepresentativeAny(
+    return personService.isRepresentativeOfAnyResource(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
         organization.getResources().stream().map(Resource::getSourceId).toList());
   }

@@ -28,20 +28,20 @@ public class DBAttachmentService implements AttachmentService {
   @Autowired private final ModelMapper modelMapper;
   @Autowired private final NegotiationRepository negotiationRepository;
   @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired private PersonService personService;
   @Autowired private NegotiationService negotiationService;
 
   @Autowired
   public DBAttachmentService(
       AttachmentRepository attachmentRepository,
       NegotiationRepository negotiationRepository,
-      ResourceRepresentativeService resourceRepresentativeService,
+      PersonService personService,
       NegotiationService negotiationService,
       ModelMapper modelMapper) {
     this.attachmentRepository = attachmentRepository;
     this.negotiationRepository = negotiationRepository;
     this.modelMapper = modelMapper;
-    this.resourceRepresentativeService = resourceRepresentativeService;
+    this.personService = personService;
     this.negotiationService = negotiationService;
   }
 
@@ -153,7 +153,7 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   private boolean isRepresentative(Organization organization) {
-    return resourceRepresentativeService.isRepresentativeAny(
+    return personService.isRepresentativeOfAnyResource(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
         organization.getResources().stream().map(Resource::getSourceId).toList());
   }

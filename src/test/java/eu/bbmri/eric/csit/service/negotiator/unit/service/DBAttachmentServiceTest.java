@@ -21,7 +21,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestExceptio
 import eu.bbmri.eric.csit.service.negotiator.mappers.AttachmentMapper;
 import eu.bbmri.eric.csit.service.negotiator.service.DBAttachmentService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
+import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.io.IOException;
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class DBAttachmentServiceTest {
   @Mock AttachmentRepository attachmentRepository;
   @Mock NegotiationRepository negotiationRepository;
 
-  @Mock ResourceRepresentativeService resourceRepresentativeService;
+  @Mock PersonService personService;
 
   @Mock NegotiationService negotiationService;
   @Spy ModelMapper modelMapper = new ModelMapper();
@@ -156,7 +156,7 @@ public class DBAttachmentServiceTest {
             .organization(organization2)
             .build();
     privateNegotiationAttachment.setCreatedBy(researcher);
-    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+    when(personService.isRepresentativeOfAnyResource(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
   }
 

@@ -15,8 +15,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import eu.bbmri.eric.csit.service.negotiator.service.PostServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +60,7 @@ public class PostServiceTest {
   private static final String ORG_2 = "Organization_2";
   @Mock PostRepository postRepository;
 
-  @Mock ResourceRepresentativeService resourceRepresentativeService;
+  @Mock PersonService personService;
 
   @Mock NegotiationService negotiationService;
   @Mock ModelMapper modelMapper;
@@ -177,7 +177,7 @@ public class PostServiceTest {
             privateResToOrg2,
             privateBio2ToOrg2,
             privateBio1ToOrg1);
-    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+    when(personService.isRepresentativeOfAnyResource(BIOBANKER_1_ID, List.of("resource:1")))
         .thenReturn(true);
   }
 

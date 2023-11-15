@@ -63,15 +63,4 @@ public class ResourceRepresentativeServiceImpl implements ResourceRepresentative
         .stream()
         .toList();
   }
-
-  @Override
-  public boolean isRepresentativeAny(Long personId, List<String> resourceIds) {
-    Person person =
-        personRepository
-            .findById(personId)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Person with id " + personId + " not found"));
-    return person.getResources().stream()
-        .anyMatch(resource -> resourceIds.contains(resource.getSourceId()));
-  }
 }
