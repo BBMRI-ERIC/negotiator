@@ -21,5 +21,12 @@ public interface UserNotificationService {
    */
   void notifyAdmins(Negotiation negotiation);
 
-  void notifyUsersAboutNewNotifications();
+  /**
+   * Create notifications for all representatives of resources involved in a new negotiation.
+   *
+   * @param negotiation that was created.
+   */
+  void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
+
+  void sendEmailsForNewNotifications();
 }

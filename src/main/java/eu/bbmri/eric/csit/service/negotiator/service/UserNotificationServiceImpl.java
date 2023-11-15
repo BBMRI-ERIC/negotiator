@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
@@ -49,9 +50,28 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
+  public void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation) {
+    log.info("Notifying representatives about new negotiation.");
+    Set<Person> representatives =
+        negotiation.getResources().stream()
+            .map(Resource::getRepresentatives)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
+    for (Person representative : representatives) {
+      notificationRepository.save(
+          Notification.builder()
+              .negotiation(negotiation)
+              .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
+              .recipient(representative)
+              .message("New")
+              .build());
+    }
+  }
+
+  @Override
   @Scheduled(cron = "0 0 * * * *")
   @Async
-  public void notifyUsersAboutNewNotifications() {
+  public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
     Set<Person> recipients =
         notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
