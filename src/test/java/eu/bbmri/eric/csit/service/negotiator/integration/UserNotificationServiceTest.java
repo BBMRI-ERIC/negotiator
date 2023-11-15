@@ -13,12 +13,14 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
@@ -30,6 +32,7 @@ public class UserNotificationServiceTest {
   @Autowired NotificationRepository notificationRepository;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired ResourceRepository resourceRepository;
+  @Autowired NegotiationLifecycleService negotiationLifecycleService;
 
   @Test
   void getNotifications_nonExistentUser_0() {
@@ -97,14 +100,21 @@ public class UserNotificationServiceTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void notifyRepresentatives_sameRepFor2Resources_oneNotification() {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    Resource resource1 = resourceRepository.findBySourceId("biobank:1:collection:2").get();
+    Resource resource1 =
+        negotiation.getRequests().iterator().next().getResources().iterator().next();
+    Person representative = resource1.getRepresentatives().iterator().next();
+    Resource resource2 = resourceRepository.findBySourceId("biobank:1:collection:2").get();
     Set<Resource> resources = negotiation.getRequests().iterator().next().getResources();
-    resources.add(resource1);
+    resources.add(resource2);
     negotiation.getRequests().iterator().next().setResources(resources);
     negotiation = negotiationRepository.save(negotiation);
     assertEquals(2, negotiation.getResources().size());
-    // TODO finish this test
+    assertTrue(resource2.getRepresentatives().contains(representative));
+    assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
+    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    assertEquals(1, notificationRepository.findByRecipientId(representative.getId()).size());
   }
 }

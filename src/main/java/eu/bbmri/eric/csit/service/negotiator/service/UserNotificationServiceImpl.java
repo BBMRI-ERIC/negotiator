@@ -67,8 +67,14 @@ public class UserNotificationServiceImpl implements UserNotificationService {
               .recipient(representative)
               .message("New")
               .build());
-      resourceLifecycleService.sendEvent(
-          negotiation.getId(), "idk", NegotiationResourceEvent.CONTACT);
+      Set<Resource> overlappingResources = representative.getResources();
+      overlappingResources.removeAll(negotiation.getResources());
+      for (Resource resourceWithRepresentative : overlappingResources) {
+        resourceLifecycleService.sendEvent(
+            negotiation.getId(),
+            resourceWithRepresentative.getSourceId(),
+            NegotiationResourceEvent.CONTACT);
+      }
     }
   }
 
