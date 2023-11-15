@@ -48,6 +48,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired NotificationService notificationService;
   @Autowired UserNotificationService userNotificationService;
   @Autowired ResourceRepresentativeService resourceRepresentativeService;
+  @Autowired PersonService personService;
 
   public static boolean isNegotiationCreator(Negotiation negotiation) {
     return negotiation.isCreator(
@@ -56,7 +57,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   public boolean isAuthorizedForNegotiation(Negotiation negotiation) {
     return isNegotiationCreator(negotiation)
-        || resourceRepresentativeService.isRepresentativeAny(
+        || personService.isRepresentativeOfAnyResource(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             negotiation.getResources().stream()
                 .map(Resource::getSourceId)
