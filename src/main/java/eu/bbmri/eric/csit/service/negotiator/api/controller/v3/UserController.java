@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @CommonsLog
 public class UserController {
   @Autowired ResourceRepresentativeService resourceRepresentativeService;
+
+  @Autowired PersonService personService;
 
   /**
    * Fetches Spring Roles for currently authenticated user.
@@ -43,8 +46,8 @@ public class UserController {
   @GetMapping(value = "/users/resources", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   List<String> getRepresentedResources() {
-    return resourceRepresentativeService
-        .getRepresentedResourcesForUser(
+    return personService
+        .getResourcesRepresentedByUserId(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
         .stream()
         .map(Resource::getSourceId)

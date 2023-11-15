@@ -10,7 +10,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceReposit
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +25,6 @@ public class ResourceRepresentativeServiceImpl implements ResourceRepresentative
   @Autowired ModelMapper modelMapper;
 
   @Override
-  public boolean isRepresentativeOfResource(Long personId, String resourceExternalId) {
-    Resource resource =
-        resourceRepository
-            .findBySourceId(resourceExternalId)
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(
-                        "Resource with external id " + resourceExternalId + " not found"));
-    return personRepository.existsByIdAndResourcesIn(personId, Set.of(resource));
-  }
-
-  @Override
   public List<NegotiationDTO> findNegotiationsConcerningRepresentative(Long personId) {
     Person person =
         personRepository
@@ -51,16 +38,5 @@ public class ResourceRepresentativeServiceImpl implements ResourceRepresentative
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<Resource> getRepresentedResourcesForUser(Long personId)
-      throws EntityNotFoundException {
-    return personRepository
-        .findById(personId)
-        .orElseThrow(() -> new EntityNotFoundException("Person with id " + personId + " not found"))
-        .getResources()
-        .stream()
-        .toList();
   }
 }

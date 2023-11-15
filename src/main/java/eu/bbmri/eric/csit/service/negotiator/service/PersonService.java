@@ -1,7 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import java.util.List;
+import java.util.Set;
 
 public interface PersonService {
 
@@ -28,4 +30,12 @@ public interface PersonService {
    * @return true if the person represents any of the resources, false otherwise.
    */
   boolean isRepresentativeOfAnyResource(Long personId, List<String> resourceExternalIds);
+
+  /**
+   * Retrieves all resources represented by a person.
+   *
+   * @param personId the id of the person to retrieve the resources for.
+   * @return a Set of resources.
+   */
+  Set<Resource> getResourcesRepresentedByUserId(Long personId);
 }
