@@ -156,6 +156,8 @@ public class DBAttachmentServiceTest {
             .organization(organization2)
             .build();
     privateNegotiationAttachment.setCreatedBy(researcher);
+    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
+            .thenReturn(true);
   }
 
   @Test
@@ -302,8 +304,6 @@ public class DBAttachmentServiceTest {
     List<Attachment> attachments =
         List.of(publicNegotiationAttachment, privateNegotiationAttachment);
     when(attachmentRepository.findByNegotiationId("abcd")).thenReturn(attachments);
-    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
-        .thenReturn(true);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     List<AttachmentMetadataDTO> attachmentsMetadata = service.findByNegotiation("abcd");
     Assertions.assertEquals(attachmentsMetadata.size(), 1);
@@ -444,8 +444,6 @@ public class DBAttachmentServiceTest {
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(false);
     when(attachmentRepository.findByIdAndNegotiationId("attachment-id", "negotiation-id"))
         .thenReturn(Optional.of(privateNegotiationAttachment));
-    when(resourceRepresentativeService.isRepresentativeAny(BIOBANKER_1_ID, List.of("resource:1")))
-        .thenReturn(false);
     Assertions.assertThrows(
         ForbiddenRequestException.class,
         () -> service.findByIdAndNegotiation("attachment-id", "negotiation-id"));
