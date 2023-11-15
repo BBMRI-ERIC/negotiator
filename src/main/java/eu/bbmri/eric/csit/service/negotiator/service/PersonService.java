@@ -13,5 +13,19 @@ public interface PersonService {
    */
   Person findById(Long id);
 
+  /**
+   * Retrieves all persons.
+   *
+   * @return a List of persons.
+   */
   List<Person> findAll();
+
+  /**
+   * Checks if the person with the specified id represents any of the resources in the list.
+   *
+   * @param personId the id of the person to check;
+   * @param resourceExternalIds the list of resource external ids to check;
+   * @return true if the person represents any of the resources, false otherwise.
+   */
+  boolean isRepresentativeOfAnyResource(Long personId, List<String> resourceExternalIds);
 }

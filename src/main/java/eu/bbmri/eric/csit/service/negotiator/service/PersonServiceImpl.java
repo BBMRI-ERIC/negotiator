@@ -26,4 +26,15 @@ public class PersonServiceImpl implements PersonService {
   public List<Person> findAll() {
     return personRepository.findAll();
   }
+
+  @Override
+  public boolean isRepresentativeOfAnyResource(Long personId, List<String> resourceExternalIds) {
+    Person person =
+        personRepository
+            .findById(personId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Person with id " + personId + " not found"));
+    return person.getResources().stream()
+        .anyMatch(resource -> resourceExternalIds.contains(resource.getSourceId()));
+  }
 }
