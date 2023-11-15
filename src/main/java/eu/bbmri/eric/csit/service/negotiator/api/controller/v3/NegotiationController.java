@@ -10,6 +10,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceRepresentativeService;
 import jakarta.validation.Valid;
@@ -48,6 +49,8 @@ public class NegotiationController {
   @Autowired private ResourceLifecycleService resourceLifecycleService;
 
   @Autowired private ResourceRepresentativeService resourceRepresentativeService;
+
+  @Autowired private PersonService personService;
 
   /** Create a negotiation */
   @PostMapping(
@@ -153,7 +156,7 @@ public class NegotiationController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable String event) {
-    if (!resourceRepresentativeService.isRepresentativeAny(
+    if (!personService.isRepresentativeOfAnyResource(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             List.of(resourceId))
         && !isCreator(negotiationService.findById(negotiationId, false))) {
@@ -211,7 +214,7 @@ public class NegotiationController {
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
-        || resourceRepresentativeService.isRepresentativeAny(
+        || personService.isRepresentativeOfAnyResource(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             negotiationDTO.getResources().stream()
                 .map(ResourceWithStatusDTO::getId)
