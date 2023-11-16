@@ -68,13 +68,24 @@ public class UserNotificationServiceImpl implements UserNotificationService {
               .message("New")
               .build());
       Set<Resource> overlappingResources = representative.getResources();
-      overlappingResources.removeAll(negotiation.getResources());
+      overlappingResources.retainAll(negotiation.getResources());
+
       for (Resource resourceWithRepresentative : overlappingResources) {
         resourceLifecycleService.sendEvent(
             negotiation.getId(),
             resourceWithRepresentative.getSourceId(),
             NegotiationResourceEvent.CONTACT);
       }
+    }
+    for (Resource resourceWithoutRep :
+        negotiation.getResources().stream()
+            .filter(resource -> resource.getRepresentatives().isEmpty())
+            .collect(Collectors.toSet())) {
+      log.info(resourceWithoutRep.getSourceId());
+      resourceLifecycleService.sendEvent(
+          negotiation.getId(),
+          resourceWithoutRep.getSourceId(),
+          NegotiationResourceEvent.MARK_AS_UNREACHABLE);
     }
   }
 

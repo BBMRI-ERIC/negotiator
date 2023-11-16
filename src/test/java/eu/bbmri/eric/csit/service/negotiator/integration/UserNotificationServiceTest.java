@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
@@ -119,5 +120,35 @@ public class UserNotificationServiceTest {
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     assertEquals(1, notificationRepository.findByRecipientId(representative.getId()).size());
+    Negotiation updatedNegotiation = negotiationRepository.findById(negotiation.getId()).get();
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        updatedNegotiation.getCurrentStatePerResource().get("biobank:1:collection:2"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  void notifyRepresentatives_resWithNoRep_markedAsUnreachable() {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    Resource resource = resourceRepository.findBySourceId("biobank:1:collection:1").get();
+    resource.setRepresentatives(Set.of());
+    Resource resource2 = resourceRepository.save(resource);
+    System.out.println(resource2.getRepresentatives().size());
+    negotiation = negotiationRepository.findById(negotiation.getId()).get();
+    Resource resourceWithoutReps =
+        negotiation.getResources().stream()
+            .filter(res -> res.getSourceId().equals(resource.getSourceId()))
+            .toList()
+            .get(0);
+    System.out.println(resourceWithoutReps.getSourceId());
+    assertTrue(resourceWithoutReps.getRepresentatives().isEmpty());
+    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+        negotiationRepository
+            .findById(negotiation.getId())
+            .get()
+            .getCurrentStatePerResource()
+            .get(resourceWithoutReps.getSourceId()));
   }
 }
