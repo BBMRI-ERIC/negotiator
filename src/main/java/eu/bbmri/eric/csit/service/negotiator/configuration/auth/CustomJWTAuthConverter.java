@@ -42,7 +42,6 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private final String authzBiobankerValue;
 
-
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
     Map<String, Object> claims = getClaims(jwt);
