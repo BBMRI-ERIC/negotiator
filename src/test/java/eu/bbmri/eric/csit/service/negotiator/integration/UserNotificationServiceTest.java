@@ -15,12 +15,12 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepositor
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
+import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -77,6 +77,7 @@ public class UserNotificationServiceTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
   void notifyRepresentativesAboutNewNegotiation_atLeastOne_ok() {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     assertTrue(
@@ -102,7 +103,7 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
+  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
   void notifyRepresentatives_sameRepFor2Resources_oneNotification() {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     Resource resource1 =

@@ -115,6 +115,7 @@ values ('request-1', 4),
 
 insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
+       ('negotiation-1', 'biobank:1:collection:2', 'SUBMITTED'),
        ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED');
 
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
