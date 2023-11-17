@@ -35,8 +35,6 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   @Qualifier("resourceStateMachine")
   private StateMachine<String, String> stateMachine;
 
-  @Autowired private RepresentativeNegotiationService representativeNegotiationService;
-
   @Autowired PersonService personService;
 
   @Override
