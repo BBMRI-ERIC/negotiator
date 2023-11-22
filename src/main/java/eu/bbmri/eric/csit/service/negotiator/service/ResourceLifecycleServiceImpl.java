@@ -52,7 +52,6 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   public NegotiationResourceState sendEvent(
       String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException {
-    log.info("got here");
     if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationEvent)) {
       return negotiationRepository
           .findById(negotiationId)
