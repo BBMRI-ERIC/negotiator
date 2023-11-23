@@ -12,7 +12,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,18 +48,21 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation) {
     log.info("Notifying representatives about new negotiation.");
-    Set<Person> representatives = getRepresentativesForNegotiation(negotiation);
-    for (Person representative : representatives) {
-      Notification notification =
-          createNewNotification(
-              negotiation, NotificationEmailStatus.EMAIL_NOT_SENT, representative);
-      Set<Resource> overlappingResources = getOverlappingResources(negotiation, representative);
-      markReachableResources(negotiation, overlappingResources);
-    }
-    markUnreachableResources(negotiation);
+    createNotificationsForRepresentatives(negotiation);
+    markResourcesWithoutARepresentative(negotiation);
   }
 
-  private void markUnreachableResources(Negotiation negotiation) {
+  private void createNotificationsForRepresentatives(Negotiation negotiation) {
+    Set<Person> representatives = getRepresentativesForNegotiation(negotiation);
+    for (Person representative : representatives) {
+      createNewNotification(negotiation, NotificationEmailStatus.EMAIL_NOT_SENT, representative);
+      Set<Resource> overlappingResources =
+          getResourcesInNegotiationRepresentedBy(negotiation, representative);
+      markReachableResources(negotiation, overlappingResources);
+    }
+  }
+
+  private void markResourcesWithoutARepresentative(Negotiation negotiation) {
     for (Resource resourceWithoutRep :
         negotiation.getResources().stream()
             .filter(resource -> resource.getRepresentatives().isEmpty())
@@ -82,17 +84,16 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
   }
 
-  @NonNull
-  private static Set<Resource> getOverlappingResources(
+  private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
     Set<Resource> overlappingResources = representative.getResources();
     overlappingResources.retainAll(negotiation.getResources());
     return overlappingResources;
   }
 
-  private Notification createNewNotification(
+  private void createNewNotification(
       Negotiation negotiation, NotificationEmailStatus emailNotSent, Person representative) {
-    return notificationRepository.save(
+    notificationRepository.save(
         Notification.builder()
             .negotiation(negotiation)
             .emailStatus(emailNotSent)
@@ -114,6 +115,10 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
     Set<Person> recipients = getPendingRecipients();
+    sendOutNotificationEmails(recipients);
+  }
+
+  private void sendOutNotificationEmails(Set<Person> recipients) {
     for (Person recipient : recipients) {
       List<Notification> notifications = getPendingNotifications(recipient);
       sendEmail(recipient, notifications);
