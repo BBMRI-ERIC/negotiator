@@ -12,6 +12,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +40,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public void notifyAdmins(Negotiation negotiation) {
     for (Person admin : personRepository.findAllByAdminIsTrue()) {
-      notificationRepository.save(
-          Notification.builder()
-              .negotiation(negotiation)
-              .emailStatus(NotificationEmailStatus.EMAIL_SENT)
-              .recipient(admin)
-              .message("New")
-              .build());
+      createNewNotification(negotiation, NotificationEmailStatus.EMAIL_SENT, admin);
       emailService.sendEmail(
           admin.getAuthEmail(), "New Negotiation", "New Negotiation was added for review.");
     }
@@ -54,29 +49,18 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation) {
     log.info("Notifying representatives about new negotiation.");
-    Set<Person> representatives =
-        negotiation.getResources().stream()
-            .map(Resource::getRepresentatives)
-            .flatMap(Set::stream)
-            .collect(Collectors.toSet());
+    Set<Person> representatives = getRepresentativesForNegotiation(negotiation);
     for (Person representative : representatives) {
-      notificationRepository.save(
-          Notification.builder()
-              .negotiation(negotiation)
-              .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-              .recipient(representative)
-              .message("New")
-              .build());
-      Set<Resource> overlappingResources = representative.getResources();
-      overlappingResources.retainAll(negotiation.getResources());
-
-      for (Resource resourceWithRepresentative : overlappingResources) {
-        resourceLifecycleService.sendEvent(
-            negotiation.getId(),
-            resourceWithRepresentative.getSourceId(),
-            NegotiationResourceEvent.CONTACT);
-      }
+      Notification notification =
+          createNewNotification(
+              negotiation, NotificationEmailStatus.EMAIL_NOT_SENT, representative);
+      Set<Resource> overlappingResources = getOverlappingResources(negotiation, representative);
+      markReachableResources(negotiation, overlappingResources);
     }
+    markUnreachableResources(negotiation);
+  }
+
+  private void markUnreachableResources(Negotiation negotiation) {
     for (Resource resourceWithoutRep :
         negotiation.getResources().stream()
             .filter(resource -> resource.getRepresentatives().isEmpty())
@@ -87,6 +71,41 @@ public class UserNotificationServiceImpl implements UserNotificationService {
           resourceWithoutRep.getSourceId(),
           NegotiationResourceEvent.MARK_AS_UNREACHABLE);
     }
+  }
+
+  private void markReachableResources(Negotiation negotiation, Set<Resource> overlappingResources) {
+    for (Resource resourceWithRepresentative : overlappingResources) {
+      resourceLifecycleService.sendEvent(
+          negotiation.getId(),
+          resourceWithRepresentative.getSourceId(),
+          NegotiationResourceEvent.CONTACT);
+    }
+  }
+
+  @NonNull
+  private static Set<Resource> getOverlappingResources(
+      Negotiation negotiation, Person representative) {
+    Set<Resource> overlappingResources = representative.getResources();
+    overlappingResources.retainAll(negotiation.getResources());
+    return overlappingResources;
+  }
+
+  private Notification createNewNotification(
+      Negotiation negotiation, NotificationEmailStatus emailNotSent, Person representative) {
+    return notificationRepository.save(
+        Notification.builder()
+            .negotiation(negotiation)
+            .emailStatus(emailNotSent)
+            .recipient(representative)
+            .message("New")
+            .build());
+  }
+
+  private static Set<Person> getRepresentativesForNegotiation(Negotiation negotiation) {
+    return negotiation.getResources().stream()
+        .map(Resource::getRepresentatives)
+        .flatMap(Set::stream)
+        .collect(Collectors.toSet());
   }
 
   @Override
