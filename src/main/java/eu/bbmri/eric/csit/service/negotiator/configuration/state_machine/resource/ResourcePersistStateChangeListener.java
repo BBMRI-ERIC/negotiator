@@ -5,9 +5,11 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.Objects;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
@@ -33,19 +35,35 @@ public class ResourcePersistStateChangeListener
       StateMachine<String, String> stateMachine) {
     String negotiationId = message.getHeaders().get("negotiationId", String.class);
     String resourceId = message.getHeaders().get("resourceId", String.class);
-    Negotiation negotiation = null;
-    if (Objects.nonNull(negotiationId) && Objects.nonNull(resourceId)) {
-      negotiation = negotiationRepository.findById(negotiationId).orElse(null);
-    }
+    Negotiation negotiation = getNegotiation(negotiationId);
     if (Objects.nonNull(negotiation)) {
-      negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
-      negotiation = negotiationRepository.save(negotiation);
-      userNotificationService.notifyResearcherAboutStatusChange(
-          negotiation,
-          negotiation.getResources().stream()
-              .filter(resource -> resource.getSourceId().equals(resourceId))
-              .findFirst()
-              .orElse(null));
+      negotiation = updateStateForResource(state, negotiation, resourceId);
+      notifyRequester(negotiation, resourceId);
     }
+  }
+
+  private void notifyRequester(Negotiation negotiation, String resourceId) {
+    userNotificationService.notifyResearcherAboutStatusChange(
+        negotiation,
+        negotiation.getResources().stream()
+            .filter(resource -> resource.getSourceId().equals(resourceId))
+            .findFirst()
+            .orElse(null));
+  }
+
+  @NonNull
+  private Negotiation updateStateForResource(
+      State<String, String> state, Negotiation negotiation, String resourceId) {
+    negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
+    negotiation = negotiationRepository.save(negotiation);
+    return negotiation;
+  }
+
+  @Nullable
+  private Negotiation getNegotiation(String negotiationId) {
+    if (Objects.nonNull(negotiationId)) {
+      return negotiationRepository.findById(negotiationId).orElse(null);
+    }
+    return null;
   }
 }
