@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
 import java.util.List;
 
@@ -27,6 +28,13 @@ public interface UserNotificationService {
    * @param negotiation that was created.
    */
   void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
+
+  /**
+   * Create a notification of a resource status change for the author of the request.
+   *
+   * @param negotiation that was updated.
+   */
+  void notifyResearcherAboutStatusChange(Negotiation negotiation, Resource resource);
 
   /** Send out emails for all pending notifications. */
   void sendEmailsForNewNotifications();

@@ -66,6 +66,23 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     markResourcesWithoutARepresentative(negotiation);
   }
 
+  @Override
+  public void notifyResearcherAboutStatusChange(Negotiation negotiation, Resource resource) {
+    log.info("Notifying researcher about status change.");
+    notificationRepository.save(
+        Notification.builder()
+            .negotiation(negotiation)
+            .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
+            .recipient(negotiation.getCreatedBy())
+            .message(
+                "Negotiation %s had a change of status of %s to %s"
+                    .formatted(
+                        negotiation.getId(),
+                        resource.getSourceId(),
+                        negotiation.getCurrentStatePerResource().get(resource.getSourceId())))
+            .build());
+  }
+
   private void createNotificationsForRepresentatives(Negotiation negotiation) {
     Set<Person> representatives = getRepresentativesForNegotiation(negotiation);
     for (Person representative : representatives) {

@@ -5,9 +5,11 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
+import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
@@ -23,6 +25,7 @@ public class ResourcePersistStateChangeListener
 
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NotificationRepository notificationRepository;
+  @Autowired @Lazy UserNotificationService userNotificationService;
 
   @Override
   public void onPersist(
@@ -39,6 +42,12 @@ public class ResourcePersistStateChangeListener
     if (Objects.nonNull(negotiation)) {
       negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
       negotiation = negotiationRepository.save(negotiation);
+      userNotificationService.notifyResearcherAboutStatusChange(
+          negotiation,
+          negotiation.getResources().stream()
+              .filter(resource -> resource.getSourceId().equals(resourceId))
+              .findFirst()
+              .orElse(null));
       notificationRepository.save(
           Notification.builder()
               .recipient(negotiation.getCreatedBy())
