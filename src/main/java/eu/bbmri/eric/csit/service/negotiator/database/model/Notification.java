@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @NoArgsConstructor
@@ -18,6 +19,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Setter
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Notification {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
   @SequenceGenerator(name = "notification_id_seq", initialValue = 10000, allocationSize = 1)
@@ -25,7 +27,7 @@ public class Notification {
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "person_id")
+  @JoinColumn(name = "recipient_id")
   @Nonnull
   @ToString.Exclude
   private Person recipient;
