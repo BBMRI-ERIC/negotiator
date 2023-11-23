@@ -26,7 +26,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired NotificationRepository notificationRepository;
   @Autowired PersonRepository personRepository;
   @Autowired ModelMapper modelMapper;
-  @Autowired NotificationService notificationService;
+  @Autowired EmailService emailService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
 
   @Override
@@ -46,7 +46,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
               .recipient(admin)
               .message("New")
               .build());
-      notificationService.sendEmail(
+      emailService.sendEmail(
           admin.getAuthEmail(), "New Negotiation", "New Negotiation was added for review.");
     }
   }
@@ -102,7 +102,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       List<Notification> notifications =
           notificationRepository.findByRecipientIdAndEmailStatus(
               recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
-      notificationService.sendEmail(
+      emailService.sendEmail(
           recipient.getAuthEmail(),
           "New Notifications",
           "There are updates in the following negotiations "
@@ -114,5 +114,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                       .collect(Collectors.toSet()))
               + " new notifications.");
     }
+    // TODO: Update email status, catch failures
   }
 }

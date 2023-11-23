@@ -45,7 +45,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;
   @Autowired ModelMapper modelMapper;
-  @Autowired NotificationService notificationService;
+  @Autowired EmailService notificationService;
   @Autowired UserNotificationService userNotificationService;
   @Autowired RepresentativeNegotiationService representativeNegotiationService;
   @Autowired PersonService personService;

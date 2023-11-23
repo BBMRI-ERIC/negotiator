@@ -8,14 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @CommonsLog
 @Service
-public class NotificationServiceImpl implements NotificationService {
+public class EmailServiceImpl implements EmailService {
   JavaMailSender javaMailSender;
 
-  public NotificationServiceImpl(@Autowired JavaMailSender javaMailSender) {
+  public EmailServiceImpl(@Autowired JavaMailSender javaMailSender) {
     this.javaMailSender = javaMailSender;
   }
 
@@ -38,6 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
   }
 
   @Override
+  @Async
   public void sendEmail(String recipientAddress, String subject, String mailBody) {
     SimpleMailMessage message;
     if (!isValidEmailAddress(recipientAddress)) {

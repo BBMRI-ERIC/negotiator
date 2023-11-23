@@ -22,9 +22,9 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.service.EmailService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationServiceImpl;
-import eu.bbmri.eric.csit.service.negotiator.service.NotificationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import java.io.IOException;
 import java.util.Collections;
@@ -49,7 +49,7 @@ public class NegotiationServiceTest {
   @Mock ModelMapper modelMapper;
   @Mock NegotiationLifecycleService negotiationLifecycleService;
   @Mock ResourceLifecycleService resourceLifecycleService;
-  @Mock NotificationService notificationService;
+  @Mock EmailService emailService;
   @InjectMocks NegotiationServiceImpl negotiationService;
   private AutoCloseable closeable;
 
