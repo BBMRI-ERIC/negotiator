@@ -38,5 +38,5 @@ public class NotificationEmail {
 
   @CreatedDate private LocalDateTime sent_at;
 
-  private boolean sent = false;
+  private boolean was_successfully_sent = false;
 }
