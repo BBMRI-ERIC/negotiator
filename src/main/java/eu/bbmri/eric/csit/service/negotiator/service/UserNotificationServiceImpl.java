@@ -113,26 +113,43 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Async
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
-    Set<Person> recipients =
-        notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
-            .map(Notification::getRecipient)
-            .collect(Collectors.toSet());
+    Set<Person> recipients = getPendingRecipients();
     for (Person recipient : recipients) {
-      List<Notification> notifications =
-          notificationRepository.findByRecipientIdAndEmailStatus(
-              recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
-      emailService.sendEmail(
-          recipient.getAuthEmail(),
-          "New Notifications",
-          "There are updates in the following negotiations "
-              + String.join(
-                  ",",
-                  notifications.stream()
-                      .map(Notification::getNegotiation)
-                      .map(Negotiation::getId)
-                      .collect(Collectors.toSet()))
-              + " new notifications.");
+      List<Notification> notifications = getPendingNotifications(recipient);
+      sendEmail(recipient, notifications);
+      markNotificationsAsEmailSent(notifications);
     }
-    // TODO: Update email status, catch failures
+  }
+
+  private void markNotificationsAsEmailSent(List<Notification> notifications) {
+    for (Notification notification : notifications) {
+      notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
+      notificationRepository.save(notification);
+    }
+  }
+
+  private void sendEmail(Person recipient, List<Notification> notifications) {
+    emailService.sendEmail(
+        recipient.getAuthEmail(),
+        "New Notifications",
+        "There are updates in the following negotiations "
+            + String.join(
+                ",",
+                notifications.stream()
+                    .map(Notification::getNegotiation)
+                    .map(Negotiation::getId)
+                    .collect(Collectors.toSet()))
+            + " new notifications.");
+  }
+
+  private List<Notification> getPendingNotifications(Person recipient) {
+    return notificationRepository.findByRecipientIdAndEmailStatus(
+        recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
+  }
+
+  private Set<Person> getPendingRecipients() {
+    return notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
+        .map(Notification::getRecipient)
+        .collect(Collectors.toSet());
   }
 }
