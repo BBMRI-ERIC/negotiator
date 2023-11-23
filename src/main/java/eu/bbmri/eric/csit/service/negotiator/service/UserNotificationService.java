@@ -28,5 +28,6 @@ public interface UserNotificationService {
    */
   void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
 
+  /** Send out emails for all pending notifications. */
   void sendEmailsForNewNotifications();
 }
