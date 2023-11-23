@@ -36,7 +36,7 @@ public class NotificationEmail {
   @Column(columnDefinition = "TEXT")
   private String message;
 
-  @CreatedDate private LocalDateTime creationDate;
+  @CreatedDate private LocalDateTime sent_at;
 
   private boolean sent = false;
 }
