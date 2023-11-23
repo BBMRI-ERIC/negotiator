@@ -12,6 +12,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,20 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired ModelMapper modelMapper;
   @Autowired EmailService emailService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
+
+  private static Set<Resource> getResourcesInNegotiationRepresentedBy(
+      Negotiation negotiation, Person representative) {
+    Set<Resource> overlappingResources = representative.getResources();
+    overlappingResources.retainAll(negotiation.getResources());
+    return overlappingResources;
+  }
+
+  private static Set<Person> getRepresentativesForNegotiation(Negotiation negotiation) {
+    return negotiation.getResources().stream()
+        .map(Resource::getRepresentatives)
+        .flatMap(Set::stream)
+        .collect(Collectors.toSet());
+  }
 
   @Override
   public List<NotificationDTO> getNotificationsForUser(Long userId) {
@@ -62,7 +77,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
   }
 
-  private void markResourcesWithoutARepresentative(Negotiation negotiation) {
+  private void markResourcesWithoutARepresentative(@NonNull Negotiation negotiation) {
     for (Resource resourceWithoutRep :
         negotiation.getResources().stream()
             .filter(resource -> resource.getRepresentatives().isEmpty())
@@ -75,20 +90,14 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
   }
 
-  private void markReachableResources(Negotiation negotiation, Set<Resource> overlappingResources) {
+  private void markReachableResources(
+      Negotiation negotiation, @NonNull Set<Resource> overlappingResources) {
     for (Resource resourceWithRepresentative : overlappingResources) {
       resourceLifecycleService.sendEvent(
           negotiation.getId(),
           resourceWithRepresentative.getSourceId(),
           NegotiationResourceEvent.CONTACT);
     }
-  }
-
-  private static Set<Resource> getResourcesInNegotiationRepresentedBy(
-      Negotiation negotiation, Person representative) {
-    Set<Resource> overlappingResources = representative.getResources();
-    overlappingResources.retainAll(negotiation.getResources());
-    return overlappingResources;
   }
 
   private void createNewNotification(
@@ -102,13 +111,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .build());
   }
 
-  private static Set<Person> getRepresentativesForNegotiation(Negotiation negotiation) {
-    return negotiation.getResources().stream()
-        .map(Resource::getRepresentatives)
-        .flatMap(Set::stream)
-        .collect(Collectors.toSet());
-  }
-
   @Override
   @Scheduled(cron = "0 0 * * * *")
   @Async
@@ -118,7 +120,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     sendOutNotificationEmails(recipients);
   }
 
-  private void sendOutNotificationEmails(Set<Person> recipients) {
+  private void sendOutNotificationEmails(@NonNull Set<Person> recipients) {
     for (Person recipient : recipients) {
       List<Notification> notifications = getPendingNotifications(recipient);
       sendEmail(recipient, notifications);
@@ -126,14 +128,14 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
   }
 
-  private void markNotificationsAsEmailSent(List<Notification> notifications) {
+  private void markNotificationsAsEmailSent(@NonNull List<Notification> notifications) {
     for (Notification notification : notifications) {
       notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
       notificationRepository.save(notification);
     }
   }
 
-  private void sendEmail(Person recipient, List<Notification> notifications) {
+  private void sendEmail(@NonNull Person recipient, @NonNull List<Notification> notifications) {
     emailService.sendEmail(
         recipient.getAuthEmail(),
         "New Notifications",
@@ -147,7 +149,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             + " new notifications.");
   }
 
-  private List<Notification> getPendingNotifications(Person recipient) {
+  private List<Notification> getPendingNotifications(@NonNull Person recipient) {
     return notificationRepository.findByRecipientIdAndEmailStatus(
         recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
   }
