@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
@@ -16,6 +17,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRep
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.List;
@@ -37,6 +39,7 @@ public class UserNotificationServiceTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired ResourceRepository resourceRepository;
   @Autowired NegotiationLifecycleService negotiationLifecycleService;
+  @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired NotificationEmailRepository notificationEmailRepository;
 
   @Test
@@ -168,5 +171,18 @@ public class UserNotificationServiceTest {
     assertTrue(numOfEmails > 0);
     userNotificationService.sendEmailsForNewNotifications();
     assertEquals(numOfEmails, notificationEmailRepository.findAll().size());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  void notifyRequester_resStatusChanged_ok() {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    assertTrue(
+        notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
+    Resource resource = negotiation.getResources().iterator().next();
+    resourceLifecycleService.sendEvent(
+        negotiation.getId(), resource.getSourceId(), NegotiationResourceEvent.MARK_AS_UNREACHABLE);
+    assertFalse(
+        notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
   }
 }

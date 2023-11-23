@@ -1,8 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
@@ -48,13 +46,6 @@ public class ResourcePersistStateChangeListener
               .filter(resource -> resource.getSourceId().equals(resourceId))
               .findFirst()
               .orElse(null));
-      notificationRepository.save(
-          Notification.builder()
-              .recipient(negotiation.getCreatedBy())
-              .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-              .negotiation(negotiation)
-              .message("State change")
-              .build());
     }
   }
 }
