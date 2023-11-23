@@ -68,7 +68,7 @@ public class EmailServiceImpl implements EmailService {
       log.error("Failed to send email. Check SMTP configuration.");
       return;
     }
-    notificationEmail.setWas_successfully_sent(true);
+    notificationEmail.setWasSuccessfullySent(true);
     notificationEmailRepository.save(notificationEmail);
     log.info("Email message sent.");
   }
