@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 
 public interface EmailService {
-  void sendEmail(String recipientAddress, String subject, String mailBody);
+  void sendEmail(Person recipient, String subject, String mailBody);
 }

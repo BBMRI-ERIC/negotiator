@@ -11,6 +11,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailSta
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationEmailRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
@@ -36,6 +37,7 @@ public class UserNotificationServiceTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired ResourceRepository resourceRepository;
   @Autowired NegotiationLifecycleService negotiationLifecycleService;
+  @Autowired NotificationEmailRepository notificationEmailRepository;
 
   @Test
   void getNotifications_nonExistentUser_0() {
@@ -150,5 +152,21 @@ public class UserNotificationServiceTest {
             .get()
             .getCurrentStatePerResource()
             .get(resourceWithoutReps.getSourceId()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  void notifyRepresentatives_called2Times_noNewEmailsSent() {
+    assertTrue(notificationEmailRepository.findAll().isEmpty());
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    assertTrue(
+        negotiation.getResources().stream()
+            .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
+    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    userNotificationService.sendEmailsForNewNotifications();
+    int numOfEmails = notificationEmailRepository.findAll().size();
+    assertTrue(numOfEmails > 0);
+    userNotificationService.sendEmailsForNewNotifications();
+    assertEquals(numOfEmails, notificationEmailRepository.findAll().size());
   }
 }

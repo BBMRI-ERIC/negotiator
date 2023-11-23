@@ -1,5 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
+import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmail;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationEmailRepository;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -15,9 +18,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailServiceImpl implements EmailService {
   JavaMailSender javaMailSender;
+  NotificationEmailRepository notificationEmailRepository;
 
-  public EmailServiceImpl(@Autowired JavaMailSender javaMailSender) {
+  public EmailServiceImpl(
+      @Autowired JavaMailSender javaMailSender,
+      @Autowired NotificationEmailRepository notificationEmailRepository) {
     this.javaMailSender = javaMailSender;
+    this.notificationEmailRepository = notificationEmailRepository;
   }
 
   private static SimpleMailMessage buildMessage(
@@ -40,24 +47,29 @@ public class EmailServiceImpl implements EmailService {
 
   @Override
   @Async
-  public void sendEmail(String recipientAddress, String subject, String mailBody) {
+  public void sendEmail(Person recipient, String subject, String mailBody) {
     SimpleMailMessage message;
-    if (!isValidEmailAddress(recipientAddress)) {
+    if (!isValidEmailAddress(recipient.getAuthEmail())) {
       log.error("Failed to send email. Invalid recipient email address.");
       return;
     }
     try {
-      message = buildMessage(recipientAddress, subject, mailBody);
+      message = buildMessage(recipient.getAuthEmail(), subject, mailBody);
     } catch (NullPointerException e) {
       log.error("Failed to send email. Check message content.");
       return;
     }
+    NotificationEmail notificationEmail =
+        notificationEmailRepository.save(
+            NotificationEmail.builder().recipient(recipient).message(message.toString()).build());
     try {
       javaMailSender.send(message);
     } catch (MailSendException e) {
       log.error("Failed to send email. Check SMTP configuration.");
       return;
     }
+    notificationEmail.setSent(true);
+    notificationEmailRepository.save(notificationEmail);
     log.info("Email message sent.");
   }
 }

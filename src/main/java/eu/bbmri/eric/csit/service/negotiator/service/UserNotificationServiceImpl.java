@@ -55,8 +55,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   public void notifyAdmins(Negotiation negotiation) {
     for (Person admin : personRepository.findAllByAdminIsTrue()) {
       createNewNotification(negotiation, NotificationEmailStatus.EMAIL_SENT, admin);
-      emailService.sendEmail(
-          admin.getAuthEmail(), "New Negotiation", "New Negotiation was added for review.");
+      emailService.sendEmail(admin, "New Negotiation", "New Negotiation was added for review.");
     }
   }
 
@@ -137,7 +136,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private void sendEmail(@NonNull Person recipient, @NonNull List<Notification> notifications) {
     emailService.sendEmail(
-        recipient.getAuthEmail(),
+        recipient,
         "New Notifications",
         "There are updates in the following negotiations "
             + String.join(
