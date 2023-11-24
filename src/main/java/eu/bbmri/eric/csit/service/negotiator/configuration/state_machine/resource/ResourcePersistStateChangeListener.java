@@ -34,7 +34,7 @@ public class ResourcePersistStateChangeListener
       Message<String> message,
       Transition<String, String> transition,
       StateMachine<String, String> stateMachine) {
-    String negotiationId = perseNegotiationIdFromMessage(message);
+    String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
     if (negotiation.isPresent()) {
@@ -44,7 +44,7 @@ public class ResourcePersistStateChangeListener
   }
 
   @Nullable
-  private static String perseNegotiationIdFromMessage(Message<String> message) {
+  private static String parseNegotiationIdFromMessage(Message<String> message) {
     return message.getHeaders().get("negotiationId", String.class);
   }
 
@@ -68,7 +68,7 @@ public class ResourcePersistStateChangeListener
     negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
     return Optional.of(negotiationRepository.save(negotiation));
   }
-  
+
   private Optional<Negotiation> getNegotiation(String negotiationId) {
     if (Objects.nonNull(negotiationId)) {
       return negotiationRepository.findById(negotiationId);
