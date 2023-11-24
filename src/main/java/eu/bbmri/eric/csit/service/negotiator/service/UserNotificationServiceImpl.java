@@ -88,54 +88,76 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public void notifyUsersAboutNewPost(Post post) {
     log.info("Notifying users about new post.");
-    if (!post.getCreatedBy().equals(post.getNegotiation().getCreatedBy())) {
-      notificationRepository.save(
-          Notification.builder()
-              .negotiation(post.getNegotiation())
-              .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-              .recipient(post.getNegotiation().getCreatedBy())
-              .message(
-                  "Negotiation %s had a new post by %s"
-                      .formatted(post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
-              .build());
+    if (!postAuthorIsAlsoRequester(post)) {
+      createNotificationForRequester(post);
     }
     if (post.isPublic()) {
-      for (Person representative : getRepresentativesForNegotiation(post.getNegotiation())) {
-        if (!representative.getId().equals(post.getCreatedBy().getId())) {
-          notificationRepository.save(
-              Notification.builder()
-                  .negotiation(post.getNegotiation())
-                  .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-                  .recipient(representative)
-                  .message(
-                      "Negotiation %s had a new post by %s"
-                          .formatted(
-                              post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
-                  .build());
-        }
-      }
+      createNotificationsForRepresentatives(post);
     } else if (!post.isPublic() && Objects.nonNull(post.getOrganization())) {
-      Set<Person> representatives = new java.util.HashSet<>(Set.of());
-      for (Resource resource : post.getNegotiation().getResources()) {
-        if (resource.getOrganization().equals(post.getOrganization())) {
-          representatives.addAll(resource.getRepresentatives());
-        }
-      }
-      for (Person representative : representatives) {
-        if (!representative.getId().equals(post.getCreatedBy().getId())) {
-          notificationRepository.save(
-              Notification.builder()
-                  .negotiation(post.getNegotiation())
-                  .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-                  .recipient(representative)
-                  .message(
-                      "Negotiation %s had a new post by %s"
-                          .formatted(
-                              post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
-                  .build());
-        }
+      createNotificationsForPrivatePost(post);
+    }
+  }
+
+  private void createNotificationsForPrivatePost(Post post) {
+    Set<Person> representatives = getRepresentativesOfOrganization(post);
+    for (Person representative : representatives) {
+      if (!representative.getId().equals(post.getCreatedBy().getId())) {
+        notificationRepository.save(
+            Notification.builder()
+                .negotiation(post.getNegotiation())
+                .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
+                .recipient(representative)
+                .message(
+                    "Negotiation %s had a new post by %s"
+                        .formatted(
+                            post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                .build());
       }
     }
+  }
+
+  @NonNull
+  private static Set<Person> getRepresentativesOfOrganization(Post post) {
+    Set<Person> representatives = new java.util.HashSet<>(Set.of());
+    for (Resource resource : post.getNegotiation().getResources()) {
+      if (resource.getOrganization().equals(post.getOrganization())) {
+        representatives.addAll(resource.getRepresentatives());
+      }
+    }
+    return representatives;
+  }
+
+  private void createNotificationsForRepresentatives(Post post) {
+    for (Person representative : getRepresentativesForNegotiation(post.getNegotiation())) {
+      if (!representative.getId().equals(post.getCreatedBy().getId())) {
+        notificationRepository.save(
+            Notification.builder()
+                .negotiation(post.getNegotiation())
+                .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
+                .recipient(representative)
+                .message(
+                    "Negotiation %s had a new post by %s"
+                        .formatted(
+                            post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                .build());
+      }
+    }
+  }
+
+  private void createNotificationForRequester(Post post) {
+    notificationRepository.save(
+        Notification.builder()
+            .negotiation(post.getNegotiation())
+            .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
+            .recipient(post.getNegotiation().getCreatedBy())
+            .message(
+                "Negotiation %s had a new post by %s"
+                    .formatted(post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+            .build());
+  }
+
+  private static boolean postAuthorIsAlsoRequester(Post post) {
+    return post.getCreatedBy().equals(post.getNegotiation().getCreatedBy());
   }
 
   private void createNotificationsForRepresentatives(Negotiation negotiation) {
