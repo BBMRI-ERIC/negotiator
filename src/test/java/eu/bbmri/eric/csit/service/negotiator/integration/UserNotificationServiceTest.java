@@ -10,13 +10,17 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationEmailRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.PostService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
@@ -41,6 +45,7 @@ public class UserNotificationServiceTest {
   @Autowired NegotiationLifecycleService negotiationLifecycleService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired NotificationEmailRepository notificationEmailRepository;
+  @Autowired PostService postService;
 
   @Test
   void getNotifications_nonExistentUser_0() {
@@ -184,5 +189,41 @@ public class UserNotificationServiceTest {
         negotiation.getId(), resource.getSourceId(), NegotiationResourceEvent.MARK_AS_UNREACHABLE);
     assertFalse(
         notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
+  }
+
+  @Test
+  void notifyUsersForNewPost_publicPost_authorIsNotNotified() {
+    assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
+    postService.create(
+        PostCreateDTO.builder()
+            .type(PostType.PUBLIC)
+            .text("I know")
+            .status(PostStatus.CREATED)
+            .build(),
+        109L,
+        "negotiation-1");
+    assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
+  }
+
+  @Test
+  void notifyUsersForNewPost_publicPost_repsAreNotified() {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Resource resource1 =
+        negotiation.getRequests().iterator().next().getResources().iterator().next();
+    Person representative =
+        resource1.getRepresentatives().stream()
+            .filter(person -> !person.getId().equals(109L))
+            .findFirst()
+            .get();
+    assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
+    postService.create(
+        PostCreateDTO.builder()
+            .type(PostType.PUBLIC)
+            .text("I know")
+            .status(PostStatus.CREATED)
+            .build(),
+        109L,
+        "negotiation-1");
+    assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
   }
 }

@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
@@ -81,6 +82,27 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                         resource.getSourceId(),
                         negotiation.getCurrentStatePerResource().get(resource.getSourceId())))
             .build());
+  }
+
+  @Override
+  public void notifyUsersAboutNewPost(Post post) {
+    log.info("Notifying users about new post.");
+    if (post.isPublic()) {
+      for (Person representative : getRepresentativesForNegotiation(post.getNegotiation())) {
+        if (!representative.equals(post.getCreatedBy())) {
+          notificationRepository.save(
+              Notification.builder()
+                  .negotiation(post.getNegotiation())
+                  .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
+                  .recipient(representative)
+                  .message(
+                      "Negotiation %s had a new post by %s"
+                          .formatted(
+                              post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                  .build());
+        }
+      }
+    }
   }
 
   private void createNotificationsForRepresentatives(Negotiation negotiation) {
