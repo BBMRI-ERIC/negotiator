@@ -54,7 +54,7 @@ public class ResourcePersistStateChangeListener
   }
 
   private void notifyRequester(Negotiation negotiation, String resourceId) {
-    userNotificationService.notifyResearcherAboutStatusChange(
+    userNotificationService.notifyRequesterAboutStatusChange(
         negotiation,
         negotiation.getResources().stream()
             .filter(resource -> resource.getSourceId().equals(resourceId))

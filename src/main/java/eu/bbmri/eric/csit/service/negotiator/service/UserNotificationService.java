@@ -35,7 +35,7 @@ public interface UserNotificationService {
    *
    * @param negotiation that was updated.
    */
-  void notifyResearcherAboutStatusChange(Negotiation negotiation, Resource resource);
+  void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource);
 
   /**
    * Create notifications for all relevant Users about a new Post.

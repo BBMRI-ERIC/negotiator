@@ -69,7 +69,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  public void notifyResearcherAboutStatusChange(Negotiation negotiation, Resource resource) {
+  public void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource) {
     log.info("Notifying researcher about status change.");
     notificationRepository.save(
         Notification.builder()
