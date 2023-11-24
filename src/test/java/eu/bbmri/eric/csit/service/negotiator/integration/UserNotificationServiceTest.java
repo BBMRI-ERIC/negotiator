@@ -121,6 +121,7 @@ public class UserNotificationServiceTest {
         negotiation.getRequests().iterator().next().getResources().iterator().next();
     Person representative = resource1.getRepresentatives().iterator().next();
     Resource resource2 = resourceRepository.findBySourceId("biobank:1:collection:2").get();
+    resource2.setRepresentatives(Set.of(representative));
     Set<Resource> resources = negotiation.getRequests().iterator().next().getResources();
     resources.add(resource2);
     negotiation.getRequests().iterator().next().setResources(resources);
@@ -192,6 +193,7 @@ public class UserNotificationServiceTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 109L)
   void notifyUsersForNewPost_publicPost_authorIsNotNotified() {
     assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
     postService.create(
@@ -206,6 +208,7 @@ public class UserNotificationServiceTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 109L)
   void notifyUsersForNewPost_publicPost_repsAreNotified() {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     Resource resource1 =
@@ -225,5 +228,51 @@ public class UserNotificationServiceTest {
         109L,
         "negotiation-1");
     assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  void notifyUsersForNewPost_privatePost_onlyRepsOfOrgAreNotified() {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Resource resource1 =
+        negotiation.getRequests().iterator().next().getResources().iterator().next();
+    Person representative =
+        resource1.getRepresentatives().stream()
+            .filter(person -> !person.getId().equals(109L))
+            .findFirst()
+            .get();
+    assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
+    postService.create(
+        PostCreateDTO.builder()
+            .type(PostType.PRIVATE)
+            .organizationId(resource1.getOrganization().getExternalId())
+            .text("I know")
+            .status(PostStatus.CREATED)
+            .build(),
+        109L,
+        negotiation.getId());
+    assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 103L)
+  void notifyUsersForNewPost_createdByRep_requesterIsNotified() {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    assertTrue(
+        notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
+    Person postAuthor = personRepository.findById(103L).get();
+    assertTrue(postAuthor.getResources().stream().anyMatch(negotiation.getResources()::contains));
+    postService.create(
+        PostCreateDTO.builder()
+            .type(PostType.PRIVATE)
+            .organizationId(
+                postAuthor.getResources().iterator().next().getOrganization().getExternalId())
+            .text("I know")
+            .status(PostStatus.CREATED)
+            .build(),
+        103L,
+        negotiation.getId());
+    assertFalse(
+        notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
   }
 }

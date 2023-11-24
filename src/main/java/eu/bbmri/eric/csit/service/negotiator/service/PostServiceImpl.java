@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
@@ -39,6 +40,7 @@ public class PostServiceImpl implements PostService {
 
   @Autowired private PersonService personService;
   @Autowired private NegotiationService negotiationService;
+  @Autowired private UserNotificationService userNotificationService;
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
@@ -48,30 +50,34 @@ public class PostServiceImpl implements PostService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
+    userNotificationService.notifyUsersAboutNewPost(postEntity);
     return modelMapper.map(postEntity, PostDTO.class);
   }
 
   @NonNull
   private Post setUpPostEntity(PostCreateDTO postRequest, String negotiationId) {
     Post postEntity = getPostEntity(postRequest);
-    postEntity.setOrganization(assignOrganizationIfPrivate(postRequest));
-    postEntity.setNegotiation(assignNegotiation(negotiationId));
+    postEntity.setOrganization(getOrganization(postRequest));
+    postEntity.setNegotiation(getNegotiation(negotiationId));
+    Person author =
+        personService.findById(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    postEntity.setCreatedBy(author);
     postEntity.setStatus(PostStatus.CREATED);
     return postEntity;
   }
 
-  private Negotiation assignNegotiation(String negotiationId) {
+  private Negotiation getNegotiation(String negotiationId) {
     return negotiationRepository
         .findById(negotiationId)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private Organization assignOrganizationIfPrivate(PostCreateDTO postRequest) {
+  private Organization getOrganization(PostCreateDTO postRequest) {
     if (postRequest.getType().equals(PostType.PRIVATE)) {
       if (postRequest.getOrganizationId() != null) {
-        String organizationId = postRequest.getOrganizationId();
         return organizationRepository
-            .findByExternalId(organizationId)
+            .findByExternalId(postRequest.getOrganizationId())
             .orElseThrow(WrongRequestException::new);
       }
     }
