@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +34,23 @@ public class ResourcePersistStateChangeListener
       Message<String> message,
       Transition<String, String> transition,
       StateMachine<String, String> stateMachine) {
-    String negotiationId = message.getHeaders().get("negotiationId", String.class);
-    String resourceId = message.getHeaders().get("resourceId", String.class);
-    Negotiation negotiation = getNegotiation(negotiationId);
-    if (Objects.nonNull(negotiation)) {
-      negotiation = updateStateForResource(state, negotiation, resourceId);
-      notifyRequester(negotiation, resourceId);
+    String negotiationId = perseNegotiationIdFromMessage(message);
+    String resourceId = parseResourceIdFromMessage(message);
+    Optional<Negotiation> negotiation = getNegotiation(negotiationId);
+    if (negotiation.isPresent()) {
+      negotiation = updateStateForResource(state, negotiation.get(), resourceId);
+      notifyRequester(negotiation.get(), resourceId);
     }
+  }
+
+  @Nullable
+  private static String perseNegotiationIdFromMessage(Message<String> message) {
+    return message.getHeaders().get("negotiationId", String.class);
+  }
+
+  @Nullable
+  private static String parseResourceIdFromMessage(Message<String> message) {
+    return message.getHeaders().get("resourceId", String.class);
   }
 
   private void notifyRequester(Negotiation negotiation, String resourceId) {
@@ -52,18 +63,16 @@ public class ResourcePersistStateChangeListener
   }
 
   @NonNull
-  private Negotiation updateStateForResource(
+  private Optional<Negotiation> updateStateForResource(
       State<String, String> state, Negotiation negotiation, String resourceId) {
     negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
-    negotiation = negotiationRepository.save(negotiation);
-    return negotiation;
+    return Optional.of(negotiationRepository.save(negotiation));
   }
-
-  @Nullable
-  private Negotiation getNegotiation(String negotiationId) {
+  
+  private Optional<Negotiation> getNegotiation(String negotiationId) {
     if (Objects.nonNull(negotiationId)) {
-      return negotiationRepository.findById(negotiationId).orElse(null);
+      return negotiationRepository.findById(negotiationId);
     }
-    return null;
+    return Optional.empty();
   }
 }
