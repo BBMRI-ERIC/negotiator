@@ -18,6 +18,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,35 +42,44 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
-    Post postEntity =
-        Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
-
-    if (postRequest.getType().equals(PostType.PRIVATE)) {
-      if (postRequest.getOrganizationId() != null) {
-        String organizationId = postRequest.getOrganizationId();
-        Organization organization =
-            organizationRepository
-                .findByExternalId(organizationId)
-                .orElseThrow(WrongRequestException::new);
-        postEntity.setOrganization(organization);
-      }
-    }
-
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-
-    postEntity.setNegotiation(negotiation);
-    postEntity.setStatus(PostStatus.CREATED);
-
+    Post postEntity = setUpPostEntity(postRequest, negotiationId);
     try {
-      Post post = postRepository.save(postEntity);
-      return modelMapper.map(post, PostDTO.class);
-
+      postEntity = postRepository.save(postEntity);
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
+    return modelMapper.map(postEntity, PostDTO.class);
+  }
+
+  @NonNull
+  private Post setUpPostEntity(PostCreateDTO postRequest, String negotiationId) {
+    Post postEntity = getPostEntity(postRequest);
+    postEntity.setOrganization(assignOrganizationIfPrivate(postRequest));
+    postEntity.setNegotiation(assignNegotiation(negotiationId));
+    postEntity.setStatus(PostStatus.CREATED);
+    return postEntity;
+  }
+
+  private Negotiation assignNegotiation(String negotiationId) {
+    return negotiationRepository
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+  }
+
+  private Organization assignOrganizationIfPrivate(PostCreateDTO postRequest) {
+    if (postRequest.getType().equals(PostType.PRIVATE)) {
+      if (postRequest.getOrganizationId() != null) {
+        String organizationId = postRequest.getOrganizationId();
+        return organizationRepository
+            .findByExternalId(organizationId)
+            .orElseThrow(WrongRequestException::new);
+      }
+    }
+    return null;
+  }
+
+  private static Post getPostEntity(PostCreateDTO postRequest) {
+    return Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
   }
 
   @Transactional
