@@ -46,6 +46,7 @@ public class Person {
   @Exclude
   Set<Resource> resources;
 
+  @Column(name = "admin", nullable = false, columnDefinition = "boolean default false")
   boolean admin;
 
   @ManyToMany
