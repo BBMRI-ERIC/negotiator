@@ -34,7 +34,10 @@ import lombok.ToString.Exclude;
 @Table(name = "person")
 @NamedEntityGraph(
     name = "person-detailed",
-    attributeNodes = {@NamedAttributeNode("roles")})
+    attributeNodes = {
+      @NamedAttributeNode(value = "roles"),
+      @NamedAttributeNode(value = "resources")
+    })
 @SequenceGenerator(name = "person_id_seq", initialValue = 300)
 public class Person {
 
