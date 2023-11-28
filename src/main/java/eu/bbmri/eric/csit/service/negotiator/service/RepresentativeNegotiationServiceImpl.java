@@ -28,7 +28,7 @@ public class RepresentativeNegotiationServiceImpl implements RepresentativeNegot
   public List<NegotiationDTO> findNegotiationsConcerningRepresentative(Long personId) {
     Person person =
         personRepository
-            .findById(personId)
+            .findDetailedById(personId)
             .orElseThrow(
                 () -> new EntityNotFoundException("Person with id " + personId + " not found"));
     List<Negotiation> negotiations =

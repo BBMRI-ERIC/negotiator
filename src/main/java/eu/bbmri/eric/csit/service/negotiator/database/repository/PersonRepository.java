@@ -23,9 +23,12 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
   Optional<Person> deleteByAuthSubject(String authSubject);
 
+  @EntityGraph(value = "person-detailed")
   List<Person> findAllByAdminIsTrue();
 
+  @EntityGraph(value = "person-detailed")
   List<Person> findAllByResourcesIn(Set<Resource> resources);
 
+  @EntityGraph(value = "person-detailed")
   boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
 }

@@ -43,7 +43,7 @@ public class PersonServiceImpl implements PersonService {
   @Override
   public Set<Resource> getResourcesRepresentedByUserId(Long personId) {
     return personRepository
-        .findById(personId)
+        .findDetailedById(personId)
         .orElseThrow(() -> new EntityNotFoundException("Person with id " + personId + " not found"))
         .getResources();
   }
