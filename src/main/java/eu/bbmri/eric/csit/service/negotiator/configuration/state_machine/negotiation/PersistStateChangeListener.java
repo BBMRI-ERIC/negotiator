@@ -36,7 +36,7 @@ public class PersistStateChangeListener
     String negotiationId = message.getHeaders().get("negotiationId", String.class);
     Negotiation negotiation = null;
     if (Objects.nonNull(negotiationId)) {
-      negotiation = negotiationRepository.findById(negotiationId).orElse(null);
+      negotiation = negotiationRepository.findDetailedById(negotiationId).orElse(null);
     }
     if (Objects.nonNull(negotiation)) {
       negotiation.setCurrentState(NegotiationState.valueOf(state.getId()));
