@@ -19,6 +19,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDT
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.util.HashSet;
 import java.util.List;
@@ -44,16 +45,20 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;
   @Autowired ModelMapper modelMapper;
-  @Autowired NotificationService notificationService;
+  @Autowired EmailService notificationService;
+  @Autowired UserNotificationService userNotificationService;
+  @Autowired RepresentativeNegotiationService representativeNegotiationService;
+  @Autowired PersonService personService;
 
   public static boolean isNegotiationCreator(Negotiation negotiation) {
     return negotiation.isCreator(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  public static boolean isAuthorizedForNegotiation(Negotiation negotiation) {
+  public boolean isAuthorizedForNegotiation(Negotiation negotiation) {
     return isNegotiationCreator(negotiation)
-        || NegotiatorUserDetailsService.isRepresentativeAny(
+        || personService.isRepresentativeOfAnyResource(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             negotiation.getResources().stream()
                 .map(Resource::getSourceId)
                 .collect(Collectors.toList()));
@@ -149,6 +154,7 @@ public class NegotiationServiceImpl implements NegotiationService {
           });
     }
     // TODO: Add call to send email.
+    userNotificationService.notifyAdmins(negotiationEntity);
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 
@@ -275,7 +281,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public List<NegotiationDTO> findByCreatorId(Long personId) {
+  public List<NegotiationDTO> findAllNegotiationsCreatedBy(Long personId) {
     List<Negotiation> negotiations = negotiationRepository.findByCreatedBy_Id(personId);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
@@ -297,6 +303,14 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiationRepository.findByCurrentState(negotiationState).stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<NegotiationDTO> findNegotiationsToReview() {
+    if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+      return findAllWithCurrentState(NegotiationState.SUBMITTED);
+    }
+    throw new ForbiddenRequestException("Only admins can access this endpoint");
   }
 
   @Override

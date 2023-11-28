@@ -1,10 +1,8 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration;
 
-import static org.springframework.security.config.http.MatcherType.mvc;
-
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.JwtAuthenticationConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.CustomJWTAuthConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,15 +109,13 @@ public class OAuthSecurityConfig {
               oauth.jwt(
                   jwt ->
                       jwt.jwtAuthenticationConverter(
-                          new JwtAuthenticationConverter(
+                          new CustomJWTAuthConverter(
                               personRepository,
                               userInfoEndpoint,
                               authzClaim,
-                              authzSubjectClaim,
                               authzAdminValue,
                               authzResearcherValue,
-                              authzBiobankerValue,
-                              authzResourceIdPrefixClaim))));
+                              authzBiobankerValue))));
     }
     return http.build();
   }

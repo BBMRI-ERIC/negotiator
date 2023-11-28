@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
@@ -29,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @CommonsLog
 @AllArgsConstructor
-public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
   private final PersonRepository personRepository;
 
@@ -37,29 +36,11 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
   private final String authzClaim;
 
-  private final String authzSubjectClaim;
-
   private final String authzAdminValue;
 
   private final String authzResearcherValue;
 
   private final String authzBiobankerValue;
-
-  private final String authzResourceClaimPrefix;
-
-  private Collection<GrantedAuthority> addAuthoritiesForIndividualResources(List<String> scopes) {
-    Collection<GrantedAuthority> authorities = new HashSet<>();
-    for (String scope : scopes) {
-      // TODO: try to generalize the transformation
-      if (scope.contains(authzResourceClaimPrefix)) {
-        String resourceId =
-            StringUtils.substringBetween(scope, authzResourceClaimPrefix, "#perun")
-                .replace(".", ":");
-        authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE_" + resourceId));
-      }
-    }
-    return authorities;
-  }
 
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
@@ -98,7 +79,6 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
       }
       if (scopes.contains(authzBiobankerValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
-        authorities.addAll(addAuthoritiesForIndividualResources(scopes));
       }
     }
     return authorities;

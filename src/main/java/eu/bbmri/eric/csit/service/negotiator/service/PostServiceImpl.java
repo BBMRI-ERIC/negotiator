@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
@@ -18,6 +19,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,37 +38,54 @@ public class PostServiceImpl implements PostService {
 
   @Autowired private ModelMapper modelMapper;
 
+  @Autowired private PersonService personService;
+  @Autowired private NegotiationService negotiationService;
+  @Autowired private UserNotificationService userNotificationService;
+
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
-    Post postEntity =
-        Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
-
-    if (postRequest.getType().equals(PostType.PRIVATE)) {
-      if (postRequest.getOrganizationId() != null) {
-        String organizationId = postRequest.getOrganizationId();
-        Organization organization =
-            organizationRepository
-                .findByExternalId(organizationId)
-                .orElseThrow(WrongRequestException::new);
-        postEntity.setOrganization(organization);
-      }
-    }
-
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-
-    postEntity.setNegotiation(negotiation);
-    postEntity.setStatus(PostStatus.CREATED);
-
+    Post postEntity = setUpPostEntity(postRequest, negotiationId);
     try {
-      Post post = postRepository.save(postEntity);
-      return modelMapper.map(post, PostDTO.class);
-
+      postEntity = postRepository.save(postEntity);
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
+    userNotificationService.notifyUsersAboutNewPost(postEntity);
+    return modelMapper.map(postEntity, PostDTO.class);
+  }
+
+  @NonNull
+  private Post setUpPostEntity(PostCreateDTO postRequest, String negotiationId) {
+    Post postEntity = getPostEntity(postRequest);
+    postEntity.setOrganization(getOrganization(postRequest));
+    postEntity.setNegotiation(getNegotiation(negotiationId));
+    Person author =
+        personService.findById(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    postEntity.setCreatedBy(author);
+    postEntity.setStatus(PostStatus.CREATED);
+    return postEntity;
+  }
+
+  private Negotiation getNegotiation(String negotiationId) {
+    return negotiationRepository
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+  }
+
+  private Organization getOrganization(PostCreateDTO postRequest) {
+    if (postRequest.getType().equals(PostType.PRIVATE)) {
+      if (postRequest.getOrganizationId() != null) {
+        return organizationRepository
+            .findByExternalId(postRequest.getOrganizationId())
+            .orElseThrow(WrongRequestException::new);
+      }
+    }
+    return null;
+  }
+
+  private static Post getPostEntity(PostCreateDTO postRequest) {
+    return Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
   }
 
   @Transactional
@@ -135,7 +154,8 @@ public class PostServiceImpl implements PostService {
   }
 
   private boolean isRepresentative(Organization organization) {
-    return NegotiatorUserDetailsService.isRepresentativeAny(
+    return personService.isRepresentativeOfAnyResource(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
         organization.getResources().stream().map(Resource::getSourceId).toList());
   }
 
@@ -146,7 +166,7 @@ public class PostServiceImpl implements PostService {
   private boolean isAuthorized(Post post) {
     Negotiation negotiation = post.getNegotiation();
     if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
-    return NegotiationServiceImpl.isAuthorizedForNegotiation(negotiation)
+    return negotiationService.isAuthorizedForNegotiation(negotiation)
         && (post.isPublic()
             || post.isCreator(
                 NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())

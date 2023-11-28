@@ -2,9 +2,15 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resour
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
+import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.Objects;
+import java.util.Optional;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
@@ -19,6 +25,8 @@ public class ResourcePersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired NotificationRepository notificationRepository;
+  @Autowired @Lazy UserNotificationService userNotificationService;
 
   @Override
   public void onPersist(
@@ -26,15 +34,45 @@ public class ResourcePersistStateChangeListener
       Message<String> message,
       Transition<String, String> transition,
       StateMachine<String, String> stateMachine) {
-    String negotiationId = message.getHeaders().get("negotiationId", String.class);
-    String resourceId = message.getHeaders().get("resourceId", String.class);
-    Negotiation negotiation = null;
-    if (Objects.nonNull(negotiationId) && Objects.nonNull(resourceId)) {
-      negotiation = negotiationRepository.findById(negotiationId).orElse(null);
+    String negotiationId = parseNegotiationIdFromMessage(message);
+    String resourceId = parseResourceIdFromMessage(message);
+    Optional<Negotiation> negotiation = getNegotiation(negotiationId);
+    if (negotiation.isPresent()) {
+      negotiation = updateStateForResource(state, negotiation.get(), resourceId);
+      notifyRequester(negotiation.get(), resourceId);
     }
-    if (Objects.nonNull(negotiation)) {
-      negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
-      negotiationRepository.save(negotiation);
+  }
+
+  @Nullable
+  private static String parseNegotiationIdFromMessage(Message<String> message) {
+    return message.getHeaders().get("negotiationId", String.class);
+  }
+
+  @Nullable
+  private static String parseResourceIdFromMessage(Message<String> message) {
+    return message.getHeaders().get("resourceId", String.class);
+  }
+
+  private void notifyRequester(Negotiation negotiation, String resourceId) {
+    userNotificationService.notifyRequesterAboutStatusChange(
+        negotiation,
+        negotiation.getResources().stream()
+            .filter(resource -> resource.getSourceId().equals(resourceId))
+            .findFirst()
+            .orElse(null));
+  }
+
+  @NonNull
+  private Optional<Negotiation> updateStateForResource(
+      State<String, String> state, Negotiation negotiation, String resourceId) {
+    negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
+    return Optional.of(negotiationRepository.save(negotiation));
+  }
+
+  private Optional<Negotiation> getNegotiation(String negotiationId) {
+    if (Objects.nonNull(negotiationId)) {
+      return negotiationRepository.findById(negotiationId);
     }
+    return Optional.empty();
   }
 }

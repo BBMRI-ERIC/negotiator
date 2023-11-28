@@ -16,10 +16,10 @@ management:
         include: health
 spring:
   mail:
-    host: ""
-    port: 0
-    username: ""
-    password: ""
+    host: "localhost"
+    port: 1025
+    username: "user"
+    password: "pass"
   application:
     name: "Negotiator"
   jackson:

@@ -11,6 +11,7 @@ import org.springframework.statemachine.config.builders.StateMachineConfiguratio
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
+import org.springframework.statemachine.security.SecurityRule;
 
 /** Configuration for the Resource State Machine. */
 @Configuration
@@ -39,13 +40,13 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .source(NegotiationResourceState.SUBMITTED.name())
         .event(NegotiationResourceEvent.CONTACT.name())
         .target(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
-        .secured("isRepresentative")
+        .secured("ROLE_ADMIN", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.SUBMITTED.name())
         .event(NegotiationResourceEvent.MARK_AS_UNREACHABLE.name())
         .target(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE.name())
-        .secured("isRepresentative")
+        .secured("ROLE_ADMIN", SecurityRule.ComparisonType.ALL)
         .and()
         .withExternal()
         .source(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE.name())

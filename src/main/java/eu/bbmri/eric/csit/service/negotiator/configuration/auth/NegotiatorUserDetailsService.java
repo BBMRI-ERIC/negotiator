@@ -19,10 +19,6 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
 
   @Autowired private PersonRepository personRepository;
 
-  public static String getCurrentlyAuthenticatedUserName() {
-    return SecurityContextHolder.getContext().getAuthentication().getName();
-  }
-
   public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
@@ -37,15 +33,6 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
-  }
-
-  public static boolean isRepresentativeAny(List<String> resourceIds) {
-    return resourceIds.stream()
-        .anyMatch(
-            resourceID ->
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                    .anyMatch(
-                        auth -> auth.getAuthority().equals("ROLE_REPRESENTATIVE_" + resourceID)));
   }
 
   @Override

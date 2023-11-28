@@ -321,7 +321,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = {"biobank:1:collection:1"})
+  @WithUserDetails("TheBiobanker")
   void testGetNegotiationsForCollectionsUserRepresents() throws Exception {
     mockMvc
         .perform(
@@ -355,7 +355,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "biobank:2:collection:2")
+  @WithUserDetails("test_biobank_manager")
   void testGetNegotiationRepresentativeShouldNotHaveAccessTo() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
@@ -363,7 +363,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_REPRESENTATIVE_biobank:1:collection:1")
+  @WithUserDetails("TheBiobanker")
   void testGetNegotiationRepresentativeShouldHaveAccessTo() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))

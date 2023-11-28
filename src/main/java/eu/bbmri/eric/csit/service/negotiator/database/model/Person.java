@@ -40,11 +40,13 @@ public class Person {
 
   @ManyToMany
   @JoinTable(
-      name = "person_resource_link",
+      name = "resource_representative_link",
       joinColumns = @JoinColumn(name = "person_id"),
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Exclude
   Set<Resource> resources;
+
+  boolean admin;
 
   @ManyToMany
   @JoinTable(
@@ -80,26 +82,14 @@ public class Person {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
     Person person = (Person) o;
-    return Objects.equals(getAuthSubject(), person.getAuthSubject())
-        && Objects.equals(getAuthName(), person.getAuthName())
-        && Objects.equals(getAuthEmail(), person.getAuthEmail())
-        && Objects.equals(getPassword(), person.getPassword())
-        && Objects.equals(getOrganization(), person.getOrganization());
+    return Objects.equals(authSubject, person.authSubject);
   }
 
   @Override
   public int hashCode() {
-    int result =
-        Objects.hash(
-            getAuthSubject(), getAuthName(), getAuthEmail(), getPassword(), getOrganization());
-    result = 31 * result;
-    return result;
+    return Objects.hash(authSubject);
   }
 }

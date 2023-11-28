@@ -53,6 +53,17 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "WHERE c.sourceId IN :collectionIds")
   List<Negotiation> findByCollectionIds(List<String> collectionIds);
 
+  @Query(
+      value =
+          "SELECT DISTINCT n "
+              + "FROM Negotiation n "
+              + "JOIN FETCH n.requests rr "
+              + "JOIN FETCH rr.resources c "
+              + "WHERE c.sourceId IN :collectionIds"
+              + " AND n.currentState = :currentState")
+  List<Negotiation> findByResourceExternalIdsAndCurrentState(
+      List<String> collectionIds, NegotiationState currentState);
+
   @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findByCreatedBy_Id(Long personId);
 
