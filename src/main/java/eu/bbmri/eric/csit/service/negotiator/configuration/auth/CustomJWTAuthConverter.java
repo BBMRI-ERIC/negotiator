@@ -52,7 +52,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     try {
       person =
           personRepository
-              .findByAuthSubject(subjectIdentifier)
+              .findBySubjectId(subjectIdentifier)
               .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
     } catch (EntityNotFoundException e) {
       log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));

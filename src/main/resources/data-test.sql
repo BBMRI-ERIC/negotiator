@@ -11,7 +11,7 @@ values ('http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasou
         'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
         'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization, admin)
+insert into person (id, email, name, subject_id, password, organization, admin)
 values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey',
         'BBMRI', true),
        (102, 'directory@negotiator.dev', 'directory', '2',

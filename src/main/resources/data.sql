@@ -7,7 +7,7 @@ values ('https://bbmritestnn.gcc.rug.nl', 'user', 'password', 'MOLGENIS', 'https
         'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
         'directory_networks', 'source_prefix', 'false');
 
-insert into person (id, auth_email, auth_name, auth_subject, password, organization, admin)
+insert into person (id, email, name, subject_id, password, organization, admin)
 values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
        (2, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false),
        (3, 'for-backwards-compatability', 'directory', '',

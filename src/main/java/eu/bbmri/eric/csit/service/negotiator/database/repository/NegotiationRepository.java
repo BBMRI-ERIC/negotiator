@@ -27,8 +27,8 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "JOIN FETCH r.persons pp "
               + "JOIN FETCH pp.person p "
               + "JOIN FETCH pp.role role "
-              + "where p.authSubject = :userId and role.name = :userRole")
-  List<Negotiation> findByUserIdAndRole(
+              + "where p.subjectId = :userId and role.name = :userRole")
+  List<Negotiation> findBySubjectIdAndRole(
       @Param("userId") String userId, @Param("userRole") String userRole);
 
   @Query(

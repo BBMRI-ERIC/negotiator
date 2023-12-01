@@ -12,16 +12,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
 
-  Optional<Person> findByAuthNameAndPasswordNotNull(String authName);
+  Optional<Person> findByName(String authName);
 
-  Optional<Person> findByAuthName(String authName);
-
-  Optional<Person> findByAuthSubject(String authSubject);
+  Optional<Person> findBySubjectId(String authSubject);
 
   @EntityGraph(value = "person-detailed")
   Optional<Person> findDetailedById(Long id);
-
-  Optional<Person> deleteByAuthSubject(String authSubject);
 
   @EntityGraph(value = "person-detailed")
   List<Person> findAllByAdminIsTrue();

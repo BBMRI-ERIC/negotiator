@@ -30,7 +30,7 @@ public class NegotiatorUserDetailServiceTest {
   public void testIsNotAuthenticated_whenPasswordIsMissing() throws Exception {
 
     // First check that the person exist in the db but doesn't have password assigned
-    Person p = personRepository.findByAuthName("test_biobank_manager").orElse(null);
+    Person p = personRepository.findByName("test_biobank_manager").orElse(null);
     assertNotNull(p);
     assertNull(p.getPassword());
 
@@ -46,7 +46,7 @@ public class NegotiatorUserDetailServiceTest {
   public void testIsAuthenticated_whenPasswordIsPresent() throws Exception {
 
     // First check that the person exist in the db but doesn't have password assigned
-    Person p = personRepository.findByAuthName("researcher").orElse(null);
+    Person p = personRepository.findByName("researcher").orElse(null);
     assertNotNull(p);
     assertNotNull(p.getPassword());
 

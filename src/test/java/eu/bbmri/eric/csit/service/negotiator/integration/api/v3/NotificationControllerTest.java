@@ -57,7 +57,7 @@ public class NotificationControllerTest {
   @Test
   @WithUserDetails("TheResearcher")
   void getNotifications_3new_Ok() throws Exception {
-    Person person = personRepository.findByAuthName("TheResearcher").get();
+    Person person = personRepository.findByName("TheResearcher").get();
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     for (int i = 0; i < 3; i++) {
       notificationRepository.save(

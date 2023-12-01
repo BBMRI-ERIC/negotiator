@@ -476,7 +476,7 @@ public class PostServiceTest {
   @Test
   public void test_findNewByNegotiationIdAndAuthors_NoResults() {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(Collections.emptyList());
     Assertions.assertEquals(
@@ -493,7 +493,7 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_AsAdmin_All() {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(allPosts);
 
@@ -513,7 +513,7 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
@@ -532,7 +532,7 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_AsBiobanker_All() {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -552,7 +552,7 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
@@ -570,7 +570,7 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_AsAdmin_Public() {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(allPosts);
 
@@ -592,7 +592,7 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(posts);
 
@@ -614,7 +614,7 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -636,7 +636,7 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
@@ -654,7 +654,7 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_AsAdmin_Private() {
     List<String> authors =
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
-    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(privatePosts);
 
@@ -678,7 +678,7 @@ public class PostServiceTest {
     List<String> authors =
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(posts);
 
@@ -702,7 +702,7 @@ public class PostServiceTest {
     List<String> authors =
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -725,7 +725,7 @@ public class PostServiceTest {
         List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
@@ -737,7 +737,7 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_NoResults() {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, null, authors, ORG_1))
         .thenReturn(Collections.emptyList());
     Assertions.assertEquals(
@@ -754,9 +754,8 @@ public class PostServiceTest {
   public void test_findNewByNegotiationIdAndAuthors_WithOrganizationId_AsAdmin_All() {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository
-            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, authors, ORG_1))
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
+            "fakeId", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(allPosts);
 
     Assertions.assertEquals(
@@ -775,9 +774,8 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository
-            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, authors, ORG_1))
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
+            "fakeId", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
@@ -796,9 +794,8 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository
-            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, authors, ORG_1))
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
+            "fakeId", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
@@ -818,9 +815,8 @@ public class PostServiceTest {
     List<Post> posts = List.of(publicPost1, publicPost2, privateResToOrg1, privateBio1ToOrg1);
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
-    when(postRepository
-            .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, authors, ORG_1))
+    when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
+            "fakeId", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
@@ -838,7 +834,7 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(allPosts);
 
@@ -861,7 +857,7 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
 
@@ -884,7 +880,7 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -908,7 +904,7 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
 
@@ -930,7 +926,7 @@ public class PostServiceTest {
     List<String> authors =
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(privatePosts);
 
@@ -955,7 +951,7 @@ public class PostServiceTest {
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
 
@@ -980,7 +976,7 @@ public class PostServiceTest {
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
@@ -1006,7 +1002,7 @@ public class PostServiceTest {
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
     when(postRepository
-            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+            .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
 

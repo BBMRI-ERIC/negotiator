@@ -120,21 +120,20 @@ public class PostServiceImpl implements PostService {
     List<Post> posts;
     if (type == null && organizationId == null) {
       posts =
-          postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+          postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
               negotiationId, PostStatus.CREATED, authors);
     } else if (organizationId == null || organizationId.isEmpty()) {
       posts =
-          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
               negotiationId, PostStatus.CREATED, type, authors);
     } else if (type == null) {
       posts =
-          postRepository
-              .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-                  negotiationId, PostStatus.CREATED, authors, organizationId);
+          postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
+              negotiationId, PostStatus.CREATED, authors, organizationId);
     } else {
       posts =
           postRepository
-              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                   negotiationId, PostStatus.CREATED, type, authors, organizationId);
     }
 

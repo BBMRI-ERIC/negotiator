@@ -92,7 +92,7 @@ public class NegotiationServiceTest {
 
   @Test
   public void test_FindByUserAndRole_ReturnsEmptyList_whenNotFound() {
-    when(negotiationRepository.findByUserIdAndRole(any(), any()))
+    when(negotiationRepository.findBySubjectIdAndRole(any(), any()))
         .thenReturn(Collections.emptyList());
     assertTrue(negotiationService.findByUserIdAndRole("fakeID", "fakeRole").isEmpty());
   }

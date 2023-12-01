@@ -274,7 +274,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   public List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole) {
-    List<Negotiation> negotiations = negotiationRepository.findByUserIdAndRole(userId, userRole);
+    List<Negotiation> negotiations = negotiationRepository.findBySubjectIdAndRole(userId, userRole);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());

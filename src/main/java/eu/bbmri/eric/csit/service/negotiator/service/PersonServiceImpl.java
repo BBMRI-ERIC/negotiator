@@ -22,7 +22,7 @@ public class PersonServiceImpl implements PersonService {
   }
 
   private Person getByAuthSubject(String authSubject) {
-    return personRepository.findByAuthSubject(authSubject).orElse(null);
+    return personRepository.findBySubjectId(authSubject).orElse(null);
   }
 
   public List<Person> findAll() {
