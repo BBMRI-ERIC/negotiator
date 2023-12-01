@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +28,9 @@ import org.springframework.web.context.WebApplicationContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @CommonsLog
 public class UserControllerTest {
+  @Autowired private PersonRepository personRepository;
   private static final String ROLES_ENDPOINT = "/v3/users/roles";
+  private static final String LIST_USERS_ENDPOINT = "/v3/users";
   private static final String RESOURCES_ENDPOINT = "/v3/users/resources";
   @Autowired private WebApplicationContext context;
   private MockMvc mockMvc;
@@ -73,5 +77,38 @@ public class UserControllerTest {
                 .value(
                     Matchers.containsInAnyOrder(
                         "biobank:1:collection:1", "biobank:1:collection:2")));
+  }
+
+  @Test
+  void getUsers_notAuthorized_401() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void getUsers_authorized_ok() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)).andExpect(status().isOk());
+  }
+
+  @Test
+  void getUserById_idNotLong_400() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/null"))
+        .andExpect(status().isBadRequest());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/fake4rd"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void getUserById_validId_200() throws Exception {
+    Person person = personRepository.findAll().iterator().next();
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/" + person.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is(person.getId().toString())));
   }
 }
