@@ -18,11 +18,9 @@ public class PersonServiceImpl implements PersonService {
   @Autowired private ModelMapper modelMapper;
 
   public Person findById(Long id) {
-    return personRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-  }
-
-  private Person getByAuthSubject(String authSubject) {
-    return personRepository.findBySubjectId(authSubject).orElse(null);
+    return personRepository
+        .findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Person with id " + id + " not found"));
   }
 
   public List<Person> findAll() {

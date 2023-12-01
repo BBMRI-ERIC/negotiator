@@ -5,7 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.OauthUser;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import eu.bbmri.eric.csit.service.negotiator.service.RepresentativeNegotiationService;
 import java.util.List;
@@ -34,16 +34,16 @@ public class UserController {
 
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  List<PersonDTO> listUsers() {
+  List<OauthUser> listUsers() {
     return List.of();
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  EntityModel<PersonDTO> findById(@PathVariable Long id) {
+  EntityModel<OauthUser> findById(@PathVariable Long id) {
     Person person = personService.findById(id);
     return EntityModel.of(
-        new PersonDTO(),
+        new OauthUser(),
         WebMvcLinkBuilder.linkTo(methodOn(UserController.class).findById(id)).withSelfRel(),
         WebMvcLinkBuilder.linkTo(methodOn(UserController.class).listUsers()).withRel("users"));
   }
