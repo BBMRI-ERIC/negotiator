@@ -121,7 +121,7 @@ public class NegotiationModelMapper {
                 personRole ->
                     new PersonRoleDTO(
                         String.valueOf(personRole.getPerson().getId()),
-                        personRole.getPerson().getAuthName(),
+                        personRole.getPerson().getName(),
                         personRole.getRole().getName()));
     return roles.collect(Collectors.toSet());
   }

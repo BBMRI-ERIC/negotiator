@@ -84,25 +84,25 @@ public class PostServiceTest {
     Person researcher =
         Person.builder()
             .id(RESEARCHER_ID)
-            .authName(RESEARCHER_AUTH_NAME)
-            .authEmail(RESEARCHER_AUTH_EMAIL)
-            .authSubject(RESEARCHER_AUTH_SUBJECT)
+            .name(RESEARCHER_AUTH_NAME)
+            .email(RESEARCHER_AUTH_EMAIL)
+            .subjectId(RESEARCHER_AUTH_SUBJECT)
             .build();
 
     Person biobanker1 =
         Person.builder()
             .id(BIOBANKER_1_ID)
-            .authName(BIOBANKER_1_AUTH_NAME)
-            .authEmail(BIOBANKER_1_AUTH_EMAIL)
-            .authSubject(BIOBANKER_1_AUTH_SUBJECT)
+            .name(BIOBANKER_1_AUTH_NAME)
+            .email(BIOBANKER_1_AUTH_EMAIL)
+            .subjectId(BIOBANKER_1_AUTH_SUBJECT)
             .build();
 
     Person biobanker2 =
         Person.builder()
             .id(BIOBANKER_2_ID)
-            .authName(BIOBANKER_2_AUTH_NAME)
-            .authEmail(BIOBANKER_2_AUTH_EMAIL)
-            .authSubject(BIOBANKER_2_AUTH_SUBJECT)
+            .name(BIOBANKER_2_AUTH_NAME)
+            .email(BIOBANKER_2_AUTH_EMAIL)
+            .subjectId(BIOBANKER_2_AUTH_SUBJECT)
             .build();
 
     DataSource dataSource = new DataSource();

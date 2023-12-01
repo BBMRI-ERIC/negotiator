@@ -109,8 +109,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                 .recipient(representative)
                 .message(
                     "Negotiation %s had a new post by %s"
-                        .formatted(
-                            post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                        .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
                 .build());
       }
     }
@@ -137,8 +136,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                 .recipient(representative)
                 .message(
                     "Negotiation %s had a new post by %s"
-                        .formatted(
-                            post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                        .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
                 .build());
       }
     }
@@ -152,7 +150,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .recipient(post.getNegotiation().getCreatedBy())
             .message(
                 "Negotiation %s had a new post by %s"
-                    .formatted(post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                    .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
             .build());
   }
 

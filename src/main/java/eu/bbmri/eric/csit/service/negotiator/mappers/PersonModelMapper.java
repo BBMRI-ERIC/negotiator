@@ -15,7 +15,7 @@ public class PersonModelMapper {
   public void addMappings() {
     TypeMap<Person, PersonDTO> typeMap = modelMapper.createTypeMap(Person.class, PersonDTO.class);
 
-    typeMap.addMappings(mapper -> mapper.map(Person::getAuthName, PersonDTO::setName));
+    typeMap.addMappings(mapper -> mapper.map(Person::getName, PersonDTO::setName));
 
     typeMap.addMappings(mapper -> mapper.map(Person::getOrganization, PersonDTO::setOrganization));
   }

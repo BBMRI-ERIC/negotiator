@@ -28,13 +28,13 @@ public class PersonModelMapperTest {
   public void map_PersonToDTO_ok() {
     Person inputPerson =
         Person.builder()
-            .authName("Lucifer Morningstar")
+            .name("Lucifer Morningstar")
             .organization("Hell")
-            .authSubject("666")
-            .authEmail("devil@dieties.com")
+            .subjectId("666")
+            .email("devil@dieties.com")
             .build();
     PersonDTO outputMapping = mapper.map(inputPerson, PersonDTO.class);
-    assertEquals(inputPerson.getAuthName(), outputMapping.getName());
+    assertEquals(inputPerson.getName(), outputMapping.getName());
     assertEquals(inputPerson.getOrganization(), outputMapping.getOrganization());
   }
 }

@@ -56,11 +56,7 @@ public class UserNotificationServiceTest {
   void getNotifications_1_ok() {
     Person person =
         personRepository.save(
-            Person.builder()
-                .authSubject("823")
-                .authName("John")
-                .authEmail("test@test.com")
-                .build());
+            Person.builder().subjectId("823").name("John").email("test@test.com").build());
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     notificationRepository.save(
         Notification.builder()

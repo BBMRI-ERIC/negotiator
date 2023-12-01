@@ -116,18 +116,17 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     Person person;
     person =
         Person.builder()
-            .authSubject(String.valueOf(claims.get("sub")))
-            .authName(String.valueOf(claims.get("name")))
-            .authEmail(String.valueOf(claims.get("email").toString()))
+            .subjectId(String.valueOf(claims.get("sub")))
+            .name(String.valueOf(claims.get("name")))
+            .email(String.valueOf(claims.get("email").toString()))
             .build();
     try {
       personRepository.save(person);
     } catch (DataIntegrityViolationException e) {
-      log.info(
-          String.format("User with sub: %s already present in the db", person.getAuthSubject()));
+      log.info(String.format("User with sub: %s already present in the db", person.getSubjectId()));
       return person;
     }
-    log.info(String.format("User with sub: %s added to the database", person.getAuthSubject()));
+    log.info(String.format("User with sub: %s added to the database", person.getSubjectId()));
     return person;
   }
 }

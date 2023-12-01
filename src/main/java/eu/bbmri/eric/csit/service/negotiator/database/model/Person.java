@@ -71,11 +71,11 @@ public class Person {
 
   @Column(unique = true)
   @NotNull
-  private String authSubject;
+  private String subjectId; // OIDC subject id
 
-  @NotNull private String authName;
+  @NotNull private String name;
 
-  @NotNull private String authEmail;
+  @NotNull private String email;
 
   private String password; // can be null if the user is authenticated via OIDC
 
@@ -89,11 +89,11 @@ public class Person {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Person person = (Person) o;
-    return Objects.equals(authSubject, person.authSubject);
+    return Objects.equals(subjectId, person.subjectId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(authSubject);
+    return Objects.hash(subjectId);
   }
 }

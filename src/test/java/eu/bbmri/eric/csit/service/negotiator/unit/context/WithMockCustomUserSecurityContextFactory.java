@@ -29,9 +29,9 @@ public class WithMockCustomUserSecurityContextFactory
     Person principal =
         Person.builder()
             .id(customUser.id())
-            .authName(customUser.authName())
-            .authSubject(customUser.authSubject())
-            .authEmail(customUser.authEmail())
+            .name(customUser.authName())
+            .subjectId(customUser.authSubject())
+            .email(customUser.authEmail())
             .build();
 
     Collection<GrantedAuthority> authorities =

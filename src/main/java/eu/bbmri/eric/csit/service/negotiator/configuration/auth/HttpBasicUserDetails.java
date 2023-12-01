@@ -34,7 +34,7 @@ public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails 
 
   @Override
   public String getUsername() {
-    return person.getAuthName();
+    return person.getName();
   }
 
   @Override
