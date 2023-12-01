@@ -27,4 +27,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
   @EntityGraph(value = "person-detailed")
   boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
+
+
 }

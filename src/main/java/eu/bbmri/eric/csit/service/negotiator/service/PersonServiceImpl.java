@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
 import java.util.Set;
@@ -14,13 +15,14 @@ import org.springframework.stereotype.Service;
 public class PersonServiceImpl implements PersonService {
 
   @Autowired private PersonRepository personRepository;
-
   @Autowired private ModelMapper modelMapper;
 
-  public Person findById(Long id) {
-    return personRepository
-        .findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Person with id " + id + " not found"));
+  public UserModel findById(Long id) {
+    return modelMapper.map(
+        personRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Person with id " + id + " not found")),
+        UserModel.class);
   }
 
   public List<Person> findAll() {

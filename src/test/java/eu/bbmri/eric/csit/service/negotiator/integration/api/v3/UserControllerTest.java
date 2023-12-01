@@ -109,6 +109,8 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/" + person.getId()))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(person.getId().toString())));
+        .andExpect(jsonPath("$.id", is(person.getId().toString())))
+        .andExpect(jsonPath("$.name", is(person.getName())))
+        .andExpect(jsonPath("$.email", is(person.getEmail())));
   }
 }

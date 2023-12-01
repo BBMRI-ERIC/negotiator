@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.OauthUser;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.PersonModelMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,12 +28,14 @@ public class PersonModelMapperTest {
   public void map_PersonToOauthUser_ok() {
     Person inputPerson =
         Person.builder()
+            .id(1L)
             .name("Lucifer Morningstar")
             .organization("Hell")
             .subjectId("666")
             .email("devil@dieties.com")
             .build();
-    OauthUser outputMapping = mapper.map(inputPerson, OauthUser.class);
+    UserModel outputMapping = mapper.map(inputPerson, UserModel.class);
+    assertEquals(inputPerson.getId(), outputMapping.getId());
     assertEquals(inputPerson.getName(), outputMapping.getName());
     assertEquals(inputPerson.getSubjectId(), outputMapping.getSubjectId());
   }

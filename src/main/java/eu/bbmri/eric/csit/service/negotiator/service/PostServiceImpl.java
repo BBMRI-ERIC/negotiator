@@ -10,6 +10,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
@@ -34,7 +35,9 @@ public class PostServiceImpl implements PostService {
 
   @Autowired private PostRepository postRepository;
 
+
   @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private PersonRepository personRepository;
 
   @Autowired private ModelMapper modelMapper;
 
@@ -60,8 +63,9 @@ public class PostServiceImpl implements PostService {
     postEntity.setOrganization(getOrganization(postRequest));
     postEntity.setNegotiation(getNegotiation(negotiationId));
     Person author =
-        personService.findById(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+        personRepository
+            .findById(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+            .orElseThrow(() -> new EntityNotFoundException("User with not found."));
     postEntity.setCreatedBy(author);
     postEntity.setStatus(PostStatus.CREATED);
     return postEntity;
