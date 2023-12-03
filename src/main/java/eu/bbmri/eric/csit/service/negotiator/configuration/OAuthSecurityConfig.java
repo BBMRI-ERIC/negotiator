@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -58,6 +59,8 @@ public class OAuthSecurityConfig {
   @Value("${negotiator.authorization.resource-claim-prefix}")
   private String authzResourceIdPrefixClaim;
 
+  @Autowired ExceptionHandlerFilter exceptionHandlerFilter;
+
   @Bean
   MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
     return new MvcRequestMatcher.Builder(introspector);
@@ -68,6 +71,7 @@ public class OAuthSecurityConfig {
       throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+        .addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(Customizer.withDefaults())

@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.error.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,10 +16,26 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
-  public final ResponseEntity<ErrorResponse> handleJwtDecoderError(
+  public final ResponseEntity<RestError> handleJwtDecoderError(
       RuntimeException ex, WebRequest request) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Cannot verify the JWT token");
+    RestError errorResponse =
+        RestError.builder()
+            .title("Authentication Failure")
+            .detail("We could not decode the JWT token. PLease try again later.")
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(AuthenticationServiceException.class)
+  public final ResponseEntity<RestError> handleJwtError(RuntimeException ex, WebRequest request) {
+    RestError errorResponse =
+        RestError.builder()
+            .type("https://www.rfc-editor.org/rfc/rfc9110#status.500")
+            .title("Authentication Failure")
+            .detail("We could not reach the authorization server. PLease try again later.")
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
