@@ -35,7 +35,7 @@ public class PersonModelMapperTest {
             .email("devil@dieties.com")
             .build();
     UserModel outputMapping = mapper.map(inputPerson, UserModel.class);
-    assertEquals(inputPerson.getId(), outputMapping.getId());
+    assertEquals(inputPerson.getId().toString(), outputMapping.getId());
     assertEquals(inputPerson.getName(), outputMapping.getName());
     assertEquals(inputPerson.getSubjectId(), outputMapping.getSubjectId());
   }
