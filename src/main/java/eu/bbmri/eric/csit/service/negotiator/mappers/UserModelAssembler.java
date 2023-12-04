@@ -10,8 +10,10 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserEntityAssembler
+public class UserModelAssembler
     implements RepresentationModelAssembler<UserModel, EntityModel<UserModel>> {
+  public UserModelAssembler() {}
+
   @Override
   public EntityModel<UserModel> toModel(UserModel entity) {
     return EntityModel.of(
