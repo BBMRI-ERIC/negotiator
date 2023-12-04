@@ -74,4 +74,16 @@ public class NegotiatorExceptionHandler {
     ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
   }
+
+  @ExceptionHandler({IllegalArgumentException.class})
+  public final ResponseEntity<RestError> handleIllegalArgument(
+      IllegalArgumentException ex, WebRequest request) {
+    RestError errorResponse =
+        RestError.builder()
+            .title("Unprocessable content.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+  }
 }

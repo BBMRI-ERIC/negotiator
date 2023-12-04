@@ -214,11 +214,6 @@
             <version>2.2.0</version>
         </dependency>
         <dependency>
-            <artifactId>junit</artifactId>
-            <groupId>junit</groupId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <artifactId>json</artifactId>
             <groupId>org.json</groupId>
             <version>20230227</version>

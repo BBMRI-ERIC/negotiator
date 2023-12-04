@@ -24,6 +24,25 @@ public interface PersonService {
   List<Person> findAll();
 
   /**
+   * Retrieves a page of people.
+   *
+   * @param page the page to retrieve.
+   * @param size the size of the page.
+   * @return a page of people.
+   */
+  Iterable<UserModel> findAll(int page, int size);
+
+  /**
+   * Retrieves page of people from a sorted list.
+   *
+   * @param page the page to retrieve.
+   * @param size the size of the page.
+   * @param sort the property to sort by.
+   * @return a page of people.
+   */
+  Iterable<UserModel> findAll(int page, int size, String sort);
+
+  /**
    * Checks if the person with the specified id represents any of the resources in the list.
    *
    * @param personId the id of the person to check;

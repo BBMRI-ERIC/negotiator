@@ -1,14 +1,18 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.person;
 
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** A DTO model for a person authenticated via OAuth. */
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserModel {
   private String id;
   private String subjectId;
