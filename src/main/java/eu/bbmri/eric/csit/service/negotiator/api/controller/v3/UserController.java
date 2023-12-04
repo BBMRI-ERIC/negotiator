@@ -6,7 +6,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserEntityAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
-import eu.bbmri.eric.csit.service.negotiator.service.RepresentativeNegotiationService;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 @CommonsLog
 public class UserController {
-  @Autowired RepresentativeNegotiationService representativeNegotiationService;
   @Autowired UserEntityAssembler assembler;
 
   @Autowired PersonService personService;
