@@ -99,6 +99,17 @@ public class PersonRepositoryTest {
     assertEquals(person.getSubjectId(), pageDescending.getContent().get(0).getSubjectId());
   }
 
+  @Test
+  void findAllPageWithFilterByName_personIsPresent_isFound() {
+    Person person = savePerson("a-test", "AAAA");
+    Page<Person> page = personRepository.findAllByName(person.getName(), PageRequest.of(0, 50));
+    assertEquals(person.getSubjectId(), page.getContent().get(0).getSubjectId());
+    savePerson("a-test2", "AAAA");
+    assertEquals(
+        2,
+        personRepository.findAllByName(person.getName(), PageRequest.of(0, 50)).getTotalElements());
+  }
+
   private Person savePerson(String subjectId) {
     return personRepository.save(
         Person.builder().subjectId(subjectId).name("John").email("test@test.com").build());
