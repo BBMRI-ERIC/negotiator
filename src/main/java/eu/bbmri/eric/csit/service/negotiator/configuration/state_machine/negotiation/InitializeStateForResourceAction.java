@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
+import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -21,6 +22,7 @@ public class InitializeStateForResourceAction implements Action<String, String> 
   @Autowired @Lazy UserNotificationService userNotificationService;
 
   @Override
+  @Transactional
   public void execute(StateContext<String, String> context) {
     String negotiationId = context.getMessage().getHeaders().get("negotiationId", String.class);
     Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).orElseThrow();

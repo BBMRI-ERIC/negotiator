@@ -7,6 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import jakarta.transaction.Transactional;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class PersistStateChangeListener
   @Autowired NotificationRepository notificationRepository;
 
   @Override
+  @Transactional
   public void onPersist(
       State<String, String> state,
       Message<String> message,
