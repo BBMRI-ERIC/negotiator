@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
@@ -10,8 +11,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -31,6 +34,7 @@ public class UserController {
   @Autowired UserModelAssembler assembler;
   
   @Autowired PersonService personService;
+  @Autowired ModelMapper modelMapper;
 
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
@@ -43,6 +47,15 @@ public class UserController {
       return assembler.toPagedModel((Page<UserModel>) users);
     }
     return PagedModel.empty();
+  }
+
+  @GetMapping(value = "/users/{id}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public CollectionModel<ResourceModel> findRepresentedResources(@PathVariable Long id) {
+    return CollectionModel.of(
+        personService.getResourcesRepresentedByUserId(id).stream()
+            .map(resource -> modelMapper.map(resource, ResourceModel.class))
+            .collect(Collectors.toList()));
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

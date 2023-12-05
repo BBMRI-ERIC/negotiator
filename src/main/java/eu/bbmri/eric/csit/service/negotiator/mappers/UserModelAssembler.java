@@ -3,9 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.UserController;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +28,12 @@ public class UserModelAssembler
     links.add(
         linkTo(methodOn(UserController.class).findById(Long.valueOf(entity.getId())))
             .withSelfRel());
-    for (ResourceModel resourceModel : entity.getRepresentedResources()) {
+    if (entity.isRepresentativeOfAnyResource()) {
       links.add(
-          linkTo(methodOn(RequestController.class).retrieve(resourceModel.getId()))
-              .withRel("requests"));
+          linkTo(
+                  methodOn(UserController.class)
+                      .findRepresentedResources(Long.valueOf(entity.getId())))
+              .withRel("represented_resources"));
     }
     return EntityModel.of(entity, links);
   }
