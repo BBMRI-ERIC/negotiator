@@ -24,7 +24,10 @@ import eu.bbmri.eric.csit.service.negotiator.service.PostService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
+import jakarta.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@Transactional
 public class UserNotificationServiceTest {
 
   @Autowired UserNotificationService userNotificationService;
@@ -138,7 +142,7 @@ public class UserNotificationServiceTest {
   void notifyRepresentatives_resWithNoRep_markedAsUnreachable() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     Resource resource = resourceRepository.findBySourceId("biobank:1:collection:1").get();
-    resource.setRepresentatives(Set.of());
+    resource.setRepresentatives(Collections.emptySet());
     Resource resource2 = resourceRepository.save(resource);
     System.out.println(resource2.getRepresentatives().size());
     negotiation = negotiationRepository.findById(negotiation.getId()).get();
@@ -234,9 +238,14 @@ public class UserNotificationServiceTest {
         negotiation.getRequests().iterator().next().getResources().iterator().next();
     Person representative =
         resource1.getRepresentatives().stream()
-            .filter(person -> !person.getId().equals(109L))
+            .filter(
+                person ->
+                    !person
+                        .getId()
+                        .equals(negotiation.getPersons().iterator().next().getPerson().getId()))
             .findFirst()
             .get();
+    assertTrue(Objects.nonNull(representative.getId()));
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
     postService.create(
         PostCreateDTO.builder()

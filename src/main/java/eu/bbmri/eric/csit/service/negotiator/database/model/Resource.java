@@ -12,7 +12,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
@@ -31,7 +30,6 @@ import lombok.ToString.Exclude;
 @Setter
 @Builder
 @Entity(name = "Resource")
-@Table(name = "resource")
 public class Resource {
 
   @Id
@@ -54,14 +52,14 @@ public class Resource {
   @Exclude
   private Set<Person> representatives;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "data_source_id")
   @Exclude
   @JsonIgnore
   @NotNull
   private DataSource dataSource;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "organization_id")
   @Exclude
   @NotNull

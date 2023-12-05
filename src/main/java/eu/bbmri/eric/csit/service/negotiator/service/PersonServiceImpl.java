@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import org.modelmapper.ModelMapper;
@@ -16,6 +17,7 @@ import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 
 @Service(value = "DefaultPersonService")
+@Transactional
 public class PersonServiceImpl implements PersonService {
 
   public PersonServiceImpl(PersonRepository personRepository, ModelMapper modelMapper) {

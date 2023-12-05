@@ -18,6 +18,7 @@ spring:
       ddl-auto: create-drop
     defer-datasource-initialization: true
     properties:
+      hibernate:
         dialect: org.hibernate.dialect.H2Dialect
   security:
     oauth2:

@@ -21,6 +21,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@Transactional
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationLifecycleService;
@@ -121,7 +123,7 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Set<NegotiationLifecycleRecord> history =
-        negotiationRepository.findById(negotiationDTO.getId()).get().getLifecycleHistory();
+        negotiationRepository.findDetailedById(negotiationDTO.getId()).get().getLifecycleHistory();
     assertEquals(2, history.size());
     assertTrue(
         history.stream()

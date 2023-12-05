@@ -3,7 +3,9 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.RequestController;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.UserController;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +25,17 @@ public class UserModelAssembler
 
   @Override
   public EntityModel<UserModel> toModel(UserModel entity) {
-    return EntityModel.of(
-        entity,
-        linkTo(methodOn(UserController.class).findById(Long.valueOf(entity.getId()))).withSelfRel(),
-        linkTo(UserController.class).slash("users").withRel("users"));
+    List<Link> links = new ArrayList<>();
+    links.add(linkTo(UserController.class).slash("users").withRel("users"));
+    links.add(
+        linkTo(methodOn(UserController.class).findById(Long.valueOf(entity.getId())))
+            .withSelfRel());
+    for (ResourceModel resourceModel : entity.getRepresentedResources()) {
+      links.add(
+          linkTo(methodOn(RequestController.class).retrieve(resourceModel.getId()))
+              .withRel("requests"));
+    }
+    return EntityModel.of(entity, links);
   }
 
   public PagedModel<EntityModel<UserModel>> toPagedModel(Page<UserModel> page) {

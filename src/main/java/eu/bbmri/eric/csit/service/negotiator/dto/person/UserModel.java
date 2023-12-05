@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.dto.person;
 
 import java.util.Objects;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class UserModel {
   private String subjectId;
   private String name;
   private String email;
+  private Set<ResourceModel> representedResources;
 
   public void setId(Long id) {
     this.id = String.valueOf(id);

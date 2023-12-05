@@ -31,7 +31,7 @@ public class RequestController {
   }
 
   @GetMapping("/requests/{id}")
-  RequestDTO retrieve(@PathVariable String id) {
+  public RequestDTO retrieve(@PathVariable String id) {
     return requestService.findById(id);
   }
 
