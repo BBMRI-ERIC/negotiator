@@ -80,10 +80,10 @@ public class NegotiatorExceptionHandler {
       IllegalArgumentException ex, WebRequest request) {
     RestError errorResponse =
         RestError.builder()
-            .title("Unprocessable content.")
+            .title("Bad request.")
             .detail(ex.getMessage())
-            .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+            .status(HttpStatus.BAD_REQUEST.value())
             .build();
-    return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 }

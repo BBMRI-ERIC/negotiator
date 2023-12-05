@@ -87,6 +87,16 @@ public class UserControllerTest {
   }
 
   @Test
+  void getUsers_validRequest_allAreReturned() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$").isNotEmpty())
+        .andExpect(jsonPath("$.length()", is(personRepository.findAll().size())));
+  }
+
+  @Test
   @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void getUsers_authorized_ok() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)).andExpect(status().isOk());

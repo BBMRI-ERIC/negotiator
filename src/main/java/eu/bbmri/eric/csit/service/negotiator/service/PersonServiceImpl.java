@@ -48,7 +48,7 @@ public class PersonServiceImpl implements PersonService {
             .map(person -> modelMapper.map(person, UserModel.class));
     if (page > result.getTotalPages())
       throw new IllegalArgumentException(
-          "Page must be less than/equal to " + result.getTotalPages() + ".");
+          "For the given size the page must be less than/equal to " + result.getTotalPages() + ".");
     return result;
   }
 

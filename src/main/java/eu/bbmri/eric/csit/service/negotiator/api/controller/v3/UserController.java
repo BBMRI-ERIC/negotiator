@@ -11,13 +11,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,13 +29,20 @@ import org.springframework.web.bind.annotation.RestController;
 @CommonsLog
 public class UserController {
   @Autowired UserModelAssembler assembler;
-
+  
   @Autowired PersonService personService;
 
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public List<UserModel> listUsers() {
-    return List.of();
+  public PagedModel<EntityModel<UserModel>> listUsers(
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size) {
+
+    Iterable<UserModel> users = personService.findAll(page, size);
+    if (users instanceof Page<UserModel>) {
+      return assembler.toPagedModel((Page<UserModel>) users);
+    }
+    return PagedModel.empty();
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
