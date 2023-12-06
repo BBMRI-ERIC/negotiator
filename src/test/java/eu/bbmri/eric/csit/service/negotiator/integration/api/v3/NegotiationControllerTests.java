@@ -408,7 +408,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_REPRESENTATIVE_biobank:1:collection:1")
+  @WithUserDetails("TheBiobanker")
   void updateLifecycleResource_invalidValue_BadRequest() throws Exception {
     mockMvc
         .perform(
