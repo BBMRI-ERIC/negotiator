@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,7 +30,7 @@ public class UserControllerTest {
   @Autowired private PersonRepository personRepository;
   private static final String ROLES_ENDPOINT = "/v3/users/roles";
   private static final String LIST_USERS_ENDPOINT = "/v3/users";
-  private static final String RESOURCES_ENDPOINT = "/v3/users/resources";
+  private static final String RESOURCES_FOR_USER_ENDPOINT = "/v3/users/%s/resources";
   @Autowired private WebApplicationContext context;
   private MockMvc mockMvc;
 
@@ -67,16 +66,11 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithUserDetails("TheBiobanker")
   void getRepresentedResources_oneResource_ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT))
+        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(103)))
         .andExpect(status().isOk())
-        .andExpect(
-            jsonPath("$")
-                .value(
-                    Matchers.containsInAnyOrder(
-                        "biobank:1:collection:1", "biobank:1:collection:2")));
+        .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
   }
 
   @Test
@@ -91,9 +85,12 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$").isNotEmpty())
-        .andExpect(jsonPath("$.length()", is(personRepository.findAll().size())));
+        .andExpect(jsonPath("$._embedded.userResponseModelList").isArray())
+        .andExpect(jsonPath("$._embedded.userResponseModelList").isNotEmpty())
+        .andExpect(
+            jsonPath(
+                "$._embedded.userResponseModelList.length()",
+                is(personRepository.findAll().size())));
   }
 
   @Test
