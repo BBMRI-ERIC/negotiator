@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.error.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
+import org.hibernate.LazyInitializationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -78,6 +79,17 @@ public class NegotiatorExceptionHandler {
             .status(HttpStatus.BAD_REQUEST.value())
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(LazyInitializationException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleLazyInitializationException() {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("A database error occurred.")
+            .detail("There was en error fetching data from the database. Please try again later.")
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ExceptionHandler({
