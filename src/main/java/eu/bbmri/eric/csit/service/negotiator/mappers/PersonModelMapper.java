@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Set;
@@ -22,17 +22,19 @@ public class PersonModelMapper {
 
   @PostConstruct
   public void addMappings() {
-    TypeMap<Person, UserModel> typeMap = modelMapper.createTypeMap(Person.class, UserModel.class);
+    TypeMap<Person, UserResponseModel> typeMap =
+        modelMapper.createTypeMap(Person.class, UserResponseModel.class);
 
-    typeMap.addMappings(mapper -> mapper.map(Person::getId, UserModel::setId));
-    typeMap.addMappings(mapper -> mapper.map(Person::getSubjectId, UserModel::setSubjectId));
+    typeMap.addMappings(mapper -> mapper.map(Person::getId, UserResponseModel::setId));
+    typeMap.addMappings(
+        mapper -> mapper.map(Person::getSubjectId, UserResponseModel::setSubjectId));
     Converter<Set<Resource>, Boolean> resourceToResourceModelConverter =
         q -> convertResourceToResourceModel(q.getSource());
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(resourceToResourceModelConverter)
-                .map(Person::getResources, UserModel::setRepresentativeOfAnyResource));
+                .map(Person::getResources, UserResponseModel::setRepresentativeOfAnyResource));
   }
 
   boolean convertResourceToResourceModel(Set<Resource> resources) {

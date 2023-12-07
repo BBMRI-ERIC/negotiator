@@ -4,7 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.UserController;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserModelAssembler
-    implements RepresentationModelAssembler<UserModel, EntityModel<UserModel>> {
+    implements RepresentationModelAssembler<UserResponseModel, EntityModel<UserResponseModel>> {
   public UserModelAssembler() {}
 
   @Override
-  public EntityModel<UserModel> toModel(UserModel entity) {
+  public EntityModel<UserResponseModel> toModel(UserResponseModel entity) {
     List<Link> links = new ArrayList<>();
     links.add(linkTo(UserController.class).slash("users").withRel("users"));
     links.add(
@@ -38,7 +38,7 @@ public class UserModelAssembler
     return EntityModel.of(entity, links);
   }
 
-  public PagedModel<EntityModel<UserModel>> toPagedModel(Page<UserModel> page) {
+  public PagedModel<EntityModel<UserResponseModel>> toPagedModel(Page<UserResponseModel> page) {
     List<Link> links = getLinks(page);
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
@@ -48,7 +48,7 @@ public class UserModelAssembler
   }
 
   @NonNull
-  private static List<Link> getLinks(Page<UserModel> page) {
+  private static List<Link> getLinks(Page<UserResponseModel> page) {
     List<Link> links = new ArrayList<>();
     if (page.hasPrevious()) {
       links.add(

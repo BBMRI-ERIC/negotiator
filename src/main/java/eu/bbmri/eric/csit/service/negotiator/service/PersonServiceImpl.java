@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,10 +30,10 @@ public class PersonServiceImpl implements PersonService {
   private final PersonRepository personRepository;
   private final ModelMapper modelMapper;
 
-  public UserModel findById(Long id) {
+  public UserResponseModel findById(Long id) {
     return modelMapper.map(
         personRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)),
-        UserModel.class);
+        UserResponseModel.class);
   }
 
   public List<Person> findAll() {
@@ -41,13 +41,13 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public Iterable<UserModel> findAll(int page, int size) {
+  public Iterable<UserResponseModel> findAll(int page, int size) {
     if (page < 0) throw new IllegalArgumentException("Page must be greater than 0.");
     if (size < 1) throw new IllegalArgumentException("Size must be greater than 0.");
-    Page<UserModel> result =
+    Page<UserResponseModel> result =
         personRepository
             .findAll(PageRequest.of(page, size))
-            .map(person -> modelMapper.map(person, UserModel.class));
+            .map(person -> modelMapper.map(person, UserResponseModel.class));
     if (page > result.getTotalPages())
       throw new IllegalArgumentException(
           "For the given size the page must be less than/equal to " + result.getTotalPages() + ".");
@@ -55,11 +55,11 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public Iterable<UserModel> findAll(int page, int size, String sortProperty) {
+  public Iterable<UserResponseModel> findAll(int page, int size, String sortProperty) {
     try {
       return personRepository
           .findAll(PageRequest.of(page, size, Sort.by(sortProperty)))
-          .map(person -> modelMapper.map(person, UserModel.class));
+          .map(person -> modelMapper.map(person, UserResponseModel.class));
     } catch (PropertyReferenceException e) {
       throw new IllegalArgumentException(sortProperty + "is an invalid sorting parameter.");
     }

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,9 +28,9 @@ public class PersonServiceImplTest {
   @Test
   void findAll_page_ok() {
     int count = personService.findAll().size();
-    Iterable<UserModel> result = personService.findAll(0, 1);
+    Iterable<UserResponseModel> result = personService.findAll(0, 1);
     assertInstanceOf(Page.class, result);
-    assertEquals(count, ((Page<UserModel>) result).getTotalElements());
+    assertEquals(count, ((Page<UserResponseModel>) result).getTotalElements());
   }
 
   @Test
@@ -45,7 +45,10 @@ public class PersonServiceImplTest {
             Person.builder().subjectId("test-id").name("AAAAA").email("test@test.com").build());
     assertEquals(
         person.getId().toString(),
-        ((Page<UserModel>) personService.findAll(0, 1, "name")).getContent().get(0).getId());
+        ((Page<UserResponseModel>) personService.findAll(0, 1, "name"))
+            .getContent()
+            .get(0)
+            .getId());
   }
 
   @Test

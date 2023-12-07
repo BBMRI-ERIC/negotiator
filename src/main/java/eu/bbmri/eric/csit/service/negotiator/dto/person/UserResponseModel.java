@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserModel {
+public class UserResponseModel {
   private final String type = "user";
   private String id;
   private String subjectId;
@@ -29,7 +29,7 @@ public class UserModel {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    UserModel userModel = (UserModel) o;
+    UserResponseModel userModel = (UserResponseModel) o;
     return Objects.equals(id, userModel.id)
         && Objects.equals(subjectId, userModel.subjectId)
         && Objects.equals(name, userModel.name)

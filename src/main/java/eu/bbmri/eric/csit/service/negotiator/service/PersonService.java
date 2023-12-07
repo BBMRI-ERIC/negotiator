@@ -2,7 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +16,7 @@ public interface PersonService {
    * @param id the id of the person to retrieve
    * @return the
    */
-  UserModel findById(Long id) throws EntityNotFoundException;
+  UserResponseModel findById(Long id) throws EntityNotFoundException;
 
   /**
    * Retrieves all persons.
@@ -32,7 +32,7 @@ public interface PersonService {
    * @param size the size of the page.
    * @return a page of people.
    */
-  Iterable<UserModel> findAll(int page, int size);
+  Iterable<UserResponseModel> findAll(int page, int size);
 
   /**
    * Retrieves page of people from a sorted list.
@@ -42,7 +42,7 @@ public interface PersonService {
    * @param sort the property to sort by.
    * @return a page of people.
    */
-  Iterable<UserModel> findAll(int page, int size, String sort);
+  Iterable<UserResponseModel> findAll(int page, int size, String sort);
 
   /**
    * Checks if the person with the specified id represents any of the resources in the list.

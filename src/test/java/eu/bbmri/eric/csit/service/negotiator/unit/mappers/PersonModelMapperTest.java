@@ -6,7 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.PersonModelMapper;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class PersonModelMapperTest {
             .email("devil@dieties.com")
             .resources(Set.of(resource))
             .build();
-    UserModel outputMapping = mapper.map(inputPerson, UserModel.class);
+    UserResponseModel outputMapping = mapper.map(inputPerson, UserResponseModel.class);
     assertEquals(inputPerson.getId().toString(), outputMapping.getId());
     assertEquals(inputPerson.getName(), outputMapping.getName());
     assertEquals(inputPerson.getSubjectId(), outputMapping.getSubjectId());

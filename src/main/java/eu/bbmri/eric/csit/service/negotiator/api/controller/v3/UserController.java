@@ -4,7 +4,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceModel;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import java.util.List;
@@ -38,13 +38,13 @@ public class UserController {
 
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public PagedModel<EntityModel<UserModel>> listUsers(
+  public PagedModel<EntityModel<UserResponseModel>> listUsers(
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
 
-    Iterable<UserModel> users = personService.findAll(page, size);
-    if (users instanceof Page<UserModel>) {
-      return assembler.toPagedModel((Page<UserModel>) users);
+    Iterable<UserResponseModel> users = personService.findAll(page, size);
+    if (users instanceof Page<UserResponseModel>) {
+      return assembler.toPagedModel((Page<UserResponseModel>) users);
     }
     return PagedModel.empty();
   }
@@ -60,7 +60,7 @@ public class UserController {
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public EntityModel<UserModel> findById(@PathVariable Long id) {
+  public EntityModel<UserResponseModel> findById(@PathVariable Long id) {
     return assembler.toModel(personService.findById(id));
   }
 

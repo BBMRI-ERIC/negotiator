@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.EntityModel;
@@ -22,14 +22,14 @@ public class UserModelAssemblerTest {
 
   @Test
   void toModel_validUserModel_ok() {
-    UserModel userModel =
-        UserModel.builder()
+    UserResponseModel userModel =
+        UserResponseModel.builder()
             .name("Lucifer")
             .id("666")
             .email("lucifer.morningstar@ea.com")
             .subjectId("1@hell.com")
             .build();
-    EntityModel<UserModel> entityModel = assembler.toModel(userModel);
+    EntityModel<UserResponseModel> entityModel = assembler.toModel(userModel);
     assertEquals(userModel, entityModel.getContent());
     assertEquals("/v3/users/666", entityModel.getLink("self").get().getHref());
     assertEquals("/v3/users", entityModel.getLink("users").get().getHref());
