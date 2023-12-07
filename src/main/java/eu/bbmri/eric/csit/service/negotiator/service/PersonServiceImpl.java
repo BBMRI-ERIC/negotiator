@@ -5,6 +5,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
@@ -31,9 +32,7 @@ public class PersonServiceImpl implements PersonService {
 
   public UserModel findById(Long id) {
     return modelMapper.map(
-        personRepository
-            .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Person with id " + id + " not found")),
+        personRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)),
         UserModel.class);
   }
 

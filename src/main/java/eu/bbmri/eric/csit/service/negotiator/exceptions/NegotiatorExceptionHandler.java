@@ -16,10 +16,10 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
-  public final ResponseEntity<RestError> handleJwtDecoderError(
+  public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
       RuntimeException ex, WebRequest request) {
-    RestError errorResponse =
-        RestError.builder()
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
             .title("Authentication Failure")
             .detail("We could not decode the JWT token. PLease try again later.")
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -28,9 +28,10 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(AuthenticationServiceException.class)
-  public final ResponseEntity<RestError> handleJwtError(RuntimeException ex, WebRequest request) {
-    RestError errorResponse =
-        RestError.builder()
+  public final ResponseEntity<HttpErrorResponseModel> handleJwtError(
+      RuntimeException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
             .type("https://www.rfc-editor.org/rfc/rfc9110#status.500")
             .title("Authentication Failure")
             .detail("We could not reach the authorization server. PLease try again later.")
@@ -55,6 +56,18 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(UserNotFoundException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleUserNotFoundException(
+      EntityNotFoundException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("User not found.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.NOT_FOUND.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  }
+
   @ExceptionHandler({
     EntityNotStorableException.class,
     WrongRequestException.class,
@@ -76,10 +89,10 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler({IllegalArgumentException.class})
-  public final ResponseEntity<RestError> handleIllegalArgument(
+  public final ResponseEntity<HttpErrorResponseModel> handleIllegalArgument(
       IllegalArgumentException ex, WebRequest request) {
-    RestError errorResponse =
-        RestError.builder()
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
             .title("Bad request.")
             .detail(ex.getMessage())
             .status(HttpStatus.BAD_REQUEST.value())

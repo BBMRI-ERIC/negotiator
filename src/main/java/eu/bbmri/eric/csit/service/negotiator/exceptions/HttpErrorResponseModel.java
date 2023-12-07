@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class RestError {
+public class HttpErrorResponseModel {
   private String type;
   private String title;
   private String detail;
