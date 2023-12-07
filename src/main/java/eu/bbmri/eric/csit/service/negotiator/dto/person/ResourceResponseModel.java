@@ -12,8 +12,7 @@ import org.springframework.hateoas.RepresentationModel;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResourceModel extends RepresentationModel<ResourceModel> {
-  String type = "resources";
+public class ResourceResponseModel extends RepresentationModel<ResourceResponseModel> {
   String id;
   String externalId;
   String name;
