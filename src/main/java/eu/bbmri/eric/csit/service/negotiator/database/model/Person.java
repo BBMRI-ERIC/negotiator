@@ -36,7 +36,6 @@ import lombok.ToString.Exclude;
     name = "person-detailed",
     attributeNodes = {
       @NamedAttributeNode(value = "roles"),
-      @NamedAttributeNode(value = "resources")
     })
 @SequenceGenerator(name = "person_id_seq", initialValue = 300)
 public class Person {
@@ -49,7 +48,7 @@ public class Person {
   @NotNull
   private String subjectId; // OIDC subject id
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "resource_representative_link",
       joinColumns = @JoinColumn(name = "person_id"),
