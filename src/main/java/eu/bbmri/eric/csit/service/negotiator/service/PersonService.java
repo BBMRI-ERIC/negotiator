@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import java.util.List;
 import java.util.Set;
 
+// TODO: Refactor so only Request and Response models are used.
 public interface PersonService {
 
   /**

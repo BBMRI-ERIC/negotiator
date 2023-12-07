@@ -16,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 
+// TODO: Add constructor and remove autowiring. Throw custom exceptions.
+
 @Service(value = "DefaultPersonService")
 @Transactional
 public class PersonServiceImpl implements PersonService {

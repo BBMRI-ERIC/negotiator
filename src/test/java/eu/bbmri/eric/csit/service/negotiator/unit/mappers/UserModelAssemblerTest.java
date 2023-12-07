@@ -3,10 +3,8 @@ package eu.bbmri.eric.csit.service.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.EntityModel;
 
@@ -30,7 +28,6 @@ public class UserModelAssemblerTest {
             .id("666")
             .email("lucifer.morningstar@ea.com")
             .subjectId("1@hell.com")
-            .representedResources(Set.of(ResourceModel.builder().externalId("777").build()))
             .build();
     EntityModel<UserModel> entityModel = assembler.toModel(userModel);
     assertEquals(userModel, entityModel.getContent());

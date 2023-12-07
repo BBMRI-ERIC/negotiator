@@ -9,13 +9,17 @@ import java.util.Set;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PersonModelMapper {
 
-  @Autowired ModelMapper modelMapper;
+  ModelMapper modelMapper;
+
+  public PersonModelMapper(ModelMapper modelMapper) {
+    this.modelMapper = modelMapper;
+  }
+
   @PostConstruct
   public void addMappings() {
     TypeMap<Person, UserModel> typeMap = modelMapper.createTypeMap(Person.class, UserModel.class);

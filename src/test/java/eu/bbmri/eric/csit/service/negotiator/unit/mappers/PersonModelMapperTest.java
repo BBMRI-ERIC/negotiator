@@ -11,20 +11,16 @@ import eu.bbmri.eric.csit.service.negotiator.mappers.PersonModelMapper;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
 public class PersonModelMapperTest {
 
-  @Spy public ModelMapper mapper = new ModelMapper();
+  public ModelMapper mapper = new ModelMapper();
 
-  @InjectMocks PersonModelMapper personModelMapper;
+  PersonModelMapper personModelMapper = new PersonModelMapper(mapper);
 
   @BeforeEach
   public void setup() {
-    MockitoAnnotations.openMocks(this);
     this.personModelMapper.addMappings();
   }
 
