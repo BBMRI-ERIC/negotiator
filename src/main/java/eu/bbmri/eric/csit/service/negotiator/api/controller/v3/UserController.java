@@ -1,8 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
@@ -52,10 +50,7 @@ public class UserController {
   @GetMapping(value = "/users/{id}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public CollectionModel<ResourceResponseModel> findRepresentedResources(@PathVariable Long id) {
-    return CollectionModel.of(
-        personService.getResourcesRepresentedByUserId(id).stream()
-            .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
-            .collect(Collectors.toList()));
+    return CollectionModel.of(personService.getResourcesRepresentedByUserId(id));
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -74,22 +69,6 @@ public class UserController {
   List<String> getUserInfo() {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map((obj) -> Objects.toString(obj, null))
-        .collect(Collectors.toList());
-  }
-
-  /**
-   * Returns the resources represented by the current user
-   *
-   * @return a List of resources id.
-   */
-  @GetMapping(value = "/users/resources", produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
-  List<String> getRepresentedResources() {
-    return personService
-        .getResourcesRepresentedByUserId(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
-        .stream()
-        .map(Resource::getSourceId)
         .collect(Collectors.toList());
   }
 }

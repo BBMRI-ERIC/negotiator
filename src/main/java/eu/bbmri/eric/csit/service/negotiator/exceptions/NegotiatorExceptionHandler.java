@@ -2,7 +2,9 @@ package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.error.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
+import java.util.Arrays;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,12 +85,24 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(NotImplementedException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleNotImplementedException() {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Endpoint not yet implemented")
+            .detail("Sorry this endpoint is still under development. Try again later")
+            .status(HttpStatus.NOT_IMPLEMENTED.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_IMPLEMENTED);
+  }
+
   @ExceptionHandler(LazyInitializationException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleLazyInitializationException(
       RuntimeException ex, WebRequest request) {
     log.error(
         "Lazy initialization failure. Check transaction management configuration."
             + ex.getMessage());
+    log.error(Arrays.toString(ex.getStackTrace()));
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
             .title("A database error occurred.")

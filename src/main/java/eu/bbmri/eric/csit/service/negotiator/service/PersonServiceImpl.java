@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
@@ -10,6 +11,7 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyExce
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -74,10 +76,14 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public Set<Resource> getResourcesRepresentedByUserId(Long personId) {
-    return personRepository
-        .findDetailedById(personId)
-        .orElseThrow(() -> new EntityNotFoundException("Person with id " + personId + " not found"))
-        .getResources();
+  public Set<ResourceResponseModel> getResourcesRepresentedByUserId(Long personId) {
+    Set<Resource> resources =
+        personRepository
+            .findDetailedById(personId)
+            .orElseThrow(() -> new UserNotFoundException(personId))
+            .getResources();
+    return resources.stream()
+        .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
+        .collect(Collectors.toSet());
   }
 }

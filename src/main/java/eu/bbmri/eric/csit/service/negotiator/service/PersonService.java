@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
@@ -53,5 +53,5 @@ public interface PersonService {
    * @param personId the id of the person to retrieve the resources for.
    * @return a Set of resources.
    */
-  Set<Resource> getResourcesRepresentedByUserId(Long personId);
+  Set<ResourceResponseModel> getResourcesRepresentedByUserId(Long personId);
 }
