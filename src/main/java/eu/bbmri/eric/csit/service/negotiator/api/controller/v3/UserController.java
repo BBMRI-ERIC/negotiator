@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
@@ -51,10 +51,10 @@ public class UserController {
 
   @GetMapping(value = "/users/{id}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public CollectionModel<ResourceModel> findRepresentedResources(@PathVariable Long id) {
+  public CollectionModel<ResourceResponseModel> findRepresentedResources(@PathVariable Long id) {
     return CollectionModel.of(
         personService.getResourcesRepresentedByUserId(id).stream()
-            .map(resource -> modelMapper.map(resource, ResourceModel.class))
+            .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
             .collect(Collectors.toList()));
   }
 

@@ -1,9 +1,9 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
 import java.util.List;
 import java.util.Set;
 
@@ -17,13 +17,6 @@ public interface PersonService {
    * @return the
    */
   UserResponseModel findById(Long id) throws EntityNotFoundException;
-
-  /**
-   * Retrieves all persons.
-   *
-   * @return a List of persons.
-   */
-  List<Person> findAll();
 
   /**
    * Retrieves a page of people.
@@ -42,7 +35,8 @@ public interface PersonService {
    * @param sort the property to sort by.
    * @return a page of people.
    */
-  Iterable<UserResponseModel> findAll(int page, int size, String sort);
+  Iterable<UserResponseModel> findAll(int page, int size, String sort)
+      throws WrongSortingPropertyException;
 
   /**
    * Checks if the person with the specified id represents any of the resources in the list.

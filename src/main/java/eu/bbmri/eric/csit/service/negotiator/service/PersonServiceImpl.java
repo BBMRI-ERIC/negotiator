@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepositor
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
@@ -36,10 +37,6 @@ public class PersonServiceImpl implements PersonService {
         UserResponseModel.class);
   }
 
-  public List<Person> findAll() {
-    return personRepository.findAll();
-  }
-
   @Override
   public Iterable<UserResponseModel> findAll(int page, int size) {
     if (page < 0) throw new IllegalArgumentException("Page must be greater than 0.");
@@ -61,7 +58,7 @@ public class PersonServiceImpl implements PersonService {
           .findAll(PageRequest.of(page, size, Sort.by(sortProperty)))
           .map(person -> modelMapper.map(person, UserResponseModel.class));
     } catch (PropertyReferenceException e) {
-      throw new IllegalArgumentException(sortProperty + "is an invalid sorting parameter.");
+      throw new WrongSortingPropertyException(sortProperty, "name, id, email, organization");
     }
   }
 

@@ -14,7 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponseModel {
-  private final String type = "user";
   private String id;
   private String subjectId;
   private String name;

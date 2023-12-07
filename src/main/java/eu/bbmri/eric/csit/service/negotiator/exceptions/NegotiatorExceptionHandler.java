@@ -68,6 +68,18 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(WrongSortingPropertyException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleWrongSortingPropertyException(
+      EntityNotFoundException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Unable to sort by provided property.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler({
     EntityNotStorableException.class,
     WrongRequestException.class,

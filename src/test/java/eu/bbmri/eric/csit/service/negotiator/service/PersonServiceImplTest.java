@@ -27,7 +27,7 @@ public class PersonServiceImplTest {
 
   @Test
   void findAll_page_ok() {
-    int count = personService.findAll().size();
+    int count = personRepository.findAll().size();
     Iterable<UserResponseModel> result = personService.findAll(0, 1);
     assertInstanceOf(Page.class, result);
     assertEquals(count, ((Page<UserResponseModel>) result).getTotalElements());
