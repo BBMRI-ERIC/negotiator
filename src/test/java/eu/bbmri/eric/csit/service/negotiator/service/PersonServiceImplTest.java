@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.integration;
+package eu.bbmri.eric.csit.service.negotiator.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserModel;
-import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

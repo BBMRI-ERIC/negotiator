@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 // TODO: Add constructor and remove autowiring. Throw custom exceptions.
 
-@Service(value = "DefaultPersonService")
+@Service
 @Transactional
 public class PersonServiceImpl implements PersonService {
 
@@ -27,8 +26,8 @@ public class PersonServiceImpl implements PersonService {
     this.modelMapper = modelMapper;
   }
 
-  @Autowired private PersonRepository personRepository;
-  @Autowired private ModelMapper modelMapper;
+  private final PersonRepository personRepository;
+  private final ModelMapper modelMapper;
 
   public UserModel findById(Long id) {
     return modelMapper.map(
