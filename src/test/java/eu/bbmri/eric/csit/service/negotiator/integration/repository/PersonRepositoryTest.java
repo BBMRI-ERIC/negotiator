@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
@@ -10,6 +11,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonSpecifications;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -108,6 +110,20 @@ public class PersonRepositoryTest {
     assertEquals(
         2,
         personRepository.findAllByName(person.getName(), PageRequest.of(0, 50)).getTotalElements());
+  }
+
+  @Test
+  void findAll_filterWithSpecificationNameContains_ok() {
+    Person person = savePerson("a-test", "AAAA");
+    assertTrue(personRepository.findAll(PersonSpecifications.nameContains("AA")).contains(person));
+    assertFalse(
+        personRepository
+            .findAll(PersonSpecifications.propertyEquals("name", "AA"))
+            .contains(person));
+    assertTrue(
+        personRepository
+            .findAll(PersonSpecifications.propertyEquals("name", person.getName()))
+            .contains(person));
   }
 
   private Person savePerson(String subjectId) {
