@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.error.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.LazyInitializationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @ControllerAdvice
+@CommonsLog
 public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
@@ -59,7 +61,7 @@ public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(UserNotFoundException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleUserNotFoundException(
-      EntityNotFoundException ex, WebRequest request) {
+      RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
             .title("User not found.")
@@ -71,7 +73,7 @@ public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(WrongSortingPropertyException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleWrongSortingPropertyException(
-      EntityNotFoundException ex, WebRequest request) {
+      RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
             .title("Unable to sort by provided property.")
@@ -82,7 +84,11 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(LazyInitializationException.class)
-  public final ResponseEntity<HttpErrorResponseModel> handleLazyInitializationException() {
+  public final ResponseEntity<HttpErrorResponseModel> handleLazyInitializationException(
+      RuntimeException ex, WebRequest request) {
+    log.error(
+        "Lazy initialization failure. Check transaction management configuration."
+            + ex.getMessage());
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
             .title("A database error occurred.")
