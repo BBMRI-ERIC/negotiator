@@ -85,6 +85,18 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(UnsupportedFilterException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleUnsupportedFilterException(
+      RuntimeException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Unable to filter by provided property.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(NotImplementedException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleNotImplementedException() {
     HttpErrorResponseModel errorResponse =

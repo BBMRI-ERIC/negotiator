@@ -122,7 +122,10 @@ public class PersonRepositoryTest {
             .contains(person));
     assertTrue(
         personRepository
-            .findAll(PersonSpecifications.propertyEquals("name", person.getName()))
+            .findAll(
+                PersonSpecifications.propertyEquals("name", person.getName()),
+                PageRequest.of(0, 10))
+            .getContent()
             .contains(person));
   }
 

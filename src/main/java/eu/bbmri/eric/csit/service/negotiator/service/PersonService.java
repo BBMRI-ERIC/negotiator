@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.UnsupportedFilterException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,16 @@ public interface PersonService {
    * @return the
    */
   UserResponseModel findById(Long id) throws EntityNotFoundException;
+
+  /**
+   * Retrieves all UserResponseModels that match the specified filter criteria.
+   *
+   * @param property the property to filter on
+   * @param matchedValue the value that must be matched
+   * @return an Iterable of UserResponseModel objects that match the filter criteria
+   */
+  Iterable<UserResponseModel> findAllByFilter(
+      String property, String matchedValue, int page, int size) throws UnsupportedFilterException;
 
   /**
    * Retrieves a page of people.

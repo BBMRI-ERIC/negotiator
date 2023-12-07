@@ -3,12 +3,16 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonSpecifications;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.UnsupportedFilterException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
 import jakarta.transaction.Transactional;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,8 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
-
-// TODO: Add constructor and remove autowiring. Throw custom exceptions.
 
 @Service
 @Transactional
@@ -37,6 +39,33 @@ public class PersonServiceImpl implements PersonService {
     return modelMapper.map(
         personRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)),
         UserResponseModel.class);
+  }
+
+  @Override
+  public Iterable<UserResponseModel> findAllByFilter(
+      String property, String matchedValue, int page, int size) {
+    if (page < 0) throw new IllegalArgumentException("Page must be greater than 0.");
+    if (size < 1) throw new IllegalArgumentException("Size must be greater than 0.");
+    if (Arrays.stream(UserResponseModel.class.getDeclaredFields())
+        .anyMatch(field -> field.getName().equals(property))) {
+      Page<UserResponseModel> result =
+          personRepository
+              .findAll(
+                  PersonSpecifications.propertyEquals(property, matchedValue),
+                  PageRequest.of(page, size))
+              .map(person -> modelMapper.map(person, UserResponseModel.class));
+      if (page > result.getTotalPages())
+        throw new IllegalArgumentException(
+            "For the given size the page must be less than/equal to "
+                + result.getTotalPages()
+                + ".");
+      return result;
+    } else
+      throw new UnsupportedFilterException(
+          property,
+          Arrays.stream(UserResponseModel.class.getFields())
+              .map(Field::getName)
+              .toArray(String[]::new));
   }
 
   @Override

@@ -6,6 +6,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
@@ -37,9 +38,22 @@ public class UserController {
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public PagedModel<EntityModel<UserResponseModel>> listUsers(
+      @RequestParam(required = false) Map<String, String> filterProperty,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-
+    if (Objects.nonNull(filterProperty) && !filterProperty.isEmpty()) {
+      filterProperty.remove("page");
+      filterProperty.remove("size");
+      Iterable<UserResponseModel> users =
+          personService.findAllByFilter(
+              filterProperty.keySet().iterator().next(),
+              filterProperty.values().iterator().next(),
+              page,
+              size);
+      if (users instanceof Page<UserResponseModel>) {
+        return assembler.toPagedModel((Page<UserResponseModel>) users);
+      }
+    }
     Iterable<UserResponseModel> users = personService.findAll(page, size);
     if (users instanceof Page<UserResponseModel>) {
       return assembler.toPagedModel((Page<UserResponseModel>) users);
