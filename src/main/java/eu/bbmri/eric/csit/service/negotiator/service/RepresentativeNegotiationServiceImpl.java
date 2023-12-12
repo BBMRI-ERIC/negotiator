@@ -8,7 +8,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepo
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
@@ -27,10 +27,7 @@ public class RepresentativeNegotiationServiceImpl implements RepresentativeNegot
   @Override
   public List<NegotiationDTO> findNegotiationsConcerningRepresentative(Long personId) {
     Person person =
-        personRepository
-            .findDetailedById(personId)
-            .orElseThrow(
-                () -> new EntityNotFoundException("Person with id " + personId + " not found"));
+        personRepository.findById(personId).orElseThrow(() -> new UserNotFoundException(personId));
     List<Negotiation> negotiations =
         negotiationRepository.findByResourceExternalIdsAndCurrentState(
             person.getResources().stream().map(Resource::getSourceId).collect(Collectors.toList()),

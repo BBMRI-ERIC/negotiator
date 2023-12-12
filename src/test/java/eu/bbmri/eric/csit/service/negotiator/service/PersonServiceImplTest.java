@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,8 +35,8 @@ public class PersonServiceImplTest {
   }
 
   @Test
-  void findAll_invalidSort_throwsIllegalArg() {
-    assertThrows(IllegalArgumentException.class, () -> personService.findAll(0, 1, "invalid"));
+  void findAll_invalidSort_throwsWrongSortingPropertyException() {
+    assertThrows(WrongSortingPropertyException.class, () -> personService.findAll(0, 1, "invalid"));
   }
 
   @Test

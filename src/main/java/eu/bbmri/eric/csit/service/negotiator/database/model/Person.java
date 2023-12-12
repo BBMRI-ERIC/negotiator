@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,7 +48,7 @@ public class Person {
   @NotNull
   private String subjectId; // OIDC subject id
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "resource_representative_link",
       joinColumns = @JoinColumn(name = "person_id"),
