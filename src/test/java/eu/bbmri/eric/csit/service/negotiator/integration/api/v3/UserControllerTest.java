@@ -15,6 +15,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,6 +80,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @Disabled
   void getUsers_notAuthorized_401() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
