@@ -43,9 +43,7 @@ public class PersonServiceImpl implements PersonService {
   private final ModelMapper modelMapper;
 
   public UserResponseModel findById(Long id) {
-    return modelMapper.map(
-        personRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id)),
-        UserResponseModel.class);
+    return modelMapper.map(getRepresentative(id), UserResponseModel.class);
   }
 
   @Override
@@ -124,16 +122,30 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public void assignResourceForRepresentation(Long representativeId, Long resourceId) {
-    Person representative =
-        personRepository
-            .findById(representativeId)
-            .orElseThrow(() -> new UserNotFoundException(representativeId));
-    Resource resource =
-        resourceRepository
-            .findById(resourceId)
-            .orElseThrow(() -> new EntityNotFoundException(resourceId));
+  public void assignAsRepresentativeForResource(Long representativeId, Long resourceId) {
+    Person representative = getRepresentative(representativeId);
+    Resource resource = getResource(resourceId);
     representative.addResource(resource);
     personRepository.save(representative);
+  }
+
+  @Override
+  public void removeAsRepresentativeForResource(Long representativeId, Long resourceId) {
+    Person representative = getRepresentative(representativeId);
+    Resource resource = getResource(resourceId);
+    representative.removeResource(resource);
+    personRepository.save(representative);
+  }
+
+  private Resource getResource(Long resourceId) {
+    return resourceRepository
+        .findById(resourceId)
+        .orElseThrow(() -> new EntityNotFoundException(resourceId));
+  }
+
+  private Person getRepresentative(Long representativeId) {
+    return personRepository
+        .findById(representativeId)
+        .orElseThrow(() -> new UserNotFoundException(representativeId));
   }
 }

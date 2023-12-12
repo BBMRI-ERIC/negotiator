@@ -71,5 +71,13 @@ public interface PersonService {
    * @param representativeId the ID of the representative
    * @param resourceId the ID of the resource to be assigned
    */
-  void assignResourceForRepresentation(Long representativeId, Long resourceId);
+  void assignAsRepresentativeForResource(Long representativeId, Long resourceId);
+
+  /**
+   * Removes the specified representative's association with a resource.
+   *
+   * @param representativeId the ID of the representative
+   * @param resourceId the ID of the resource
+   */
+  void removeAsRepresentativeForResource(Long representativeId, Long resourceId);
 }

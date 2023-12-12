@@ -20,6 +20,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,7 +75,14 @@ public class UserController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void addResourceToRepresent(
       @PathVariable Long id, @RequestBody @Valid AssignResourceDTO resourceRequest) {
-    personService.assignResourceForRepresentation(id, resourceRequest.getId());
+    personService.assignAsRepresentativeForResource(id, resourceRequest.getId());
+  }
+
+  @DeleteMapping(value = "/users/{id}/resources/{resourceId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void removeAPersonAsARepresentativeForResource(
+      @PathVariable Long id, @PathVariable Long resourceId) {
+    personService.removeAsRepresentativeForResource(id, resourceId);
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

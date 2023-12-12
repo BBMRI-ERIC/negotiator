@@ -145,4 +145,29 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
   }
+
+  @Test
+  void removeResourceFromRepresentative_validResource_ok() throws Exception {
+    Person person = personRepository.findAll().iterator().next();
+    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isEmpty());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()))
+                .content(mapper.writeValueAsString(new AssignResourceDTO(4L)))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()) + "/4"))
+        .andExpect(status().isNoContent());
+  }
 }

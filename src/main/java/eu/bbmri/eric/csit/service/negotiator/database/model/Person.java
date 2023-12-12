@@ -84,7 +84,11 @@ public class Person {
   private Set<Authority> authorities;
 
   public void addResource(Resource resource) {
-    this.getResources().add(resource);
+    this.resources.add(resource);
+  }
+
+  public void removeResource(Resource resource) {
+    this.resources.remove(resource);
   }
 
   @Override
