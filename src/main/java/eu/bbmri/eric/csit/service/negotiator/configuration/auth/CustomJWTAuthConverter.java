@@ -2,12 +2,12 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
-import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.convert.converter.Converter;
@@ -48,17 +48,15 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     log.debug(claims);
     Collection<GrantedAuthority> authorities = assignAuthorities(claims);
     String subjectIdentifier = jwt.getClaimAsString("sub");
-    Person person;
-    try {
-      person =
-          personRepository
-              .findBySubjectId(subjectIdentifier)
-              .orElseThrow(() -> new EntityNotFoundException(subjectIdentifier));
-    } catch (EntityNotFoundException e) {
+    Optional<Person> optionalPerson = personRepository.findBySubjectId(subjectIdentifier);
+    if (optionalPerson.isEmpty()) {
       log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
-      person = saveNewUserToDatabase(claims);
+      Person savedNewUserToDatabase = saveNewUserToDatabase(claims);
+      return new NegotiatorJwtAuthenticationToken(
+          savedNewUserToDatabase, jwt, authorities, subjectIdentifier);
     }
-    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
+    return new NegotiatorJwtAuthenticationToken(
+        optionalPerson.get(), jwt, authorities, subjectIdentifier);
   }
 
   /**
