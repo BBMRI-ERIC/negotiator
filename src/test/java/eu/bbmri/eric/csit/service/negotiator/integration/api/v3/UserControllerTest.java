@@ -5,15 +5,20 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -119,5 +124,25 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.id", is(person.getId().toString())))
         .andExpect(jsonPath("$.name", is(person.getName())))
         .andExpect(jsonPath("$.email", is(person.getEmail())));
+  }
+
+  @Test
+  void assignResource_validResource_ok() throws Exception {
+    Person person = personRepository.findAll().iterator().next();
+    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isEmpty());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()))
+                .content(mapper.writeValueAsString(new AssignResourceDTO(4L)))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
   }
 }

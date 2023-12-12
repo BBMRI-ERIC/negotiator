@@ -1,10 +1,11 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-
+import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +21,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -65,6 +68,13 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   public CollectionModel<ResourceResponseModel> findRepresentedResources(@PathVariable Long id) {
     return CollectionModel.of(personService.getResourcesRepresentedByUserId(id));
+  }
+
+  @PatchMapping(value = "/users/{id}/resources", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void addResourceToRepresent(
+      @PathVariable Long id, @RequestBody @Valid AssignResourceDTO resourceRequest) {
+    personService.assignResourceForRepresentation(id, resourceRequest.getId());
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

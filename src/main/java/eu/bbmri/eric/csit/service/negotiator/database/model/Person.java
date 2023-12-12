@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -48,7 +49,7 @@ public class Person {
   @NotNull
   private String subjectId; // OIDC subject id
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
   @JoinTable(
       name = "resource_representative_link",
       joinColumns = @JoinColumn(name = "person_id"),
@@ -82,6 +83,10 @@ public class Person {
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
   private Set<Authority> authorities;
+
+  public void addResource(Resource resource) {
+    this.getResources().add(resource);
+  }
 
   @Override
   public boolean equals(Object o) {

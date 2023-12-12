@@ -8,7 +8,6 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyExce
 import java.util.List;
 import java.util.Set;
 
-// TODO: Refactor so only Request and Response models are used.
 public interface PersonService {
 
   /**
@@ -65,4 +64,12 @@ public interface PersonService {
    * @return a Set of resources.
    */
   Set<ResourceResponseModel> getResourcesRepresentedByUserId(Long personId);
+
+  /**
+   * Assigns a resource to a representative.
+   *
+   * @param representativeId the ID of the representative
+   * @param resourceId the ID of the resource to be assigned
+   */
+  void assignResourceForRepresentation(Long representativeId, Long resourceId);
 }

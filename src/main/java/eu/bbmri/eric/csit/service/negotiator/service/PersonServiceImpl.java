@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonSpecifications;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
@@ -27,12 +28,18 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class PersonServiceImpl implements PersonService {
 
-  public PersonServiceImpl(PersonRepository personRepository, ModelMapper modelMapper) {
+  public PersonServiceImpl(
+      PersonRepository personRepository,
+      ResourceRepository resourceRepository,
+      ModelMapper modelMapper) {
     this.personRepository = personRepository;
+    this.resourceRepository = resourceRepository;
     this.modelMapper = modelMapper;
   }
 
   private final PersonRepository personRepository;
+
+  private final ResourceRepository resourceRepository;
   private final ModelMapper modelMapper;
 
   public UserResponseModel findById(Long id) {
@@ -114,5 +121,19 @@ public class PersonServiceImpl implements PersonService {
     return resources.stream()
         .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
         .collect(Collectors.toSet());
+  }
+
+  @Override
+  public void assignResourceForRepresentation(Long representativeId, Long resourceId) {
+    Person representative =
+        personRepository
+            .findById(representativeId)
+            .orElseThrow(() -> new UserNotFoundException(representativeId));
+    Resource resource =
+        resourceRepository
+            .findById(resourceId)
+            .orElseThrow(() -> new EntityNotFoundException(resourceId));
+    representative.addResource(resource);
+    personRepository.save(representative);
   }
 }
