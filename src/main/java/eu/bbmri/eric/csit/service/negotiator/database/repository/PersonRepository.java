@@ -33,6 +33,4 @@ public interface PersonRepository
 
   @EntityGraph(value = "person-detailed")
   boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
-
-
 }

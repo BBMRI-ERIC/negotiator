@@ -35,7 +35,6 @@ public class PostServiceImpl implements PostService {
 
   @Autowired private PostRepository postRepository;
 
-
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private PersonRepository personRepository;
 

@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CommonsLog
 public class UserController {
   @Autowired UserModelAssembler assembler;
-  
+
   @Autowired PersonService personService;
   @Autowired ModelMapper modelMapper;
 

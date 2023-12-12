@@ -71,7 +71,6 @@ public class Person {
   @Exclude
   Set<PersonNegotiationRole> roles = new HashSet<>();
 
-
   @NotNull private String name;
 
   @NotNull private String email;
