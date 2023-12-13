@@ -12,20 +12,18 @@ features
 for moderation on national level.
 
 <!-- TOC -->
-
 * [Negotiator](#negotiator)
-    * [Goal](#goal)
-    * [State](#state)
-    * [Key domain terms:](#key-domain-terms)
-    * [Quick Start](#quick-start)
-    * [Development](#development)
-        * [Prerequisites](#prerequisites)
-        * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
-        * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
-        * [Architecture](#architecture)
-    * [Integration](#integration)
-    * [License](#license)
-
+  * [Goal](#goal)
+  * [State](#state)
+  * [Key domain terms:](#key-domain-terms)
+  * [Quick Start](#quick-start)
+  * [Development](#development)
+    * [Prerequisites](#prerequisites)
+    * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
+    * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
+    * [Architecture](#architecture)
+  * [Integration](#integration)
+  * [License](#license)
 <!-- TOC -->
 
 ## Goal
@@ -53,19 +51,27 @@ the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swa
 An older version of this service can be found in
 this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
 
-## Key domain terms:
+## The Negotiator as an Access Management System:
 
-Key concepts for understanding the terminology:
+### Key Domain entities:
 
-- **Resource**: Any resource/entity that is made available and discoverable in a data discovery
-  service that has a unique and persistent identifier
+- **Resource**: Any resource/entity that is listed in an external discovery
+  service, and has a unique and persistent identifier.
   (e.g., collection of biological samples, research service, specialized treatment...)
-- **Request**: A request originating from a data discovery service specifying the resource of
-  interest and the filtering criteria.
-- **Negotiation**: An access application consisting of multiple requests linked to an authenticated
-  user
+- **Request**: A depiction of a query from a data discovery service specifying the resource/resources of
+  interest and filtering criteria used to find them in the discovery service.
+- **Negotiation**: An access application consisting of one or multiple requests that is linked to an authenticated
+  user.
 - **Representative**: A physical person responsible for mediating access to a resource in their
-  jurisdiction
+  jurisdiction.
+
+### Basic usage example
+
+Using an external discovery service connected to the Negotiator,
+the user identifies resources they are interested in getting access to, and passes them as a Request to the Negotiator.
+Once authenticated, the user then fills out a resource-specific access form and submits the request for review.
+Once the request is approved by an administrator, it becomes a Negotiation where resource representatives,
+moderators and the requester can interact with it.
 
 ## Quick Start
 
