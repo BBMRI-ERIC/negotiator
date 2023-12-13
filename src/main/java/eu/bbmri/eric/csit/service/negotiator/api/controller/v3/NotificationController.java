@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import java.util.List;

@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.context;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationToken;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorJwtAuthenticationToken;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

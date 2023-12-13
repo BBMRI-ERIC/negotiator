@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;

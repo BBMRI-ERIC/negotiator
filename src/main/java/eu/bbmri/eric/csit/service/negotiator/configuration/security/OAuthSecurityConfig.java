@@ -1,9 +1,10 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration;
+package eu.bbmri.eric.csit.service.negotiator.configuration.security;
 
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.CustomJWTAuthConverter;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.ExceptionHandlerFilter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.CustomJWTAuthConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
