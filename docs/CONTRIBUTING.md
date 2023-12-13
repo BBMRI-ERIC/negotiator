@@ -9,6 +9,8 @@ We welcome any pull requests that help us grow as open-source software!
 Our core developers use the [IntelliJ IDEA](https://www.jetbrains.com/idea/) and UNIX based Operating systems.
 and can therefore be more helpful in debugging any potential problems in your local development
 environment.
+For a collection of Postman HTTP requests used to interact with the REST API please contact the development team at
+<negotiator@helpdesk.bbmri-eric.eu>.
 
 ### Known problems
 

@@ -86,6 +86,19 @@ on an external server.
 docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
 ```
 
+To create a request and start the access workflow, run the following curl command:
+
+```shell
+curl --location 'http://localhost:8080/api/v3/requests' \
+--header 'Content-Type: application/json' \
+--data '{
+    "url": "https://bbmritestnn.gcc.rug.nl",
+    "humanReadable": "#1: No filters used.\r\n#2: No filters used.",
+    "resources": [{
+        "id": "bbmri-eric:ID:CZ_MMCI:collection:LTS"
+    }]
+}'
+```
 ## Development
 
 For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md).
