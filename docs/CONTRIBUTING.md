@@ -2,13 +2,21 @@
 
 I'm really glad you are seeing this and are considering contributing to the development of the
 Negotiator.
-We welcome any pull requests that help us grow as open source software!
+We welcome any pull requests that help us grow as open-source software!
 
 ## Development Environment
 
-Our core developers use the [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+Our core developers use the [IntelliJ IDEA](https://www.jetbrains.com/idea/) and UNIX based Operating systems.
 and can therefore be more helpful in debugging any potential problems in your local development
 environment.
+
+### Known problems
+
+#### WSL
+
+The current development environment setup is problematic with the WSL.
+Make sure your networking configuration is properly adjusted,
+especially when using an OIDC provider or a UI client.
 
 ## Code style
 
