@@ -111,9 +111,9 @@ Default credentials are: negotiator:negotiator
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
 
-### Architecture
+### System architecture
 
-Negotiator follows a classic repository-service architectural pattern. Key components:
+Documentation for key individual components:
 
 - [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
@@ -122,9 +122,9 @@ Negotiator follows a classic repository-service architectural pattern. Key compo
 
 ## Integration
 
-The diagram below shows an oversimplified version of where does the Negotiator fit in, in relation
-to other
-BBMRI-ERIC IT services.
+The diagram below shows an oversimplified version of how does an AMS such as the Negotiator
+fit into the IT Ecosystem of the European Research Infrastructure for Biobanking, in relation
+to its other IT services.
 ![BBMRI-ERIC ecosystem](docs/bbmri-it.png)
 
 ## License
