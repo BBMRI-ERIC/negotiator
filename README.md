@@ -11,21 +11,6 @@ Allows defining a custom workflow engine, provides a REST API for interaction wi
 features
 for moderation on national level.
 
-<!-- TOC -->
-* [Negotiator](#negotiator)
-  * [Goal](#goal)
-  * [State](#state)
-  * [Key domain terms:](#key-domain-terms)
-  * [Quick Start](#quick-start)
-  * [Development](#development)
-    * [Prerequisites](#prerequisites)
-    * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
-    * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
-    * [Architecture](#architecture)
-  * [Integration](#integration)
-  * [License](#license)
-<!-- TOC -->
-
 ## Goal
 
 The goal of this project is to provide a highly customizable system, featuring an access control
@@ -126,19 +111,12 @@ jdbc:h2:tcp://localhost:9092/mem:negotiator
 
 ### System architecture
 
-Documentation for key individual components:
+Documentation for individual components:
 
 - [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
 - [Notification service](docs/NOTIFICATIONS.md)
 - [External services interface](docs/EXTERNAL_SERVICES.md)
-
-## Integration
-
-The diagram below shows an oversimplified version of how does an AMS such as the Negotiator
-fit into the IT Ecosystem of the European Research Infrastructure for Biobanking, in relation
-to its other IT services.
-![BBMRI-ERIC ecosystem](docs/bbmri-it.png)
 
 ## License
 
