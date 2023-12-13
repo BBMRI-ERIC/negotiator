@@ -135,22 +135,17 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
-  ResponseEntity<?> sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
+  @GetMapping("/findbymode/{event}")
+  ResponseEntity<?> sendEvent(
+      @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
     if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    // Validate the ENUM value
-    if (isValidNegotiationEventValue(event)) {
-      // Process the request
-      negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
-      NegotiationDTO result = negotiationService.findById(id, true);
-      return ResponseEntity.ok(result);
-    } else {
-      // Return an error response
-      return ResponseEntity.badRequest()
-          .body("Wrong request \"" + event + "\" is not a valid negotiation lifecycle value.");
-    }
+    // Process the request
+    negotiationLifecycleService.sendEvent(id, event);
+    NegotiationDTO result = negotiationService.findById(id, true);
+    return ResponseEntity.ok(result);
   }
 
   /**
@@ -162,10 +157,11 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
+  @GetMapping("/findbymode/{event}")
   ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
-      @Valid @PathVariable String event) {
+      @Valid @PathVariable("event") NegotiationResourceEvent event) {
     if (!personService.isRepresentativeOfAnyResource(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             List.of(resourceId))
@@ -173,18 +169,9 @@ public class NegotiationController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    // Validate the ENUM value
-    if (isValidNegotiationResourceEventValue(event)) {
-      // Process the request
-      resourceLifecycleService.sendEvent(
-          negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
-      NegotiationDTO result = negotiationService.findById(negotiationId, true);
-      return ResponseEntity.ok(result);
-    } else {
-      // Return an error response
-      return ResponseEntity.badRequest()
-          .body("Wrong request \"" + event + "\" is not a valid negotiation lifecycle value.");
-    }
+    resourceLifecycleService.sendEvent(negotiationId, resourceId, event);
+    NegotiationDTO result = negotiationService.findById(negotiationId, true);
+    return ResponseEntity.ok(result);
   }
 
   /**
@@ -260,25 +247,5 @@ public class NegotiationController {
       }
     }
     return false;
-  }
-
-  private boolean isValidNegotiationEventValue(String value) {
-    // Implement your ENUM validation logic here
-    try {
-      NegotiationEvent.valueOf(value);
-      return true;
-    } catch (IllegalArgumentException e) {
-      return false;
-    }
-  }
-
-  private boolean isValidNegotiationResourceEventValue(String value) {
-    // Implement your ENUM validation logic here
-    try {
-      NegotiationResourceEvent.valueOf(value);
-      return true;
-    } catch (IllegalArgumentException e) {
-      return false;
-    }
   }
 }
