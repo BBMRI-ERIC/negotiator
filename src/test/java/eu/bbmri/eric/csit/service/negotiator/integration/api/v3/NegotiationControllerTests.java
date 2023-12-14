@@ -12,9 +12,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
+import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.net.URI;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,7 +59,9 @@ public class NegotiationControllerTests {
   @Autowired private RequestRepository requestRepository;
   @Autowired private ModelMapper modelMapper;
   @Autowired private RequestServiceImpl requestService;
+  @Mock private NegotiationService negotiationService;
 
+  @Mock private NegotiatorUserDetailsService negotiatorUserDetailsService;
   private MockMvc mockMvc;
 
   @BeforeEach
@@ -398,8 +403,18 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockUser(authorities = "ROLE_USER") // Assuming a non-admin user
+  void sendEvent_NonAdmin_Forbidden() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   @WithMockUser(authorities = "ROLE_ADMIN")
-  void updateLifecycle_invalidValue_BadRequest() throws Exception {
+  void sendEvent_InvalidEvent_BadRequest() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
@@ -408,14 +423,58 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_ValidInput_ReturnNegotiationState() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_ValidLowerCaseInput_ReturnNegotiationState() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/lifecycle/Approve".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
   @WithUserDetails("TheBiobanker")
-  void updateLifecycleResource_invalidValue_BadRequest() throws Exception {
+  void sendEvent_InvalidResourceEvent_BadRequest() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
                 "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/NONE_EXISTING_VALUE"
                     .formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  void sendEvent_ValidResourceEvent_ReturnResourceLifecycleState() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is("negotiation-1")));
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  void sendEvent_ValidLowerCaseResourceEvent_ReturnResourceLifecycleState() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/contact"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is("negotiation-1")));
   }
 
   @Test
