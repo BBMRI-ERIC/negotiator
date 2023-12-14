@@ -96,4 +96,15 @@ public class NegotiationControllerTest {
         .perform(put("%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_ValidLowerCaseInput_ReturnNegotiationState() throws Exception {
+    when(negotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()).thenReturn(true);
+    when(negotiationService.findById("negotiation-1", false)).thenReturn(new NegotiationDTO());
+
+    mockMvc
+        .perform(put("%s/negotiation-1/lifecycle/Approve".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
 }
