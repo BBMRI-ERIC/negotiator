@@ -41,7 +41,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   private final String authzResearcherValue;
 
   private final String authzBiobankerValue;
-  // TODO: Add support for client-credentials access token, handling of errors from userinfo/get claims, separate based on scopes.
+
+  // TODO: Add support for client-credentials access token, handling of errors from userinfo/get
+  // claims, separate based on scopes.
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
     Map<String, Object> claims = getClaims(jwt);
