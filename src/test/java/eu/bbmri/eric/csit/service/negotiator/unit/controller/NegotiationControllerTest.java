@@ -107,4 +107,46 @@ public class NegotiationControllerTest {
         .perform(put("%s/negotiation-1/lifecycle/Approve".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
+
+  @Test
+  @WithMockUser("TheBiobanker")
+  void sendEvent_InvalidResourceEvent_BadRequest() throws Exception {
+    when(negotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()).thenReturn(109L);
+    when(negotiationService.findById("negotiation-3", false)).thenReturn(new NegotiationDTO());
+
+    mockMvc
+        .perform(
+            put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/NONE_EXISTING_VALUE"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithMockUser("TheBiobanker")
+  void sendEvent_ValidResourceEvent_ReturnResourceLifecycleState() throws Exception {
+    when(negotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()).thenReturn(109L);
+    when(negotiationService.findById("negotiation-3", false)).thenReturn(new NegotiationDTO());
+
+    mockMvc
+        .perform(
+            put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/CONTACT"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser("TheBiobanker")
+  void sendEvent_ValidLowerCaseResourceEvent_ReturnResourceLifecycleState() throws Exception {
+    when(negotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()).thenReturn(109L);
+    when(negotiationService.findById("negotiation-3", false)).thenReturn(new NegotiationDTO());
+
+    mockMvc
+        .perform(
+            put(
+                "%s/negotiation-1/resources/biobank:1:collection:1/lifecycle/contact"
+                    .formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk());
+  }
 }
