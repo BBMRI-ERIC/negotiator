@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.RequestDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -31,7 +32,8 @@ public class NegotiationDTO {
   @NotNull private String id;
   private UserResponseModel author;
   private Set<RequestDTO> requests;
-  @NotNull private JsonNode payload;
+  private Set<PersonRoleDTO> persons;
+  @NotNull @Schema(hidden = true) private JsonNode payload;
   @NotNull private String status;
   @NotNull private Boolean postsEnabled;
   @NotNull private LocalDateTime creationDate;

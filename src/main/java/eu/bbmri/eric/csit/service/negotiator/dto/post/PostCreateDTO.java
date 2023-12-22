@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class PostCreateDTO {
 
+  @Schema(hidden = true)
   Set<Attachment> attachments;
 
   @Valid @NotEmpty private String text;
