@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.service;
+package eu.bbmri.eric.csit.service.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,6 +17,9 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDT
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleServiceImpl;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;

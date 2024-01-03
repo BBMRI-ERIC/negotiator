@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.service;
+package eu.bbmri.eric.csit.service.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -19,6 +19,10 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRep
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
+import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.PostService;
+import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
+import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import eu.bbmri.eric.csit.service.negotiator.unit.context.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.Collections;
