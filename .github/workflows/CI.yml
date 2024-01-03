@@ -274,17 +274,17 @@ jobs:
       - name: Load image
         run: docker load --input /tmp/negotiator.tar
 
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+
       - name: Setup environment with auth server
-        run: cd /.github/oauth-test/ && docker compose up -d
+        run: cd .github/oauth-test/ && docker compose up -d
 
       - name: Wait
         run: sleep 30
 
       - name: Get docker logs
         run: docker logs negotiator
-
-      - name: Checkout codebase
-        uses: actions/checkout@v3
 
       - name: Check health
         run: .github/scripts/check_health.sh negotiator
