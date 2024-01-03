@@ -59,6 +59,9 @@ public class Person {
   @Column(name = "admin", nullable = false, columnDefinition = "boolean default false")
   boolean admin;
 
+  @Column(nullable = false, columnDefinition = "boolean default false")
+  boolean isServiceAccount;
+
   @ManyToMany
   @JoinTable(
       name = "person_project_link",
