@@ -39,6 +39,7 @@ public class UserController {
   @Autowired PersonService personService;
   @Autowired ModelMapper modelMapper;
 
+  // TODO: Make sure that user can request only their own data, or that they are an admin
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public PagedModel<EntityModel<UserResponseModel>> listUsers(

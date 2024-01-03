@@ -81,11 +81,20 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
         authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
       }
     }
+    if (claims.containsKey("scope")) {
+      List<String> scopes = (List<String>) claims.get("scope");
+      if (scopes.contains("negotiator_authz_management")) {
+        log.info("is manager");
+        authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
+      }
+    }
     return authorities;
   }
 
   private Map<String, Object> getClaims(Jwt jwt) {
-    if (userInfoEndpoint != null && !userInfoEndpoint.isBlank()) {
+    if (userInfoEndpoint != null
+        && !userInfoEndpoint.isBlank()
+        && jwt.getClaimAsStringList("scope").contains("openid")) {
       return getClaimsFromUserEndpoints(jwt);
     } else {
       return jwt.getClaims();
@@ -114,12 +123,22 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private Person saveNewUserToDatabase(Map<String, Object> claims) {
     Person person;
-    person =
-        Person.builder()
-            .subjectId(String.valueOf(claims.get("sub")))
-            .name(String.valueOf(claims.get("name")))
-            .email(String.valueOf(claims.get("email").toString()))
-            .build();
+    if (!claims.containsKey("name")) {
+      person =
+          Person.builder()
+              .subjectId(String.valueOf(claims.get("sub")))
+              .name(String.valueOf(claims.get("sub")))
+              .email("no_email")
+              .isServiceAccount(true)
+              .build();
+    } else {
+      person =
+          Person.builder()
+              .subjectId(String.valueOf(claims.get("sub")))
+              .name(String.valueOf(claims.get("name")))
+              .email(String.valueOf(claims.get("email").toString()))
+              .build();
+    }
     try {
       personRepository.save(person);
     } catch (DataIntegrityViolationException e) {
