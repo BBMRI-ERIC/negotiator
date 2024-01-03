@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @CommonsLog
 public class NegotiatorExceptionHandler {
 
-  @ExceptionHandler({JwtDecoderInitializationException.class, ServletException.class})
+  @ExceptionHandler(JwtDecoderInitializationException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
       RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
@@ -33,7 +33,7 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler({ServletException.class})
+  @ExceptionHandler(ServletException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleServletError(
       RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
