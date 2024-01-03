@@ -61,11 +61,11 @@ moderators and the requester can interact with it.
 ## Quick Start
 
 The following command will run the Negotiator application with the REST API exposed
-at [port 8080](http://localhost:8080)
-Note: The authentication using OIDC mock server will not work because of issues with docker network,
-unless the OIDC
-mock is running
-on an external server.
+at [http://localhost:8080/api](http://localhost:8080).
+Note: The authentication will still be enabled,
+hence the functionality will be limited without a functional authorization server connected to the application. To run
+the application with a mock authorization server utilizing OAuth2,
+see this [docker compose file](.github/oauth-test/compose.yaml).
 
 ```shell
 docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest

@@ -20,4 +20,10 @@ found [here](https://negotiator-v3.bbmri-eric.eu/api/swagger-ui/index.html).
 ## Authentication and authorization
 
 For Authentication and Authorization, the API utilizes the OAuth2 and OpenID protocols.
-The configuration can be edited in the [Spring properties file](../src/main/resources/application.yaml).
+The configuration such as the authorization server URLs and role mappings can be edited in
+the [Spring properties file](../src/main/resources/application.yaml).
+Currently,
+the application supports the standard [authorization-code flow ](https://oauth.net/2/grant-types/authorization-code/)
+for requests by regular users
+and the [client-credentials flow](https://oauth.net/2/grant-types/client-credentials/) for machine-to-machine
+communication.
