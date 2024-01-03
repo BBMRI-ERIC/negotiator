@@ -15,7 +15,6 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -72,6 +71,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void getRepresentedResources_oneResource_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(103)))
@@ -80,7 +80,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @Disabled
   void getUsers_notAuthorized_401() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
@@ -88,6 +87,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void getUsers_validRequest_allAreReturned() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
@@ -107,6 +107,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void getUserById_idNotLong_400() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/null"))
@@ -129,6 +130,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void assignResource_validResource_ok() throws Exception {
     Person person = personRepository.findAll().iterator().next();
     ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
@@ -149,6 +151,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void removeResourceFromRepresentative_validResource_ok() throws Exception {
     Person person = personRepository.findAll().iterator().next();
     ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();

@@ -105,9 +105,8 @@ public class OAuthSecurityConfig {
                     .authenticated()
                     .requestMatchers(mvc.pattern("/v3/users/resources"))
                     .authenticated()
-                    .requestMatchers(mvc.pattern("/v3/users"))
-                    // TODO: Add security config for the new user endpoints
-                    .permitAll()
+                    .requestMatchers(mvc.pattern("/v3/users/**"))
+                    .hasRole("AUTHORIZATION_MANAGER")
                     .requestMatchers(mvc.pattern("/v3/projects/**"))
                     .hasRole("RESEARCHER")
                     .anyRequest()
