@@ -32,15 +32,16 @@ public class NegotiatorExceptionHandler {
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
+
   @ExceptionHandler({ServletException.class})
   public final ResponseEntity<HttpErrorResponseModel> handleServletError(
-          RuntimeException ex, WebRequest request) {
+      RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
-            HttpErrorResponseModel.builder()
-                    .title("Internal server error")
-                    .detail("An unspecified error occurred.")
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .build();
+        HttpErrorResponseModel.builder()
+            .title("Internal server error")
+            .detail("An unspecified error occurred.")
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
