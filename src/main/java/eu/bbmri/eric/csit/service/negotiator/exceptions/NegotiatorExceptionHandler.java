@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.exceptions;
 
 import eu.bbmri.eric.csit.service.negotiator.dto.error.ErrorResponse;
+import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
 import lombok.extern.apachecommons.CommonsLog;
@@ -20,15 +21,26 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @CommonsLog
 public class NegotiatorExceptionHandler {
 
-  @ExceptionHandler(JwtDecoderInitializationException.class)
+  @ExceptionHandler({JwtDecoderInitializationException.class, ServletException.class})
   public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
       RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
             .title("Authentication Failure")
-            .detail("We could not decode the JWT token. PLease try again later.")
+            .detail("We could not decode the JWT token. Please try again later.")
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+  @ExceptionHandler({ServletException.class})
+  public final ResponseEntity<HttpErrorResponseModel> handleServletError(
+          RuntimeException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+            HttpErrorResponseModel.builder()
+                    .title("Internal server error")
+                    .detail("An unspecified error occurred.")
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
