@@ -126,8 +126,8 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     if (!claims.containsKey("name")) {
       person =
           Person.builder()
-              .subjectId(String.valueOf(claims.get("sub")))
-              .name(String.valueOf(claims.get("sub")))
+              .subjectId(String.valueOf(claims.get("client_id")))
+              .name(String.valueOf(claims.get("client_id")))
               .email("no_email")
               .isServiceAccount(true)
               .build();

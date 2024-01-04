@@ -13,12 +13,6 @@
       "negotiator_authz_management"
     ],
     "ClientClaimsPrefix": "",
-    "Claims": [
-      {
-        "Type": "sub",
-        "Value": "123",
-        "ValueType": "string"
-      }
-    ]
+    "Claims": []
   }
 ]
