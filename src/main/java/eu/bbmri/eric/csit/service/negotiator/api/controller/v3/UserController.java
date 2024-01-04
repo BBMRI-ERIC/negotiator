@@ -47,23 +47,22 @@ public class UserController {
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
     if (Objects.nonNull(filterProperty) && !filterProperty.isEmpty()) {
-      filterProperty.remove("page");
-      filterProperty.remove("size");
-      Iterable<UserResponseModel> users =
-          personService.findAllByFilter(
-              filterProperty.keySet().iterator().next(),
-              filterProperty.values().iterator().next(),
-              page,
-              size);
-      if (users instanceof Page<UserResponseModel>) {
-        return assembler.toPagedModel((Page<UserResponseModel>) users);
-      }
+      return filteredPageModel(filterProperty, page, size);
     }
-    Iterable<UserResponseModel> users = personService.findAll(page, size);
-    if (users instanceof Page<UserResponseModel>) {
-      return assembler.toPagedModel((Page<UserResponseModel>) users);
-    }
-    return PagedModel.empty();
+    return assembler.toPagedModel((Page<UserResponseModel>) personService.findAll(page, size));
+  }
+
+  private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(
+      Map<String, String> filterProperty, int page, int size) {
+    filterProperty.remove("page");
+    filterProperty.remove("size");
+    Iterable<UserResponseModel> users =
+        personService.findAllByFilter(
+            filterProperty.keySet().iterator().next(),
+            filterProperty.values().iterator().next(),
+            page,
+            size);
+    return assembler.toPagedModel((Page<UserResponseModel>) users);
   }
 
   @GetMapping(value = "/users/{id}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
