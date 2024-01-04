@@ -5,19 +5,13 @@
 ![Static Badge](https://img.shields.io/badge/Java%20Code%20Style-Google-orange)
 ![Static Badge](https://img.shields.io/badge/Docker-bbmrieric%2Fnegotiator-blue)
 
-Negotiator, an open-source system for streamlining access request workflows in multinational
-environments.
-Allows defining a custom workflow engine, provides a REST API for interaction with requests and
-features
-for moderation on national level.
+Negotiator, an open-source access management solution featuring a customizable workflow engine, along with
+messaging, notifications and moderation support.
 
 ## Goal
 
-The goal of this project is to provide a highly customizable system, featuring an access control
-mechanism
-for structuring and streamlining the process of access requests for resources under the jurisdiction
-of different
-organizations spanning multiple nations and, each with their own legislation.
+This project aims to develop an extensively customizable access management system designed to efficiently structure and
+streamline the process of resource access requests within multinational research infrastructures.
 
 ## State
 
@@ -84,6 +78,7 @@ curl --location 'http://localhost:8080/api/v3/requests' \
     }]
 }'
 ```
+
 ## Development
 
 For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md).
@@ -102,6 +97,7 @@ java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
 
 The dev mode exposes a relational database, details can be found below.
+
 ### Connection URL for the H2 database
 
 Default credentials are: negotiator:negotiator
