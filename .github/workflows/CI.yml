@@ -290,7 +290,7 @@ jobs:
         run: .github/scripts/check_health.sh negotiator
 
       - name: Send authenticated request
-        run: .github/scripts/send_authenticated_request.sh
+        run: chmod +x .github/scripts/send_authenticated_request.sh && .github/scripts/send_authenticated_request.sh
 
   backwards-compatibility:
     name: DB migration tests
