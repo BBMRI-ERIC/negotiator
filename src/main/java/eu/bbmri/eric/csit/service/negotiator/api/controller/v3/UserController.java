@@ -5,6 +5,8 @@ import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
+@Tag(name = "Users", description = "management of users and resources they represent")
 public class UserController {
   @Autowired UserModelAssembler assembler;
 
@@ -41,6 +44,9 @@ public class UserController {
 
   @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @Operation(
+      summary = "List all users",
+      description = "For filtering use for example: ?email=example@email.com")
   public PagedModel<EntityModel<UserResponseModel>> listUsers(
       @RequestParam(required = false) Map<String, String> filterProperty,
       @RequestParam(required = false, defaultValue = "0") int page,
@@ -64,13 +70,21 @@ public class UserController {
     return assembler.toPagedModel((Page<UserResponseModel>) users);
   }
 
+  /**
+   * Test description.
+   *
+   * @param id test param.
+   * @return test return.
+   */
   @GetMapping(value = "/users/{id}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "List all resources represented by a user")
   @ResponseStatus(HttpStatus.OK)
   public CollectionModel<ResourceResponseModel> findRepresentedResources(@PathVariable Long id) {
     return CollectionModel.of(personService.getResourcesRepresentedByUserId(id));
   }
 
   @PatchMapping(value = "/users/{id}/resources", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Add a resource to a user to represent")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void addResourceToRepresent(
       @PathVariable Long id, @RequestBody @Valid AssignResourceDTO resourceRequest) {
@@ -78,6 +92,7 @@ public class UserController {
   }
 
   @DeleteMapping(value = "/users/{id}/resources/{resourceId}")
+  @Operation(summary = "Remove the user as a representative for a resource")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void removeAPersonAsARepresentativeForResource(
       @PathVariable Long id, @PathVariable Long resourceId) {
@@ -85,6 +100,7 @@ public class UserController {
   }
 
   @GetMapping(value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Find a user by id")
   @ResponseStatus(HttpStatus.OK)
   public EntityModel<UserResponseModel> findById(@PathVariable Long id) {
     return assembler.toModel(personService.findById(id));
@@ -96,6 +112,7 @@ public class UserController {
    * @return a List of roles.
    */
   @GetMapping(value = "/users/roles", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Find roles of the currently authenticated user")
   @ResponseStatus(HttpStatus.OK)
   List<String> getUserInfo() {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()

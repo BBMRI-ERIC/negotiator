@@ -51,4 +51,5 @@ logging:
           datasource:
             init:
               ScriptUtils: debug
-
+springdoc:
+  show-actuator: true
