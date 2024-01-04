@@ -44,6 +44,9 @@ services:
   negotiator:
     container_name: negotiator
     image: bbmrieric/negotiator:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       - PROFILE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
@@ -72,6 +75,11 @@ services:
       - POSTGRES_USER=negotiator
       - POSTGRES_PASSWORD=negotiator
       - POSTGRES_DB=negotiator
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "negotiator" ]
+      interval: 15s
+      timeout: 60s
+      retries: 5
     volumes:
       - negotiator-db-data:/var/lib/postgresql/data
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'

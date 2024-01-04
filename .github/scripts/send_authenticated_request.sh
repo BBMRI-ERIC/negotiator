@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 ACCESS_TOKEN=$(curl -s -d 'grant_type=client_credentials' -u 123:123 http://localhost:4011/connect/token | jq -r .access_token)
 
