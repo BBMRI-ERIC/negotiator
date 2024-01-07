@@ -2,6 +2,8 @@ package eu.bbmri.eric.csit.service.negotiator.configuration.security.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongJWTException;
+import jakarta.validation.ConstraintViolationException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -45,7 +47,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   // claims, separate based on scopes.
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
-    if (jwt.hasClaim("client_id")) {
+    if (jwt.hasClaim("client_id") && !jwt.getClaimAsStringList("scope").contains("openid")) {
       return parseJWTAsMachineToken(jwt);
     } else {
       return parseJWTAsUserToken(jwt);
@@ -155,12 +157,19 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private Person saveNewUserToDatabase(Jwt jwt) {
-    Person person =
-        Person.builder()
-            .subjectId(jwt.getClaimAsString("sub"))
-            .name(jwt.getClaimAsString("name"))
-            .email(jwt.getClaimAsString("email"))
-            .build();
+    Map<String, Object> claims = getClaims(jwt);
+    Person person;
+    try {
+      person =
+          Person.builder()
+              .subjectId(claims.get("sub").toString())
+              .name(claims.get("name").toString())
+              .email(claims.get("email").toString())
+              .build();
+    } catch (ConstraintViolationException | NullPointerException e) {
+      log.error("Could not create user from claims: " + claims.toString());
+      throw new WrongJWTException();
+    }
     try {
       personRepository.save(person);
     } catch (DataIntegrityViolationException e) {

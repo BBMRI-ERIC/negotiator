@@ -168,4 +168,16 @@ public class NegotiatorExceptionHandler {
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(WrongJWTException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleJWTError(
+      RuntimeException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Authentication error")
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 }
