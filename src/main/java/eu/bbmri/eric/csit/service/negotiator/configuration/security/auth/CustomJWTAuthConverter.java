@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.convert.converter.Converter;
@@ -46,46 +45,77 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   // claims, separate based on scopes.
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
-    Map<String, Object> claims = getClaims(jwt);
-    log.debug(claims);
-    Collection<GrantedAuthority> authorities = assignAuthorities(claims);
-    String subjectIdentifier = jwt.getClaimAsString("sub");
-    Optional<Person> optionalPerson = personRepository.findBySubjectId(subjectIdentifier);
-    if (optionalPerson.isEmpty()) {
-      log.info(String.format("User with sub %s not in the database, adding...", subjectIdentifier));
-      Person savedNewUserToDatabase = saveNewUserToDatabase(claims);
-      return new NegotiatorJwtAuthenticationToken(
-          savedNewUserToDatabase, jwt, authorities, subjectIdentifier);
+    if (jwt.hasClaim("client_id")) {
+      return parseJWTAsMachineToken(jwt);
+    } else {
+      return parseJWTAsUserToken(jwt);
     }
-    return new NegotiatorJwtAuthenticationToken(
-        optionalPerson.get(), jwt, authorities, subjectIdentifier);
+  }
+
+  private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
+    Collection<GrantedAuthority> authorities = parseUserAuthorities(jwt);
+    String subjectIdentifier = jwt.getClaimAsString("sub");
+    Person person =
+        personRepository.findBySubjectId(subjectIdentifier).orElse(saveNewUserToDatabase(jwt));
+    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
+  }
+
+  private NegotiatorJwtAuthenticationToken parseJWTAsMachineToken(Jwt jwt) {
+    Collection<GrantedAuthority> authorities = getAuthoritiesFromScope(jwt);
+    String clientId = jwt.getClaimAsString("client_id");
+    Person person = personRepository.findBySubjectId(clientId).orElse(saveNewClientAsPerson(jwt));
+    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, person.getSubjectId());
+  }
+
+  private Person saveNewClientAsPerson(Jwt jwt) {
+    String clientId = jwt.getClaimAsString("client_id");
+    log.info(String.format("Client with id %s not in the database, adding...", clientId));
+    Person person =
+        Person.builder()
+            .subjectId(jwt.getClaimAsString("client_id"))
+            .name(jwt.getClaimAsString("client_id"))
+            .email("no_email")
+            .isServiceAccount(true)
+            .build();
+    try {
+      person = personRepository.save(person);
+    } catch (DataIntegrityViolationException e) {
+      log.info(
+          String.format("Client with id: %s already present in the db", person.getSubjectId()));
+    }
+    log.info(String.format("Client with id: %s added to the database", person.getSubjectId()));
+    return person;
+  }
+
+  private static Collection<GrantedAuthority> getAuthoritiesFromScope(Jwt jwt) {
+    Collection<GrantedAuthority> authorities = new HashSet<>();
+    if (jwt.hasClaim("scope")) {
+      List<String> scopes = jwt.getClaimAsStringList("scope");
+      if (scopes.contains("negotiator_authz_management")) {
+        authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
+      }
+    }
+    return authorities;
   }
 
   /**
    * This method parses scopes/claims from the oauth server and assigns user authorities
    *
-   * @param claims Claims from the oauth authorization provider
+   * @param jwt the jwt token
    * @return authorities for the authenticated user
    */
-  private Collection<GrantedAuthority> assignAuthorities(Map<String, Object> claims) {
+  private Collection<GrantedAuthority> parseUserAuthorities(Jwt jwt) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
-    if (claims.containsKey(authzClaim)) {
-      List<String> scopes = (List<String>) claims.get(authzClaim);
-      if (scopes.contains(authzAdminValue)) {
+    if (jwt.hasClaim(authzClaim)) {
+      List<String> entitlements = jwt.getClaimAsStringList(authzClaim);
+      if (entitlements.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
       }
-      if (scopes.contains(authzResearcherValue)) {
+      if (entitlements.contains(authzResearcherValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_RESEARCHER"));
       }
-      if (scopes.contains(authzBiobankerValue)) {
+      if (entitlements.contains(authzBiobankerValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
-      }
-    }
-    if (claims.containsKey("scope")) {
-      List<String> scopes = (List<String>) claims.get("scope");
-      if (scopes.contains("negotiator_authz_management")) {
-        log.info("is manager");
-        authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
       }
     }
     return authorities;
@@ -121,24 +151,13 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     return response.getBody();
   }
 
-  private Person saveNewUserToDatabase(Map<String, Object> claims) {
-    Person person;
-    if (!claims.containsKey("name")) {
-      person =
-          Person.builder()
-              .subjectId(String.valueOf(claims.get("client_id")))
-              .name(String.valueOf(claims.get("client_id")))
-              .email("no_email")
-              .isServiceAccount(true)
-              .build();
-    } else {
-      person =
-          Person.builder()
-              .subjectId(String.valueOf(claims.get("sub")))
-              .name(String.valueOf(claims.get("name")))
-              .email(String.valueOf(claims.get("email").toString()))
-              .build();
-    }
+  private Person saveNewUserToDatabase(Jwt jwt) {
+    Person person =
+        Person.builder()
+            .subjectId(jwt.getClaimAsString("sub"))
+            .name(jwt.getClaimAsString("name"))
+            .email(jwt.getClaimAsString("email"))
+            .build();
     try {
       personRepository.save(person);
     } catch (DataIntegrityViolationException e) {
