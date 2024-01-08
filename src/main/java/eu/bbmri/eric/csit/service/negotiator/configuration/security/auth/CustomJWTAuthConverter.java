@@ -47,29 +47,31 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   // claims, separate based on scopes.
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
-    if (jwt.hasClaim("client_id") && !jwt.getClaimAsStringList("scope").contains("openid")) {
+    if (isClientCredentialsToken(jwt)) {
       return parseJWTAsMachineToken(jwt);
     } else {
       return parseJWTAsUserToken(jwt);
     }
   }
 
+  private static boolean isClientCredentialsToken(Jwt jwt) {
+    return jwt.hasClaim("client_id") && !jwt.getClaimAsStringList("scope").contains("openid");
+  }
+
   private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
-    Collection<GrantedAuthority> authorities = parseUserAuthorities(jwt);
     String subjectIdentifier = jwt.getClaimAsString("sub");
     Person person =
         personRepository
             .findBySubjectId(subjectIdentifier)
-            .orElseGet(() -> saveNewUserToDatabase(jwt));
-    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, subjectIdentifier);
+            .orElseGet(() -> saveNewUserAsPerson(jwt));
+    return new NegotiatorJwtAuthenticationToken(person, jwt, parseUserAuthorities(jwt), subjectIdentifier);
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsMachineToken(Jwt jwt) {
-    Collection<GrantedAuthority> authorities = getAuthoritiesFromScope(jwt);
     String clientId = jwt.getClaimAsString("client_id");
     Person person =
         personRepository.findBySubjectId(clientId).orElseGet(() -> saveNewClientAsPerson(jwt));
-    return new NegotiatorJwtAuthenticationToken(person, jwt, authorities, person.getSubjectId());
+    return new NegotiatorJwtAuthenticationToken(person, jwt, getAuthoritiesFromScope(jwt), person.getSubjectId());
   }
 
   private Person saveNewClientAsPerson(Jwt jwt) {
@@ -77,8 +79,8 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     log.info(String.format("Client with id %s not in the database, adding...", clientId));
     Person person =
         Person.builder()
-            .subjectId(jwt.getClaimAsString("client_id"))
-            .name(jwt.getClaimAsString("client_id"))
+            .subjectId(clientId)
+            .name(clientId)
             .email("no_email")
             .isServiceAccount(true)
             .build();
@@ -156,7 +158,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     return response.getBody();
   }
 
-  private Person saveNewUserToDatabase(Jwt jwt) {
+  private Person saveNewUserAsPerson(Jwt jwt) {
     Map<String, Object> claims = getClaims(jwt);
     Person person;
     try {
