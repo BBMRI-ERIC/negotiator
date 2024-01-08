@@ -32,6 +32,12 @@ public class OAuthSecurityConfig {
 
   @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
   private String userInfoEndpoint;
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.introspection-uri}")
+  private String introspectionEndpoint;
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
+  private String clientId;
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
+  private String clientSecret;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;

@@ -33,6 +33,11 @@ spring:
           user-info-uri: ""
           issuer-uri: ""
           jwks-url: ""
+          audiences: "negotiator-api"
+        opaquetoken:
+          introspection-uri:
+          client-secret:
+          client-id:
 negotiator:
   molgenis-url: ""
   frontend-url: ""
