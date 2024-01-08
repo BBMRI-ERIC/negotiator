@@ -24,6 +24,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -134,13 +135,17 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
-  NegotiationDTO sendEvent(@Valid @PathVariable String id, @Valid @PathVariable String event) {
+  @GetMapping("/findbymode/{event}")
+  ResponseEntity<?> sendEvent(
+      @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
     if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    negotiationLifecycleService.sendEvent(id, NegotiationEvent.valueOf(event));
-    return negotiationService.findById(id, true);
+    // Process the request
+    negotiationLifecycleService.sendEvent(id, event);
+    NegotiationDTO result = negotiationService.findById(id, true);
+    return ResponseEntity.ok(result);
   }
 
   /**
@@ -152,19 +157,21 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
-  NegotiationDTO sendEventForNegotiationResource(
+  @GetMapping("/findbymode/{event}")
+  ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
-      @Valid @PathVariable String event) {
+      @Valid @PathVariable("event") NegotiationResourceEvent event) {
     if (!personService.isRepresentativeOfAnyResource(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
             List.of(resourceId))
         && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    resourceLifecycleService.sendEvent(
-        negotiationId, resourceId, NegotiationResourceEvent.valueOf(event));
-    return negotiationService.findById(negotiationId, true);
+
+    resourceLifecycleService.sendEvent(negotiationId, resourceId, event);
+    NegotiationDTO result = negotiationService.findById(negotiationId, true);
+    return ResponseEntity.ok(result);
   }
 
   /**
