@@ -29,6 +29,8 @@ spring:
   security:
     oauth2:
       resourceserver:
+        opaquetoken:
+          client-id: ""
         jwt:
           user-info-uri: ""
           issuer-uri: ""
