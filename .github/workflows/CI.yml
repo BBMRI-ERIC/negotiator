@@ -45,10 +45,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven
 
       - name: Build with Maven
-        run: mvn --quiet clean package -DskipTests=True
+        run: mvn clean package -e
 
       - name: Run jar file
         run: nohup java -jar -Dspring.profiles.active=dev target/negotiator.jar > /dev/null 2>&1 &
