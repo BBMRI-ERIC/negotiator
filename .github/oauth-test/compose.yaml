@@ -61,7 +61,7 @@ services:
       - "NEGOTIATOR_AUTHORIZATION_RESOURCECLAIMPREFIX=urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:"
       - NEGOTIATOR_AUTHORIZATION_SUBJECTCLAIM=sub
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_USERINFOURI=http://oidc-server-mock/connect/userinfo
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=http://oidc-server-mock
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=http://localhost:4011
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=http://oidc-server-mock/.well-known/openid-configuration/jwks
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_TYPE=jwt
     ports:
