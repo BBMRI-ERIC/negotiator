@@ -9,6 +9,7 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.CustomJ
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import java.util.List;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -138,31 +139,40 @@ public class OAuthSecurityConfig {
               oauth.jwt(
                   jwt ->
                       jwt.jwtAuthenticationConverter(
-                          new CustomJWTAuthConverter(
-                              personRepository,
-                              userInfoEndpoint,
-                              authzClaim,
-                              authzAdminValue,
-                              authzResearcherValue,
-                              authzBiobankerValue))));
+                              new CustomJWTAuthConverter(
+                                  personRepository,
+                                  userInfoEndpoint,
+                                  authzClaim,
+                                  authzAdminValue,
+                                  authzResearcherValue,
+                                  authzBiobankerValue))
+                          .decoder(jwtDecoder())));
     }
     return http.build();
   }
 
   @Bean
   public JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder decoder =
-        NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
-            .jwtProcessorCustomizer(
-                customizer -> {
-                  customizer.setJWSTypeVerifier(
-                      new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
-                })
-            .build();
+    NimbusJwtDecoder decoder = setupJWTDecoder();
+    addTokenValidators(decoder);
+    return decoder;
+  }
+
+  @NonNull
+  private NimbusJwtDecoder setupJWTDecoder() {
+    return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
+        .jwtProcessorCustomizer(
+            customizer -> {
+              customizer.setJWSTypeVerifier(
+                  new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
+            })
+        .build();
+  }
+
+  private void addTokenValidators(NimbusJwtDecoder decoder) {
     decoder.setJwtValidator(
         new DelegatingOAuth2TokenValidator<>(
             introspectionValidator(), new JwtIssuerValidator(jwtIssuer), audienceValidator()));
-    return decoder;
   }
 
   @Bean
