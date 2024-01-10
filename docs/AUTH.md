@@ -8,6 +8,7 @@ the application supports the standard [authorization-code flow ](https://oauth.n
 for requests by regular users
 and the [client-credentials flow](https://oauth.net/2/grant-types/client-credentials/) for machine-to-machine
 communication.
+However, the Authorization server **must provide the json web token** (JWT) in the response **not an opaque token**.
 
 ## OpenID Provider
 
