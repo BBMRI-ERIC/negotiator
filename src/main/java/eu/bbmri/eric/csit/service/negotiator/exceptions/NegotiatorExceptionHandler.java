@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -179,5 +180,17 @@ public class NegotiatorExceptionHandler {
             .status(HttpStatus.BAD_REQUEST.value())
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(JwtValidationException.class)
+  public final ResponseEntity<HttpErrorResponseModel> handleInvalidBearerTokenException(
+      RuntimeException ex, WebRequest request) {
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Authorization error")
+            .detail(ex.getMessage())
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .build();
+    return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
   }
 }

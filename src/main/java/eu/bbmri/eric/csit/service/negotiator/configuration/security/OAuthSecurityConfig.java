@@ -1,11 +1,14 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.security;
 
+import static org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames.AUD;
+
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import eu.bbmri.eric.csit.service.negotiator.configuration.ExceptionHandlerFilter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.CustomJWTAuthConverter;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +19,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,6 +40,18 @@ public class OAuthSecurityConfig {
 
   @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
   private String userInfoEndpoint;
+
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.introspection-uri}")
+  private String introspectionEndpoint;
+
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
+  private String clientId;
+
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
+  private String clientSecret;
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
+  private String audience;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
@@ -131,12 +151,26 @@ public class OAuthSecurityConfig {
 
   @Bean
   public JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
-        .jwtProcessorCustomizer(
-            customizer -> {
-              customizer.setJWSTypeVerifier(
-                  new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
-            })
-        .build();
+    NimbusJwtDecoder decoder =
+        NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
+            .jwtProcessorCustomizer(
+                customizer -> {
+                  customizer.setJWSTypeVerifier(
+                      new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
+                })
+            .build();
+    decoder.setJwtValidator(
+        new DelegatingOAuth2TokenValidator<>(
+            introspectionValidator(), new JwtIssuerValidator(jwtIssuer), audienceValidator()));
+    return decoder;
+  }
+
+  @Bean
+  public OAuth2TokenValidator<Jwt> introspectionValidator() {
+    return new IntrospectionValidator(introspectionEndpoint, clientId, clientSecret);
+  }
+
+  OAuth2TokenValidator<Jwt> audienceValidator() {
+    return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(audience));
   }
 }

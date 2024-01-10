@@ -31,10 +31,13 @@ spring:
       resourceserver:
         opaquetoken:
           client-id: ""
+          client-secret: ""
+          introspection-uri: ""
         jwt:
           user-info-uri: ""
           issuer-uri: ""
           jwks-url: ""
+          audiences: negotiator-api
 negotiator:
   molgenis-url: ""
   frontend-url: ""

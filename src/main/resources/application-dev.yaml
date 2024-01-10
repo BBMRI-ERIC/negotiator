@@ -33,6 +33,10 @@ spring:
           issuer-uri: "http://localhost:4011"
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
           type: "JWT"
+        opaquetoken:
+          client-id: "negotiator-api"
+          client-secret: "negotiator-secret"
+          introspection-uri: "http://localhost:4011/connect/introspect"
 negotiator:
   molgenis-url: "https://bbmritestnn.gcc.rug.nl"
   frontend-url: "http://localhost:8080"
@@ -47,6 +51,7 @@ logging:
   level:
     org:
       springframework:
+        security: debug
         jdbc:
           datasource:
             init:
