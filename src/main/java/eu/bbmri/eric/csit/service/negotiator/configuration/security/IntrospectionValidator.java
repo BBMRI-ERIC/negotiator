@@ -39,7 +39,7 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
 
   private OAuth2TokenValidatorResult introspect(Jwt token) {
     if (isRequestSuccessful(sendHttpRequest(token))) {
-      log.warn("Introspection for subject %s was successful!".formatted(token.getSubject()));
+      log.debug("Introspection for subject %s was successful!".formatted(token.getSubject()));
       return OAuth2TokenValidatorResult.success();
     } else {
       log.warn("Introspection for subject %s failed!".formatted(token.getSubject()));
