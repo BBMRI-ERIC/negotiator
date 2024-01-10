@@ -61,13 +61,17 @@ public class UserController {
       Map<String, String> filterProperty, int page, int size) {
     filterProperty.remove("page");
     filterProperty.remove("size");
-    Iterable<UserResponseModel> users =
-        personService.findAllByFilter(
-            filterProperty.keySet().iterator().next(),
-            filterProperty.values().iterator().next(),
-            page,
-            size);
-    return assembler.toPagedModel((Page<UserResponseModel>) users);
+    if (filterProperty.isEmpty()) {
+      return assembler.toPagedModel((Page<UserResponseModel>) personService.findAll(page, size));
+    } else {
+      Iterable<UserResponseModel> users =
+          personService.findAllByFilter(
+              filterProperty.keySet().iterator().next(),
+              filterProperty.values().iterator().next(),
+              page,
+              size);
+      return assembler.toPagedModel((Page<UserResponseModel>) users);
+  }
   }
 
   /**
