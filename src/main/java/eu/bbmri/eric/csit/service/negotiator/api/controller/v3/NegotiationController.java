@@ -88,7 +88,7 @@ public class NegotiationController {
    * @return a list of Negotiations by default returns list of Negotiations created by the user
    */
   @GetMapping("/negotiations")
-  List<NegotiationDTO> list(
+  public List<NegotiationDTO> list(
       @RequestParam(required = false) String biobankId,
       @RequestParam(required = false) String collectionId,
       @RequestParam(required = false) String userRole) {
