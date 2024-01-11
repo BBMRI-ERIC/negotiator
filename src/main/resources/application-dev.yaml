@@ -33,6 +33,7 @@ spring:
           issuer-uri: "http://localhost:4011"
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
           type: "JWT"
+          audiences: negotiator-api
         opaquetoken:
           client-id: "negotiator-api"
           client-secret: "negotiator-secret"
