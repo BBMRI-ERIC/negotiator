@@ -71,7 +71,7 @@ public class UserController {
               page,
               size);
       return assembler.toPagedModel((Page<UserResponseModel>) users);
-  }
+    }
   }
 
   /**
