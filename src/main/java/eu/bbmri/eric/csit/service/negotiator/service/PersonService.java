@@ -1,7 +1,10 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.UnsupportedFilterException;
+import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongSortingPropertyException;
 import java.util.List;
 import java.util.Set;
 
@@ -13,14 +16,37 @@ public interface PersonService {
    * @param id the id of the person to retrieve
    * @return the
    */
-  Person findById(Long id);
+  UserResponseModel findById(Long id) throws EntityNotFoundException;
 
   /**
-   * Retrieves all persons.
+   * Retrieves all UserResponseModels that match the specified filter criteria.
    *
-   * @return a List of persons.
+   * @param property the property to filter on
+   * @param matchedValue the value that must be matched
+   * @return an Iterable of UserResponseModel objects that match the filter criteria
    */
-  List<Person> findAll();
+  Iterable<UserResponseModel> findAllByFilter(
+      String property, String matchedValue, int page, int size) throws UnsupportedFilterException;
+
+  /**
+   * Retrieves a page of people.
+   *
+   * @param page the page to retrieve.
+   * @param size the size of the page.
+   * @return a page of people.
+   */
+  Iterable<UserResponseModel> findAll(int page, int size);
+
+  /**
+   * Retrieves page of people from a sorted list.
+   *
+   * @param page the page to retrieve.
+   * @param size the size of the page.
+   * @param sort the property to sort by.
+   * @return a page of people.
+   */
+  Iterable<UserResponseModel> findAll(int page, int size, String sort)
+      throws WrongSortingPropertyException;
 
   /**
    * Checks if the person with the specified id represents any of the resources in the list.
@@ -37,5 +63,21 @@ public interface PersonService {
    * @param personId the id of the person to retrieve the resources for.
    * @return a Set of resources.
    */
-  Set<Resource> getResourcesRepresentedByUserId(Long personId);
+  Set<ResourceResponseModel> getResourcesRepresentedByUserId(Long personId);
+
+  /**
+   * Assigns a resource to a representative.
+   *
+   * @param representativeId the ID of the representative
+   * @param resourceId the ID of the resource to be assigned
+   */
+  void assignAsRepresentativeForResource(Long representativeId, Long resourceId);
+
+  /**
+   * Removes the specified representative's association with a resource.
+   *
+   * @param representativeId the ID of the representative
+   * @param resourceId the ID of the resource
+   */
+  void removeAsRepresentativeForResource(Long representativeId, Long resourceId);
 }

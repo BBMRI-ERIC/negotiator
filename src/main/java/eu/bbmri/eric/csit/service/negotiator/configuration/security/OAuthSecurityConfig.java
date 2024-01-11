@@ -1,10 +1,15 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration;
+package eu.bbmri.eric.csit.service.negotiator.configuration.security;
+
+import static org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames.AUD;
 
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.CustomJWTAuthConverter;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.ExceptionHandlerFilter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.CustomJWTAuthConverter;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
+import java.util.List;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +20,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -30,6 +41,18 @@ public class OAuthSecurityConfig {
 
   @Value("${spring.security.oauth2.resourceserver.jwt.user-info-uri}")
   private String userInfoEndpoint;
+
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.introspection-uri}")
+  private String introspectionEndpoint;
+
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
+  private String clientId;
+
+  @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
+  private String clientSecret;
+
+  @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
+  private String audience;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
@@ -58,6 +81,8 @@ public class OAuthSecurityConfig {
   @Value("${negotiator.authorization.resource-claim-prefix}")
   private String authzResourceIdPrefixClaim;
 
+  @Autowired ExceptionHandlerFilter exceptionHandlerFilter;
+
   @Bean
   MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
     return new MvcRequestMatcher.Builder(introspector);
@@ -68,6 +93,7 @@ public class OAuthSecurityConfig {
       throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+        .addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(Customizer.withDefaults())
@@ -96,8 +122,12 @@ public class OAuthSecurityConfig {
                     .hasAuthority("ADMIN")
                     .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/data-sources/**"))
                     .hasAuthority("ADMIN")
-                    .requestMatchers(mvc.pattern("/v3/users/**"))
+                    .requestMatchers(mvc.pattern("/v3/users/roles"))
                     .authenticated()
+                    .requestMatchers(mvc.pattern("/v3/users/resources"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern("/v3/users/**"))
+                    .hasRole("AUTHORIZATION_MANAGER")
                     .requestMatchers(mvc.pattern("/v3/projects/**"))
                     .hasRole("RESEARCHER")
                     .anyRequest()
@@ -109,19 +139,27 @@ public class OAuthSecurityConfig {
               oauth.jwt(
                   jwt ->
                       jwt.jwtAuthenticationConverter(
-                          new CustomJWTAuthConverter(
-                              personRepository,
-                              userInfoEndpoint,
-                              authzClaim,
-                              authzAdminValue,
-                              authzResearcherValue,
-                              authzBiobankerValue))));
+                              new CustomJWTAuthConverter(
+                                  personRepository,
+                                  userInfoEndpoint,
+                                  authzClaim,
+                                  authzAdminValue,
+                                  authzResearcherValue,
+                                  authzBiobankerValue))
+                          .decoder(jwtDecoder())));
     }
     return http.build();
   }
 
   @Bean
   public JwtDecoder jwtDecoder() {
+    NimbusJwtDecoder decoder = setupJWTDecoder();
+    addTokenValidators(decoder);
+    return decoder;
+  }
+
+  @NonNull
+  private NimbusJwtDecoder setupJWTDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(this.jwksUrl)
         .jwtProcessorCustomizer(
             customizer -> {
@@ -129,5 +167,20 @@ public class OAuthSecurityConfig {
                   new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType(jwtType)));
             })
         .build();
+  }
+
+  private void addTokenValidators(NimbusJwtDecoder decoder) {
+    decoder.setJwtValidator(
+        new DelegatingOAuth2TokenValidator<>(
+            introspectionValidator(), new JwtIssuerValidator(jwtIssuer), audienceValidator()));
+  }
+
+  @Bean
+  public OAuth2TokenValidator<Jwt> introspectionValidator() {
+    return new IntrospectionValidator(introspectionEndpoint, clientId, clientSecret);
+  }
+
+  OAuth2TokenValidator<Jwt> audienceValidator() {
+    return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(audience));
   }
 }

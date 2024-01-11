@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.unit.context;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorJwtAuthenticationToken;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorJwtAuthenticationToken;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -29,9 +29,9 @@ public class WithMockCustomUserSecurityContextFactory
     Person principal =
         Person.builder()
             .id(customUser.id())
-            .authName(customUser.authName())
-            .authSubject(customUser.authSubject())
-            .authEmail(customUser.authEmail())
+            .name(customUser.authName())
+            .subjectId(customUser.authSubject())
+            .email(customUser.authEmail())
             .build();
 
     Collection<GrantedAuthority> authorities =

@@ -5,36 +5,13 @@
 ![Static Badge](https://img.shields.io/badge/Java%20Code%20Style-Google-orange)
 ![Static Badge](https://img.shields.io/badge/Docker-bbmrieric%2Fnegotiator-blue)
 
-Negotiator, an open-source system for streamlining access request workflows in multinational
-environments.
-Allows defining a custom workflow engine, provides a REST API for interaction with requests and
-features
-for moderation on national level.
-
-<!-- TOC -->
-
-* [Negotiator](#negotiator)
-    * [Goal](#goal)
-    * [State](#state)
-    * [Key domain terms:](#key-domain-terms)
-    * [Quick Start](#quick-start)
-    * [Development](#development)
-        * [Prerequisites](#prerequisites)
-        * [Running the backend in dev mode](#running-the-backend-in-dev-mode)
-        * [Connection URL for the H2 database](#connection-url-for-the-h2-database)
-        * [Architecture](#architecture)
-    * [Integration](#integration)
-    * [License](#license)
-
-<!-- TOC -->
+Negotiator, an open-source access management solution featuring a customizable workflow engine, along with
+messaging, notifications and moderation support.
 
 ## Goal
 
-The goal of this project is to provide a highly customizable system, featuring an access control
-mechanism
-for structuring and streamlining the process of access requests for resources under the jurisdiction
-of different
-organizations spanning multiple nations and, each with their own legislation.
+This project aims to develop an extensively customizable access management system designed to efficiently structure and
+streamline the process of resource access requests within multinational research infrastructures.
 
 ## State
 
@@ -53,31 +30,53 @@ the new REST API can be found [here](https://negotiator-v3.bbmri-eric.eu/api/swa
 An older version of this service can be found in
 this [repository](https://github.com/BBMRI-ERIC/negotiator.bbmri).
 
-## Key domain terms:
+## The Negotiator as an Access Management System:
 
-Key concepts for understanding the terminology:
+### Key Domain entities:
 
-- **Resource**: Any resource/entity that is made available and discoverable in a data discovery
-  service that has a unique and persistent identifier
+- **Resource**: Any resource/entity that is listed in an external discovery
+  service, and has a unique and persistent identifier.
   (e.g., collection of biological samples, research service, specialized treatment...)
-- **Request**: A request originating from a data discovery service specifying the resource of
-  interest and the filtering criteria.
-- **Negotiation**: An access application consisting of multiple requests linked to an authenticated
-  user
+- **Request**: A depiction of a query from a data discovery service specifying the resource/resources of
+  interest and filtering criteria used to find them in the discovery service.
+- **Negotiation**: An access application consisting of one or multiple requests that is linked to an authenticated
+  user.
 - **Representative**: A physical person responsible for mediating access to a resource in their
-  jurisdiction
+  jurisdiction.
+
+### Basic usage example
+
+Using an external discovery service connected to the Negotiator,
+the user identifies resources they are interested in getting access to, and passes them as a Request to the Negotiator.
+Once authenticated, the user then fills out a resource-specific access form and submits the request for review.
+Once the request is approved by an administrator, it becomes a Negotiation where resource representatives,
+moderators and the requester can interact with it.
 
 ## Quick Start
 
 The following command will run the Negotiator application with the REST API exposed
-at [port 8080](http://localhost:8080)
-Note: The authentication using OIDC mock server will not work because of issues with docker network,
-unless the OIDC
-mock is running
-on an external server.
+at [http://localhost:8080/api](http://localhost:8080).
+Note: The authentication will still be enabled,
+hence the functionality will be limited without a functional authorization server connected to the application. To run
+the application with a mock authorization server utilizing OAuth2,
+see this [docker compose file](.github/oauth-test/compose.yaml).
 
 ```shell
 docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
+```
+
+To create a request and start the access workflow, run the following curl command:
+
+```shell
+curl --location 'http://localhost:8080/api/v3/requests' \
+--header 'Content-Type: application/json' \
+--data '{
+    "url": "https://bbmritestnn.gcc.rug.nl",
+    "humanReadable": "#1: No filters used.\r\n#2: No filters used.",
+    "resources": [{
+        "id": "bbmri-eric:ID:CZ_MMCI:collection:LTS"
+    }]
+}'
 ```
 
 ## Development
@@ -97,27 +96,23 @@ mvn clean package
 java -jar -Dspring.profiles.active=dev target/negotiator.jar
 ```
 
+The dev mode exposes a relational database, details can be found below.
+
 ### Connection URL for the H2 database
 
+Default credentials are: negotiator:negotiator
 ``
 jdbc:h2:tcp://localhost:9092/mem:negotiator
 ``
 
-### Architecture
+### System architecture
 
-Negotiator follows a classic repository-service architectural pattern. Key components:
+Documentation for individual components:
 
 - [REST API](docs/REST.md)
 - [Workflow engine](docs/LIFECYCLE.md)
 - [Notification service](docs/NOTIFICATIONS.md)
 - [External services interface](docs/EXTERNAL_SERVICES.md)
-
-## Integration
-
-The diagram below shows an oversimplified version of where does the Negotiator fit in, in relation
-to other
-BBMRI-ERIC IT services.
-![BBMRI-ERIC ecosystem](docs/bbmri-it.png)
 
 ## License
 

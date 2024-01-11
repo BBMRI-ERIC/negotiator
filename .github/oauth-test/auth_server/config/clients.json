@@ -1,0 +1,18 @@
+[
+  {
+    "ClientId": "123",
+    "ClientSecrets": [
+      "123"
+    ],
+    "Description": "Client for client credentials flow",
+    "AllowedGrantTypes": [
+      "client_credentials"
+    ],
+    "AllowedScopes": [
+      "negotiator_api",
+      "negotiator_authz_management"
+    ],
+    "ClientClaimsPrefix": "",
+    "Claims": []
+  }
+]

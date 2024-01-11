@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
@@ -274,7 +274,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   public List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole) {
-    List<Negotiation> negotiations = negotiationRepository.findByUserIdAndRole(userId, userRole);
+    List<Negotiation> negotiations = negotiationRepository.findBySubjectIdAndRole(userId, userRole);
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());

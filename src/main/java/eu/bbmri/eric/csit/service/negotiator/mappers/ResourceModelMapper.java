@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.MolgenisCollection;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -38,5 +39,14 @@ public class ResourceModelMapper {
     molgenisCollectionResourceTypeMap.addMappings(
         mapper -> mapper.map(MolgenisCollection::getId, Resource::setSourceId));
     molgenisCollectionResourceTypeMap.addMappings(mapper -> mapper.skip(Resource::setId));
+
+    TypeMap<Resource, ResourceResponseModel> resourceToModelTypeMap =
+        modelMapper.createTypeMap(Resource.class, ResourceResponseModel.class);
+    resourceToModelTypeMap.addMappings(
+        mapper -> mapper.map(Resource::getSourceId, ResourceResponseModel::setExternalId));
+    resourceToModelTypeMap.addMappings(
+        mapper -> mapper.map(Resource::getName, ResourceResponseModel::setName));
+    resourceToModelTypeMap.addMappings(
+        mapper -> mapper.map(Resource::getId, ResourceResponseModel::setId));
   }
 }

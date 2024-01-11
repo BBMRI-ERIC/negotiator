@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.configuration.auth;
+package eu.bbmri.eric.csit.service.negotiator.configuration.security.auth;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.util.Collection;
@@ -34,7 +34,7 @@ public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails 
 
   @Override
   public String getUsername() {
-    return person.getAuthName();
+    return person.getName();
   }
 
   @Override

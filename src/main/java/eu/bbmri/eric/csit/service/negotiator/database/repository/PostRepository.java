@@ -22,19 +22,19 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   Post findByIdAndNegotiationId(String negotiationId, String id);
 
   @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+  List<Post> findByNegotiationIdAndStatusAndCreatedBy_NameIn(
       String negotiationId, PostStatus status, List<String> authors);
 
   @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+  List<Post> findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
       String negotiationId, PostStatus status, PostType type, List<String> authors);
 
   @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
+  List<Post> findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
       String negotiationId, PostStatus status, List<String> authors, String organizationId);
 
   @EntityGraph("post-with-details")
-  List<Post> findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+  List<Post> findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
       String negotiationId,
       PostStatus status,
       PostType type,

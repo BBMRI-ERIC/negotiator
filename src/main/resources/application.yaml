@@ -29,10 +29,15 @@ spring:
   security:
     oauth2:
       resourceserver:
+        opaquetoken:
+          client-id: ""
+          client-secret: ""
+          introspection-uri: ""
         jwt:
           user-info-uri: ""
           issuer-uri: ""
           jwks-url: ""
+          audiences: negotiator-api
 negotiator:
   molgenis-url: ""
   frontend-url: ""
@@ -51,4 +56,5 @@ logging:
           datasource:
             init:
               ScriptUtils: debug
-
+springdoc:
+  show-actuator: true

@@ -5,23 +5,25 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PersonRepository extends JpaRepository<Person, Long> {
+public interface PersonRepository
+    extends JpaRepository<Person, Long>, JpaSpecificationExecutor<Person> {
 
-  Optional<Person> findByAuthNameAndPasswordNotNull(String authName);
+  Optional<Person> findByName(String authName);
 
-  Optional<Person> findByAuthName(String authName);
+  Page<Person> findAllByName(String name, Pageable pageable);
 
-  Optional<Person> findByAuthSubject(String authSubject);
+  Optional<Person> findBySubjectId(String authSubject);
 
   @EntityGraph(value = "person-detailed")
   Optional<Person> findDetailedById(Long id);
-
-  Optional<Person> deleteByAuthSubject(String authSubject);
 
   @EntityGraph(value = "person-detailed")
   List<Person> findAllByAdminIsTrue();

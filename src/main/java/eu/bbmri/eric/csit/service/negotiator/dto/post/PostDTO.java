@@ -3,7 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.dto.post;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonDTO;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +30,7 @@ public class PostDTO {
 
   @Valid @NotEmpty private LocalDateTime creationDate;
 
-  @Valid @NotEmpty private PersonDTO createdBy;
+  @Valid @NotEmpty private UserResponseModel createdBy;
 
   @Valid private String organizationId;
 

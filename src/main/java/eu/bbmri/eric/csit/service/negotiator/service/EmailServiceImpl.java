@@ -49,12 +49,12 @@ public class EmailServiceImpl implements EmailService {
   @Async
   public void sendEmail(Person recipient, String subject, String mailBody) {
     SimpleMailMessage message;
-    if (!isValidEmailAddress(recipient.getAuthEmail())) {
+    if (!isValidEmailAddress(recipient.getEmail())) {
       log.error("Failed to send email. Invalid recipient email address.");
       return;
     }
     try {
-      message = buildMessage(recipient.getAuthEmail(), subject, mailBody);
+      message = buildMessage(recipient.getEmail(), subject, mailBody);
     } catch (NullPointerException e) {
       log.error("Failed to send email. Check message content.");
       return;

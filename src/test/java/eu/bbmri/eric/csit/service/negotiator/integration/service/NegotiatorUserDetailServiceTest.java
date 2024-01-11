@@ -1,4 +1,4 @@
-package eu.bbmri.eric.csit.service.negotiator.integration;
+package eu.bbmri.eric.csit.service.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.HttpBasicUserDetails;
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.HttpBasicUserDetails;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import org.junit.jupiter.api.Disabled;
@@ -30,7 +30,7 @@ public class NegotiatorUserDetailServiceTest {
   public void testIsNotAuthenticated_whenPasswordIsMissing() throws Exception {
 
     // First check that the person exist in the db but doesn't have password assigned
-    Person p = personRepository.findByAuthName("test_biobank_manager").orElse(null);
+    Person p = personRepository.findByName("test_biobank_manager").orElse(null);
     assertNotNull(p);
     assertNull(p.getPassword());
 
@@ -46,7 +46,7 @@ public class NegotiatorUserDetailServiceTest {
   public void testIsAuthenticated_whenPasswordIsPresent() throws Exception {
 
     // First check that the person exist in the db but doesn't have password assigned
-    Person p = personRepository.findByAuthName("researcher").orElse(null);
+    Person p = personRepository.findByName("researcher").orElse(null);
     assertNotNull(p);
     assertNotNull(p.getPassword());
 

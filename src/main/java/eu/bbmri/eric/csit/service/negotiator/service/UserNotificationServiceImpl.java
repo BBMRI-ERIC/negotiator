@@ -10,6 +10,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @CommonsLog
+@Transactional
 public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Autowired NotificationRepository notificationRepository;
@@ -86,6 +88,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
+  @Transactional
   public void notifyUsersAboutNewPost(Post post) {
     log.info("Notifying users about new post.");
     if (!postAuthorIsAlsoRequester(post)) {
@@ -100,6 +103,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private void createNotificationsForPrivatePost(Post post) {
     Set<Person> representatives = getRepresentativesOfOrganization(post);
+    log.info(representatives.size());
     for (Person representative : representatives) {
       if (!representative.getId().equals(post.getCreatedBy().getId())) {
         notificationRepository.save(
@@ -109,8 +113,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                 .recipient(representative)
                 .message(
                     "Negotiation %s had a new post by %s"
-                        .formatted(
-                            post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                        .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
                 .build());
       }
     }
@@ -119,11 +122,9 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @NonNull
   private static Set<Person> getRepresentativesOfOrganization(Post post) {
     Set<Person> representatives = new java.util.HashSet<>(Set.of());
-    for (Resource resource : post.getNegotiation().getResources()) {
-      if (resource.getOrganization().equals(post.getOrganization())) {
-        representatives.addAll(resource.getRepresentatives());
-      }
-    }
+    post.getOrganization()
+        .getResources()
+        .forEach(resource -> representatives.addAll(resource.getRepresentatives()));
     return representatives;
   }
 
@@ -137,8 +138,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                 .recipient(representative)
                 .message(
                     "Negotiation %s had a new post by %s"
-                        .formatted(
-                            post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                        .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
                 .build());
       }
     }
@@ -152,7 +152,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .recipient(post.getNegotiation().getCreatedBy())
             .message(
                 "Negotiation %s had a new post by %s"
-                    .formatted(post.getNegotiation().getId(), post.getCreatedBy().getAuthName()))
+                    .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
             .build());
   }
 

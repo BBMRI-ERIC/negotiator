@@ -91,9 +91,9 @@ public class DBAttachmentServiceTest {
     Person researcher =
         Person.builder()
             .id(RESEARCHER_ID)
-            .authName(RESEARCHER_AUTH_NAME)
-            .authEmail(RESEARCHER_AUTH_EMAIL)
-            .authSubject(RESEARCHER_AUTH_SUBJECT)
+            .name(RESEARCHER_AUTH_NAME)
+            .email(RESEARCHER_AUTH_EMAIL)
+            .subjectId(RESEARCHER_AUTH_SUBJECT)
             .build();
 
     DataSource dataSource = new DataSource();

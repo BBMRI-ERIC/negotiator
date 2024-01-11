@@ -36,12 +36,19 @@ import lombok.ToString.Exclude;
     name = "person-detailed",
     attributeNodes = {
       @NamedAttributeNode(value = "roles"),
-      @NamedAttributeNode(value = "resources")
     })
 @SequenceGenerator(name = "person_id_seq", initialValue = 300)
 public class Person {
 
-  @ManyToMany
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
+  private Long id;
+
+  @Column(unique = true)
+  @NotNull
+  private String subjectId; // OIDC subject id
+
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "resource_representative_link",
       joinColumns = @JoinColumn(name = "person_id"),
@@ -51,6 +58,9 @@ public class Person {
 
   @Column(name = "admin", nullable = false, columnDefinition = "boolean default false")
   boolean admin;
+
+  @Column(nullable = false, columnDefinition = "boolean default false")
+  boolean isServiceAccount;
 
   @ManyToMany
   @JoinTable(
@@ -64,18 +74,9 @@ public class Person {
   @Exclude
   Set<PersonNegotiationRole> roles = new HashSet<>();
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
-  @Column(name = "id")
-  private Long id;
+  @NotNull private String name;
 
-  @Column(unique = true)
-  @NotNull
-  private String authSubject;
-
-  @NotNull private String authName;
-
-  @NotNull private String authEmail;
+  @NotNull private String email;
 
   private String password; // can be null if the user is authenticated via OIDC
 
@@ -84,16 +85,24 @@ public class Person {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
   private Set<Authority> authorities;
 
+  public void addResource(Resource resource) {
+    this.resources.add(resource);
+  }
+
+  public void removeResource(Resource resource) {
+    this.resources.remove(resource);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Person person = (Person) o;
-    return Objects.equals(authSubject, person.authSubject);
+    return Objects.equals(subjectId, person.subjectId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(authSubject);
+    return Objects.hash(subjectId);
   }
 }

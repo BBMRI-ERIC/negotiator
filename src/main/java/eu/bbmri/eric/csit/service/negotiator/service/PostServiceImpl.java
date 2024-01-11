@@ -1,6 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
@@ -10,6 +10,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
@@ -35,6 +36,7 @@ public class PostServiceImpl implements PostService {
   @Autowired private PostRepository postRepository;
 
   @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private PersonRepository personRepository;
 
   @Autowired private ModelMapper modelMapper;
 
@@ -60,8 +62,9 @@ public class PostServiceImpl implements PostService {
     postEntity.setOrganization(getOrganization(postRequest));
     postEntity.setNegotiation(getNegotiation(negotiationId));
     Person author =
-        personService.findById(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+        personRepository
+            .findById(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+            .orElseThrow(() -> new EntityNotFoundException("User with not found."));
     postEntity.setCreatedBy(author);
     postEntity.setStatus(PostStatus.CREATED);
     return postEntity;
@@ -120,21 +123,20 @@ public class PostServiceImpl implements PostService {
     List<Post> posts;
     if (type == null && organizationId == null) {
       posts =
-          postRepository.findByNegotiationIdAndStatusAndCreatedBy_authNameIn(
+          postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
               negotiationId, PostStatus.CREATED, authors);
     } else if (organizationId == null || organizationId.isEmpty()) {
       posts =
-          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameIn(
+          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
               negotiationId, PostStatus.CREATED, type, authors);
     } else if (type == null) {
       posts =
-          postRepository
-              .findByNegotiationIdAndStatusAndCreatedBy_authNameInAndOrganization_ExternalId(
-                  negotiationId, PostStatus.CREATED, authors, organizationId);
+          postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
+              negotiationId, PostStatus.CREATED, authors, organizationId);
     } else {
       posts =
           postRepository
-              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_authNameInAndOrganization_ExternalId(
+              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                   negotiationId, PostStatus.CREATED, type, authors, organizationId);
     }
 

@@ -90,12 +90,7 @@ public class NegotiationMapperTest {
     Negotiation negotiation = buildNegotiation();
     PersonNegotiationRole personNegotiationRole =
         new PersonNegotiationRole(
-            Person.builder()
-                .authSubject("823")
-                .authName("John")
-                .authEmail("test@test.com")
-                .id(1L)
-                .build(),
+            Person.builder().subjectId("823").name("John").email("test@test.com").id(1L).build(),
             negotiation,
             new Role("CREATOR"));
     negotiation.setPersons(Set.of(personNegotiationRole));

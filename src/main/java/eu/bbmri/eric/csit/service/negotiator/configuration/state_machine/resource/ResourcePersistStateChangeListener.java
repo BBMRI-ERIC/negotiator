@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
+import jakarta.transaction.Transactional;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
@@ -29,6 +30,7 @@ public class ResourcePersistStateChangeListener
   @Autowired @Lazy UserNotificationService userNotificationService;
 
   @Override
+  @Transactional
   public void onPersist(
       State<String, String> state,
       Message<String> message,
