@@ -58,8 +58,15 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public void notifyAdmins(Negotiation negotiation) {
     for (Person admin : personRepository.findAllByAdminIsTrue()) {
-      createNewNotification(negotiation, NotificationEmailStatus.EMAIL_SENT, admin);
-      emailService.sendEmail(admin, "New Negotiation", "New Negotiation was added for review.");
+      Notification new_notification =
+          buildNewNotification(
+              negotiation,
+              NotificationEmailStatus.EMAIL_SENT,
+              admin,
+              "New Negotiation %s was added for review.".formatted(negotiation.getId()));
+      notificationRepository.save(new_notification);
+      List<Notification> new_notification_list = Arrays.asList(new_notification);
+      sendEmail(admin, new_notification_list);
     }
   }
 
@@ -196,12 +203,26 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   private void createNewNotification(
       Negotiation negotiation, NotificationEmailStatus emailNotSent, Person representative) {
     notificationRepository.save(
+        buildNewNotification(
+            negotiation,
+            emailNotSent,
+            representative,
+            "New Negotiation %s ".formatted(negotiation.getId())));
+  }
+
+  private Notification buildNewNotification(
+      Negotiation negotiation,
+      NotificationEmailStatus emailNotSent,
+      Person representative,
+      String message) {
+    Notification new_notification =
         Notification.builder()
             .negotiation(negotiation)
             .emailStatus(emailNotSent)
             .recipient(representative)
-            .message("New Negotiation %s ".formatted(negotiation.getId()))
-            .build());
+            .message(message)
+            .build();
+    return new_notification;
   }
 
   @Override
