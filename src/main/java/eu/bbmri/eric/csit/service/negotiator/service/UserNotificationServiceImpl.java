@@ -5,8 +5,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
-import java.util.*;
 import jakarta.transaction.Transactional;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -258,7 +258,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .distinct()
             .collect(Collectors.toList());
 
-    context.setVariable("recipient", recipient.getAuthName());
+    context.setVariable("recipient", recipient.getName());
     context.setVariable("notifications", notifications);
     context.setVariable("negotiations", negotiations);
     context.setVariable("frontendurl", frontendurl);
