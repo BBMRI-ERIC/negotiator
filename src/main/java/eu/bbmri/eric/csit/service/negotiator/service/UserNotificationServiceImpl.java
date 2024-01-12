@@ -1,27 +1,23 @@
 package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Notification;
-import eu.bbmri.eric.csit.service.negotiator.database.model.NotificationEmailStatus;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.*;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.NotificationDTO;
+import java.util.*;
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 @Service
 @CommonsLog
@@ -33,6 +29,10 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired ModelMapper modelMapper;
   @Autowired EmailService emailService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
+  @Autowired TemplateEngine templateEngine;
+
+  @Value("${negotiator.frontend-url}")
+  private String frontendurl;
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
@@ -200,7 +200,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .negotiation(negotiation)
             .emailStatus(emailNotSent)
             .recipient(representative)
-            .message("New")
+            .message("New Negotiation %s ".formatted(negotiation.getId()))
             .build());
   }
 
@@ -229,17 +229,22 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   private void sendEmail(@NonNull Person recipient, @NonNull List<Notification> notifications) {
-    emailService.sendEmail(
-        recipient,
-        "New Notifications",
-        "There are updates in the following negotiations "
-            + String.join(
-                ",",
-                notifications.stream()
-                    .map(Notification::getNegotiation)
-                    .map(Negotiation::getId)
-                    .collect(Collectors.toSet()))
-            + " new notifications.");
+
+    Context context = new Context();
+    List<Negotiation> negotiations =
+        notifications.stream()
+            .map(notification -> notification.getNegotiation())
+            .distinct()
+            .collect(Collectors.toList());
+
+    context.setVariable("recipient", recipient.getAuthName());
+    context.setVariable("notifications", notifications);
+    context.setVariable("negotiations", negotiations);
+    context.setVariable("frontendurl", frontendurl);
+
+    String emailContent = templateEngine.process("email-notification", context);
+
+    emailService.sendEmail(recipient, "New Notifications", emailContent);
   }
 
   private List<Notification> getPendingNotifications(@NonNull Person recipient) {
