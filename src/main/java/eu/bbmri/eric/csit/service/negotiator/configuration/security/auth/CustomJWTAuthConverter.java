@@ -115,8 +115,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
    */
   private Collection<GrantedAuthority> parseUserAuthorities(Jwt jwt) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
-    if (jwt.hasClaim(authzClaim)) {
-      List<String> entitlements = jwt.getClaimAsStringList(authzClaim);
+    Map<String, Object> claims = getClaims(jwt);
+    if (claims.containsKey(authzClaim)) {
+      List<String> entitlements = (List<String>) claims.get(authzClaim);
       if (entitlements.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
       }
