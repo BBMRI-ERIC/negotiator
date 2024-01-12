@@ -33,8 +33,9 @@ spring:
           issuer-uri: "http://localhost:4011"
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
           type: "JWT"
+          audiences: https://negotiator.bbmri-eric.eu
         opaquetoken:
-          client-id: "negotiator-api"
+          client-id: "https%3A//negotiator.bbmri-eric.eu"
           client-secret: "negotiator-secret"
           introspection-uri: "http://localhost:4011/connect/introspect"
 negotiator:
