@@ -43,8 +43,6 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private final String authzBiobankerValue;
 
-  // TODO: Add support for client-credentials access token, handling of errors from userinfo/get
-  // claims, separate based on scopes.
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
     if (isClientCredentialsToken(jwt)) {
@@ -60,12 +58,13 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
     String subjectIdentifier = jwt.getClaimAsString("sub");
+    Map<String, Object> userInfo = getClaims(jwt);
     Person person =
         personRepository
             .findBySubjectId(subjectIdentifier)
-            .orElseGet(() -> saveNewUserAsPerson(jwt));
+            .orElseGet(() -> saveNewUserAsPerson(userInfo));
     return new NegotiatorJwtAuthenticationToken(
-        person, jwt, parseUserAuthorities(jwt), subjectIdentifier);
+        person, jwt, parseUserAuthorities(userInfo), subjectIdentifier);
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsMachineToken(Jwt jwt) {
@@ -110,13 +109,13 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   /**
    * This method parses scopes/claims from the oauth server and assigns user authorities
    *
-   * @param jwt the jwt token
+   * @param claims map of claims from the oauth server
    * @return authorities for the authenticated user
    */
-  private Collection<GrantedAuthority> parseUserAuthorities(Jwt jwt) {
+  private Collection<GrantedAuthority> parseUserAuthorities(Map<String, Object> claims) {
     Collection<GrantedAuthority> authorities = new HashSet<>();
-    if (jwt.hasClaim(authzClaim)) {
-      List<String> entitlements = jwt.getClaimAsStringList(authzClaim);
+    if (claims.containsKey(authzClaim)) {
+      List<String> entitlements = (List<String>) claims.get(authzClaim);
       if (entitlements.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
       }
@@ -160,18 +159,17 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     return response.getBody();
   }
 
-  private Person saveNewUserAsPerson(Jwt jwt) {
-    Map<String, Object> claims = getClaims(jwt);
+  private Person saveNewUserAsPerson(Map<String, Object> userInfo) {
     Person person;
     try {
       person =
           Person.builder()
-              .subjectId(claims.get("sub").toString())
-              .name(claims.get("name").toString())
-              .email(claims.get("email").toString())
+              .subjectId(userInfo.get("sub").toString())
+              .name(userInfo.get("name").toString())
+              .email(userInfo.get("email").toString())
               .build();
     } catch (ConstraintViolationException | NullPointerException e) {
-      log.error("Could not create user from claims: " + claims.toString());
+      log.error("Could not create user from claims: " + userInfo.toString());
       throw new WrongJWTException();
     }
     try {
