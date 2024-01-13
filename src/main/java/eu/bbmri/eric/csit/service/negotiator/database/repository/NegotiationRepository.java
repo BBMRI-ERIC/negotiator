@@ -59,6 +59,9 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "FROM Negotiation n "
               + "JOIN FETCH n.requests rr "
               + "JOIN FETCH rr.resources c "
+              + "JOIN FETCH n.persons pp "
+              + "JOIN FETCH pp.person p "
+              + "JOIN FETCH pp.role role "
               + "WHERE c.sourceId IN :collectionIds"
               + " AND n.currentState = :currentState")
   List<Negotiation> findByResourceExternalIdsAndCurrentState(
