@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 
+import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
@@ -116,11 +117,30 @@ public class UserController {
    * @return a List of roles.
    */
   @GetMapping(value = "/users/roles", produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(summary = "Find roles of the currently authenticated user")
+  @Operation(summary = "Find roles of the currently authenticated user", deprecated = true)
   @ResponseStatus(HttpStatus.OK)
   List<String> getUserInfo() {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map((obj) -> Objects.toString(obj, null))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Returns the resources represented by the current user
+   *
+   * @return a List of resources id.
+   */
+  @GetMapping(value = "/users/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      deprecated = true,
+      summary = "Fetch external Ids of resources represented by the currently authenticated user")
+  @ResponseStatus(HttpStatus.OK)
+  List<String> getRepresentedResources() {
+    return personService
+        .getResourcesRepresentedByUserId(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+        .stream()
+        .map(ResourceResponseModel::getExternalId)
         .collect(Collectors.toList());
   }
 }
