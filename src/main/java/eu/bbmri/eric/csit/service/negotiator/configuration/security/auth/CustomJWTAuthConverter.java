@@ -53,7 +53,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private static boolean isClientCredentialsToken(Jwt jwt) {
-    return jwt.hasClaim("client_id") && !jwt.getClaimAsStringList("scope").contains("openid");
+    return jwt.hasClaim("client_id") && !jwt.getClaimAsString("scope").contains("openid");
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
@@ -132,7 +132,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   private Map<String, Object> getClaims(Jwt jwt) {
     if (userInfoEndpoint != null
         && !userInfoEndpoint.isBlank()
-        && jwt.getClaimAsStringList("scope").contains("openid")) {
+        && jwt.getClaimAsString("scope").contains("openid")) {
       return getClaimsFromUserEndpoints(jwt);
     } else {
       return jwt.getClaims();
