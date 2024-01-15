@@ -53,7 +53,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private static boolean isClientCredentialsToken(Jwt jwt) {
-    return jwt.hasClaim("client_id") && !jwt.getClaimAsStringList("scope").contains("openid");
+    return jwt.hasClaim("client_id") && !jwt.getClaimAsString("scope").contains("openid");
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsUserToken(Jwt jwt) {
