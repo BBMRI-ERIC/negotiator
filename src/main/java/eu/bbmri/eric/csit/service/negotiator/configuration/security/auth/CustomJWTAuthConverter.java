@@ -132,7 +132,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   private Map<String, Object> getClaims(Jwt jwt) {
     if (userInfoEndpoint != null
         && !userInfoEndpoint.isBlank()
-        && jwt.getClaimAsStringList("scope").contains("openid")) {
+        && jwt.getClaimAsString("scope").contains("openid")) {
       return getClaimsFromUserEndpoints(jwt);
     } else {
       return jwt.getClaims();
