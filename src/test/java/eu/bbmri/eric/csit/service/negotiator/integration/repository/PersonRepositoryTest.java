@@ -62,10 +62,11 @@ public class PersonRepositoryTest {
             Resource.builder()
                 .organization(organization)
                 .dataSource(dataSource)
-                .sourceId("collection:1")
+                .sourceId("collection:1").representatives(new HashSet<>())
                 .name("test")
-                .representatives(Set.of(person))
                 .build());
+    person.addResource(resource);
+    personRepository.saveAndFlush(person);
     assertTrue(personRepository.existsById(person.getId()));
     assertTrue(personRepository.existsByIdAndResourcesIn(person.getId(), Set.of(resource)));
     assertEquals(

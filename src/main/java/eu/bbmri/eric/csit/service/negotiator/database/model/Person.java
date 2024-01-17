@@ -1,5 +1,6 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -54,7 +55,7 @@ public class Person {
       joinColumns = @JoinColumn(name = "person_id"),
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Exclude
-  Set<Resource> resources;
+  Set<Resource> resources = new HashSet<>();
 
   @Column(name = "admin", nullable = false, columnDefinition = "boolean default false")
   boolean admin;
@@ -62,7 +63,11 @@ public class Person {
   @Column(nullable = false, columnDefinition = "boolean default false")
   boolean isServiceAccount;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER,
+          cascade = {
+                  CascadeType.PERSIST,
+                  CascadeType.MERGE
+          })
   @JoinTable(
       name = "person_project_link",
       joinColumns = @JoinColumn(name = "person_id"),
@@ -87,10 +92,12 @@ public class Person {
 
   public void addResource(Resource resource) {
     this.resources.add(resource);
+    resource.getRepresentatives().add(this);
   }
 
   public void removeResource(Resource resource) {
     this.resources.remove(resource);
+    resource.getRepresentatives().remove(this);
   }
 
   @Override

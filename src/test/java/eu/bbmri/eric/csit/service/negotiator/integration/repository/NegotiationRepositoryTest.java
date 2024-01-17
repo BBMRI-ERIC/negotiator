@@ -121,8 +121,8 @@ public class NegotiationRepositoryTest {
 
   @Test
   void save_10000differentResources_ok() {
-    for (int i = 0; i < 1000; i++) {
-      Set<Person> representatives = new HashSet<>();
+    resourceRepository.deleteAll();
+    for (int i = 0; i < 10000; i++) {
       Organization organization1 =
           organizationRepository.save(
               Organization.builder()
@@ -130,29 +130,28 @@ public class NegotiationRepositoryTest {
                   .externalId("biobank-%s".formatted(i))
                   .build());
       Resource resource1 =
-          resourceRepository.saveAndFlush(
+          resourceRepository.save(
               Resource.builder()
                   .organization(organization1)
                   .dataSource(dataSource)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")
-                  .representatives(representatives)
+                  .representatives(new HashSet<>())
                   .build());
       for (int j = 0; j < 20; j++) {
         Person person1 = savePerson("test-%s-%s".formatted(i, j));
         person1.addResource(resource1);
         person1 = personRepository.save(person1);
-        assertEquals(1, personRepository.findById(person1.getId()).get().getResources().size());
+        assertEquals(1, person1.getResources().size());
         assertEquals(
             resource1.getId(),
-            personRepository
-                .findById(person1.getId())
-                .get()
+            person1
                 .getResources()
                 .iterator()
                 .next()
                 .getId());
       }
+      assertEquals(20, resourceRepository.findById(resource1.getId()).get().getRepresentatives().size());
     }
     Request request =
         Request.builder()
@@ -176,10 +175,10 @@ public class NegotiationRepositoryTest {
     negotiation = negotiationRepository.save(negotiation);
     Negotiation retrievedNegotiation =
         negotiationRepository.findDetailedById(negotiation.getId()).get();
-    assertEquals(1000, retrievedNegotiation.getResources().size());
+    assertEquals(10000, retrievedNegotiation.getResources().size());
     for (Resource resource1 : retrievedNegotiation.getResources()) {
       assertEquals(
-          20, resourceRepository.findById(resource1.getId()).get().getRepresentatives().size());
+          20, resource1.getRepresentatives().size());
     }
   }
 
