@@ -62,7 +62,8 @@ public class PersonRepositoryTest {
             Resource.builder()
                 .organization(organization)
                 .dataSource(dataSource)
-                .sourceId("collection:1").representatives(new HashSet<>())
+                .sourceId("collection:1")
+                .representatives(new HashSet<>())
                 .name("test")
                 .build());
     person.addResource(resource);

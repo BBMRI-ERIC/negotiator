@@ -45,12 +45,10 @@ public class Resource {
 
   @NotNull private String sourceId;
 
-  @ManyToMany(fetch = FetchType.EAGER,
-          cascade = {
-                  CascadeType.PERSIST,
-                  CascadeType.MERGE
-          },
-          mappedBy = "resources")
+  @ManyToMany(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+      mappedBy = "resources")
   @JsonIgnore
   private Set<Person> representatives = new HashSet<>();
 

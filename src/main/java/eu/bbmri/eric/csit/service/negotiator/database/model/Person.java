@@ -63,11 +63,9 @@ public class Person {
   @Column(nullable = false, columnDefinition = "boolean default false")
   boolean isServiceAccount;
 
-  @ManyToMany(fetch = FetchType.EAGER,
-          cascade = {
-                  CascadeType.PERSIST,
-                  CascadeType.MERGE
-          })
+  @ManyToMany(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(
       name = "person_project_link",
       joinColumns = @JoinColumn(name = "person_id"),

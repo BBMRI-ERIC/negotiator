@@ -143,15 +143,10 @@ public class NegotiationRepositoryTest {
         person1.addResource(resource1);
         person1 = personRepository.save(person1);
         assertEquals(1, person1.getResources().size());
-        assertEquals(
-            resource1.getId(),
-            person1
-                .getResources()
-                .iterator()
-                .next()
-                .getId());
+        assertEquals(resource1.getId(), person1.getResources().iterator().next().getId());
       }
-      assertEquals(20, resourceRepository.findById(resource1.getId()).get().getRepresentatives().size());
+      assertEquals(
+          20, resourceRepository.findById(resource1.getId()).get().getRepresentatives().size());
     }
     Request request =
         Request.builder()
@@ -177,8 +172,7 @@ public class NegotiationRepositoryTest {
         negotiationRepository.findDetailedById(negotiation.getId()).get();
     assertEquals(10000, retrievedNegotiation.getResources().size());
     for (Resource resource1 : retrievedNegotiation.getResources()) {
-      assertEquals(
-          20, resource1.getRepresentatives().size());
+      assertEquals(20, resource1.getRepresentatives().size());
     }
   }
 
