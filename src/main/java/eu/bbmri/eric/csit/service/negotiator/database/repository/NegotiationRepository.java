@@ -4,6 +4,8 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotia
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +21,8 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
 
   @EntityGraph(value = "negotiation-with-detailed-children")
   Optional<Negotiation> findDetailedById(String id);
+
+  Page<Negotiation> findAllByCurrentState(Pageable pageRequest, NegotiationState currentState);
 
   @Query(
       value =

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
@@ -176,25 +177,60 @@ public class NegotiationRepositoryTest {
     }
   }
 
+  @Test
+  void findPagedAndFiltered_ok() {
+    saveNegotiation();
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    assertEquals(
+        negotiation.getId(),
+        negotiationRepository
+            .findAllByCurrentState(PageRequest.of(0, 10, Sort.by("id")), NegotiationState.SUBMITTED)
+            .get()
+            .iterator()
+            .next()
+            .getId());
+    assertEquals(
+        NegotiationState.SUBMITTED,
+        negotiationRepository
+            .findAllByCurrentState(PageRequest.of(0, 10), NegotiationState.SUBMITTED)
+            .get()
+            .iterator()
+            .next()
+            .getCurrentState());
+    negotiation.setCurrentState(NegotiationState.APPROVED);
+    negotiationRepository.save(negotiation);
+    assertEquals(
+        0,
+        negotiationRepository
+            .findAllByCurrentState(PageRequest.of(0, 10), NegotiationState.SUBMITTED)
+            .getNumberOfElements());
+  }
+
   private void saveNegotiation() {
+    Set<Request> requests = new HashSet<>();
+    Set<Resource> resources = new HashSet<>();
+    resources.add(resource);
     Request request =
         Request.builder()
             .url("http://test")
-            .resources(Set.of(resource))
+            .resources(resources)
             .dataSource(dataSource)
             .humanReadable("everything")
             .build();
     request = requestRepository.save(request);
+    requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
-            .requests(Set.of(request))
+            .requests(requests)
             .postsEnabled(false)
             .payload(payload)
             .build();
     Role role = roleRepository.save(new Role("test"));
+    Set<PersonNegotiationRole> roles = new HashSet<>();
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
-    negotiation.setPersons(Set.of(personRole));
+    roles.add(personRole);
+    negotiation.setPersons(roles);
     request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
