@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.id.uuid.UuidGenerator;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -28,12 +29,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class AuditEntity {
-
-  @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
-  @Column(name = "id")
-  private String id;
 
   @CreatedDate @Exclude private LocalDateTime creationDate;
 

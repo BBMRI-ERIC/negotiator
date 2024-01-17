@@ -12,6 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedAttributeNode;
@@ -34,7 +36,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 @Entity
@@ -65,6 +69,13 @@ import org.hibernate.type.SqlTypes;
           attributeNodes = {@NamedAttributeNode(value = "resources")})
     })
 public class Negotiation extends AuditEntity {
+
+  @Id
+  @GeneratedValue(generator = "uuid")
+//  @GenericGenerator(name = "uuid", type = UuidGenerator.class)
+  @UuidGenerator
+  @Column(name = "id")
+  private String id;
 
   @OneToMany(
       mappedBy = "negotiation",
