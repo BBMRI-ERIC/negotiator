@@ -23,3 +23,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   jackson:
     date-format: "yyyy-MM-dd"
+  flyway:
+    enabled: true
+    user: negotiator
+    password: negotiator
+    schemas: negotiator
+    url: jdbc:postgresql://localhost:5432/
+    locations: classpath:resources/migrations/postgresql

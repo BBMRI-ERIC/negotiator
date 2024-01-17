@@ -6,7 +6,7 @@ spring:
     password: "pass"
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
+    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=RUNSCRIPT FROM 'classpath:db/dev/h2/init.sql'
     username: negotiator
     password: negotiator
   servlet:
@@ -28,6 +28,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
   jackson:
     date-format: "yyyy-MM-dd"
   security:
@@ -62,5 +64,3 @@ logging:
           datasource:
             init:
               ScriptUtils: debug
-
-
