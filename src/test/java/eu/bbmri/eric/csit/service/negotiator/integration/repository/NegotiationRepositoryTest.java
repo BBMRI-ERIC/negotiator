@@ -7,14 +7,17 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
+import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,8 @@ public class NegotiationRepositoryTest {
 
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired
+  RoleRepository roleRepository;
 
   String payload =
       "    {\n"
@@ -90,15 +95,21 @@ public class NegotiationRepositoryTest {
             .dataSource(dataSource)
             .humanReadable("everything")
             .build();
+    request = requestRepository.save(request);
+    assertEquals(1, requestRepository.findAll().size());
     Negotiation negotiation =
-        Negotiation.builder()
-            .currentState(NegotiationState.IN_PROGRESS)
+        Negotiation.builder().
+            currentState(NegotiationState.SUBMITTED)
             .requests(Set.of(request))
             .postsEnabled(false)
             .payload(payload)
             .build();
-    assertEquals(
-        "1", negotiationRepository.save(negotiation).getRequests().iterator().next().getId());
+    Role role = roleRepository.save(new Role("test"));
+    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
+    negotiation.setPersons(Set.of(personRole));
+    request.setNegotiation(negotiation);
+    negotiationRepository.save(negotiation);
+    assertEquals(1, negotiationRepository.findAll().size());
   }
 
   private Person savePerson(String subjectId) {
