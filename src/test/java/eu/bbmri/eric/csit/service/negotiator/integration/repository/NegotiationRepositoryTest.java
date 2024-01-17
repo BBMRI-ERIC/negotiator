@@ -37,8 +37,7 @@ public class NegotiationRepositoryTest {
 
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired
-  RoleRepository roleRepository;
+  @Autowired RoleRepository roleRepository;
 
   String payload =
       "    {\n"
@@ -98,8 +97,8 @@ public class NegotiationRepositoryTest {
     request = requestRepository.save(request);
     assertEquals(1, requestRepository.findAll().size());
     Negotiation negotiation =
-        Negotiation.builder().
-            currentState(NegotiationState.SUBMITTED)
+        Negotiation.builder()
+            .currentState(NegotiationState.SUBMITTED)
             .requests(Set.of(request))
             .postsEnabled(false)
             .payload(payload)
