@@ -92,7 +92,7 @@ public class NegotiationMapperTest {
         new PersonNegotiationRole(
             Person.builder().subjectId("823").name("John").email("test@test.com").id(1L).build(),
             negotiation,
-            new Role("CREATOR"));
+            new Role(1L, "CREATOR"));
     negotiation.setPersons(Set.of(personNegotiationRole));
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     assertEquals("CREATOR", negotiationDTO.getPersons().iterator().next().getRole());

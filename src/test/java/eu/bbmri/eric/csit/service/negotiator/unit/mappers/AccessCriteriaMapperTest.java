@@ -52,7 +52,7 @@ public class AccessCriteriaMapperTest {
     accessCriteriaSection.setDescription("test section desc");
     sections.add(accessCriteriaSection);
     AccessCriteriaSet accessCriteriaSet =
-        new AccessCriteriaSet("test", Set.of(new Resource()), sections);
+        new AccessCriteriaSet(1L, "test", Set.of(new Resource()), sections);
     AccessCriteriaSetDTO accessCriteriaSetDTO =
         mapper.map(accessCriteriaSet, AccessCriteriaSetDTO.class);
     assertEquals(accessCriteriaSet.getName(), accessCriteriaSetDTO.getName());
