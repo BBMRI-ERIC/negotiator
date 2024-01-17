@@ -16,7 +16,7 @@ spring:
       data-locations: classpath:data.sql
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     defer-datasource-initialization: true
     properties:
       hibernate:
