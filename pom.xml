@@ -103,12 +103,12 @@
         <dependency>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -117,12 +117,12 @@
         <dependency>
             <artifactId>spring-boot-starter-web</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core -->
         <dependency>
@@ -144,7 +144,7 @@
         <dependency>
             <artifactId>spring-boot-starter-mail</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <artifactId>spring-context-support</artifactId>
@@ -180,7 +180,7 @@
         <dependency>
             <artifactId>spring-boot-starter-test</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -216,7 +216,7 @@
         <dependency>
             <artifactId>json</artifactId>
             <groupId>org.json</groupId>
-            <version>20230227</version>
+            <version>20231013</version>
         </dependency>
         <dependency>
             <artifactId>reactor-core</artifactId>
@@ -241,7 +241,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>3.1.2</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
@@ -255,6 +255,11 @@
             <scope>test</scope>
             <classifier>osx-aarch_64</classifier>
             <version>4.1.94.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>9.1.0</version>
         </dependency>
     </dependencies>
     <description>The BBMRI-ERIC Negotiator service for structured temp with biological

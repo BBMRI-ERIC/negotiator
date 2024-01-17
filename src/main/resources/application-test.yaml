@@ -26,6 +26,8 @@ spring:
         jwt:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
+  flyway:
+    enabled: false
 negotiator:
   molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"
