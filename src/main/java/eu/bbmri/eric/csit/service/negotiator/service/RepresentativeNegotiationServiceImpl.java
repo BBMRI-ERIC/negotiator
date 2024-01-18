@@ -9,10 +9,11 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepositor
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.UserNotFoundException;
-import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,15 +26,15 @@ public class RepresentativeNegotiationServiceImpl implements RepresentativeNegot
   @Autowired ModelMapper modelMapper;
 
   @Override
-  public List<NegotiationDTO> findNegotiationsConcerningRepresentative(Long personId) {
+  public Page<NegotiationDTO> findNegotiationsConcerningRepresentative(
+      Pageable pageable, Long personId) {
     Person person =
         personRepository.findById(personId).orElseThrow(() -> new UserNotFoundException(personId));
-    List<Negotiation> negotiations =
+    Page<Negotiation> negotiations =
         negotiationRepository.findByResourceExternalIdsAndCurrentState(
+            pageable,
             person.getResources().stream().map(Resource::getSourceId).collect(Collectors.toList()),
             NegotiationState.IN_PROGRESS);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
+    return negotiations.map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 }

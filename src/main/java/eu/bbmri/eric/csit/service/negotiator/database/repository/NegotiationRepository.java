@@ -2,6 +2,7 @@ package eu.bbmri.eric.csit.service.negotiator.database.repository;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,9 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
   @Override
   @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findAll();
+
+  @EntityGraph(value = "negotiation-with-detailed-children")
+  Page<Negotiation> findAllByCreatedBy(Pageable pageable, Person author);
 
   @EntityGraph(value = "negotiation-with-detailed-children")
   Optional<Negotiation> findDetailedById(String id);
@@ -68,8 +72,8 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "JOIN FETCH pp.role role "
               + "WHERE c.sourceId IN :collectionIds"
               + " AND n.currentState = :currentState")
-  List<Negotiation> findByResourceExternalIdsAndCurrentState(
-      List<String> collectionIds, NegotiationState currentState);
+  Page<Negotiation> findByResourceExternalIdsAndCurrentState(
+      Pageable pageable, List<String> collectionIds, NegotiationState currentState);
 
   @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findByCreatedBy_Id(Long personId);

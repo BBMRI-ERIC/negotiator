@@ -16,6 +16,8 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 
 public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
+  public NegotiationModelAssembler() {}
+
   @Override
   public @NonNull EntityModel<NegotiationDTO> toModel(@NonNull NegotiationDTO entity) {
     List<Link> links = new ArrayList<>();

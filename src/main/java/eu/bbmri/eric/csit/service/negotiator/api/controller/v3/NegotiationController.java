@@ -8,6 +8,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDT
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
+import eu.bbmri.eric.csit.service.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
@@ -22,6 +23,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +58,8 @@ public class NegotiationController {
 
   @Autowired private PersonService personService;
 
+  private final NegotiationModelAssembler assembler = new NegotiationModelAssembler();
+
   /** Create a negotiation */
   @PostMapping(
       value = "/negotiations",
@@ -79,36 +86,30 @@ public class NegotiationController {
     return negotiationService.update(id, request);
   }
 
-  /**
-   * Fetch a list of Negotiations
-   *
-   * @param biobankId to return Negotiations concerning a particular biobank
-   * @param collectionId to return Negotiations concerning a particular collection
-   * @param userRole by the user's role in the Negotiations
-   * @return a list of Negotiations by default returns list of Negotiations created by the user
-   */
   @GetMapping("/negotiations")
-  public List<NegotiationDTO> list(
-      @RequestParam(required = false) String biobankId,
-      @RequestParam(required = false) String collectionId,
-      @RequestParam(required = false) String userRole) {
-    List<NegotiationDTO> negotiations;
-    if (biobankId != null) {
-      negotiations = negotiationService.findByBiobankId(biobankId);
-    } else if (collectionId != null) {
-      negotiations = negotiationService.findByResourceId(collectionId);
-    } else if (Objects.equals(userRole, "ROLE_REPRESENTATIVE")) {
-      negotiations =
-          representativeNegotiationService.findNegotiationsConcerningRepresentative(
-              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
-    } else if (Objects.equals(userRole, "ROLE_ADMIN")) {
-      negotiations = negotiationService.findNegotiationsToReview();
-    } else {
-      negotiations =
-          negotiationService.findAllNegotiationsCreatedBy(
-              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+  public PagedModel<EntityModel<NegotiationDTO>> list(
+      @RequestParam(required = false) String userRole,
+      @RequestParam(required = false) NegotiationState currentState,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size) {
+    if (Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null) {
+      return assembler.toPagedModel(
+          (Page<NegotiationDTO>)
+              representativeNegotiationService.findNegotiationsConcerningRepresentative(
+                  PageRequest.of(page, size),
+                  NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
     }
-    return negotiations;
+    if (currentState == NegotiationState.SUBMITTED
+        && NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+      return assembler.toPagedModel(
+          (Page<NegotiationDTO>)
+              negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), currentState));
+    }
+    return assembler.toPagedModel(
+        (Page<NegotiationDTO>)
+            negotiationService.findAllCreatedBy(
+                PageRequest.of(page, size),
+                NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
   }
 
   /**
