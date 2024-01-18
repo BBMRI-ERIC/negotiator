@@ -38,7 +38,7 @@ import lombok.ToString.Exclude;
       @NamedAttributeNode(value = "roles"),
     })
 @SequenceGenerator(name = "person_id_seq", initialValue = 300)
-public class Person {
+public class Person extends AuditEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")

@@ -10,16 +10,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +39,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -100,7 +105,7 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get(NEGOTIATIONS_URL))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)))
+        .andExpect(jsonPath("$.length()", is(numberOfNegotiations)))
         .andExpect(jsonPath("$[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$[1].id", is(NEGOTIATION_2_ID)));
   }
@@ -228,24 +233,30 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
+  @Transactional
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousRequestCount = negotiationRepository.count();
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(URI.create(NEGOTIATIONS_URL))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.postsEnabled", is(false)))
-        .andExpect(jsonPath("$.payload.project.title", is("Title")))
-        .andExpect(jsonPath("$.payload.samples.num-of-subjects", is(10)))
-        .andExpect(jsonPath("$.payload.ethics-vote.ethics-vote", is("My ethic vote")));
-
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(NEGOTIATIONS_URL))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isString())
+            .andExpect(jsonPath("$.postsEnabled", is(false)))
+            .andExpect(jsonPath("$.payload.project.title", is("Title")))
+            .andExpect(jsonPath("$.payload.samples.num-of-subjects", is(10)))
+            .andExpect(jsonPath("$.payload.ethics-vote.ethics-vote", is("My ethic vote")))
+            .andReturn();
     assertEquals(negotiationRepository.count(), previousRequestCount + 1);
+    String negotiationId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Negotiation> negotiation = negotiationRepository.findById(negotiationId);
+    assert negotiation.isPresent();
+    assertEquals(negotiation.get().getCreatedBy().getName(), "TheResearcher");
   }
 
   @Test
@@ -291,6 +302,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
+  @Transactional
   public void testUpdate_Ok_whenChangePayload() throws Exception {
     // Tries to updated negotiation
     // Negotiation body with updated values
@@ -298,13 +310,18 @@ public class NegotiationControllerTests {
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody = requestBody.replace("Title", "New Title");
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isNoContent())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.put("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isNoContent())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+    Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
+    negotiation.ifPresent(value -> assertEquals(value.getModifiedBy().getName(), "TheResearcher"));
   }
 
   @Test

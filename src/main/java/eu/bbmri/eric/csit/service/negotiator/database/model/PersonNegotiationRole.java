@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "person_negotiation_role")
 @IdClass(PersonNegotiationRoleId.class)
-public class PersonNegotiationRole {
+public class PersonNegotiationRole extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
   @JoinColumn(name = "person_id")

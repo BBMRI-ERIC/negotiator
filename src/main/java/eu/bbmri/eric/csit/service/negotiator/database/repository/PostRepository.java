@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, String> {
 
   @EntityGraph("post-with-details")
   List<Post> findByNegotiationId(String negotiationId);

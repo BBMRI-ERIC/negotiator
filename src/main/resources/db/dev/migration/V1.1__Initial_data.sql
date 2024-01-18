@@ -51,5 +51,6 @@ values (1, 'Dummy test collection', 'This is the fist test collection',
         'bbmri-eric:ID:SE_890:collection:dummy_collection', 1, 1, 1),
        (2, 'Test collection 2', 'This is the second test collection',
         'bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 1, 2);
-insert into RESOURCE_REPRESENTATIVE_LINK (RESOURCE_ID, PERSON_ID)
-VALUES (2, 2)
+
+insert into resource_representative_link (resource_id, person_id)
+values (2, 2);

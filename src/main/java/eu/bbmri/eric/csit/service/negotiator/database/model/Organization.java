@@ -30,7 +30,7 @@ import lombok.Setter;
 @NamedEntityGraph(
     name = "organization-with-detailed-resources",
     attributeNodes = {@NamedAttributeNode(value = "resources")})
-public class Organization {
+public class Organization extends AuditEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resource_id_seq")

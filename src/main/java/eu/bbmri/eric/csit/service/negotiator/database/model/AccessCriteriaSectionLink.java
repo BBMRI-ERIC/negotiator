@@ -21,7 +21,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @IdClass(AccessCriteriaSectionId.class)
-public class AccessCriteriaSectionLink {
+public class AccessCriteriaSectionLink extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "access_criteria_id")

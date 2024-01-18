@@ -25,7 +25,7 @@ import lombok.ToString;
 @Builder
 @Entity(name = "DataSource")
 @Table(name = "data_source")
-public class DataSource {
+public class DataSource extends AuditEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
