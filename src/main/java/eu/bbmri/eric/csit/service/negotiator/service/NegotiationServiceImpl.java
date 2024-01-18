@@ -2,8 +2,10 @@ package eu.bbmri.eric.csit.service.negotiator.service;
 
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Attachment;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceLifecycleRecord;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
@@ -11,6 +13,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationResourceLifecycleRecordRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
@@ -21,6 +24,8 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +49,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired PersonRepository personRepository;
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;
+  @Autowired NegotiationResourceLifecycleRecordRepository resourceLifecycleRecordRepository;
   @Autowired ModelMapper modelMapper;
   @Autowired EmailService notificationService;
   @Autowired UserNotificationService userNotificationService;
@@ -153,6 +159,9 @@ public class NegotiationServiceImpl implements NegotiationService {
             attachment.setNegotiation(negotiationEntity);
           });
     }
+    //initialize lifecycle record for resources
+    initializeNegotiationResourceLifecycleRecord(savedNegotiation);
+
     // TODO: Add call to send email.
     userNotificationService.notifyAdmins(negotiationEntity);
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
@@ -320,5 +329,18 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiations.stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
+  }
+
+  private void initializeNegotiationResourceLifecycleRecord(Negotiation n){
+    Set<Resource> negotiationResources = n.getResources();
+    for (Resource resource : negotiationResources){
+      NegotiationResourceLifecycleRecord record = NegotiationResourceLifecycleRecord.builder()
+          .negotiation(n)
+          .resource(resource)
+          .recordedAt(LocalDateTime.now())
+          .changedTo(NegotiationResourceState.SUBMITTED)
+          .build();
+      resourceLifecycleRecordRepository.save(record);
+    }
   }
 }

@@ -1,10 +1,15 @@
 package eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource;
 
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceLifecycleRecord;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationResourceLifecycleRecordRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NotificationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.service.UserNotificationService;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
@@ -27,6 +32,11 @@ public class ResourcePersistStateChangeListener
 
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NotificationRepository notificationRepository;
+  @Autowired
+  NegotiationResourceLifecycleRecordRepository resourceLifecycleRecordRepository;
+
+  @Autowired
+  ResourceRepository resourceRepository;
   @Autowired @Lazy UserNotificationService userNotificationService;
 
   @Override
@@ -42,6 +52,10 @@ public class ResourcePersistStateChangeListener
     if (negotiation.isPresent()) {
       negotiation = updateStateForResource(state, negotiation.get(), resourceId);
       notifyRequester(negotiation.get(), resourceId);
+
+      //update the negotiation resource record
+      Resource r = resourceRepository.findBySourceId(resourceId).get();
+      updateResourceLifecycleRecord(negotiation.get(), r, NegotiationResourceState.valueOf(state.getId()));
     }
   }
 
@@ -76,5 +90,16 @@ public class ResourcePersistStateChangeListener
       return negotiationRepository.findById(negotiationId);
     }
     return Optional.empty();
+  }
+
+  private void updateResourceLifecycleRecord(Negotiation n, Resource r, NegotiationResourceState s){
+    NegotiationResourceLifecycleRecord record = NegotiationResourceLifecycleRecord.builder()
+        .negotiation(n)
+        .resource(r)
+        .recordedAt(LocalDateTime.now())
+        .changedTo(s)
+        .build();
+    resourceLifecycleRecordRepository.save(record);
+
   }
 }
