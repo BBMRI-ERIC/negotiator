@@ -26,7 +26,7 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
-public class AccessCriteriaSection implements Comparable<AccessCriteriaSection> {
+public class AccessCriteriaSection extends AuditEntity implements Comparable<AccessCriteriaSection> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

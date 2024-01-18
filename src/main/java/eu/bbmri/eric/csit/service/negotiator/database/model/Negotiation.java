@@ -36,7 +36,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
@@ -72,7 +71,6 @@ public class Negotiation extends AuditEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
-//  @GenericGenerator(name = "uuid", type = UuidGenerator.class)
   @UuidGenerator
   @Column(name = "id")
   private String id;
@@ -136,7 +134,6 @@ public class Negotiation extends AuditEntity {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
     history.add(
         NegotiationLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
             .changedTo(NegotiationState.SUBMITTED)
             .build());
     return history;
@@ -146,7 +143,6 @@ public class Negotiation extends AuditEntity {
     this.currentState = negotiationState;
     this.lifecycleHistory.add(
         NegotiationLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
             .changedTo(currentState)
             .build());
   }

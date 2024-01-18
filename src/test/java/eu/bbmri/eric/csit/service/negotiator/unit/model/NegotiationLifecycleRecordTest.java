@@ -12,7 +12,6 @@ public class NegotiationLifecycleRecordTest {
   void build_allParameters_OK() {
     NegotiationLifecycleRecord negotiationLifecycleRecord =
         NegotiationLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
             .changedTo(NegotiationState.APPROVED)
             .build();
     assertEquals(NegotiationState.APPROVED, negotiationLifecycleRecord.getChangedTo());

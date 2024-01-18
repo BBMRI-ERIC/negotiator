@@ -56,7 +56,7 @@ import lombok.ToString.Exclude;
             @NamedAttributeNode(value = "type")
           })
     })
-public class AccessCriteriaSet {
+public class AccessCriteriaSet extends AuditEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

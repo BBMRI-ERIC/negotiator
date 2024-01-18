@@ -257,9 +257,12 @@
             <version>4.1.94.Final</version>
         </dependency>
         <dependency>
+            <!-- Version 10.x.x is currently not compatible with spring 3.3.1 -->
+            <!-- See https://github.com/spring-projects/spring-boot/issues/38164 -->
+            <!-- NB: version 10.x.x will need also package  flyway-database-postgresql -->
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>9.1.0</version>
+            <version>9.22.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
