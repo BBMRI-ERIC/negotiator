@@ -116,12 +116,14 @@ public class NegotiationController {
       return assembler.toPagedModel(
           (Page<NegotiationDTO>)
               negotiationService.findAllCreatedBy(
-                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id));
+                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id),
+          role);
     } else if (role == NegotiationRole.REPRESENTATIVE) {
       return assembler.toPagedModel(
           (Page<NegotiationDTO>)
               representativeNegotiationService.findNegotiationsConcerningRepresentative(
-                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id));
+                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id),
+          role);
     }
     return PagedModel.empty();
   }
