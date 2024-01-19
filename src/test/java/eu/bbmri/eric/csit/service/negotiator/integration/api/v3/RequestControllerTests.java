@@ -213,9 +213,7 @@ public class RequestControllerTests {
     long previousCount = repository.count();
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath(unassignedRequestSelector).exists())
@@ -230,9 +228,7 @@ public class RequestControllerTests {
     long previousCount = repository.count();
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath("$[0].id").isString())

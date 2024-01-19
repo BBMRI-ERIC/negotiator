@@ -52,5 +52,4 @@ public class Notification extends AuditEntity {
 
   @Enumerated(EnumType.STRING)
   private NotificationEmailStatus emailStatus;
-
 }

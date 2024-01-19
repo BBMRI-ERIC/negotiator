@@ -219,14 +219,14 @@ public class AttachmentControllerTests {
         .andExpect(status().isUnauthorized());
   }
 
-    @Test
-    @WithUserDetails("researcher")
-    public void test_GetList_NoAttachmentsAreReturned() throws Exception {
-      mockMvc
-          .perform(MockMvcRequestBuilders.get(WITH_NEGOTIATIONS_ENDPOINT))
-          .andExpect(status().isOk())
-          .andExpect(content().json("[]"));
-    }
+  @Test
+  @WithUserDetails("researcher")
+  public void test_GetList_NoAttachmentsAreReturned() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(WITH_NEGOTIATIONS_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+  }
 
   @Test
   public void testGetList_IsUnauthorized_whenNoAuth() throws Exception {

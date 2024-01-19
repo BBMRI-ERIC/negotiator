@@ -236,8 +236,7 @@ public class DataSourceControllerTests {
             .andExpect(jsonPath("$.url", is(TestUtils.DATA_SOURCE_URL)))
             .andReturn();
 
-    Integer dataSourceId =
-        JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Integer dataSourceId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<DataSource> dataSource = repository.findById((long) dataSourceId);
     assert dataSource.isPresent();
     assertEquals(dataSource.get().getCreatedBy().getName(), "admin");
