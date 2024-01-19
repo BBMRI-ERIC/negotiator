@@ -235,6 +235,8 @@ public class NegotiationRepositoryTest {
 
   @Test
   void findAllRelated_10authored30rep_ok() {
+    person.addResource(resource);
+    person = personRepository.save(person);
     Person firstUser = savePerson("firstUser");
     for (int i = 0; i < 10; i++) {
       saveNegotiation(person);
@@ -242,11 +244,12 @@ public class NegotiationRepositoryTest {
     for (int i = 0; i < 30; i++) {
       saveNegotiation(firstUser);
     }
+    assertEquals(1, person.getResources().size());
     assertEquals(
         40,
         negotiationRepository
             .findByCreatedByOrRequests_ResourcesIn(
-                PageRequest.of(0, 10), person, person.getResources())
+                PageRequest.of(0, 50), person, person.getResources())
             .getNumberOfElements());
   }
 
@@ -303,7 +306,7 @@ public class NegotiationRepositoryTest {
     negotiation.setCreatedBy(author);
     Role role = roleRepository.save(new Role("test"));
     Set<PersonNegotiationRole> roles = new HashSet<>();
-    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
+    PersonNegotiationRole personRole = new PersonNegotiationRole(author, negotiation, role);
     roles.add(personRole);
     negotiation.setPersons(roles);
     request.setNegotiation(negotiation);
