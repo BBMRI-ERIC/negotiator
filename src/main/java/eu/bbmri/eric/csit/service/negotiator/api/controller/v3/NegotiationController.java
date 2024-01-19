@@ -96,8 +96,12 @@ public class NegotiationController {
     if (isRequestingNegotiationsAsRepresentative(userRole, currentState)) {
       return getNegotiationsConcerningRepresentative(page, size);
     }
-    if (isAskingForNegotiationsToReview(currentState)) {
-      return getNegotiationsForReview(currentState, page, size);
+    if (isAskingForNegotiationsToReview(userRole)) {
+      if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+        return getNegotiationsForReview(currentState, page, size);
+      } else {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+      }
     }
     return getNegotiationsCreatedByUser(page, size);
   }
@@ -107,9 +111,8 @@ public class NegotiationController {
     return Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null;
   }
 
-  private static boolean isAskingForNegotiationsToReview(NegotiationState currentState) {
-    return currentState == NegotiationState.SUBMITTED
-        && NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+  private static boolean isAskingForNegotiationsToReview(String userRole) {
+    return Objects.equals(userRole, "ROLE_ADMIN");
   }
 
   private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsCreatedByUser(int page, int size) {

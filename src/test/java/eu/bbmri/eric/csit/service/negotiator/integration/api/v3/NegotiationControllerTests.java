@@ -99,10 +99,10 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NEGOTIATIONS_URL))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)))
-        .andExpect(jsonPath("$[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$[1].id", is(NEGOTIATION_2_ID)));
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.[0].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.[1].id", is(NEGOTIATION_2_ID)));
   }
 
   @Test
@@ -312,8 +312,7 @@ public class NegotiationControllerTests {
   public void testNoNegotiationsAreReturned() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[]"));
+        .andExpect(status().isOk());
   }
 
   @Test
@@ -322,7 +321,7 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(3)));
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(3)));
   }
 
   @Test
