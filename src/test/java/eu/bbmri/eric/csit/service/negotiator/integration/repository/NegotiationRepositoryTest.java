@@ -19,6 +19,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestReposito
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,7 +93,7 @@ public class NegotiationRepositoryTest {
                 .dataSource(dataSource)
                 .sourceId("collection:1")
                 .name("test")
-                .representatives(Set.of(person))
+                .representatives(new HashSet<>(List.of(person)))
                 .build());
   }
 
@@ -206,6 +207,49 @@ public class NegotiationRepositoryTest {
             .getNumberOfElements());
   }
 
+  @Test
+  void findAllConcerningUser_1rep_ok() {
+    Person author = savePerson("author");
+    saveNegotiation();
+    author.addResource(resource);
+    author = personRepository.save(author);
+    assertEquals(
+        1,
+        negotiationRepository
+            .findByCreatedByOrRequests_ResourcesIn(
+                PageRequest.of(0, 10), author, author.getResources())
+            .getNumberOfElements());
+  }
+
+  @Test
+  void findAllRelated_1authored_ok() {
+    saveNegotiation();
+    assertEquals(person.getId(), negotiationRepository.findAll().get(0).getCreatedBy().getId());
+    assertEquals(
+        1,
+        negotiationRepository
+            .findByCreatedByOrRequests_ResourcesIn(
+                PageRequest.of(0, 10), person, person.getResources())
+            .getNumberOfElements());
+  }
+
+  @Test
+  void findAllRelated_10authored30rep_ok() {
+    Person firstUser = savePerson("firstUser");
+    for (int i = 0; i < 10; i++) {
+      saveNegotiation(person);
+    }
+    for (int i = 0; i < 30; i++) {
+      saveNegotiation(firstUser);
+    }
+    assertEquals(
+        40,
+        negotiationRepository
+            .findByCreatedByOrRequests_ResourcesIn(
+                PageRequest.of(0, 10), person, person.getResources())
+            .getNumberOfElements());
+  }
+
   private void saveNegotiation() {
     Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
@@ -226,6 +270,7 @@ public class NegotiationRepositoryTest {
             .postsEnabled(false)
             .payload(payload)
             .build();
+    negotiation.setCreatedBy(person);
     Role role = roleRepository.save(new Role("test"));
     Set<PersonNegotiationRole> roles = new HashSet<>();
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
@@ -235,6 +280,35 @@ public class NegotiationRepositoryTest {
     negotiationRepository.save(negotiation);
   }
 
+  private void saveNegotiation(Person author) {
+    Set<Request> requests = new HashSet<>();
+    Set<Resource> resources = new HashSet<>();
+    resources.add(resource);
+    Request request =
+        Request.builder()
+            .url("http://test")
+            .resources(resources)
+            .dataSource(dataSource)
+            .humanReadable("everything")
+            .build();
+    request = requestRepository.save(request);
+    requests.add(request);
+    Negotiation negotiation =
+        Negotiation.builder()
+            .currentState(NegotiationState.SUBMITTED)
+            .requests(requests)
+            .postsEnabled(false)
+            .payload(payload)
+            .build();
+    negotiation.setCreatedBy(author);
+    Role role = roleRepository.save(new Role("test"));
+    Set<PersonNegotiationRole> roles = new HashSet<>();
+    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
+    roles.add(personRole);
+    negotiation.setPersons(roles);
+    request.setNegotiation(negotiation);
+    negotiationRepository.save(negotiation);
+  }
 
   private Person savePerson(String subjectId) {
     return personRepository.save(

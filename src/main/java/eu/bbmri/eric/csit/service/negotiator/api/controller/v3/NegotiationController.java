@@ -106,6 +106,14 @@ public class NegotiationController {
     return getNegotiationsCreatedByUser(page, size);
   }
 
+  @GetMapping("/users/{id}/negotiations")
+  public PagedModel<EntityModel<NegotiationDTO>> listRelated(@Valid @PathVariable Long id) {
+    return assembler.toPagedModel(
+        (Page<NegotiationDTO>)
+            negotiationService.findAllRelatedTo(
+                PageRequest.of(0, 50, Sort.by("creationDate").descending()), id));
+  }
+
   private static boolean isRequestingNegotiationsAsRepresentative(
       String userRole, NegotiationState currentState) {
     return Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null;

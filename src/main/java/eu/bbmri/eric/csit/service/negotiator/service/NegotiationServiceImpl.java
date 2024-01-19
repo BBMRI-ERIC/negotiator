@@ -226,6 +226,15 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
+  public Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId) {
+    Person person =
+        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+    return negotiationRepository
+        .findByCreatedByOrRequests_ResourcesIn(pageable, person, person.getResources())
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  @Override
   public Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId) {
     Person author =
         personRepository

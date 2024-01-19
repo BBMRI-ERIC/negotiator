@@ -58,6 +58,8 @@ public interface NegotiationService {
    */
   List<NegotiationDTO> findAll();
 
+  Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId);
+
   /**
    * Returns a paged list of all negotiations in the negotiator.
    *
