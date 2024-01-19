@@ -1,6 +1,7 @@
 package eu.bbmri.eric.csit.service.negotiator.mappers;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
@@ -22,6 +23,7 @@ public class NegotiationModelAssembler
   public @NonNull EntityModel<NegotiationDTO> toModel(@NonNull NegotiationDTO entity) {
     List<Link> links = new ArrayList<>();
     links.add(linkTo(NegotiationController.class).slash("negotiations").withRel("negotiations"));
+    links.add(linkTo(methodOn(NegotiationController.class).retrieve(entity.getId())).withSelfRel());
     return EntityModel.of(entity, links);
   }
 

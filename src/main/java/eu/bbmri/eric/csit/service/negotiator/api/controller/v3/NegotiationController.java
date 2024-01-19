@@ -174,7 +174,7 @@ public class NegotiationController {
    * @return NegotiationDTO or 403
    */
   @GetMapping("/negotiations/{id}")
-  NegotiationDTO retrieve(@Valid @PathVariable String id) {
+  public NegotiationDTO retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
     if (isAuthorizedForNegotiation(negotiationDTO)) {
       return negotiationDTO;

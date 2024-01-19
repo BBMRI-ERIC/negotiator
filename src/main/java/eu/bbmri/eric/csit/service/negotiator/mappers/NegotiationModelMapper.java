@@ -66,6 +66,9 @@ public class NegotiationModelMapper {
                 .map(Negotiation::getPersons, NegotiationDTO::setPersons));
 
     typeMap.addMappings(
+        mapping -> mapping.map(Negotiation::getCreatedBy, NegotiationDTO::setAuthor));
+
+    typeMap.addMappings(
         mapper ->
             mapper
                 .using(payloadConverter)
