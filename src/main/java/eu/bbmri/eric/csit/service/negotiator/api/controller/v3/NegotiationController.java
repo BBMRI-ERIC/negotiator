@@ -89,29 +89,49 @@ public class NegotiationController {
 
   @GetMapping("/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> list(
-      @RequestParam(required = false) String userRole,
-      @RequestParam(required = false) NegotiationState currentState,
+      @RequestParam(required = false) NegotiationState status,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    if (isRequestingNegotiationsAsRepresentative(userRole, currentState)) {
-      return getNegotiationsConcerningRepresentative(page, size);
+    if (Objects.nonNull(status)) {
+      return assembler.toPagedModel(
+          (Page<NegotiationDTO>)
+              negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), status));
     }
-    if (isAskingForNegotiationsToReview(userRole)) {
-      if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
-        return getNegotiationsForReview(currentState, page, size);
-      } else {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-      }
-    }
-    return getNegotiationsCreatedByUser(page, size);
+    return assembler.toPagedModel(
+        (Page<NegotiationDTO>) negotiationService.findAll(PageRequest.of(page, size)));
   }
 
   @GetMapping("/users/{id}/negotiations")
-  public PagedModel<EntityModel<NegotiationDTO>> listRelated(@Valid @PathVariable Long id) {
-    return assembler.toPagedModel(
-        (Page<NegotiationDTO>)
-            negotiationService.findAllRelatedTo(
-                PageRequest.of(0, 50, Sort.by("creationDate").descending()), id));
+  public PagedModel<EntityModel<NegotiationDTO>> listRelated(
+      @Valid @PathVariable Long id,
+      @RequestParam(required = false) @Valid NegotiationRole role,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size) {
+    checkAuthorization(id);
+    if (Objects.isNull(role)) {
+      return assembler.toPagedModel(
+          (Page<NegotiationDTO>)
+              negotiationService.findAllRelatedTo(
+                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id));
+    } else if (role == NegotiationRole.AUTHOR) {
+      assembler.toPagedModel(
+          (Page<NegotiationDTO>)
+              negotiationService.findAllCreatedBy(
+                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id));
+    } else if (role == NegotiationRole.REPRESENTATIVE) {
+      assembler.toPagedModel(
+          (Page<NegotiationDTO>)
+              representativeNegotiationService.findNegotiationsConcerningRepresentative(
+                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id));
+    }
+    return PagedModel.empty();
+  }
+
+  private static void checkAuthorization(Long id) {
+    if (!Objects.equals(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), id)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
   }
 
   private static boolean isRequestingNegotiationsAsRepresentative(
@@ -171,7 +191,6 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
-  @GetMapping("/findbymode/{event}")
   ResponseEntity<?> sendEvent(
       @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
     if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
@@ -193,7 +212,6 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
-  @GetMapping("/findbymode/{event}")
   ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
