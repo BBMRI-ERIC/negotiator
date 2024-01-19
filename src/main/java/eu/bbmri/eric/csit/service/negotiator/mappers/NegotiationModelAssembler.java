@@ -5,6 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,12 @@ public class NegotiationModelAssembler
     return EntityModel.of(entity, links);
   }
 
-  public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(@NonNull Page<NegotiationDTO> page) {
-    List<Link> links = getLinks(page);
+  public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
+      @NonNull Page<NegotiationDTO> page, NegotiationRole role, Long userId) {
+    List<Link> links = new ArrayList<>();
+    if (page.hasContent()) {
+      links = getLinks(page, role, userId);
+    }
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
         new PagedModel.PageMetadata(
@@ -39,10 +44,10 @@ public class NegotiationModelAssembler
   }
 
   public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
-      @NonNull Page<NegotiationDTO> page, NegotiationRole role) {
+      @NonNull Page<NegotiationDTO> page, NegotiationState status) {
     List<Link> links = new ArrayList<>();
     if (page.hasContent()) {
-      links = getLinks(page, role);
+      links = getLinks(page, status);
     }
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
@@ -51,33 +56,66 @@ public class NegotiationModelAssembler
         links);
   }
 
-  private List<Link> getLinks(Page<NegotiationDTO> page) {
+  private List<Link> getLinks(Page<NegotiationDTO> page, NegotiationState status) {
     List<Link> links = new ArrayList<>();
+    if (page.hasPrevious()) {
+      links.add(
+          linkTo(
+                  methodOn(NegotiationController.class)
+                      .list(status, page.getNumber() - 1, page.getSize()))
+              .withRel(IanaLinkRelations.PREVIOUS)
+              .expand());
+    }
+    if (page.hasNext()) {
+      links.add(
+          linkTo(
+                  methodOn(NegotiationController.class)
+                      .list(status, page.getNumber() + 1, page.getSize()))
+              .withRel(IanaLinkRelations.NEXT)
+              .expand());
+    }
+    links.add(
+        linkTo(methodOn(NegotiationController.class).list(status, 0, page.getSize()))
+            .withRel("first")
+            .expand());
+    links.add(
+        linkTo(methodOn(NegotiationController.class).list(status, page.getNumber(), page.getSize()))
+            .withRel(IanaLinkRelations.CURRENT)
+            .expand());
+    links.add(
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .list(status, page.getTotalPages() - 1, page.getSize()))
+            .withRel(IanaLinkRelations.LAST)
+            .expand());
     return links;
   }
 
-  private List<Link> getLinks(Page<NegotiationDTO> page, NegotiationRole negotiationRole) {
-    Long userId = Long.valueOf(page.getContent().get(0).getAuthor().getId());
+  private List<Link> getLinks(
+      Page<NegotiationDTO> page, NegotiationRole negotiationRole, Long userId) {
     List<Link> links = new ArrayList<>();
     if (page.hasPrevious()) {
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(userId, negotiationRole, page.getNumber() - 1, page.getSize()))
-              .withRel(IanaLinkRelations.PREVIOUS));
+              .withRel(IanaLinkRelations.PREVIOUS)
+              .expand());
     }
     if (page.hasNext()) {
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(userId, negotiationRole, page.getNumber() + 1, page.getSize()))
-              .withRel(IanaLinkRelations.NEXT));
+              .withRel(IanaLinkRelations.NEXT)
+              .expand());
     }
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(userId, negotiationRole, 0, page.getSize()))
-            .withRel("first"));
+            .withRel("first")
+            .expand());
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
@@ -88,7 +126,8 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(userId, negotiationRole, page.getTotalPages() - 1, page.getSize()))
-            .withRel(IanaLinkRelations.LAST));
+            .withRel(IanaLinkRelations.LAST)
+            .expand());
     return links;
   }
 }
