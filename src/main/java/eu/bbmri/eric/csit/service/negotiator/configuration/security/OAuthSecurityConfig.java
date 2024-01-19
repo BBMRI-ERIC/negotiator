@@ -96,7 +96,6 @@ public class OAuthSecurityConfig {
         .addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .httpBasic(Customizer.withDefaults())
         .authorizeHttpRequests(
             authz ->
                 authz

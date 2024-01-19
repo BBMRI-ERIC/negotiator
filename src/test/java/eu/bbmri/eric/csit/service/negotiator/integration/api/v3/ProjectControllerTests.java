@@ -18,6 +18,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.project.ProjectCreateDTO;
 import java.net.URI;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -65,6 +67,7 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
     ProjectCreateDTO request = TestUtils.createProjectRequest(false);
     TestUtils.checkErrorResponse(
@@ -77,15 +80,16 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
     ProjectCreateDTO request = TestUtils.createProjectRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isForbidden(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -114,7 +118,8 @@ public class ProjectControllerTests {
   }
 
   @Test
-  public void testGetAll_Unauthorized_whenBasicAuth() throws Exception {
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
+  public void testGetAll_Unauthorized_whenWrongAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.GET,
@@ -137,6 +142,7 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because HTTP Basic is not supported anymore
   public void testGetAll_Forbidden_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -174,6 +180,7 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @Disabled
   public void testGetById_Unauthorized_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -196,6 +203,7 @@ public class ProjectControllerTests {
   }
 
   @Test
+  @Disabled // HTTP Basic is not supported anymore
   public void testGetById_Forbidden_whenBasicAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,

@@ -23,10 +23,12 @@ import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,101 +83,110 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     request.setUrl(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     request.setHumanReadable(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenResourcesFieldIsMissing() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     request.setResources(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     request.setResources(Set.of());
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     Optional<ResourceDTO> collection = request.getResources().stream().findFirst();
     assert collection.isPresent();
     collection.get().setId("collection_unknown");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     Optional<ResourceDTO> biobank = request.getResources().stream().findFirst();
     assert biobank.isPresent();
     biobank.get().setId("wrong_biobank");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     request.setUrl("http://wrong_data_source");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_Ok() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -183,7 +194,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated())
@@ -196,6 +206,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testGetAll_Ok_whenNoNegotiationIsAssigned() throws Exception {
     requestService.create(TestUtils.createRequest(false));
     String unassignedRequestSelector = "$[?(@.id == '%s')]".formatted(UNASSIGNED_REQUEST_ID);
@@ -204,7 +215,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
@@ -215,13 +225,13 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testGetAll_Ok_whenNegotiationIsAssigned() throws Exception {
     long previousCount = repository.count();
 
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
@@ -234,6 +244,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testGetById_Ok_whenNoNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
     long previousCount = repository.count();
@@ -241,7 +252,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
-                .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
@@ -253,6 +263,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
     NegotiationDTO n =
@@ -264,7 +275,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
-                .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
@@ -276,18 +286,21 @@ public class RequestControllerTests {
   }
 
   @Test
-  @WithUserDetails("directory")
+  @WithUserDetails("TheResearcher")
   public void testUpdate_BadRequest_whenUnauthorized() throws Exception {
-    RequestCreateDTO request = TestUtils.createRequest(false);
+    RequestDTO r = requestService.create(TestUtils.createRequest(false));
+    RequestCreateDTO request = TestUtils.createRequest(true);
+
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/requests")
+            MockMvcRequestBuilders.put("%s/%s".formatted(ENDPOINT, r.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request.toString()))
         .andExpect(status().isBadRequest());
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     TestUtils.checkErrorResponse(
@@ -312,14 +325,13 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testUpdate_NotFound() throws Exception {
     RequestCreateDTO updateRequest = TestUtils.createRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
-
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("%s/-1".formatted(ENDPOINT))
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -327,6 +339,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testUpdate_Ok() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
 
@@ -337,7 +350,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("%s/%s".formatted(ENDPOINT, r.getId()))
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -350,6 +362,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   void createRequest_resourceNotInDB_fetchedFromMolgenis() throws Exception {
     String collectionId = "bbmri:eric:collection:99";
     ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "bbmri-eric:ID:BB");
@@ -360,18 +373,19 @@ public class RequestControllerTests {
                     .withHeader("Content-Type", "application/json")
                     .withJsonBody(actualObj)));
     RequestCreateDTO request = TestUtils.createRequest(false);
+
     request.getResources().stream().findFirst().get().setId(collectionId);
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated());
   }
 
   @Test
+  @WithUserDetails("directory")
   void createRequest_resourceNotInDBOrganizationInDB_Ok() throws Exception {
     String collectionId = "bbmri:eric:collection:99";
     ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "biobank:1");
@@ -387,7 +401,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isCreated());

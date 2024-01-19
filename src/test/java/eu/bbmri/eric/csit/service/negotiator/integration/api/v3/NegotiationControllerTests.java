@@ -81,17 +81,6 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  public void testGetAll_Unauthorized_whenBasicAuth() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isUnauthorized(),
-        httpBasic("researcher", "wrong_pass"),
-        NEGOTIATIONS_URL);
-  }
-
-  @Test
   public void testGetAll_Unauthorized_whenInvalidToken() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc, HttpMethod.GET, "", status().isUnauthorized(), "", NEGOTIATIONS_URL);

@@ -22,6 +22,7 @@ import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -151,6 +153,7 @@ public class AttachmentControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testCreateForNegotiation_IsUnauthorized_whenBasicAuth() throws Exception {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
@@ -207,6 +210,7 @@ public class AttachmentControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testGetById_IsUnauthorized_whenBasicAuth() throws Exception {
     mockMvc
         .perform(
@@ -215,14 +219,14 @@ public class AttachmentControllerTests {
         .andExpect(status().isUnauthorized());
   }
 
-  //  @Test
-  //  @WithUserDetails("researcher")
-  //  public void test_GetList_NoAttachmentsAreReturned() throws Exception {
-  //    mockMvc
-  //        .perform(MockMvcRequestBuilders.get(ENDPOINT))
-  //        .andExpect(status().isOk())
-  //        .andExpect(content().json("[]"));
-  //  }
+    @Test
+    @WithUserDetails("researcher")
+    public void test_GetList_NoAttachmentsAreReturned() throws Exception {
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(WITH_NEGOTIATIONS_ENDPOINT))
+          .andExpect(status().isOk())
+          .andExpect(content().json("[]"));
+    }
 
   @Test
   public void testGetList_IsUnauthorized_whenNoAuth() throws Exception {
@@ -232,6 +236,7 @@ public class AttachmentControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testGetList_IsUnauthorized_whenBasicAuth() throws Exception {
     mockMvc
         .perform(

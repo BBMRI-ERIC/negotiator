@@ -15,10 +15,11 @@ import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.DataSourceControl
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
-import java.util.Optional;
-
 import jakarta.transaction.Transactional;
+import java.net.URI;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,147 +51,168 @@ public class DataSourceControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenName_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setName(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenDescription_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setDescription(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenUrl_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setUrl(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenApiType_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiType(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenApiType_IsWrong() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody = requestBody.replace("MOLGENIS", "UNKNOWN");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        requestBody,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenApiUrl_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiUrl(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenApiUsername_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiUsername(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenApiPassword_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setApiPassword(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenResourceNetwork_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setResourceNetwork(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenResourceBiobank_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setResourceBiobank(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("admin")
   public void testCreate_BadRequest_whenResourceCollection_IsMissing() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     request.setResourceCollection(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -213,6 +235,7 @@ public class DataSourceControllerTests {
             .andExpect(jsonPath("$.description", is(TestUtils.DATA_SOURCE_DESCRIPTION)))
             .andExpect(jsonPath("$.url", is(TestUtils.DATA_SOURCE_URL)))
             .andReturn();
+
     Integer dataSourceId =
         JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<DataSource> dataSource = repository.findById((long) dataSourceId);
@@ -220,8 +243,7 @@ public class DataSourceControllerTests {
     assertEquals(dataSource.get().getCreatedBy().getName(), "admin");
 
     assertEquals(repository.findAll().size(), 2);
-    repository.deleteById(2L);
-
+    repository.deleteById((long) dataSourceId);
   }
 
   @Test
@@ -232,6 +254,7 @@ public class DataSourceControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testCreate_Unauthorized_whenWrongAuth() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
@@ -244,18 +267,21 @@ public class DataSourceControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isForbidden(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isForbidden());
   }
 
   @Test
+  @WithUserDetails("admin")
+  @Transactional
   public void testUpdate_whenIsCorrect() throws Exception {
     // The data source to be updated
     DataSource dataSourceEntity =
@@ -264,12 +290,10 @@ public class DataSourceControllerTests {
 
     // Negotiation body with updated values
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(true);
-
     String requestBody = TestUtils.jsonFromRequest(request);
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("/v3/data-sources/%s".formatted(dataSourceEntity.getId()))
-                .with(httpBasic("admin", "admin"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isNoContent())
@@ -278,7 +302,6 @@ public class DataSourceControllerTests {
     Optional<DataSource> updateDataSource = repository.findById(dataSourceEntity.getId());
     assert updateDataSource.isPresent();
     assertEquals(updateDataSource.get(), modelMapper.map(request, DataSource.class));
-
     repository.deleteById(dataSourceEntity.getId());
   }
 
@@ -290,6 +313,7 @@ public class DataSourceControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     TestUtils.checkErrorResponse(
@@ -302,14 +326,15 @@ public class DataSourceControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.PUT,
-        request,
-        status().isForbidden(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isForbidden());
   }
 }

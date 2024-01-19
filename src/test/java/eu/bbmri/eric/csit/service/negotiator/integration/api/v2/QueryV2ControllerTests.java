@@ -16,6 +16,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri.eric.csit.service.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
+import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -56,70 +58,76 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenUrlFieldIsMissing() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setUrl(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenUrlHumanReadableFieldIsMissing() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setHumanReadable(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenCollectionFieldIsMissing() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setCollections(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenResourcesFieldIsEmpty() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setCollections(Set.of());
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenCollectionNotFound() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     Optional<CollectionV2DTO> collection = request.getCollections().stream().findFirst();
     assert collection.isPresent();
     collection.get().setCollectionId("collection_unknown");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -129,29 +137,32 @@ public class QueryV2ControllerTests {
     Optional<CollectionV2DTO> biobank = request.getCollections().stream().findFirst();
     assert biobank.isPresent();
     biobank.get().setBiobankId("wrong_biobank");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setUrl("http://wrong_data_source");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testCreate_Ok() throws Exception {
 
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
@@ -170,6 +181,7 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @Disabled // no need to test this without http basic
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     TestUtils.checkErrorResponse(
@@ -182,6 +194,7 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testUpdate_CreateWhenRequestIsNotFound() throws Exception {
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
     updateRequest.setToken("-1__search__-1");
@@ -189,7 +202,6 @@ public class QueryV2ControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -199,6 +211,7 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   @Transactional
   public void testUpdate_Ok_whenChangeQuery() throws Exception {
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
@@ -208,7 +221,6 @@ public class QueryV2ControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -228,6 +240,7 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @WithUserDetails("directory")
   public void testUpdate_Ok_whenAddQueryToARequest() throws Exception {
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
     updateRequest.setToken("%s__search__".formatted(NEGOTIATION_V2_ID));
@@ -236,7 +249,6 @@ public class QueryV2ControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))

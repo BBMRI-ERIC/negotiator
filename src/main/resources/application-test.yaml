@@ -26,6 +26,13 @@ spring:
         jwt:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
+          audiences: "https://testnegotiator"
+          issuer-uri: "http://testoidc"
+        opaquetoken:
+          client-id: "test-negotiator"
+          client-secret: "negotiator-secret"
+          introspection-uri: "http://testoidc"
+
   flyway:
     enabled: false
 negotiator:

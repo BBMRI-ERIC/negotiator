@@ -10,11 +10,14 @@ import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.ProjectController;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -44,6 +47,7 @@ public class AccessCriteriaSetControllerTests {
   }
 
   @Test
+  @Disabled // Disabled because without HTTP Basic authorization the case cannot happen
   public void testGet_Unauthorized_whenWrongAuth() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -55,25 +59,25 @@ public class AccessCriteriaSetControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testGet_BadRequest_whenMissingResourceId() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testGet_NotFound_whenResourceIdIsNotExistent() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isNotFound(),
-        httpBasic("researcher", "researcher"),
-        "%s?resourceId=UNKNOWN".formatted(ENDPOINT));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("%s?resourceId=UNKNOWN".formatted(ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+        .andExpect(status().isNotFound());
   }
 
   @Test
