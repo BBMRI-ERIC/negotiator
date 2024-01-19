@@ -1,6 +1,5 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,9 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +27,6 @@ public final class NegotiationResourceLifecycleRecord {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-
   private Long id;
 
   @ManyToOne(cascade = CascadeType.ALL)
@@ -45,6 +41,4 @@ public final class NegotiationResourceLifecycleRecord {
 
   @Enumerated(EnumType.STRING)
   private NegotiationResourceState changedTo;
-
 }
-

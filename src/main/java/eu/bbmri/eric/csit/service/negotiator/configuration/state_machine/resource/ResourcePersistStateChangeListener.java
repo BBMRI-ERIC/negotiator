@@ -32,11 +32,9 @@ public class ResourcePersistStateChangeListener
 
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NotificationRepository notificationRepository;
-  @Autowired
-  NegotiationResourceLifecycleRecordRepository resourceLifecycleRecordRepository;
+  @Autowired NegotiationResourceLifecycleRecordRepository resourceLifecycleRecordRepository;
 
-  @Autowired
-  ResourceRepository resourceRepository;
+  @Autowired ResourceRepository resourceRepository;
   @Autowired @Lazy UserNotificationService userNotificationService;
 
   @Override
@@ -53,9 +51,10 @@ public class ResourcePersistStateChangeListener
       negotiation = updateStateForResource(state, negotiation.get(), resourceId);
       notifyRequester(negotiation.get(), resourceId);
 
-      //update the negotiation resource record
+      // update the negotiation resource record
       Resource r = resourceRepository.findBySourceId(resourceId).get();
-      updateResourceLifecycleRecord(negotiation.get(), r, NegotiationResourceState.valueOf(state.getId()));
+      updateResourceLifecycleRecord(
+          negotiation.get(), r, NegotiationResourceState.valueOf(state.getId()));
     }
   }
 
@@ -92,14 +91,15 @@ public class ResourcePersistStateChangeListener
     return Optional.empty();
   }
 
-  private void updateResourceLifecycleRecord(Negotiation n, Resource r, NegotiationResourceState s){
-    NegotiationResourceLifecycleRecord record = NegotiationResourceLifecycleRecord.builder()
-        .negotiation(n)
-        .resource(r)
-        .recordedAt(LocalDateTime.now())
-        .changedTo(s)
-        .build();
+  private void updateResourceLifecycleRecord(
+      Negotiation n, Resource r, NegotiationResourceState s) {
+    NegotiationResourceLifecycleRecord record =
+        NegotiationResourceLifecycleRecord.builder()
+            .negotiation(n)
+            .resource(r)
+            .recordedAt(LocalDateTime.now())
+            .changedTo(s)
+            .build();
     resourceLifecycleRecordRepository.save(record);
-
   }
 }

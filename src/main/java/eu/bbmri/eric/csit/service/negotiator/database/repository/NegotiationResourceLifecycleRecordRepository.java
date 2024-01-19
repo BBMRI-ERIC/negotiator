@@ -4,7 +4,6 @@ import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceL
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface NegotiationResourceLifecycleRecordRepository extends JpaRepository<NegotiationResourceLifecycleRecord, Long>,
-    JpaSpecificationExecutor<NegotiationResourceLifecycleRecord> {
-
-}
+public interface NegotiationResourceLifecycleRecordRepository
+    extends JpaRepository<NegotiationResourceLifecycleRecord, Long>,
+        JpaSpecificationExecutor<NegotiationResourceLifecycleRecord> {}

@@ -25,7 +25,6 @@ import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableExcepti
 import eu.bbmri.eric.csit.service.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.WrongRequestException;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -159,7 +158,7 @@ public class NegotiationServiceImpl implements NegotiationService {
             attachment.setNegotiation(negotiationEntity);
           });
     }
-    //initialize lifecycle record for resources
+    // initialize lifecycle record for resources
     initializeNegotiationResourceLifecycleRecord(savedNegotiation);
 
     // TODO: Add call to send email.
@@ -331,15 +330,16 @@ public class NegotiationServiceImpl implements NegotiationService {
         .collect(Collectors.toList());
   }
 
-  private void initializeNegotiationResourceLifecycleRecord(Negotiation n){
+  private void initializeNegotiationResourceLifecycleRecord(Negotiation n) {
     Set<Resource> negotiationResources = n.getResources();
-    for (Resource resource : negotiationResources){
-      NegotiationResourceLifecycleRecord record = NegotiationResourceLifecycleRecord.builder()
-          .negotiation(n)
-          .resource(resource)
-          .recordedAt(LocalDateTime.now())
-          .changedTo(NegotiationResourceState.SUBMITTED)
-          .build();
+    for (Resource resource : negotiationResources) {
+      NegotiationResourceLifecycleRecord record =
+          NegotiationResourceLifecycleRecord.builder()
+              .negotiation(n)
+              .resource(resource)
+              .recordedAt(LocalDateTime.now())
+              .changedTo(NegotiationResourceState.SUBMITTED)
+              .build();
       resourceLifecycleRecordRepository.save(record);
     }
   }
