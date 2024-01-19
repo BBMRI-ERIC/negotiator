@@ -43,7 +43,7 @@ public class NegotiationModelAssemblerTest {
     assertEquals(
         1,
         negotiationModelAssembler
-            .toPagedModel(new PageImpl<>(List.of(new NegotiationDTO())))
+            .toPagedModel(new PageImpl<>(List.of(new NegotiationDTO())), null)
             .getContent()
             .size());
   }

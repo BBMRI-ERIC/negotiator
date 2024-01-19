@@ -140,15 +140,6 @@ public class NegotiationController {
     }
   }
 
-  private static boolean isRequestingNegotiationsAsRepresentative(
-      String userRole, NegotiationState currentState) {
-    return Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null;
-  }
-
-  private static boolean isAskingForNegotiationsToReview(String userRole) {
-    return Objects.equals(userRole, "ROLE_ADMIN");
-  }
-
 
   /**
    * Fetch a negotiation
