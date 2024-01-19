@@ -6,7 +6,6 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotia
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationLifecycleService;
@@ -294,12 +293,6 @@ public class NegotiationController {
   }
 
   private boolean isCreator(NegotiationDTO negotiationDTO) {
-    for (PersonRoleDTO personRoleDTO : negotiationDTO.getPersons()) {
-      if (Objects.equals(personRoleDTO.getId(), getUserId())
-          && Objects.equals(personRoleDTO.getRole(), "ROLE_RESEARCHER")) {
-        return true;
-      }
-    }
-    return false;
+    return negotiationDTO.getAuthor().getId().equals(getUserId());
   }
 }
