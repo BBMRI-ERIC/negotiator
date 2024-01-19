@@ -102,35 +102,38 @@ public class NegotiationController {
     return getNegotiationsCreatedByUser(page, size);
   }
 
-  private static boolean isRequestingNegotiationsAsRepresentative(String userRole, NegotiationState currentState) {
+  private static boolean isRequestingNegotiationsAsRepresentative(
+      String userRole, NegotiationState currentState) {
     return Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null;
   }
 
   private static boolean isAskingForNegotiationsToReview(NegotiationState currentState) {
     return currentState == NegotiationState.SUBMITTED
-            && NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+        && NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsCreatedByUser(int page, int size) {
     return assembler.toPagedModel(
-            (Page<NegotiationDTO>)
-                    negotiationService.findAllCreatedBy(
-                            PageRequest.of(page, size, Sort.by("creationDate").descending()),
-                            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+        (Page<NegotiationDTO>)
+            negotiationService.findAllCreatedBy(
+                PageRequest.of(page, size, Sort.by("creationDate").descending()),
+                NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
   }
 
-  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsForReview(NegotiationState currentState, int page, int size) {
+  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsForReview(
+      NegotiationState currentState, int page, int size) {
     return assembler.toPagedModel(
-            (Page<NegotiationDTO>)
-                    negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), currentState));
+        (Page<NegotiationDTO>)
+            negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), currentState));
   }
 
-  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsConcerningRepresentative(int page, int size) {
+  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsConcerningRepresentative(
+      int page, int size) {
     return assembler.toPagedModel(
-            (Page<NegotiationDTO>)
-                    representativeNegotiationService.findNegotiationsConcerningRepresentative(
-                            PageRequest.of(page, size, Sort.by("creationDate").descending()),
-                            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+        (Page<NegotiationDTO>)
+            representativeNegotiationService.findNegotiationsConcerningRepresentative(
+                PageRequest.of(page, size, Sort.by("creationDate").descending()),
+                NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
   }
 
   /**
