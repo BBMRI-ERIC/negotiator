@@ -6,19 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.resource.ResourceWithStatusDTO;
 import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -41,9 +38,6 @@ public class NegotiationModelMapper {
     TypeMap<Negotiation, NegotiationDTO> typeMap =
         modelMapper.createTypeMap(Negotiation.class, NegotiationDTO.class);
 
-    Converter<Set<PersonNegotiationRole>, Set<PersonRoleDTO>> personsRoleConverter =
-        role -> personsRoleConverter(role.getSource());
-
     Converter<NegotiationState, String> negotiationStatusConverter =
         status -> negotiationStatusConverter(status.getSource());
 
@@ -58,12 +52,6 @@ public class NegotiationModelMapper {
             throw new RuntimeException(e); // TODO: raise the correct exception
           }
         };
-
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(personsRoleConverter)
-                .map(Negotiation::getPersons, NegotiationDTO::setPersons));
 
     typeMap.addMappings(
         mapping -> mapping.map(Negotiation::getCreatedBy, NegotiationDTO::setAuthor));
@@ -112,21 +100,6 @@ public class NegotiationModelMapper {
       builder.status(state.name());
     }
     return builder.build();
-  }
-
-  private Set<PersonRoleDTO> personsRoleConverter(Set<PersonNegotiationRole> personsRoles) {
-    if (Objects.isNull(personsRoles)) {
-      return null;
-    }
-    Stream<PersonRoleDTO> roles =
-        personsRoles.stream()
-            .map(
-                personRole ->
-                    new PersonRoleDTO(
-                        String.valueOf(personRole.getPerson().getId()),
-                        personRole.getPerson().getName(),
-                        personRole.getRole().getName()));
-    return roles.collect(Collectors.toSet());
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
