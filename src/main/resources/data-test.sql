@@ -93,7 +93,7 @@ values (4, 103),
        (5, 109);
 
 insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload)
-values ('negotiation-1', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
+values ('negotiation-1', '2023-04-12', 'IN_PROGRESS', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-2', '2023-04-12', 'SUBMITTED', '2023-04-12', 108, 108,
         '{"project":{"title":"title","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),

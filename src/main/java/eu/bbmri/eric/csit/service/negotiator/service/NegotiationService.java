@@ -66,7 +66,7 @@ public interface NegotiationService {
    * @param pageable the page request
    * @return a paged list of NegotiationDTOs
    */
-  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long creatorId);
+  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId);
 
   /**
    * Returns a paged list of all negotiations in the negotiator with the specified current state.
