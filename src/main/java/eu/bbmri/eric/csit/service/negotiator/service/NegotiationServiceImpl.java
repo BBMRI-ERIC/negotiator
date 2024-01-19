@@ -218,11 +218,10 @@ public class NegotiationServiceImpl implements NegotiationService {
    *
    * @return the List of Negotiation entities
    */
-  public List<NegotiationDTO> findAll() {
-    List<Negotiation> negotiations = negotiationRepository.findAll();
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
+  public Iterable<NegotiationDTO> findAll(Pageable pageable) {
+    return negotiationRepository
+        .findAll(pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
   @Override
