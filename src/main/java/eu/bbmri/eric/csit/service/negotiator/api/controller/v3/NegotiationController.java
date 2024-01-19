@@ -25,6 +25,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -92,24 +93,44 @@ public class NegotiationController {
       @RequestParam(required = false) NegotiationState currentState,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    if (Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null) {
-      return assembler.toPagedModel(
-          (Page<NegotiationDTO>)
-              representativeNegotiationService.findNegotiationsConcerningRepresentative(
-                  PageRequest.of(page, size),
-                  NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+    if (isRequestingNegotiationsAsRepresentative(userRole, currentState)) {
+      return getNegotiationsConcerningRepresentative(page, size);
     }
-    if (currentState == NegotiationState.SUBMITTED
-        && NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
-      return assembler.toPagedModel(
-          (Page<NegotiationDTO>)
-              negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), currentState));
+    if (isAskingForNegotiationsToReview(currentState)) {
+      return getNegotiationsForReview(currentState, page, size);
     }
+    return getNegotiationsCreatedByUser(page, size);
+  }
+
+  private static boolean isRequestingNegotiationsAsRepresentative(String userRole, NegotiationState currentState) {
+    return Objects.equals(userRole, "ROLE_REPRESENTATIVE") && currentState == null;
+  }
+
+  private static boolean isAskingForNegotiationsToReview(NegotiationState currentState) {
+    return currentState == NegotiationState.SUBMITTED
+            && NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsCreatedByUser(int page, int size) {
     return assembler.toPagedModel(
-        (Page<NegotiationDTO>)
-            negotiationService.findAllCreatedBy(
-                PageRequest.of(page, size),
-                NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+            (Page<NegotiationDTO>)
+                    negotiationService.findAllCreatedBy(
+                            PageRequest.of(page, size, Sort.by("creationDate").descending()),
+                            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+  }
+
+  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsForReview(NegotiationState currentState, int page, int size) {
+    return assembler.toPagedModel(
+            (Page<NegotiationDTO>)
+                    negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), currentState));
+  }
+
+  private PagedModel<EntityModel<NegotiationDTO>> getNegotiationsConcerningRepresentative(int page, int size) {
+    return assembler.toPagedModel(
+            (Page<NegotiationDTO>)
+                    representativeNegotiationService.findNegotiationsConcerningRepresentative(
+                            PageRequest.of(page, size, Sort.by("creationDate").descending()),
+                            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
   }
 
   /**
