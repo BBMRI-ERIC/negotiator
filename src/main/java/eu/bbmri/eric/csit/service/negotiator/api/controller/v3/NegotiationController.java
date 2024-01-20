@@ -140,7 +140,6 @@ public class NegotiationController {
     }
   }
 
-
   /**
    * Fetch a negotiation
    *
