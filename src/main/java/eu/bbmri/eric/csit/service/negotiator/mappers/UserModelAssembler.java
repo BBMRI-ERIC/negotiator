@@ -50,6 +50,10 @@ public class UserModelAssembler
         links);
   }
 
+  public PagedModel<EntityModel<UserResponseModel>> toPagedModel(UserResponseModel entity) {
+    return PagedModel.of(List.of(toModel(entity)), new PagedModel.PageMetadata(1, 0, 1, 1));
+  }
+
   @NonNull
   private static List<Link> getLinks(Page<UserResponseModel> page) {
     Map<String, Object> parameters = new HashMap<>();

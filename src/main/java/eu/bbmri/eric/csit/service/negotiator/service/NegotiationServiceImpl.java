@@ -31,6 +31,7 @@ import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -217,11 +218,38 @@ public class NegotiationServiceImpl implements NegotiationService {
    *
    * @return the List of Negotiation entities
    */
-  public List<NegotiationDTO> findAll() {
-    List<Negotiation> negotiations = negotiationRepository.findAll();
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
+  public Iterable<NegotiationDTO> findAll(Pageable pageable) {
+    return negotiationRepository
+        .findAll(pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  @Override
+  public Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId) {
+    Person person =
+        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+    return negotiationRepository
+        .findByCreatedByOrRequests_ResourcesIn(pageable, person, person.getResources())
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  @Override
+  public Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId) {
+    Person author =
+        personRepository
+            .findById(authorId)
+            .orElseThrow(() -> new EntityNotFoundException(authorId));
+    return negotiationRepository
+        .findAllByCreatedBy(pageable, author)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  @Override
+  public Iterable<NegotiationDTO> findAllByCurrentStatus(
+      Pageable pageable, NegotiationState state) {
+    return negotiationRepository
+        .findAllByCurrentState(pageable, state)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
   private Negotiation findEntityById(String negotiationId, boolean includeDetails) {

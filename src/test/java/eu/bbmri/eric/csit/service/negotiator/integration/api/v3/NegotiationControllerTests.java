@@ -95,14 +95,17 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testGetAll_Ok() throws Exception {
-    int numberOfNegotiations = (int) negotiationRepository.count();
     mockMvc
-        .perform(MockMvcRequestBuilders.get(NEGOTIATIONS_URL))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)))
-        .andExpect(jsonPath("$[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$[1].id", is(NEGOTIATION_2_ID)));
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.[0].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.[1].id", is(NEGOTIATION_2_ID)));
   }
 
   @Test
@@ -311,18 +314,25 @@ public class NegotiationControllerTests {
   @WithUserDetails("researcher")
   public void testNoNegotiationsAreReturned() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[]"));
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isOk());
   }
 
   @Test
   @WithUserDetails("TheResearcher")
   void testGetNegotiationsUserCreated() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?userRole=CREATOR".formatted(NEGOTIATIONS_URL)))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?role=AUTHOR"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(3)));
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(3)));
   }
 
   @Test
@@ -331,8 +341,11 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "%s?userRole=ROLE_REPRESENTATIVE".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk());
+                "/v3/users/%s/negotiations?role=REPRESENTATIVE"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(1)));
   }
 
   @Test

@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri.eric.csit.service.negotiator.dto.person.PersonRoleDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostDTO;
 import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
@@ -55,13 +54,9 @@ public class PostController {
     if (roleName == null || roleName.isEmpty()) {
       return postService.findByNegotiationId(negotiationId, type, resource);
     }
-    NegotiationDTO n = negotiationService.findById(negotiationId, true);
+    NegotiationDTO negotiationDTO = negotiationService.findById(negotiationId, true);
 
-    List<PersonRoleDTO> negotiationPersonsWithRoles =
-        n.getPersons().stream().filter(p -> p.getRole().equals(roleName)).toList();
-
-    List<String> posters =
-        negotiationPersonsWithRoles.stream().map(PersonRoleDTO::getName).toList();
+    List<String> posters = List.of(negotiationDTO.getAuthor().getName());
 
     return postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource);
   }

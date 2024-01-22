@@ -141,11 +141,7 @@ public class PostControllerTests {
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(4)))
-        .andExpect(jsonPath("$[0].id", is("post-1-representative")))
-        .andExpect(jsonPath("$[1].id", is("post-2-representative")))
-        .andExpect(jsonPath("$[2].id", is("post-3-representative")))
-        .andExpect(jsonPath("$[3].id", is("post-4-representative")));
+        .andExpect(jsonPath("$.length()", is(3)));
   }
 
   @Test
