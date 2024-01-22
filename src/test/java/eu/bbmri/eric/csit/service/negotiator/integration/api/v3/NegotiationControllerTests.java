@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceLifecycleRecord;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationResourceLifecycleRecordRepository;
@@ -250,7 +251,9 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.payload.ethics-vote.ethics-vote", is("My ethic vote")));
 
     assertEquals(negotiationRepository.count(), previousRequestCount + 1);
-    List<NegotiationResourceLifecycleRecord> records = resourceLifecycleRecordRepository.findAll();
+    List<NegotiationResourceLifecycleRecord> records =
+        resourceLifecycleRecordRepository.findByChangedTo(
+            NegotiationResourceState.valueOf("SUBMITTED"));
     assertEquals(2, records.size());
   }
 
@@ -462,7 +465,6 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheBiobanker")
   void sendEvent_ValidResourceEvent_ReturnResourceLifecycleState() throws Exception {
-    int recordsBefore = resourceLifecycleRecordRepository.findAll().size();
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
@@ -470,8 +472,10 @@ public class NegotiationControllerTests {
                     .formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is("negotiation-1")));
-    int recordsAfter = resourceLifecycleRecordRepository.findAll().size();
-    assertEquals(recordsAfter, recordsBefore + 1);
+    List<NegotiationResourceLifecycleRecord> records =
+        resourceLifecycleRecordRepository.findByChangedTo(
+            NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED"));
+    assertEquals(1, records.size());
   }
 
   @Test
