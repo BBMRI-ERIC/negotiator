@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
@@ -23,6 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(collectionRelation = "negotiations", itemRelation = "negotiation")
 public class NegotiationDTO {
 
   public Set<ResourceWithStatusDTO> resources;
