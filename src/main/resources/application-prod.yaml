@@ -10,23 +10,21 @@ spring:
       max-request-size: 2MB
   sql:
     init:
-      mode: always
-      platform: postgres
-      continue-on-error: true
-      data-locations: classpath:data.sql
+      mode: never
   jpa:
     hibernate:
-      ddl-auto: create
-    defer-datasource-initialization: true
+      ddl-auto: none
+    defer-datasource-initialization: false
     properties:
       hibernate:
+        enable_lazy_load_no_trans: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
   jackson:
     date-format: "yyyy-MM-dd"
   flyway:
     enabled: true
-    user: negotiator
-    password: negotiator
-    schemas: negotiator
-    url: jdbc:postgresql://localhost:5432/
-    locations: classpath:resources/migrations/postgresql
+    user:
+    password:
+    schemas:
+    url:
+    locations: classpath:db/migration/{vendor},filesystem:/app/data
