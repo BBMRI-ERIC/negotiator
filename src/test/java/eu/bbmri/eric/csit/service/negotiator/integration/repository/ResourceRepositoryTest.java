@@ -55,21 +55,21 @@ public class ResourceRepositoryTest {
                 .syncActive(true)
                 .build());
 
-      resourceRepository.save(
-          Resource.builder()
-              .organization(organization)
-              .dataSource(dataSource)
-              .sourceId("collection:1")
-              .name("test")
-              .build());
+    resourceRepository.save(
+        Resource.builder()
+            .organization(organization)
+            .dataSource(dataSource)
+            .sourceId("collection:1")
+            .name("test")
+            .build());
 
-      resourceRepository.save(
-          Resource.builder()
-              .organization(organization)
-              .dataSource(dataSource)
-              .sourceId("collection:2")
-              .name("test")
-              .build());
+    resourceRepository.save(
+        Resource.builder()
+            .organization(organization)
+            .dataSource(dataSource)
+            .sourceId("collection:2")
+            .name("test")
+            .build());
     assertEquals(
         2, resourceRepository.findAllBySourceIdIn(Set.of("collection:1", "collection:2")).size());
     assertEquals(1, resourceRepository.findAllBySourceIdIn(Set.of("collection:2")).size());

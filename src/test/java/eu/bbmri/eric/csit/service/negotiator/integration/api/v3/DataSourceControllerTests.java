@@ -15,9 +15,8 @@ import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.DataSourceControl
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
-import java.util.Optional;
-
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -213,15 +212,13 @@ public class DataSourceControllerTests {
             .andExpect(jsonPath("$.description", is(TestUtils.DATA_SOURCE_DESCRIPTION)))
             .andExpect(jsonPath("$.url", is(TestUtils.DATA_SOURCE_URL)))
             .andReturn();
-    Integer dataSourceId =
-        JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Integer dataSourceId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<DataSource> dataSource = repository.findById((long) dataSourceId);
     assert dataSource.isPresent();
     assertEquals(dataSource.get().getCreatedBy().getName(), "admin");
 
     assertEquals(repository.findAll().size(), 2);
     repository.deleteById(2L);
-
   }
 
   @Test
