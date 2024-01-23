@@ -103,9 +103,9 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiationDTOList.[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiationDTOList.[1].id", is(NEGOTIATION_2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)));
   }
 
   @Test
@@ -332,7 +332,7 @@ public class NegotiationControllerTests {
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(3)));
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)));
   }
 
   @Test
@@ -345,7 +345,7 @@ public class NegotiationControllerTests {
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.negotiationDTOList.length()", is(1)));
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(1)));
   }
 
   @Test

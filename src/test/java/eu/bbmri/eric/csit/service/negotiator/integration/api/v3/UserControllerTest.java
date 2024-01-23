@@ -92,12 +92,9 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.userResponseModelList").isArray())
-        .andExpect(jsonPath("$._embedded.userResponseModelList").isNotEmpty())
-        .andExpect(
-            jsonPath(
-                "$._embedded.userResponseModelList.length()",
-                is(personRepository.findAll().size())));
+        .andExpect(jsonPath("$._embedded.users").isArray())
+        .andExpect(jsonPath("$._embedded.users").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.users.length()", is(personRepository.findAll().size())));
   }
 
   @Test
