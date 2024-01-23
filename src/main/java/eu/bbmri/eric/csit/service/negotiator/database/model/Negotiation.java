@@ -111,6 +111,15 @@ public class Negotiation extends AuditEntity {
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
 
+  @OneToMany(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.ALL})
+  @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
+  private Set<NegotiationResourceLifecycleRecord> negotiationResourceLifecycleRecords =
+      new HashSet<>();
+
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
     history.add(
@@ -134,6 +143,17 @@ public class Negotiation extends AuditEntity {
     currentStatePerResource.put(resourceId, state);
   }
 
+  public void addNewRecordToNegotiationResourceStateHistory(
+      String resourceId, NegotiationResourceState state) {
+    NegotiationResourceLifecycleRecord record =
+        NegotiationResourceLifecycleRecord.builder()
+            .recordedAt(ZonedDateTime.now())
+            .changedTo(state)
+            .resource(lookupResource(getResources(), resourceId))
+            .build();
+    negotiationResourceLifecycleRecords.add(record);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -155,5 +175,12 @@ public class Negotiation extends AuditEntity {
     return requests.stream()
         .flatMap(request -> request.getResources().stream())
         .collect(Collectors.toUnmodifiableSet());
+  }
+
+  public Resource lookupResource(Set<Resource> resources, String resourceId) {
+    return resources.stream()
+        .filter(r -> r.getSourceId().equals(resourceId))
+        .findFirst()
+        .orElse(null);
   }
 }

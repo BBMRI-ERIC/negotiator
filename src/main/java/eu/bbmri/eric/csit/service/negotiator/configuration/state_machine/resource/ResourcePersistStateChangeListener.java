@@ -42,6 +42,7 @@ public class ResourcePersistStateChangeListener
     if (negotiation.isPresent()) {
       negotiation = updateStateForResource(state, negotiation.get(), resourceId);
       notifyRequester(negotiation.get(), resourceId);
+      addResourceStateChangeRecord(state, negotiation.get(), resourceId);
     }
   }
 
@@ -68,6 +69,13 @@ public class ResourcePersistStateChangeListener
   private Optional<Negotiation> updateStateForResource(
       State<String, String> state, Negotiation negotiation, String resourceId) {
     negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
+    return Optional.of(negotiationRepository.save(negotiation));
+  }
+
+  private Optional<Negotiation> addResourceStateChangeRecord(
+      State<String, String> state, Negotiation negotiation, String resourceId) {
+    negotiation.addNewRecordToNegotiationResourceStateHistory(
+        resourceId, NegotiationResourceState.valueOf(state.getId()));
     return Optional.of(negotiationRepository.save(negotiation));
   }
 
