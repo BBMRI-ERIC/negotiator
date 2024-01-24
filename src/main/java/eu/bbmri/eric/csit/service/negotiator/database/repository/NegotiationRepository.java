@@ -21,7 +21,7 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
   List<Negotiation> findAll();
 
   Page<Negotiation> findAllByCreatedBy(Pageable pageable, Person author);
-  
+
   Optional<Negotiation> findDetailedById(String id);
 
   Page<Negotiation> findAllByCurrentState(Pageable pageRequest, NegotiationState currentState);
@@ -76,9 +76,7 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
   Page<Negotiation> findByCreatedByOrRequests_ResourcesIn(
       Pageable pageable, Person person, Set<Resource> resources);
 
-
   List<Negotiation> findByCreatedBy_Id(Long personId);
-
 
   List<Negotiation> findByCurrentState(NegotiationState negotiationState);
 
