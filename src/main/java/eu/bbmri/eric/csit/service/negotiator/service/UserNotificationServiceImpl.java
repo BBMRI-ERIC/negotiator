@@ -258,8 +258,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .distinct()
             .collect(Collectors.toList());
 
-    context.setVariable("recipient", recipient.getName());
-    context.setVariable("notifications", notifications);
     context.setVariable("negotiations", negotiations);
     context.setVariable("frontendurl", frontendurl);
 

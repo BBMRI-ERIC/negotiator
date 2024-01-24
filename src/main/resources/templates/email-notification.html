@@ -62,24 +62,21 @@
             <hr />
             <div class="email-content">
                 <p>
-                    Dear Mr/Mrs <span th:text="${recipient}">Recipient,</span>
-                    <br /><br />You had some Notifications for Negotiation(s):<br/>
+                    Dear <span th:text="${recipient}">Negotiator User,</span>
+                    <br /><br />
+                    <div style="text-indent: 20px;">
+                    You have a new message about your Negotiation(s):<br/>
                         <ul>
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
                                 <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/ROLE_RESEARCHER'}"><span th:text="${negotiation.id}"></span></a>
                             </li>
                         </ul>
-                    </p>
-                    <br/>
-                    <p>List of updates:</p>
-                     <ul>
-                         <!-- Loop through notifications and display them -->
-                         <li th:each="notification : ${notifications}">
-                             <span th:text="${notification.message}"></span>
+                    </div>
+                </p>
+                <br/>
+                    <p>Visit the link(s) to read and respond. </p>
 
-                         </li>
-                    </ul>
                     <br />
                     <p>Yours sincerely<br />The BBMRI-ERIC Team</p><br /><br />
                     <p>This e-mail message was generated automatically. Replies to this e-mail or messages to the address negotiator@bbmri-eric.eu will not be forwarded/read.
