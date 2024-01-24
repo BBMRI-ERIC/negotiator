@@ -38,7 +38,7 @@ import lombok.ToString.Exclude;
     attributeNodes = {
       @NamedAttributeNode(value = "roles"),
     })
-@SequenceGenerator(name = "person_id_seq", initialValue = 300)
+@SequenceGenerator(name = "person_id_seq", initialValue = 10000)
 public class Person {
 
   @Id
