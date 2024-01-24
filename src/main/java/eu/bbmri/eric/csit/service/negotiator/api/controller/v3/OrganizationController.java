@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.dto.OrganizationDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.OrganizationModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.OrganizationService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
@@ -28,6 +29,7 @@ public class OrganizationController {
   }
 
   @GetMapping()
+  @Operation(summary = "List all organizations")
   public PagedModel<EntityModel<OrganizationDTO>> list(
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
@@ -37,6 +39,7 @@ public class OrganizationController {
   }
 
   @GetMapping("/{id}")
+  @Operation(summary = "Get organization by id")
   public EntityModel<OrganizationDTO> findById(@PathVariable("id") Long id) {
     return organizationModelAssembler.toModel(organizationService.findOrganizationById(id));
   }

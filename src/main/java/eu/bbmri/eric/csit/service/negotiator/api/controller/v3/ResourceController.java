@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.ResourceModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
@@ -26,11 +27,13 @@ public class ResourceController {
   }
 
   @GetMapping("/{id}")
+  @Operation(summary = "Get resource by id")
   public EntityModel<ResourceResponseModel> getResourceById(@PathVariable("id") Long id) {
     return resourceModelAssembler.toModel(resourceService.findById(id));
   }
 
   @GetMapping()
+  @Operation(summary = "List all resources")
   public PagedModel<EntityModel<ResourceResponseModel>> list(
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
