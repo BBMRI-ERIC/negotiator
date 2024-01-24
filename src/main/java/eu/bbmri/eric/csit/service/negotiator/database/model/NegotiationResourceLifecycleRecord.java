@@ -7,7 +7,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,16 +19,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 public class NegotiationResourceLifecycleRecord extends AuditEntity {
-  // @Id
-  // @GeneratedValue(strategy = GenerationType.IDENTITY)
-  // @Column(name = "id")
-  // private Long id;
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "resource_id", referencedColumnName = "id")
   private Resource resource;
 
-  private ZonedDateTime recordedAt;
+  private LocalDateTime recordedAt;
 
   @Enumerated(EnumType.STRING)
   private NegotiationResourceState changedTo;

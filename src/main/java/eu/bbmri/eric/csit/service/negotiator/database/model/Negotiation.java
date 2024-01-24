@@ -19,6 +19,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,7 +148,7 @@ public class Negotiation extends AuditEntity {
       String resourceId, NegotiationResourceState state) {
     NegotiationResourceLifecycleRecord record =
         NegotiationResourceLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
+            .recordedAt(LocalDateTime.now())
             .changedTo(state)
             .resource(lookupResource(getResources(), resourceId))
             .build();
