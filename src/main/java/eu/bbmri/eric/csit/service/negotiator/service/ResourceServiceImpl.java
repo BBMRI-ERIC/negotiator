@@ -4,6 +4,7 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceReposit
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,5 +22,12 @@ public class ResourceServiceImpl implements ResourceService {
     return modelMapper.map(
         repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
         ResourceResponseModel.class);
+  }
+
+  @Override
+  public Iterable<ResourceResponseModel> findAll(Pageable pageable) {
+    return repository
+        .findAll(pageable)
+        .map(resource -> modelMapper.map(resource, ResourceResponseModel.class));
   }
 }
