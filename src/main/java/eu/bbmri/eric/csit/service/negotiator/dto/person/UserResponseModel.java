@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.hateoas.server.core.Relation;
 
 /** A DTO model for a person authenticated via OAuth. */
 @Getter
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Relation(collectionRelation = "users", itemRelation = "user")
 public class UserResponseModel {
   private String id;
   private String subjectId;

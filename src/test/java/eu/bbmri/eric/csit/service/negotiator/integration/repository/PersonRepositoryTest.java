@@ -13,6 +13,8 @@ import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRep
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonSpecifications;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import jakarta.transaction.Transactional;
+import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class PersonRepositoryTest {
   @Autowired OrganizationRepository organizationRepository;
 
   @Test
+  @Transactional
   void existsByIdAndRepresentsResources_oneResource_Ok() {
     Organization organization =
         organizationRepository.save(
@@ -55,16 +58,36 @@ public class PersonRepositoryTest {
                 .build());
     Person person = savePerson("test");
     Resource resource =
-        resourceRepository.save(
+        resourceRepository.saveAndFlush(
             Resource.builder()
                 .organization(organization)
                 .dataSource(dataSource)
                 .sourceId("collection:1")
+                .representatives(new HashSet<>())
                 .name("test")
-                .representatives(Set.of(person))
                 .build());
+    person.addResource(resource);
+    personRepository.saveAndFlush(person);
     assertTrue(personRepository.existsById(person.getId()));
     assertTrue(personRepository.existsByIdAndResourcesIn(person.getId(), Set.of(resource)));
+    assertEquals(
+        resource.getId(),
+        personRepository
+            .findDetailedById(person.getId())
+            .get()
+            .getResources()
+            .iterator()
+            .next()
+            .getId());
+    assertEquals(
+        person.getId(),
+        resourceRepository
+            .findById(resource.getId())
+            .get()
+            .getRepresentatives()
+            .iterator()
+            .next()
+            .getId());
   }
 
   @Test
@@ -130,8 +153,13 @@ public class PersonRepositoryTest {
   }
 
   private Person savePerson(String subjectId) {
-    return personRepository.save(
-        Person.builder().subjectId(subjectId).name("John").email("test@test.com").build());
+    return personRepository.saveAndFlush(
+        Person.builder()
+            .subjectId(subjectId)
+            .name("John")
+            .email("test@test.com")
+            .resources(new HashSet<>())
+            .build());
   }
 
   private Person savePerson(String subjectId, String name) {

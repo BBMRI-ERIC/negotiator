@@ -7,6 +7,7 @@ import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri.eric.csit.service.negotiator.exceptions.EntityNotStorableException;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface NegotiationService {
 
@@ -55,7 +56,26 @@ public interface NegotiationService {
    *
    * @return a List of NegotiationDTO with the data of all negotiation in the negotiator
    */
-  List<NegotiationDTO> findAll();
+  Iterable<NegotiationDTO> findAll(Pageable pageable);
+
+  Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId);
+
+  /**
+   * Returns a paged list of all negotiations in the negotiator.
+   *
+   * @param pageable the page request
+   * @return a paged list of NegotiationDTOs
+   */
+  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId);
+
+  /**
+   * Returns a paged list of all negotiations in the negotiator with the specified current state.
+   *
+   * @param pageable the page request
+   * @param state the current state of the negotiations
+   * @return a paged list of NegotiationDTOs
+   */
+  Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, NegotiationState state);
 
   /**
    * Retrieves the negotiation identified by :id. If includeDetails is true, also details of the

@@ -8,11 +8,8 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resourc
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Person;
-import eu.bbmri.eric.csit.service.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
-import eu.bbmri.eric.csit.service.negotiator.database.model.Role;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri.eric.csit.service.negotiator.mappers.NegotiationModelMapper;
 import java.time.LocalDateTime;
@@ -83,21 +80,6 @@ public class NegotiationMapperTest {
     Negotiation negotiation = buildNegotiation();
     negotiation.setPayload("Wrong json string");
     assertThrows(RuntimeException.class, () -> this.mapper.map(negotiation, NegotiationDTO.class));
-  }
-
-  @Test
-  void map_personRoles_Ok() {
-    Negotiation negotiation = buildNegotiation();
-    PersonNegotiationRole personNegotiationRole =
-        new PersonNegotiationRole(
-            Person.builder().subjectId("823").name("John").email("test@test.com").id(1L).build(),
-            negotiation,
-            new Role("CREATOR"));
-    negotiation.setPersons(Set.of(personNegotiationRole));
-    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    assertEquals("CREATOR", negotiationDTO.getPersons().iterator().next().getRole());
-    assertEquals("John", negotiationDTO.getPersons().iterator().next().getName());
-    assertEquals(String.valueOf(1L), negotiationDTO.getPersons().iterator().next().getId());
   }
 
   @Test

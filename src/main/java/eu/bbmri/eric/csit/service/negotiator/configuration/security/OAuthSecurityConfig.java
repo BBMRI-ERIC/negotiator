@@ -100,6 +100,8 @@ public class OAuthSecurityConfig {
         .authorizeHttpRequests(
             authz ->
                 authz
+                    .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations"))
+                    .hasRole("ADMIN")
                     .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/negotiations/lifecycle"))
                     .permitAll()
                     .requestMatchers(mvc.pattern("/v3/negotiations/*/attachments/*"))
@@ -122,12 +124,16 @@ public class OAuthSecurityConfig {
                     .hasAuthority("ADMIN")
                     .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/data-sources/**"))
                     .hasAuthority("ADMIN")
+                    .requestMatchers(mvc.pattern("/v3/users"))
+                    .authenticated()
                     .requestMatchers(mvc.pattern("/v3/users/roles"))
                     .authenticated()
                     .requestMatchers(mvc.pattern("/v3/users/resources"))
                     .authenticated()
-                    .requestMatchers(mvc.pattern("/v3/users/**"))
+                    .requestMatchers(mvc.pattern("/v3/users/*/resources"))
                     .hasRole("AUTHORIZATION_MANAGER")
+                    .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
+                    .authenticated()
                     .requestMatchers(mvc.pattern("/v3/projects/**"))
                     .hasRole("RESEARCHER")
                     .anyRequest()
