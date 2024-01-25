@@ -3,7 +3,10 @@ package eu.bbmri.eric.csit.service.negotiator.mappers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
+import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.UserController;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserInfoModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,19 +29,50 @@ public class UserModelAssembler
 
   @Override
   public EntityModel<UserResponseModel> toModel(UserResponseModel entity) {
+    List<Link> links = getLinksForModel(entity);
+    return EntityModel.of(entity, links);
+  }
+
+  public EntityModel<UserInfoModel> toModel(UserResponseModel entity, List<String> roles) {
+    UserInfoModel userInfoModel = new UserInfoModel(entity, roles);
+    List<Link> links = getLinksForModel(entity);
+    return EntityModel.of(userInfoModel, links);
+  }
+
+  @NonNull
+  private static List<Link> getLinksForModel(UserResponseModel entity) {
     List<Link> links = new ArrayList<>();
     links.add(linkTo(UserController.class).slash("users").withRel("users"));
     links.add(
         linkTo(methodOn(UserController.class).findById(Long.valueOf(entity.getId())))
             .withSelfRel());
+    links.add(
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .listRelated(Long.valueOf(entity.getId()), null, 0, 10))
+            .withRel("negotiations")
+            .expand());
+    links.add(
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .listRelated(Long.valueOf(entity.getId()), NegotiationRole.AUTHOR, 0, 10))
+            .withRel("authored_negotiations")
+            .expand());
     if (entity.isRepresentativeOfAnyResource()) {
       links.add(
           linkTo(
                   methodOn(UserController.class)
                       .findRepresentedResources(Long.valueOf(entity.getId())))
               .withRel("represented_resources"));
+      links.add(
+          linkTo(
+                  methodOn(NegotiationController.class)
+                      .listRelated(
+                          Long.valueOf(entity.getId()), NegotiationRole.REPRESENTATIVE, 0, 10))
+              .withRel("negotiations_representative")
+              .expand());
     }
-    return EntityModel.of(entity, links);
+    return links;
   }
 
   public PagedModel<EntityModel<UserResponseModel>> toPagedModel(Page<UserResponseModel> page) {

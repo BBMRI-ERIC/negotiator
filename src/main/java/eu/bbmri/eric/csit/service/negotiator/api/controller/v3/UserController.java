@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserInfoModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
@@ -66,10 +67,11 @@ public class UserController {
 
   @GetMapping(value = "/userinfo")
   @Operation(summary = "Get information about the user based on the provided bearer token")
-  public EntityModel<UserResponseModel> userInfo() {
+  public EntityModel<UserInfoModel> userInfo() {
     return assembler.toModel(
         personService.findById(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()),
+        NegotiatorUserDetailsService.getRoles());
   }
 
   private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(
