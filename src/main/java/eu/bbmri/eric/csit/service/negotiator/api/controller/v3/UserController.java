@@ -63,12 +63,13 @@ public class UserController {
               NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
     }
   }
+
   @GetMapping(value = "/userinfo")
   @Operation(summary = "Get information about the user based on the provided bearer token")
-  public EntityModel<UserResponseModel> userInfo(){
+  public EntityModel<UserResponseModel> userInfo() {
     return assembler.toModel(
-            personService.findById(
-                    NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+        personService.findById(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
   }
 
   private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(
