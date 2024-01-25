@@ -43,7 +43,7 @@ public class UserController {
   @Autowired PersonService personService;
   @Autowired ModelMapper modelMapper;
 
-  @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/users")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
       summary = "List all users",
@@ -62,6 +62,13 @@ public class UserController {
           personService.findById(
               NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
     }
+  }
+  @GetMapping(value = "/userinfo")
+  @Operation(summary = "Get information about the user based on the provided bearer token")
+  public EntityModel<UserResponseModel> userInfo(){
+    return assembler.toModel(
+            personService.findById(
+                    NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
   }
 
   private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(
