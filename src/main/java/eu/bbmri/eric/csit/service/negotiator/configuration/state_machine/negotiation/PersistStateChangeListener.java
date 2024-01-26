@@ -43,18 +43,6 @@ public class PersistStateChangeListener
     if (Objects.nonNull(negotiation)) {
       negotiation.setCurrentState(NegotiationState.valueOf(state.getId()));
       negotiationRepository.save(negotiation);
-      if (state.getId().equals(NegotiationState.IN_PROGRESS.name())) {
-        for (Person representative :
-            personRepository.findAllByResourcesIn(negotiation.getResources())) {
-          notificationRepository.save(
-              Notification.builder()
-                  .recipient(representative)
-                  .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-                  .negotiation(negotiation)
-                  .message("New negotiation concerning your resources was created.")
-                  .build());
-        }
-      }
     }
   }
 }
