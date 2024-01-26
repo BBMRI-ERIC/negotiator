@@ -81,10 +81,7 @@ public class EmailServiceImpl implements EmailService {
     }
     NotificationEmail notificationEmail =
         notificationEmailRepository.save(
-            NotificationEmail.builder()
-                .recipient(recipient)
-                .message(mailBody)
-                .build());
+            NotificationEmail.builder().recipient(recipient).message(mailBody).build());
     try {
       javaMailSender.send(mimeMessage);
     } catch (MailSendException e) {
