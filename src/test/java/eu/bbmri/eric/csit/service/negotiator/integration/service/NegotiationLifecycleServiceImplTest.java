@@ -50,6 +50,17 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired NegotiationService negotiationService;
   @Autowired private WebApplicationContext context;
 
+  private void checkNegotiationResourceRecordPresenceWithAssignedState(
+      String negotiationId, NegotiationResourceState negotiationResourceState) {
+    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).get();
+    Set<NegotiationResourceLifecycleRecord> records =
+        negotiation.getNegotiationResourceLifecycleRecords();
+    Assertions.assertNotNull(
+        records.stream()
+            .filter(r -> r.getChangedTo().equals(negotiationResourceState))
+            .findFirst());
+  }
+
   @Test
   void getState_createNegotiation_isSubmitted() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
@@ -175,17 +186,9 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
-    // check that the negotition has a resource record with the assigned state
-    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
-    Set<NegotiationResourceLifecycleRecord> records =
-        negotiation.getNegotiationResourceLifecycleRecords();
-    Assertions.assertNotNull(
-        records.stream()
-            .filter(
-                r ->
-                    r.getChangedTo()
-                        .equals(NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED")))
-            .findFirst());
+
+    checkNegotiationResourceRecordPresenceWithAssignedState(
+        negotiationDTO.getId(), NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED"));
   }
 
   @Test
@@ -205,6 +208,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
+    Negotiation before = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,

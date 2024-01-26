@@ -142,17 +142,15 @@ public class Negotiation extends AuditEntity {
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
-  }
-
-  public void addNewRecordToNegotiationResourceStateHistory(
-      String resourceId, NegotiationResourceState state) {
-    NegotiationResourceLifecycleRecord record =
-        NegotiationResourceLifecycleRecord.builder()
-            .recordedAt(LocalDateTime.now())
-            .changedTo(state)
-            .resource(lookupResource(getResources(), resourceId))
-            .build();
-    negotiationResourceLifecycleRecords.add(record);
+    if (!state.equals(NegotiationResourceState.SUBMITTED)) {
+      NegotiationResourceLifecycleRecord record =
+          NegotiationResourceLifecycleRecord.builder()
+              .recordedAt(LocalDateTime.now())
+              .changedTo(state)
+              .resource(lookupResource(getResources(), resourceId))
+              .build();
+      negotiationResourceLifecycleRecords.add(record);
+    }
   }
 
   @Override
@@ -178,7 +176,7 @@ public class Negotiation extends AuditEntity {
         .collect(Collectors.toUnmodifiableSet());
   }
 
-  public Resource lookupResource(Set<Resource> resources, String resourceId) {
+  private Resource lookupResource(Set<Resource> resources, String resourceId) {
     return resources.stream()
         .filter(r -> r.getSourceId().equals(resourceId))
         .findFirst()
