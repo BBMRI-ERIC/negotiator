@@ -83,7 +83,7 @@ public class EmailServiceImpl implements EmailService {
         notificationEmailRepository.save(
             NotificationEmail.builder()
                 .recipient(recipient)
-                .message(mimeMessage.toString())
+                .message(mailBody)
                 .build());
     try {
       javaMailSender.send(mimeMessage);
