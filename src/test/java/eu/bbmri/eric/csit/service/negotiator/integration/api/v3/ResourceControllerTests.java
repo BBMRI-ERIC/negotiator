@@ -6,7 +6,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
 import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +30,12 @@ public class ResourceControllerTests {
 
   private static final String RESOURCE_ENDPOINT = "/v3/resources/%s";
 
+  private static final String RESOURCES_ENDPOINT = "/v3/resources";
+
   @Autowired private WebApplicationContext context;
   @Autowired private ResourceRepository repository;
+  @Autowired private OrganizationRepository organizationRepository;
+  @Autowired private DataSourceRepository dataSourceRepository;
   private MockMvc mockMvc;
 
   @BeforeEach
@@ -44,5 +52,40 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$.id", is(resource.getId().toString())))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.externalId", is(resource.getSourceId())));
+  }
+
+  @Test
+  void getAll_10kResourcesInDb_ok() throws Exception {
+    DataSource dataSource =
+        dataSourceRepository.save(
+            DataSource.builder()
+                .sourcePrefix("")
+                .apiPassword("")
+                .apiType(DataSource.ApiType.MOLGENIS)
+                .apiUrl("")
+                .apiUsername("")
+                .url("")
+                .resourceBiobank("")
+                .resourceCollection("")
+                .resourceNetwork("")
+                .name("")
+                .syncActive(true)
+                .build());
+    for (int i = 1000; i < 11000; i++) {
+      Organization organization =
+          organizationRepository.save(
+              Organization.builder().name("test").externalId("biobank:%s".formatted(i)).build());
+      repository.save(
+          Resource.builder()
+              .organization(organization)
+              .dataSource(dataSource)
+              .sourceId("collection:%s".formatted(i))
+              .name("test")
+              .build());
+    }
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalElements", is(10006)));
   }
 }

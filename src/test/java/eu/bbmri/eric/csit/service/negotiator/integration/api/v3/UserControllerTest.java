@@ -76,7 +76,7 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(103)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
+        .andExpect(jsonPath("$._embedded.resources").isNotEmpty());
   }
 
   @Test
@@ -144,7 +144,7 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
+        .andExpect(jsonPath("$._embedded.resources").isNotEmpty());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class UserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resourceResponseModelList").isNotEmpty());
+        .andExpect(jsonPath("$._embedded.resources").isNotEmpty());
     mockMvc
         .perform(
             MockMvcRequestBuilders.delete(

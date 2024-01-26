@@ -13,6 +13,7 @@ import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
 import eu.bbmri.eric.csit.service.negotiator.service.RepresentativeNegotiationService;
 import eu.bbmri.eric.csit.service.negotiator.service.ResourceLifecycleService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
+@Tag(name = "Negotiations", description = "management of negotiations and their content")
 public class NegotiationController {
 
   @Autowired private NegotiationService negotiationService;

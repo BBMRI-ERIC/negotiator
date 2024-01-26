@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
@@ -16,7 +17,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(collectionRelation = "organizations", itemRelation = "organization")
 public class OrganizationDTO {
+  @NotNull private Long id;
   @NotNull private String externalId;
   private String name;
 }

@@ -11,21 +11,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
-import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Organization;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Request;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Resource;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.OrganizationRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.PersonRepository;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.RequestRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.ResourceRepository;
+import eu.bbmri.eric.csit.service.negotiator.database.repository.RoleRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri.eric.csit.service.negotiator.service.NegotiationService;
-import eu.bbmri.eric.csit.service.negotiator.service.RequestServiceImpl;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -54,14 +59,18 @@ public class NegotiationControllerTests {
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
 
   @Autowired private WebApplicationContext context;
-  @Autowired private NegotiationController negotiationController;
   @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private RequestRepository requestRepository;
-  @Autowired private ModelMapper modelMapper;
-  @Autowired private RequestServiceImpl requestService;
-  @Mock private NegotiationService negotiationService;
+  @Autowired PersonRepository personRepository;
 
-  @Mock private NegotiatorUserDetailsService negotiatorUserDetailsService;
+  @Autowired ResourceRepository resourceRepository;
+
+  @Autowired RequestRepository requestRepository;
+
+  @Autowired DataSourceRepository dataSourceRepository;
+
+  @Autowired OrganizationRepository organizationRepository;
+  @Autowired RoleRepository roleRepository;
+
   private MockMvc mockMvc;
 
   @BeforeEach
@@ -346,6 +355,53 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(1)));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void getNegotiation_2000resources_ok() throws Exception {
+    Set<Resource> resources = new HashSet<>();
+    DataSource dataSource =
+        dataSourceRepository.save(
+            DataSource.builder()
+                .sourcePrefix("")
+                .apiPassword("")
+                .apiType(DataSource.ApiType.MOLGENIS)
+                .apiUrl("")
+                .apiUsername("")
+                .url("")
+                .resourceBiobank("")
+                .resourceCollection("")
+                .resourceNetwork("")
+                .name("")
+                .syncActive(true)
+                .build());
+    for (int i = 0; i < 2000; i++) {
+      Organization organization1 =
+          organizationRepository.save(
+              Organization.builder()
+                  .name("test-%s".formatted(i))
+                  .externalId("biobank-%s".formatted(i))
+                  .build());
+      Resource resource =
+          resourceRepository.save(
+              Resource.builder()
+                  .organization(organization1)
+                  .dataSource(dataSource)
+                  .sourceId("collection:%s".formatted(i))
+                  .name("test")
+                  .representatives(new HashSet<>())
+                  .build());
+      resources.add(resource);
+    }
+    Request request = requestRepository.findAll().get(0);
+    request.setResources(resources);
+    requestRepository.save(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(NEGOTIATIONS_URL + "/" + request.getNegotiation().getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.resources.length()", is(2000)));
   }
 
   @Test

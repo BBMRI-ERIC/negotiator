@@ -46,10 +46,11 @@ public class Resource {
   @NotNull private String sourceId;
 
   @ManyToMany(
-      fetch = FetchType.EAGER,
+      fetch = FetchType.LAZY,
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
       mappedBy = "resources")
   @JsonIgnore
+  @Exclude
   private Set<Person> representatives = new HashSet<>();
 
   @ManyToOne(fetch = FetchType.EAGER)

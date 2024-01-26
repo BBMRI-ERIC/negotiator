@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,13 +18,10 @@ import org.springframework.stereotype.Repository;
 public interface NegotiationRepository extends JpaRepository<Negotiation, String> {
 
   @Override
-  @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findAll();
 
-  @EntityGraph(value = "negotiation-with-detailed-children")
   Page<Negotiation> findAllByCreatedBy(Pageable pageable, Person author);
 
-  @EntityGraph(value = "negotiation-with-detailed-children")
   Optional<Negotiation> findDetailedById(String id);
 
   Page<Negotiation> findAllByCurrentState(Pageable pageRequest, NegotiationState currentState);
@@ -77,17 +73,11 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
   Page<Negotiation> findByResourceExternalIdsAndCurrentState(
       Pageable pageable, List<String> collectionIds, NegotiationState currentState);
 
-  @EntityGraph(value = "negotiation-with-detailed-children")
   Page<Negotiation> findByCreatedByOrRequests_ResourcesIn(
       Pageable pageable, Person person, Set<Resource> resources);
 
-  @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findByCreatedBy_Id(Long personId);
 
-  @EntityGraph(value = "negotiation-with-detailed-children")
-  List<Negotiation> findByCreatedBy(Person person);
-
-  @EntityGraph(value = "negotiation-with-detailed-children")
   List<Negotiation> findByCurrentState(NegotiationState negotiationState);
 
   boolean existsByIdAndCreatedBy_Id(String negotiationId, Long personId);

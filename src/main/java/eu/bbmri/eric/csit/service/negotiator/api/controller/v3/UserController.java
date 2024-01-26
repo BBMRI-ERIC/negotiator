@@ -3,6 +3,7 @@ package eu.bbmri.eric.csit.service.negotiator.api.controller.v3;
 import eu.bbmri.eric.csit.service.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.AssignResourceDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
+import eu.bbmri.eric.csit.service.negotiator.dto.person.UserInfoModel;
 import eu.bbmri.eric.csit.service.negotiator.dto.person.UserResponseModel;
 import eu.bbmri.eric.csit.service.negotiator.mappers.UserModelAssembler;
 import eu.bbmri.eric.csit.service.negotiator.service.PersonService;
@@ -43,7 +44,7 @@ public class UserController {
   @Autowired PersonService personService;
   @Autowired ModelMapper modelMapper;
 
-  @GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/users")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
       summary = "List all users",
@@ -62,6 +63,15 @@ public class UserController {
           personService.findById(
               NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
     }
+  }
+
+  @GetMapping(value = "/userinfo")
+  @Operation(summary = "Get information about the user based on the provided bearer token")
+  public EntityModel<UserInfoModel> userInfo() {
+    return assembler.toModel(
+        personService.findById(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()),
+        NegotiatorUserDetailsService.getRoles());
   }
 
   private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(

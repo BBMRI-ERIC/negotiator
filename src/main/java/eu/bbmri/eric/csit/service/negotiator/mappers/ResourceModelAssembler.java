@@ -7,8 +7,11 @@ import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.ResourceControlle
 import eu.bbmri.eric.csit.service.negotiator.dto.person.ResourceResponseModel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +28,15 @@ public class ResourceModelAssembler
             linkTo(methodOn(ResourceController.class).getResourceById(Long.valueOf(entity.getId())))
                 .withSelfRel(),
             linkTo(ResourceController.class).withRel("resources"));
+  }
+
+  public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
+      Page<ResourceResponseModel> page) {
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
+        new ArrayList<>());
   }
 
   @Override
