@@ -25,8 +25,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
-import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
 
 @Entity
 @NoArgsConstructor(force = true)
@@ -103,15 +101,9 @@ public class Person {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null) return false;
-    Class<?> otherClass = o instanceof HibernateProxy ? Hibernate.getClass(o) : o.getClass();
-    if (getClass() != otherClass) return false;
-    Person person =
-        (Person)
-            (o instanceof HibernateProxy
-                ? ((HibernateProxy) o).getHibernateLazyInitializer().getImplementation()
-                : o);
-    return Objects.equals(subjectId, person.subjectId);
+    if (o == null || !(o instanceof Person)) return false;
+    Person person = (Person) o;
+    return Objects.equals(subjectId, person.getSubjectId());
   }
 
   @Override
