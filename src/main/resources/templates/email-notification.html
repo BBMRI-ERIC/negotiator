@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <style>
+            .email-notifications {
+                background-color: #ffffff;
+                font-family: "Open Sans-Regular", Helvetica;
+                color: #333333;
+                width:70%;
+                margin: 0 auto;
+            }
+
+            @media screen and (max-width: 992px) {
+                .email-notifications {
+                    width: 98%;
+                }
+            }
+
+            .email-notifications .email-header {
+                display:flex;
+                gap:30px;
+            }
+
+            .email-notifications .logo-bbmri {
+                width: 190px;
+            }
+
+            .email-notifications .text-negotiator {
+                font-size: 20px;
+                text-transform: uppercase;
+                align-self: center;
+                padding-bottom: 15px;
+            }
+
+            .email-notifications hr {
+                margin-left: 60px;
+                margin-top: -42px;
+                background-color: #D8DEE4;
+                border-width: 0;
+                color: #D8DEE4;
+                height: 1px;
+            }
+
+            .email-notifications .email-content {
+                margin-top: 50px;
+                margin-left: 20px;
+            }
+
+            .email-notifications .email-content  ul {
+                border: 1px solid #D8DEE4;
+                padding: 25px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="email-notifications">
+            <div class="email-header">
+                <img class="logo-bbmri" th:src="@{${frontendurl} + '/api/images/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png'}" alt="BBMRI-ERIC Logo"/>
+<!--                <div class="text-negotiator">Negotiator</div>-->
+            </div>
+            <hr />
+            <div class="email-content">
+                <p>
+                    Dear Negotiator User,
+                    <br /><br />
+                    <div style="text-indent: 20px;">
+                    You have a new message about your Negotiation(s):<br/>
+                        <ul>
+                            <!-- Loop through notifications and display them -->
+                            <li th:each="negotiation : ${negotiations}">
+                                <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/ROLE_RESEARCHER'}"><span th:text="${negotiation.id}"></span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </p>
+                <br/>
+                    <p>Visit the link(s) to read and respond. </p>
+
+                    <br />
+                    <p>Yours sincerely<br />The BBMRI-ERIC Team</p><br /><br />
+                    <p>This e-mail message was generated automatically. Replies to this e-mail or messages to the address negotiator@bbmri-eric.eu will not be forwarded/read.
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
