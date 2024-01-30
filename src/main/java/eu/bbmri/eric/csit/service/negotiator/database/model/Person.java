@@ -102,7 +102,7 @@ public class Person {
 
   @Override
   public boolean equals(Object o) {
-     if (this == o) return true;
+    if (this == o) return true;
     if (o == null) return false;
     Class<?> otherClass = o instanceof HibernateProxy ? Hibernate.getClass(o) : o.getClass();
     if (getClass() != otherClass) return false;
