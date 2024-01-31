@@ -165,7 +165,7 @@ public class NegotiationRepositoryTest {
             .postsEnabled(false)
             .payload(payload)
             .build();
-    Role role = roleRepository.save(new Role("test"));
+    Role role = roleRepository.save(new Role(1L, "test"));
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
     negotiation.setPersons(Set.of(personRole));
     request.setNegotiation(negotiation);
@@ -274,7 +274,7 @@ public class NegotiationRepositoryTest {
             .payload(payload)
             .build();
     negotiation.setCreatedBy(person);
-    Role role = roleRepository.save(new Role("test"));
+    Role role = roleRepository.save(new Role(1L, "test"));
     Set<PersonNegotiationRole> roles = new HashSet<>();
     PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
     roles.add(personRole);
@@ -304,7 +304,7 @@ public class NegotiationRepositoryTest {
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    Role role = roleRepository.save(new Role("test"));
+    Role role = roleRepository.save(new Role(1L, "test"));
     Set<PersonNegotiationRole> roles = new HashSet<>();
     PersonNegotiationRole personRole = new PersonNegotiationRole(author, negotiation, role);
     roles.add(personRole);
