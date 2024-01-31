@@ -52,7 +52,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
       - SPRING_DATASOURCE_USERNAME=negotiator
       - SPRING_DATASOURCE_PASSWORD=negotiator
-      - SPRING_DATASOURCE_INITIALIZE=true
+      - SPRING_DATASOURCE_INITIALIZE=false
+      - SPRING_FLYWAY_ENABLED=true
+      - SPRING_FLYWAY_USER=negotiator
+      - SPRING_FLYWAY_PASSWORD=negotiator
+      - SPRING_FLYWAY_URL=jdbc:postgresql://postgres:5432/negotiator
       - NEGOTIATOR_FRONTENDURL=https://${HOST}
       - NEGOTIATOR_AUTHORIZATION_CLAIM=eduperson_entitlement
       - "NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE=urn:geant:bbmri-eric.eu:res:role_admin#perun.bbmri-eric.eu"

@@ -15,10 +15,6 @@ spring:
     hibernate:
       ddl-auto: none
     defer-datasource-initialization: false
-    properties:
-      hibernate:
-        enable_lazy_load_no_trans: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   jackson:
     date-format: "yyyy-MM-dd"
   flyway:

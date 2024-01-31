@@ -1,30 +1,4 @@
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 14.10 (Debian 14.10-1.pgdg120+1)
--- Dumped by pg_dump version 14.10 (Debian 14.10-1.pgdg120+1)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
---
--- Name: access_criteria; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.access_criteria (
+create TABLE access_criteria (
     id bigint NOT NULL,
     description character varying(255) NOT NULL,
     label character varying(255) NOT NULL,
@@ -33,31 +7,16 @@ CREATE TABLE public.access_criteria (
     access_criteria_section_id bigint
 );
 
-
---
--- Name: access_criteria_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.access_criteria_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence access_criteria_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
+alter sequence access_criteria_id_seq OWNED BY access_criteria.id;
 
---
--- Name: access_criteria_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.access_criteria_id_seq OWNED BY public.access_criteria.id;
-
-
---
--- Name: access_criteria_section; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.access_criteria_section (
+create TABLE access_criteria_section (
     id bigint NOT NULL,
     description character varying(255) NOT NULL,
     label character varying(255) NOT NULL,
@@ -65,72 +24,38 @@ CREATE TABLE public.access_criteria_section (
     access_criteria_set_id bigint
 );
 
-
---
--- Name: access_criteria_section_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.access_criteria_section_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence access_criteria_section_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
+alter sequence access_criteria_section_id_seq OWNED BY access_criteria_section.id;
 
---
--- Name: access_criteria_section_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.access_criteria_section_id_seq OWNED BY public.access_criteria_section.id;
-
-
---
--- Name: access_criteria_section_link; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.access_criteria_section_link (
+create TABLE access_criteria_section_link (
     access_criteria_id bigint NOT NULL,
     access_criteria_section_id bigint NOT NULL,
     ordering integer NOT NULL,
     required boolean NOT NULL
 );
 
-
---
--- Name: access_criteria_set; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.access_criteria_set (
+create TABLE access_criteria_set (
     id bigint NOT NULL,
     name character varying(255)
 );
 
-
---
--- Name: access_criteria_set_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.access_criteria_set_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence access_criteria_set_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
-
---
--- Name: access_criteria_set_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.access_criteria_set_id_seq OWNED BY public.access_criteria_set.id;
+alter sequence access_criteria_set_id_seq OWNED BY access_criteria_set.id;
 
 
---
--- Name: attachment; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.attachment (
+create TABLE attachment (
     id character varying(255) NOT NULL,
     creation_date timestamp(6) without time zone,
     modified_date timestamp(6) without time zone,
@@ -145,41 +70,25 @@ CREATE TABLE public.attachment (
 );
 
 
---
--- Name: authorities; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.authorities (
+create TABLE authorities (
     id bigint NOT NULL,
     authority character varying(255),
     person_id bigint
 );
 
 
---
--- Name: authorities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.authorities_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence authorities_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: authorities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.authorities_id_seq OWNED BY public.authorities.id;
+alter sequence authorities_id_seq OWNED BY authorities.id;
 
 
---
--- Name: data_source; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.data_source (
+create TABLE data_source (
     id bigint NOT NULL,
     api_password character varying(255) NOT NULL,
     api_type character varying(255) NOT NULL,
@@ -197,30 +106,17 @@ CREATE TABLE public.data_source (
 );
 
 
---
--- Name: data_source_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.data_source_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence data_source_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
-
---
--- Name: data_source_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.data_source_id_seq OWNED BY public.data_source.id;
+alter sequence data_source_id_seq OWNED BY data_source.id;
 
 
---
--- Name: negotiation; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.negotiation (
+create TABLE negotiation (
     id character varying(255) NOT NULL,
     creation_date timestamp(6) without time zone,
     modified_date timestamp(6) without time zone,
@@ -233,11 +129,7 @@ CREATE TABLE public.negotiation (
 );
 
 
---
--- Name: negotiation_lifecycle_record; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.negotiation_lifecycle_record (
+create TABLE negotiation_lifecycle_record (
     id bigint NOT NULL,
     changed_to character varying(255),
     recorded_at timestamp(6) with time zone,
@@ -246,30 +138,18 @@ CREATE TABLE public.negotiation_lifecycle_record (
 );
 
 
---
--- Name: negotiation_lifecycle_record_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.negotiation_lifecycle_record_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence negotiation_lifecycle_record_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: negotiation_lifecycle_record_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.negotiation_lifecycle_record_id_seq OWNED BY public.negotiation_lifecycle_record.id;
+alter sequence negotiation_lifecycle_record_id_seq OWNED BY negotiation_lifecycle_record.id;
 
 
---
--- Name: notification; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.notification (
+create TABLE notification (
     id bigint NOT NULL,
     creation_date timestamp(6) without time zone,
     email_status character varying(255),
@@ -280,11 +160,7 @@ CREATE TABLE public.notification (
 );
 
 
---
--- Name: notification_email; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.notification_email (
+create TABLE notification_email (
     id bigint NOT NULL,
     message text,
     sent_at timestamp(6) without time zone,
@@ -293,53 +169,33 @@ CREATE TABLE public.notification_email (
 );
 
 
---
--- Name: notification_email_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.notification_email_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence notification_email_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: notification_email_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.notification_email_id_seq OWNED BY public.notification_email.id;
+alter sequence notification_email_id_seq OWNED BY notification_email.id;
 
 
---
--- Name: notification_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.notification_id_seq
-    START WITH 10000
-    INCREMENT BY 1
+create sequence notification_id_seq
+    start with 10000
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: organization; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.organization (
+create TABLE organization (
     id bigint NOT NULL,
     external_id character varying(255) NOT NULL,
     name character varying(255)
 );
 
 
---
--- Name: person; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person (
+create TABLE person (
     id bigint NOT NULL,
     admin boolean DEFAULT false NOT NULL,
     email character varying(255) NOT NULL,
@@ -351,55 +207,35 @@ CREATE TABLE public.person (
 );
 
 
---
--- Name: person_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.person_id_seq
-    START WITH 300
-    INCREMENT BY 50
+create sequence person_id_seq
+    start with 10000
+    increment by 50
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: person_negotiation_role; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person_negotiation_role (
+create TABLE person_negotiation_role (
     negotiation_id character varying(255) NOT NULL,
     person_id bigint NOT NULL,
     role_id bigint NOT NULL
 );
 
 
---
--- Name: person_project_link; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person_project_link (
+create TABLE person_project_link (
     person_id bigint NOT NULL,
     project_id character varying(255) NOT NULL
 );
 
 
---
--- Name: person_project_role; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person_project_role (
+create TABLE person_project_role (
     person_id bigint NOT NULL,
     project_id character varying(255) NOT NULL,
     role_id bigint
 );
 
 
---
--- Name: post; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.post (
+create TABLE post (
     id character varying(255) NOT NULL,
     creation_date timestamp(6) without time zone,
     modified_date timestamp(6) without time zone,
@@ -415,11 +251,7 @@ CREATE TABLE public.post (
 );
 
 
---
--- Name: project; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.project (
+create TABLE project (
     id character varying(255) NOT NULL,
     creation_date timestamp(6) without time zone,
     modified_date timestamp(6) without time zone,
@@ -429,11 +261,7 @@ CREATE TABLE public.project (
 );
 
 
---
--- Name: request; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.request (
+create TABLE request (
     id character varying(255) NOT NULL,
     human_readable text NOT NULL,
     url text NOT NULL,
@@ -442,21 +270,13 @@ CREATE TABLE public.request (
 );
 
 
---
--- Name: request_resources_link; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.request_resources_link (
+create TABLE request_resources_link (
     request_id character varying(255) NOT NULL,
     resource_id bigint NOT NULL
 );
 
 
---
--- Name: resource; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.resource (
+create TABLE resource (
     id bigint NOT NULL,
     description character varying(5000),
     name character varying(255),
@@ -467,33 +287,21 @@ CREATE TABLE public.resource (
 );
 
 
---
--- Name: resource_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.resource_id_seq
-    START WITH 10000
-    INCREMENT BY 1
+create sequence resource_id_seq
+    start with 10000
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: resource_representative_link; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.resource_representative_link (
+create TABLE resource_representative_link (
     person_id bigint NOT NULL,
     resource_id bigint NOT NULL
 );
 
 
---
--- Name: resource_state_per_negotiation; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.resource_state_per_negotiation (
+create TABLE resource_state_per_negotiation (
     negotiation_id character varying(255) NOT NULL,
     current_state character varying(255),
     resource_id character varying(255) NOT NULL,
@@ -501,628 +309,310 @@ CREATE TABLE public.resource_state_per_negotiation (
 );
 
 
---
--- Name: role; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.role (
+create TABLE role (
     id bigint NOT NULL,
     name character varying(255)
 );
 
 
---
--- Name: role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.role_id_seq
-    START WITH 1
-    INCREMENT BY 1
+create sequence role_id_seq
+    start with 1
+    increment by 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
---
--- Name: role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.role_id_seq OWNED BY public.role.id;
+alter sequence role_id_seq OWNED BY role.id;
 
 
---
--- Name: access_criteria id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria ALTER COLUMN id SET DEFAULT nextval('public.access_criteria_id_seq'::regclass);
+alter table ONLY access_criteria alter COLUMN id SET DEFAULT nextval('access_criteria_id_seq'::regclass);
 
 
---
--- Name: access_criteria_section id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria_section ALTER COLUMN id SET DEFAULT nextval('public.access_criteria_section_id_seq'::regclass);
+alter table ONLY access_criteria_section alter COLUMN id SET DEFAULT nextval('access_criteria_section_id_seq'::regclass);
 
 
---
--- Name: access_criteria_set id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria_set ALTER COLUMN id SET DEFAULT nextval('public.access_criteria_set_id_seq'::regclass);
+alter table ONLY access_criteria_set alter COLUMN id SET DEFAULT nextval('access_criteria_set_id_seq'::regclass);
 
 
---
--- Name: authorities id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.authorities ALTER COLUMN id SET DEFAULT nextval('public.authorities_id_seq'::regclass);
+alter table ONLY authorities alter COLUMN id SET DEFAULT nextval('authorities_id_seq'::regclass);
 
 
---
--- Name: data_source id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.data_source ALTER COLUMN id SET DEFAULT nextval('public.data_source_id_seq'::regclass);
+alter table ONLY data_source alter COLUMN id SET DEFAULT nextval('data_source_id_seq'::regclass);
 
 
---
--- Name: negotiation_lifecycle_record id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.negotiation_lifecycle_record ALTER COLUMN id SET DEFAULT nextval('public.negotiation_lifecycle_record_id_seq'::regclass);
+alter table ONLY negotiation_lifecycle_record alter COLUMN id SET DEFAULT nextval('negotiation_lifecycle_record_id_seq'::regclass);
 
 
---
--- Name: notification_email id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notification_email ALTER COLUMN id SET DEFAULT nextval('public.notification_email_id_seq'::regclass);
+alter table ONLY notification_email alter COLUMN id SET DEFAULT nextval('notification_email_id_seq'::regclass);
 
 
---
--- Name: role id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.role ALTER COLUMN id SET DEFAULT nextval('public.role_id_seq'::regclass);
+alter table ONLY role alter COLUMN id SET DEFAULT nextval('role_id_seq'::regclass);
 
 
---
--- Name: access_criteria access_criteria_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria
+alter table ONLY access_criteria
     ADD CONSTRAINT access_criteria_pkey PRIMARY KEY (id);
 
 
---
--- Name: access_criteria_section_link access_criteria_section_link_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria_section_link
+alter table ONLY access_criteria_section_link
     ADD CONSTRAINT access_criteria_section_link_pkey PRIMARY KEY (access_criteria_id, access_criteria_section_id);
 
 
---
--- Name: access_criteria_section access_criteria_section_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria_section
+alter table ONLY access_criteria_section
     ADD CONSTRAINT access_criteria_section_pkey PRIMARY KEY (id);
 
 
---
--- Name: access_criteria_set access_criteria_set_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria_set
+alter table ONLY access_criteria_set
     ADD CONSTRAINT access_criteria_set_pkey PRIMARY KEY (id);
 
 
---
--- Name: attachment attachment_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.attachment
+alter table ONLY attachment
     ADD CONSTRAINT attachment_pkey PRIMARY KEY (id);
 
 
---
--- Name: authorities authorities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.authorities
+alter table ONLY authorities
     ADD CONSTRAINT authorities_pkey PRIMARY KEY (id);
 
 
---
--- Name: data_source data_source_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.data_source
+alter table ONLY data_source
     ADD CONSTRAINT data_source_pkey PRIMARY KEY (id);
 
 
---
--- Name: negotiation_lifecycle_record negotiation_lifecycle_record_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.negotiation_lifecycle_record
+alter table ONLY negotiation_lifecycle_record
     ADD CONSTRAINT negotiation_lifecycle_record_pkey PRIMARY KEY (id);
 
 
---
--- Name: negotiation negotiation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.negotiation
+alter table ONLY negotiation
     ADD CONSTRAINT negotiation_pkey PRIMARY KEY (id);
 
 
---
--- Name: notification_email notification_email_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notification_email
+alter table ONLY notification_email
     ADD CONSTRAINT notification_email_pkey PRIMARY KEY (id);
 
 
---
--- Name: notification notification_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notification
+alter table ONLY notification
     ADD CONSTRAINT notification_pkey PRIMARY KEY (id);
 
 
---
--- Name: organization organization_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organization
+alter table ONLY organization
     ADD CONSTRAINT organization_pkey PRIMARY KEY (id);
 
 
---
--- Name: person_negotiation_role person_negotiation_role_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_negotiation_role
+alter table ONLY person_negotiation_role
     ADD CONSTRAINT person_negotiation_role_pkey PRIMARY KEY (negotiation_id, person_id, role_id);
 
 
---
--- Name: person person_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person
+alter table ONLY person
     ADD CONSTRAINT person_pkey PRIMARY KEY (id);
 
 
---
--- Name: person_project_link person_project_link_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_project_link
+alter table ONLY person_project_link
     ADD CONSTRAINT person_project_link_pkey PRIMARY KEY (person_id, project_id);
 
 
---
--- Name: person_project_role person_project_role_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_project_role
+alter table ONLY person_project_role
     ADD CONSTRAINT person_project_role_pkey PRIMARY KEY (person_id, project_id);
 
 
---
--- Name: post post_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.post
+alter table ONLY post
     ADD CONSTRAINT post_pkey PRIMARY KEY (id);
 
 
---
--- Name: project project_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.project
+alter table ONLY project
     ADD CONSTRAINT project_pkey PRIMARY KEY (id);
 
 
---
--- Name: request request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.request
+alter table ONLY request
     ADD CONSTRAINT request_pkey PRIMARY KEY (id);
 
 
---
--- Name: request_resources_link request_resources_link_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.request_resources_link
+alter table ONLY request_resources_link
     ADD CONSTRAINT request_resources_link_pkey PRIMARY KEY (request_id, resource_id);
 
 
---
--- Name: resource resource_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.resource
+alter table ONLY resource
     ADD CONSTRAINT resource_pkey PRIMARY KEY (id);
 
 
---
--- Name: resource_representative_link resource_representative_link_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.resource_representative_link
+alter table ONLY resource_representative_link
     ADD CONSTRAINT resource_representative_link_pkey PRIMARY KEY (person_id, resource_id);
 
 
---
--- Name: resource_state_per_negotiation resource_state_per_negotiation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.resource_state_per_negotiation
+alter table ONLY resource_state_per_negotiation
     ADD CONSTRAINT resource_state_per_negotiation_pkey PRIMARY KEY (negotiation_id, resource_id);
 
 
---
--- Name: role role_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.role
+alter table ONLY role
     ADD CONSTRAINT role_pkey PRIMARY KEY (id);
 
 
---
--- Name: organization uk_anbatb82bwhrx4gagnflykthh; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organization
+alter table ONLY organization
     ADD CONSTRAINT uk_anbatb82bwhrx4gagnflykthh UNIQUE (external_id);
 
 
---
--- Name: person_project_role uk_bxuryor3aidjr67si0gcpydq2; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_project_role
+alter table ONLY person_project_role
     ADD CONSTRAINT uk_bxuryor3aidjr67si0gcpydq2 UNIQUE (role_id);
 
 
---
--- Name: data_source uk_byao32rsksrj7vkas653sl224; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.data_source
+alter table ONLY data_source
     ADD CONSTRAINT uk_byao32rsksrj7vkas653sl224 UNIQUE (url);
 
 
---
--- Name: person uk_qd3ofyfsy04d9j3qor20nm7ly; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person
+alter table ONLY person
     ADD CONSTRAINT uk_qd3ofyfsy04d9j3qor20nm7ly UNIQUE (subject_id);
 
 
---
--- Name: request fk1dblesuyfmaxqj8vvs43ttiut; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY request
+    ADD CONSTRAINT fk1dblesuyfmaxqj8vvs43ttiut FOREIGN KEY (data_source_id) REFERENCES data_source(id);
 
-ALTER TABLE ONLY public.request
-    ADD CONSTRAINT fk1dblesuyfmaxqj8vvs43ttiut FOREIGN KEY (data_source_id) REFERENCES public.data_source(id);
 
+alter table ONLY resource
+    ADD CONSTRAINT fk1xa946oabsglyyf25u09d0nuu FOREIGN KEY (access_criteria_set_id) REFERENCES access_criteria_set(id);
 
---
--- Name: resource fk1xa946oabsglyyf25u09d0nuu; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.resource
-    ADD CONSTRAINT fk1xa946oabsglyyf25u09d0nuu FOREIGN KEY (access_criteria_set_id) REFERENCES public.access_criteria_set(id);
+alter table ONLY resource
+    ADD CONSTRAINT fk2c4lb6ow7camgvn82itk6b68j FOREIGN KEY (data_source_id) REFERENCES data_source(id);
 
 
---
--- Name: resource fk2c4lb6ow7camgvn82itk6b68j; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY person_project_link
+    ADD CONSTRAINT fk381qbe3krq75p31d7u25siedv FOREIGN KEY (person_id) REFERENCES person(id);
 
-ALTER TABLE ONLY public.resource
-    ADD CONSTRAINT fk2c4lb6ow7camgvn82itk6b68j FOREIGN KEY (data_source_id) REFERENCES public.data_source(id);
 
+alter table ONLY post
+    ADD CONSTRAINT fk3bl88xxkqs4cgun3vk9ur3shu FOREIGN KEY (request_id) REFERENCES negotiation(id);
 
---
--- Name: person_project_link fk381qbe3krq75p31d7u25siedv; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.person_project_link
-    ADD CONSTRAINT fk381qbe3krq75p31d7u25siedv FOREIGN KEY (person_id) REFERENCES public.person(id);
+alter table ONLY negotiation
+    ADD CONSTRAINT fk62916aq48ihicemrlbwk8cj10 FOREIGN KEY (created_by) REFERENCES person(id);
 
 
---
--- Name: post fk3bl88xxkqs4cgun3vk9ur3shu; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY person_project_link
+    ADD CONSTRAINT fk77bria9ttghyi5jhgc9k88pk FOREIGN KEY (project_id) REFERENCES project(id);
 
-ALTER TABLE ONLY public.post
-    ADD CONSTRAINT fk3bl88xxkqs4cgun3vk9ur3shu FOREIGN KEY (request_id) REFERENCES public.negotiation(id);
 
+alter table ONLY notification
+    ADD CONSTRAINT fk7wywiqhssp9wjk9ijg0lms4hv FOREIGN KEY (recipient_id) REFERENCES person(id);
 
---
--- Name: negotiation fk62916aq48ihicemrlbwk8cj10; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.negotiation
-    ADD CONSTRAINT fk62916aq48ihicemrlbwk8cj10 FOREIGN KEY (created_by) REFERENCES public.person(id);
+alter table ONLY post
+    ADD CONSTRAINT fk8k515auw0oorgyqymc1tnwat1 FOREIGN KEY (modified_by) REFERENCES person(id);
 
 
---
--- Name: person_project_link fk77bria9ttghyi5jhgc9k88pk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY attachment
+    ADD CONSTRAINT fk963a0q97mrss1fxy1f51vfm0b FOREIGN KEY (created_by) REFERENCES person(id);
 
-ALTER TABLE ONLY public.person_project_link
-    ADD CONSTRAINT fk77bria9ttghyi5jhgc9k88pk FOREIGN KEY (project_id) REFERENCES public.project(id);
 
+alter table ONLY person_negotiation_role
+    ADD CONSTRAINT fka5uex2honkxkp7a4f7lxrgikn FOREIGN KEY (role_id) REFERENCES role(id);
 
---
--- Name: notification fk7wywiqhssp9wjk9ijg0lms4hv; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.notification
-    ADD CONSTRAINT fk7wywiqhssp9wjk9ijg0lms4hv FOREIGN KEY (recipient_id) REFERENCES public.person(id);
+alter table ONLY person_project_role
+    ADD CONSTRAINT fkbdqx0q8bawb93ktue0f772rm1 FOREIGN KEY (project_id) REFERENCES project(id);
 
 
---
--- Name: post fk8k515auw0oorgyqymc1tnwat1; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY request_resources_link
+    ADD CONSTRAINT fkblq0pwafdnlwdk4l3me652hfw FOREIGN KEY (resource_id) REFERENCES resource(id);
 
-ALTER TABLE ONLY public.post
-    ADD CONSTRAINT fk8k515auw0oorgyqymc1tnwat1 FOREIGN KEY (modified_by) REFERENCES public.person(id);
 
+alter table ONLY resource_state_per_negotiation
+    ADD CONSTRAINT fkc738qoch93u1ybjmiydhf2h58 FOREIGN KEY (negotiation_id) REFERENCES negotiation(id);
 
---
--- Name: attachment fk963a0q97mrss1fxy1f51vfm0b; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.attachment
-    ADD CONSTRAINT fk963a0q97mrss1fxy1f51vfm0b FOREIGN KEY (created_by) REFERENCES public.person(id);
+alter table ONLY access_criteria_section_link
+    ADD CONSTRAINT fkcgj2extn02c91q2ld1xvp54di FOREIGN KEY (access_criteria_section_id) REFERENCES access_criteria_section(id);
 
 
---
--- Name: person_negotiation_role fka5uex2honkxkp7a4f7lxrgikn; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY resource_representative_link
+    ADD CONSTRAINT fkey1ddlsd86tu78rxjnqaaapwa FOREIGN KEY (person_id) REFERENCES person(id);
 
-ALTER TABLE ONLY public.person_negotiation_role
-    ADD CONSTRAINT fka5uex2honkxkp7a4f7lxrgikn FOREIGN KEY (role_id) REFERENCES public.role(id);
 
+alter table ONLY post
+    ADD CONSTRAINT fkfs4ns7nd5pb3k72nbt8g2xq3d FOREIGN KEY (created_by) REFERENCES person(id);
 
---
--- Name: person_project_role fkbdqx0q8bawb93ktue0f772rm1; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.person_project_role
-    ADD CONSTRAINT fkbdqx0q8bawb93ktue0f772rm1 FOREIGN KEY (project_id) REFERENCES public.project(id);
+alter table ONLY attachment
+    ADD CONSTRAINT fkhgi1r4d3ylfiqalc4qlru8yhu FOREIGN KEY (negotiation_id) REFERENCES negotiation(id);
 
 
---
--- Name: request_resources_link fkblq0pwafdnlwdk4l3me652hfw; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY negotiation_lifecycle_record
+    ADD CONSTRAINT fkhmbnhi74t9tve5ghbf7hb7r0p FOREIGN KEY (negotiation_id) REFERENCES negotiation(id);
 
-ALTER TABLE ONLY public.request_resources_link
-    ADD CONSTRAINT fkblq0pwafdnlwdk4l3me652hfw FOREIGN KEY (resource_id) REFERENCES public.resource(id);
 
+alter table ONLY access_criteria_section_link
+    ADD CONSTRAINT fkhwqk0a4nxt3p18e97l4llg4bs FOREIGN KEY (access_criteria_id) REFERENCES access_criteria(id);
 
---
--- Name: resource_state_per_negotiation fkc738qoch93u1ybjmiydhf2h58; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.resource_state_per_negotiation
-    ADD CONSTRAINT fkc738qoch93u1ybjmiydhf2h58 FOREIGN KEY (negotiation_id) REFERENCES public.negotiation(id);
+alter table ONLY access_criteria_section
+    ADD CONSTRAINT fkijwhm9gjj8qdo5eu09iibxdbo FOREIGN KEY (access_criteria_set_id) REFERENCES access_criteria_set(id);
 
 
---
--- Name: access_criteria_section_link fkcgj2extn02c91q2ld1xvp54di; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY notification_email
+    ADD CONSTRAINT fkjsocvwlnpmpp0ftmo5nm8nmm7 FOREIGN KEY (person_id) REFERENCES person(id);
 
-ALTER TABLE ONLY public.access_criteria_section_link
-    ADD CONSTRAINT fkcgj2extn02c91q2ld1xvp54di FOREIGN KEY (access_criteria_section_id) REFERENCES public.access_criteria_section(id);
 
+alter table ONLY project
+    ADD CONSTRAINT fkjyr9p0nibm4qmaddopb52ksa0 FOREIGN KEY (modified_by) REFERENCES person(id);
 
---
--- Name: resource_representative_link fkey1ddlsd86tu78rxjnqaaapwa; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.resource_representative_link
-    ADD CONSTRAINT fkey1ddlsd86tu78rxjnqaaapwa FOREIGN KEY (person_id) REFERENCES public.person(id);
+alter table ONLY request_resources_link
+    ADD CONSTRAINT fkl8i1lbs2jfsl7or12i0hi9qkb FOREIGN KEY (request_id) REFERENCES request(id);
 
 
---
--- Name: post fkfs4ns7nd5pb3k72nbt8g2xq3d; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY person_project_role
+    ADD CONSTRAINT fkmnc7g89mav2nlhshfnm4ta4dn FOREIGN KEY (role_id) REFERENCES role(id);
 
-ALTER TABLE ONLY public.post
-    ADD CONSTRAINT fkfs4ns7nd5pb3k72nbt8g2xq3d FOREIGN KEY (created_by) REFERENCES public.person(id);
 
+alter table ONLY authorities
+    ADD CONSTRAINT fkn55wpgxf39f3kda1tw6ia2mgn FOREIGN KEY (person_id) REFERENCES person(id);
 
---
--- Name: attachment fkhgi1r4d3ylfiqalc4qlru8yhu; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.attachment
-    ADD CONSTRAINT fkhgi1r4d3ylfiqalc4qlru8yhu FOREIGN KEY (negotiation_id) REFERENCES public.negotiation(id);
+alter table ONLY negotiation
+    ADD CONSTRAINT fknb8a0248715b96boouf3973r7 FOREIGN KEY (modified_by) REFERENCES person(id);
 
 
---
--- Name: negotiation_lifecycle_record fkhmbnhi74t9tve5ghbf7hb7r0p; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY resource
+    ADD CONSTRAINT fknxy1sei1miecaw4aju99ce32u FOREIGN KEY (organization_id) REFERENCES organization(id);
 
-ALTER TABLE ONLY public.negotiation_lifecycle_record
-    ADD CONSTRAINT fkhmbnhi74t9tve5ghbf7hb7r0p FOREIGN KEY (negotiation_id) REFERENCES public.negotiation(id);
 
+alter table ONLY post
+    ADD CONSTRAINT fkowe48u8aic9c83l1edrgmft53 FOREIGN KEY (organization_id) REFERENCES organization(id);
 
---
--- Name: access_criteria_section_link fkhwqk0a4nxt3p18e97l4llg4bs; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.access_criteria_section_link
-    ADD CONSTRAINT fkhwqk0a4nxt3p18e97l4llg4bs FOREIGN KEY (access_criteria_id) REFERENCES public.access_criteria(id);
+alter table ONLY person_negotiation_role
+    ADD CONSTRAINT fkp514tee0gwjcd11yycx40j17m FOREIGN KEY (negotiation_id) REFERENCES negotiation(id);
 
 
---
--- Name: access_criteria_section fkijwhm9gjj8qdo5eu09iibxdbo; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY person_negotiation_role
+    ADD CONSTRAINT fkp6fcqx8iyy2wcrykniqcic2ge FOREIGN KEY (person_id) REFERENCES person(id);
 
-ALTER TABLE ONLY public.access_criteria_section
-    ADD CONSTRAINT fkijwhm9gjj8qdo5eu09iibxdbo FOREIGN KEY (access_criteria_set_id) REFERENCES public.access_criteria_set(id);
 
+alter table ONLY resource_representative_link
+    ADD CONSTRAINT fkpda0l0e7a0kk7aj8d7dd8blr2 FOREIGN KEY (resource_id) REFERENCES resource(id);
 
---
--- Name: notification_email fkjsocvwlnpmpp0ftmo5nm8nmm7; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.notification_email
-    ADD CONSTRAINT fkjsocvwlnpmpp0ftmo5nm8nmm7 FOREIGN KEY (person_id) REFERENCES public.person(id);
+alter table ONLY notification
+    ADD CONSTRAINT fkq1tn3w9gjmypghc58magu8i2t FOREIGN KEY (negotiation_id) REFERENCES negotiation(id);
 
 
---
--- Name: project fkjyr9p0nibm4qmaddopb52ksa0; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY person_project_role
+    ADD CONSTRAINT fkqt0afjgr9fxqyjxeox9xxd4c FOREIGN KEY (person_id) REFERENCES person(id);
 
-ALTER TABLE ONLY public.project
-    ADD CONSTRAINT fkjyr9p0nibm4qmaddopb52ksa0 FOREIGN KEY (modified_by) REFERENCES public.person(id);
 
+alter table ONLY project
+    ADD CONSTRAINT fkqwy6ntg495nxuiyc6prb6o8h0 FOREIGN KEY (created_by) REFERENCES person(id);
 
---
--- Name: request_resources_link fkl8i1lbs2jfsl7or12i0hi9qkb; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.request_resources_link
-    ADD CONSTRAINT fkl8i1lbs2jfsl7or12i0hi9qkb FOREIGN KEY (request_id) REFERENCES public.request(id);
+alter table ONLY request
+    ADD CONSTRAINT fkr3i632eg511015o18i0s6x014 FOREIGN KEY (negotiation_id) REFERENCES negotiation(id);
 
 
---
--- Name: person_project_role fkmnc7g89mav2nlhshfnm4ta4dn; Type: FK CONSTRAINT; Schema: public; Owner: -
---
+alter table ONLY attachment
+    ADD CONSTRAINT fksbxoy0aohg40gdhkg2ks7ak9y FOREIGN KEY (modified_by) REFERENCES person(id);
 
-ALTER TABLE ONLY public.person_project_role
-    ADD CONSTRAINT fkmnc7g89mav2nlhshfnm4ta4dn FOREIGN KEY (role_id) REFERENCES public.role(id);
 
+alter table ONLY access_criteria
+    ADD CONSTRAINT fkt4trpxmxhenaxg0i4duggiocr FOREIGN KEY (access_criteria_section_id) REFERENCES access_criteria_section(id);
 
---
--- Name: authorities fkn55wpgxf39f3kda1tw6ia2mgn; Type: FK CONSTRAINT; Schema: public; Owner: -
---
 
-ALTER TABLE ONLY public.authorities
-    ADD CONSTRAINT fkn55wpgxf39f3kda1tw6ia2mgn FOREIGN KEY (person_id) REFERENCES public.person(id);
-
-
---
--- Name: negotiation fknb8a0248715b96boouf3973r7; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.negotiation
-    ADD CONSTRAINT fknb8a0248715b96boouf3973r7 FOREIGN KEY (modified_by) REFERENCES public.person(id);
-
-
---
--- Name: resource fknxy1sei1miecaw4aju99ce32u; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.resource
-    ADD CONSTRAINT fknxy1sei1miecaw4aju99ce32u FOREIGN KEY (organization_id) REFERENCES public.organization(id);
-
-
---
--- Name: post fkowe48u8aic9c83l1edrgmft53; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.post
-    ADD CONSTRAINT fkowe48u8aic9c83l1edrgmft53 FOREIGN KEY (organization_id) REFERENCES public.organization(id);
-
-
---
--- Name: person_negotiation_role fkp514tee0gwjcd11yycx40j17m; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_negotiation_role
-    ADD CONSTRAINT fkp514tee0gwjcd11yycx40j17m FOREIGN KEY (negotiation_id) REFERENCES public.negotiation(id);
-
-
---
--- Name: person_negotiation_role fkp6fcqx8iyy2wcrykniqcic2ge; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_negotiation_role
-    ADD CONSTRAINT fkp6fcqx8iyy2wcrykniqcic2ge FOREIGN KEY (person_id) REFERENCES public.person(id);
-
-
---
--- Name: resource_representative_link fkpda0l0e7a0kk7aj8d7dd8blr2; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.resource_representative_link
-    ADD CONSTRAINT fkpda0l0e7a0kk7aj8d7dd8blr2 FOREIGN KEY (resource_id) REFERENCES public.resource(id);
-
-
---
--- Name: notification fkq1tn3w9gjmypghc58magu8i2t; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notification
-    ADD CONSTRAINT fkq1tn3w9gjmypghc58magu8i2t FOREIGN KEY (negotiation_id) REFERENCES public.negotiation(id);
-
-
---
--- Name: person_project_role fkqt0afjgr9fxqyjxeox9xxd4c; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_project_role
-    ADD CONSTRAINT fkqt0afjgr9fxqyjxeox9xxd4c FOREIGN KEY (person_id) REFERENCES public.person(id);
-
-
---
--- Name: project fkqwy6ntg495nxuiyc6prb6o8h0; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.project
-    ADD CONSTRAINT fkqwy6ntg495nxuiyc6prb6o8h0 FOREIGN KEY (created_by) REFERENCES public.person(id);
-
-
---
--- Name: request fkr3i632eg511015o18i0s6x014; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.request
-    ADD CONSTRAINT fkr3i632eg511015o18i0s6x014 FOREIGN KEY (negotiation_id) REFERENCES public.negotiation(id);
-
-
---
--- Name: attachment fksbxoy0aohg40gdhkg2ks7ak9y; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.attachment
-    ADD CONSTRAINT fksbxoy0aohg40gdhkg2ks7ak9y FOREIGN KEY (modified_by) REFERENCES public.person(id);
-
-
---
--- Name: access_criteria fkt4trpxmxhenaxg0i4duggiocr; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.access_criteria
-    ADD CONSTRAINT fkt4trpxmxhenaxg0i4duggiocr FOREIGN KEY (access_criteria_section_id) REFERENCES public.access_criteria_section(id);
-
-
---
--- Name: attachment fktqlmqtq11hl9mhchr4sna6rrh; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.attachment
-    ADD CONSTRAINT fktqlmqtq11hl9mhchr4sna6rrh FOREIGN KEY (organization_id) REFERENCES public.organization(id);
-
-
---
--- PostgreSQL database dump complete
---
-
+alter table ONLY attachment
+    ADD CONSTRAINT fktqlmqtq11hl9mhchr4sna6rrh FOREIGN KEY (organization_id) REFERENCES organization(id);
