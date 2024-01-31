@@ -116,7 +116,7 @@ jobs:
           cache: maven
 
       - name: Run integration tests
-        run: mvn --quiet clean verify -B -Dfmt.skip
+        run: mvn --quiet clean verify -B -Dfmt.skip -Dspring.profiles.active=test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
