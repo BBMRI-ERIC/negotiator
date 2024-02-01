@@ -53,3 +53,32 @@ begin
         values (3, 4, 2, 'false');
   end if;
 end $$;
+
+-- adds the default organization --
+do $$
+declare
+    v_org organization%rowtype;
+begin
+    select * from organization
+    into v_org
+    where external_id = 'bbmri-eric:ID:CZ_MMCI';
+
+    if not found then
+        insert into organization (ID, external_id, name)
+        values (2, 'bbmri-eric:ID:CZ_MMCI', 'Masaryk Memorial Cancer Institute');
+  end if;
+end $$;
+
+do $$
+declare
+    v_resource resource%rowtype;
+begin
+    select * from resource
+    into v_resource
+    where source_id = 'bbmri-eric:ID:CZ_MMCI:collection:LTS';
+
+    if not found then
+        insert into resource (id, name, description, source_id, data_source_id, access_criteria_set_id, organization_id)
+values (2, 'Test collection 2', 'This is the second test collection','bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 1, 2);
+    end if;
+end $$;
