@@ -318,6 +318,9 @@ jobs:
       - name: Down docker compose
         run: cd /opt/negotiator && docker compose down
 
+      - name: Get docker logs
+        run: docker logs negotiator
+
       - name: Remove image
         run: docker image rm bbmrieric/negotiator
 
