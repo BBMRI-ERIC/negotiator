@@ -55,6 +55,6 @@ logging:
         jdbc:
           datasource:
             init:
-              ScriptUtils: debug
+              ScriptUtils: info
 springdoc:
   show-actuator: true
