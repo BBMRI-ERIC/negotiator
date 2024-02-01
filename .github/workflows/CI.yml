@@ -292,56 +292,6 @@ jobs:
 
       - name: Send authenticated request
         run: chmod +x .github/scripts/send_authenticated_request.sh && .github/scripts/send_authenticated_request.sh
-        uses: actions/download-artifact@v4.1.0
-        with:
-          name: negotiator
-          path: /tmp
-
-      - name: Load image
-        run: docker load --input /tmp/negotiator.tar
-
-      - name: Checkout codebase
-        uses: actions/checkout@v3
-
-      - name: Setup environment with auth server
-        run: cd .github/oauth-test/ && docker compose up -d
-
-      - name: Wait
-        run: sleep 30
-
-      - name: Get docker logs
-        run: docker logs negotiator
-
-      - name: Check health
-        run: .github/scripts/check_health.sh negotiator
-
-      - name: Send authenticated request
-        run: chmod +x .github/scripts/send_authenticated_request.sh && .github/scripts/send_authenticated_request.sh
-        uses: actions/download-artifact@v4.1.0
-        with:
-          name: negotiator
-          path: /tmp
-
-      - name: Load image
-        run: docker load --input /tmp/negotiator.tar
-
-      - name: Checkout codebase
-        uses: actions/checkout@v3
-
-      - name: Setup environment with auth server
-        run: cd .github/oauth-test/ && docker compose up -d
-
-      - name: Wait
-        run: sleep 30
-
-      - name: Get docker logs
-        run: docker logs negotiator
-
-      - name: Check health
-        run: .github/scripts/check_health.sh negotiator
-
-      - name: Send authenticated request
-        run: chmod +x .github/scripts/send_authenticated_request.sh && .github/scripts/send_authenticated_request.sh
 
   backwards-compatibility:
     name: DB migration tests
@@ -364,9 +314,6 @@ jobs:
 
       - name: Wait
         run: sleep 30
-
-      - name: Get docker logs
-        run: docker logs negotiator
 
       - name: Down docker compose
         run: cd /opt/negotiator && docker compose down
