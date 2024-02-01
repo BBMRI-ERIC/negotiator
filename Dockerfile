@@ -11,6 +11,7 @@ FROM eclipse-temurin:17-jre-focal
 USER 1001
 WORKDIR /app
 #COPY src/main/resources/data.sql /app/data/V1.1__Initial_data.sql
+VOLUME /app/data
 COPY --from=BUILD_IMAGE /app/target/negotiator-spring-boot.jar /app/negotiator.jar
 EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=10s CMD curl -f http://localhost:8081/api/actuator/health || exit 1
