@@ -23,4 +23,5 @@ spring:
     password:
     schemas:
     url:
+    baseline-migration-prefix: B
     locations: classpath:db/migration/{vendor},filesystem:/app/data
