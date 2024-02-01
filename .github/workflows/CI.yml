@@ -241,7 +241,7 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
+        run: git clone --branch feat/add_flyway_env https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
 
       - name: Run docker compose
         run: cd /opt/negotiator && docker compose up -d negotiator
@@ -307,7 +307,7 @@ jobs:
           path: /tmp
 
       - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
+        run: git clone --branch feat/add_flyway_env https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
 
       - name: Run docker compose
         run: cd /opt/negotiator && docker compose up -d negotiator
