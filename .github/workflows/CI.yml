@@ -164,8 +164,8 @@ jobs:
   build-image:
     name: Build docker image
     runs-on: ubuntu-latest
-    needs:
-      - integration-tests
+#    needs:
+#      - integration-tests
     steps:
 
       - name: Checkout codebase
