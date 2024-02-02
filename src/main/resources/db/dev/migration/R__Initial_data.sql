@@ -1,5 +1,9 @@
 insert into role (id, name)
-values (4, 'ROLE_RESEARCHER');
+values (1, 'CREATOR'),
+       (2, 'ADMINISTRATOR'),
+       (3, 'MANAGER'),
+       (4, 'ROLE_RESEARCHER'),
+       (5, 'REPRESENTATIVE');
 
 insert into data_source (url, api_username, api_password, api_type, api_url, description, name,
                          resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
