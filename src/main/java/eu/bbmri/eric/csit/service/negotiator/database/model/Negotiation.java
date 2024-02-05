@@ -142,7 +142,7 @@ public class Negotiation extends AuditEntity {
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
-    HashMap <String, Resource> resourcesMap = getResourcesMap(getResources());
+    HashMap<String, Resource> resourcesMap = getResourcesMap(getResources());
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder()
@@ -177,12 +177,11 @@ public class Negotiation extends AuditEntity {
         .collect(Collectors.toUnmodifiableSet());
   }
 
-  private HashMap <String, Resource> getResourcesMap(Set<Resource> resources) {
+  private HashMap<String, Resource> getResourcesMap(Set<Resource> resources) {
     HashMap<String, Resource> resourcesMap = new HashMap();
     for (Resource r : resources) {
       resourcesMap.put(r.getSourceId(), r);
     }
     return resourcesMap;
   }
-
 }
