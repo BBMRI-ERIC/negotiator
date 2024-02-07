@@ -113,6 +113,7 @@ Documentation for individual components:
 - [Workflow engine](docs/LIFECYCLE.md)
 - [Notification service](docs/NOTIFICATIONS.md)
 - [External services interface](docs/EXTERNAL_SERVICES.md)
+- [Database migration](docs/DATABASE_MIGRATION.md)
 
 ## License
 
