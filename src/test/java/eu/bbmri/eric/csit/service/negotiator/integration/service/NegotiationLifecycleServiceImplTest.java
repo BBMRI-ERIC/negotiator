@@ -11,7 +11,9 @@ import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotia
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri.eric.csit.service.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Negotiation;
 import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationLifecycleRecord;
+import eu.bbmri.eric.csit.service.negotiator.database.model.NegotiationResourceLifecycleRecord;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri.eric.csit.service.negotiator.dto.negotiation.NegotiationDTO;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +49,17 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
   @Autowired private WebApplicationContext context;
+
+  private void checkNegotiationResourceRecordPresenceWithAssignedState(
+      String negotiationId, NegotiationResourceState negotiationResourceState) {
+    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).get();
+    Set<NegotiationResourceLifecycleRecord> records =
+        negotiation.getNegotiationResourceLifecycleRecords();
+    Assertions.assertNotNull(
+        records.stream()
+            .filter(r -> r.getChangedTo().equals(negotiationResourceState))
+            .findFirst());
+  }
 
   @Test
   void getState_createNegotiation_isSubmitted() throws IOException {
@@ -172,6 +186,9 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
+
+    checkNegotiationResourceRecordPresenceWithAssignedState(
+        negotiationDTO.getId(), NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED"));
   }
 
   @Test
@@ -191,6 +208,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
+    Negotiation before = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
@@ -208,6 +226,10 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.MARK_AS_AVAILABLE));
+    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
+    Set<NegotiationResourceLifecycleRecord> records =
+        negotiation.getNegotiationResourceLifecycleRecords();
+    assertEquals(4, records.size());
   }
 
   @Test

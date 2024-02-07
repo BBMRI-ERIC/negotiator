@@ -19,6 +19,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,6 +112,15 @@ public class Negotiation extends AuditEntity {
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
 
+  @OneToMany(
+      fetch = FetchType.EAGER,
+      cascade = {CascadeType.ALL})
+  @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
+  private Set<NegotiationResourceLifecycleRecord> negotiationResourceLifecycleRecords =
+      new HashSet<>();
+
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
     history.add(
@@ -132,6 +142,15 @@ public class Negotiation extends AuditEntity {
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
+    if (!state.equals(NegotiationResourceState.SUBMITTED)) {
+      NegotiationResourceLifecycleRecord record =
+          NegotiationResourceLifecycleRecord.builder()
+              .recordedAt(LocalDateTime.now())
+              .changedTo(state)
+              .resource(lookupResource(getResources(), resourceId))
+              .build();
+      this.negotiationResourceLifecycleRecords.add(record);
+    }
   }
 
   @Override
@@ -155,5 +174,12 @@ public class Negotiation extends AuditEntity {
     return requests.stream()
         .flatMap(request -> request.getResources().stream())
         .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private Resource lookupResource(Set<Resource> resources, String resourceId) {
+    return resources.stream()
+        .filter(r -> r.getSourceId().equals(resourceId))
+        .findFirst()
+        .orElse(null);
   }
 }
