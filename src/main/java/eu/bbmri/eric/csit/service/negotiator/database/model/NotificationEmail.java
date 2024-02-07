@@ -9,14 +9,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -37,8 +36,7 @@ public class NotificationEmail {
   @Column(columnDefinition = "TEXT")
   private String message;
 
-  @CreatedDate
-  private LocalDateTime sentAt;
+  @CreatedDate private LocalDateTime sentAt;
 
   private boolean wasSuccessfullySent = false;
 }
