@@ -14,6 +14,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -21,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NotificationEmail extends AuditEntity {
+public class NotificationEmail {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -34,7 +37,8 @@ public class NotificationEmail extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String message;
 
-  //  @CreatedDate private LocalDateTime sent_at;
+  @CreatedDate
+  private LocalDateTime sentAt;
 
   private boolean wasSuccessfullySent = false;
 }

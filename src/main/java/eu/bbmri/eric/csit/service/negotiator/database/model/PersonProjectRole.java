@@ -21,7 +21,7 @@ import lombok.ToString.Exclude;
 @Getter
 @Setter
 @IdClass(PersonProjectId.class)
-public class PersonProjectRole extends AuditEntity {
+public class PersonProjectRole {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "person_id")

@@ -21,6 +21,5 @@ while [ "$ELAPSED_TIME" -lt "$MAX_WAIT_TIME" ]; do
 done
 
 echo "Container did not become healthy within $MAX_WAIT_TIME seconds."
-echo "Printing logs of the container"
 docker logs --tail 1000 negotiator
 exit 1

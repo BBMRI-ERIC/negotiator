@@ -3,7 +3,6 @@ package eu.bbmri.eric.csit.service.negotiator.database.model;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -19,7 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @NoArgsConstructor
@@ -28,8 +26,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @Builder
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Notification extends AuditEntity {
+public class Notification {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
   @SequenceGenerator(name = "notification_id_seq", initialValue = 10000, allocationSize = 1)
   @Id
