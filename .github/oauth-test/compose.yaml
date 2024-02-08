@@ -53,6 +53,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=negotiator
       - SPRING_DATASOURCE_PASSWORD=negotiator
       - SPRING_DATASOURCE_INITIALIZE=false
+      - SPRING_DATASOURCE_DRIVERCLASSNAME=org.postgresql.Driver
       - SPRING_FLYWAY_ENABLED=true
       - SPRING_FLYWAY_USER=negotiator
       - SPRING_FLYWAY_PASSWORD=negotiator
