@@ -30,7 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
 public class NegotiationRepositoryTest {

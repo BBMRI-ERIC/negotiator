@@ -15,6 +15,7 @@ spring:
       data-locations: classpath:db/test/migration/R__Initial_data.sql
   jpa:
     hibernate:
+      show-sql: false
       ddl-auto: create-drop
     defer-datasource-initialization: true
     properties:
