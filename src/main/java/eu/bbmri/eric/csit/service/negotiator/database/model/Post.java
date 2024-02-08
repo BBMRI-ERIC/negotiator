@@ -52,7 +52,7 @@ public class Post extends AuditEntity {
   private String id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "request_id")
+  @JoinColumn(name = "negotiation_id")
   @Exclude
   private Negotiation negotiation;
 

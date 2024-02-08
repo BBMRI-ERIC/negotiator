@@ -33,8 +33,7 @@ The migrations file needs to follow the naming schema `<Type>_<Version>__<Descri
 Data are loaded using repeatable migrations. For example, if the Negotiator needs to be initialized with some data
 (e.g., default access criteria), repeatable migrations should be created.  
 Since repeatable migrations are repeated each time they change (i.e., when the checksum changes), when created 
-for production, it is important to write them checking for data already present. An example of script that performs 
-the checks for Postgres is in `.github/oauth-test/R__Initial_data.sql`
+for production, it is important to write them checking for data already present.
 By default, the repeatable migrations are expected to be in the `/app/data` path.
 
 ## Paths

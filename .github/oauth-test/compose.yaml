@@ -48,7 +48,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - PROFILE=prod
+      - PROFILE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
       - SPRING_DATASOURCE_USERNAME=negotiator
       - SPRING_DATASOURCE_PASSWORD=negotiator
@@ -70,8 +70,6 @@ services:
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_TYPE=jwt
     ports:
       - '8081:8081'
-    volumes:
-      - ./R__Initial_data.sql:/app/data/R__Initial_data.sql
     networks:
       - oauth-test
   postgres:
