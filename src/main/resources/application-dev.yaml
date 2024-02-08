@@ -5,8 +5,8 @@ spring:
     username: "user"
     password: "pass"
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgres:///negotiator_db
     username: negotiator
     password: negotiator
   servlet:
@@ -15,8 +15,9 @@ spring:
       max-request-size: 2MB
   sql:
     init:
-      mode: never
-      platform: h2
+      mode: always
+      platform: postgres
+      continue-on-error: true
   h2:
     console:
       enabled: true
@@ -26,7 +27,7 @@ spring:
     defer-datasource-initialization: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   flyway:
     user: negotiator
     password: negotiator
@@ -61,6 +62,14 @@ notification:
   cron-schedule-expression: "0 * * * * *"
 logging:
   level:
+    org:
+      springframework:
+        security: debug
+        jdbc:
+          datasource:
+            init:
+              ScriptUtils: debug
     org.springframeworf.web: debug
-    org.springframework.security: debug
     eu.bbmri_eric.negotiator: debug
+
+
