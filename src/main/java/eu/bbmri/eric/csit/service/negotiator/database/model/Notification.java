@@ -1,16 +1,23 @@
 package eu.bbmri.eric.csit.service.negotiator.database.model;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @ToString
 @NoArgsConstructor
@@ -19,7 +26,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @Builder
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 public class Notification {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
   @SequenceGenerator(name = "notification_id_seq", initialValue = 10000, allocationSize = 1)
@@ -43,6 +49,4 @@ public class Notification {
 
   @Enumerated(EnumType.STRING)
   private NotificationEmailStatus emailStatus;
-
-  @CreatedDate private LocalDateTime creationDate;
 }

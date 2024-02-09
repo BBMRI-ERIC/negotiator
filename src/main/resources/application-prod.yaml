@@ -10,16 +10,18 @@ spring:
       max-request-size: 2MB
   sql:
     init:
-      mode: always
-      platform: postgres
-      continue-on-error: true
-      data-locations: classpath:data.sql
+      mode: never
   jpa:
     hibernate:
-      ddl-auto: create
-    defer-datasource-initialization: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: none
+    defer-datasource-initialization: false
   jackson:
     date-format: "yyyy-MM-dd"
+  flyway:
+    enabled: true
+    user:
+    password:
+    schemas:
+    url:
+    baseline-on-migrate: true
+    locations: classpath:db/migration/{vendor},filesystem:/app/data

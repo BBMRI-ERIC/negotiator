@@ -22,10 +22,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
+@ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PersonRepositoryTest {
   @Autowired PersonRepository personRepository;
 

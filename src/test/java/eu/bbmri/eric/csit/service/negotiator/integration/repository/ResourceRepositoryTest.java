@@ -13,9 +13,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest
+@DataJpaTest(showSql = false)
+@ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
 public class ResourceRepositoryTest {
 
@@ -52,22 +54,22 @@ public class ResourceRepositoryTest {
                 .name("")
                 .syncActive(true)
                 .build());
-    Resource resource =
-        resourceRepository.save(
-            Resource.builder()
-                .organization(organization)
-                .dataSource(dataSource)
-                .sourceId("collection:1")
-                .name("test")
-                .build());
-    Resource resource2 =
-        resourceRepository.save(
-            Resource.builder()
-                .organization(organization)
-                .dataSource(dataSource)
-                .sourceId("collection:2")
-                .name("test")
-                .build());
+
+    resourceRepository.save(
+        Resource.builder()
+            .organization(organization)
+            .dataSource(dataSource)
+            .sourceId("collection:1")
+            .name("test")
+            .build());
+
+    resourceRepository.save(
+        Resource.builder()
+            .organization(organization)
+            .dataSource(dataSource)
+            .sourceId("collection:2")
+            .name("test")
+            .build());
     assertEquals(
         2, resourceRepository.findAllBySourceIdIn(Set.of("collection:1", "collection:2")).size());
     assertEquals(1, resourceRepository.findAllBySourceIdIn(Set.of("collection:2")).size());

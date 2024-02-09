@@ -9,11 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
 import eu.bbmri.eric.csit.service.negotiator.api.controller.v3.DataSourceController;
 import eu.bbmri.eric.csit.service.negotiator.database.model.DataSource;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.datasource.DataSourceCreateDTO;
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -189,24 +193,31 @@ public class DataSourceControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
+  @Transactional
   public void testCreated_whenRequest_IsCorrect() throws Exception {
     DataSourceCreateDTO request = TestUtils.createDataSourceRequest(false);
     String requestBody = TestUtils.jsonFromRequest(request);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/v3/data-sources")
-                .with(httpBasic("admin", "admin"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.name", is(TestUtils.DATA_SOURCE_NAME)))
-        .andExpect(jsonPath("$.description", is(TestUtils.DATA_SOURCE_DESCRIPTION)))
-        .andExpect(jsonPath("$.url", is(TestUtils.DATA_SOURCE_URL)));
-    assertEquals(repository.findAll().size(), 2);
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/v3/data-sources")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isNumber())
+            .andExpect(jsonPath("$.name", is(TestUtils.DATA_SOURCE_NAME)))
+            .andExpect(jsonPath("$.description", is(TestUtils.DATA_SOURCE_DESCRIPTION)))
+            .andExpect(jsonPath("$.url", is(TestUtils.DATA_SOURCE_URL)))
+            .andReturn();
+    Integer dataSourceId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<DataSource> dataSource = repository.findById((long) dataSourceId);
+    assert dataSource.isPresent();
+    assertEquals(dataSource.get().getCreatedBy().getName(), "admin");
 
+    assertEquals(repository.findAll().size(), 2);
     repository.deleteById(2L);
   }
 

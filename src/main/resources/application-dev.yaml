@@ -6,7 +6,7 @@ spring:
     password: "pass"
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=RUNSCRIPT FROM 'classpath:dev/init.sql'
+    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL
     username: negotiator
     password: negotiator
   servlet:
@@ -15,19 +15,23 @@ spring:
       max-request-size: 2MB
   sql:
     init:
-      mode: always
+      mode: never
       platform: h2
-      data-locations: classpath:data.sql
   h2:
     console:
       enabled: true
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    defer-datasource-initialization: true
+      ddl-auto: none
+    defer-datasource-initialization: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    user: negotiator
+    password: negotiator
+    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL
+    locations: classpath:db/migration/{vendor},db/dev/migration
   jackson:
     date-format: "yyyy-MM-dd"
   security:
@@ -62,5 +66,3 @@ logging:
           datasource:
             init:
               ScriptUtils: debug
-
-

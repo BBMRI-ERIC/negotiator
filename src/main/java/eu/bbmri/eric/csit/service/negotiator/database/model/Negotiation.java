@@ -12,6 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedAttributeNode;
@@ -19,8 +21,6 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +35,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 @Entity
@@ -65,6 +66,12 @@ import org.hibernate.type.SqlTypes;
           attributeNodes = {@NamedAttributeNode(value = "resources")})
     })
 public class Negotiation extends AuditEntity {
+
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @UuidGenerator
+  @Column(name = "id")
+  private String id;
 
   @OneToMany(
       mappedBy = "negotiation",
@@ -123,21 +130,13 @@ public class Negotiation extends AuditEntity {
 
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
     Set<NegotiationLifecycleRecord> history = new HashSet<>();
-    history.add(
-        NegotiationLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
-            .changedTo(NegotiationState.SUBMITTED)
-            .build());
+    history.add(NegotiationLifecycleRecord.builder().changedTo(NegotiationState.SUBMITTED).build());
     return history;
   }
 
   public void setCurrentState(NegotiationState negotiationState) {
     this.currentState = negotiationState;
-    this.lifecycleHistory.add(
-        NegotiationLifecycleRecord.builder()
-            .recordedAt(ZonedDateTime.now())
-            .changedTo(currentState)
-            .build());
+    this.lifecycleHistory.add(NegotiationLifecycleRecord.builder().changedTo(currentState).build());
   }
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
@@ -145,7 +144,6 @@ public class Negotiation extends AuditEntity {
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder()
-              .recordedAt(LocalDateTime.now())
               .changedTo(state)
               .resource(lookupResource(getResources(), resourceId))
               .build();

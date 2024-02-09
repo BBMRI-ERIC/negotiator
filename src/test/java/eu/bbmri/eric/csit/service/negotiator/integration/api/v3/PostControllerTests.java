@@ -1,17 +1,22 @@
 package eu.bbmri.eric.csit.service.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.jayway.jsonpath.JsonPath;
 import eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication;
+import eu.bbmri.eric.csit.service.negotiator.database.model.Post;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostStatus;
 import eu.bbmri.eric.csit.service.negotiator.database.model.PostType;
 import eu.bbmri.eric.csit.service.negotiator.database.repository.PostRepository;
 import eu.bbmri.eric.csit.service.negotiator.dto.post.PostCreateDTO;
+import jakarta.transaction.Transactional;
 import java.net.URI;
+import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +28,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -51,20 +57,28 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
+  @Transactional
   public void testCreatePublicPostOK() throws Exception {
     PostCreateDTO request = TestUtils.createPostDTO(null, "message", null, PostType.PUBLIC);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(URI.create(uri))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.text", is("message")))
-        .andExpect(jsonPath("$.status", is("CREATED")));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(uri))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.text", is("message")))
+            .andExpect(jsonPath("$.status", is("CREATED")))
+            .andReturn();
+
+    String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Post> post = postRepository.findById(postId);
+    assert post.isPresent();
+    assertEquals(post.get().getCreatedBy().getName(), "TheResearcher");
   }
 
   @Test
@@ -88,12 +102,14 @@ public class PostControllerTests {
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(URI.create(uri))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isBadRequest());
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(uri))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isBadRequest())
+            .andReturn();
   }
 
   @Test
@@ -146,6 +162,7 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheBiobanker")
+  @Transactional
   public void testMarkPublicPostAsRead() throws Exception {
     PostCreateDTO request =
         TestUtils.createPostDTO(null, "message", PostStatus.READ, PostType.PUBLIC);
@@ -160,25 +177,37 @@ public class PostControllerTests {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.status", is("READ")));
+
+    Optional<Post> post = postRepository.findById(POST_ID);
+    assert post.isPresent();
+    assertEquals(post.get().getModifiedBy().getName(), "TheBiobanker");
   }
 
   @Test
   @WithUserDetails("TheResearcher")
+  @Transactional
   public void testCreatePrivatePostOK() throws Exception {
     PostCreateDTO request =
         TestUtils.createPostDTO(NEGOTIATION_1_ORGANIZATION_ID, "message", null, PostType.PRIVATE);
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(URI.create(uri))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isCreated())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.text", is("message")))
-        .andExpect(jsonPath("$.status", is("CREATED")));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(uri))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.text", is("message")))
+            .andExpect(jsonPath("$.status", is("CREATED")))
+            .andReturn();
+
+    String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Post> post = postRepository.findById(postId);
+    assert post.isPresent();
+    assertEquals(post.get().getCreatedBy().getName(), "TheResearcher");
   }
 
   @Test
