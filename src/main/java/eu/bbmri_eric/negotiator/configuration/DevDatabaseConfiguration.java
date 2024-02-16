@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.configuration;
 
-
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
