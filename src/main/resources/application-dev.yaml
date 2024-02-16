@@ -9,6 +9,7 @@ spring:
     url: jdbc:tc:postgres:///negotiator_db
     username: negotiator
     password: negotiator
+    database: negotiator_db
   servlet:
     multipart:
       max-file-size: 2MB
@@ -18,9 +19,6 @@ spring:
       mode: always
       platform: postgres
       continue-on-error: true
-  h2:
-    console:
-      enabled: true
   jpa:
     hibernate:
       ddl-auto: none
@@ -31,7 +29,7 @@ spring:
   flyway:
     user: negotiator
     password: negotiator
-    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL
+    url: jdbc:tc:postgresql:///negotiator_db
     locations: classpath:db/migration/{vendor},db/dev/migration
   jackson:
     date-format: "yyyy-MM-dd"
