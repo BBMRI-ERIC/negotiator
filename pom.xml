@@ -182,6 +182,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <artifactId>h2</artifactId>
+            <groupId>com.h2database</groupId>
+            <version>2.2.220</version>
+        </dependency>
+        <dependency>
             <artifactId>postgresql</artifactId>
             <groupId>org.postgresql</groupId>
             <scope>runtime</scope>
