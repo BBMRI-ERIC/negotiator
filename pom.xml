@@ -2,8 +2,21 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.bbmri_eric</groupId>
     <artifactId>negotiator</artifactId>
+    <name>BBMRI-ERIC Negotiator</name>
+    <version>3.0.1</version>
+    <packaging>jar</packaging>
+    <description>
+        An open-source access negotiation tool for research infrastructures.
+    </description>
+    <properties>
+        <java.version>17</java.version>
+        <spring-security.version>6.2.0</spring-security.version>
+        <spring.version>6.1.0</spring.version>
+    </properties>
+
     <build>
         <finalName>negotiator</finalName>
         <plugins>
@@ -274,24 +287,10 @@
             <version>2.1.0</version>
         </dependency>
     </dependencies>
-    <description>The BBMRI-ERIC Negotiator service for structured temp with biological
-        resources dealing with human data and/or biological samples.
-    </description>
-    <groupId>eu.bbmri.eric.csit.service.negotiator</groupId>
-    <modelVersion>4.0.0</modelVersion>
-    <name>BBMRI Negotiator</name>
-    <packaging>jar</packaging>
-
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
         <version>3.1.2</version> <!-- lookup parent from repository -->
     </parent>
 
-    <properties>
-        <java.version>17</java.version>
-        <spring-security.version>6.2.0</spring-security.version>
-        <spring.version>6.1.0</spring.version>
-    </properties>
-    <version>3.0.1</version>
 </project>
