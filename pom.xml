@@ -11,12 +11,19 @@
     <description>
         An open-source access negotiation tool for research infrastructures.
     </description>
+
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>3.1.2</version>
+    </parent>
     <properties>
         <java.version>17</java.version>
         <spring-security.version>6.2.0</spring-security.version>
+        <spring-boot.version>${parent.version}</spring-boot.version>
         <spring.version>6.1.0</spring.version>
+        <spring.state-machine.version>3.2.1</spring.state-machine.version>
     </properties>
-
     <build>
         <finalName>negotiator</finalName>
         <plugins>
@@ -116,48 +123,47 @@
         <dependency>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-security</artifactId>
             <groupId>org.springframework.boot</groupId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-web</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core -->
         <dependency>
             <artifactId>spring-statemachine-core</artifactId>
             <groupId>org.springframework.statemachine</groupId>
-            <version>3.2.1</version>
+            <version>${spring.state-machine.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-data-jpa -->
         <dependency>
             <artifactId>spring-statemachine-starter</artifactId>
             <groupId>org.springframework.statemachine</groupId>
-            <version>3.2.1</version>
+            <version>${spring.state-machine.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-statemachine-recipes-common</artifactId>
             <groupId>org.springframework.statemachine</groupId>
-            <version>3.2.1</version>
+            <version>${spring.state-machine.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-mail</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <artifactId>spring-context-support</artifactId>
@@ -193,7 +199,7 @@
         <dependency>
             <artifactId>spring-boot-starter-test</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -214,6 +220,7 @@
         <dependency>
             <artifactId>spring-boot-starter-validation</artifactId>
             <groupId>org.springframework.boot</groupId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <artifactId>junit-jupiter-api</artifactId>
@@ -244,7 +251,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <version>6.0.11</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
@@ -254,7 +261,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>3.1.2</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
@@ -280,6 +287,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>
@@ -287,10 +295,5 @@
             <version>2.1.0</version>
         </dependency>
     </dependencies>
-    <parent>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <groupId>org.springframework.boot</groupId>
-        <version>3.1.2</version> <!-- lookup parent from repository -->
-    </parent>
 
 </project>
