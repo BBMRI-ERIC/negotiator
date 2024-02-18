@@ -67,7 +67,7 @@
                     <execution>
                         <configuration>
                             <classifier>spring-boot</classifier>
-                            <mainClass>eu.bbmri.eric.csit.service.negotiator.NegotiatorApplication</mainClass>
+                            <mainClass>eu.bbmri_eric.negotiator.NegotiatorApplication</mainClass>
                         </configuration>
                         <goals>
                             <goal>repackage</goal>
