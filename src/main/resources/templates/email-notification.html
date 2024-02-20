@@ -69,7 +69,15 @@
                         <ul>
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
-                                <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/ROLE_RESEARCHER'}"><span th:text="${negotiation.id}"></span></a>
+                                <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/ROLE_RESEARCHER'}">
+                                    <script th:inline="javascript">
+                                        /* Parse the JSON string into a JSON object */
+                                        var payloadJson = JSON.parse(/*[[${negotiation.payload}]]*/);
+                                        var projectTitle = payloadJson?.project?.title;
+                                        document.write(projectTitle);
+                                    </script>
+
+                                </a>
                             </li>
                         </ul>
                     </div>
