@@ -4,7 +4,10 @@ import eu.bbmri_eric.negotiator.database.model.NotificationEmail;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.repository.NotificationEmailRepository;
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+
+import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -50,11 +53,13 @@ public class EmailServiceImpl implements EmailService {
       helper.setText(mailBody, true);
       helper.setTo(recipientAddress);
       helper.setSubject(subject);
-      helper.setFrom("noreply@bbmri-eric.eu");
+      helper.setFrom("noreply@bbmri-eric.eu","BBMRI-ERIC negotiator" );
     } catch (MessagingException e) {
       throw new NullPointerException(e.toString());
+    } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e);
     }
-    return mimeMessage;
+      return mimeMessage;
   }
 
   private static boolean isValidEmailAddress(String recipientAddress) {
@@ -77,6 +82,9 @@ public class EmailServiceImpl implements EmailService {
       mimeMessage = buildMimeMessage(mimeMessage, recipient.getEmail(), subject, mailBody);
     } catch (NullPointerException e) {
       log.error("Failed to send email. Check message content.");
+      return;
+    }catch (RuntimeException e) {
+      log.error("Failed to send email.");
       return;
     }
     NotificationEmail notificationEmail =
