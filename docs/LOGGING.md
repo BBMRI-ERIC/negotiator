@@ -34,7 +34,7 @@ The configuration uses a `SizeAndTimeBasedRollingPolicy` with default configurat
 It means that each day a new log file will be created, but if the log reaches the maximum file size (which is 10MB) before 
 the day, it will create a new file for that day and archive the first file.
 The file name pattern is `negotiator.log.%d{%YYY-mm-dd}.%i.cz`
-Two parameters to control the storage consumption are configured: `max-history`, set to 7, and `total-size-cap`, set to 1GB.
+Two parameters to control the storage consumption are configured: `max-history`, set to 30 (i.e., one month), and `total-size-cap`, set to 1GB.
 In this way the negotiator deletes files older than 7 days or after 1GB overall size is reached.
 By default, the logs are stored in `/var/log/negotiator/` directory. 
 All configuration parameters can be overriden as usual with environment variables.
