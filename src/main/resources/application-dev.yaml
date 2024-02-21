@@ -59,10 +59,6 @@ negotiator:
     resource-claim-prefix: "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:"
 logging:
   level:
-    org:
-      springframework:
-        security: debug
-        jdbc:
-          datasource:
-            init:
-              ScriptUtils: debug
+    org.springframeworf.web: debug
+    org.springframework.security: debug
+    eu.bbmri_eric.negotiator: debug

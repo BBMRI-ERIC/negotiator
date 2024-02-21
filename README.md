@@ -114,6 +114,7 @@ Documentation for individual components:
 - [Notification service](docs/NOTIFICATIONS.md)
 - [External services interface](docs/EXTERNAL_SERVICES.md)
 - [Database migration](docs/DATABASE_MIGRATION.md)
+- [Logging policy](docs/LOGGING.md)
 
 ## License
 
