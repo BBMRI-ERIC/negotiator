@@ -4,31 +4,14 @@ The Negotiator uses Logback to handle logging.
 
 ## Default Configuration
 
-Logback is configured, among other configurations, in application.yaml file.
+Logback is configured, among other configurations, in `application.yaml` file.
 
-By default, the development environment is configured to output logs only to console and 
-the logging level is set to DEBUG
+By default, the **development** environment is configured to output logs only to console and
+the logging level is set to **DEBUG**.
+**Production** profile is configured to log level **INFO**.
 
-For production, the default configuration is the following:
-
-```yml
-logging:
-  file:
-    name: "/var/log/negotiator/negotiator.log"
-  pattern:
-    console: "%d %-5level %logger : %msg%n"
-    file: "%d %-5level [%thread] %logger : %msg%n"
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-      total-size-cap: 1GB
-      max-history: 30
-  level:
-    root: info
-    org.springframeworf.web: info
-    org.springframework.security: info
-    eu.bbmri_eric.negotiator: info
-```
+For production,
+the default configuration can be found in [`application-prod.yaml`](../src/main/resources/application-prod.yaml) file.
 
 The configuration uses a `SizeAndTimeBasedRollingPolicy` keeping the default configuration for time range (i.e., 1 day). 
 It means that each day a new log file will be created, but if the log reaches the maximum file size (which is 10MB) before 
