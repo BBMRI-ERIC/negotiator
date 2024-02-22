@@ -30,14 +30,14 @@ logging:
     eu.bbmri_eric.negotiator: info
 ```
 
-The configuration uses a `SizeAndTimeBasedRollingPolicy` with default configuration for time range (i.e., 1 day). 
+The configuration uses a `SizeAndTimeBasedRollingPolicy` keeping the default configuration for time range (i.e., 1 day). 
 It means that each day a new log file will be created, but if the log reaches the maximum file size (which is 10MB) before 
 the day, it will create a new file for that day and archive the first file.
 The file name pattern is `negotiator.log.%d{%YYY-mm-dd}.%i.cz`
-Two parameters to control the storage consumption are configured: `max-history`, set to 30 (i.e., one month), and `total-size-cap`, set to 1GB.
-In this way the negotiator deletes files older than 7 days or after 1GB overall size is reached.
-By default, the logs are stored in `/var/log/negotiator/` directory. 
+To control the storage consumption `max-history` parameter is configured to 30 (i.e., one month) meaning that 
+the history of 30 days will be kept and older logs are deleted.
 All configuration parameters can be overriden as usual with environment variables.
+Fially, by default, the logs are stored in `/var/log/negotiator/` directory. 
 
   
 
