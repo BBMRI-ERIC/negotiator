@@ -57,6 +57,8 @@ negotiator:
     biobanker-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu"
     subject-claim: "sub"
     resource-claim-prefix: "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:"
+notification:
+  cron-schedule-expression: "0 */5 * ? * *"
 logging:
   level:
     org.springframeworf.web: debug

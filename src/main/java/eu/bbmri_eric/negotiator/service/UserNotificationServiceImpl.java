@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
@@ -226,7 +228,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  @Scheduled(cron = "0 */1 * ? * *")
+  @Scheduled(cron = "${notification.cron-schedule-expression:0 0 * * * *}")
   @Async
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
@@ -295,6 +297,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       return "ROLE_RESEARCHER"; // Default to ROLE_RESEARCHER
     }
   }
+
 
   private List<Notification> getPendingNotifications(@NonNull Person recipient) {
     return notificationRepository.findByRecipientIdAndEmailStatus(
