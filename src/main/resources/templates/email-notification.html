@@ -69,7 +69,7 @@
                         <ul>
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
-                                <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/ROLE_RESEARCHER'}">
+                                <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/'+ ${roleForNegotiation.get(negotiation.id)}}">
                                     <script th:inline="javascript">
                                         /* Parse the JSON string into a JSON object */
                                         var payloadJson = JSON.parse(/*[[${negotiation.payload}]]*/);

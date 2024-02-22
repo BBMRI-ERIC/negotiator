@@ -1,12 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Notification;
-import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Post;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.NotificationDTO;
@@ -231,7 +226,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  @Scheduled(cron = "0 0 * * * *")
+  @Scheduled(cron = "0 */1 * ? * *")
   @Async
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
@@ -263,12 +258,42 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .distinct()
             .collect(Collectors.toList());
 
+    Map<String, String> roleForNegotiation = new HashMap<>();
+
+    // Iterate over notifications to populate the map
+    for (Notification notification : notifications) {
+      String negotiationId = notification.getNegotiation().getId();
+      String role = extractRoleFromNotificationMessage(notification);
+      roleForNegotiation.put(negotiationId, role);
+    }
+
     context.setVariable("negotiations", negotiations);
     context.setVariable("frontendurl", frontendurl);
+    context.setVariable("roleForNegotiation", roleForNegotiation);
 
     String emailContent = templateEngine.process("email-notification", context);
 
     emailService.sendEmail(recipient, "New Notifications", emailContent);
+  }
+
+  private String extractRoleFromNotificationMessage(Notification notification) {
+    String message = notification.getMessage();
+    if (message.matches("New Negotiation .* was added for review\\.")) {
+      return "ROLE_ADMIN";
+    } else if (message.matches("Negotiation .* had a change of status of .* to .*")) {
+      // TODO if status changed to "ACCESS_CONDITIONS_MET" role should be "ROLE_REPRESENTATIVE"
+      // (once notification also goes to REPRESENTATIVE)
+      return "ROLE_RESEARCHER";
+    } else if (message.matches("Negotiation .* had a new post by .*")) {
+      String[] parts = message.split("new post by");
+      String negotiationCreator = notification.getNegotiation().getCreatedBy().getName();
+      String postCreator = parts[1].trim();
+      return (negotiationCreator.equals(postCreator)) ? "ROLE_REPRESENTATIVE" : "ROLE_RESEARCHER";
+    } else if (message.matches("New Negotiation .*")) {
+      return "ROLE_REPRESENTATIVE";
+    } else {
+      return "ROLE_RESEARCHER"; // Default to ROLE_RESEARCHER
+    }
   }
 
   private List<Notification> getPendingNotifications(@NonNull Person recipient) {
