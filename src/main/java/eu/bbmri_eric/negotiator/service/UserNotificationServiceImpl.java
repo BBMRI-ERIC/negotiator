@@ -258,14 +258,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .distinct()
             .collect(Collectors.toList());
 
-    Map<String, String> roleForNegotiation = new HashMap<>();
-
-    // Iterate over notifications to populate the map
-    for (Notification notification : notifications) {
-      String negotiationId = notification.getNegotiation().getId();
-      String role = extractRoleFromNotificationMessage(notification);
-      roleForNegotiation.put(negotiationId, role);
-    }
+    Map<String, String> roleForNegotiation = populateRoleForNegotiationMap(notifications);
 
     context.setVariable("negotiations", negotiations);
     context.setVariable("frontendurl", frontendurl);
@@ -274,6 +267,16 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     String emailContent = templateEngine.process("email-notification", context);
 
     emailService.sendEmail(recipient, "New Notifications", emailContent);
+  }
+
+  private Map<String, String> populateRoleForNegotiationMap(List<Notification> notifications) {
+    Map<String, String> roleForNegotiation = new HashMap<>();
+    for (Notification notification : notifications) {
+      String negotiationId = notification.getNegotiation().getId();
+      String role = extractRoleFromNotificationMessage(notification);
+      roleForNegotiation.put(negotiationId, role);
+    }
+    return roleForNegotiation;
   }
 
   private String extractRoleFromNotificationMessage(Notification notification) {
@@ -292,7 +295,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     } else if (message.matches("New Negotiation .*")) {
       return "ROLE_REPRESENTATIVE";
     } else {
-      return "ROLE_RESEARCHER"; // Default to ROLE_RESEARCHER
+      return "ROLE_RESEARCHER";
     }
   }
 
