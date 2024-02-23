@@ -51,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
       helper.setText(mailBody, true);
       helper.setTo(recipientAddress);
       helper.setSubject(subject);
-      helper.setFrom("noreply@bbmri-eric.eu", "BBMRI-ERIC negotiator");
+      helper.setFrom("noreply@bbmri-eric.eu", "BBMRI-ERIC Negotiator");
     } catch (MessagingException e) {
       throw new NullPointerException(e.toString());
     } catch (UnsupportedEncodingException e) {
