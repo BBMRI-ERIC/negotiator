@@ -134,6 +134,52 @@ public class AccessFormServiceTest {
         4, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
   }
 
+  @Test
+  @Transactional
+  void getAccessFormForRequest_2resourcesWithSameSectionDifferentElements_combined() {
+    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
+    RequestDTO requestDTO = requestService.create(requestCreateDTO);
+    Resource resource = resourceRepository.findAll().get(1);
+    assertFalse(
+        requestDTO.getResources().stream()
+            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
+    AccessCriteria accessCriteria =
+        AccessCriteria.builder()
+            .name("test")
+            .label("test")
+            .description("test")
+            .type("text")
+            .build();
+    AccessCriteriaSectionLink accessCriteriaSectionLink =
+        AccessCriteriaSectionLink.builder()
+            .accessCriteria(accessCriteria)
+            .ordering(9)
+            .required(true)
+            .build();
+    AccessCriteriaSet accessCriteriaSet = accessCriteriaSetRepository.findAll().get(0);
+    accessCriteriaSet.setId(2L);
+    accessCriteriaSet.setName("different_form");
+    assertEquals(
+        2, accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
+    accessCriteriaSet
+        .getSections()
+        .iterator()
+        .next()
+        .getAccessCriteriaSectionLink()
+        .add(accessCriteriaSectionLink);
+    accessCriteriaSet = accessCriteriaSetRepository.save(accessCriteriaSet);
+    resource.setAccessCriteriaSet(accessCriteriaSet);
+    resourceRepository.save(resource);
+    Request request = requestRepository.findById(requestDTO.getId()).get();
+    request.getResources().add(resource);
+    request = requestRepository.save(request);
+    assertEquals(2, request.getResources().size());
+    assertEquals(
+        3, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
+    assertEquals(
+        3, accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
+  }
+
   private Request addResourcesToRequest(AccessCriteriaSet accessCriteriaSet, Request request) {
     Organization organization =
         organizationRepository.save(
