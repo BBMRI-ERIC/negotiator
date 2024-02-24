@@ -180,6 +180,12 @@ public class AccessFormServiceTest {
         3, accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
   }
 
+  @Test
+  void getAccessFormForRequest_conflictingOrderOfElements_appendedInSequence() {}
+
+  @Test
+  void getAccessFormForRequest_differenceInRequired_setAsRequired() {}
+
   private Request addResourcesToRequest(AccessCriteriaSet accessCriteriaSet, Request request) {
     Organization organization =
         organizationRepository.save(
