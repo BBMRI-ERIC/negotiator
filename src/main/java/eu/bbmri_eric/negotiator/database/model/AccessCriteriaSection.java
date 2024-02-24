@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ import lombok.ToString.Exclude;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class AccessCriteriaSection extends AuditEntity
     implements Comparable<AccessCriteriaSection> {
 

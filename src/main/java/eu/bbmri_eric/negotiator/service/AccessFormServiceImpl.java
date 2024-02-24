@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.service;
 
+import eu.bbmri_eric.negotiator.database.model.AccessCriteriaSet;
 import eu.bbmri_eric.negotiator.database.model.Request;
+import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -29,6 +31,11 @@ public class AccessFormServiceImpl implements AccessFormService {
         requestRepository
             .findById(requestId)
             .orElseThrow(() -> new EntityNotFoundException(requestId));
+    AccessCriteriaSet accessCriteriaSet =
+        request.getResources().iterator().next().getAccessCriteriaSet();
+    for (Resource resource : request.getResources()) {
+      accessCriteriaSet.getSections().addAll(resource.getAccessCriteriaSet().getSections());
+    }
     return modelMapper.map(
         request.getResources().iterator().next().getAccessCriteriaSet(),
         AccessCriteriaSetDTO.class);

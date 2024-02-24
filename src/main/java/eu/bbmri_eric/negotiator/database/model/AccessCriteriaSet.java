@@ -4,15 +4,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import java.util.Set;
 import java.util.SortedSet;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import lombok.ToString.Exclude;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Builder
 @Setter
 @NamedEntityGraph(
     name = "access-criteria-set-with-details",
@@ -56,10 +58,11 @@ import lombok.ToString.Exclude;
             @NamedAttributeNode(value = "type")
           })
     })
+@SequenceGenerator(name = "access_form_id_seq", initialValue = 100)
 public class AccessCriteriaSet extends AuditEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "access_form_id_seq")
   @Column(name = "id")
   private Long id;
 
