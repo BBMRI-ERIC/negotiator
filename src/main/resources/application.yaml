@@ -54,6 +54,8 @@ negotiator:
     biobanker-claim-value: ""
     subject-claim: ""
     resource-claim-prefix: ""
+notification:
+  cron-schedule-expression: "0 0 * * * *"
 logging:
   level:
     root: info
