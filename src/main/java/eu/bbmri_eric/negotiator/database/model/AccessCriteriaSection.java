@@ -1,30 +1,27 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 
+/** Class representing an access form section that groups access form elements. */
 @ToString
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@AllArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Setter
 @Builder
@@ -33,7 +30,6 @@ public class AccessCriteriaSection extends AuditEntity
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private Long id;
 
   @NotNull private String name;
@@ -42,32 +38,29 @@ public class AccessCriteriaSection extends AuditEntity
 
   @NotNull private String description;
 
-  @OneToMany(mappedBy = "accessCriteriaSection")
-  @OrderBy("ordering ASC")
-  @Exclude
-  private List<AccessCriteriaSectionLink> accessCriteriaSectionLink;
+  @OneToMany(mappedBy = "accessCriteriaSection", fetch = FetchType.EAGER)
+  @ToString.Exclude
+  private Set<FormSectionLink> linkedForms = new HashSet<>();
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "access_criteria_set_id")
-  @Exclude
-  private AccessCriteriaSet accessCriteriaSet;
+  @OneToMany(mappedBy = "linkedSection", fetch = FetchType.LAZY)
+  @ToString.Exclude
+  private Set<AccessCriteria> allowedAccessCriteria = new HashSet<>();
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    AccessCriteriaSection that = (AccessCriteriaSection) o;
-    return Objects.equals(getName(), that.getName());
+  public AccessCriteriaSection(String name, String label, String description) {
+    this.name = name;
+    this.label = label;
+    this.description = description;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(getName());
+  public Set<AccessCriteria> getAccessCriteria() {
+    return linkedForms.stream()
+        .map(FormSectionLink::getSectionElementLinks)
+        .map(Set::iterator)
+        .map(Iterator::next)
+        .map(SectionElementLink::getAccessCriteria)
+        .collect(java.util.stream.Collectors.toSet());
   }
+
 
   @Override
   public int compareTo(AccessCriteriaSection section) {

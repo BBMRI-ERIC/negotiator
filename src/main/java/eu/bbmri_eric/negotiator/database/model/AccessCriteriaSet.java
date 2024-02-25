@@ -1,17 +1,16 @@
 package eu.bbmri_eric.negotiator.database.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.SortedSet;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,44 +19,14 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 
+/** Class representing an access form. */
 @ToString
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@AllArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Builder
 @Setter
-@NamedEntityGraph(
-    name = "access-criteria-set-with-details",
-    attributeNodes = {
-      @NamedAttributeNode(value = "name"),
-      @NamedAttributeNode(value = "sections", subgraph = "access-criteria-sections"),
-    },
-    subgraphs = {
-      @NamedSubgraph(
-          name = "access-criteria-sections",
-          attributeNodes = {
-            @NamedAttributeNode(value = "name"),
-            @NamedAttributeNode(value = "label"),
-            @NamedAttributeNode(value = "description"),
-            @NamedAttributeNode(
-                value = "accessCriteriaSectionLink",
-                subgraph = "access-criteria-section-with-details"),
-          }),
-      @NamedSubgraph(
-          name = "access-criteria-section-with-details",
-          attributeNodes = {
-            @NamedAttributeNode(value = "accessCriteria", subgraph = "access-criteria-with-details")
-          }),
-      @NamedSubgraph(
-          name = "access-criteria-with-details",
-          attributeNodes = {
-            @NamedAttributeNode(value = "name"),
-            @NamedAttributeNode(value = "label"),
-            @NamedAttributeNode(value = "description"),
-            @NamedAttributeNode(value = "type")
-          })
-    })
 @SequenceGenerator(name = "access_form_id_seq", initialValue = 100)
 public class AccessCriteriaSet extends AuditEntity {
 
@@ -72,7 +41,18 @@ public class AccessCriteriaSet extends AuditEntity {
   @Exclude
   private Set<Resource> resources;
 
-  @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "accessCriteriaSet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @Exclude
-  private SortedSet<AccessCriteriaSection> sections;
+  private Set<FormSectionLink> formLinks = new HashSet<>();
+
+  public AccessCriteriaSet(String name) {
+    this.name = name;
+  }
+
+  public Set<AccessCriteriaSection> getSections() {
+    return formLinks.stream()
+        .map(FormSectionLink::getAccessCriteriaSection)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
 }

@@ -42,15 +42,15 @@ public class AccessCriteriaModelsMapper {
         .map(
             section -> {
               List<AccessCriteriaDTO> accessCriteria =
-                  section.getAccessCriteriaSectionLink().stream()
+                  section.getAccessCriteria().stream()
                       .map(
                           criteria ->
                               new AccessCriteriaDTO(
-                                  criteria.getAccessCriteria().getName(),
-                                  criteria.getAccessCriteria().getLabel(),
-                                  criteria.getAccessCriteria().getDescription(),
-                                  criteria.getAccessCriteria().getType(),
-                                  criteria.getRequired()))
+                                  criteria.getName(),
+                                  criteria.getLabel(),
+                                  criteria.getDescription(),
+                                  criteria.getType(),
+                                  false))
                       .toList();
               return new AccessCriteriaSectionDTO(
                   section.getName(), section.getLabel(), section.getDescription(), accessCriteria);

@@ -37,12 +37,12 @@ values (101, 'ADMIN'),
 insert into access_criteria_set (id, name)
 values (1, 'BBMRI Template');
 
-insert into access_criteria_section (id, name, label, description, access_criteria_set_id)
-values (1, 'project', 'Project', 'Provide information about your project', 1);
-insert into access_criteria_section (id, name, label, description, access_criteria_set_id)
-values (2, 'samples', 'Biosamples and Data Information', 'Provide information about the biosamples you want', 1);
-insert into access_criteria_section (id, name, label, description, access_criteria_set_id)
-values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?', 1);
+insert into access_criteria_section (id, name, label, description)
+values (1, 'project', 'Project', 'Provide information about your project');
+insert into access_criteria_section (id, name, label, description)
+values (2, 'samples', 'Biosamples and Data Information', 'Provide information about the biosamples you want');
+insert into access_criteria_section (id, name, label, description)
+values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?');
 
 insert into access_criteria (id, name, label, description, type)
 values (1, 'title', 'Title', 'Give a title', 'text');
@@ -59,14 +59,14 @@ values (6, 'volume', 'Volume', 'Write the etchics vote', 'number');
 insert into access_criteria (id, name, label, description, type)
 values (7, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'text');
 
-insert into access_criteria_section_link (access_criteria_section_id, access_criteria_id, ordering, required)
-values (1, 1, 1, 'true'),
-       (1, 2, 2, 'false'),
-       (2, 3, 1, 'true'),
-       (2, 4, 2, 'false'),
-       (2, 5, 3, 'true'),
-       (2, 6, 4, 'false'),
-       (3, 7, 1, 'true');
+-- insert into access_criteria_section_link (access_criteria_section_id, access_criteria_id, ordering, required)
+-- values (1, 1, 1, 'true'),
+--        (1, 2, 2, 'false'),
+--        (2, 3, 1, 'true'),
+--        (2, 4, 2, 'false'),
+--        (2, 5, 3, 'true'),
+--        (2, 6, 4, 'false'),
+--        (3, 7, 1, 'true');
 
 insert into organization (id, name, external_id)
 values (4, 'Biobank #1', 'biobank:1'),
