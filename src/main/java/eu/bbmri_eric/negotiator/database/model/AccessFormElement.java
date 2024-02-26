@@ -7,12 +7,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,11 +26,11 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
-@Builder
-public class AccessCriteria extends AuditEntity implements Comparable<AccessCriteria> {
+@SequenceGenerator(name = "access_form_element_id_seq", initialValue = 100)
+public class AccessFormElement extends AuditEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "access_form_element_id_seq")
   private Long id;
 
   @NotNull private String name;
@@ -40,46 +41,52 @@ public class AccessCriteria extends AuditEntity implements Comparable<AccessCrit
 
   @NotNull private String type;
 
-  @OneToMany(mappedBy = "accessCriteria")
+  @OneToMany(mappedBy = "accessFormElement")
   @ToString.Exclude
-  private Set<SectionElementLink> linkedSections;
+  private Set<AccessFormSectionElementLink> linkedSections;
+
+  @Transient private boolean isRequired;
+
+  @Transient private int elementOrder;
 
   @ManyToOne
-  @JoinColumn(name = "access_criteria_section_id")
-  private AccessCriteriaSection linkedSection;
+  @JoinColumn(name = "access_form_section_id")
+  @ToString.Exclude
+  private AccessFormSection linkedSection;
 
-  public AccessCriteria(String name, String label, String description, String type) {
+  public AccessFormElement(String name, String label, String description, String type) {
     this.name = name;
     this.label = label;
     this.description = description;
     this.type = type;
   }
 
+  boolean isRequired() {
+    return isRequired;
+  }
+
+  void setRequired(boolean required) {
+    isRequired = required;
+  }
+
+  public int getElementOrder() {
+    return elementOrder;
+  }
+
+  public void setElementOrder(int elementOrder) {
+    this.elementOrder = elementOrder;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    AccessCriteria that = (AccessCriteria) o;
-    return Objects.equals(id, that.id)
-        && Objects.equals(name, that.name)
-        && Objects.equals(label, that.label)
-        && Objects.equals(description, that.description)
-        && Objects.equals(type, that.type);
+    AccessFormElement that = (AccessFormElement) o;
+    return Objects.equals(id, that.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, label, description, type);
-  }
-
-  @Override
-  public int compareTo(AccessCriteria section) {
-    if (this.getId() < section.getId()) {
-      return -1;
-    } else if (this.getId().equals(section.getId())) {
-      return 0;
-    } else {
-      return 1;
-    }
+    return Objects.hash(id);
   }
 }

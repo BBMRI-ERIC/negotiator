@@ -34,46 +34,40 @@ values (101, 'ADMIN'),
        (108, 'RESEARCHER'),
        (109, 'ROLE_REPRESENTATIVE_biobank:1:collection:1');
 
-insert into access_criteria_set (id, name)
+insert into access_form (id, name)
 values (1, 'BBMRI Template');
-
-insert into access_criteria_section (id, name, label, description)
+insert into access_form_section (id, name, label, description)
 values (1, 'project', 'Project', 'Provide information about your project');
-insert into access_criteria_section (id, name, label, description)
-values (2, 'samples', 'Biosamples and Data Information', 'Provide information about the biosamples you want');
-insert into access_criteria_section (id, name, label, description)
+insert into access_form_section (id, name, label, description)
+values (2, 'request', 'Request', 'Provide information the resources you are requesting');
+insert into access_form_section (id, name, label, description)
 values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?');
 
-insert into access_criteria (id, name, label, description, type)
-values (1, 'title', 'Title', 'Give a title', 'text');
-insert into access_criteria (id, name, label, description, type)
-values (2, 'description', 'Description', 'Give a description', 'textarea');
-insert into access_criteria (id, name, label, description, type)
-values (3, 'num-of-subjects', 'Number of subjects', 'Number of biosamples', 'number');
-insert into access_criteria (id, name, label, description, type)
-values (4, 'sample-type', 'Sample type(s)', 'Sample Type', 'text');
-insert into access_criteria (id, name, label, description, type)
-values (5, 'num-of-sample', 'Number of sample', 'Sample Type', 'text');
-insert into access_criteria (id, name, label, description, type)
-values (6, 'volume', 'Volume', 'Write the etchics vote', 'number');
-insert into access_criteria (id, name, label, description, type)
-values (7, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'text');
+insert into access_form_element (id, name, label, description, type, access_form_section_id)
+values (1, 'title', 'Title', 'Give a title', 'text', 1),
+       (2, 'description', 'Description', 'Give a description', 'textarea', 1),
+       (3, 'description', 'Description', 'Provide a request description', 'textarea', 2),
+       (4, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'textarea', 3),
+       (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'file', 3);
 
--- insert into access_criteria_section_link (access_criteria_section_id, access_criteria_id, ordering, required)
--- values (1, 1, 1, 'true'),
---        (1, 2, 2, 'false'),
---        (2, 3, 1, 'true'),
---        (2, 4, 2, 'false'),
---        (2, 5, 3, 'true'),
---        (2, 6, 4, 'false'),
---        (3, 7, 1, 'true');
+INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
+VALUES (1, 1, 1, 1),
+       (2, 1, 2, 2),
+       (3, 1, 3, 3);
+INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
+                                              ELEMENT_ORDER)
+VALUES (1, 1, 1, true, 1),
+       (2, 1, 2, true, 2),
+       (3, 2, 3, true, 1),
+       (4, 3, 4, true, 1),
+       (5, 3, 5, false, 2);
 
 insert into organization (id, name, external_id)
 values (4, 'Biobank #1', 'biobank:1'),
        (5, 'Biobank #2', 'biobank:2'),
        (6, 'Biobank #3', 'biobank:3');
 
-insert into resource (id, name, description, source_id, data_source_id, organization_id, access_criteria_set_id)
+insert into resource (id, name, description, source_id, data_source_id, organization_id, access_form_id)
 values (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1',
         'biobank:1:collection:1', 1, 4, 1),
        (5, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1',

@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.database.model.AccessCriteriaSet;
+import eu.bbmri_eric.negotiator.database.model.AccessForm;
+import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
+import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
@@ -24,20 +26,51 @@ public class AccessFormServiceImpl implements AccessFormService {
   @Transactional
   public AccessCriteriaSetDTO getAccessFormForRequest(String requestId)
       throws EntityNotFoundException {
+    verifyArguments(requestId);
+    Request request = findRequest(requestId);
+    if (request.getResources().size() == 1) {
+      return modelMapper.map(
+          request.getResources().iterator().next().getAccessForm(), AccessCriteriaSetDTO.class);
+    }
+    AccessForm accessForm = new AccessForm("Combined access form");
+    int counter = 0;
+    for (Resource resource : request.getResources()) {
+      for (AccessFormSection accessFormSection : resource.getAccessForm().getSections()) {
+        System.out.println("got here" + accessFormSection.getName());
+        accessForm.addSection(accessFormSection, counter);
+        for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
+          System.out.println(accessFormElement.getName());
+          accessForm.linkElementToSection(accessFormSection, accessFormElement, counter, false);
+        }
+        counter++;
+      }
+    }
+    return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);
+  }
+
+  private AccessCriteriaSetDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
+    AccessForm combinedAccessForm = combineAccessForms(request, accessForm);
+    return modelMapper.map(combinedAccessForm, AccessCriteriaSetDTO.class);
+  }
+
+  private static AccessForm combineAccessForms(Request request, AccessForm accessForm) {
+    for (Resource resource : request.getResources()) {
+      if (!resource.getAccessForm().equals(accessForm)) {
+        accessForm.getSections().addAll(resource.getAccessForm().getSections());
+      }
+    }
+    return accessForm;
+  }
+
+  private static void verifyArguments(String requestId) {
     if (requestId == null) {
       throw new IllegalArgumentException("Request id cannot be null");
     }
-    Request request =
-        requestRepository
-            .findById(requestId)
-            .orElseThrow(() -> new EntityNotFoundException(requestId));
-    AccessCriteriaSet accessCriteriaSet =
-        request.getResources().iterator().next().getAccessCriteriaSet();
-    for (Resource resource : request.getResources()) {
-      accessCriteriaSet.getSections().addAll(resource.getAccessCriteriaSet().getSections());
-    }
-    return modelMapper.map(
-        request.getResources().iterator().next().getAccessCriteriaSet(),
-        AccessCriteriaSetDTO.class);
+  }
+
+  private Request findRequest(String requestId) {
+    return requestRepository
+        .findById(requestId)
+        .orElseThrow(() -> new EntityNotFoundException(requestId));
   }
 }

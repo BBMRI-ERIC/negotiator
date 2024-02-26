@@ -1,18 +1,25 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.bbmri_eric.negotiator.database.model.AccessCriteriaSet;
+import eu.bbmri_eric.negotiator.database.model.AccessForm;
+import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
+import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
 import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.AccessCriteriaSetRepository;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormSectionRepository;
 import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
+import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSectionDTO;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
@@ -21,6 +28,7 @@ import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
 import eu.bbmri_eric.negotiator.service.RequestService;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +50,9 @@ public class AccessFormServiceTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired AccessCriteriaSetRepository accessCriteriaSetRepository;
+  @Autowired AccessFormRepository accessFormRepository;
+  @Autowired AccessFormSectionRepository accessFormSectionRepository;
+  @Autowired AccessFormElementRepository accessFormElementRepository;
 
   @Autowired DataSourceRepository dataSourceRepository;
 
@@ -55,6 +65,7 @@ public class AccessFormServiceTest {
   }
 
   @Test
+  @Transactional
   void getAccessFormForRequest_1resource_identicalFormToResource() {
     RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
     RequestDTO requestDTO = requestService.create(requestCreateDTO);
@@ -64,6 +75,9 @@ public class AccessFormServiceTest {
             requestDTO.getResources().iterator().next().getId());
     AccessCriteriaSetDTO requestForm =
         accessFormService.getAccessFormForRequest(requestDTO.getId());
+    assertEquals(3, accessFormRepository.findAll().get(0).getSections().size());
+    assertEquals(resourceForm.getSections().size(), requestForm.getSections().size());
+    System.out.println(requestForm);
     assertEquals(resourceForm, requestForm);
   }
 
@@ -73,8 +87,8 @@ public class AccessFormServiceTest {
     RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
     RequestDTO requestDTO = requestService.create(requestCreateDTO);
     Request request = requestRepository.findById(requestDTO.getId()).get();
-    AccessCriteriaSet accessCriteriaSet = accessCriteriaSetRepository.findAll().get(0);
-    request = addResourcesToRequest(accessCriteriaSet, request);
+    AccessForm accessForm = accessFormRepository.findAll().get(0);
+    request = addResourcesToRequest(accessForm, request);
     assertEquals(5, request.getResources().size());
     for (Resource resource : request.getResources()) {
       assertEquals(
@@ -83,170 +97,127 @@ public class AccessFormServiceTest {
     }
   }
 
-  //  @Test
-  //  @Transactional
-  //  void getAccessFormForRequest_2resourcesWithDifferentSections_combined() {
-  //    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
-  //    RequestDTO requestDTO = requestService.create(requestCreateDTO);
-  //    Resource resource = resourceRepository.findAll().get(1);
-  //    assertFalse(
-  //        requestDTO.getResources().stream()
-  //            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
-  //    SortedSet<AccessCriteriaSection> sections = new TreeSet<>();
-  //    AccessCriteria accessCriteria =
-  //        AccessCriteria.builder()
-  //            .name("test")
-  //            .label("test")
-  //            .description("test")
-  //            .type("text")
-  //            .build();
-  //    AccessCriteriaSectionLink accessCriteriaSectionLink =
-  //        AccessCriteriaSectionLink.builder()
-  //            .accessCriteria(accessCriteria)
-  //            .ordering(0)
-  //            .required(true)
-  //            .build();
-  //    sections.add(
-  //        AccessCriteriaSection.builder()
-  //            .id(100L)
-  //            .name("section1")
-  //            .label("test")
-  //            .description("test")
-  //            .accessCriteriaSectionLink(List.of(accessCriteriaSectionLink))
-  //            .build());
-  //    AccessCriteriaSet accessCriteriaSet =
-  //        AccessCriteriaSet.builder().name("different_form").sections(sections).build();
-  //    accessCriteriaSet = accessCriteriaSetRepository.save(accessCriteriaSet);
-  //    resource.setAccessCriteriaSet(accessCriteriaSet);
-  //    resourceRepository.save(resource);
-  //    Request request = requestRepository.findById(requestDTO.getId()).get();
-  //    request.getResources().add(resource);
-  //    request = requestRepository.save(request);
-  //    assertEquals(2, request.getResources().size());
-  //    assertEquals(
-  //        4, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
-  //  }
-  //
-  //  @Test
-  //  @Transactional
-  //  void getAccessFormForRequest_2resourcesWithSameSectionDifferentElements_combined() {
-  //    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
-  //    RequestDTO requestDTO = requestService.create(requestCreateDTO);
-  //    Resource resource = resourceRepository.findAll().get(1);
-  //    assertFalse(
-  //        requestDTO.getResources().stream()
-  //            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
-  //    AccessCriteria accessCriteria =
-  //        AccessCriteria.builder()
-  //            .name("test")
-  //            .label("test")
-  //            .description("test")
-  //            .type("text")
-  //            .build();
-  //    AccessCriteriaSectionLink accessCriteriaSectionLink =
-  //        AccessCriteriaSectionLink.builder()
-  //            .accessCriteria(accessCriteria)
-  //            .ordering(9)
-  //            .required(true)
-  //            .build();
-  //    AccessCriteriaSet accessCriteriaSet = accessCriteriaSetRepository.findAll().get(0);
-  //    accessCriteriaSet.setId(2L);
-  //    accessCriteriaSet.setName("different_form");
-  //    assertEquals(
-  //        2,
-  // accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
-  //    accessCriteriaSet
-  //        .getSections()
-  //        .iterator()
-  //        .next()
-  //        .getAccessCriteriaSectionLink()
-  //        .add(accessCriteriaSectionLink);
-  //    accessCriteriaSet = accessCriteriaSetRepository.save(accessCriteriaSet);
-  //    resource.setAccessCriteriaSet(accessCriteriaSet);
-  //    resourceRepository.save(resource);
-  //    Request request = requestRepository.findById(requestDTO.getId()).get();
-  //    request.getResources().add(resource);
-  //    request = requestRepository.save(request);
-  //    assertEquals(2, request.getResources().size());
-  //    assertEquals(
-  //        3, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
-  //    assertEquals(
-  //        3,
-  // accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
-  //  }
-  //
-  //  @Test
-  //  @Transactional
-  //  void getAccessFormForRequest_conflictingOrderOfElements_appendedInSequence() {
-  //    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
-  //    RequestDTO requestDTO = requestService.create(requestCreateDTO);
-  //    Resource resource = resourceRepository.findAll().get(1);
-  //    assertFalse(
-  //        requestDTO.getResources().stream()
-  //            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
-  //    AccessCriteria accessCriteria =
-  //        AccessCriteria.builder()
-  //            .name("test")
-  //            .label("test")
-  //            .description("test")
-  //            .type("text")
-  //            .build();
-  //    AccessCriteria accessCriteria2 =
-  //        AccessCriteria.builder()
-  //            .name("test2")
-  //            .label("test")
-  //            .description("test")
-  //            .type("text")
-  //            .build();
-  //    AccessCriteriaSectionLink accessCriteriaSectionLink =
-  //        AccessCriteriaSectionLink.builder()
-  //            .accessCriteria(accessCriteria)
-  //            .ordering(1)
-  //            .required(true)
-  //            .build();
-  //    AccessCriteriaSectionLink accessCriteriaSectionLink2 =
-  //        AccessCriteriaSectionLink.builder()
-  //            .accessCriteria(accessCriteria2)
-  //            .ordering(2)
-  //            .required(true)
-  //            .build();
-  //    AccessCriteriaSet accessCriteriaSet = accessCriteriaSetRepository.findAll().get(0);
-  //    accessCriteriaSet.setId(2L);
-  //    accessCriteriaSet.setName("different_form");
-  //    assertEquals(
-  //        2,
-  // accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
-  //    accessCriteriaSet
-  //        .getSections()
-  //        .iterator()
-  //        .next()
-  //        .getAccessCriteriaSectionLink()
-  //        .add(accessCriteriaSectionLink);
-  //    accessCriteriaSet
-  //        .getSections()
-  //        .iterator()
-  //        .next()
-  //        .getAccessCriteriaSectionLink()
-  //        .add(accessCriteriaSectionLink2);
-  //    accessCriteriaSet = accessCriteriaSetRepository.save(accessCriteriaSet);
-  //    resource.setAccessCriteriaSet(accessCriteriaSet);
-  //    resourceRepository.save(resource);
-  //    Request request = requestRepository.findById(requestDTO.getId()).get();
-  //    request.getResources().add(resource);
-  //    request = requestRepository.save(request);
-  //    assertEquals(2, request.getResources().size());
-  //    assertEquals(
-  //        3, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
-  //    assertEquals(
-  //        4,
-  // accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink().size());
-  //    for (AccessCriteriaSectionLink link :
-  //        accessCriteriaSet.getSections().iterator().next().getAccessCriteriaSectionLink()) {
-  //      System.out.println(link.getOrdering());
-  //    }
-  //  }
+  @Test
+  @Transactional
+  void getAccessFormForRequest_2resourcesWithDifferentSections_combined() {
+    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
+    RequestDTO requestDTO = requestService.create(requestCreateDTO);
+    Resource resource = resourceRepository.findAll().get(1);
+    assertFalse(
+        requestDTO.getResources().stream()
+            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
+    AccessFormSection accessFormSection =
+        new AccessFormSection("different_section", "test", "test");
+    accessFormSection.setId(100L);
+    accessFormSection = accessFormSectionRepository.save(accessFormSection);
+    AccessForm accessForm = new AccessForm("different_form");
+    accessForm.addSection(accessFormSection, 0);
+    accessForm = accessFormRepository.save(accessForm);
+    resource.setAccessForm(accessForm);
+    resourceRepository.save(resource);
+    Request request = requestRepository.findById(requestDTO.getId()).get();
+    request.getResources().add(resource);
+    request = requestRepository.save(request);
+    assertEquals(2, request.getResources().size());
+    assertEquals(
+        4, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
+  }
 
-  private Request addResourcesToRequest(AccessCriteriaSet accessCriteriaSet, Request request) {
+  @Test
+  @Transactional
+  void getAccessFormForRequest_4DifferentSections1Same_has5() {
+    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
+    RequestDTO requestDTO = requestService.create(requestCreateDTO);
+    Resource resource = resourceRepository.findAll().get(1);
+    assertFalse(
+        requestDTO.getResources().stream()
+            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
+    AccessFormSection accessFormSection =
+        new AccessFormSection("different_section", "test", "test");
+    AccessFormSection accessFormSection2 =
+        new AccessFormSection("different_section2", "test", "test");
+    AccessFormSection sameAccessFormSection = accessFormSectionRepository.findAll().get(0);
+    accessFormSection = accessFormSectionRepository.save(accessFormSection);
+    accessFormSection2 = accessFormSectionRepository.save(accessFormSection2);
+    AccessForm newAccessForm = new AccessForm("different_form");
+    newAccessForm.addSection(accessFormSection, 0);
+    newAccessForm.addSection(accessFormSection2, 1);
+    newAccessForm.addSection(sameAccessFormSection, 2);
+    newAccessForm = accessFormRepository.save(newAccessForm);
+    resource.setAccessForm(newAccessForm);
+    resourceRepository.save(resource);
+    Request request = requestRepository.findById(requestDTO.getId()).get();
+    request.getResources().add(resource);
+    request = requestRepository.save(request);
+    assertEquals(2, request.getResources().size());
+    assertEquals(
+        5, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
+  }
+
+  @Test
+  @Transactional
+  void getAccessFormForRequest_sameSectionDifferentElements_appendedInOrder() {
+    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
+    RequestDTO requestDTO = requestService.create(requestCreateDTO);
+    Resource resource = resourceRepository.findAll().get(1);
+    assertFalse(
+        requestDTO.getResources().stream()
+            .anyMatch(res -> res.getId().equals(resource.getSourceId())));
+    AccessForm accessForm = resource.getAccessForm();
+    AccessFormElement newElement =
+        new AccessFormElement("different_element", "test", "test", "test");
+    newElement = accessFormElementRepository.save(newElement);
+    AccessForm newAccessForm = new AccessForm("different_form");
+    AccessFormSection sameSection =
+        accessForm.getSections().stream()
+            .filter(accessFormSection -> accessFormSection.getName().equals("project"))
+            .findFirst()
+            .get();
+    newAccessForm.addSection(sameSection, 1);
+    newAccessForm = accessFormRepository.save(newAccessForm);
+    assertFalse(newAccessForm.getSections().isEmpty());
+    newAccessForm.linkElementToSection(
+        newAccessForm.getSections().iterator().next(), newElement, 5, true);
+    assertFalse(newAccessForm.getSections().isEmpty());
+    assertTrue(
+        newAccessForm.getSections().stream().iterator().next().getAccessFormElements().stream()
+            .anyMatch(
+                accessFormElement -> accessFormElement.getName().equals("different_element")));
+    newAccessForm = accessFormRepository.save(newAccessForm);
+    assertFalse(newAccessForm.getSections().isEmpty());
+    System.out.println("------");
+    newAccessForm.getSections().stream().iterator().next().getAccessFormElements().stream()
+        .forEach(accessFormElement -> System.out.println(accessFormElement.getName()));
+    System.out.println("------");
+    resource.setAccessForm(newAccessForm);
+    resourceRepository.save(resource);
+    Request request = requestRepository.findById(requestDTO.getId()).get();
+    request.getResources().add(resource);
+    request = requestRepository.save(request);
+    assertEquals(2, accessFormRepository.findAll().size());
+    AccessCriteriaSetDTO accessCriteriaSetDTO =
+        accessFormService.getAccessFormForRequest(request.getId());
+    Optional<AccessCriteriaSectionDTO> section =
+        accessCriteriaSetDTO.getSections().stream()
+            .filter(
+                accessCriteriaSectionDTO ->
+                    accessCriteriaSectionDTO.getName().equals(sameSection.getName()))
+            .findFirst();
+    assertTrue(section.isPresent());
+    assertEquals(
+        sameSection.getAccessFormElements().size(), section.get().getAccessCriteria().size());
+    section
+        .get()
+        .getAccessCriteria()
+        .forEach(accessCriteriaDTO -> System.out.println(accessCriteriaDTO.getName()));
+    assertTrue(
+        section.get().getAccessCriteria().stream()
+            .anyMatch(
+                accessCriteriaElementDTO ->
+                    accessCriteriaElementDTO.getName().equals("different_element")));
+  }
+
+  private Request addResourcesToRequest(AccessForm accessForm, Request request) {
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:99").build());
@@ -270,7 +241,7 @@ public class AccessFormServiceTest {
           resourceRepository.save(
               Resource.builder()
                   .organization(organization)
-                  .accessCriteriaSet(accessCriteriaSet)
+                  .accessForm(accessForm)
                   .dataSource(dataSource)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")

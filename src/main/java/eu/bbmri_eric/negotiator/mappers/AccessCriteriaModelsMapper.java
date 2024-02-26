@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.mappers;
 
-import eu.bbmri_eric.negotiator.database.model.AccessCriteriaSection;
-import eu.bbmri_eric.negotiator.database.model.AccessCriteriaSet;
+import eu.bbmri_eric.negotiator.database.model.AccessForm;
+import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaDTO;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSectionDTO;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
@@ -24,25 +24,25 @@ public class AccessCriteriaModelsMapper {
 
   @PostConstruct
   public void addMappings() {
-    TypeMap<AccessCriteriaSet, AccessCriteriaSetDTO> typeMap =
-        modelMapper.createTypeMap(AccessCriteriaSet.class, AccessCriteriaSetDTO.class);
+    TypeMap<AccessForm, AccessCriteriaSetDTO> typeMap =
+        modelMapper.createTypeMap(AccessForm.class, AccessCriteriaSetDTO.class);
 
-    Converter<Set<AccessCriteriaSection>, List<AccessCriteriaSectionDTO>> accessCriteriaConverter =
+    Converter<Set<AccessFormSection>, List<AccessCriteriaSectionDTO>> accessCriteriaConverter =
         ffc -> formFieldConverter(ffc.getSource());
 
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(accessCriteriaConverter)
-                .map(AccessCriteriaSet::getSections, AccessCriteriaSetDTO::setSections));
+                .map(AccessForm::getSections, AccessCriteriaSetDTO::setSections));
   }
 
-  private List<AccessCriteriaSectionDTO> formFieldConverter(Set<AccessCriteriaSection> sections) {
+  private List<AccessCriteriaSectionDTO> formFieldConverter(Set<AccessFormSection> sections) {
     return sections.stream()
         .map(
             section -> {
               List<AccessCriteriaDTO> accessCriteria =
-                  section.getAccessCriteria().stream()
+                  section.getAccessFormElements().stream()
                       .map(
                           criteria ->
                               new AccessCriteriaDTO(

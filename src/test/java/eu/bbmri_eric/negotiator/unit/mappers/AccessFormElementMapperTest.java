@@ -8,7 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
 
-public class AccessCriteriaMapperTest {
+public class AccessFormElementMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();
 
   @InjectMocks
@@ -23,15 +23,15 @@ public class AccessCriteriaMapperTest {
 
   //  @Test
   //  void map_name_Ok() {
-  //    SortedSet<AccessCriteriaSection> sections = new TreeSet<>();
-  //    AccessCriteriaSection accessCriteriaSection = new AccessCriteriaSection();
+  //    SortedSet<AccessFormSection> sections = new TreeSet<>();
+  //    AccessFormSection accessCriteriaSection = new AccessFormSection();
   //    AccessCriteriaSectionLink accessCriteriaSectionLink = new AccessCriteriaSectionLink();
-  //    AccessCriteria accessCriteria = new AccessCriteria();
+  //    AccessFormElement accessCriteria = new AccessFormElement();
   //    accessCriteria.setName("test criteria");
   //    accessCriteria.setLabel("test label");
   //    accessCriteria.setDescription("test desc");
   //    accessCriteria.setType("test type");
-  //    accessCriteriaSectionLink.setAccessCriteria(accessCriteria);
+  //    accessCriteriaSectionLink.setAccessFormElement(accessCriteria);
   //    accessCriteriaSectionLink.setRequired(true);
   //    //accessCriteriaSection.setAccessCriteriaSectionLink(List.of(accessCriteriaSectionLink));
   //    accessCriteriaSection.setId(1L);
@@ -39,11 +39,11 @@ public class AccessCriteriaMapperTest {
   //    accessCriteriaSection.setLabel("test section label");
   //    accessCriteriaSection.setDescription("test section desc");
   //    sections.add(accessCriteriaSection);
-  //    AccessCriteriaSet accessCriteriaSet =
-  //        new AccessCriteriaSet(1L, "test", Set.of(new Resource()), sections);
+  //    AccessForm accessForm =
+  //        new AccessForm(1L, "test", Set.of(new Resource()), sections);
   //    AccessCriteriaSetDTO accessCriteriaSetDTO =
-  //        mapper.map(accessCriteriaSet, AccessCriteriaSetDTO.class);
-  //    assertEquals(accessCriteriaSet.getName(), accessCriteriaSetDTO.getName());
+  //        mapper.map(accessForm, AccessCriteriaSetDTO.class);
+  //    assertEquals(accessForm.getName(), accessCriteriaSetDTO.getName());
   //    assertEquals(
   //        accessCriteriaSection.getName(),
   //        accessCriteriaSetDTO.getSections().iterator().next().getName());
@@ -53,7 +53,7 @@ public class AccessCriteriaMapperTest {
   //            .getSections()
   //            .iterator()
   //            .next()
-  //            .getAccessCriteria()
+  //            .getAccessFormElement()
   //            .iterator()
   //            .next()
   //            .getName());

@@ -67,9 +67,9 @@ public class Resource {
   private Organization organization;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "access_criteria_set_id")
+  @JoinColumn(name = "access_form_id")
   @Exclude
-  private AccessCriteriaSet accessCriteriaSet;
+  private AccessForm accessForm;
 
   @Override
   public boolean equals(Object o) {
