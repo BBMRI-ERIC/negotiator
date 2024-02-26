@@ -1,6 +1,6 @@
-package eu.bbmri.eric.csit.service.negotiator;
+package eu.bbmri_eric.negotiator;
 
-import eu.bbmri.eric.csit.service.negotiator.configuration.DevDatabaseConfiguration;
+import eu.bbmri_eric.negotiator.configuration.DevDatabaseConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestNegotiatorApplication {
