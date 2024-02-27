@@ -16,7 +16,6 @@ import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
 import eu.bbmri_eric.negotiator.dto.datasource.DataSourceCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
-import eu.bbmri_eric.negotiator.dto.project.ProjectCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri_eric.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
@@ -122,12 +121,6 @@ public class TestUtils {
         .url(QUERY_URL)
         .collections(Set.of(collection))
         .build();
-  }
-
-  public static ProjectCreateDTO createProjectRequest(boolean update) {
-    String suffix = update ? "u" : "";
-
-    return ProjectCreateDTO.builder().payload(PROJECT_PAYLOAD).build();
   }
 
   public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
