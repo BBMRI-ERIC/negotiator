@@ -18,7 +18,8 @@ values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 
         '$2y$10$6WCNhO3ppwgEN..vRrlQzuGv9Cng/eNIHjJx1vD2m8JfRWr6eMdFO', null, false);
 
 insert into access_form (id, name)
-values (1, 'BBMRI Template');
+values (1, 'BBMRI Template'),
+       (2, 'Czech Template');
 insert into access_form_section (id, name, label, description)
 values (1, 'project', 'Project', 'Provide information about your project');
 insert into access_form_section (id, name, label, description)
@@ -36,14 +37,16 @@ values (1, 'title', 'Title', 'Give a title', 'text', 1),
 INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
 VALUES (1, 1, 1, 0),
        (2, 1, 2, 1),
-       (3, 1, 3, 2);
+       (3, 1, 3, 2),
+       (4, 2, 1, 0);
 INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
                                               ELEMENT_ORDER)
 VALUES (1, 1, 1, true, 1),
        (2, 1, 2, true, 2),
        (3, 2, 3, true, 1),
        (4, 3, 4, true, 1),
-       (5, 3, 5, false, 2);
+       (5, 3, 5, false, 2),
+       (6, 4, 4, true, 1);
 
 insert into organization (ID, external_id, name)
 values (1, 'bbmri-eric:ID:SE_890', 'Biobank Väst'),
@@ -54,7 +57,7 @@ insert into resource (id, name, description, source_id, data_source_id, access_f
 values (1, 'Dummy test collection', 'This is the fist test collection',
         'bbmri-eric:ID:SE_890:collection:dummy_collection', 1, 1, 1),
        (2, 'Test collection 2', 'This is the second test collection',
-        'bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 1, 2);
+        'bbmri-eric:ID:CZ_MMCI:collection:LTS', 1, 2, 2);
 
 insert into resource_representative_link (resource_id, person_id)
 values (2, 2);

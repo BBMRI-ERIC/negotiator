@@ -208,6 +208,78 @@ public class AccessFormServiceTest {
                     accessCriteriaElementDTO.getName().equals("different_element")));
   }
 
+  @Test
+  @Transactional
+  void getAccessFormForRequest_sameSection1differentElement_combinedTo3() {
+    RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
+    RequestDTO requestDTO = requestService.create(requestCreateDTO);
+    Resource originalResource =
+        resourceRepository
+            .findBySourceId(requestDTO.getResources().iterator().next().getId())
+            .get();
+    Resource resource = resourceRepository.findAll().get(1);
+    AccessFormElement newElement =
+        new AccessFormElement("different_element", "test", "test", "test");
+    newElement = accessFormElementRepository.save(newElement);
+    AccessForm newAccessForm = new AccessForm("different_form");
+    AccessFormSection sameSection = accessFormSectionRepository.findById(1L).get();
+    assertEquals("project", sameSection.getName());
+    newAccessForm.addSection(sameSection, 1);
+    newAccessForm = accessFormRepository.save(newAccessForm);
+    assertFalse(newAccessForm.getSections().isEmpty());
+    newAccessForm.linkElementToSection(sameSection, newElement, 0, true);
+    assertFalse(newAccessForm.getSections().isEmpty());
+    assertTrue(
+        newAccessForm.getSections().stream().iterator().next().getAccessFormElements().stream()
+            .anyMatch(
+                accessFormElement -> accessFormElement.getName().equals("different_element")));
+    newAccessForm = accessFormRepository.save(newAccessForm);
+    assertFalse(newAccessForm.getSections().isEmpty());
+    resource.setAccessForm(newAccessForm);
+    resource = resourceRepository.save(resource);
+    assertEquals(
+        1,
+        resource.getAccessForm().getSections().stream()
+            .filter(accessFormSection -> accessFormSection.getName().equals(sameSection.getName()))
+            .findFirst()
+            .get()
+            .getAccessFormElements()
+            .size());
+    assertEquals(
+        2,
+        originalResource.getAccessForm().getSections().stream()
+            .filter(accessFormSection -> accessFormSection.getName().equals(sameSection.getName()))
+            .findFirst()
+            .get()
+            .getAccessFormElements()
+            .size());
+    Request request = requestRepository.findById(requestDTO.getId()).get();
+    request.getResources().add(resource);
+    request = requestRepository.save(request);
+    assertEquals(2, accessFormRepository.findAll().size());
+    AccessCriteriaSetDTO accessCriteriaSetDTO =
+        accessFormService.getAccessFormForRequest(request.getId());
+    Optional<AccessCriteriaSectionDTO> section =
+        accessCriteriaSetDTO.getSections().stream()
+            .filter(
+                accessCriteriaSectionDTO ->
+                    accessCriteriaSectionDTO.getName().equals(sameSection.getName()))
+            .findFirst();
+    assertTrue(section.isPresent());
+    assertEquals(
+        sameSection.getAccessFormElements().size(), section.get().getAccessCriteria().size());
+    assertTrue(
+        section.get().getAccessCriteria().stream()
+            .anyMatch(
+                accessCriteriaElementDTO ->
+                    accessCriteriaElementDTO.getName().equals("different_element")));
+    assertTrue(section.get().getAccessCriteria().size() > 1);
+    assertTrue(
+        section.get().getAccessCriteria().stream()
+            .anyMatch(
+                accessCriteriaElementDTO -> accessCriteriaElementDTO.getName().equals("title")));
+  }
+
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
     Organization organization =
         organizationRepository.save(

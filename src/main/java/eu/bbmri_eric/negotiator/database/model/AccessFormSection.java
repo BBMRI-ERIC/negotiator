@@ -81,6 +81,9 @@ public class AccessFormSection extends AuditEntity {
     SortedSet<AccessFormSectionElementLink> sectionElementLinks =
         linkedForm.getAccessFormSectionElementLinks();
     for (AccessFormSectionElementLink link : sectionElementLinks) {
+      if (link.getAccessFormElement() == null) {
+        continue;
+      }
       AccessFormElement element = link.getAccessFormElement();
       element.setRequired(link.isRequired());
       accessCriteria.add(element);

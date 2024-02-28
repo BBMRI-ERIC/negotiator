@@ -10,10 +10,12 @@ import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @Service
+@CommonsLog
 public class AccessFormServiceImpl implements AccessFormService {
   RequestRepository requestRepository;
 
@@ -33,34 +35,51 @@ public class AccessFormServiceImpl implements AccessFormService {
     Request request = findRequest(requestId);
     AccessForm accessForm = request.getResources().iterator().next().getAccessForm();
     AccessForm finalAccessForm = accessForm;
-    if (request.getResources().stream()
-        .allMatch(
-            resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()))) {
+    if (allResourcesHaveTheSameForm(request, finalAccessForm)) {
       return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);
     }
     accessForm = new AccessForm("Combined access form");
+    int counter = 0;
     for (Resource resource : request.getResources()) {
       for (AccessFormSection accessFormSection : resource.getAccessForm().getSections()) {
-        if (!accessForm.getSections().contains(accessFormSection)) {
-          accessForm.addSection(accessFormSection, accessForm.getSections().size());
+        if (formDoesntContainSection(accessFormSection, accessForm)) {
+          accessForm.addSection(accessFormSection, counter);
+          counter++;
         }
+        log.debug(resource.getAccessForm().getSections().size());
         for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
           AccessFormSection matchedSection =
               accessForm.getSections().stream()
                   .filter(sec -> sec.equals(accessFormSection))
                   .findFirst()
                   .get();
-          if (!matchedSection.getAccessFormElements().contains(accessFormElement)) {
+          if (sectionDoesntContainElement(accessFormElement, matchedSection)) {
             accessForm.linkElementToSection(
-                accessFormSection,
+                matchedSection,
                 accessFormElement,
                 matchedSection.getAccessFormElements().size(),
-                false);
+                accessFormElement.isRequired());
           }
         }
       }
     }
     return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);
+  }
+
+  private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {
+    return request.getResources().stream()
+        .allMatch(resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()));
+  }
+
+  private static boolean sectionDoesntContainElement(
+      AccessFormElement accessFormElement, AccessFormSection matchedSection) {
+    return !matchedSection.getAccessFormElements().contains(accessFormElement);
+  }
+
+  private static boolean formDoesntContainSection(
+      AccessFormSection accessFormSection, AccessForm accessForm) {
+    return accessForm.getSections().stream()
+        .noneMatch(section -> section.getName().equals(accessFormSection.getName()));
   }
 
   private AccessCriteriaSetDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
