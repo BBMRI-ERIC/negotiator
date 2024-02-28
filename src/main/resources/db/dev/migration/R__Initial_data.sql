@@ -19,7 +19,6 @@ values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 
 
 insert into access_form (id, name)
 values (1, 'BBMRI Template');
-
 insert into access_form_section (id, name, label, description)
 values (1, 'project', 'Project', 'Provide information about your project');
 insert into access_form_section (id, name, label, description)
@@ -27,23 +26,24 @@ values (2, 'request', 'Request', 'Provide information the resources you are requ
 insert into access_form_section (id, name, label, description)
 values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?');
 
-
 insert into access_form_element (id, name, label, description, type, access_form_section_id)
 values (1, 'title', 'Title', 'Give a title', 'text', 1),
        (2, 'description', 'Description', 'Give a description', 'textarea', 1),
-       (3, 'description', 'Description', 'Give a description', 'textarea', 2),
+       (3, 'description', 'Description', 'Provide a request description', 'textarea', 2),
        (4, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'textarea', 3),
        (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'file', 3);
-INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID)
-VALUES (1, 1, 1),
-       (2, 1, 2),
-       (3, 1, 3);
--- INSERT INTO ACCESS_FORM_LINK (ACCESS_CRITERIA_ID, ACCESS_CRITERIA_SET_ID, ACCESS_CRITERIA_SECTION_ID)
--- values (1, 1, 1),
---        (2, 1, 1),
---        (3, 1, 2),
---        (4, 1, 3),
---        (5, 1, 3);
+
+INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
+VALUES (1, 1, 1, 0),
+       (2, 1, 2, 1),
+       (3, 1, 3, 2);
+INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
+                                              ELEMENT_ORDER)
+VALUES (1, 1, 1, true, 1),
+       (2, 1, 2, true, 2),
+       (3, 2, 3, true, 1),
+       (4, 3, 4, true, 1),
+       (5, 3, 5, false, 2);
 
 insert into organization (ID, external_id, name)
 values (1, 'bbmri-eric:ID:SE_890', 'Biobank Väst'),
