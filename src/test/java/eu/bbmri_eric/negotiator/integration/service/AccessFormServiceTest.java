@@ -77,7 +77,6 @@ public class AccessFormServiceTest {
         accessFormService.getAccessFormForRequest(requestDTO.getId());
     assertEquals(3, accessFormRepository.findAll().get(0).getSections().size());
     assertEquals(resourceForm.getSections().size(), requestForm.getSections().size());
-    System.out.println(requestForm);
     assertEquals(resourceForm, requestForm);
   }
 
@@ -185,10 +184,6 @@ public class AccessFormServiceTest {
                 accessFormElement -> accessFormElement.getName().equals("different_element")));
     newAccessForm = accessFormRepository.save(newAccessForm);
     assertFalse(newAccessForm.getSections().isEmpty());
-    System.out.println("------");
-    newAccessForm.getSections().stream().iterator().next().getAccessFormElements().stream()
-        .forEach(accessFormElement -> System.out.println(accessFormElement.getName()));
-    System.out.println("------");
     resource.setAccessForm(newAccessForm);
     resourceRepository.save(resource);
     Request request = requestRepository.findById(requestDTO.getId()).get();
@@ -206,10 +201,6 @@ public class AccessFormServiceTest {
     assertTrue(section.isPresent());
     assertEquals(
         sameSection.getAccessFormElements().size(), section.get().getAccessCriteria().size());
-    section
-        .get()
-        .getAccessCriteria()
-        .forEach(accessCriteriaDTO -> System.out.println(accessCriteriaDTO.getName()));
     assertTrue(
         section.get().getAccessCriteria().stream()
             .anyMatch(

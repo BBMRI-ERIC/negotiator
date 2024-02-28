@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccessFormServiceImpl implements AccessFormService {
   RequestRepository requestRepository;
+
+  AccessFormRepository accessFormRepository;
   ModelMapper modelMapper;
 
   public AccessFormServiceImpl(RequestRepository requestRepository, ModelMapper modelMapper) {
@@ -28,21 +31,34 @@ public class AccessFormServiceImpl implements AccessFormService {
       throws EntityNotFoundException {
     verifyArguments(requestId);
     Request request = findRequest(requestId);
-    if (request.getResources().size() == 1) {
-      return modelMapper.map(
-          request.getResources().iterator().next().getAccessForm(), AccessCriteriaSetDTO.class);
+    AccessForm accessForm = request.getResources().iterator().next().getAccessForm();
+    AccessForm finalAccessForm = accessForm;
+    if (request.getResources().stream()
+        .allMatch(
+            resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()))) {
+      return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);
     }
-    AccessForm accessForm = new AccessForm("Combined access form");
-    int counter = 0;
+    accessForm = new AccessForm("Combined access form");
     for (Resource resource : request.getResources()) {
       for (AccessFormSection accessFormSection : resource.getAccessForm().getSections()) {
-        System.out.println("got here" + accessFormSection.getName());
-        accessForm.addSection(accessFormSection, counter);
-        for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
-          System.out.println(accessFormElement.getName());
-          accessForm.linkElementToSection(accessFormSection, accessFormElement, counter, false);
+        if (!accessForm.getSections().contains(accessFormSection)) {
+          accessForm.addSection(accessFormSection, accessForm.getSections().size());
         }
-        counter++;
+        for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
+          AccessFormSection matchedSection =
+              accessForm.getSections().stream()
+                  .filter(sec -> sec.equals(accessFormSection))
+                  .findFirst()
+                  .get();
+          if (!matchedSection.getAccessFormElements().contains(accessFormElement)) {
+            System.out.println("adding element: " + accessFormElement.getName());
+            accessForm.linkElementToSection(
+                accessFormSection,
+                accessFormElement,
+                matchedSection.getAccessFormElements().size(),
+                false);
+          }
+        }
       }
     }
     return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);

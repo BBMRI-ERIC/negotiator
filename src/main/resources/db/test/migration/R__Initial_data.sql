@@ -51,9 +51,9 @@ values (1, 'title', 'Title', 'Give a title', 'text', 1),
        (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'file', 3);
 
 INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
-VALUES (1, 1, 1, 1),
-       (2, 1, 2, 2),
-       (3, 1, 3, 3);
+VALUES (1, 1, 1, 0),
+       (2, 1, 2, 1),
+       (3, 1, 3, 2);
 INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
                                               ELEMENT_ORDER)
 VALUES (1, 1, 1, true, 1),

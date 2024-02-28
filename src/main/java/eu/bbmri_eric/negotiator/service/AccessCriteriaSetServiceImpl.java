@@ -27,7 +27,6 @@ public class AccessCriteriaSetServiceImpl implements AccessCriteriaSetService {
         accessFormRepository
             .findByResourceId(resourceEntityId)
             .orElseThrow(() -> new EntityNotFoundException(resourceEntityId));
-
     return modelMapper.map(acs, AccessCriteriaSetDTO.class);
   }
 }

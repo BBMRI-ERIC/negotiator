@@ -50,7 +50,7 @@ public class AccessCriteriaModelsMapper {
                                   criteria.getLabel(),
                                   criteria.getDescription(),
                                   criteria.getType(),
-                                  false))
+                                  criteria.isRequired()))
                       .toList();
               return new AccessCriteriaSectionDTO(
                   section.getName(), section.getLabel(), section.getDescription(), accessCriteria);

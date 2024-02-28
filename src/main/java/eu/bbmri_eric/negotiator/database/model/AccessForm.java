@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -53,8 +54,13 @@ public class AccessForm extends AuditEntity {
 
   public Set<AccessFormSection> getSections() {
     return formLinks.stream()
-        .map(AccessFormSectionLink::getAccessFormSection)
-        .collect(Collectors.toUnmodifiableSet());
+        .map(
+            link -> {
+              AccessFormSection section = link.getAccessFormSection();
+              section.setAccessForm(this);
+              return section;
+            })
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   public void addSection(AccessFormSection section, int sectionOrder) {
@@ -65,25 +71,12 @@ public class AccessForm extends AuditEntity {
       AccessFormSection section, AccessFormElement element, int elementOrder, boolean isRequired) {
     Optional<AccessFormSectionLink> accessFormSectionLink =
         formLinks.stream().filter(link -> link.getAccessFormSection().equals(section)).findFirst();
-    System.out.println(accessFormSectionLink.isPresent());
-    System.out.println(accessFormSectionLink.get().getAccessFormSection().getName());
     accessFormSectionLink.ifPresent(
         formSectionLink ->
             formSectionLink.addElementLink(
                 new AccessFormSectionElementLink(
                     formSectionLink, element, isRequired, elementOrder)));
-    accessFormSectionLink
-        .get()
-        .getAccessFormSectionElementLinks()
-        .forEach(link -> System.out.println(link.getAccessFormElement().getName()));
     formLinks.add(accessFormSectionLink.get());
-    System.out.println("---");
-    accessFormSectionLink
-        .get()
-        .getAccessFormSection()
-        .getAccessFormElements()
-        .forEach(element1 -> System.out.println(element1.getName()));
-    System.out.println("---");
   }
 
   @Override

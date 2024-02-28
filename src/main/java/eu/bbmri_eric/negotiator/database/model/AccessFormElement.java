@@ -47,7 +47,6 @@ public class AccessFormElement extends AuditEntity {
 
   @Transient private boolean isRequired;
 
-  @Transient private int elementOrder;
 
   @ManyToOne
   @JoinColumn(name = "access_form_section_id")
@@ -61,22 +60,13 @@ public class AccessFormElement extends AuditEntity {
     this.type = type;
   }
 
-  boolean isRequired() {
+  public boolean isRequired() {
     return isRequired;
   }
 
   void setRequired(boolean required) {
     isRequired = required;
   }
-
-  public int getElementOrder() {
-    return elementOrder;
-  }
-
-  public void setElementOrder(int elementOrder) {
-    this.elementOrder = elementOrder;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

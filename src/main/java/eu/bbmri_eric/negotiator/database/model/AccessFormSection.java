@@ -7,11 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,10 +50,16 @@ public class AccessFormSection extends AuditEntity {
   @ToString.Exclude
   private Set<AccessFormElement> allowedAccessCriteria = new HashSet<>();
 
+  @Transient private AccessForm accessForm;
+
   public AccessFormSection(String name, String label, String description) {
     this.name = name;
     this.label = label;
     this.description = description;
+  }
+
+  void setAccessForm(AccessForm accessForm) {
+    this.accessForm = accessForm;
   }
 
   void addLinkedForm(AccessFormSectionLink linkedForm) {
@@ -59,21 +67,23 @@ public class AccessFormSection extends AuditEntity {
   }
 
   public Set<AccessFormElement> getAccessFormElements() {
-    Set<AccessFormElement> accessCriteria = new HashSet<>();
-    for (AccessFormSectionLink linkedForm : linkedForms) {
-      Set<AccessFormSectionElementLink> sectionElementLinks =
-          linkedForm.getAccessFormSectionElementLinks();
-      for (AccessFormSectionElementLink link : sectionElementLinks) {
-        System.out.println(link.getAccessFormElement().getName());
-      }
-      Iterator<AccessFormSectionElementLink> iterator = sectionElementLinks.iterator();
-      if (iterator.hasNext()) {
-        AccessFormSectionElementLink link = iterator.next();
-        AccessFormElement element = link.getAccessFormElement();
-        element.setRequired(link.isRequired());
-        element.setElementOrder(link.getElementOrder());
-        accessCriteria.add(element);
-      }
+    Set<AccessFormElement> accessCriteria = new LinkedHashSet<>();
+    AccessFormSectionLink linkedForm =
+        linkedForms.stream()
+            .filter(
+                accessFormSectionLink ->
+                    accessFormSectionLink.getAccessForm().equals(this.accessForm))
+            .findFirst()
+            .orElse(null);
+    if (linkedForm == null) {
+      return accessCriteria;
+    }
+    SortedSet<AccessFormSectionElementLink> sectionElementLinks =
+        linkedForm.getAccessFormSectionElementLinks();
+    for (AccessFormSectionElementLink link : sectionElementLinks) {
+      AccessFormElement element = link.getAccessFormElement();
+      element.setRequired(link.isRequired());
+      accessCriteria.add(element);
     }
     return accessCriteria;
   }
