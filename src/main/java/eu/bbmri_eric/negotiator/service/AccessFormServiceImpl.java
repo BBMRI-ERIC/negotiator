@@ -51,7 +51,6 @@ public class AccessFormServiceImpl implements AccessFormService {
                   .findFirst()
                   .get();
           if (!matchedSection.getAccessFormElements().contains(accessFormElement)) {
-            System.out.println("adding element: " + accessFormElement.getName());
             accessForm.linkElementToSection(
                 accessFormSection,
                 accessFormElement,

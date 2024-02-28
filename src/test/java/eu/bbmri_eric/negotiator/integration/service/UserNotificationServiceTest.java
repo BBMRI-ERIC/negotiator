@@ -144,14 +144,12 @@ public class UserNotificationServiceTest {
     Resource resource = resourceRepository.findBySourceId("biobank:1:collection:1").get();
     resource.setRepresentatives(Collections.emptySet());
     Resource resource2 = resourceRepository.save(resource);
-    System.out.println(resource2.getRepresentatives().size());
     negotiation = negotiationRepository.findById(negotiation.getId()).get();
     Resource resourceWithoutReps =
         negotiation.getResources().stream()
             .filter(res -> res.getSourceId().equals(resource.getSourceId()))
             .toList()
             .get(0);
-    System.out.println(resourceWithoutReps.getSourceId());
     assertTrue(resourceWithoutReps.getRepresentatives().isEmpty());
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     assertEquals(
