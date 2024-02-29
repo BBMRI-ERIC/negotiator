@@ -70,13 +70,7 @@
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
                                 <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/'+ ${roleForNegotiation.get(negotiation.id)}}">
-                                    <script th:inline="javascript">
-                                        /* Parse the JSON string into a JSON object */
-                                        var payloadJson = JSON.parse(/*[[${negotiation.payload}]]*/);
-                                        var projectTitle = payloadJson?.project?.title;
-                                        document.write(projectTitle);
-                                    </script>
-
+                                    <span th:utext="${titleForNegotiation.get(negotiation.id)}"></span>
                                 </a>
                             </li>
                         </ul>

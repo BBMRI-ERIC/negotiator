@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -259,10 +261,12 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .collect(Collectors.toList());
 
     Map<String, String> roleForNegotiation = populateRoleForNegotiationMap(notifications);
+    Map<String, String> titleForNegotiation = populateTitleForNegotiationMap(notifications);
 
     context.setVariable("negotiations", negotiations);
     context.setVariable("frontendurl", frontendurl);
     context.setVariable("roleForNegotiation", roleForNegotiation);
+    context.setVariable("titleForNegotiation", titleForNegotiation);
 
     String emailContent = templateEngine.process("email-notification", context);
 
@@ -277,6 +281,24 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       roleForNegotiation.put(negotiationId, role);
     }
     return roleForNegotiation;
+  }
+
+  private Map<String, String> populateTitleForNegotiationMap(List<Notification> notifications) {
+    Map<String, String> titleForNegotiation = new HashMap<>();
+    for (Notification notification : notifications) {
+      Negotiation negotiation = notification.getNegotiation();
+      String negotiatorId = negotiation.getId();
+      String title;
+      try {
+        JSONObject payloadJson = new JSONObject(negotiation.getPayload());
+        title = payloadJson.getJSONObject("project").getString("title");
+      } catch (JSONException e) {
+        log.error("Failed to extract title from payload JSON", e);
+        title = "Untitled negotiation";
+      }
+      titleForNegotiation.put(negotiatorId, title);
+    }
+    return titleForNegotiation;
   }
 
   private String extractRoleFromNotificationMessage(Notification notification) {
