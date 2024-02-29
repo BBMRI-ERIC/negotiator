@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @CrossOrigin
-public class AccessCriteriaSetController {
+public class AccessFormController {
 
   @Autowired private AccessCriteriaSetService accessCriteriaSetService;
   @Autowired private AccessFormService accessFormService;
