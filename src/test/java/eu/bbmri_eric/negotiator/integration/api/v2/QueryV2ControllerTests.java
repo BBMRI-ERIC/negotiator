@@ -19,13 +19,13 @@ import eu.bbmri_eric.negotiator.service.RequestServiceImpl;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -35,6 +35,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class QueryV2ControllerTests {
 
   private static final String REQUEST_V2_ID = "request-v2";
@@ -113,22 +114,6 @@ public class QueryV2ControllerTests {
     Optional<CollectionV2DTO> collection = request.getCollections().stream().findFirst();
     assert collection.isPresent();
     collection.get().setCollectionId("collection_unknown");
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("directory", "directory"),
-        ENDPOINT);
-  }
-
-  @Test
-  @Disabled
-  public void testCreate_BadRequest_whenCollectionAndBiobankMismatch() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
-    Optional<CollectionV2DTO> biobank = request.getCollections().stream().findFirst();
-    assert biobank.isPresent();
-    biobank.get().setBiobankId("wrong_biobank");
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.POST,

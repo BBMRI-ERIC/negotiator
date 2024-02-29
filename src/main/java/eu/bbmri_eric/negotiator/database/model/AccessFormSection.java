@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -31,7 +30,6 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Setter
-@Builder
 @SequenceGenerator(name = "access_form_section_id_seq", initialValue = 100)
 public class AccessFormSection extends AuditEntity {
 
