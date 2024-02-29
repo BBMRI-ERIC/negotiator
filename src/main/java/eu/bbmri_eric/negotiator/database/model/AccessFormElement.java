@@ -47,7 +47,6 @@ public class AccessFormElement extends AuditEntity {
 
   @Transient private boolean isRequired;
 
-
   @ManyToOne
   @JoinColumn(name = "access_form_section_id")
   @ToString.Exclude
@@ -67,6 +66,7 @@ public class AccessFormElement extends AuditEntity {
   void setRequired(boolean required) {
     isRequired = required;
   }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

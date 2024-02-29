@@ -17,8 +17,14 @@ public class AccessFormTest {
   @Test
   void linkElementToSection_sectionNotInForm_throwsIllegalArg() {
     AccessForm accessForm = new AccessForm("test");
-    assertThrows(IllegalArgumentException.class, () -> accessForm.linkElementToSection(new AccessFormSection("test", "test", "test"),
-            new AccessFormElement("test", "test", "test", "test"), 0, true));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            accessForm.linkElementToSection(
+                new AccessFormSection("test", "test", "test"),
+                new AccessFormElement("test", "test", "test", "test"),
+                0,
+                true));
   }
 
   @Test
@@ -31,7 +37,8 @@ public class AccessFormTest {
     AccessFormElement element = new AccessFormElement("test", "test", "test", "test");
     element.setLinkedSection(allowedSection);
     accessForm.linkSection(notAllowedSection, 0);
-    assertThrows(IllegalArgumentException.class, () -> accessForm.linkElementToSection(notAllowedSection,
-            element, 0, true));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> accessForm.linkElementToSection(notAllowedSection, element, 0, true));
   }
 }

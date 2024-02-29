@@ -61,6 +61,7 @@ public class AccessForm extends AuditEntity {
 
   /**
    * Link a section to the form.
+   *
    * @param section that should be linked.
    * @param sectionOrder the order of the section.
    */
@@ -70,6 +71,7 @@ public class AccessForm extends AuditEntity {
 
   /**
    * Link an element to a section.
+   *
    * @param section a section of the form to which the element should be linked.
    * @param element an element that should be linked.
    * @param elementOrder the order of the element.

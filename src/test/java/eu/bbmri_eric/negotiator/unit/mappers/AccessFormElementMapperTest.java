@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
-
 import eu.bbmri_eric.negotiator.mappers.AccessCriteriaModelsMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
