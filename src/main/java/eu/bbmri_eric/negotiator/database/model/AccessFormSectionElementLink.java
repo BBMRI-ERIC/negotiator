@@ -31,23 +31,30 @@ class AccessFormSectionElementLink implements Comparable<AccessFormSectionElemen
   @Column(name = "id", nullable = false)
   private Long id;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "access_form_section_link_id")
   @ToString.Exclude
   private AccessFormSectionLink accessFormSectionLink;
 
-  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "access_form_element_id")
   private AccessFormElement accessFormElement;
 
   private boolean isRequired;
   private int elementOrder;
 
-  public AccessFormSectionElementLink(
+  protected AccessFormSectionElementLink(
       AccessFormSectionLink accessFormSectionLink,
       AccessFormElement accessFormElement,
       boolean isRequired,
       int elementOrder) {
+    if (Objects.nonNull(accessFormElement.getLinkedSection())
+        && !accessFormElement
+            .getLinkedSection()
+            .equals(accessFormSectionLink.getAccessFormSection())) {
+      throw new IllegalArgumentException(
+          "Access form element is not allowed to be linked to this section and cannot be added.");
+    }
     this.accessFormSectionLink = accessFormSectionLink;
     this.accessFormElement = accessFormElement;
     this.isRequired = isRequired;

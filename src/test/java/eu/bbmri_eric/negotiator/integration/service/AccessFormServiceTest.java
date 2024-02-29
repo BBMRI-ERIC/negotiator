@@ -75,7 +75,7 @@ public class AccessFormServiceTest {
             requestDTO.getResources().iterator().next().getId());
     AccessCriteriaSetDTO requestForm =
         accessFormService.getAccessFormForRequest(requestDTO.getId());
-    assertEquals(3, accessFormRepository.findAll().get(0).getSections().size());
+    assertEquals(3, accessFormRepository.findAll().get(0).getLinkedSections().size());
     assertEquals(resourceForm.getSections().size(), requestForm.getSections().size());
     assertEquals(resourceForm, requestForm);
   }
@@ -110,7 +110,7 @@ public class AccessFormServiceTest {
     accessFormSection.setId(100L);
     accessFormSection = accessFormSectionRepository.save(accessFormSection);
     AccessForm accessForm = new AccessForm("different_form");
-    accessForm.addSection(accessFormSection, 0);
+    accessForm.linkSection(accessFormSection, 0);
     accessForm = accessFormRepository.save(accessForm);
     resource.setAccessForm(accessForm);
     resourceRepository.save(resource);
@@ -139,9 +139,9 @@ public class AccessFormServiceTest {
     accessFormSection = accessFormSectionRepository.save(accessFormSection);
     accessFormSection2 = accessFormSectionRepository.save(accessFormSection2);
     AccessForm newAccessForm = new AccessForm("different_form");
-    newAccessForm.addSection(accessFormSection, 0);
-    newAccessForm.addSection(accessFormSection2, 1);
-    newAccessForm.addSection(sameAccessFormSection, 2);
+    newAccessForm.linkSection(accessFormSection, 0);
+    newAccessForm.linkSection(accessFormSection2, 1);
+    newAccessForm.linkSection(sameAccessFormSection, 2);
     newAccessForm = accessFormRepository.save(newAccessForm);
     resource.setAccessForm(newAccessForm);
     resourceRepository.save(resource);
@@ -168,22 +168,26 @@ public class AccessFormServiceTest {
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection =
-        accessForm.getSections().stream()
+        accessForm.getLinkedSections().stream()
             .filter(accessFormSection -> accessFormSection.getName().equals("project"))
             .findFirst()
             .get();
-    newAccessForm.addSection(sameSection, 1);
+    newAccessForm.linkSection(sameSection, 1);
     newAccessForm = accessFormRepository.save(newAccessForm);
-    assertFalse(newAccessForm.getSections().isEmpty());
+    assertFalse(newAccessForm.getLinkedSections().isEmpty());
     newAccessForm.linkElementToSection(
-        newAccessForm.getSections().iterator().next(), newElement, 5, true);
-    assertFalse(newAccessForm.getSections().isEmpty());
+        newAccessForm.getLinkedSections().iterator().next(), newElement, 5, true);
+    assertFalse(newAccessForm.getLinkedSections().isEmpty());
     assertTrue(
-        newAccessForm.getSections().stream().iterator().next().getAccessFormElements().stream()
+        newAccessForm.getLinkedSections().stream()
+            .iterator()
+            .next()
+            .getAccessFormElements()
+            .stream()
             .anyMatch(
                 accessFormElement -> accessFormElement.getName().equals("different_element")));
     newAccessForm = accessFormRepository.save(newAccessForm);
-    assertFalse(newAccessForm.getSections().isEmpty());
+    assertFalse(newAccessForm.getLinkedSections().isEmpty());
     resource.setAccessForm(newAccessForm);
     resourceRepository.save(resource);
     Request request = requestRepository.findById(requestDTO.getId()).get();
@@ -224,22 +228,26 @@ public class AccessFormServiceTest {
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection = accessFormSectionRepository.findById(1L).get();
     assertEquals("project", sameSection.getName());
-    newAccessForm.addSection(sameSection, 1);
+    newAccessForm.linkSection(sameSection, 1);
     newAccessForm = accessFormRepository.save(newAccessForm);
-    assertFalse(newAccessForm.getSections().isEmpty());
+    assertFalse(newAccessForm.getLinkedSections().isEmpty());
     newAccessForm.linkElementToSection(sameSection, newElement, 0, true);
-    assertFalse(newAccessForm.getSections().isEmpty());
+    assertFalse(newAccessForm.getLinkedSections().isEmpty());
     assertTrue(
-        newAccessForm.getSections().stream().iterator().next().getAccessFormElements().stream()
+        newAccessForm.getLinkedSections().stream()
+            .iterator()
+            .next()
+            .getAccessFormElements()
+            .stream()
             .anyMatch(
                 accessFormElement -> accessFormElement.getName().equals("different_element")));
     newAccessForm = accessFormRepository.save(newAccessForm);
-    assertFalse(newAccessForm.getSections().isEmpty());
+    assertFalse(newAccessForm.getLinkedSections().isEmpty());
     resource.setAccessForm(newAccessForm);
     resource = resourceRepository.save(resource);
     assertEquals(
         1,
-        resource.getAccessForm().getSections().stream()
+        resource.getAccessForm().getLinkedSections().stream()
             .filter(accessFormSection -> accessFormSection.getName().equals(sameSection.getName()))
             .findFirst()
             .get()
@@ -247,7 +255,7 @@ public class AccessFormServiceTest {
             .size());
     assertEquals(
         2,
-        originalResource.getAccessForm().getSections().stream()
+        originalResource.getAccessForm().getLinkedSections().stream()
             .filter(accessFormSection -> accessFormSection.getName().equals(sameSection.getName()))
             .findFirst()
             .get()

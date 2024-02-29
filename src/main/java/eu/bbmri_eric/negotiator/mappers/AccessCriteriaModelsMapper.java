@@ -34,7 +34,7 @@ public class AccessCriteriaModelsMapper {
         mapper ->
             mapper
                 .using(accessCriteriaConverter)
-                .map(AccessForm::getSections, AccessCriteriaSetDTO::setSections));
+                .map(AccessForm::getLinkedSections, AccessCriteriaSetDTO::setSections));
   }
 
   private List<AccessCriteriaSectionDTO> formFieldConverter(Set<AccessFormSection> sections) {

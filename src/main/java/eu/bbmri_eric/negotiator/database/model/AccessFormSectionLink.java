@@ -38,12 +38,12 @@ class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
   @ToString.Exclude
   private AccessForm accessForm;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
   @JoinColumn(name = "access_form_section_id")
   @NaturalId
   private AccessFormSection accessFormSection;
 
-  @OneToMany(mappedBy = "accessFormSectionLink", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "accessFormSectionLink", cascade = CascadeType.PERSIST)
   private SortedSet<AccessFormSectionElementLink> accessFormSectionElementLinks = new TreeSet<>();
 
   private int sectionOrder;

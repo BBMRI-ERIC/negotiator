@@ -46,7 +46,7 @@ public class AccessFormElementSetRepoTest {
       AccessFormSection accessFormSection =
           new AccessFormSection("different_section", "test", "test");
       accessFormSection = accessFormSectionRepository.save(accessFormSection);
-      accessForm.addSection(accessFormSection, i);
+      accessForm.linkSection(accessFormSection, i);
     }
     accessForm = accessFormRepository.saveAndFlush(accessForm);
     assertEquals(accessForm, accessFormRepository.findById(accessForm.getId()).get());

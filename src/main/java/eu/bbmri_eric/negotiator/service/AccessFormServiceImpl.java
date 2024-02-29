@@ -41,15 +41,15 @@ public class AccessFormServiceImpl implements AccessFormService {
     accessForm = new AccessForm("Combined access form");
     int counter = 0;
     for (Resource resource : request.getResources()) {
-      for (AccessFormSection accessFormSection : resource.getAccessForm().getSections()) {
+      for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
         if (formDoesntContainSection(accessFormSection, accessForm)) {
-          accessForm.addSection(accessFormSection, counter);
+          accessForm.linkSection(accessFormSection, counter);
           counter++;
         }
-        log.debug(resource.getAccessForm().getSections().size());
+        log.debug(resource.getAccessForm().getLinkedSections().size());
         for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
           AccessFormSection matchedSection =
-              accessForm.getSections().stream()
+              accessForm.getLinkedSections().stream()
                   .filter(sec -> sec.equals(accessFormSection))
                   .findFirst()
                   .get();
@@ -78,7 +78,7 @@ public class AccessFormServiceImpl implements AccessFormService {
 
   private static boolean formDoesntContainSection(
       AccessFormSection accessFormSection, AccessForm accessForm) {
-    return accessForm.getSections().stream()
+    return accessForm.getLinkedSections().stream()
         .noneMatch(section -> section.getName().equals(accessFormSection.getName()));
   }
 
@@ -90,7 +90,7 @@ public class AccessFormServiceImpl implements AccessFormService {
   private static AccessForm combineAccessForms(Request request, AccessForm accessForm) {
     for (Resource resource : request.getResources()) {
       if (!resource.getAccessForm().equals(accessForm)) {
-        accessForm.getSections().addAll(resource.getAccessForm().getSections());
+        accessForm.getLinkedSections().addAll(resource.getAccessForm().getLinkedSections());
       }
     }
     return accessForm;

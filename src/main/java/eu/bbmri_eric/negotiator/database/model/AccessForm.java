@@ -10,11 +10,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +42,7 @@ public class AccessForm extends AuditEntity {
   @OneToMany(
       mappedBy = "accessForm",
       fetch = FetchType.EAGER,
-      cascade = CascadeType.ALL,
+      cascade = CascadeType.PERSIST,
       orphanRemoval = true)
   private SortedSet<AccessFormSectionLink> formLinks = new TreeSet<>();
 
@@ -52,31 +50,40 @@ public class AccessForm extends AuditEntity {
     this.name = name;
   }
 
-  public Set<AccessFormSection> getSections() {
-    return formLinks.stream()
-        .map(
-            link -> {
-              AccessFormSection section = link.getAccessFormSection();
-              section.setAccessForm(this);
-              return section;
-            })
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+  public Set<AccessFormSection> getLinkedSections() {
+    Set<AccessFormSection> linkedSections = new LinkedHashSet<>();
+    for (AccessFormSectionLink link : formLinks) {
+      link.getAccessFormSection().setAccessForm(this);
+      linkedSections.add(link.getAccessFormSection());
+    }
+    return linkedSections;
   }
 
-  public void addSection(AccessFormSection section, int sectionOrder) {
+  /**
+   * Link a section to the form.
+   * @param section that should be linked.
+   * @param sectionOrder the order of the section.
+   */
+  public void linkSection(AccessFormSection section, int sectionOrder) {
     formLinks.add(new AccessFormSectionLink(this, section, sectionOrder));
   }
 
+  /**
+   * Link an element to a section.
+   * @param section a section of the form to which the element should be linked.
+   * @param element an element that should be linked.
+   * @param elementOrder the order of the element.
+   * @param isRequired whether the element is marked as required.
+   */
   public void linkElementToSection(
       AccessFormSection section, AccessFormElement element, int elementOrder, boolean isRequired) {
-    Optional<AccessFormSectionLink> accessFormSectionLink =
-        formLinks.stream().filter(link -> link.getAccessFormSection().equals(section)).findFirst();
-    accessFormSectionLink.ifPresent(
-        formSectionLink ->
-            formSectionLink.addElementLink(
-                new AccessFormSectionElementLink(
-                    formSectionLink, element, isRequired, elementOrder)));
-    formLinks.add(accessFormSectionLink.get());
+    AccessFormSectionLink accessFormSectionLink =
+        formLinks.stream()
+            .filter(link -> link.getAccessFormSection().equals(section))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Section not found"));
+    accessFormSectionLink.addElementLink(
+        new AccessFormSectionElementLink(accessFormSectionLink, element, isRequired, elementOrder));
   }
 
   @Override
