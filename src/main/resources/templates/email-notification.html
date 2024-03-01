@@ -4,7 +4,7 @@
         <style>
             .email-notifications {
                 background-color: #ffffff;
-                font-family: "Open Sans-Regular", Helvetica;
+                font-family: "Open Sans-Regular", Helvetica, sans-serif;
                 color: #333333;
                 width:70%;
                 margin: 0 auto;
@@ -23,13 +23,6 @@
 
             .email-notifications .logo-bbmri {
                 width: 190px;
-            }
-
-            .email-notifications .text-negotiator {
-                font-size: 20px;
-                text-transform: uppercase;
-                align-self: center;
-                padding-bottom: 15px;
             }
 
             .email-notifications hr {
@@ -57,7 +50,6 @@
         <div class="email-notifications">
             <div class="email-header">
                 <img class="logo-bbmri" th:src="@{${frontendurl} + '/api/images/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png'}" alt="BBMRI-ERIC Logo"/>
-<!--                <div class="text-negotiator">Negotiator</div>-->
             </div>
             <hr />
             <div class="email-content">
