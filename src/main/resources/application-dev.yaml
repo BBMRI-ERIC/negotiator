@@ -29,7 +29,7 @@ spring:
   flyway:
     user: negotiator
     password: negotiator
-    url: jdbc:tc:postgresql:///negotiator_db
+    url: jdbc:tc:postgresql:///negotiator
     locations: classpath:db/migration/{vendor},db/dev/migration
   jackson:
     date-format: "yyyy-MM-dd"
