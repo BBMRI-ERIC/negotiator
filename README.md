@@ -98,11 +98,11 @@ java -jar -Dspring.profiles.active=dev target/negotiator.jar
 
 The dev mode exposes a relational database, details can be found below.
 
-### Connection URL for the H2 database
+### Connection URL for the Postgres testcontainer database
 
 Default credentials are: negotiator:negotiator
 ``
-jdbc:h2:tcp://localhost:9092/mem:negotiator
+jdbc:postgresql://localhost:5432/negotiator_db
 ``
 
 ### System architecture
