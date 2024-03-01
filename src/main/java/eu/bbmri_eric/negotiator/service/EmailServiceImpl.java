@@ -93,6 +93,6 @@ public class EmailServiceImpl implements EmailService {
     }
     notificationEmail.setWasSuccessfullySent(true);
     notificationEmailRepository.save(notificationEmail);
-    log.info("Email message sent.");
+    log.debug("Email message sent.");
   }
 }

@@ -288,17 +288,22 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     for (Notification notification : notifications) {
       Negotiation negotiation = notification.getNegotiation();
       String negotiatorId = negotiation.getId();
-      String title;
-      try {
-        JSONObject payloadJson = new JSONObject(negotiation.getPayload());
-        title = payloadJson.getJSONObject("project").getString("title");
-      } catch (JSONException e) {
-        log.error("Failed to extract title from payload JSON", e);
-        title = "Untitled negotiation";
-      }
+      String title = parseTitleFromNegotiation(negotiation);
       titleForNegotiation.put(negotiatorId, title);
     }
     return titleForNegotiation;
+  }
+
+  private static String parseTitleFromNegotiation(Negotiation negotiation) {
+    String title;
+    try {
+      JSONObject payloadJson = new JSONObject(negotiation.getPayload());
+      title = payloadJson.getJSONObject("project").getString("title");
+    } catch (JSONException e) {
+      log.error("Failed to extract title from payload JSON", e);
+      title = "Untitled negotiation";
+    }
+    return title;
   }
 
   private String extractRoleFromNotificationMessage(Notification notification) {
