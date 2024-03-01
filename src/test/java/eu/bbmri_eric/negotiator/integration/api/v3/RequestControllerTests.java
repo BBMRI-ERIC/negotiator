@@ -165,7 +165,7 @@ public class RequestControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
+  public void testCreate_BadRequest_whenDiscoveryServiceNotFound() throws Exception {
     RequestCreateDTO request = TestUtils.createRequest(false);
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
@@ -40,7 +40,7 @@ public class NegotiationMapperTest {
                                 .name("Test Biobank")
                                 .externalId("biobank:1")
                                 .build())
-                        .dataSource(DataSource.builder().build())
+                        .discoveryService(DiscoveryService.builder().build())
                         .build()))
             .build();
 

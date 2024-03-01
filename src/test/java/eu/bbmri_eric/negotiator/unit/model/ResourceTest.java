@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import org.junit.jupiter.api.Test;
@@ -26,13 +26,13 @@ public class ResourceTest {
   void equals_sameSourceId_equal() {
     assertEquals(
         Resource.builder()
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(
                 Organization.builder().externalId("biobank:1").name("TestBiobank").build())
             .sourceId("resId")
             .build(),
         Resource.builder()
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(
                 Organization.builder().externalId("biobank:1").name("TestBiobank").build())
             .sourceId("resId")
@@ -43,13 +43,13 @@ public class ResourceTest {
   void equals_differentSourceId_notEqual() {
     assertNotEquals(
         Resource.builder()
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(
                 Organization.builder().externalId("biobank:1").name("TestBiobank").build())
             .sourceId("resId")
             .build(),
         Resource.builder()
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(
                 Organization.builder().externalId("biobank:1").name("TestBiobank").build())
             .sourceId("resDiffId")

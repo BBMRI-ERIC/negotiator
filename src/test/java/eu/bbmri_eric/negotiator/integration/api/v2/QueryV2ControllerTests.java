@@ -124,7 +124,7 @@ public class QueryV2ControllerTests {
   }
 
   @Test
-  public void testCreate_BadRequest_whenDataSourceNotFound() throws Exception {
+  public void testCreate_BadRequest_whenDiscoveryServiceNotFound() throws Exception {
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     request.setUrl("http://wrong_data_source");
     TestUtils.checkErrorResponse(

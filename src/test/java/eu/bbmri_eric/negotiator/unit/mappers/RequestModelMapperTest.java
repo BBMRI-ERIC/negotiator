@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
@@ -59,7 +59,7 @@ public class RequestModelMapperTest {
     Resource resource =
         Resource.builder()
             .sourceId("collection:1")
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(
                 Organization.builder().externalId("biobank:1").name("TestBiobank").build())
             .build();
@@ -67,7 +67,7 @@ public class RequestModelMapperTest {
         Request.builder()
             .id("newRequest")
             .resources(Set.of(resource))
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .build();
     RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
     assertEquals(1, requestDTO.getResources().size());
@@ -133,7 +133,7 @@ public class RequestModelMapperTest {
       Resource resource =
           Resource.builder()
               .sourceId("collection:1")
-              .dataSource(new DataSource())
+              .discoveryService(new DiscoveryService())
               .organization(
                   Organization.builder().externalId("biobank:1").name("TestBiobank").build())
               .build();
@@ -141,7 +141,7 @@ public class RequestModelMapperTest {
           Request.builder()
               .id("newRequest")
               .resources(Set.of(resource))
-              .dataSource(new DataSource())
+              .discoveryService(new DiscoveryService())
               .build();
       RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
       assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());

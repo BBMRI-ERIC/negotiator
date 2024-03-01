@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
@@ -38,7 +38,7 @@ public class RequestServiceImpl implements RequestService {
 
   @Autowired private RequestRepository requestRepository;
   @Autowired private ResourceRepository resourceRepository;
-  @Autowired private DataSourceRepository dataSourceRepository;
+  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired private ModelMapper modelMapper;
   @Autowired private OrganizationRepository organizationRepository;
   @Autowired private AccessFormRepository accessFormRepository;
@@ -72,7 +72,7 @@ public class RequestServiceImpl implements RequestService {
     request.setUrl(requestCreateDTO.getUrl());
     request.setHumanReadable(requestCreateDTO.getHumanReadable());
     request.setResources(getValidResources(requestCreateDTO.getResources()));
-    request.setDataSource(getValidDataSource(requestCreateDTO.getUrl()));
+    request.setDiscoveryService(getValidDiscoveryService(requestCreateDTO.getUrl()));
     return requestRepository.save(request);
   }
 
@@ -114,7 +114,7 @@ public class RequestServiceImpl implements RequestService {
   private Resource prepareResourceForPersisting(Optional<MolgenisCollection> molgenisCollection) {
     Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
     resource.setOrganization(getParentOrganization(molgenisCollection));
-    resource.setDataSource(dataSourceRepository.findById(1L).get());
+    resource.setDiscoveryService(discoveryServiceRepository.findById(1L).get());
     resource.setAccessForm(accessFormRepository.findById(1L).get());
     return resource;
   }
@@ -142,15 +142,15 @@ public class RequestServiceImpl implements RequestService {
     return organization;
   }
 
-  private DataSource getValidDataSource(String url) {
-    URL dataSourceURL;
+  private DiscoveryService getValidDiscoveryService(String url) {
+    URL discoveryServiceURL;
     try {
-      dataSourceURL = new URL(url);
+      discoveryServiceURL = new URL(url);
     } catch (MalformedURLException e) {
       throw new WrongRequestException("URL not valid");
     }
-    return dataSourceRepository
-        .findByUrl(String.format("%s://%s", dataSourceURL.getProtocol(), dataSourceURL.getHost()))
+    return discoveryServiceRepository
+        .findByUrl(String.format("%s://%s", discoveryServiceURL.getProtocol(), discoveryServiceURL.getHost()))
         .orElseThrow(() -> new WrongRequestException("Data source not found"));
   }
 

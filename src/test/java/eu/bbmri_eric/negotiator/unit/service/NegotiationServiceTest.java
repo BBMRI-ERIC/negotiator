@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
@@ -65,7 +65,7 @@ public class NegotiationServiceTest {
                 Set.of(
                     Resource.builder()
                         .sourceId("collection:1")
-                        .dataSource(new DataSource())
+                        .discoveryService(new DiscoveryService())
                         .organization(
                             Organization.builder()
                                 .externalId("biobank:1")

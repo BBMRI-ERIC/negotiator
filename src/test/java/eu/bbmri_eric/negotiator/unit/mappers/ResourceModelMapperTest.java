@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
@@ -34,7 +34,7 @@ public class ResourceModelMapperTest {
         Resource.builder()
             .sourceId("test:collection")
             .name("My collection")
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(Organization.builder().externalId("bb:1").name("BB").build())
             .build();
     ResourceDTO resourceDTO = mapper.map(resource, ResourceDTO.class);

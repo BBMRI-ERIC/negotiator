@@ -1,6 +1,6 @@
-package eu.bbmri_eric.negotiator.dto.datasource;
+package eu.bbmri_eric.negotiator.dto.discoveryservice;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSourceCreateDTO {
+public class DiscoveryServiceCreateDTO {
 
   @NotNull(groups = ValidationGroups.Create.class)
   private String description;
@@ -38,7 +38,7 @@ public class DataSourceCreateDTO {
 
   @Enumerated(EnumType.STRING)
   @NotNull(groups = ValidationGroups.Create.class)
-  private DataSource.ApiType apiType;
+  private DiscoveryService.ApiType apiType;
 
   @NotNull(groups = ValidationGroups.Create.class)
   private String resourceNetwork;

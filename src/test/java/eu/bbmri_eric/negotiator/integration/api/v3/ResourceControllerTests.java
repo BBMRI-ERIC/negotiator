@@ -6,10 +6,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,7 @@ public class ResourceControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired private ResourceRepository repository;
   @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private DataSourceRepository dataSourceRepository;
+  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
   private MockMvc mockMvc;
 
   @BeforeEach
@@ -56,20 +56,11 @@ public class ResourceControllerTests {
 
   @Test
   void getAll_10kResourcesInDb_ok() throws Exception {
-    DataSource dataSource =
-        dataSourceRepository.save(
-            DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.save(
+            DiscoveryService.builder()
                 .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
                 .name("")
-                .syncActive(true)
                 .build());
     for (int i = 1000; i < 11000; i++) {
       Organization organization =
@@ -78,7 +69,7 @@ public class ResourceControllerTests {
       repository.save(
           Resource.builder()
               .organization(organization)
-              .dataSource(dataSource)
+              .discoveryService(discoveryService)
               .sourceId("collection:%s".formatted(i))
               .name("test")
               .build());

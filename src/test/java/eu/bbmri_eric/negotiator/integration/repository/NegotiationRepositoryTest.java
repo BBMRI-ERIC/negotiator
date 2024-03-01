@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.integration.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
@@ -10,7 +11,7 @@ import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.Role;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
@@ -45,13 +46,14 @@ public class NegotiationRepositoryTest {
 
   @Autowired RequestRepository requestRepository;
 
-  @Autowired DataSourceRepository dataSourceRepository;
+  @Autowired
+  DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired RoleRepository roleRepository;
   private Organization organization;
-  private eu.bbmri_eric.negotiator.database.model.DataSource dataSource;
+  private DiscoveryService discoveryService;
   private Person person;
   private Resource resource;
 
@@ -100,27 +102,18 @@ public class NegotiationRepositoryTest {
     this.organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
-    this.dataSource =
-        dataSourceRepository.save(
-            eu.bbmri_eric.negotiator.database.model.DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(eu.bbmri_eric.negotiator.database.model.DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
+    this.discoveryService =
+        discoveryServiceRepository.save(
+            DiscoveryService.builder()
                 .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
                 .name("")
-                .syncActive(true)
                 .build());
     this.person = savePerson("test");
     this.resource =
         resourceRepository.save(
             Resource.builder()
                 .organization(organization)
-                .dataSource(dataSource)
+                .discoveryService(discoveryService)
                 .sourceId("collection:1")
                 .name("test")
                 .representatives(new HashSet<>(List.of(person)))
@@ -165,7 +158,7 @@ public class NegotiationRepositoryTest {
           resourceRepository.save(
               Resource.builder()
                   .organization(organization1)
-                  .dataSource(dataSource)
+                  .discoveryService(discoveryService)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")
                   .representatives(new HashSet<>())
@@ -184,7 +177,7 @@ public class NegotiationRepositoryTest {
         Request.builder()
             .url("http://test")
             .resources(new HashSet<>(resourceRepository.findAll()))
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .humanReadable("everything")
             .build();
     request = requestRepository.save(request);
@@ -352,7 +345,7 @@ public class NegotiationRepositoryTest {
         Request.builder()
             .url("http://test")
             .resources(resources)
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .humanReadable("everything")
             .build();
     request = requestRepository.save(request);
@@ -383,7 +376,7 @@ public class NegotiationRepositoryTest {
         Request.builder()
             .url("http://test")
             .resources(resources)
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .humanReadable("everything")
             .build();
     request = requestRepository.save(request);

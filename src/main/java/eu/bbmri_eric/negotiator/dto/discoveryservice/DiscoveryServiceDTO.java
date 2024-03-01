@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.dto.datasource;
+package eu.bbmri_eric.negotiator.dto.discoveryservice;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class DataSourceDTO {
+public class DiscoveryServiceDTO {
 
   private Long id;
 

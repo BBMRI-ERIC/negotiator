@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
@@ -37,7 +37,8 @@ public class RequestServiceTest {
 
   @Mock ResourceRepository resourceRepository;
 
-  @Mock DataSourceRepository dataSourceRepository;
+  @Mock
+  DiscoveryServiceRepository discoveryServiceRepository;
 
   @Spy ModelMapper modelMapper = new ModelMapper();
 
@@ -90,8 +91,8 @@ public class RequestServiceTest {
     Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
     when(resourceRepository.findBySourceId(resourceDTO.getId()))
         .thenReturn(Optional.of(resourceToBeSaved));
-    when(dataSourceRepository.findByUrl(requestCreateDTO.getUrl()))
-        .thenReturn(Optional.of(new DataSource()));
+    when(discoveryServiceRepository.findByUrl(requestCreateDTO.getUrl()))
+        .thenReturn(Optional.of(new DiscoveryService()));
     when(requestRepository.save(argThat(request -> request.getId() == null)))
         .thenReturn(requestToBeSaved);
     RequestDTO savedRequest = requestService.create(requestCreateDTO);
@@ -110,8 +111,8 @@ public class RequestServiceTest {
     when(resourceRepository.findBySourceId(
             updatedRequestCreateDTO.getResources().iterator().next().getId()))
         .thenReturn(Optional.of(new Resource()));
-    when(dataSourceRepository.findByUrl(updatedRequestCreateDTO.getUrl()))
-        .thenReturn(Optional.of(new DataSource()));
+    when(discoveryServiceRepository.findByUrl(updatedRequestCreateDTO.getUrl()))
+        .thenReturn(Optional.of(new DiscoveryService()));
     savedRequest.setHumanReadable(updatedRequestCreateDTO.getHumanReadable());
     when(requestRepository.save(
             argThat(request -> Objects.equals(request.getId(), savedRequest.getId()))))
