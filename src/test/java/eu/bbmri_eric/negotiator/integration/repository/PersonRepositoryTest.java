@@ -35,8 +35,7 @@ public class PersonRepositoryTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
 
@@ -47,11 +46,7 @@ public class PersonRepositoryTest {
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
     DiscoveryService discoveryService =
-        discoveryServiceRepository.save(
-            DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     Person person = savePerson("test");
     Resource resource =
         resourceRepository.saveAndFlush(

@@ -2,8 +2,6 @@ package eu.bbmri_eric.negotiator.database.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,15 +45,12 @@ public class DiscoveryService extends AuditEntity {
       return false;
     }
     DiscoveryService that = (DiscoveryService) o;
-    return Objects.equals(getName(), that.getName())
-        && Objects.equals(getUrl(), that.getUrl());
+    return Objects.equals(getName(), that.getName()) && Objects.equals(getUrl(), that.getUrl());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        getName(),
-        getUrl());
+    return Objects.hash(getName(), getUrl());
   }
 
   public enum ApiType {

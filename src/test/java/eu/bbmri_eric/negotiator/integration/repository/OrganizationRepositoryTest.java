@@ -28,8 +28,7 @@ public class OrganizationRepositoryTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Test
   void save_null_InvalidDataAccessApiUsageException() {
@@ -49,11 +48,7 @@ public class OrganizationRepositoryTest {
   @Test
   void getDetailedResources_ok() {
     DiscoveryService savedDiscoveryService =
-        discoveryServiceRepository.save(
-            DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     Organization savedOrganization =
         organizationRepository.save(Organization.builder().externalId("ExternalId").build());

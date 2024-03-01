@@ -25,8 +25,7 @@ public class ResourceRepositoryTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
 
@@ -41,11 +40,7 @@ public class ResourceRepositoryTest {
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
     DiscoveryService discoveryService =
-        discoveryServiceRepository.save(
-            DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     resourceRepository.save(
         Resource.builder()

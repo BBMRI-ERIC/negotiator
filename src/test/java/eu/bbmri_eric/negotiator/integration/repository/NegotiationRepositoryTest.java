@@ -46,8 +46,7 @@ public class NegotiationRepositoryTest {
 
   @Autowired RequestRepository requestRepository;
 
-  @Autowired
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
@@ -103,11 +102,7 @@ public class NegotiationRepositoryTest {
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
     this.discoveryService =
-        discoveryServiceRepository.save(
-            DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     this.person = savePerson("test");
     this.resource =
         resourceRepository.save(

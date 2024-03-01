@@ -74,8 +74,7 @@ public class NegotiationControllerTests {
 
   @Autowired RequestRepository requestRepository;
 
-  @Autowired
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
   @Autowired RoleRepository roleRepository;
@@ -1050,11 +1049,7 @@ public class NegotiationControllerTests {
   void getNegotiation_2000resources_ok() throws Exception {
     Set<Resource> resources = new HashSet<>();
     DiscoveryService discoveryService =
-        discoveryServiceRepository.save(
-            DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     for (int i = 0; i < 2000; i++) {
       Organization organization1 =
           organizationRepository.save(

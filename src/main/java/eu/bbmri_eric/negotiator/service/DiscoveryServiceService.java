@@ -11,8 +11,8 @@ public interface DiscoveryServiceService {
   /**
    * Creates a new DiscoveryService in the Negotiator and returns the newly created record
    *
-   * @param discoveryServiceCreateDTO a DiscoveryServiceCreateDTO with the data of the DiscoveryService to
-   *     create
+   * @param discoveryServiceCreateDTO a DiscoveryServiceCreateDTO with the data of the
+   *     DiscoveryService to create
    * @return a DiscoveryServiceDTO with the data of the newly created DiscoveryService
    * @throws eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException if some error occurs
    *     when creating the DiscoveryService
@@ -24,8 +24,8 @@ public interface DiscoveryServiceService {
    * Update the DiscoveryService with id
    *
    * @param id the id of the DiscoveryService to update
-   * @param discoveryServiceCreateDTO a DiscoveryServiceCreateDTO with the new data of the DiscoveryService to
-   *     updated
+   * @param discoveryServiceCreateDTO a DiscoveryServiceCreateDTO with the new data of the
+   *     DiscoveryService to updated
    * @return the DiscoveryServiceDTO with the updated data of the DiscoveryService
    */
   DiscoveryServiceDTO update(Long id, DiscoveryServiceCreateDTO discoveryServiceCreateDTO)

@@ -20,13 +20,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 public class DiscoveryServiceServiceTest {
 
-  @Mock
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Mock DiscoveryServiceRepository discoveryServiceRepository;
 
   @Mock ModelMapper modelMapper;
 
-  @InjectMocks
-  DiscoveryServiceServiceImpl service;
+  @InjectMocks DiscoveryServiceServiceImpl service;
 
   private AutoCloseable closeable;
 

@@ -150,7 +150,9 @@ public class RequestServiceImpl implements RequestService {
       throw new WrongRequestException("URL not valid");
     }
     return discoveryServiceRepository
-        .findByUrl(String.format("%s://%s", discoveryServiceURL.getProtocol(), discoveryServiceURL.getHost()))
+        .findByUrl(
+            String.format(
+                "%s://%s", discoveryServiceURL.getProtocol(), discoveryServiceURL.getHost()))
         .orElseThrow(() -> new WrongRequestException("Data source not found"));
   }
 

@@ -37,8 +37,7 @@ public class RequestServiceTest {
 
   @Mock ResourceRepository resourceRepository;
 
-  @Mock
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Mock DiscoveryServiceRepository discoveryServiceRepository;
 
   @Spy ModelMapper modelMapper = new ModelMapper();
 

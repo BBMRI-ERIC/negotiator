@@ -22,13 +22,16 @@ public class DiscoveryServiceServiceImpl implements DiscoveryServiceService {
   private final ModelMapper modelMapper;
 
   @Autowired
-  public DiscoveryServiceServiceImpl(DiscoveryServiceRepository discoveryServiceRepository, ModelMapper modelMapper) {
+  public DiscoveryServiceServiceImpl(
+      DiscoveryServiceRepository discoveryServiceRepository, ModelMapper modelMapper) {
     this.discoveryServiceRepository = discoveryServiceRepository;
     this.modelMapper = modelMapper;
   }
 
   private DiscoveryService findEntityById(Long id) {
-    return discoveryServiceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return discoveryServiceRepository
+        .findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(id));
   }
 
   @Transactional

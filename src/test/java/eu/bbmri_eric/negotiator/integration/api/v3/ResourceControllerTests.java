@@ -57,11 +57,7 @@ public class ResourceControllerTests {
   @Test
   void getAll_10kResourcesInDb_ok() throws Exception {
     DiscoveryService discoveryService =
-        discoveryServiceRepository.save(
-            DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     for (int i = 1000; i < 11000; i++) {
       Organization organization =
           organizationRepository.save(
