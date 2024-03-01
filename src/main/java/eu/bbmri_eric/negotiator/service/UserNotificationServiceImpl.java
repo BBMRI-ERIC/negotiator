@@ -34,7 +34,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired TemplateEngine templateEngine;
 
   @Value("${negotiator.frontend-url}")
-  private String frontendurl;
+  private String frontendUrl;
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
@@ -264,7 +264,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     Map<String, String> titleForNegotiation = populateTitleForNegotiationMap(notifications);
 
     context.setVariable("negotiations", negotiations);
-    context.setVariable("frontendurl", frontendurl);
+    context.setVariable("frontendurl", frontendUrl);
     context.setVariable("roleForNegotiation", roleForNegotiation);
     context.setVariable("titleForNegotiation", titleForNegotiation);
 
