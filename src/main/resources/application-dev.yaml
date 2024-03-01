@@ -58,7 +58,7 @@ negotiator:
     subject-claim: "sub"
     resource-claim-prefix: "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:"
 notification:
-  cron-schedule-expression: "0 */5 * ? * *"
+  cron-schedule-expression: "0 * * * * *"
 logging:
   level:
     org.springframeworf.web: debug

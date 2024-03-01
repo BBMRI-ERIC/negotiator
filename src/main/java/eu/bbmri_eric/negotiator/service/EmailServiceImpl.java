@@ -5,7 +5,6 @@ import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.repository.NotificationEmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -51,11 +50,9 @@ public class EmailServiceImpl implements EmailService {
       helper.setText(mailBody, true);
       helper.setTo(recipientAddress);
       helper.setSubject(subject);
-      helper.setFrom("noreply@bbmri-eric.eu", "BBMRI-ERIC Negotiator");
+      helper.setFrom("BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>");
     } catch (MessagingException e) {
       throw new NullPointerException(e.toString());
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
     }
     return mimeMessage;
   }
@@ -96,6 +93,6 @@ public class EmailServiceImpl implements EmailService {
     }
     notificationEmail.setWasSuccessfullySent(true);
     notificationEmailRepository.save(notificationEmail);
-    log.info("Email message sent.");
+    log.debug("Email message sent.");
   }
 }
