@@ -6,10 +6,10 @@ spring:
     password: "pass"
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:postgres:///negotiator_db
+    url: jdbc:tc:postgres:///negotiator
     username: negotiator
     password: negotiator
-    database: negotiator_db
+    database: negotiator
   servlet:
     multipart:
       max-file-size: 2MB
