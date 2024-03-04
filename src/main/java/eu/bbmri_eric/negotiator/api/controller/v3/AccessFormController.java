@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +27,7 @@ public class AccessFormController {
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  AccessCriteriaSetDTO search(@RequestParam String resourceId) {
+  AccessFormDTO search(@RequestParam String resourceId) {
     return accessCriteriaSetService.findByResourceId(resourceId);
   }
 
@@ -38,7 +38,7 @@ public class AccessFormController {
       description =
           "Returns an access form with sections and"
               + " elements that are relevant for the given resources being requested.")
-  AccessCriteriaSetDTO combine(@PathVariable String id) {
+  AccessFormDTO combine(@PathVariable String id) {
     return accessFormService.getAccessFormForRequest(id);
   }
 }

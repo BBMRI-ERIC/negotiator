@@ -7,7 +7,7 @@ import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -29,14 +29,13 @@ public class AccessFormServiceImpl implements AccessFormService {
 
   @Override
   @Transactional
-  public AccessCriteriaSetDTO getAccessFormForRequest(String requestId)
-      throws EntityNotFoundException {
+  public AccessFormDTO getAccessFormForRequest(String requestId) throws EntityNotFoundException {
     verifyArguments(requestId);
     Request request = findRequest(requestId);
     AccessForm accessForm = request.getResources().iterator().next().getAccessForm();
     AccessForm finalAccessForm = accessForm;
     if (allResourcesHaveTheSameForm(request, finalAccessForm)) {
-      return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);
+      return modelMapper.map(accessForm, AccessFormDTO.class);
     }
     accessForm = new AccessForm("Combined access form");
     int counter = 0;
@@ -63,7 +62,7 @@ public class AccessFormServiceImpl implements AccessFormService {
         }
       }
     }
-    return modelMapper.map(accessForm, AccessCriteriaSetDTO.class);
+    return modelMapper.map(accessForm, AccessFormDTO.class);
   }
 
   private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {
@@ -82,9 +81,9 @@ public class AccessFormServiceImpl implements AccessFormService {
         .noneMatch(section -> section.getName().equals(accessFormSection.getName()));
   }
 
-  private AccessCriteriaSetDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
+  private AccessFormDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
     AccessForm combinedAccessForm = combineAccessForms(request, accessForm);
-    return modelMapper.map(combinedAccessForm, AccessCriteriaSetDTO.class);
+    return modelMapper.map(combinedAccessForm, AccessFormDTO.class);
   }
 
   private static AccessForm combineAccessForms(Request request, AccessForm accessForm) {

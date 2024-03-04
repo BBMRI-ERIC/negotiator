@@ -40,8 +40,8 @@ public class AccessFormElementMapperTest {
   //    sections.add(accessCriteriaSection);
   //    AccessForm accessForm =
   //        new AccessForm(1L, "test", Set.of(new Resource()), sections);
-  //    AccessCriteriaSetDTO accessCriteriaSetDTO =
-  //        mapper.map(accessForm, AccessCriteriaSetDTO.class);
+  //    AccessFormDTO accessCriteriaSetDTO =
+  //        mapper.map(accessForm, AccessFormDTO.class);
   //    assertEquals(accessForm.getName(), accessCriteriaSetDTO.getName());
   //    assertEquals(
   //        accessCriteriaSection.getName(),

@@ -19,8 +19,8 @@ import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSectionDTO;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormSectionDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
@@ -70,11 +70,10 @@ public class AccessFormServiceTest {
     RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
     RequestDTO requestDTO = requestService.create(requestCreateDTO);
     assertEquals(1, requestDTO.getResources().size());
-    AccessCriteriaSetDTO resourceForm =
+    AccessFormDTO resourceForm =
         accessCriteriaSetService.findByResourceId(
             requestDTO.getResources().iterator().next().getId());
-    AccessCriteriaSetDTO requestForm =
-        accessFormService.getAccessFormForRequest(requestDTO.getId());
+    AccessFormDTO requestForm = accessFormService.getAccessFormForRequest(requestDTO.getId());
     assertEquals(3, accessFormRepository.findAll().get(0).getLinkedSections().size());
     assertEquals(resourceForm.getSections().size(), requestForm.getSections().size());
     assertEquals(resourceForm, requestForm);
@@ -194,13 +193,12 @@ public class AccessFormServiceTest {
     request.getResources().add(resource);
     request = requestRepository.save(request);
     assertEquals(2, accessFormRepository.findAll().size());
-    AccessCriteriaSetDTO accessCriteriaSetDTO =
-        accessFormService.getAccessFormForRequest(request.getId());
-    Optional<AccessCriteriaSectionDTO> section =
-        accessCriteriaSetDTO.getSections().stream()
+    AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
+    Optional<AccessFormSectionDTO> section =
+        accessFormDTO.getSections().stream()
             .filter(
-                accessCriteriaSectionDTO ->
-                    accessCriteriaSectionDTO.getName().equals(sameSection.getName()))
+                accessFormSectionDTO ->
+                    accessFormSectionDTO.getName().equals(sameSection.getName()))
             .findFirst();
     assertTrue(section.isPresent());
     assertEquals(
@@ -265,13 +263,12 @@ public class AccessFormServiceTest {
     request.getResources().add(resource);
     request = requestRepository.save(request);
     assertEquals(2, accessFormRepository.findAll().size());
-    AccessCriteriaSetDTO accessCriteriaSetDTO =
-        accessFormService.getAccessFormForRequest(request.getId());
-    Optional<AccessCriteriaSectionDTO> section =
-        accessCriteriaSetDTO.getSections().stream()
+    AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
+    Optional<AccessFormSectionDTO> section =
+        accessFormDTO.getSections().stream()
             .filter(
-                accessCriteriaSectionDTO ->
-                    accessCriteriaSectionDTO.getName().equals(sameSection.getName()))
+                accessFormSectionDTO ->
+                    accessFormSectionDTO.getName().equals(sameSection.getName()))
             .findFirst();
     assertTrue(section.isPresent());
     assertEquals(

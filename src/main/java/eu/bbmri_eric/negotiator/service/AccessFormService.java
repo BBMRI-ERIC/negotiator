@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 
 public interface AccessFormService {
   /**
@@ -9,5 +9,5 @@ public interface AccessFormService {
    * @param requestId The request id.
    * @return The access form.
    */
-  AccessCriteriaSetDTO getAccessFormForRequest(String requestId);
+  AccessFormDTO getAccessFormForRequest(String requestId);
 }

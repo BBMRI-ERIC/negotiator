@@ -1,7 +1,8 @@
-package eu.bbmri_eric.negotiator.dto.access_criteria;
+package eu.bbmri_eric.negotiator.dto.access_form;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class AccessCriteriaDTO {
+public class AccessFormSectionDTO {
 
   @NotNull private String name;
 
@@ -21,24 +22,21 @@ public class AccessCriteriaDTO {
 
   @NotNull private String description;
 
-  @NotNull private String type;
-
-  @NotNull private Boolean required;
+  @NotNull private List<AccessFormElementDTO> accessCriteria;
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    AccessCriteriaDTO that = (AccessCriteriaDTO) o;
+    AccessFormSectionDTO that = (AccessFormSectionDTO) o;
     return Objects.equals(name, that.name)
         && Objects.equals(label, that.label)
         && Objects.equals(description, that.description)
-        && Objects.equals(type, that.type)
-        && Objects.equals(required, that.required);
+        && Objects.equals(accessCriteria, that.accessCriteria);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, label, description, type, required);
+    return Objects.hash(name, label, description, accessCriteria);
   }
 }

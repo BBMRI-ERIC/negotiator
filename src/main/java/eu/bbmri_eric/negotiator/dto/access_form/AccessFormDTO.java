@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.dto.access_criteria;
+package eu.bbmri_eric.negotiator.dto.access_form;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
@@ -16,17 +16,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class AccessCriteriaSetDTO {
+public class AccessFormDTO {
 
   String name;
 
-  List<AccessCriteriaSectionDTO> sections = new ArrayList<>();
+  List<AccessFormSectionDTO> sections = new ArrayList<>();
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    AccessCriteriaSetDTO that = (AccessCriteriaSetDTO) o;
+    AccessFormDTO that = (AccessFormDTO) o;
     return Objects.equals(sections, that.sections);
   }
 

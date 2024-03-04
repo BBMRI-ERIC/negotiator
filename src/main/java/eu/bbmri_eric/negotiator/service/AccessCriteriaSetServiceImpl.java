@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,11 +22,11 @@ public class AccessCriteriaSetServiceImpl implements AccessCriteriaSetService {
   }
 
   @Transactional
-  public AccessCriteriaSetDTO findByResourceId(String resourceEntityId) {
+  public AccessFormDTO findByResourceId(String resourceEntityId) {
     AccessForm acs =
         accessFormRepository
             .findByResourceId(resourceEntityId)
             .orElseThrow(() -> new EntityNotFoundException(resourceEntityId));
-    return modelMapper.map(acs, AccessCriteriaSetDTO.class);
+    return modelMapper.map(acs, AccessFormDTO.class);
   }
 }

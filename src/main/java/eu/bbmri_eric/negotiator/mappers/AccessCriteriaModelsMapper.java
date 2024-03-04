@@ -2,9 +2,9 @@ package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaDTO;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSectionDTO;
-import eu.bbmri_eric.negotiator.dto.access_criteria.AccessCriteriaSetDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormElementDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormSectionDTO;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Set;
@@ -24,35 +24,35 @@ public class AccessCriteriaModelsMapper {
 
   @PostConstruct
   public void addMappings() {
-    TypeMap<AccessForm, AccessCriteriaSetDTO> typeMap =
-        modelMapper.createTypeMap(AccessForm.class, AccessCriteriaSetDTO.class);
+    TypeMap<AccessForm, AccessFormDTO> typeMap =
+        modelMapper.createTypeMap(AccessForm.class, AccessFormDTO.class);
 
-    Converter<Set<AccessFormSection>, List<AccessCriteriaSectionDTO>> accessCriteriaConverter =
+    Converter<Set<AccessFormSection>, List<AccessFormSectionDTO>> accessCriteriaConverter =
         ffc -> formFieldConverter(ffc.getSource());
 
     typeMap.addMappings(
         mapper ->
             mapper
                 .using(accessCriteriaConverter)
-                .map(AccessForm::getLinkedSections, AccessCriteriaSetDTO::setSections));
+                .map(AccessForm::getLinkedSections, AccessFormDTO::setSections));
   }
 
-  private List<AccessCriteriaSectionDTO> formFieldConverter(Set<AccessFormSection> sections) {
+  private List<AccessFormSectionDTO> formFieldConverter(Set<AccessFormSection> sections) {
     return sections.stream()
         .map(
             section -> {
-              List<AccessCriteriaDTO> accessCriteria =
+              List<AccessFormElementDTO> accessCriteria =
                   section.getAccessFormElements().stream()
                       .map(
                           criteria ->
-                              new AccessCriteriaDTO(
+                              new AccessFormElementDTO(
                                   criteria.getName(),
                                   criteria.getLabel(),
                                   criteria.getDescription(),
                                   criteria.getType(),
                                   criteria.isRequired()))
                       .toList();
-              return new AccessCriteriaSectionDTO(
+              return new AccessFormSectionDTO(
                   section.getName(), section.getLabel(), section.getDescription(), accessCriteria);
             })
         .collect(Collectors.toList());
