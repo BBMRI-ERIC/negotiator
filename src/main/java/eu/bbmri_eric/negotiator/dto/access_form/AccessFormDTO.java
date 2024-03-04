@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.dto.access_form;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,13 +8,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(collectionRelation = "access-forms", itemRelation = "access-form")
 public class AccessFormDTO {
 
   String name;

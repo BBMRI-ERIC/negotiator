@@ -8,12 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(collectionRelation = "sections", itemRelation = "section")
 public class AccessFormSectionDTO {
 
   @NotNull private String name;
@@ -22,7 +24,7 @@ public class AccessFormSectionDTO {
 
   @NotNull private String description;
 
-  @NotNull private List<AccessFormElementDTO> accessCriteria;
+  @NotNull private List<AccessFormElementDTO> elements;
 
   @Override
   public boolean equals(Object o) {
@@ -32,11 +34,11 @@ public class AccessFormSectionDTO {
     return Objects.equals(name, that.name)
         && Objects.equals(label, that.label)
         && Objects.equals(description, that.description)
-        && Objects.equals(accessCriteria, that.accessCriteria);
+        && Objects.equals(elements, that.elements);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, label, description, accessCriteria);
+    return Objects.hash(name, label, description, elements);
   }
 }

@@ -1,11 +1,13 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,6 +26,7 @@ public class AccessFormController {
 
   @Autowired private AccessCriteriaSetService accessCriteriaSetService;
   @Autowired private AccessFormService accessFormService;
+  @Autowired private AccessFormModelAssembler accessFormModelAssembler;
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
@@ -38,7 +41,7 @@ public class AccessFormController {
       description =
           "Returns an access form with sections and"
               + " elements that are relevant for the given resources being requested.")
-  AccessFormDTO combine(@PathVariable String id) {
-    return accessFormService.getAccessFormForRequest(id);
+  public EntityModel<AccessFormDTO> combine(@PathVariable String id) {
+    return accessFormModelAssembler.toModel(accessFormService.getAccessFormForRequest(id));
   }
 }

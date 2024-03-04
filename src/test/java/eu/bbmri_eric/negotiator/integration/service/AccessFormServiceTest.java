@@ -201,10 +201,9 @@ public class AccessFormServiceTest {
                     accessFormSectionDTO.getName().equals(sameSection.getName()))
             .findFirst();
     assertTrue(section.isPresent());
-    assertEquals(
-        sameSection.getAccessFormElements().size(), section.get().getAccessCriteria().size());
+    assertEquals(sameSection.getAccessFormElements().size(), section.get().getElements().size());
     assertTrue(
-        section.get().getAccessCriteria().stream()
+        section.get().getElements().stream()
             .anyMatch(
                 accessCriteriaElementDTO ->
                     accessCriteriaElementDTO.getName().equals("different_element")));
@@ -271,16 +270,15 @@ public class AccessFormServiceTest {
                     accessFormSectionDTO.getName().equals(sameSection.getName()))
             .findFirst();
     assertTrue(section.isPresent());
-    assertEquals(
-        sameSection.getAccessFormElements().size(), section.get().getAccessCriteria().size());
+    assertEquals(sameSection.getAccessFormElements().size(), section.get().getElements().size());
     assertTrue(
-        section.get().getAccessCriteria().stream()
+        section.get().getElements().stream()
             .anyMatch(
                 accessCriteriaElementDTO ->
                     accessCriteriaElementDTO.getName().equals("different_element")));
-    assertTrue(section.get().getAccessCriteria().size() > 1);
+    assertTrue(section.get().getElements().size() > 1);
     assertTrue(
-        section.get().getAccessCriteria().stream()
+        section.get().getElements().stream()
             .anyMatch(
                 accessCriteriaElementDTO -> accessCriteriaElementDTO.getName().equals("title")));
   }
