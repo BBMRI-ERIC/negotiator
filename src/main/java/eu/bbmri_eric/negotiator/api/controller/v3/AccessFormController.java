@@ -33,9 +33,11 @@ public class AccessFormController {
 
   @GetMapping(value = "/requests/{id}/access-form", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Get an access form for a request",
-          description = "Returns an access form with sections and" +
-                  " elements that are relevant for the given resources being requested.")
+  @Operation(
+      summary = "Get an access form for a request",
+      description =
+          "Returns an access form with sections and"
+              + " elements that are relevant for the given resources being requested.")
   AccessCriteriaSetDTO combine(@PathVariable String id) {
     return accessFormService.getAccessFormForRequest(id);
   }
