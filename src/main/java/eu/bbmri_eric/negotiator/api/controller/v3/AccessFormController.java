@@ -30,8 +30,8 @@ public class AccessFormController {
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  AccessFormDTO search(@RequestParam String resourceId) {
-    return accessCriteriaSetService.findByResourceId(resourceId);
+  EntityModel<AccessFormDTO> search(@RequestParam String resourceId) {
+    return accessFormModelAssembler.toModel(accessCriteriaSetService.findByResourceId(resourceId));
   }
 
   @GetMapping(value = "/requests/{id}/access-form", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,5 +43,11 @@ public class AccessFormController {
               + " elements that are relevant for the given resources being requested.")
   public EntityModel<AccessFormDTO> combine(@PathVariable String id) {
     return accessFormModelAssembler.toModel(accessFormService.getAccessFormForRequest(id));
+  }
+
+  @GetMapping(value = "/access-forms/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public EntityModel<AccessFormDTO> findById(@PathVariable Long id) {
+    return accessFormModelAssembler.toModel(accessFormService.getAccessForm(id));
   }
 }

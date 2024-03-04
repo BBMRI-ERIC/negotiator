@@ -18,12 +18,15 @@ import org.springframework.stereotype.Service;
 @CommonsLog
 public class AccessFormServiceImpl implements AccessFormService {
   RequestRepository requestRepository;
-
   AccessFormRepository accessFormRepository;
   ModelMapper modelMapper;
 
-  public AccessFormServiceImpl(RequestRepository requestRepository, ModelMapper modelMapper) {
+  public AccessFormServiceImpl(
+      RequestRepository requestRepository,
+      AccessFormRepository accessFormRepository,
+      ModelMapper modelMapper) {
     this.requestRepository = requestRepository;
+    this.accessFormRepository = accessFormRepository;
     this.modelMapper = modelMapper;
   }
 
@@ -63,6 +66,14 @@ public class AccessFormServiceImpl implements AccessFormService {
       }
     }
     return modelMapper.map(accessForm, AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public AccessFormDTO getAccessForm(Long id) {
+    return modelMapper.map(
+        accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
+        AccessFormDTO.class);
   }
 
   private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {

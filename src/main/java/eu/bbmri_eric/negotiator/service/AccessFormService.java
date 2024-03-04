@@ -10,4 +10,12 @@ public interface AccessFormService {
    * @return The access form.
    */
   AccessFormDTO getAccessFormForRequest(String requestId);
+
+  /**
+   * Get an access form by id.
+   *
+   * @param id The access form id.
+   * @return The access form.
+   */
+  AccessFormDTO getAccessForm(Long id);
 }

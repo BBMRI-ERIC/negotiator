@@ -17,7 +17,6 @@ import org.springframework.hateoas.server.core.Relation;
 @Builder
 @Relation(collectionRelation = "access-forms", itemRelation = "access-form")
 public class AccessFormDTO {
-
   String name;
 
   List<AccessFormSectionDTO> sections = new ArrayList<>();

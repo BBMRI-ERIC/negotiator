@@ -23,6 +23,7 @@ import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormSectionDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
@@ -281,6 +282,17 @@ public class AccessFormServiceTest {
         section.get().getElements().stream()
             .anyMatch(
                 accessCriteriaElementDTO -> accessCriteriaElementDTO.getName().equals("title")));
+  }
+
+  @Test
+  void getAccessForm_byIdPresent_ok() {
+    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(1L);
+    assertEquals(3, accessFormDTO.getSections().size());
+  }
+
+  @Test
+  void getAccessForm_byIdNotPresent_throwsNotFound() {
+    assertThrows(EntityNotFoundException.class, () -> accessFormService.getAccessForm(100L));
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
