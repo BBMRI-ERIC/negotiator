@@ -212,7 +212,6 @@ public class DataSourceControllerTests {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").isNumber())
             .andExpect(jsonPath("$.name", Is.is(TestUtils.DISCOVERY_SERVICE_NAME)))
-            .andExpect(jsonPath("$.description", Is.is(TestUtils.DISCOVERY_SERVICE_DESCRIPTION)))
             .andExpect(jsonPath("$.url", Is.is(TestUtils.DISCOVERY_SERVICE_URL)))
             .andReturn();
     Integer discoveryServiceId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");

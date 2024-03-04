@@ -5,11 +5,8 @@ values (1, 'CREATOR'),
        (4, 'ROLE_RESEARCHER'),
        (5, 'REPRESENTATIVE');
 
-insert into discovery_service (url, api_username, api_password, api_type, api_url, description, name,
-                         resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
-values ('http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasource.dev',
-        'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
-        'directory_networks', 'source_prefix', 'false');
+insert into discovery_service (url, name)
+values ('http://datasource.dev','Biobank Directory');
 
 insert into person (id, email, name, subject_id, password, organization, admin)
 values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey',
