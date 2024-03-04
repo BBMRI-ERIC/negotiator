@@ -190,7 +190,7 @@ public class RequestControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.url", is("http://discoveryservice.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/requests/")))
         .andExpect(jsonPath("$.negotiationId").doesNotExist())
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1:collection:1")));
@@ -228,7 +228,7 @@ public class RequestControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath("$[0].id").isString())
-        .andExpect(jsonPath("$[0].url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$[0].url", is("http://discoveryservice.dev")))
         .andExpect(jsonPath("$[0].redirectUrl", containsString("http://localhost/request")))
         .andExpect(jsonPath("$[0].negotiationId", is(NEGOTIATION_1)))
         .andExpect(jsonPath("$[0].resources[0].id", is("biobank:1:collection:1")));
@@ -247,7 +247,7 @@ public class RequestControllerTests {
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.url", is("http://discoveryservice.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
         .andExpect(jsonPath("$.negotiationId").doesNotExist())
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1:collection:1")));
@@ -270,7 +270,7 @@ public class RequestControllerTests {
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.url", is("http://discoveryservice.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
         .andExpect(jsonPath("$.negotiationId", is(n.getId())))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1:collection:1")));
@@ -345,7 +345,7 @@ public class RequestControllerTests {
                 .content(requestBody))
         .andExpect(status().isNoContent())
         .andExpect(jsonPath("$.id").isString())
-        .andExpect(jsonPath("$.url", is("http://datasource.dev")))
+        .andExpect(jsonPath("$.url", is("http://discoveryservice.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:2:collection:1")));
     assertEquals(repository.count(), previousCount);

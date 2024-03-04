@@ -34,8 +34,8 @@ public class TestUtils {
 
   public static final String DISCOVERY_SERVICE_NAME = "Discovery Service";
   public static final String DISCOVERY_SERVICE_DESCRIPTION = "This is a data source";
-  public static final String DISCOVERY_SERVICE_URL = "http://datasource.test";
-  public static final String DISCOVERY_SERVICE_API_URL = "http://datasource.test/api";
+  public static final String DISCOVERY_SERVICE_URL = "http://discoveryservice.test";
+  public static final String DISCOVERY_SERVICE_API_URL = "http://discoveryservice.test/api";
   public static final String DISCOVERY_SERVICE_API_USERNAME = "test";
   public static final String DISCOVERY_SERVICE_API_PASSWORD = "test";
   public static final String DISCOVERY_SERVICE_RESOURCE_NETWORK = "resource_networks";
@@ -44,7 +44,7 @@ public class TestUtils {
   public static final String DISCOVERY_SERVICE_SOURCE_PREFIX = "source_prefix";
   public static final boolean DISCOVERY_SERVICE_SYNC_ACTIVE = false;
 
-  public static final String QUERY_URL = "http://datasource.dev";
+  public static final String QUERY_URL = "http://discoveryservice.dev";
   public static final String QUERY_HUMAN_READABLE = "Request description";
   public static final String QUERY_BIOBANK_1_ID = "biobank:1";
   public static final String QUERY_BIOBANK_1_NAME = "Test Biobank #1";
