@@ -10,8 +10,10 @@ import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -74,6 +76,14 @@ public class AccessFormServiceImpl implements AccessFormService {
     return modelMapper.map(
         accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
         AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public Iterable<AccessFormDTO> getAllAccessForms(@NonNull Pageable pageable) {
+    return accessFormRepository
+        .findAll(pageable)
+        .map(accessForm -> modelMapper.map(accessForm, AccessFormDTO.class));
   }
 
   private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {

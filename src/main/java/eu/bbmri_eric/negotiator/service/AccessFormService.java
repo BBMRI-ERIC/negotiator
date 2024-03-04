@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import org.springframework.data.domain.Pageable;
 
 public interface AccessFormService {
   /**
@@ -18,4 +19,6 @@ public interface AccessFormService {
    * @return The access form.
    */
   AccessFormDTO getAccessForm(Long id);
+
+  Iterable<AccessFormDTO> getAllAccessForms(Pageable pageable);
 }

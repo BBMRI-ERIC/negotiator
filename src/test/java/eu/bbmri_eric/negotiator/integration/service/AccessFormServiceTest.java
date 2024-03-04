@@ -33,6 +33,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -293,6 +294,16 @@ public class AccessFormServiceTest {
   @Test
   void getAccessForm_byIdNotPresent_throwsNotFound() {
     assertThrows(EntityNotFoundException.class, () -> accessFormService.getAccessForm(100L));
+  }
+
+  @Test
+  void getAllAccessForms_null_throwsNullPointer() {
+    assertThrows(NullPointerException.class, () -> accessFormService.getAllAccessForms(null));
+  }
+
+  @Test
+  void getAllAccessForms_okPagedRequest_ok() {
+    assertTrue(accessFormService.getAllAccessForms(PageRequest.of(0, 10)).iterator().hasNext());
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
