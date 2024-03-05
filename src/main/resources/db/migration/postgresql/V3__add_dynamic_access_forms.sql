@@ -115,3 +115,8 @@ ALTER TABLE access_form
 
 ALTER TABLE resource
     ADD CONSTRAINT FK_RESOURCE_ON_ACCESS_FORM FOREIGN KEY (access_form_id) REFERENCES access_form (id);
+ALTER TABLE resource
+    drop column ACCESS_CRITERIA_SET_ID;
+update resource
+set access_form_id = 1
+where RESOURCE.access_form_id is null;
