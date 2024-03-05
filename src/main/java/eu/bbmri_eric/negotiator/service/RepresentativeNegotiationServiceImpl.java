@@ -9,7 +9,6 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
