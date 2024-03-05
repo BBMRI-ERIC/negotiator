@@ -9,6 +9,8 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
+
+import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,7 @@ public class RepresentativeNegotiationServiceImpl implements RepresentativeNegot
         negotiationRepository.findByResourceExternalIdsAndCurrentState(
             pageable,
             person.getResources().stream().map(Resource::getSourceId).collect(Collectors.toList()),
-            NegotiationState.IN_PROGRESS);
+            List.of(NegotiationState.IN_PROGRESS, NegotiationState.ABANDONED));
     return negotiations.map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 }

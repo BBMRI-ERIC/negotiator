@@ -69,9 +69,9 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "JOIN FETCH pp.person p "
               + "JOIN FETCH pp.role role "
               + "WHERE c.sourceId IN :collectionIds"
-              + " AND n.currentState = :currentState")
+              + " AND n.currentState IN :currentStates")
   Page<Negotiation> findByResourceExternalIdsAndCurrentState(
-      Pageable pageable, List<String> collectionIds, NegotiationState currentState);
+      Pageable pageable, List<String> collectionIds, List<NegotiationState> currentStates);
 
   Page<Negotiation> findByCreatedByOrRequests_ResourcesIn(
       Pageable pageable, Person person, Set<Resource> resources);
