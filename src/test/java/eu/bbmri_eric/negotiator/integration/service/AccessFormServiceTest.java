@@ -291,9 +291,9 @@ public class AccessFormServiceTest {
     RequestCreateDTO requestCreateDTO = TestUtils.createRequest(false);
     RequestDTO requestDTO = requestService.create(requestCreateDTO);
     Resource originalResource =
-            resourceRepository
-                    .findBySourceId(requestDTO.getResources().iterator().next().getId())
-                    .get();
+        resourceRepository
+            .findBySourceId(requestDTO.getResources().iterator().next().getId())
+            .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessForm originalAccessForm = originalResource.getAccessForm();
     AccessForm newAccessForm = new AccessForm("different_form");
@@ -302,7 +302,14 @@ public class AccessFormServiceTest {
     newAccessForm.linkSection(sameSection, 1);
     newAccessForm = accessFormRepository.save(newAccessForm);
     assertFalse(newAccessForm.getLinkedSections().isEmpty());
-    AccessFormElement sameElement = originalAccessForm.getLinkedSections().iterator().next().getAccessFormElements().iterator().next();
+    AccessFormElement sameElement =
+        originalAccessForm
+            .getLinkedSections()
+            .iterator()
+            .next()
+            .getAccessFormElements()
+            .iterator()
+            .next();
     newAccessForm.linkElementToSection(sameSection, sameElement, 0, !sameElement.isRequired());
     newAccessForm = accessFormRepository.save(newAccessForm);
     assertFalse(newAccessForm.getLinkedSections().isEmpty());
@@ -313,13 +320,13 @@ public class AccessFormServiceTest {
     request = requestRepository.save(request);
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     assertTrue(
-            accessFormDTO.getSections().stream()
-                    .anyMatch(
-                            accessFormSectionDTO ->
-                                    accessFormSectionDTO.getElements().stream()
-                                            .anyMatch(
-                                                    accessCriteriaElementDTO ->
-                                                            accessCriteriaElementDTO.getName().equals(sameElement.getName()))));
+        accessFormDTO.getSections().stream()
+            .anyMatch(
+                accessFormSectionDTO ->
+                    accessFormSectionDTO.getElements().stream()
+                        .anyMatch(
+                            accessCriteriaElementDTO ->
+                                accessCriteriaElementDTO.getName().equals(sameElement.getName()))));
     assertTrue(
         accessFormDTO.getSections().stream()
             .anyMatch(
