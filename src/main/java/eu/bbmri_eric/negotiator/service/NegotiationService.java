@@ -135,6 +135,13 @@ public interface NegotiationService {
   void enablePosts(String negotiationId);
 
   /**
+   * Sets the enabledPosts attrubute to false for the input Negotiation
+   *
+   * @param negotiationId the ID of the Negotiation
+   */
+  void disablePosts(String negotiationId);
+
+  /**
    * Retrieves all Negotiations with specific current state.
    *
    * @param negotiationState current state of interest.

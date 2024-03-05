@@ -112,4 +112,32 @@ public class NegotiationServiceTest {
         NegotiationState.SUBMITTED.name(),
         negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
   }
+
+  @Test
+  public void updatePostStatus_to_true() {
+    Negotiation negotiation = buildNegotiation();
+    String negotiationId = "biobank:1:collection:1";
+    negotiation.setId(negotiationId);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+
+    negotiation.setPostsEnabled(false);
+
+    negotiationService.enablePosts(negotiationId);
+
+    assertTrue(negotiation.getPostsEnabled());
+  }
+
+  @Test
+  public void updatePostStatus_to_false() {
+    Negotiation negotiation = buildNegotiation();
+    String negotiationId = "biobank:1:collection:1";
+    negotiation.setId(negotiationId);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+
+    negotiation.setPostsEnabled(true);
+
+    negotiationService.disablePosts(negotiationId);
+
+    assertFalse(negotiation.getPostsEnabled());
+  }
 }
