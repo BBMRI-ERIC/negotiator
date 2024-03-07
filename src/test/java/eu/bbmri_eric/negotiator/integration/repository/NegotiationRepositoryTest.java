@@ -18,21 +18,28 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.service.RepresentativeNegotiationServiceImpl;
+import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest(showSql = false)
+// @DataJpaTest(showSql = false)
+@SpringBootTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
+@Transactional
 public class NegotiationRepositoryTest {
   @Autowired PersonRepository personRepository;
 
@@ -45,6 +52,9 @@ public class NegotiationRepositoryTest {
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired RoleRepository roleRepository;
+
+  @Autowired private RepresentativeNegotiationServiceImpl representativeNegotiationService;
+
   private Organization organization;
   private DataSource dataSource;
   private Person person;
@@ -255,6 +265,25 @@ public class NegotiationRepositoryTest {
             .getNumberOfElements());
   }
 
+  @Test
+  public void findNegotiationsConcerningRepresentative_success() throws Exception {
+    Person author = savePerson("author");
+    person.addResource(resource);
+    person = personRepository.save(person);
+
+    saveNegotiation(author, NegotiationState.IN_PROGRESS);
+    saveNegotiation(author, NegotiationState.ABANDONED);
+    saveNegotiation(author, NegotiationState.SUBMITTED);
+
+    Pageable pageable = PageRequest.of(0, 10);
+
+    Page<NegotiationDTO> negotiationDTOs =
+        representativeNegotiationService.findNegotiationsConcerningRepresentative(
+            pageable, this.person.getId());
+
+    assertEquals(2, negotiationDTOs.getContent().size());
+  }
+
   private void saveNegotiation() {
     Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
@@ -286,6 +315,37 @@ public class NegotiationRepositoryTest {
   }
 
   private void saveNegotiation(Person author) {
+    saveNegotiation(author, NegotiationState.SUBMITTED);
+    //    Set<Request> requests = new HashSet<>();
+    //    Set<Resource> resources = new HashSet<>();
+    //    resources.add(resource);
+    //    Request request =
+    //        Request.builder()
+    //            .url("http://test")
+    //            .resources(resources)
+    //            .dataSource(dataSource)
+    //            .humanReadable("everything")
+    //            .build();
+    //    request = requestRepository.save(request);
+    //    requests.add(request);
+    //    Negotiation negotiation =
+    //        Negotiation.builder()
+    //            .currentState(NegotiationState.SUBMITTED)
+    //            .requests(requests)
+    //            .postsEnabled(false)
+    //            .payload(payload)
+    //            .build();
+    //    negotiation.setCreatedBy(author);
+    //    Role role = roleRepository.save(new Role(1L, "test"));
+    //    Set<PersonNegotiationRole> roles = new HashSet<>();
+    //    PersonNegotiationRole personRole = new PersonNegotiationRole(author, negotiation, role);
+    //    roles.add(personRole);
+    //    negotiation.setPersons(roles);
+    //    request.setNegotiation(negotiation);
+    //    negotiationRepository.save(negotiation);
+  }
+
+  private void saveNegotiation(Person author, NegotiationState negotiationState) {
     Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
     resources.add(resource);
@@ -300,7 +360,7 @@ public class NegotiationRepositoryTest {
     requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
-            .currentState(NegotiationState.SUBMITTED)
+            .currentState(negotiationState)
             .requests(requests)
             .postsEnabled(false)
             .payload(payload)
