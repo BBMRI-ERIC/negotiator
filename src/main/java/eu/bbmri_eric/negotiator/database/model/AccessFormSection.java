@@ -16,10 +16,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.ToString;
 import org.springframework.lang.Nullable;
 
@@ -28,8 +26,6 @@ import org.springframework.lang.Nullable;
 @Entity
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @AllArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-@Getter
-@Setter
 @SequenceGenerator(name = "access_form_section_id_seq", initialValue = 100)
 public class AccessFormSection extends AuditEntity {
 
@@ -49,7 +45,7 @@ public class AccessFormSection extends AuditEntity {
 
   @OneToMany(mappedBy = "linkedSection")
   @ToString.Exclude
-  private Set<AccessFormElement> allowedAccessCriteria = new HashSet<>();
+  private Set<AccessFormElement> allowedElements = new HashSet<>();
 
   @Transient private AccessForm accessForm;
 
@@ -109,6 +105,38 @@ public class AccessFormSection extends AuditEntity {
             accessFormSectionLink -> accessFormSectionLink.getAccessForm().equals(this.accessForm))
         .findFirst()
         .orElse(null);
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   @Override

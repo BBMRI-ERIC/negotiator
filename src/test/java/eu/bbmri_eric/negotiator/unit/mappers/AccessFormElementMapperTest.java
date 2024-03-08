@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
-import eu.bbmri_eric.negotiator.mappers.AccessCriteriaModelsMapper;
+import eu.bbmri_eric.negotiator.mappers.AccessFormModelsMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -11,13 +11,12 @@ public class AccessFormElementMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();
 
   @InjectMocks
-  public AccessCriteriaModelsMapper accessCriteriaModelsMapper =
-      new AccessCriteriaModelsMapper(mapper);
+  public AccessFormModelsMapper accessFormModelsMapper = new AccessFormModelsMapper(mapper);
 
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
-    this.accessCriteriaModelsMapper.addMappings();
+    this.accessFormModelsMapper.addMappings();
   }
 
   //  @Test

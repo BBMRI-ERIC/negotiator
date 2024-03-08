@@ -50,6 +50,12 @@ public class AccessForm extends AuditEntity {
     this.name = name;
   }
 
+  /**
+   * Get access form sections that are linked to this particular form. These sections then contain
+   * individual elements.
+   *
+   * @return an unmodifiable set of linked sections.
+   */
   public Set<AccessFormSection> getLinkedSections() {
     Set<AccessFormSection> linkedSections = new LinkedHashSet<>();
     for (AccessFormSectionLink link : formLinks) {

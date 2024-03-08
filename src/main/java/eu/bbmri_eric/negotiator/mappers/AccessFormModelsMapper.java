@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @AllArgsConstructor
-public class AccessCriteriaModelsMapper {
+public class AccessFormModelsMapper {
 
   @Autowired ModelMapper modelMapper;
 
@@ -27,13 +27,13 @@ public class AccessCriteriaModelsMapper {
     TypeMap<AccessForm, AccessFormDTO> typeMap =
         modelMapper.createTypeMap(AccessForm.class, AccessFormDTO.class);
 
-    Converter<Set<AccessFormSection>, List<AccessFormSectionDTO>> accessCriteriaConverter =
+    Converter<Set<AccessFormSection>, List<AccessFormSectionDTO>> accessFormElementsConverter =
         ffc -> formFieldConverter(ffc.getSource());
 
     typeMap.addMappings(
         mapper ->
             mapper
-                .using(accessCriteriaConverter)
+                .using(accessFormElementsConverter)
                 .map(AccessForm::getLinkedSections, AccessFormDTO::setSections));
   }
 
@@ -41,19 +41,22 @@ public class AccessCriteriaModelsMapper {
     return sections.stream()
         .map(
             section -> {
-              List<AccessFormElementDTO> accessCriteria =
+              List<AccessFormElementDTO> accessFormElements =
                   section.getAccessFormElements().stream()
                       .map(
-                          criteria ->
+                          accessFormElement ->
                               new AccessFormElementDTO(
-                                  criteria.getName(),
-                                  criteria.getLabel(),
-                                  criteria.getDescription(),
-                                  criteria.getType(),
-                                  criteria.isRequired()))
+                                  accessFormElement.getName(),
+                                  accessFormElement.getLabel(),
+                                  accessFormElement.getDescription(),
+                                  accessFormElement.getType(),
+                                  accessFormElement.isRequired()))
                       .toList();
               return new AccessFormSectionDTO(
-                  section.getName(), section.getLabel(), section.getDescription(), accessCriteria);
+                  section.getName(),
+                  section.getLabel(),
+                  section.getDescription(),
+                  accessFormElements);
             })
         .collect(Collectors.toList());
   }
