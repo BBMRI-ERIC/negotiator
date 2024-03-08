@@ -88,9 +88,9 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>eu/bbmri_eric/negotiator/configuration/**</exclude>
-                        <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.java</exclude>
-                        <exclude>eu/bbmri_eric/negotiator/ServletInitializer.java</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/configuration/*.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/ServletInitializer.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
