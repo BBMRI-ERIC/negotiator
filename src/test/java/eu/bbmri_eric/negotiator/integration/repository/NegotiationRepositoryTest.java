@@ -35,7 +35,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-// @DataJpaTest(showSql = false)
 @SpringBootTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
@@ -316,33 +315,6 @@ public class NegotiationRepositoryTest {
 
   private void saveNegotiation(Person author) {
     saveNegotiation(author, NegotiationState.SUBMITTED);
-    //    Set<Request> requests = new HashSet<>();
-    //    Set<Resource> resources = new HashSet<>();
-    //    resources.add(resource);
-    //    Request request =
-    //        Request.builder()
-    //            .url("http://test")
-    //            .resources(resources)
-    //            .dataSource(dataSource)
-    //            .humanReadable("everything")
-    //            .build();
-    //    request = requestRepository.save(request);
-    //    requests.add(request);
-    //    Negotiation negotiation =
-    //        Negotiation.builder()
-    //            .currentState(NegotiationState.SUBMITTED)
-    //            .requests(requests)
-    //            .postsEnabled(false)
-    //            .payload(payload)
-    //            .build();
-    //    negotiation.setCreatedBy(author);
-    //    Role role = roleRepository.save(new Role(1L, "test"));
-    //    Set<PersonNegotiationRole> roles = new HashSet<>();
-    //    PersonNegotiationRole personRole = new PersonNegotiationRole(author, negotiation, role);
-    //    roles.add(personRole);
-    //    negotiation.setPersons(roles);
-    //    request.setNegotiation(negotiation);
-    //    negotiationRepository.save(negotiation);
   }
 
   private void saveNegotiation(Person author, NegotiationState negotiationState) {
