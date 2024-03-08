@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.List;
@@ -59,16 +60,16 @@ public interface NegotiationService {
    * @return a List of NegotiationDTO with the data of all negotiation in the negotiator
    */
   Iterable<NegotiationDTO> findAll(Pageable pageable);
-
-  Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId);
-
-  /**
-   * Returns a paged list of all negotiations in the negotiator.
-   *
-   * @param pageable the page request
-   * @return a paged list of NegotiationDTOs
-   */
-  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId);
+  //
+  //  Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId);
+  //
+  //  /**
+  //   * Returns a paged list of all negotiations in the negotiator.
+  //   *
+  //   * @param pageable the page request
+  //   * @return a paged list of NegotiationDTOs
+  //   */
+  //  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId);
 
   /**
    * Returns a paged list of all negotiations in the negotiator with the specified current state.
@@ -78,6 +79,9 @@ public interface NegotiationService {
    * @return a paged list of NegotiationDTOs
    */
   Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, NegotiationState state);
+
+  Iterable<NegotiationDTO> findByFilters(
+      Pageable pageable, NegotiationFilterDTO filters, Long userId);
 
   /**
    * Retrieves the negotiation identified by :id. If includeDetails is true, also details of the
@@ -90,9 +94,9 @@ public interface NegotiationService {
    * @throws EntityNotFoundException if the requested negotiation is not found
    */
   NegotiationDTO findById(String id, boolean includeDetails);
-
-  // TODO: change byBiobankId
-  List<NegotiationDTO> findByBiobankId(String biobankId);
+  //
+  //  // TODO: change byBiobankId
+  //  List<NegotiationDTO> findByBiobankId(String biobankId);
 
   /**
    * Retrieves a list of negotiations related to a specific resource

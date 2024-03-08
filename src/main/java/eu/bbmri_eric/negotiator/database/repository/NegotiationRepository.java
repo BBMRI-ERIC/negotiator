@@ -4,23 +4,25 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import jakarta.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NegotiationRepository extends JpaRepository<Negotiation, String> {
+public interface NegotiationRepository
+    extends JpaRepository<Negotiation, String>, JpaSpecificationExecutor<Negotiation> {
 
+  @Nonnull
   @Override
   List<Negotiation> findAll();
-
-  Page<Negotiation> findAllByCreatedBy(Pageable pageable, Person author);
 
   Optional<Negotiation> findDetailedById(String id);
 
@@ -58,20 +60,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, String
               + "JOIN FETCH pp.role "
               + "WHERE c.sourceId IN :collectionIds")
   List<Negotiation> findByCollectionIds(List<String> collectionIds);
-
-  @Query(
-      value =
-          "SELECT DISTINCT n "
-              + "FROM Negotiation n "
-              + "JOIN FETCH n.requests rr "
-              + "JOIN FETCH rr.resources c "
-              + "JOIN FETCH n.persons pp "
-              + "JOIN FETCH pp.person p "
-              + "JOIN FETCH pp.role role "
-              + "WHERE c.sourceId IN :collectionIds"
-              + " AND n.currentState = :currentState")
-  Page<Negotiation> findByResourceExternalIdsAndCurrentState(
-      Pageable pageable, List<String> collectionIds, NegotiationState currentState);
 
   Page<Negotiation> findByCreatedByOrRequests_ResourcesIn(
       Pageable pageable, Person person, Set<Resource> resources);

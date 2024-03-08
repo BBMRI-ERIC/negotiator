@@ -6,6 +6,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import java.util.ArrayList;
@@ -50,13 +51,21 @@ public class UserModelAssembler
     links.add(
         WebMvcLinkBuilder.linkTo(
                 methodOn(NegotiationController.class)
-                    .listRelated(Long.valueOf(entity.getId()), null, 0, 10))
+                    .listRelated(
+                        Long.valueOf(entity.getId()),
+                        NegotiationFilterDTO.builder().build(),
+                        0,
+                        10))
             .withRel("negotiations")
             .expand());
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
-                    .listRelated(Long.valueOf(entity.getId()), NegotiationRole.AUTHOR, 0, 10))
+                    .listRelated(
+                        Long.valueOf(entity.getId()),
+                        NegotiationFilterDTO.builder().role(NegotiationRole.AUTHOR).build(),
+                        0,
+                        10))
             .withRel("authored_negotiations")
             .expand());
     if (entity.isRepresentativeOfAnyResource()) {
@@ -65,11 +74,17 @@ public class UserModelAssembler
                   methodOn(UserController.class)
                       .findRepresentedResources(Long.valueOf(entity.getId())))
               .withRel("represented_resources"));
+
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(
-                          Long.valueOf(entity.getId()), NegotiationRole.REPRESENTATIVE, 0, 10))
+                          Long.valueOf(entity.getId()),
+                          NegotiationFilterDTO.builder()
+                              .role(NegotiationRole.REPRESENTATIVE)
+                              .build(),
+                          0,
+                          10))
               .withRel("negotiations_representative")
               .expand());
     }

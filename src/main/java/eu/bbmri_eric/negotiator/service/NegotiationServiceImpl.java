@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.service;
 
+import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.database.model.Attachment;
@@ -11,12 +12,14 @@ import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
@@ -26,12 +29,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +51,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired ModelMapper modelMapper;
   @Autowired EmailService notificationService;
   @Autowired UserNotificationService userNotificationService;
-  @Autowired RepresentativeNegotiationService representativeNegotiationService;
   @Autowired PersonService personService;
 
   public static boolean isNegotiationCreator(Negotiation negotiation) {
@@ -225,30 +227,38 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId) {
-    Person person =
-        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
-    return negotiationRepository
-        .findByCreatedByOrRequests_ResourcesIn(pageable, person, person.getResources())
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
-  }
-
-  @Override
-  public Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId) {
-    Person author =
-        personRepository
-            .findById(authorId)
-            .orElseThrow(() -> new EntityNotFoundException(authorId));
-    return negotiationRepository
-        .findAllByCreatedBy(pageable, author)
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
-  }
-
-  @Override
   public Iterable<NegotiationDTO> findAllByCurrentStatus(
       Pageable pageable, NegotiationState state) {
     return negotiationRepository
         .findAllByCurrentState(pageable, state)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  @Override
+  public Iterable<NegotiationDTO> findByFilters(
+      Pageable pageable, NegotiationFilterDTO filters, Long userId) {
+    Person user =
+        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+
+    Specification<Negotiation> specs;
+    if (filters.getRole() == null) {
+      specs = NegotiationSpecification.hasAuthor(user);
+      specs = specs.or(NegotiationSpecification.hasResourcesIn(user.getResources()));
+    } else if (filters.getRole() == NegotiationRole.AUTHOR) {
+      specs = NegotiationSpecification.hasAuthor(user);
+    } else {
+      specs = NegotiationSpecification.hasResourcesIn(user.getResources());
+    }
+    if (filters.getState() != null && !filters.getState().isEmpty()) {
+      specs = specs.and(NegotiationSpecification.hasState(filters.getState()));
+    }
+    if (filters.getStartDate() != null || filters.getEndDate() != null) {
+      specs =
+          specs.and(
+              NegotiationSpecification.hasTimeRange(filters.getStartDate(), filters.getEndDate()));
+    }
+    return negotiationRepository
+        .findAll(specs, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
@@ -276,16 +286,6 @@ public class NegotiationServiceImpl implements NegotiationService {
       throws EntityNotFoundException {
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
     return modelMapper.map(negotiation, NegotiationDTO.class);
-  }
-
-  /**
-   * Returns a List of Negotiation entities filtered by biobank id
-   *
-   * @param biobankId the id in the data source of the biobank of the negotiation
-   * @return the List of Negotiation entities found
-   */
-  public List<NegotiationDTO> findByBiobankId(String biobankId) {
-    throw new NotImplementedException("Not yet implemented");
   }
 
   /**

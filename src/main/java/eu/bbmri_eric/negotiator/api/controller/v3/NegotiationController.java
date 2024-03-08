@@ -6,12 +6,12 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
-import eu.bbmri_eric.negotiator.service.RepresentativeNegotiationService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -55,8 +55,6 @@ public class NegotiationController {
   @Autowired private NegotiationLifecycleService negotiationLifecycleService;
 
   @Autowired private ResourceLifecycleService resourceLifecycleService;
-
-  @Autowired private RepresentativeNegotiationService representativeNegotiationService;
 
   @Autowired private PersonService personService;
 
@@ -106,33 +104,15 @@ public class NegotiationController {
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
       @Valid @PathVariable Long id,
-      @RequestParam(required = false) @Valid NegotiationRole role,
+      @Valid NegotiationFilterDTO filters,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
     checkAuthorization(id);
-    if (Objects.isNull(role)) {
-      return assembler.toPagedModel(
-          (Page<NegotiationDTO>)
-              negotiationService.findAllRelatedTo(
-                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id),
-          role,
-          id);
-    } else if (role == NegotiationRole.AUTHOR) {
-      return assembler.toPagedModel(
-          (Page<NegotiationDTO>)
-              negotiationService.findAllCreatedBy(
-                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id),
-          role,
-          id);
-    } else if (role == NegotiationRole.REPRESENTATIVE) {
-      return assembler.toPagedModel(
-          (Page<NegotiationDTO>)
-              representativeNegotiationService.findNegotiationsConcerningRepresentative(
-                  PageRequest.of(page, size, Sort.by("creationDate").descending()), id),
-          role,
-          id);
-    }
-    return PagedModel.empty();
+    return assembler.toPagedModel(
+        (Page<NegotiationDTO>)
+            negotiationService.findByFilters(
+                PageRequest.of(page, size, Sort.by("creationDate").descending()), filters, id),
+        null);
   }
 
   private static void checkAuthorization(Long id) {
