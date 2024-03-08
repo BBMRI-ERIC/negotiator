@@ -10,12 +10,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class ConverterTest {
 
-    @Test
+  @Test
   public void testConvert() {
-    NegotiationRoleConverter converter =
-        new NegotiationRoleConverter();
+    NegotiationRoleConverter converter = new NegotiationRoleConverter();
     assertThrows(
-            ResponseStatusException.class,
+        ResponseStatusException.class,
         () -> {
           converter.convert("test");
         });
@@ -23,12 +22,12 @@ public class ConverterTest {
 
   @Test
   void testStatusConverter() {
-      NegotiationStatusConverter converter = new NegotiationStatusConverter();
-        assertThrows(
-                ResponseStatusException.class,
-                () -> {
-                    converter.convert("test");
-                });
+    NegotiationStatusConverter converter = new NegotiationStatusConverter();
+    assertThrows(
+        ResponseStatusException.class,
+        () -> {
+          converter.convert("test");
+        });
     assertEquals("APPROVED", converter.convert("APPROVED").toString());
   }
 }
