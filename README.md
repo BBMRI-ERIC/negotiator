@@ -118,7 +118,7 @@ Documentation for individual components:
 
 ## License
 
-Copyright 2020-2023 [BBMRI-ERIC](https://bbmri-eric.eu).
+Copyright 2020-2024 [BBMRI-ERIC](https://bbmri-eric.eu).
 
 Licensed under GNU Affero General Public License v3.0 (the "License");
 you may not use this file except in compliance with the License.
