@@ -1,7 +1,7 @@
 # Negotiator
 
 ![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/CI.yml/badge.svg?)
-[![UnitTest Coverage](https://codecov.io/github/BBMRI-ERIC/negotiator-v3/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator-v3)
+[![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator)
 ![Static Badge](https://img.shields.io/badge/Java%20Code%20Style-Google-orange)
 ![Static Badge](https://img.shields.io/badge/Docker-bbmrieric%2Fnegotiator-blue)
 
