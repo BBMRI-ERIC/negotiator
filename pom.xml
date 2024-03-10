@@ -92,6 +92,7 @@
                     <excludes>
                         <exclude>eu/bbmri_eric/negotiator/configuration/*.class</exclude>
                         <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/TestNegotiatorApplication.class</exclude>
                         <exclude>eu/bbmri_eric/negotiator/ServletInitializer.class</exclude>
                         <exclude>eu/bbmri_eric/negotiator/exceptions/*.class</exclude>
                     </excludes>
