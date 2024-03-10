@@ -86,6 +86,8 @@
             </plugin>
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <version>0.8.10</version>
                 <configuration>
                     <excludes>
                         <exclude>eu/bbmri_eric/negotiator/configuration/*.class</exclude>
@@ -115,8 +117,6 @@
                         <phase>verify</phase>
                     </execution>
                 </executions>
-                <groupId>org.jacoco</groupId>
-                <version>0.8.10</version>
             </plugin>
         </plugins>
     </build>
