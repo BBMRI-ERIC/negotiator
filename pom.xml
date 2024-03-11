@@ -86,11 +86,15 @@
             </plugin>
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <version>0.8.10</version>
                 <configuration>
                     <excludes>
-                        <exclude>eu/bbmri_eric/negotiator/configuration/**</exclude>
-                        <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.java</exclude>
-                        <exclude>eu/bbmri_eric/negotiator/ServletInitializer.java</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/configuration/*.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/TestNegotiatorApplication.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/ServletInitializer.class</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/exceptions/*.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -114,8 +118,6 @@
                         <phase>verify</phase>
                     </execution>
                 </executions>
-                <groupId>org.jacoco</groupId>
-                <version>0.8.10</version>
             </plugin>
         </plugins>
     </build>
