@@ -57,11 +57,11 @@ public class AccessFormServiceImpl implements AccessFormService {
                   .filter(sec -> sec.equals(accessFormSection))
                   .findFirst()
                   .get();
-            accessForm.linkElementToSection(
-                matchedSection,
-                accessFormElement,
-                matchedSection.getAccessFormElements().size(),
-                accessFormElement.isRequired());
+          accessForm.linkElementToSection(
+              matchedSection,
+              accessFormElement,
+              matchedSection.getAccessFormElements().size(),
+              accessFormElement.isRequired());
         }
       }
     }
