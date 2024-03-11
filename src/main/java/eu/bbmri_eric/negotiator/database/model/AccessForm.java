@@ -10,9 +10,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +46,8 @@ public class AccessForm extends AuditEntity {
       fetch = FetchType.EAGER,
       cascade = CascadeType.PERSIST,
       orphanRemoval = true)
+  @Getter(AccessLevel.PRIVATE)
+  @Setter(AccessLevel.PRIVATE)
   private SortedSet<AccessFormSectionLink> formLinks = new TreeSet<>();
 
   public AccessForm(String name) {
@@ -76,7 +80,8 @@ public class AccessForm extends AuditEntity {
   }
 
   /**
-   * Link an element to a section.
+   * Link an element to a section. If a link between the section and the element already exists, the
+   * method updates the link.
    *
    * @param section a section of the form to which the element should be linked.
    * @param element an element that should be linked.
@@ -90,8 +95,18 @@ public class AccessForm extends AuditEntity {
             .filter(link -> link.getAccessFormSection().equals(section))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Section not found"));
-    accessFormSectionLink.addElementLink(
-        new AccessFormSectionElementLink(accessFormSectionLink, element, isRequired, elementOrder));
+    Optional<AccessFormSectionElementLink> sameLink =
+        accessFormSectionLink.getAccessFormSectionElementLinks().stream()
+            .filter(link -> link.getAccessFormElement().equals(element))
+            .findFirst();
+    if (sameLink.isPresent()) {
+      sameLink.get().setRequired(true);
+      sameLink.get().setElementOrder(elementOrder);
+    } else {
+      accessFormSectionLink.addElementLink(
+          new AccessFormSectionElementLink(
+              accessFormSectionLink, element, isRequired, elementOrder));
+    }
   }
 
   @Override
