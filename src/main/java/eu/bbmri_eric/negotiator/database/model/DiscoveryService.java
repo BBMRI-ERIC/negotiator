@@ -52,8 +52,4 @@ public class DiscoveryService extends AuditEntity {
   public int hashCode() {
     return Objects.hash(getName(), getUrl());
   }
-
-  public enum ApiType {
-    MOLGENIS
-  }
 }

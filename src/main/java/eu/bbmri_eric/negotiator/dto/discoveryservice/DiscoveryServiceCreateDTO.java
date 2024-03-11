@@ -1,9 +1,6 @@
 package eu.bbmri_eric.negotiator.dto.discoveryservice;
 
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,38 +16,8 @@ import lombok.Setter;
 public class DiscoveryServiceCreateDTO {
 
   @NotNull(groups = ValidationGroups.Create.class)
-  private String description;
-
-  @NotNull(groups = ValidationGroups.Create.class)
   private String name;
 
   @NotNull(groups = ValidationGroups.Create.class)
   private String url;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private String apiUrl;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private String apiUsername;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private String apiPassword;
-
-  @Enumerated(EnumType.STRING)
-  @NotNull(groups = ValidationGroups.Create.class)
-  private DiscoveryService.ApiType apiType;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private String resourceNetwork;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private String resourceBiobank;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private String resourceCollection;
-
-  @NotNull(groups = ValidationGroups.Create.class)
-  private Boolean syncActive;
-
-  private String sourcePrefix;
 }

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService.ApiType;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
@@ -40,18 +39,8 @@ public class DiscoveryServiceServiceTest {
 
   private DiscoveryServiceCreateDTO getTestDTO() {
     return DiscoveryServiceCreateDTO.builder()
-        .description("Test Data Source")
         .name("Name of the data source")
         .url("http://discoveryservice")
-        .apiUrl("http://discoveryservice/api")
-        .apiType(ApiType.MOLGENIS)
-        .apiUsername("test")
-        .apiPassword("test")
-        .resourceNetwork("test_ds_network")
-        .resourceBiobank("test_ds_biobank")
-        .resourceCollection("test_ds_collection")
-        .syncActive(true)
-        .sourcePrefix("prefix")
         .build();
   }
 
