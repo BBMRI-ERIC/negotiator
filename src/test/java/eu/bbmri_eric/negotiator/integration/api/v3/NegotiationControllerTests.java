@@ -186,9 +186,9 @@ public class NegotiationControllerTests {
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests sorting by status */
@@ -207,7 +207,7 @@ public class NegotiationControllerTests {
   /** It tests sorting by status */
   @Test
   @WithUserDetails("TheResearcher")
-  public void testGetAllForResearcher_whenNoFilters_sortedByCurrentTitle() throws Exception {
+  public void testGetAllForResearcher_whenNoFilters_sortedByCurrentStateDefault() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
@@ -218,9 +218,9 @@ public class NegotiationControllerTests {
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
 
   /**

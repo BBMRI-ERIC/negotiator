@@ -1,38 +1,34 @@
 spring:
   datasource:
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:postgres:///negotiator
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON;
     username: negotiator
     password: negotiator
-    database: negotiator
   servlet:
     multipart:
       max-file-size: 1MB
       max-request-size: 1MB
   sql:
     init:
-      mode: never
+      mode: always
+      platform: test
+      data-locations: classpath:db/test/migration/R__Initial_data.sql
   jpa:
     hibernate:
       show-sql: false
-      ddl-auto: none
-    defer-datasource-initialization: false
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  flyway:
-    user: negotiator
-    password: negotiator
-    url: jdbc:tc:postgresql:///negotiator
-    locations: classpath:db/migration/{vendor},db/dev/migration
-  jackson:
-    date-format: "yyyy-MM-dd"
+        dialect: org.hibernate.dialect.H2Dialect
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
+  flyway:
+    enabled: false
 negotiator:
   molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"
