@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,7 +24,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-public class AccessCriteriaSetControllerTests {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+public class AccessFormElementSetControllerTests {
 
   private static final String ENDPOINT = "/v3/access-criteria";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
@@ -81,23 +83,13 @@ public class AccessCriteriaSetControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(ENDPOINT).param("resourceId", "biobank:1:collection:1"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.sections[0].accessCriteria").isArray())
-        .andExpect(jsonPath("$.sections[0].accessCriteria[0].name", is("title")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[0].label", is("Title")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[0].description", is("Give a title")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[0].type", is("text")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[0].required", is(true)))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[1].name", is("description")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[1].label", is("Description")))
-        .andExpect(
-            jsonPath("$.sections[0].accessCriteria[1].description", is("Give a description")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[1].type", is("textarea")))
-        .andExpect(jsonPath("$.sections[0].accessCriteria[1].required", is(false)))
-        .andExpect(jsonPath("$.sections[1].accessCriteria[0].name", is("num-of-subjects")))
-        .andExpect(jsonPath("$.sections[1].accessCriteria[0].label", is("Number of subjects")))
-        .andExpect(
-            jsonPath("$.sections[1].accessCriteria[0].description", is("Number of biosamples")))
-        .andExpect(jsonPath("$.sections[1].accessCriteria[0].type", is("number")))
-        .andExpect(jsonPath("$.sections[1].accessCriteria[0].required", is(true)));
+        .andExpect(jsonPath("$.sections[0].elements").isArray())
+        .andExpect(jsonPath("$.sections[0].name", is("project")))
+        .andExpect(jsonPath("$.sections[0].elements[0].name", is("title")))
+        .andExpect(jsonPath("$.sections[0].elements[0].required", is(true)))
+        .andExpect(jsonPath("$.sections[0].elements[1].name", is("description")))
+        .andExpect(jsonPath("$.sections[1].name", is("request")))
+        .andExpect(jsonPath("$.sections[1].elements[0].name", is("description")))
+        .andExpect(jsonPath("$.sections[2].name", is("ethics-vote")));
   }
 }

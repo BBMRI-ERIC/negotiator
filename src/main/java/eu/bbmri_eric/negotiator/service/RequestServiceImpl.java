@@ -4,7 +4,7 @@ import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.AccessCriteriaSetRepository;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
@@ -41,7 +41,7 @@ public class RequestServiceImpl implements RequestService {
   @Autowired private DataSourceRepository dataSourceRepository;
   @Autowired private ModelMapper modelMapper;
   @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private AccessCriteriaSetRepository accessCriteriaSetRepository;
+  @Autowired private AccessFormRepository accessFormRepository;
 
   @Value("${negotiator.molgenis-url}")
   private String molgenisURL;
@@ -115,7 +115,7 @@ public class RequestServiceImpl implements RequestService {
     Resource resource = modelMapper.map(molgenisCollection.get(), Resource.class);
     resource.setOrganization(getParentOrganization(molgenisCollection));
     resource.setDataSource(dataSourceRepository.findById(1L).get());
-    resource.setAccessCriteriaSet(accessCriteriaSetRepository.findById(1L).get());
+    resource.setAccessForm(accessFormRepository.findById(1L).get());
     return resource;
   }
 

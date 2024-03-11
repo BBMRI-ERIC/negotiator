@@ -112,6 +112,8 @@ public class OAuthSecurityConfig {
                     .authenticated()
                     .requestMatchers(mvc.pattern("/v3/access-criteria"))
                     .permitAll()
+                    .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/access-forms/**"))
+                    .permitAll()
                     .requestMatchers(mvc.pattern(HttpMethod.POST, "/directory/create_query"))
                     .permitAll()
                     .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/requests"))

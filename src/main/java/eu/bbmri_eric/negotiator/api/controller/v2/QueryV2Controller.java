@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.RequestService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.net.URI;
 import org.modelmapper.ModelMapper;
@@ -28,6 +29,10 @@ public class QueryV2Controller {
       value = "/directory/create_query",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      summary = "Create a new request",
+      description = "Create a new request",
+      deprecated = true)
   ResponseEntity<QueryV2DTO> add(@Valid @RequestBody QueryCreateV2DTO queryRequest) {
     RequestCreateDTO v3Request = modelMapper.map(queryRequest, RequestCreateDTO.class);
     RequestDTO requestResponse;
