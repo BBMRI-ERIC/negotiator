@@ -5,69 +5,88 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.service.RepresentativeNegotiationServiceImpl;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ActiveProfiles;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class RepresentativeNegotiationServiceTest {
 
-  @Mock private ResourceRepository resourceRepository;
+  @MockBean private PersonRepository personRepository;
 
-  @Mock private PersonRepository personRepository;
+  @MockBean private NegotiationRepository negotiationRepository;
+  @Autowired private ModelMapper modelMapper;
 
-  @Mock private NegotiationRepository negotiationRepository;
+  @Autowired private RepresentativeNegotiationServiceImpl representativeNegotiationService;
 
-  @Mock private ModelMapper modelMapper;
+  private Pageable pageable;
+  private Long personId;
+  private Person person;
+  private Resource resource1;
+  private Resource resource2;
+  private Negotiation negotiation1;
+  private Negotiation negotiation2;
+  private Page<Negotiation> negotiationPage;
 
-  @InjectMocks private RepresentativeNegotiationServiceImpl representativeNegotiationService;
+  @BeforeEach
+  void setUp() {
+    pageable = PageRequest.of(0, 10);
+    personId = 1L;
+
+    person = new Person();
+    person.setId(personId);
+
+    Organization organization = new Organization();
+    organization.setId(1L);
+    organization.setExternalId("organization1");
+
+    Request request = new Request();
+    request.setId("request1");
+    request.setUrl("http://test.edu");
+    request.setDataSource(new DataSource());
+
+    resource1 = createResource("resource1", organization);
+    resource2 = createResource("resource2", organization);
+
+    person.setResources(Set.of(resource1, resource2));
+
+    request.setResources(Set.of(resource1, resource2));
+
+    negotiation1 = createNegotiation("negotiation1", NegotiationState.IN_PROGRESS, Set.of(request));
+    negotiation2 = createNegotiation("negotiation2", NegotiationState.ABANDONED, Set.of(request));
+
+    List<Negotiation> negotiations = List.of(negotiation1, negotiation2);
+    negotiationPage = new PageImpl<>(negotiations);
+  }
 
   @Test
   public void test_retrieve_negotiations_valid_personId_and_resources() {
-    // Arrange
-    Pageable pageable = PageRequest.of(0, 10);
-    Long personId = 1L;
-    Person person = new Person();
-    person.setId(personId);
-    Resource resource1 = new Resource();
-    resource1.setSourceId("resource1");
-    Resource resource2 = new Resource();
-    resource2.setSourceId("resource2");
-    person.setResources(Set.of(resource1, resource2));
-
-    Negotiation negotiation1 = new Negotiation();
-    negotiation1.setId("negotiation1");
-    negotiation1.setCurrentState(NegotiationState.IN_PROGRESS);
-
-    Negotiation negotiation2 = new Negotiation();
-    negotiation2.setId("negotiation2");
-    negotiation2.setCurrentState(NegotiationState.ABANDONED);
-
-    List<Negotiation> negotiations = List.of(negotiation1, negotiation2);
     List<NegotiationState> states =
-        List.of(NegotiationState.IN_PROGRESS, NegotiationState.ABANDONED);
-    Page<Negotiation> negotiationPage = new PageImpl<>(negotiations);
+        List.of(negotiation1.getCurrentState(), negotiation2.getCurrentState());
 
     when(personRepository.findById(personId)).thenReturn(Optional.of(person));
     when(negotiationRepository.findByResourceExternalIdsAndCurrentState(
-            pageable, List.of("resource1", "resource2"), states))
+            pageable,
+            person.getResources().stream().map(Resource::getSourceId).collect(Collectors.toList()),
+            states))
         .thenReturn(negotiationPage);
 
     Page<NegotiationDTO> negotiationDTOs =
@@ -90,5 +109,25 @@ public class RepresentativeNegotiationServiceTest {
           representativeNegotiationService.findNegotiationsConcerningRepresentative(
               pageable, personId);
         });
+  }
+
+  private Negotiation createNegotiation(
+      String id, NegotiationState currentState, Set<Request> requests) {
+    Negotiation negotiation = new Negotiation();
+    negotiation.setId(id);
+    negotiation.setCurrentState(currentState);
+    negotiation.setRequests(requests);
+    negotiation.setCreationDate(LocalDateTime.now());
+    negotiation.setModifiedDate(LocalDateTime.now());
+    negotiation.setPostsEnabled(true);
+    return negotiation;
+  }
+
+  private Resource createResource(String id, Organization organization) {
+    Resource resource = new Resource();
+    resource.setSourceId(id);
+    resource.setOrganization(organization);
+    resource.setName("ResourceName");
+    return resource;
   }
 }
