@@ -350,6 +350,9 @@ jobs:
       - system-test
       - oauth-test
       - backwards-compatibility
+    permissions:
+      packages: write
+      contents: read
     steps:
 
       - name: Checkout codebase
