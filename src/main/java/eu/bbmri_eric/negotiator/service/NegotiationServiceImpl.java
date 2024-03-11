@@ -238,26 +238,26 @@ public class NegotiationServiceImpl implements NegotiationService {
    * NegotiationFilterDTI in input and returns the filtered negotiations
    *
    * @param pageable a Pageable object to contstruct Pagination
-   * @param filters a NegotiatorFilterDTO with the filter parameters
+   * @param requestParameters a NegotiationRequestParameters object containing the filter parameters
    * @param userId the id of the user that is performing the action
    * @return an Iterable of NegotiationDTO with the filtered Negotiations
    */
   @Override
   public Iterable<NegotiationDTO> findByFilters(
-      Pageable pageable, NegotiationRequestParameters filters, Long userId) {
+      Pageable pageable, NegotiationRequestParameters requestParameters, Long userId) {
     Person user =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
 
     Specification<Negotiation> specs;
     // Filters for role
-    if (filters.getRole() == null) {
+    if (requestParameters.getRole() == null) {
       // In case the role is not specified, it returns the negotiations where the user is the author
       // or those involving a resource for which the user is a representative
       specs = NegotiationSpecification.hasAuthor(user);
       if (user.getResources() != null && !user.getResources().isEmpty()) {
         specs = specs.or(NegotiationSpecification.hasResourcesIn(user.getResources()));
       }
-    } else if (filters.getRole() == NegotiationRole.AUTHOR) {
+    } else if (requestParameters.getRole() == NegotiationRole.AUTHOR) {
       // In case the role is AUTHOR it returns the negotiations for which the user is author (i.e.
       // createdBy is the user)
       specs = NegotiationSpecification.hasAuthor(user);
@@ -267,16 +267,17 @@ public class NegotiationServiceImpl implements NegotiationService {
       specs = NegotiationSpecification.hasResourcesIn(user.getResources());
     }
     // Filtering by state
-    if (filters.getState() != null && !filters.getState().isEmpty()) {
-      specs = specs.and(NegotiationSpecification.hasState(filters.getState()));
+    if (requestParameters.getState() != null && !requestParameters.getState().isEmpty()) {
+      specs = specs.and(NegotiationSpecification.hasState(requestParameters.getState()));
     }
 
     // Filtering by date
-    if (filters.getCreatedAfter() != null || filters.getCreatedBefore() != null) {
+    if (requestParameters.getCreatedAfter() != null
+        || requestParameters.getCreatedBefore() != null) {
       specs =
           specs.and(
               NegotiationSpecification.hasTimeRange(
-                  filters.getCreatedAfter(), filters.getCreatedBefore()));
+                  requestParameters.getCreatedAfter(), requestParameters.getCreatedBefore()));
     }
     return negotiationRepository
         .findAll(specs, pageable)

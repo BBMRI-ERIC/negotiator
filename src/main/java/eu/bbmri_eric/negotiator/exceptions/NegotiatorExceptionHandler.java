@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.exceptions;
 
 import eu.bbmri_eric.negotiator.dto.error.ErrorResponse;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
@@ -62,9 +63,13 @@ public class NegotiatorExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public final ResponseEntity<ErrorResponse> handleRequestValidationException(
       MethodArgumentNotValidException ex, WebRequest request) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(
-            HttpStatus.BAD_REQUEST.value(), "The body of the Negotiation is not valid");
+    String message;
+    if (ex.getBindingResult().getTarget() instanceof NegotiationRequestParameters) {
+      message = "One or more query parameters are not valid";
+    } else {
+      message = "The body of the Negotiation is not valid";
+    }
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 

@@ -103,16 +103,21 @@ public class NegotiationController {
 
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Valid @PathVariable Long id, @Valid NegotiationRequestParameters filters) {
+      @Valid @PathVariable Long id, @Valid NegotiationRequestParameters requestParameters) {
     checkAuthorization(id);
+    Sort sortOption;
+    if (requestParameters.getSortOrder() == NegotiationSortOrder.DESC) {
+      sortOption = Sort.by(requestParameters.getSortBy()).descending();
+    } else {
+      sortOption = Sort.by(requestParameters.getSortBy()).ascending();
+    }
+
     return assembler.toPagedModel(
         (Page<NegotiationDTO>)
             negotiationService.findByFilters(
                 PageRequest.of(
-                    filters.getPage(),
-                    filters.getSize(),
-                    Sort.by(filters.getSortColumn()).descending()),
-                filters,
+                    requestParameters.getPage(), requestParameters.getSize(), sortOption),
+                requestParameters,
                 id),
         null);
   }

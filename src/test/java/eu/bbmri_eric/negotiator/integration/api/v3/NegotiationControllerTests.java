@@ -130,26 +130,97 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
-  /**
-   * It tests that, getting all negotiations without filters for a user that doesn't represent any
-   * resource, it returns all the negotiations create by the user.
-   */
+
+  /** It tests sorting by status */
   @Test
   @WithUserDetails("TheResearcher")
-  public void testGetAllForResearcher_whenNoFilters_sortedBy() throws Exception {
+  public void testGetAllForResearcher_whenNoFilters_sortedByCurrentState_DefaultOrder()
+      throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/users/%s/negotiations"
+                "/v3/users/%s/negotiations?sortBy=currentState"
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+  }
+
+  /** It tests sorting by status */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenNoFilters_sortedByCurrentStateAscending()
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?sortBy=currentState&sortOrder=ASC"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
+  }
+
+  /** It tests sorting by status */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenNoFilters_sortedByCurrentStateDescending()
+      throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?sortBy=currentState&sortOrder=DESC"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
+  }
+
+  /** It tests sorting by status */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_WrongSortingValue_BadRequest() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?sortOrder=UNKNOWN"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isBadRequest());
+  }
+
+  /** It tests sorting by status */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenNoFilters_sortedByCurrentTitle() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?sortBy=currentState"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
   }
 
   /**

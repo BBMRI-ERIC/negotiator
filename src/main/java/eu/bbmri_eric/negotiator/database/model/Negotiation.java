@@ -34,6 +34,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
@@ -89,6 +90,9 @@ public class Negotiation extends AuditEntity {
   @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   @Exclude
   private Set<Request> requests;
+
+  @Formula(value = "JSONB_EXTRACT_PATH(payload, 'project', 'title')")
+  private String title;
 
   @JdbcTypeCode(SqlTypes.JSON)
   private String payload;

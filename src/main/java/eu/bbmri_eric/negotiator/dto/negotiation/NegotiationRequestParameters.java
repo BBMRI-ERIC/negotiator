@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.dto.negotiation;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationSortOrder;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -27,7 +28,9 @@ public class NegotiationRequestParameters {
 
   LocalDate createdBefore;
 
-  @NotBlank String sortColumn = "creationDate";
+  @NotBlank String sortBy = "creationDate";
+
+  NegotiationSortOrder sortOrder = NegotiationSortOrder.DESC;
 
   @Min(0)
   int page = 0;

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 @TestConfiguration(proxyBeanMethods = false)
-@Profile({"dev"})
+@Profile({"dev", "test"})
 public class DevDatabaseConfiguration {
 
   @Value("${spring.datasource.username}")
