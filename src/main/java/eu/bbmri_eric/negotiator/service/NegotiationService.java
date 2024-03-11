@@ -60,16 +60,6 @@ public interface NegotiationService {
    * @return a List of NegotiationDTO with the data of all negotiation in the negotiator
    */
   Iterable<NegotiationDTO> findAll(Pageable pageable);
-  //
-  //  Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId);
-  //
-  //  /**
-  //   * Returns a paged list of all negotiations in the negotiator.
-  //   *
-  //   * @param pageable the page request
-  //   * @return a paged list of NegotiationDTOs
-  //   */
-  //  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId);
 
   /**
    * Returns a paged list of all negotiations in the negotiator with the specified current state.
@@ -94,42 +84,6 @@ public interface NegotiationService {
    * @throws EntityNotFoundException if the requested negotiation is not found
    */
   NegotiationDTO findById(String id, boolean includeDetails);
-  //
-  //  // TODO: change byBiobankId
-  //  List<NegotiationDTO> findByBiobankId(String biobankId);
-
-  /**
-   * Retrieves a list of negotiations related to a specific resource
-   *
-   * @param resourceId an id of the resource
-   * @return a list of Negotiations
-   */
-  List<NegotiationDTO> findByResourceId(String resourceId);
-
-  /**
-   * Retrieves a list of negotiations of related to the user with id :userId and the role :userRole
-   *
-   * @param userId the id of the user that has a role in the negotiation
-   * @param userRole the role of the user in the negotiation
-   * @return a List of NegotiationDTOs
-   */
-  List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
-
-  /**
-   * Retrieves a list of negotiations related to specific resources
-   *
-   * @param resourceIds a List of Ids of resources
-   * @return a list of Negotiations
-   */
-  List<NegotiationDTO> findByResourceIds(List<String> resourceIds);
-
-  /**
-   * Retrives a list of negotiations created by user with id
-   *
-   * @param personId id of the creator
-   * @return a list of negotiations
-   */
-  List<NegotiationDTO> findAllNegotiationsCreatedBy(Long personId);
 
   /**
    * Sets the enabledPosts attrubute to true for the input Negotiation
@@ -152,8 +106,6 @@ public interface NegotiationService {
    * @return A list of NegotiationDTOs with specific state.
    */
   List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState);
-
-  List<NegotiationDTO> findNegotiationsToReview();
 
   boolean isAuthorizedForNegotiation(Negotiation negotiation);
 }

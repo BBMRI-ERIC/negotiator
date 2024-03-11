@@ -25,17 +25,23 @@ public class NegotiationSpecification {
    */
   public static Specification<Negotiation> hasState(List<NegotiationState> states) {
     return new Specification<>() {
+      List<NegotiationState> inputStates;
       @Nullable
       @Override
       public Predicate toPredicate(
           @Nonnull Root<Negotiation> root,
           @Nonnull CriteriaQuery<?> query,
           @Nonnull CriteriaBuilder criteriaBuilder) {
+        inputStates = states;
         if (states.size() == 1) {
           return criteriaBuilder.equal(root.get("currentState"), states.get(0));
         } else {
           return criteriaBuilder.in(root.get("currentState")).value(states);
         }
+      }
+      @Override
+      public String toString() {
+        return inputStates.toString();
       }
     };
   }
@@ -62,7 +68,7 @@ public class NegotiationSpecification {
   /**
    * Condition to filter Negotiation by the Resources involved
    *
-   * @param person the Person that created the negotiation
+   * @param resources the Person that created the negotiation
    * @return a Specification to add as part of a query to filter Negotiations
    */
   public static Specification<Negotiation> hasResourcesIn(Set<Resource> resources) {
@@ -73,9 +79,6 @@ public class NegotiationSpecification {
           @Nonnull Root<Negotiation> root,
           @Nonnull CriteriaQuery<?> query,
           @Nonnull CriteriaBuilder criteriaBuilder) {
-        if (resources == null || resources.isEmpty()) {
-          return criteriaBuilder.conjunction();
-        }
         return root.join("requests").joinSet("resources").in(resources);
       }
     };
