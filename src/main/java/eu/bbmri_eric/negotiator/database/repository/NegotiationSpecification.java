@@ -26,6 +26,7 @@ public class NegotiationSpecification {
   public static Specification<Negotiation> hasState(List<NegotiationState> states) {
     return new Specification<>() {
       List<NegotiationState> inputStates;
+
       @Nullable
       @Override
       public Predicate toPredicate(
@@ -39,6 +40,7 @@ public class NegotiationSpecification {
           return criteriaBuilder.in(root.get("currentState")).value(states);
         }
       }
+
       @Override
       public String toString() {
         return inputStates.toString();
