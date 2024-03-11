@@ -15,6 +15,7 @@ import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
+/** Class to create query condition for NegotiationRepository. The conditions can be */
 public class NegotiationSpecification {
 
   /**

@@ -6,7 +6,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import java.util.ArrayList;
@@ -53,9 +53,7 @@ public class UserModelAssembler
                 methodOn(NegotiationController.class)
                     .listRelated(
                         Long.valueOf(entity.getId()),
-                        NegotiationFilterDTO.builder().build(),
-                        0,
-                        10))
+                        NegotiationRequestParameters.builder().size(10).build()))
             .withRel("negotiations")
             .expand());
     links.add(
@@ -63,9 +61,10 @@ public class UserModelAssembler
                 methodOn(NegotiationController.class)
                     .listRelated(
                         Long.valueOf(entity.getId()),
-                        NegotiationFilterDTO.builder().role(NegotiationRole.AUTHOR).build(),
-                        0,
-                        10))
+                        NegotiationRequestParameters.builder()
+                            .role(NegotiationRole.AUTHOR)
+                            .size(10)
+                            .build()))
             .withRel("authored_negotiations")
             .expand());
     if (entity.isRepresentativeOfAnyResource()) {
@@ -80,11 +79,10 @@ public class UserModelAssembler
                   methodOn(NegotiationController.class)
                       .listRelated(
                           Long.valueOf(entity.getId()),
-                          NegotiationFilterDTO.builder()
+                          NegotiationRequestParameters.builder()
                               .role(NegotiationRole.REPRESENTATIVE)
-                              .build(),
-                          0,
-                          10))
+                              .size(10)
+                              .build()))
               .withRel("negotiations_representative")
               .expand());
     }

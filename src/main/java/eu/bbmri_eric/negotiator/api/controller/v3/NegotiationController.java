@@ -6,7 +6,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
@@ -103,15 +103,17 @@ public class NegotiationController {
 
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Valid @PathVariable Long id,
-      @Valid NegotiationFilterDTO filters,
-      @RequestParam(required = false, defaultValue = "0") int page,
-      @RequestParam(required = false, defaultValue = "50") int size) {
+      @Valid @PathVariable Long id, @Valid NegotiationRequestParameters filters) {
     checkAuthorization(id);
     return assembler.toPagedModel(
         (Page<NegotiationDTO>)
             negotiationService.findByFilters(
-                PageRequest.of(page, size, Sort.by("creationDate").descending()), filters, id),
+                PageRequest.of(
+                    filters.getPage(),
+                    filters.getSize(),
+                    Sort.by(filters.getSortColumn()).descending()),
+                filters,
+                id),
         null);
   }
 

@@ -130,6 +130,27 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
+  /**
+   * It tests that, getting all negotiations without filters for a user that doesn't represent any
+   * resource, it returns all the negotiations create by the user.
+   */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenNoFilters_sortedBy() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+  }
 
   /**
    * It tests that, getting all negotiations filtered by role author for a user that doesn't
@@ -192,16 +213,16 @@ public class NegotiationControllerTests {
   }
 
   /**
-   * It tests that, getting all negotiations filtered by startDate for a user who has just AUTHOR
+   * It tests that, getting all negotiations filtered by createdAfter for a user who has just AUTHOR
    * role, it returns two negotiations
    */
   @Test
   @WithUserDetails("TheResearcher")
-  public void testGetAllForResearcher_whenFiltersByStartDate() throws Exception {
+  public void testGetAllForResearcher_whenFiltersByCreatedAfter() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/users/%s/negotiations?startDate=2023-04-13" // day after negotiation-1
+                "/v3/users/%s/negotiations?createdAfter=2023-04-13" // day after negotiation-1
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
@@ -213,16 +234,16 @@ public class NegotiationControllerTests {
   }
 
   /**
-   * It tests that, getting all negotiations filtered by endDate for a user who has just AUTHOR
-   * role, it returns one negotiation
+   * It tests that, getting all negotiations filtered by createdBefore for a user who has just
+   * AUTHOR role, it returns one negotiation
    */
   @Test
   @WithUserDetails("TheResearcher")
-  public void testGetAllForResearcher_whenFiltersByEndDate() throws Exception {
+  public void testGetAllForResearcher_whenFiltersByCreatedBefore() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/users/%s/negotiations?endDate=2023-04-13" // day after negotiation-1
+                "/v3/users/%s/negotiations?createdBefore=2023-04-13" // day after negotiation-1
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
@@ -233,16 +254,16 @@ public class NegotiationControllerTests {
   }
 
   /**
-   * It tests that, getting all negotiations filtered by endDate for a user who has just AUTHOR
-   * role, it returns one negotiation
+   * It tests that, getting all negotiations filtered by createdBefore for a user who has just
+   * AUTHOR role, it returns one negotiation
    */
   @Test
   @WithUserDetails("TheResearcher")
-  public void testGetAllForResearcher_whenFiltersByStartAndEndDate() throws Exception {
+  public void testGetAllForResearcher_whenFiltersByStartAndCreatedBefore() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/users/%s/negotiations?startDate=2023-04-13&endDate=2024-04-13"
+                "/v3/users/%s/negotiations?createdAfter=2023-04-13&createdBefore=2024-04-13"
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
@@ -389,7 +410,7 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/users/%s/negotiations?role=AUTHOR&state=ABANDONED&startDate=2024-01-09&endDate=2024-01-11"
+                "/v3/users/%s/negotiations?role=AUTHOR&state=ABANDONED&createdAfter=2024-01-09&createdBefore=2024-01-11"
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())

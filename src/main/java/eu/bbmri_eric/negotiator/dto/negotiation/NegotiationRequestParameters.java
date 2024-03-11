@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.dto.negotiation;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -16,12 +18,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NegotiationFilterDTO {
+public class NegotiationRequestParameters {
   NegotiationRole role;
 
   List<NegotiationState> state;
 
-  LocalDate startDate;
+  LocalDate createdAfter;
 
-  LocalDate endDate;
+  LocalDate createdBefore;
+
+  @NotBlank String sortColumn = "creationDate";
+
+  @Min(0)
+  int page = 0;
+
+  @Min(1)
+  int size = 50;
 }

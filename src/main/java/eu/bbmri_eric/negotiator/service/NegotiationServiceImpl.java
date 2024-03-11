@@ -19,7 +19,7 @@ import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
@@ -244,7 +244,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Override
   public Iterable<NegotiationDTO> findByFilters(
-      Pageable pageable, NegotiationFilterDTO filters, Long userId) {
+      Pageable pageable, NegotiationRequestParameters filters, Long userId) {
     Person user =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
 
@@ -272,12 +272,12 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
 
     // Filtering by date
-    if (filters.getStartDate() != null || filters.getEndDate() != null) {
+    if (filters.getCreatedAfter() != null || filters.getCreatedBefore() != null) {
       specs =
           specs.and(
-              NegotiationSpecification.hasTimeRange(filters.getStartDate(), filters.getEndDate()));
+              NegotiationSpecification.hasTimeRange(
+                  filters.getCreatedAfter(), filters.getCreatedBefore()));
     }
-
     return negotiationRepository
         .findAll(specs, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));

@@ -4,7 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.List;
@@ -71,7 +71,7 @@ public interface NegotiationService {
   Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, NegotiationState state);
 
   Iterable<NegotiationDTO> findByFilters(
-      Pageable pageable, NegotiationFilterDTO filters, Long userId);
+      Pageable pageable, NegotiationRequestParameters filters, Long userId);
 
   /**
    * Retrieves the negotiation identified by :id. If includeDetails is true, also details of the
