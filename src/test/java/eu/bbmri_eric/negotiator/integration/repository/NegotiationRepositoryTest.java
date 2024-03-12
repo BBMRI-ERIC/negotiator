@@ -91,9 +91,7 @@ public class NegotiationRepositoryTest {
               e.printStackTrace();
             }
             return null;
-          }
-          ';
-      """;
+          }';""";
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
     jdbcTemplate.execute(statementScript);
   }
