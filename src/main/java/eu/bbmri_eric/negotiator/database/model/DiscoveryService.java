@@ -15,6 +15,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+
+/**
+ * This class represents a Discovery Service entity in the database.
+ */
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,6 +40,12 @@ public class DiscoveryService extends AuditEntity {
   @Column(unique = true)
   private String url;
 
+  /**
+   * Overrides the default equals method to compare DiscoveryService objects based on name and url.
+   *
+   * @param o the object to compare with
+   * @return true if the objects are equal, false otherwise
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -48,6 +58,11 @@ public class DiscoveryService extends AuditEntity {
     return Objects.equals(getName(), that.getName()) && Objects.equals(getUrl(), that.getUrl());
   }
 
+  /**
+   * Overrides the default hashCode method to generate a hash code based on name and url.
+   *
+   * @return the hash code of the object
+   */
   @Override
   public int hashCode() {
     return Objects.hash(getName(), getUrl());
