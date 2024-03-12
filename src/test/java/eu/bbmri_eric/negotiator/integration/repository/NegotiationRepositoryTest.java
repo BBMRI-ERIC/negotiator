@@ -74,24 +74,22 @@ public class NegotiationRepositoryTest {
 
   public void addH2Function() {
     String statementScript =
-        """
-      create DOMAIN IF NOT EXISTS JSONB AS JSON;
-
-      CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '
-      import com.jayway.jsonpath.JsonPath;
-          @CODE
-          String jsonbExtractPath(String jsonString, String...jsonPaths) {
-            String overallPath = String.join(".", jsonPaths);
-            try {
-              Object result = JsonPath.read(jsonString, overallPath);
-              if (result != null) {
-                return result.toString();
-              }
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-            return null;
-          }';""";
+        "create DOMAIN IF NOT EXISTS JSONB AS JSON; \n"
+            + "CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '\n"
+            + "import com.jayway.jsonpath.JsonPath;\n"
+            + "    @CODE\n"
+            + "    String jsonbExtractPath(String jsonString, String...jsonPaths) {\n"
+            + "      String overallPath = String.join(\".\", jsonPaths);\n"
+            + "      try {\n"
+            + "        Object result = JsonPath.read(jsonString, overallPath);\n"
+            + "        if (result != null) {\n"
+            + "          return result.toString();\n"
+            + "        }\n"
+            + "      } catch (Exception e) {\n"
+            + "        e.printStackTrace();\n"
+            + "      }\n"
+            + "      return null;\n"
+            + "    }';";
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
     jdbcTemplate.execute(statementScript);
   }
