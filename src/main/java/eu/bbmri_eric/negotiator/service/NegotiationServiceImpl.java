@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.database.model.Attachment;
@@ -248,39 +247,11 @@ public class NegotiationServiceImpl implements NegotiationService {
     Person user =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
 
-    Specification<Negotiation> specs;
-    // Filters for role
-    if (requestParameters.getRole() == null) {
-      // In case the role is not specified, it returns the negotiations where the user is the author
-      // or those involving a resource for which the user is a representative
-      specs = NegotiationSpecification.hasAuthor(user);
-      if (user.getResources() != null && !user.getResources().isEmpty()) {
-        specs = specs.or(NegotiationSpecification.hasResourcesIn(user.getResources()));
-      }
-    } else if (requestParameters.getRole() == NegotiationRole.AUTHOR) {
-      // In case the role is AUTHOR it returns the negotiations for which the user is author (i.e.
-      // createdBy is the user)
-      specs = NegotiationSpecification.hasAuthor(user);
-    } else {
-      // In case the role is REPRESENTATIVE it returns the negotiations involving resources
-      // for which the user is representative. NB: no more IN_PROGRESS state
-      specs = NegotiationSpecification.hasResourcesIn(user.getResources());
-    }
-    // Filtering by state
-    if (requestParameters.getState() != null && !requestParameters.getState().isEmpty()) {
-      specs = specs.and(NegotiationSpecification.hasState(requestParameters.getState()));
-    }
+    Specification<Negotiation> filtersSpec =
+        NegotiationSpecification.fromNegotiationRequestParameters(requestParameters, user);
 
-    // Filtering by date
-    if (requestParameters.getCreatedAfter() != null
-        || requestParameters.getCreatedBefore() != null) {
-      specs =
-          specs.and(
-              NegotiationSpecification.hasTimeRange(
-                  requestParameters.getCreatedAfter(), requestParameters.getCreatedBefore()));
-    }
     return negotiationRepository
-        .findAll(specs, pageable)
+        .findAll(filtersSpec, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 

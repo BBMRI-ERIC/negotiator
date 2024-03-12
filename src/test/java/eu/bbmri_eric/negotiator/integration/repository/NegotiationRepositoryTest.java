@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.integration.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
@@ -30,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -37,6 +37,8 @@ import org.springframework.test.context.TestPropertySource;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
 public class NegotiationRepositoryTest {
+  @Autowired javax.sql.DataSource dbSource;
+
   @Autowired PersonRepository personRepository;
 
   @Autowired ResourceRepository resourceRepository;
@@ -49,7 +51,7 @@ public class NegotiationRepositoryTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired RoleRepository roleRepository;
   private Organization organization;
-  private DataSource dataSource;
+  private eu.bbmri_eric.negotiator.database.model.DataSource dataSource;
   private Person person;
   private Resource resource;
 
@@ -70,17 +72,44 @@ public class NegotiationRepositoryTest {
           + " }\n"
           + "}\n";
 
+  public void addH2Function() {
+    String statementScript =
+        """
+      create DOMAIN IF NOT EXISTS JSONB AS JSON;
+
+      CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '
+      import com.jayway.jsonpath.JsonPath;
+          @CODE
+          String jsonbExtractPath(String jsonString, String...jsonPaths) {
+            String overallPath = String.join(".", jsonPaths);
+            try {
+              Object result = JsonPath.read(jsonString, overallPath);
+              if (result != null) {
+                return result.toString();
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+            return null;
+          }
+          ';
+      """;
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
+    jdbcTemplate.execute(statementScript);
+  }
+
   @BeforeEach
   void setUp() {
+    addH2Function();
     this.organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
     this.dataSource =
         dataSourceRepository.save(
-            DataSource.builder()
+            eu.bbmri_eric.negotiator.database.model.DataSource.builder()
                 .sourcePrefix("")
                 .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
+                .apiType(eu.bbmri_eric.negotiator.database.model.DataSource.ApiType.MOLGENIS)
                 .apiUrl("")
                 .apiUsername("")
                 .url("")
@@ -254,7 +283,7 @@ public class NegotiationRepositoryTest {
         1,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasTimeRange(LocalDate.now().minusDays(1), null),
+                NegotiationSpecification.createdBetween(LocalDate.now().minusDays(1), null),
                 PageRequest.of(0, 10))
             .getNumberOfElements());
   }
@@ -267,7 +296,7 @@ public class NegotiationRepositoryTest {
         1,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasTimeRange(
+                NegotiationSpecification.createdBetween(
                     LocalDate.now().minusDays(1), LocalDate.now().plusDays(1)),
                 PageRequest.of(0, 10))
             .getNumberOfElements());
@@ -281,7 +310,7 @@ public class NegotiationRepositoryTest {
         1,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasTimeRange(null, LocalDate.now().plusDays(1)),
+                NegotiationSpecification.createdBetween(null, LocalDate.now().plusDays(1)),
                 PageRequest.of(0, 10))
             .getNumberOfElements());
   }

@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +26,6 @@ import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -95,19 +93,6 @@ public class NegotiationServiceTest {
     when(negotiationRepository.findById(any())).thenThrow(EntityNotFoundException.class);
     assertFalse(negotiationService.exists("unknown"));
   }
-
-//  @Test
-//  public void test_FindByUserAndRole_ReturnsEmptyList_whenNotFound() {
-//    when(negotiationRepository.findBySubjectIdAndRole(any(), any()))
-//        .thenReturn(Collections.emptyList());
-//    assertTrue(negotiationService.findByUserIdAndRole("fakeID", "fakeRole").isEmpty());
-//  }
-//
-//  @Test
-//  void testGetNegotiationsForAListOFResources() {
-//    when(negotiationRepository.findByCollectionIds(any())).thenReturn(List.of(new Negotiation()));
-//    assertEquals(1, negotiationService.findByResourceIds(List.of("biobank:1:collection:1")).size());
-//  }
 
   @Disabled
   void testCreateNegotiation() throws IOException {
