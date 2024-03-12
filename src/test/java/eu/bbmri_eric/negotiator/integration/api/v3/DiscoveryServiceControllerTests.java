@@ -35,9 +35,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-public class DiscoveryServiceControllerTests {
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class DataSourceControllerTests {
+public class DiscoveryServiceControllerTests {
 
   private static final String ENDPOINT = "/v3/discovery-service";
   private MockMvc mockMvc;
