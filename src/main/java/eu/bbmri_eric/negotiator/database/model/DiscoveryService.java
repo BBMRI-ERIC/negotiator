@@ -15,10 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-
-/**
- * This class represents a Discovery Service entity in the database.
- */
+/** This class represents a Discovery Service entity in the database. */
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
