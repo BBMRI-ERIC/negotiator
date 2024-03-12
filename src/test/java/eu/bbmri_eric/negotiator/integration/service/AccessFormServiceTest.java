@@ -50,8 +50,7 @@ public class AccessFormServiceTest {
   @Autowired AccessFormSectionRepository accessFormSectionRepository;
   @Autowired AccessFormElementRepository accessFormElementRepository;
 
-  @Autowired
-  DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
 
@@ -359,11 +358,7 @@ public class AccessFormServiceTest {
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:99").build());
     DiscoveryService discoveryService =
-        discoveryServiceRepository.save(
-                DiscoveryService.builder()
-                .url("")
-                .name("")
-                .build());
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     for (int i = 0; i < 4; i++) {
       Resource resource =
           resourceRepository.save(
