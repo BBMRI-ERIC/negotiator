@@ -44,6 +44,8 @@ spring:
           issuer-uri: ""
           jwks-url: ""
           audiences: negotiator-api
+  profiles:
+    default: prod
 negotiator:
   molgenis-url: ""
   frontend-url: ""
