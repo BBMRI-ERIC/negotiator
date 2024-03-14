@@ -88,12 +88,12 @@ For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md
 - Java 17
 - Maven
 - Spring
+- Docker engine
 
 ### Running the backend in dev mode
 
 ```shell
-mvn clean package
-java -jar -Dspring.profiles.active=dev target/negotiator.jar
+mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev 
 ```
 
 The dev mode exposes a relational database, details can be found below.
@@ -102,7 +102,7 @@ The dev mode exposes a relational database, details can be found below.
 
 Default credentials are: negotiator:negotiator
 ``
-jdbc:postgresql://localhost:5432/negotiator_db
+jdbc:postgresql://localhost:5432/negotiator
 ``
 
 ### System architecture
