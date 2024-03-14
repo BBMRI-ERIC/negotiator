@@ -14,4 +14,4 @@ WORKDIR /app
 COPY --from=BUILD_IMAGE /app/target/negotiator-spring-boot.jar /app/negotiator.jar
 EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=10s CMD curl -f http://localhost:8081/api/actuator/health || exit 1
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=${PROFILE}", "negotiator.jar"]
+ENTRYPOINT ["java","-jar", "negotiator.jar"]
