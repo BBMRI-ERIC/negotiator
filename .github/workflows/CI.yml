@@ -52,7 +52,7 @@ jobs:
         run: mvn --quiet clean install -DskipTests=True
 
       - name: Run jar file
-        run: nohup java -jar -Dspring.profiles.active=dev target/negotiator.jar > /dev/null 2>&1 &
+        run: nohup mvn spring-boot:test-run -Dspring-boot.run.profiles=dev   > /dev/null 2>&1 &
 
       - name: Wait for application to start
         run: .github/scripts/wait_for_url.sh  localhost:8081/api/actuator/health
