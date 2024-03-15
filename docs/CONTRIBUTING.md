@@ -34,6 +34,9 @@ You can also set up an IntelliJ IDEA plugin
 Please follow
 the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 
+## Versioning
+For versioning of releases and tags please follow [Semantic Versioning](https://semver.org/).
+
 ## Submitting changes
 
 Please send us a GitHub Pull Request with a clear description.
