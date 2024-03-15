@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -23,7 +22,6 @@ import lombok.ToString;
 @Setter
 @Builder
 @Entity(name = "DiscoveryService")
-@Table(name = "discovery_service")
 public class DiscoveryService extends AuditEntity {
 
   @Id
