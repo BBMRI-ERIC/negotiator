@@ -89,15 +89,10 @@ public class AccessFormServiceImpl implements AccessFormService {
         .allMatch(resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()));
   }
 
-  private static boolean sectionDoesntContainElement(
-      AccessFormElement accessFormElement, AccessFormSection matchedSection) {
-    return !matchedSection.getAccessFormElements().contains(accessFormElement);
-  }
-
   private static boolean formDoesntContainSection(
       AccessFormSection accessFormSection, AccessForm accessForm) {
     return accessForm.getLinkedSections().stream()
-        .noneMatch(section -> section.getName().equals(accessFormSection.getName()));
+        .noneMatch(section -> section.equals(accessFormSection));
   }
 
   private AccessFormDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
