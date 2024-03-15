@@ -99,13 +99,12 @@ public class AccessForm extends AuditEntity {
         accessFormSectionLink.getAccessFormSectionElementLinks().stream()
             .filter(link -> link.getAccessFormElement().equals(element))
             .findFirst();
-    if (sameLink.isPresent()) {
-      sameLink.get().setRequired(true);
-      sameLink.get().setElementOrder(elementOrder);
-    } else {
+    if (sameLink.isEmpty()) {
       accessFormSectionLink.addElementLink(
           new AccessFormSectionElementLink(
               accessFormSectionLink, element, isRequired, elementOrder));
+    } else if (isRequired) {
+      sameLink.get().setRequired(true);
     }
   }
 

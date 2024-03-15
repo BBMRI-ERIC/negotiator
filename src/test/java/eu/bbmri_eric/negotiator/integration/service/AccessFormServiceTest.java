@@ -310,7 +310,7 @@ public class AccessFormServiceTest {
             .getAccessFormElements()
             .iterator()
             .next();
-    newAccessForm.linkElementToSection(sameSection, sameElement, 0, !sameElement.isRequired());
+    newAccessForm.linkElementToSection(sameSection, sameElement, 0, true);
     newAccessForm = accessFormRepository.save(newAccessForm);
     assertFalse(newAccessForm.getLinkedSections().isEmpty());
     resource.setAccessForm(newAccessForm);
