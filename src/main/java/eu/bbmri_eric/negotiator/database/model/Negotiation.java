@@ -4,10 +4,8 @@ import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,12 +13,13 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,8 +51,7 @@ import org.hibernate.type.SqlTypes;
     attributeNodes = {
       @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
       @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
-      @NamedAttributeNode(value = "attachments"),
-      @NamedAttributeNode(value = "currentStatePerResource")
+      @NamedAttributeNode(value = "attachments")
     },
     subgraphs = {
       @NamedSubgraph(
@@ -87,7 +85,7 @@ public class Negotiation extends AuditEntity {
   @Exclude
   private Set<PersonNegotiationRole> persons = new HashSet<>();
 
-  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
   @Exclude
   private Set<Request> requests;
 
@@ -104,16 +102,16 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(
-      name = "resource_state_per_negotiation",
-      joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
-  @MapKeyColumn(name = "resource_id")
-  @Enumerated(EnumType.STRING)
-  @Column(name = "current_state")
-  @Setter(AccessLevel.NONE)
-  @Builder.Default
-  private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+  //  @ElementCollection(fetch = FetchType.EAGER)
+  //  @CollectionTable(
+  //      name = "resource_state_per_negotiation",
+  //      joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
+  //  @MapKeyColumn(name = "resource_id")
+  //  @Enumerated(EnumType.STRING)
+  //  @Column(name = "current_state")
+  //  @Setter(AccessLevel.NONE)
+  // @Builder.Default
+  // private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
 
   @OneToMany(
       fetch = FetchType.EAGER,
@@ -144,15 +142,37 @@ public class Negotiation extends AuditEntity {
   }
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
-    currentStatePerResource.put(resourceId, state);
-    if (!state.equals(NegotiationResourceState.SUBMITTED)) {
-      NegotiationResourceLifecycleRecord record =
-          NegotiationResourceLifecycleRecord.builder()
-              .changedTo(state)
-              .resource(lookupResource(getResources(), resourceId))
-              .build();
-      this.negotiationResourceLifecycleRecords.add(record);
+    NegotiationResourceLifecycleRecord record =
+        NegotiationResourceLifecycleRecord.builder()
+            .changedTo(state)
+            .resource(lookupResource(getResources(), resourceId))
+            .build();
+    this.negotiationResourceLifecycleRecords.add(record);
+  }
+
+  public Map<String, NegotiationResourceState> getCurrentStatePerResource() {
+    Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+    for (Resource r : getResources()) {
+      NegotiationResourceLifecycleRecord lastResourceLifecycleRecord;
+      if (this.negotiationResourceLifecycleRecords.size() == 1) {
+        lastResourceLifecycleRecord = this.negotiationResourceLifecycleRecords.iterator().next();
+      } else {
+        lastResourceLifecycleRecord =
+            this.negotiationResourceLifecycleRecords.stream()
+                .filter(
+                    a ->
+                        Objects.nonNull(a.getResource())
+                            && r.getId().equals(a.getResource().getId()))
+                .max(Comparator.comparing(NegotiationResourceLifecycleRecord::getCreationDate))
+                .orElse(null);
+      }
+      if (lastResourceLifecycleRecord != null) {
+        currentStatePerResource.put(
+            lastResourceLifecycleRecord.getResource().getSourceId(),
+            lastResourceLifecycleRecord.getChangedTo());
+      }
     }
+    return currentStatePerResource;
   }
 
   @Override
@@ -177,6 +197,7 @@ public class Negotiation extends AuditEntity {
    *
    * @return an UnmodifiableSet of resources
    */
+  @Transactional
   public Set<Resource> getResources() {
     return requests.stream()
         .flatMap(request -> request.getResources().stream())

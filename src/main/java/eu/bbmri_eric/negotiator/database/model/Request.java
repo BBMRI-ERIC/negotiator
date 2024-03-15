@@ -52,7 +52,7 @@ public class Request {
   @Column(name = "id")
   private String id;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "request_resources_link",
       joinColumns = @JoinColumn(name = "request_id"),
