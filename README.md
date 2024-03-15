@@ -54,16 +54,9 @@ moderators and the requester can interact with it.
 
 ## Quick Start
 
-The following command will run the Negotiator application with the REST API exposed
-at [http://localhost:8080/api](http://localhost:8080).
-Note: The authentication will still be enabled,
-hence the functionality will be limited without a functional authorization server connected to the application. To run
-the application with a mock authorization server utilizing OAuth2,
+Negotiator application can also be spun up using the provided Docker image.
+To run the application with a mock authorization server using the OAuth2 protocol,
 see this [docker compose file](.github/oauth-test/compose.yaml).
-
-```shell
-docker run --rm -e PROFILE=dev -p 8080:8081 bbmrieric/negotiator:latest
-```
 
 To create a request and start the access workflow, run the following curl command:
 
@@ -88,21 +81,22 @@ For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md
 - Java 17
 - Maven
 - Spring
+- Docker engine
 
 ### Running the backend in dev mode
 
 ```shell
-mvn clean package
-java -jar -Dspring.profiles.active=dev target/negotiator.jar
+mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev 
 ```
 
-The dev mode exposes a relational database, details can be found below.
+The dev mode requires a relational database, details can be found below.
 
-### Connection URL for the Postgres testcontainer database
+### Connection URL for the Postgres test container database
 
+Using the springboot test containers, the application spins up a postgres database.
 Default credentials are: negotiator:negotiator
 ``
-jdbc:postgresql://localhost:5432/negotiator_db
+jdbc:postgresql://localhost:5432/negotiator
 ``
 
 ### System architecture
