@@ -16,6 +16,19 @@ import org.junit.jupiter.api.Test;
 
 public class NegotiationTest {
 
+  private Negotiation buildCompleteNegotiation() {
+    Request request = Request.builder().build();
+    Resource resource = Resource.builder().build();
+    resource.setId(Long.valueOf(1));
+    resource.setSourceId("collection:1");
+    Set<Resource> resources = new HashSet();
+    resources.add(resource);
+    request.setResources(resources);
+    Set<Request> requests = new HashSet();
+    requests.add(request);
+    return Negotiation.builder().requests(requests).build();
+  }
+
   @Test
   void createNegotiation_ConstructorAndBuilder_Ok() {
     Negotiation negotiation = new Negotiation();
@@ -69,12 +82,13 @@ public class NegotiationTest {
 
   @Test
   void getCurrentStatesPerResource_defaultConstructor_isNull() {
-    assertEquals(Map.of(), new Negotiation().getCurrentStatePerResource());
+    Negotiation negotiation = this.buildCompleteNegotiation();
+    assertEquals(Map.of(), negotiation.getCurrentStatePerResource());
   }
 
   @Test
   void setResourcesStates_oneResource_Ok() {
-    Negotiation negotiation = Negotiation.builder().build();
+    Negotiation negotiation = this.buildCompleteNegotiation();
     negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
     assertEquals(
         NegotiationResourceState.SUBMITTED,
