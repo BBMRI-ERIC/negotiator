@@ -68,17 +68,12 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .source(NegotiationState.IN_PROGRESS.name())
         .target(NegotiationState.ABANDONED.name())
         .event(NegotiationEvent.ABANDON.name())
+        .action(disablePosts())
         .and()
         .withExternal()
         .source(NegotiationState.IN_PROGRESS.name())
         .target(NegotiationState.CONCLUDED.name())
-        .event(NegotiationEvent.CONCLUDE.name())
-        .and()
-        .withExternal()
-        .source(NegotiationState.IN_PROGRESS.name())
-        .target(NegotiationState.ABANDONED.name())
-        .event(NegotiationEvent.ABANDON.name())
-        .action(disablePosts());
+        .event(NegotiationEvent.CONCLUDE.name());
   }
 
   @Bean
