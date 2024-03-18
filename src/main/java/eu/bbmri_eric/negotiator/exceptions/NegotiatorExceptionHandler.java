@@ -61,7 +61,7 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public final ResponseEntity<ErrorResponse> handleRequestValidationException(
+  public final ResponseEntity<HttpErrorResponseModel> handleRequestValidationException(
       MethodArgumentNotValidException ex, WebRequest request) {
     String message;
     if (ex.getBindingResult().getTarget() instanceof NegotiationRequestParameters) {
@@ -69,14 +69,24 @@ public class NegotiatorExceptionHandler {
     } else {
       message = "The body of the Negotiation is not valid";
     }
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title(message)
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
+
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(EntityNotFoundException.class)
-  public final ResponseEntity<ErrorResponse> handleEntityNotFoundException(
+  public final ResponseEntity<HttpErrorResponseModel> handleEntityNotFoundException(
       EntityNotFoundException ex, WebRequest request) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title(ex.getMessage())
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
