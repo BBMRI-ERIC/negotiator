@@ -13,4 +13,11 @@ public class NegotiationLifecycleRecordTest {
         NegotiationLifecycleRecord.builder().changedTo(NegotiationState.APPROVED).build();
     assertEquals(NegotiationState.APPROVED, negotiationLifecycleRecord.getChangedTo());
   }
+
+  @Test
+  void test_abandon_negotiation() {
+    NegotiationLifecycleRecord negotiationLifecycleRecord =
+        NegotiationLifecycleRecord.builder().changedTo(NegotiationState.ABANDONED).build();
+    assertEquals(NegotiationState.ABANDONED, negotiationLifecycleRecord.getChangedTo());
+  }
 }
