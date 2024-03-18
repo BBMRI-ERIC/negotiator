@@ -7,7 +7,7 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
 
-/** SpringStateMachine action for enabling posts in a Negotiation */
+/** SpringStateMachine action for disabling posts in a Negotiation */
 @Component
 public class DisablePostsAction implements Action<String, String> {
 
