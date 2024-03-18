@@ -152,17 +152,19 @@ public class Negotiation extends AuditEntity {
 
   public Map<String, NegotiationResourceState> getCurrentStatePerResource() {
     Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
+    NegotiationResourceLifecycleRecord lastResourceLifecycleRecord;
     for (Resource r : getResources()) {
-      NegotiationResourceLifecycleRecord lastResourceLifecycleRecord;
-      if (this.negotiationResourceLifecycleRecords.size() == 1) {
-        lastResourceLifecycleRecord = this.negotiationResourceLifecycleRecords.iterator().next();
+      Set<NegotiationResourceLifecycleRecord> filteredRecords =
+          this.negotiationResourceLifecycleRecords.stream()
+              .filter(
+                  a ->
+                      Objects.nonNull(a.getResource()) && r.getId().equals(a.getResource().getId()))
+              .collect(Collectors.toSet());
+      if (filteredRecords.size() == 1) {
+        lastResourceLifecycleRecord = filteredRecords.iterator().next();
       } else {
         lastResourceLifecycleRecord =
-            this.negotiationResourceLifecycleRecords.stream()
-                .filter(
-                    a ->
-                        Objects.nonNull(a.getResource())
-                            && r.getId().equals(a.getResource().getId()))
+            filteredRecords.stream()
                 .max(Comparator.comparing(NegotiationResourceLifecycleRecord::getCreationDate))
                 .orElse(null);
       }
