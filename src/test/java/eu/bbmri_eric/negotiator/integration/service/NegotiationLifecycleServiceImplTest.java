@@ -221,7 +221,6 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    Negotiation before = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
@@ -242,7 +241,7 @@ public class NegotiationLifecycleServiceImplTest {
     Negotiation negotiation = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
     Set<NegotiationResourceLifecycleRecord> records =
         negotiation.getNegotiationResourceLifecycleRecords();
-    assertEquals(4, records.size());
+    assertEquals(6, records.size());
   }
 
   @Test

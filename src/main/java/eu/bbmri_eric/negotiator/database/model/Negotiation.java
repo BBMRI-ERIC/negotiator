@@ -102,17 +102,6 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
-  //  @ElementCollection(fetch = FetchType.EAGER)
-  //  @CollectionTable(
-  //      name = "resource_state_per_negotiation",
-  //      joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
-  //  @MapKeyColumn(name = "resource_id")
-  //  @Enumerated(EnumType.STRING)
-  //  @Column(name = "current_state")
-  //  @Setter(AccessLevel.NONE)
-  // @Builder.Default
-  // private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
-
   @OneToMany(
       fetch = FetchType.EAGER,
       cascade = {CascadeType.ALL})
