@@ -194,4 +194,35 @@ public class DiscoveryServiceControllerTests {
         httpBasic("researcher", "researcher"),
         ENDPOINT);
   }
+
+  @Test
+  public void test_getAllDiscoveryServices() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ENDPOINT).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$").isArray());
+  }
+
+  @Test
+  public void retrieveDiscoveryService_success() throws Exception {
+    long discoveryServiceId = 1L;
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/discovery-service/{id}", discoveryServiceId)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").value(discoveryServiceId));
+  }
+
+  @Test
+  public void retrieveDiscoveryService_notFound() throws Exception {
+    long nonexistentId = 999L;
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/v3/discovery-service/{id}", nonexistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
 }
