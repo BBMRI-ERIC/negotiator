@@ -147,6 +147,15 @@ public class NegotiationControllerTests {
         .andExpect(status().isBadRequest());
   }
 
+  /** It tests that using an unknown param it returns 400 Bad Request */
+  @Test
+  @WithUserDetails("admin")
+  public void testGetAllForAdministrator_whenUnknownParameter() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?unkParam=something"))
+        .andExpect(status().isBadRequest());
+  }
+
   /**
    * It tests that, getting all negotiations without filters for a user that doesn't represent any
    * resource, it returns all the negotiations create by the user.
@@ -319,6 +328,15 @@ public class NegotiationControllerTests {
   public void testGetAllForResearcher_whenUnknownSortBy() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/users/1/negotiations?sortBy=UNK"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /** It tests that using an unknown param it returns 400 Bad Request */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenUnknownParameter() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/users/1/negotiations?unkParam=something"))
         .andExpect(status().isBadRequest());
   }
 
@@ -1110,7 +1128,7 @@ public class NegotiationControllerTests {
   @WithMockUser(authorities = "ROLE_ADMIN")
   void getNegotiationsForAdmin_hasRoleAdmin_Ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?userRole=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
+        .perform(MockMvcRequestBuilders.get("%s?role=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
 
@@ -1118,7 +1136,7 @@ public class NegotiationControllerTests {
   @WithMockUser(authorities = "biobank:1:collection:1")
   void getNegotiationsForAdmin_doesNotHaveRoleAdmin_Forbidden() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?userRole=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
+        .perform(MockMvcRequestBuilders.get("%s?role=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isForbidden());
   }
 

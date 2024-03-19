@@ -79,6 +79,7 @@ public class NegotiationModelAssembler
           linkTo(
                   methodOn(NegotiationController.class)
                       .list(
+                          null,
                           filters.getState(),
                           filters.getCreatedAfter(),
                           filters.getCreatedBefore(),
@@ -94,6 +95,7 @@ public class NegotiationModelAssembler
           linkTo(
                   methodOn(NegotiationController.class)
                       .list(
+                          null,
                           filters.getState(),
                           filters.getCreatedAfter(),
                           filters.getCreatedBefore(),
@@ -108,6 +110,7 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .list(
+                        null,
                         filters.getState(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
@@ -121,6 +124,7 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .list(
+                        null,
                         filters.getState(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
@@ -134,6 +138,7 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .list(
+                        null,
                         filters.getState(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
@@ -158,6 +163,7 @@ public class NegotiationModelAssembler
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(
+                          null,
                           userId,
                           filters.getRole(),
                           filters.getState(),
@@ -175,6 +181,7 @@ public class NegotiationModelAssembler
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(
+                          null,
                           userId,
                           filters.getRole(),
                           filters.getState(),
@@ -191,6 +198,7 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(
+                        null,
                         userId,
                         filters.getRole(),
                         filters.getState(),
@@ -206,6 +214,7 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(
+                        null,
                         userId,
                         filters.getRole(),
                         filters.getState(),
@@ -221,6 +230,7 @@ public class NegotiationModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(
+                        null,
                         userId,
                         filters.getRole(),
                         filters.getState(),

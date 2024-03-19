@@ -8,20 +8,25 @@ import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -88,8 +94,19 @@ public class NegotiationController {
     return negotiationService.update(id, request);
   }
 
+  private void checkNoUnknownParameters(
+      Enumeration<String> parameterNames, Set<String> allowedParams) {
+    while (parameterNames.hasMoreElements()) {
+      String paramName = parameterNames.nextElement();
+      if (!allowedParams.contains(paramName)) {
+        throw new WrongRequestException("Parameter %s is not allowed".formatted(paramName));
+      }
+    }
+  }
+
   @GetMapping("/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> list(
+      @Nullable HttpServletRequest request,
       @RequestParam(required = false) List<NegotiationState> state,
       @RequestParam(required = false) LocalDate createdAfter,
       @RequestParam(required = false) LocalDate createdBefore,
@@ -97,7 +114,21 @@ public class NegotiationController {
       @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-
+    if (request != null) {
+      Set<String> allowedParams =
+          new HashSet<>(
+              Arrays.asList(
+                  "role",
+                  "state",
+                  "createdAfter",
+                  "createdBefore",
+                  "sortBy",
+                  "sortOrder",
+                  "page",
+                  "size"));
+      Enumeration<String> parameterNames = request.getParameterNames();
+      checkNoUnknownParameters(parameterNames, allowedParams);
+    }
     NegotiationFilters filters =
         NegotiationFilters.builder()
             .state(state)
@@ -116,6 +147,7 @@ public class NegotiationController {
 
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
+      @Nullable HttpServletRequest request,
       @Valid @PathVariable Long id,
       @RequestParam(required = false) NegotiationRole role,
       @RequestParam(required = false) List<NegotiationState> state,
@@ -126,6 +158,22 @@ public class NegotiationController {
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "50") @Min(1) int size) {
     checkAuthorization(id);
+
+    if (request != null) {
+      Set<String> allowedParams =
+          new HashSet<>(
+              Arrays.asList(
+                  "role",
+                  "state",
+                  "createdAfter",
+                  "createdBefore",
+                  "sortBy",
+                  "sortOrder",
+                  "page",
+                  "size"));
+      Enumeration<String> parameterNames = request.getParameterNames();
+      checkNoUnknownParameters(parameterNames, allowedParams);
+    }
 
     NegotiationFilters filters =
         NegotiationFilters.builder()

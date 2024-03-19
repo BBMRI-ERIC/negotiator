@@ -5,6 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationSortField;
 import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
@@ -52,12 +53,13 @@ public class UserModelAssembler
         WebMvcLinkBuilder.linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(
+                        null,
                         Long.valueOf(entity.getId()),
                         null,
                         null,
                         null,
                         null,
-                        null,
+                        NegotiationSortField.creationDate,
                         Sort.DEFAULT_DIRECTION,
                         0,
                         10))
@@ -67,12 +69,13 @@ public class UserModelAssembler
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(
+                        null,
                         Long.valueOf(entity.getId()),
                         NegotiationRole.AUTHOR,
                         null,
                         null,
                         null,
-                        null,
+                        NegotiationSortField.creationDate,
                         Sort.DEFAULT_DIRECTION,
                         0,
                         10))
@@ -89,12 +92,13 @@ public class UserModelAssembler
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(
+                          null,
                           Long.valueOf(entity.getId()),
                           NegotiationRole.REPRESENTATIVE,
                           null,
                           null,
                           null,
-                          null,
+                          NegotiationSortField.creationDate,
                           Sort.DEFAULT_DIRECTION,
                           0,
                           10))
