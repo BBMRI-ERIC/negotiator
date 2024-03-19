@@ -25,7 +25,8 @@ values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7Ynv
        (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false);
 
 insert into authorities (person_id, authority)
-values (101, 'ROLE_ADMIN'),
+values (101, 'ADMIN'),  -- still needed for data sources tests
+       (101, 'ROLE_ADMIN'),
        (108, 'RESEARCHER'),  -- TheResearcher has only RESEARCHER authority
        (105, 'RESEARCHER'),  -- SarahRepr has both RESEARCHER and REPRESENTATIVE authority
        (105, 'ROLE_REPRESENTATIVE_biobank:3:collection:1'),
@@ -130,6 +131,14 @@ values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
 -- Adding just representatives since the AUTHOR is the createdBy field of the negotiation
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-1', 109, 5);
+--insert into person_negotiation_role (negotiation_id, person_id, role_id)
+--values ('negotiation-2', 109, 5);
+--insert into person_negotiation_role (negotiation_id, person_id, role_id)
+--values ('negotiation-v2', 109, 5);
+--insert into person_negotiation_role (negotiation_id, person_id, role_id)
+--values ('negotiation-3', 105, 5);
+--insert into person_negotiation_role (negotiation_id, person_id, role_id)
+--values ('negotiation-4', 105, 5);
 
 insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, negotiation_id, organization_id,
                   type)
