@@ -122,23 +122,22 @@ ALTER TABLE resource
 insert into access_form (id, name)
 values (1, 'BBMRI Template'),
        (2, 'BBMRI.de Template'),
-       (3, 'BBMRI.cz Template');
+       (3, 'BBMRI.cz Template')
+ON CONFLICT DO NOTHING;
 insert into access_form_section (id, name, label, description)
-values (1, 'project', 'Project', 'Provide information about your project');
-insert into access_form_section (id, name, label, description)
-values (2, 'request', 'Request', 'Provide information the resources you are requesting');
-insert into access_form_section (id, name, label, description)
-values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?');
+VALUES (1, 'project', 'Project', 'Provide information about your project'),
+       (2, 'request', 'Request', 'Provide information the resources you are requesting'),
+       (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?')
+ON CONFLICT DO NOTHING;
 
-insert into access_form_element (id, name, label, description, type)
-values (1, 'title', 'Title', 'Give a title', 'text'),
+
+INSERT INTO access_form_element (id, name, label, description, type)
+VALUES (1, 'title', 'Title', 'Give a title', 'text'),
        (2, 'description', 'Description', 'Give a description', 'textarea'),
        (3, 'description', 'Description', 'Provide a request description', 'textarea'),
        (4, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'textarea'),
-       (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'file');
-
-INSERT INTO access_form_element (id, name, label, description, type)
-VALUES (6, 'objective', 'Study objective', 'Study objective or hypothesis to be tested?', 'text'),
+       (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'file'),
+       (6, 'objective', 'Study objective', 'Study objective or hypothesis to be tested?', 'text'),
        (7, 'profit', 'Profit', 'Is it a profit or a non-profit study', 'boolean'),
        (8, 'acknowledgment', 'Acknowledgment', 'Financing/ Acknowledgement or collaboration of the collection PIs?',
         'text'),
@@ -160,7 +159,8 @@ VALUES (1, 1, 1, 0),
        (6, 2, 3, 2),
        (7, 3, 1, 0),
        (8, 3, 2, 1),
-       (9, 3, 3, 2);
+       (9, 3, 3, 2)
+ON CONFLICT DO NOTHING;
 
 INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
                                               ELEMENT_ORDER)
