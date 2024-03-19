@@ -25,7 +25,7 @@ values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7Ynv
        (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false);
 
 insert into authorities (person_id, authority)
-values (101, 'ADMIN'),
+values (101, 'ROLE_ADMIN'),
        (108, 'RESEARCHER'),  -- TheResearcher has only RESEARCHER authority
        (105, 'RESEARCHER'),  -- SarahRepr has both RESEARCHER and REPRESENTATIVE authority
        (105, 'ROLE_REPRESENTATIVE_biobank:3:collection:1'),
@@ -94,7 +94,7 @@ values (4, 103),
        (9, 105);
 
 insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload)
-values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2023-04-12', 108, 108,
+values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
         '{"project":{"title":"Biobanking project","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-12', 108, 108,
         '{"project":{"title":"Interesting project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),

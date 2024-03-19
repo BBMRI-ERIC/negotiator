@@ -72,20 +72,22 @@ public interface NegotiationService {
 
   /**
    * Retrieves all the Negotiations, using pagination, filtered by provided filters and
+   *
    * @param pageable A Pageable object desribing the required pagination
    * @param filters A NegotiationFilters with filters to apply
    * @return A paged list of NegotiationDTOs filtered using specific filters
    */
-  Iterable<NegotiationDTO> findAllByFilters(
-          Pageable pageable, NegotiationFilters filters);
+  Iterable<NegotiationDTO> findAllByFilters(Pageable pageable, NegotiationFilters filters);
 
   /**
-   * Retrieves the negotiations, using pagination, filtered by provided filters and
-   * related (i.e., he or she is the AUTHOR or the REPRESENTATIVE) to a user
+   * Retrieves the negotiations, using pagination, filtered by provided filters and related (i.e.,
+   * he or she is the AUTHOR or the REPRESENTATIVE) to a user
+   *
    * @param pageable A Pageable object desribing the required pagination
    * @param filters A NegotiationFilters with filters to apply
    * @param userId The userId of the user that is involved (AUTHOR or REPR) in the Negotiations
-   * @return A paged list of NegotiationDTOs where the user is involved, filtered using specific filters
+   * @return A paged list of NegotiationDTOs where the user is involved, filtered using specific
+   *     filters
    */
   Iterable<NegotiationDTO> findByFiltersForUser(
       Pageable pageable, NegotiationFilters filters, Long userId);
