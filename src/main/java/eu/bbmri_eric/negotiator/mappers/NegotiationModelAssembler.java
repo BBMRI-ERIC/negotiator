@@ -4,7 +4,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import java.util.ArrayList;
@@ -53,10 +52,13 @@ public class NegotiationModelAssembler
   }
 
   public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
-      @NonNull Page<NegotiationDTO> page, NegotiationState status) {
+      @NonNull Page<NegotiationDTO> page,
+      NegotiationFilters filters,
+      String sortBy,
+      Sort.Direction sortOrder) {
     List<Link> links = new ArrayList<>();
     if (page.hasContent()) {
-      links = getLinks(page, status);
+      links = getLinks(page, filters, sortBy, sortOrder);
     }
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
@@ -65,13 +67,24 @@ public class NegotiationModelAssembler
         links);
   }
 
-  private List<Link> getLinks(Page<NegotiationDTO> page, NegotiationState status) {
+  private List<Link> getLinks(
+      Page<NegotiationDTO> page,
+      NegotiationFilters filters,
+      String sortBy,
+      Sort.Direction sortOrder) {
     List<Link> links = new ArrayList<>();
     if (page.hasPrevious()) {
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
-                      .list(status, page.getNumber() - 1, page.getSize()))
+                      .list(
+                          filters.getState(),
+                          filters.getCreatedAfter(),
+                          filters.getCreatedBefore(),
+                          sortBy,
+                          sortOrder,
+                          page.getNumber() - 1,
+                          page.getSize()))
               .withRel(IanaLinkRelations.PREVIOUS)
               .expand());
     }
@@ -79,22 +92,54 @@ public class NegotiationModelAssembler
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
-                      .list(status, page.getNumber() + 1, page.getSize()))
+                      .list(
+                          filters.getState(),
+                          filters.getCreatedAfter(),
+                          filters.getCreatedBefore(),
+                          sortBy,
+                          sortOrder,
+                          page.getNumber() + 1,
+                          page.getSize()))
               .withRel(IanaLinkRelations.NEXT)
               .expand());
     }
     links.add(
-        linkTo(methodOn(NegotiationController.class).list(status, 0, page.getSize()))
-            .withRel("first")
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .list(
+                        filters.getState(),
+                        filters.getCreatedAfter(),
+                        filters.getCreatedBefore(),
+                        sortBy,
+                        sortOrder,
+                        0,
+                        page.getSize()))
+            .withRel(IanaLinkRelations.FIRST)
             .expand());
     links.add(
-        linkTo(methodOn(NegotiationController.class).list(status, page.getNumber(), page.getSize()))
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .list(
+                        filters.getState(),
+                        filters.getCreatedAfter(),
+                        filters.getCreatedBefore(),
+                        sortBy,
+                        sortOrder,
+                        page.getNumber(),
+                        page.getSize()))
             .withRel(IanaLinkRelations.CURRENT)
             .expand());
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
-                    .list(status, page.getTotalPages() - 1, page.getSize()))
+                    .list(
+                        filters.getState(),
+                        filters.getCreatedAfter(),
+                        filters.getCreatedBefore(),
+                        sortBy,
+                        sortOrder,
+                        page.getTotalPages() - 1,
+                        page.getSize()))
             .withRel(IanaLinkRelations.LAST)
             .expand());
     return links;

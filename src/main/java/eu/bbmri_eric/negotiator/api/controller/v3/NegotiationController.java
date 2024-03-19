@@ -90,17 +90,28 @@ public class NegotiationController {
 
   @GetMapping("/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> list(
-      @RequestParam(required = false) NegotiationState status,
+      @RequestParam(required = false) List<NegotiationState> state,
+      @RequestParam(required = false) LocalDate createdAfter,
+      @RequestParam(required = false) LocalDate createdBefore,
+      @RequestParam(defaultValue = "creationDate") String sortBy,
+      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    if (Objects.nonNull(status)) {
-      return assembler.toPagedModel(
-          (Page<NegotiationDTO>)
-              negotiationService.findAllByCurrentStatus(PageRequest.of(page, size), status),
-          status);
-    }
+
+    NegotiationFilters filters =
+        NegotiationFilters.builder()
+            .state(state)
+            .createdAfter(createdAfter)
+            .createdBefore(createdBefore)
+            .build();
+
     return assembler.toPagedModel(
-        (Page<NegotiationDTO>) negotiationService.findAll(PageRequest.of(page, size)), status);
+        (Page<NegotiationDTO>)
+            negotiationService.findAllByFilters(
+                PageRequest.of(page, size, Sort.by(sortOrder, sortBy)), filters),
+        filters,
+        sortBy,
+        sortOrder);
   }
 
   @GetMapping("/users/{id}/negotiations")
@@ -126,7 +137,7 @@ public class NegotiationController {
 
     return assembler.toPagedModel(
         (Page<NegotiationDTO>)
-            negotiationService.findByFilters(
+            negotiationService.findByFiltersForUser(
                 PageRequest.of(page, size, Sort.by(sortOrder, sortBy)), filters, id),
         filters,
         sortBy,

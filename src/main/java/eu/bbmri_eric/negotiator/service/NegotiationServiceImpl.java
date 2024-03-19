@@ -238,11 +238,31 @@ public class NegotiationServiceImpl implements NegotiationService {
    *
    * @param pageable a Pageable object to contstruct Pagination
    * @param requestParameters a NegotiationFilters object containing the filter parameters
+   * @return an Iterable of NegotiationDTO with the filtered Negotiations
+   */
+  @Override
+  public Iterable<NegotiationDTO> findAllByFilters(
+      Pageable pageable, NegotiationFilters requestParameters) {
+
+    Specification<Negotiation> filtersSpec =
+        NegotiationSpecification.fromNegatiationFilters(requestParameters, null);
+
+    return negotiationRepository
+        .findAll(filtersSpec, pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  /**
+   * Method to filter negotiations. It dynamically creates query conditions depending on the
+   * NegotiationFilterDTI in input and returns the filtered negotiations
+   *
+   * @param pageable a Pageable object to contstruct Pagination
+   * @param requestParameters a NegotiationFilters object containing the filter parameters
    * @param userId the id of the user that is performing the action
    * @return an Iterable of NegotiationDTO with the filtered Negotiations
    */
   @Override
-  public Iterable<NegotiationDTO> findByFilters(
+  public Iterable<NegotiationDTO> findByFiltersForUser(
       Pageable pageable, NegotiationFilters requestParameters, Long userId) {
     Person user =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));

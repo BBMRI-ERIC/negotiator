@@ -23,28 +23,40 @@ public class NegotiationSpecification {
   public static Specification<Negotiation> fromNegatiationFilters(
       NegotiationFilters requestParameters, Person user) {
 
-    Specification<Negotiation> specs;
-    if (requestParameters.getRole() == null) {
-      specs = byAuthorOrRepresentative(user);
-    } else if (requestParameters.getRole() == NegotiationRole.AUTHOR) {
-      specs = hasAuthor(user);
-    } else {
-      specs = hasResourcesIn(user.getResources());
+    Specification<Negotiation> specs = null;
+    if (user != null) {
+      if (requestParameters.getRole() == null) {
+        specs = initOrAnd(specs, byAuthorOrRepresentative(user));
+      } else if (requestParameters.getRole() == NegotiationRole.AUTHOR) {
+        specs = initOrAnd(specs, hasAuthor(user));
+      } else {
+        specs = initOrAnd(specs, hasResourcesIn(user.getResources()));
+      }
     }
 
     if (requestParameters.getState() != null && !requestParameters.getState().isEmpty()) {
-      specs = specs.and(hasState(requestParameters.getState()));
+      specs = initOrAnd(specs, hasState(requestParameters.getState()));
     }
 
     if (requestParameters.getCreatedAfter() != null
         || requestParameters.getCreatedBefore() != null) {
       specs =
-          specs.and(
+          initOrAnd(
+              specs,
               createdBetween(
                   requestParameters.getCreatedAfter(), requestParameters.getCreatedBefore()));
     }
 
     return specs;
+  }
+
+  private static Specification<Negotiation> initOrAnd(
+      Specification<Negotiation> overallSpec, Specification<Negotiation> newSpec) {
+    if (overallSpec == null) {
+      return newSpec;
+    } else {
+      return overallSpec.and(newSpec);
+    }
   }
 
   /**

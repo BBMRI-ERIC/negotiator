@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -39,11 +40,30 @@ public class NegotiationModelAssemblerTest {
   }
 
   @Test
-  void toPagedModel_1Entity_ok() {
+  void toPagedModel_1Entity_withUser_ok() {
     assertEquals(
         1,
         negotiationModelAssembler
-            .toPagedModel(new PageImpl<>(List.of(new NegotiationDTO())), null)
+            .toPagedModel(
+                new PageImpl<>(List.of(new NegotiationDTO())),
+                NegotiationFilters.builder().build(),
+                null,
+                null,
+                1L)
+            .getContent()
+            .size());
+  }
+
+  @Test
+  void toPagedModel_1Entity_withoutUser_ok() {
+    assertEquals(
+        1,
+        negotiationModelAssembler
+            .toPagedModel(
+                new PageImpl<>(List.of(new NegotiationDTO())),
+                NegotiationFilters.builder().build(),
+                null,
+                null)
             .getContent()
             .size());
   }
