@@ -6,7 +6,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
@@ -15,6 +15,8 @@ import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,23 +105,33 @@ public class NegotiationController {
 
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Valid @PathVariable Long id, @Valid NegotiationRequestParameters requestParameters) {
+      @Valid @PathVariable Long id,
+      @RequestParam(required = false) NegotiationRole role,
+      @RequestParam(required = false) List<NegotiationState> state,
+      @RequestParam(required = false) LocalDate createdAfter,
+      @RequestParam(required = false) LocalDate createdBefore,
+      @RequestParam(defaultValue = "creationDate") String sortBy,
+      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
+      @RequestParam(defaultValue = "0") @Min(0) int page,
+      @RequestParam(defaultValue = "50") @Min(1) int size) {
     checkAuthorization(id);
-    Sort sortOption;
-    if (requestParameters.getSortOrder() == NegotiationSortOrder.DESC) {
-      sortOption = Sort.by(requestParameters.getSortBy()).descending();
-    } else {
-      sortOption = Sort.by(requestParameters.getSortBy()).ascending();
-    }
+
+    NegotiationFilters filters =
+        NegotiationFilters.builder()
+            .role(role)
+            .state(state)
+            .createdAfter(createdAfter)
+            .createdBefore(createdBefore)
+            .build();
 
     return assembler.toPagedModel(
         (Page<NegotiationDTO>)
             negotiationService.findByFilters(
-                PageRequest.of(
-                    requestParameters.getPage(), requestParameters.getSize(), sortOption),
-                requestParameters,
-                id),
-        null);
+                PageRequest.of(page, size, Sort.by(sortOrder, sortBy)), filters, id),
+        filters,
+        sortBy,
+        sortOrder,
+        id);
   }
 
   private static void checkAuthorization(Long id) {

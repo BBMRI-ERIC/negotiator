@@ -5,7 +5,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -20,8 +20,8 @@ import org.springframework.lang.Nullable;
 /** Class to create query condition for NegotiationRepository. The conditions can be */
 public class NegotiationSpecification {
 
-  public static Specification<Negotiation> fromNegotiationRequestParameters(
-      NegotiationRequestParameters requestParameters, Person user) {
+  public static Specification<Negotiation> fromNegatiationFilters(
+      NegotiationFilters requestParameters, Person user) {
 
     Specification<Negotiation> specs;
     if (requestParameters.getRole() == null) {

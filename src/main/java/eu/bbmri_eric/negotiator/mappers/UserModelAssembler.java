@@ -6,7 +6,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
 import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -53,7 +53,14 @@ public class UserModelAssembler
                 methodOn(NegotiationController.class)
                     .listRelated(
                         Long.valueOf(entity.getId()),
-                        NegotiationRequestParameters.builder().size(10).build()))
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Sort.DEFAULT_DIRECTION,
+                        0,
+                        10))
             .withRel("negotiations")
             .expand());
     links.add(
@@ -61,10 +68,14 @@ public class UserModelAssembler
                 methodOn(NegotiationController.class)
                     .listRelated(
                         Long.valueOf(entity.getId()),
-                        NegotiationRequestParameters.builder()
-                            .role(NegotiationRole.AUTHOR)
-                            .size(10)
-                            .build()))
+                        NegotiationRole.AUTHOR,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Sort.DEFAULT_DIRECTION,
+                        0,
+                        10))
             .withRel("authored_negotiations")
             .expand());
     if (entity.isRepresentativeOfAnyResource()) {
@@ -79,10 +90,14 @@ public class UserModelAssembler
                   methodOn(NegotiationController.class)
                       .listRelated(
                           Long.valueOf(entity.getId()),
-                          NegotiationRequestParameters.builder()
-                              .role(NegotiationRole.REPRESENTATIVE)
-                              .size(10)
-                              .build()))
+                          NegotiationRole.REPRESENTATIVE,
+                          null,
+                          null,
+                          null,
+                          null,
+                          Sort.DEFAULT_DIRECTION,
+                          0,
+                          10))
               .withRel("negotiations_representative")
               .expand());
     }

@@ -6,12 +6,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationRequestParameters;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -34,10 +35,15 @@ public class NegotiationModelAssembler
   }
 
   public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
-      @NonNull Page<NegotiationDTO> page, NegotiationRequestParameters filters, Long userId) {
+      @NonNull Page<NegotiationDTO> page,
+      NegotiationFilters filters,
+      String sortBy,
+      Sort.Direction sortOrder,
+      Long userId) {
+
     List<Link> links = new ArrayList<>();
     if (page.hasContent()) {
-      links = getLinks(page, filters, userId);
+      links = getLinks(page, filters, sortBy, sortOrder, userId);
     }
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
@@ -95,30 +101,89 @@ public class NegotiationModelAssembler
   }
 
   private List<Link> getLinks(
-      Page<NegotiationDTO> page, NegotiationRequestParameters filters, Long userId) {
+      Page<NegotiationDTO> page,
+      NegotiationFilters filters,
+      String sortBy,
+      Sort.Direction sortOrder,
+      Long userId) {
     List<Link> links = new ArrayList<>();
     if (page.hasPrevious()) {
       links.add(
-          linkTo(methodOn(NegotiationController.class).listRelated(userId, filters))
+          linkTo(
+                  methodOn(NegotiationController.class)
+                      .listRelated(
+                          userId,
+                          filters.getRole(),
+                          filters.getState(),
+                          filters.getCreatedAfter(),
+                          filters.getCreatedBefore(),
+                          sortBy,
+                          sortOrder,
+                          page.getNumber() - 1,
+                          page.getSize()))
               .withRel(IanaLinkRelations.PREVIOUS)
               .expand());
     }
     if (page.hasNext()) {
       links.add(
-          linkTo(methodOn(NegotiationController.class).listRelated(userId, filters))
+          linkTo(
+                  methodOn(NegotiationController.class)
+                      .listRelated(
+                          userId,
+                          filters.getRole(),
+                          filters.getState(),
+                          filters.getCreatedAfter(),
+                          filters.getCreatedBefore(),
+                          sortBy,
+                          sortOrder,
+                          page.getNumber() + 1,
+                          page.getSize()))
               .withRel(IanaLinkRelations.NEXT)
               .expand());
     }
     links.add(
-        linkTo(methodOn(NegotiationController.class).listRelated(userId, filters))
-            .withRel("first")
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .listRelated(
+                        userId,
+                        filters.getRole(),
+                        filters.getState(),
+                        filters.getCreatedAfter(),
+                        filters.getCreatedBefore(),
+                        sortBy,
+                        sortOrder,
+                        0,
+                        page.getSize()))
+            .withRel(IanaLinkRelations.FIRST)
             .expand());
     links.add(
-        linkTo(methodOn(NegotiationController.class).listRelated(userId, filters))
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .listRelated(
+                        userId,
+                        filters.getRole(),
+                        filters.getState(),
+                        filters.getCreatedAfter(),
+                        filters.getCreatedBefore(),
+                        sortBy,
+                        sortOrder,
+                        page.getNumber(),
+                        page.getSize()))
             .withRel(IanaLinkRelations.CURRENT)
             .expand());
     links.add(
-        linkTo(methodOn(NegotiationController.class).listRelated(userId, filters))
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .listRelated(
+                        userId,
+                        filters.getRole(),
+                        filters.getState(),
+                        filters.getCreatedAfter(),
+                        filters.getCreatedBefore(),
+                        sortBy,
+                        sortOrder,
+                        page.getTotalPages() - 1,
+                        page.getSize()))
             .withRel(IanaLinkRelations.LAST)
             .expand());
     return links;
