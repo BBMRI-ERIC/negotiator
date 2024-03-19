@@ -129,6 +129,24 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._embedded.negotiations.[4].id", is(NEGOTIATION_V2_ID)));
   }
 
+  /** It tests that using an unsupported sort column it returns 400 Bad Request */
+  @Test
+  @WithUserDetails("admin")
+  public void testGetAllForAdministrator_whenUnknownSortBy() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?sortBy=UNK"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /** It tests that using an unsupported sort column it returns 400 Bad Request */
+  @Test
+  @WithUserDetails("admin")
+  public void testGetAllForAdministrator_whenUnknownSortOrder() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?sortOrder=UNK"))
+        .andExpect(status().isBadRequest());
+  }
+
   /**
    * It tests that, getting all negotiations without filters for a user that doesn't represent any
    * resource, it returns all the negotiations create by the user.
@@ -293,6 +311,24 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._links.first.href", is(link)))
         .andExpect(jsonPath("$._links.current.href", is(link)))
         .andExpect(jsonPath("$._links.last.href", is(link)));
+  }
+
+  /** It tests that using an unsupported sort column it returns 400 Bad Request */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenUnknownSortBy() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/users/1/negotiations?sortBy=UNK"))
+        .andExpect(status().isBadRequest());
+  }
+
+  /** It tests that using an unsupported sort column it returns 400 Bad Request */
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void testGetAllForResearcher_whenUnknownSortOrder() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/users/1/negotiations?sortOrder=UNK"))
+        .andExpect(status().isBadRequest());
   }
 
   /** It tests getting negotiations for researtcher with custom pagination data. */

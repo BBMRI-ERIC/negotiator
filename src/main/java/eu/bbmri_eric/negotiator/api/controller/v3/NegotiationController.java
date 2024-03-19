@@ -93,7 +93,7 @@ public class NegotiationController {
       @RequestParam(required = false) List<NegotiationState> state,
       @RequestParam(required = false) LocalDate createdAfter,
       @RequestParam(required = false) LocalDate createdBefore,
-      @RequestParam(defaultValue = "creationDate") String sortBy,
+      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
       @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
@@ -108,7 +108,7 @@ public class NegotiationController {
     return assembler.toPagedModel(
         (Page<NegotiationDTO>)
             negotiationService.findAllByFilters(
-                PageRequest.of(page, size, Sort.by(sortOrder, sortBy)), filters),
+                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), filters),
         filters,
         sortBy,
         sortOrder);
@@ -121,7 +121,7 @@ public class NegotiationController {
       @RequestParam(required = false) List<NegotiationState> state,
       @RequestParam(required = false) LocalDate createdAfter,
       @RequestParam(required = false) LocalDate createdBefore,
-      @RequestParam(defaultValue = "creationDate") String sortBy,
+      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
       @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "50") @Min(1) int size) {
@@ -138,7 +138,7 @@ public class NegotiationController {
     return assembler.toPagedModel(
         (Page<NegotiationDTO>)
             negotiationService.findByFiltersForUser(
-                PageRequest.of(page, size, Sort.by(sortOrder, sortBy)), filters, id),
+                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), filters, id),
         filters,
         sortBy,
         sortOrder,

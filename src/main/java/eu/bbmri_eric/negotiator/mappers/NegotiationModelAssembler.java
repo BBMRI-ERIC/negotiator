@@ -4,6 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
+import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationSortField;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class NegotiationModelAssembler
   public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
       @NonNull Page<NegotiationDTO> page,
       NegotiationFilters filters,
-      String sortBy,
+      NegotiationSortField sortBy,
       Sort.Direction sortOrder,
       Long userId) {
 
@@ -54,7 +55,7 @@ public class NegotiationModelAssembler
   public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
       @NonNull Page<NegotiationDTO> page,
       NegotiationFilters filters,
-      String sortBy,
+      NegotiationSortField sortBy,
       Sort.Direction sortOrder) {
     List<Link> links = new ArrayList<>();
     if (page.hasContent()) {
@@ -70,7 +71,7 @@ public class NegotiationModelAssembler
   private List<Link> getLinks(
       Page<NegotiationDTO> page,
       NegotiationFilters filters,
-      String sortBy,
+      NegotiationSortField sortBy,
       Sort.Direction sortOrder) {
     List<Link> links = new ArrayList<>();
     if (page.hasPrevious()) {
@@ -148,7 +149,7 @@ public class NegotiationModelAssembler
   private List<Link> getLinks(
       Page<NegotiationDTO> page,
       NegotiationFilters filters,
-      String sortBy,
+      NegotiationSortField sortBy,
       Sort.Direction sortOrder,
       Long userId) {
     List<Link> links = new ArrayList<>();
