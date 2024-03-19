@@ -24,27 +24,18 @@ public class NegotiationSpecification {
       NegotiationRequestParameters requestParameters, Person user) {
 
     Specification<Negotiation> specs;
-    // Filters for role
     if (requestParameters.getRole() == null) {
-      // In case the role is not specified, it returns the negotiations where the user is the author
-      // or those involving a resource for which the user is a representative
       specs = byAuthorOrRepresentative(user);
     } else if (requestParameters.getRole() == NegotiationRole.AUTHOR) {
-      // In case the role is AUTHOR it returns the negotiations for which the user is author (i.e.
-      // createdBy is the user)
       specs = hasAuthor(user);
     } else {
-      // In case the role is REPRESENTATIVE it returns the negotiations involving resources
-      // for which the user is representative. NB: no more IN_PROGRESS state
       specs = hasResourcesIn(user.getResources());
     }
 
-    // Filtering by state
     if (requestParameters.getState() != null && !requestParameters.getState().isEmpty()) {
       specs = specs.and(hasState(requestParameters.getState()));
     }
 
-    // Filtering by date
     if (requestParameters.getCreatedAfter() != null
         || requestParameters.getCreatedBefore() != null) {
       specs =
