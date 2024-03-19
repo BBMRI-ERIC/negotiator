@@ -16,6 +16,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -91,6 +92,10 @@ public class Person {
   public void addResource(Resource resource) {
     this.resources.add(resource);
     resource.getRepresentatives().add(this);
+  }
+
+  public Set<Resource> getResources() {
+    return Collections.unmodifiableSet(resources);
   }
 
   public void removeResource(Resource resource) {
