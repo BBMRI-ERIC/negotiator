@@ -95,7 +95,10 @@ public class Person {
   }
 
   public Set<Resource> getResources() {
-    return Collections.unmodifiableSet(resources);
+    if (Objects.isNull(this.resources)) {
+      return Set.of();
+    }
+    return Collections.unmodifiableSet(this.resources);
   }
 
   public void removeResource(Resource resource) {
