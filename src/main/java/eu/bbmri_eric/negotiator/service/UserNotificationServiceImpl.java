@@ -38,7 +38,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
-    Set<Resource> overlappingResources = representative.getResources();
+    Set<Resource> overlappingResources = new HashSet<>(representative.getResources());
     overlappingResources.retainAll(negotiation.getResources());
     return overlappingResources;
   }
