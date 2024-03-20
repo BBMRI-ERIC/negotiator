@@ -6,12 +6,11 @@
     <groupId>eu.bbmri_eric</groupId>
     <artifactId>negotiator</artifactId>
     <name>BBMRI-ERIC Negotiator</name>
-    <version>3.0.1</version>
+    <version>3.1.4</version>
     <packaging>jar</packaging>
     <description>
         An open-source access negotiation tool for research infrastructures.
     </description>
-
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
@@ -27,6 +26,7 @@
     <build>
         <finalName>negotiator</finalName>
         <plugins>
+
             <plugin>
                 <artifactId>fmt-maven-plugin</artifactId>
                 <executions>
@@ -78,6 +78,7 @@
                         </configuration>
                         <goals>
                             <goal>repackage</goal>
+                            <goal>build-info</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -145,6 +146,11 @@
         <dependency>
             <artifactId>spring-boot-starter</artifactId>
             <groupId>org.springframework.boot</groupId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
