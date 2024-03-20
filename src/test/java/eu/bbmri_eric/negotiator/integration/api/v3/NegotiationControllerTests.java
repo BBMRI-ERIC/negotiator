@@ -327,7 +327,11 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetAllForResearcher_whenUnknownSortBy() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/users/1/negotiations?sortBy=UNK"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?sortBy=UNK"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isBadRequest());
   }
 
@@ -336,7 +340,11 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheResearcher")
   public void testGetAllForResearcher_whenUnknownParameter() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/users/1/negotiations?unkParam=something"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/users/%s/negotiations?unkParam=something"
+                    .formatted(
+                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isBadRequest());
   }
 
