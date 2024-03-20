@@ -139,23 +139,29 @@ public class Negotiation extends AuditEntity {
     this.negotiationResourceLifecycleRecords.add(record);
   }
 
+  private Set<NegotiationResourceLifecycleRecord> filterRecordsByResource(Resource r) {
+    return this.negotiationResourceLifecycleRecords.stream()
+        .filter(a -> Objects.nonNull(a.getResource()) && r.getId().equals(a.getResource().getId()))
+        .collect(Collectors.toSet());
+  }
+
+  private NegotiationResourceLifecycleRecord getLastRecordByResource(
+      Set<NegotiationResourceLifecycleRecord> records) {
+    return records.stream()
+        .max(Comparator.comparing(NegotiationResourceLifecycleRecord::getCreationDate))
+        .orElse(null);
+  }
+
   public Map<String, NegotiationResourceState> getCurrentStatePerResource() {
     Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
     NegotiationResourceLifecycleRecord lastResourceLifecycleRecord;
     for (Resource r : getResources()) {
-      Set<NegotiationResourceLifecycleRecord> filteredRecords =
-          this.negotiationResourceLifecycleRecords.stream()
-              .filter(
-                  a ->
-                      Objects.nonNull(a.getResource()) && r.getId().equals(a.getResource().getId()))
-              .collect(Collectors.toSet());
+      Set<NegotiationResourceLifecycleRecord> filteredRecords = this.filterRecordsByResource(r);
+
       if (filteredRecords.size() == 1) {
         lastResourceLifecycleRecord = filteredRecords.iterator().next();
       } else {
-        lastResourceLifecycleRecord =
-            filteredRecords.stream()
-                .max(Comparator.comparing(NegotiationResourceLifecycleRecord::getCreationDate))
-                .orElse(null);
+        lastResourceLifecycleRecord = this.getLastRecordByResource(filteredRecords);
       }
       if (lastResourceLifecycleRecord != null) {
         currentStatePerResource.put(
