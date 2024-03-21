@@ -103,6 +103,18 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
 
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_abandonNegotiation_to_inProcess_Negotiation() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(
+        NegotiationState.IN_PROGRESS,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+    assertEquals(
+        NegotiationState.ABANDONED,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
+  }
+
   private NegotiationDTO saveNegotiation() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
     return negotiationService.create(negotiationCreateDTO, 101L);

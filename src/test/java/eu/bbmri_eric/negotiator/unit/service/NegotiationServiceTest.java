@@ -24,6 +24,7 @@ import eu.bbmri_eric.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,5 +112,33 @@ public class NegotiationServiceTest {
     assertEquals(
         NegotiationState.SUBMITTED.name(),
         negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
+  }
+
+  @Test
+  public void updatePostStatus_to_true() {
+    Negotiation negotiation = buildNegotiation();
+    String negotiationId = "biobank:1:collection:1";
+    negotiation.setId(negotiationId);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+
+    negotiation.setPostsEnabled(false);
+
+    negotiationService.enablePosts(negotiationId);
+
+    assertTrue(negotiation.getPostsEnabled());
+  }
+
+  @Test
+  public void updatePostStatus_to_false() {
+    Negotiation negotiation = buildNegotiation();
+    String negotiationId = "biobank:1:collection:1";
+    negotiation.setId(negotiationId);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+
+    negotiation.setPostsEnabled(true);
+
+    negotiationService.disablePosts(negotiationId);
+
+    assertFalse(negotiation.getPostsEnabled());
   }
 }

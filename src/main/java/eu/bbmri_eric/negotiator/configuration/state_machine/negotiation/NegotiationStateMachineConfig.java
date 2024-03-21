@@ -68,6 +68,7 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .source(NegotiationState.IN_PROGRESS.name())
         .target(NegotiationState.ABANDONED.name())
         .event(NegotiationEvent.ABANDON.name())
+        .action(disablePosts())
         .and()
         .withExternal()
         .source(NegotiationState.IN_PROGRESS.name())
@@ -78,6 +79,11 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
   @Bean
   public Action<String, String> enablePosts() {
     return new EnablePostsAction();
+  }
+
+  @Bean
+  public Action<String, String> disablePosts() {
+    return new DisablePostsAction();
   }
 
   @Bean
