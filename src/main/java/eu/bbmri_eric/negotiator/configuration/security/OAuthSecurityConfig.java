@@ -138,8 +138,6 @@ public class OAuthSecurityConfig {
                     .hasRole("AUTHORIZATION_MANAGER")
                     .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
                     .authenticated()
-                    .requestMatchers(mvc.pattern("/v3/projects/**"))
-                    .hasRole("RESEARCHER")
                     .anyRequest()
                     .permitAll());
 

@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -63,16 +62,6 @@ public class Person {
 
   @Column(nullable = false, columnDefinition = "boolean default false")
   boolean isServiceAccount;
-
-  @ManyToMany(
-      fetch = FetchType.EAGER,
-      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-      name = "person_project_link",
-      joinColumns = @JoinColumn(name = "person_id"),
-      inverseJoinColumns = @JoinColumn(name = "project_id"))
-  @Exclude
-  Set<Project> projects;
 
   @OneToMany(mappedBy = "person")
   @Exclude

@@ -7,8 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.api.controller.v3.ProjectController;
-import eu.bbmri_eric.negotiator.database.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -35,14 +33,11 @@ public class AccessFormElementSetControllerTests {
   private MockMvc mockMvc;
 
   @Autowired private WebApplicationContext context;
-  @Autowired private ProjectController controller;
-  @Autowired private ProjectRepository repository;
   @Autowired private ModelMapper modelMapper;
 
   @BeforeEach
   public void before() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-    repository.deleteAll();
   }
 
   @Test
