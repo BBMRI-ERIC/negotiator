@@ -1,19 +1,27 @@
+
 server:
   port: 8081
   servlet:
     context-path: "/api"
 management:
   endpoint:
+    info:
+      enabled: true
     health:
       enabled: true
       show-components: always
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
   health:
     db:
       enabled: true
   endpoints:
     web:
       exposure:
-        include: health
+        include: "health,info"
 spring:
   mail:
     host: "localhost"
@@ -63,3 +71,11 @@ logging:
     root: info
 springdoc:
   show-actuator: true
+info:
+  application:
+    name: "BBMRI-ERIC Negotiator"
+    description: "An Open-source access negotiation system for Research Infrastructures."
+    environment: "Production"
+    license:
+      name: "GNU Affero General Public License v3.0"
+      url: "https://www.gnu.org/licenses/agpl-3.0.en.html#license-text"
