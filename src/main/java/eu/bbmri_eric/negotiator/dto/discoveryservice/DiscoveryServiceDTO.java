@@ -15,8 +15,6 @@ public class DiscoveryServiceDTO {
 
   private Long id;
 
-  private String description;
-
   private String name;
 
   private String url;
