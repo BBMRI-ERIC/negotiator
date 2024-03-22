@@ -229,7 +229,7 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void testGetAllForAdministrator_whenFilteredByState_andSortedASC() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations?statusABANDONED&sortOrder=ASC"))
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?status=ABANDONED&sortOrder=ASC"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(2)))
@@ -246,7 +246,7 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void testGetAllForAdministrator_whenFilteredByState() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations?statusABANDONED"))
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations?status=ABANDONED"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(2)))
@@ -265,7 +265,7 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/negotiations?statusABANDONED,IN_PROGRESS&createdAfter=2024-01-09&createdBefore=2024-09-01"))
+                "/v3/negotiations?status=ABANDONED,IN_PROGRESS&createdAfter=2024-01-09&createdBefore=2024-09-01"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(2)))
@@ -587,7 +587,7 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                "/v3/users/%s/negotiations?statusIN_PROGRESS"
+                "/v3/users/%s/negotiations?status=IN_PROGRESS"
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
@@ -795,8 +795,7 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                ("/v3/users/%s/negotiations?role=AUTHOR&status"
-                        + "giABANDONED&createdAfter=2024-01-09&createdBefore=2024-01-11")
+                "/v3/users/%s/negotiations?role=AUTHOR&status=ABANDONED&createdAfter=2024-01-09&createdBefore=2024-01-11"
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
