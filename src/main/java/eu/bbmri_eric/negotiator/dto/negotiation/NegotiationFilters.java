@@ -19,7 +19,7 @@ import lombok.Setter;
 public class NegotiationFilters {
   NegotiationRole role;
 
-  List<NegotiationState> state;
+  List<NegotiationState> status;
 
   LocalDate createdAfter;
 

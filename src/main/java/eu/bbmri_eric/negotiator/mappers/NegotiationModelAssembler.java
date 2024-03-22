@@ -80,7 +80,7 @@ public class NegotiationModelAssembler
                   methodOn(NegotiationController.class)
                       .list(
                           null,
-                          filters.getState(),
+                          filters.getStatus(),
                           filters.getCreatedAfter(),
                           filters.getCreatedBefore(),
                           sortBy,
@@ -96,7 +96,7 @@ public class NegotiationModelAssembler
                   methodOn(NegotiationController.class)
                       .list(
                           null,
-                          filters.getState(),
+                          filters.getStatus(),
                           filters.getCreatedAfter(),
                           filters.getCreatedBefore(),
                           sortBy,
@@ -111,7 +111,7 @@ public class NegotiationModelAssembler
                 methodOn(NegotiationController.class)
                     .list(
                         null,
-                        filters.getState(),
+                        filters.getStatus(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
                         sortBy,
@@ -125,7 +125,7 @@ public class NegotiationModelAssembler
                 methodOn(NegotiationController.class)
                     .list(
                         null,
-                        filters.getState(),
+                        filters.getStatus(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
                         sortBy,
@@ -139,7 +139,7 @@ public class NegotiationModelAssembler
                 methodOn(NegotiationController.class)
                     .list(
                         null,
-                        filters.getState(),
+                        filters.getStatus(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
                         sortBy,
@@ -166,7 +166,7 @@ public class NegotiationModelAssembler
                           null,
                           userId,
                           filters.getRole(),
-                          filters.getState(),
+                          filters.getStatus(),
                           filters.getCreatedAfter(),
                           filters.getCreatedBefore(),
                           sortBy,
@@ -184,7 +184,7 @@ public class NegotiationModelAssembler
                           null,
                           userId,
                           filters.getRole(),
-                          filters.getState(),
+                          filters.getStatus(),
                           filters.getCreatedAfter(),
                           filters.getCreatedBefore(),
                           sortBy,
@@ -201,7 +201,7 @@ public class NegotiationModelAssembler
                         null,
                         userId,
                         filters.getRole(),
-                        filters.getState(),
+                        filters.getStatus(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
                         sortBy,
@@ -217,7 +217,7 @@ public class NegotiationModelAssembler
                         null,
                         userId,
                         filters.getRole(),
-                        filters.getState(),
+                        filters.getStatus(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
                         sortBy,
@@ -233,7 +233,7 @@ public class NegotiationModelAssembler
                         null,
                         userId,
                         filters.getRole(),
-                        filters.getState(),
+                        filters.getStatus(),
                         filters.getCreatedAfter(),
                         filters.getCreatedBefore(),
                         sortBy,

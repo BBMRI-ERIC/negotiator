@@ -107,7 +107,7 @@ public class NegotiationController {
   @GetMapping("/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> list(
       @Nullable HttpServletRequest request,
-      @RequestParam(required = false) List<NegotiationState> state,
+      @RequestParam(required = false) List<NegotiationState> status,
       @RequestParam(required = false) LocalDate createdAfter,
       @RequestParam(required = false) LocalDate createdBefore,
       @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
@@ -119,7 +119,7 @@ public class NegotiationController {
           new HashSet<>(
               Arrays.asList(
                   "role",
-                  "state",
+                  "status",
                   "createdAfter",
                   "createdBefore",
                   "sortBy",
@@ -131,7 +131,7 @@ public class NegotiationController {
     }
     NegotiationFilters filters =
         NegotiationFilters.builder()
-            .state(state)
+            .status(status)
             .createdAfter(createdAfter)
             .createdBefore(createdBefore)
             .build();
@@ -150,7 +150,7 @@ public class NegotiationController {
       @Nullable HttpServletRequest request,
       @Valid @PathVariable Long id,
       @RequestParam(required = false) NegotiationRole role,
-      @RequestParam(required = false) List<NegotiationState> state,
+      @RequestParam(required = false) List<NegotiationState> status,
       @RequestParam(required = false) LocalDate createdAfter,
       @RequestParam(required = false) LocalDate createdBefore,
       @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
@@ -164,7 +164,7 @@ public class NegotiationController {
           new HashSet<>(
               Arrays.asList(
                   "role",
-                  "state",
+                  "status",
                   "createdAfter",
                   "createdBefore",
                   "sortBy",
@@ -178,7 +178,7 @@ public class NegotiationController {
     NegotiationFilters filters =
         NegotiationFilters.builder()
             .role(role)
-            .state(state)
+            .status(status)
             .createdAfter(createdAfter)
             .createdBefore(createdBefore)
             .build();

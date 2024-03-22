@@ -34,8 +34,8 @@ public class NegotiationSpecification {
       }
     }
 
-    if (requestParameters.getState() != null && !requestParameters.getState().isEmpty()) {
-      specs = initOrAnd(specs, hasState(requestParameters.getState()));
+    if (requestParameters.getStatus() != null && !requestParameters.getStatus().isEmpty()) {
+      specs = initOrAnd(specs, hasState(requestParameters.getStatus()));
     }
 
     if (requestParameters.getCreatedAfter() != null
