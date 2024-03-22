@@ -28,18 +28,18 @@ public class DiscoverServiceController {
   @Autowired private DiscoveryServiceService discoveryServiceService;
   @Autowired private ModelMapper modelMapper;
 
-  @GetMapping("/discovery-service")
+  @GetMapping("/discovery-services")
   List<DiscoveryServiceDTO> list() {
     return discoveryServiceService.findAll();
   }
 
-  @GetMapping("/discovery-service/{id}")
+  @GetMapping("/discovery-services/{id}")
   DiscoveryServiceDTO retrieve(@PathVariable Long id) {
     return discoveryServiceService.findById(id);
   }
 
   @PostMapping(
-      value = "/discovery-service",
+      value = "/discovery-services",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
@@ -48,7 +48,7 @@ public class DiscoverServiceController {
   }
 
   @PutMapping(
-      value = "/discovery-service/{id}",
+      value = "/discovery-services/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)

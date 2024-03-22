@@ -38,7 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class DiscoveryServiceControllerTests {
 
-  private static final String ENDPOINT = "/v3/discovery-service";
+  private static final String ENDPOINT = "/v3/discovery-services";
   private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private DiscoverServiceController controller;
@@ -86,7 +86,7 @@ public class DiscoveryServiceControllerTests {
     MvcResult result =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post("/v3/discovery-service")
+                MockMvcRequestBuilders.post("/v3/discovery-services")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
             .andExpect(status().isCreated())
@@ -149,7 +149,7 @@ public class DiscoveryServiceControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                    "/v3/discovery-service/%s".formatted(discoveryServiceEntity.getId()))
+                    "/v3/discovery-services/%s".formatted(discoveryServiceEntity.getId()))
                 .with(httpBasic("admin", "admin"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -209,7 +209,7 @@ public class DiscoveryServiceControllerTests {
     long discoveryServiceId = 1L;
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/v3/discovery-service/{id}", discoveryServiceId)
+            MockMvcRequestBuilders.get("/v3/discovery-services/{id}", discoveryServiceId)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -221,7 +221,7 @@ public class DiscoveryServiceControllerTests {
     long nonexistentId = 999L;
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/v3/discovery-service/{id}", nonexistentId)
+            MockMvcRequestBuilders.get("/v3/discovery-services/{id}", nonexistentId)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
