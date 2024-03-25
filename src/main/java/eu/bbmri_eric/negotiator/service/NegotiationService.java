@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.List;
@@ -60,16 +61,6 @@ public interface NegotiationService {
    */
   Iterable<NegotiationDTO> findAll(Pageable pageable);
 
-  Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId);
-
-  /**
-   * Returns a paged list of all negotiations in the negotiator.
-   *
-   * @param pageable the page request
-   * @return a paged list of NegotiationDTOs
-   */
-  Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId);
-
   /**
    * Returns a paged list of all negotiations in the negotiator with the specified current state.
    *
@@ -78,6 +69,28 @@ public interface NegotiationService {
    * @return a paged list of NegotiationDTOs
    */
   Iterable<NegotiationDTO> findAllByCurrentStatus(Pageable pageable, NegotiationState state);
+
+  /**
+   * Retrieves all the Negotiations, using pagination, filtered by provided filters and
+   *
+   * @param pageable A Pageable object desribing the required pagination
+   * @param filters A NegotiationFilters with filters to apply
+   * @return A paged list of NegotiationDTOs filtered using specific filters
+   */
+  Iterable<NegotiationDTO> findAllByFilters(Pageable pageable, NegotiationFilters filters);
+
+  /**
+   * Retrieves the negotiations, using pagination, filtered by provided filters and related (i.e.,
+   * he or she is the AUTHOR or the REPRESENTATIVE) to a user
+   *
+   * @param pageable A Pageable object desribing the required pagination
+   * @param filters A NegotiationFilters with filters to apply
+   * @param userId The userId of the user that is involved (AUTHOR or REPR) in the Negotiations
+   * @return A paged list of NegotiationDTOs where the user is involved, filtered using specific
+   *     filters
+   */
+  Iterable<NegotiationDTO> findByFiltersForUser(
+      Pageable pageable, NegotiationFilters filters, Long userId);
 
   /**
    * Retrieves the negotiation identified by :id. If includeDetails is true, also details of the
@@ -90,42 +103,6 @@ public interface NegotiationService {
    * @throws EntityNotFoundException if the requested negotiation is not found
    */
   NegotiationDTO findById(String id, boolean includeDetails);
-
-  // TODO: change byBiobankId
-  List<NegotiationDTO> findByBiobankId(String biobankId);
-
-  /**
-   * Retrieves a list of negotiations related to a specific resource
-   *
-   * @param resourceId an id of the resource
-   * @return a list of Negotiations
-   */
-  List<NegotiationDTO> findByResourceId(String resourceId);
-
-  /**
-   * Retrieves a list of negotiations of related to the user with id :userId and the role :userRole
-   *
-   * @param userId the id of the user that has a role in the negotiation
-   * @param userRole the role of the user in the negotiation
-   * @return a List of NegotiationDTOs
-   */
-  List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole);
-
-  /**
-   * Retrieves a list of negotiations related to specific resources
-   *
-   * @param resourceIds a List of Ids of resources
-   * @return a list of Negotiations
-   */
-  List<NegotiationDTO> findByResourceIds(List<String> resourceIds);
-
-  /**
-   * Retrives a list of negotiations created by user with id
-   *
-   * @param personId id of the creator
-   * @return a list of negotiations
-   */
-  List<NegotiationDTO> findAllNegotiationsCreatedBy(Long personId);
 
   /**
    * Sets the enabledPosts attrubute to true for the input Negotiation
@@ -148,8 +125,6 @@ public interface NegotiationService {
    * @return A list of NegotiationDTOs with specific state.
    */
   List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState);
-
-  List<NegotiationDTO> findNegotiationsToReview();
 
   boolean isAuthorizedForNegotiation(Negotiation negotiation);
 }

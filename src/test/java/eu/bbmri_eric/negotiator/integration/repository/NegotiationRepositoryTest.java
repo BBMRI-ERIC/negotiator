@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.integration.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
@@ -13,11 +12,14 @@ import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -34,6 +37,8 @@ import org.springframework.test.context.TestPropertySource;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
 public class NegotiationRepositoryTest {
+  @Autowired javax.sql.DataSource dbSource;
+
   @Autowired PersonRepository personRepository;
 
   @Autowired ResourceRepository resourceRepository;
@@ -46,7 +51,7 @@ public class NegotiationRepositoryTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired RoleRepository roleRepository;
   private Organization organization;
-  private DataSource dataSource;
+  private eu.bbmri_eric.negotiator.database.model.DataSource dataSource;
   private Person person;
   private Resource resource;
 
@@ -67,17 +72,40 @@ public class NegotiationRepositoryTest {
           + " }\n"
           + "}\n";
 
+  public void addH2Function() {
+    String statementScript =
+        "create DOMAIN IF NOT EXISTS JSONB AS JSON; \n"
+            + "CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '\n"
+            + "import com.jayway.jsonpath.JsonPath;\n"
+            + "    @CODE\n"
+            + "    String jsonbExtractPath(String jsonString, String...jsonPaths) {\n"
+            + "      String overallPath = String.join(\".\", jsonPaths);\n"
+            + "      try {\n"
+            + "        Object result = JsonPath.read(jsonString, overallPath);\n"
+            + "        if (result != null) {\n"
+            + "          return result.toString();\n"
+            + "        }\n"
+            + "      } catch (Exception e) {\n"
+            + "        e.printStackTrace();\n"
+            + "      }\n"
+            + "      return null;\n"
+            + "    }';";
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
+    jdbcTemplate.execute(statementScript);
+  }
+
   @BeforeEach
   void setUp() {
+    addH2Function();
     this.organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
     this.dataSource =
         dataSourceRepository.save(
-            DataSource.builder()
+            eu.bbmri_eric.negotiator.database.model.DataSource.builder()
                 .sourcePrefix("")
                 .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
+                .apiType(eu.bbmri_eric.negotiator.database.model.DataSource.ApiType.MOLGENIS)
                 .apiUrl("")
                 .apiUsername("")
                 .url("")
@@ -187,7 +215,9 @@ public class NegotiationRepositoryTest {
     assertEquals(
         negotiation.getId(),
         negotiationRepository
-            .findAllByCurrentState(PageRequest.of(0, 10, Sort.by("id")), NegotiationState.SUBMITTED)
+            .findAll(
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                PageRequest.of(0, 10, Sort.by("id")))
             .get()
             .iterator()
             .next()
@@ -195,7 +225,9 @@ public class NegotiationRepositoryTest {
     assertEquals(
         NegotiationState.SUBMITTED,
         negotiationRepository
-            .findAllByCurrentState(PageRequest.of(0, 10), NegotiationState.SUBMITTED)
+            .findAll(
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                PageRequest.of(0, 10, Sort.by("id")))
             .get()
             .iterator()
             .next()
@@ -205,7 +237,9 @@ public class NegotiationRepositoryTest {
     assertEquals(
         0,
         negotiationRepository
-            .findAllByCurrentState(PageRequest.of(0, 10), NegotiationState.SUBMITTED)
+            .findAll(
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                PageRequest.of(0, 10, Sort.by("id")))
             .getNumberOfElements());
   }
 
@@ -218,8 +252,62 @@ public class NegotiationRepositoryTest {
     assertEquals(
         1,
         negotiationRepository
-            .findByCreatedByOrRequests_ResourcesIn(
-                PageRequest.of(0, 10), author, author.getResources())
+            .findAll(
+                NegotiationSpecification.hasResourcesIn(author.getResources()),
+                PageRequest.of(0, 10))
+            .getNumberOfElements());
+  }
+
+  @Test
+  void findAllState_1submitted_ok() {
+    saveNegotiation();
+    assertEquals(person.getId(), negotiationRepository.findAll().get(0).getCreatedBy().getId());
+    assertEquals(
+        1,
+        negotiationRepository
+            .findAll(
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                PageRequest.of(0, 10))
+            .getNumberOfElements());
+  }
+
+  @Test
+  void findAllCreated_1After_ok() {
+    saveNegotiation();
+    assertEquals(person.getId(), negotiationRepository.findAll().get(0).getCreatedBy().getId());
+    assertEquals(
+        1,
+        negotiationRepository
+            .findAll(
+                NegotiationSpecification.createdBetween(LocalDate.now().minusDays(1), null),
+                PageRequest.of(0, 10))
+            .getNumberOfElements());
+  }
+
+  @Test
+  void findAllCreated_1Before_ok() {
+    saveNegotiation();
+    assertEquals(person.getId(), negotiationRepository.findAll().get(0).getCreatedBy().getId());
+    assertEquals(
+        1,
+        negotiationRepository
+            .findAll(
+                NegotiationSpecification.createdBetween(
+                    LocalDate.now().minusDays(1), LocalDate.now().plusDays(1)),
+                PageRequest.of(0, 10))
+            .getNumberOfElements());
+  }
+
+  @Test
+  void findAllCreated_1Between_ok() {
+    saveNegotiation();
+    assertEquals(person.getId(), negotiationRepository.findAll().get(0).getCreatedBy().getId());
+    assertEquals(
+        1,
+        negotiationRepository
+            .findAll(
+                NegotiationSpecification.createdBetween(null, LocalDate.now().plusDays(1)),
+                PageRequest.of(0, 10))
             .getNumberOfElements());
   }
 
@@ -230,8 +318,7 @@ public class NegotiationRepositoryTest {
     assertEquals(
         1,
         negotiationRepository
-            .findByCreatedByOrRequests_ResourcesIn(
-                PageRequest.of(0, 10), person, person.getResources())
+            .findAll(NegotiationSpecification.hasAuthor(person), PageRequest.of(0, 10))
             .getNumberOfElements());
   }
 
@@ -250,8 +337,10 @@ public class NegotiationRepositoryTest {
     assertEquals(
         40,
         negotiationRepository
-            .findByCreatedByOrRequests_ResourcesIn(
-                PageRequest.of(0, 50), person, person.getResources())
+            .findAll(
+                NegotiationSpecification.hasAuthor(person)
+                    .or(NegotiationSpecification.hasResourcesIn(person.getResources())),
+                PageRequest.of(0, 50))
             .getNumberOfElements());
   }
 
@@ -275,6 +364,7 @@ public class NegotiationRepositoryTest {
             .postsEnabled(false)
             .payload(payload)
             .build();
+    negotiation.setCreationDate(LocalDateTime.now());
     negotiation.setCreatedBy(person);
     Role role = roleRepository.save(new Role(1L, "test"));
     Set<PersonNegotiationRole> roles = new HashSet<>();

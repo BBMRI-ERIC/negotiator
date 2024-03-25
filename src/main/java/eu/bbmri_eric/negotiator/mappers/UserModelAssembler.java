@@ -5,6 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationSortField;
 import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -50,13 +52,33 @@ public class UserModelAssembler
     links.add(
         WebMvcLinkBuilder.linkTo(
                 methodOn(NegotiationController.class)
-                    .listRelated(Long.valueOf(entity.getId()), null, 0, 10))
+                    .listRelated(
+                        null,
+                        Long.valueOf(entity.getId()),
+                        null,
+                        null,
+                        null,
+                        null,
+                        NegotiationSortField.creationDate,
+                        Sort.DEFAULT_DIRECTION,
+                        0,
+                        10))
             .withRel("negotiations")
             .expand());
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
-                    .listRelated(Long.valueOf(entity.getId()), NegotiationRole.AUTHOR, 0, 10))
+                    .listRelated(
+                        null,
+                        Long.valueOf(entity.getId()),
+                        NegotiationRole.AUTHOR,
+                        null,
+                        null,
+                        null,
+                        NegotiationSortField.creationDate,
+                        Sort.DEFAULT_DIRECTION,
+                        0,
+                        10))
             .withRel("authored_negotiations")
             .expand());
     if (entity.isRepresentativeOfAnyResource()) {
@@ -65,11 +87,21 @@ public class UserModelAssembler
                   methodOn(UserController.class)
                       .findRepresentedResources(Long.valueOf(entity.getId())))
               .withRel("represented_resources"));
+
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(
-                          Long.valueOf(entity.getId()), NegotiationRole.REPRESENTATIVE, 0, 10))
+                          null,
+                          Long.valueOf(entity.getId()),
+                          NegotiationRole.REPRESENTATIVE,
+                          null,
+                          null,
+                          null,
+                          NegotiationSortField.creationDate,
+                          Sort.DEFAULT_DIRECTION,
+                          0,
+                          10))
               .withRel("negotiations_representative")
               .expand());
     }

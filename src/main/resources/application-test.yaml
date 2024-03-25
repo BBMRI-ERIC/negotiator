@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON;
+    url: "jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=RUNSCRIPT FROM 'classpath:db/test/add_json_extract_function.sql'"
     username: negotiator
     password: negotiator
   servlet:

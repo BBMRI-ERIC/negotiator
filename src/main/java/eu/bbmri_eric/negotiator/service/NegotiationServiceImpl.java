@@ -11,27 +11,28 @@ import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired ModelMapper modelMapper;
   @Autowired EmailService notificationService;
   @Autowired UserNotificationService userNotificationService;
-  @Autowired RepresentativeNegotiationService representativeNegotiationService;
   @Autowired PersonService personService;
 
   public static boolean isNegotiationCreator(Negotiation negotiation) {
@@ -225,30 +225,53 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public Iterable<NegotiationDTO> findAllRelatedTo(Pageable pageable, Long userId) {
-    Person person =
-        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
-    return negotiationRepository
-        .findByCreatedByOrRequests_ResourcesIn(pageable, person, person.getResources())
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
-  }
-
-  @Override
-  public Iterable<NegotiationDTO> findAllCreatedBy(Pageable pageable, Long authorId) {
-    Person author =
-        personRepository
-            .findById(authorId)
-            .orElseThrow(() -> new EntityNotFoundException(authorId));
-    return negotiationRepository
-        .findAllByCreatedBy(pageable, author)
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
-  }
-
-  @Override
   public Iterable<NegotiationDTO> findAllByCurrentStatus(
       Pageable pageable, NegotiationState state) {
     return negotiationRepository
-        .findAllByCurrentState(pageable, state)
+        .findAll(NegotiationSpecification.hasState(List.of(state)), pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  /**
+   * Method to filter negotiations. It dynamically creates query conditions depending on the
+   * NegotiationFilterDTI in input and returns the filtered negotiations
+   *
+   * @param pageable a Pageable object to contstruct Pagination
+   * @param requestParameters a NegotiationFilters object containing the filter parameters
+   * @return an Iterable of NegotiationDTO with the filtered Negotiations
+   */
+  @Override
+  public Iterable<NegotiationDTO> findAllByFilters(
+      Pageable pageable, NegotiationFilters requestParameters) {
+
+    Specification<Negotiation> filtersSpec =
+        NegotiationSpecification.fromNegatiationFilters(requestParameters, null);
+
+    return negotiationRepository
+        .findAll(filtersSpec, pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
+  /**
+   * Method to filter negotiations. It dynamically creates query conditions depending on the
+   * NegotiationFilterDTI in input and returns the filtered negotiations
+   *
+   * @param pageable a Pageable object to contstruct Pagination
+   * @param requestParameters a NegotiationFilters object containing the filter parameters
+   * @param userId the id of the user that is performing the action
+   * @return an Iterable of NegotiationDTO with the filtered Negotiations
+   */
+  @Override
+  public Iterable<NegotiationDTO> findByFiltersForUser(
+      Pageable pageable, NegotiationFilters requestParameters, Long userId) {
+    Person user =
+        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+
+    Specification<Negotiation> filtersSpec =
+        NegotiationSpecification.fromNegatiationFilters(requestParameters, user);
+
+    return negotiationRepository
+        .findAll(filtersSpec, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
@@ -278,44 +301,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 
-  /**
-   * Returns a List of Negotiation entities filtered by biobank id
-   *
-   * @param biobankId the id in the data source of the biobank of the negotiation
-   * @return the List of Negotiation entities found
-   */
-  public List<NegotiationDTO> findByBiobankId(String biobankId) {
-    throw new NotImplementedException("Not yet implemented");
-  }
-
-  /**
-   * Returns a List of Negotiation entities filtered by biobank id
-   *
-   * @param resourceId the id in the data source of the biobank of the negotiation
-   * @return the List of Negotiation entities found
-   */
-  public List<NegotiationDTO> findByResourceId(String resourceId) {
-    List<Negotiation> negotiations = negotiationRepository.findByCollectionId(resourceId);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
-  }
-
-  public List<NegotiationDTO> findByUserIdAndRole(String userId, String userRole) {
-    List<Negotiation> negotiations = negotiationRepository.findBySubjectIdAndRole(userId, userRole);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<NegotiationDTO> findAllNegotiationsCreatedBy(Long personId) {
-    List<Negotiation> negotiations = negotiationRepository.findByCreatedBy_Id(personId);
-    return negotiations.stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
-  }
-
   @Transactional
   public void enablePosts(String negotiationId) {
     updatePostStatus(negotiationId, true);
@@ -337,24 +322,9 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState) {
-    return negotiationRepository.findByCurrentState(negotiationState).stream()
-        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<NegotiationDTO> findNegotiationsToReview() {
-    if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
-      return findAllWithCurrentState(NegotiationState.SUBMITTED);
-    }
-    throw new ForbiddenRequestException("Only admins can access this endpoint");
-  }
-
-  @Override
-  public List<NegotiationDTO> findByResourceIds(List<String> resourceIds) {
-    List<Negotiation> negotiations = negotiationRepository.findByCollectionIds(resourceIds);
-
-    return negotiations.stream()
+    return negotiationRepository
+        .findAll(NegotiationSpecification.hasState(List.of(negotiationState)))
+        .stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
   }

@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.exceptions;
 
 import eu.bbmri_eric.negotiator.dto.error.ErrorResponse;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
@@ -60,18 +61,32 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public final ResponseEntity<ErrorResponse> handleRequestValidationException(
+  public final ResponseEntity<HttpErrorResponseModel> handleRequestValidationException(
       MethodArgumentNotValidException ex, WebRequest request) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(
-            HttpStatus.BAD_REQUEST.value(), "The body of the Negotiation is not valid");
+    String message;
+    if (ex.getBindingResult().getTarget() instanceof NegotiationFilters) {
+      message = "One or more query parameters are not valid";
+    } else {
+      message = "The body of the Negotiation is not valid";
+    }
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title(message)
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
+
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(EntityNotFoundException.class)
-  public final ResponseEntity<ErrorResponse> handleEntityNotFoundException(
+  public final ResponseEntity<HttpErrorResponseModel> handleEntityNotFoundException(
       EntityNotFoundException ex, WebRequest request) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title(ex.getMessage())
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 

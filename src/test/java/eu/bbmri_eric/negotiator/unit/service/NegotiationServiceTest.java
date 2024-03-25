@@ -10,35 +10,46 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.DataSource;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
+import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
+import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.EmailService;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
-import java.util.Collections;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 public class NegotiationServiceTest {
-
   @Mock NegotiationRepository negotiationRepository;
   @Mock RoleRepository roleRepository;
   @Mock PersonRepository personRepository;
+  @Captor ArgumentCaptor<Specification<Negotiation>> specificationCaptor;
+  @Captor ArgumentCaptor<Pageable> pageableCaptor;
+
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;
   @Mock NegotiationLifecycleService negotiationLifecycleService;
@@ -84,17 +95,23 @@ public class NegotiationServiceTest {
     assertFalse(negotiationService.exists("unknown"));
   }
 
-  @Test
-  public void test_FindByUserAndRole_ReturnsEmptyList_whenNotFound() {
-    when(negotiationRepository.findBySubjectIdAndRole(any(), any()))
-        .thenReturn(Collections.emptyList());
-    assertTrue(negotiationService.findByUserIdAndRole("fakeID", "fakeRole").isEmpty());
-  }
-
-  @Test
-  void testGetNegotiationsForAListOFResources() {
-    when(negotiationRepository.findByCollectionIds(any())).thenReturn(List.of(new Negotiation()));
-    assertEquals(1, negotiationService.findByResourceIds(List.of("biobank:1:collection:1")).size());
+  @Disabled
+  void testCreateNegotiation() throws IOException {
+    when(personRepository.findById(100L)).thenReturn(Optional.of(new Person()));
+    when(roleRepository.findByName("ROLE_RESEARCHER")).thenReturn(Optional.of(new Role()));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
+    Negotiation negotiation = new Negotiation();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setRequests(Set.of(request));
+    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
+    when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    NegotiationDTO savedDTO = new NegotiationDTO();
+    savedDTO.setId("saved");
+    when(negotiationRepository.save(negotiation)).thenReturn(negotiation);
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
+    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
+    assertEquals("saved", negotiationDTO.getId());
   }
 
   @Test
@@ -106,8 +123,7 @@ public class NegotiationServiceTest {
             .status(negotiation.getCurrentState().name())
             .build();
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(negotiationDTO);
-    when(negotiationRepository.findByCurrentState(NegotiationState.SUBMITTED))
-        .thenReturn(List.of(negotiation));
+    when(negotiationRepository.findAll(any(Specification.class))).thenReturn(List.of(negotiation));
     assertEquals(1, negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).size());
     assertEquals(
         NegotiationState.SUBMITTED.name(),
