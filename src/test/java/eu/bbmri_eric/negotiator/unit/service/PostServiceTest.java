@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.unit.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
@@ -105,14 +105,14 @@ public class PostServiceTest {
             .subjectId(BIOBANKER_2_AUTH_SUBJECT)
             .build();
 
-    DataSource dataSource = new DataSource();
+    DiscoveryService discoveryService = new DiscoveryService();
 
     Organization organization1 = Organization.builder().externalId(ORG_1).build();
     Organization organization2 = Organization.builder().externalId(ORG_2).build();
 
     Resource resource1 =
         Resource.builder()
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .sourceId("resource:1")
             .name("Resource 1")
             .organization(organization1)
@@ -120,7 +120,7 @@ public class PostServiceTest {
 
     Resource resource2 =
         Resource.builder()
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .sourceId("resource:2")
             .name("Resource 2")
             .organization(organization2)

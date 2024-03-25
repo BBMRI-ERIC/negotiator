@@ -5,11 +5,8 @@ values (1, 'CREATOR'),
        (4, 'ROLE_RESEARCHER'),
        (5, 'REPRESENTATIVE');
 
-insert into data_source (url, api_username, api_password, api_type, api_url, description, name,
-                         resource_biobank, resource_collection, resource_network, source_prefix, sync_active)
-values ('http://datasource.dev', 'user', 'password', 'MOLGENIS', 'http://datasource.dev',
-        'Biobank Directory', 'Biobank Directory', 'directory_biobanks', 'directory_collections',
-        'directory_networks', 'source_prefix', 'false');
+insert into discovery_service (url, name)
+values ('http://discoveryservice.dev','Biobank Directory');
 
 insert into person (id, email, name, subject_id, password, organization, admin)
 values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey',
@@ -69,7 +66,7 @@ values (4, 'Biobank #1', 'biobank:1'),
        (5, 'Biobank #2', 'biobank:2'),
        (6, 'Biobank #3', 'biobank:3');
 
-insert into resource (id, name, description, source_id, data_source_id, organization_id, access_form_id)
+insert into resource (id, name, description, source_id, discovery_service_id, organization_id, access_form_id)
 values (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1',
         'biobank:1:collection:1', 1, 4, 1),
        (5, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1',
@@ -106,13 +103,13 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
        ('negotiation-4', '2024-01-10', 'ABANDONED', '2024-01-10', 105, 105,
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON);
 
-insert into request (id, url, human_readable, data_source_id, negotiation_id)
-values ('request-1', 'http://datasource.dev', '#1: No filters used', 1, 'negotiation-1'),
-       ('request-2', 'http://datasource.dev', '#1: DNA Samples', 1, null),
-       ('request-v2', 'http://datasource.dev', '#1: Blood Samples', 1, 'negotiation-v2'),
-       ('request-3', 'http://datasource.dev', '#1: Blood Samples', 1, 'negotiation-3'),
-       ('request-4', 'http://datasource.dev', '#1: Blood Samples', 1, 'negotiation-4'),
-       ('request-unassigned', 'http://datasource.dev', '#1: Blood Samples', 1, null);
+insert into request (id, url, human_readable, discovery_service_id, negotiation_id)
+values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'negotiation-1'),
+       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1, null),
+       ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-v2'),
+       ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-3'),
+       ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-4'),
+       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1, null);
 
 insert into request_resources_link (request_id, resource_id)
 values ('request-1', 4),

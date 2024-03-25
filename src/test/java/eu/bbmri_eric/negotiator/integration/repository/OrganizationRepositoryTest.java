@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import java.util.NoSuchElementException;
@@ -28,7 +28,7 @@ public class OrganizationRepositoryTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired DataSourceRepository dataSourceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Test
   void save_null_InvalidDataAccessApiUsageException() {
@@ -47,21 +47,8 @@ public class OrganizationRepositoryTest {
 
   @Test
   void getDetailedResources_ok() {
-    DataSource savedDataSource =
-        dataSourceRepository.save(
-            DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
-                .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
-                .name("")
-                .syncActive(true)
-                .build());
+    DiscoveryService savedDiscoveryService =
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     Organization savedOrganization =
         organizationRepository.save(Organization.builder().externalId("ExternalId").build());
@@ -70,7 +57,7 @@ public class OrganizationRepositoryTest {
         Resource.builder()
             .name("test Resource")
             .sourceId("collection:1")
-            .dataSource(savedDataSource)
+            .discoveryService(savedDiscoveryService)
             .organization(savedOrganization)
             .build());
     assertEquals(

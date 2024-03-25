@@ -2,10 +2,10 @@ package eu.bbmri_eric.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
@@ -25,7 +25,7 @@ public class ResourceRepositoryTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired DataSourceRepository dataSourceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
 
@@ -39,26 +39,13 @@ public class ResourceRepositoryTest {
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
-    DataSource dataSource =
-        dataSourceRepository.save(
-            DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
-                .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
-                .name("")
-                .syncActive(true)
-                .build());
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     resourceRepository.save(
         Resource.builder()
             .organization(organization)
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .sourceId("collection:1")
             .name("test")
             .build());
@@ -66,7 +53,7 @@ public class ResourceRepositoryTest {
     resourceRepository.save(
         Resource.builder()
             .organization(organization)
-            .dataSource(dataSource)
+            .discoveryService(discoveryService)
             .sourceId("collection:2")
             .name("test")
             .build());

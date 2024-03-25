@@ -54,11 +54,11 @@ public class Resource {
   private Set<Person> representatives = new HashSet<>();
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "data_source_id")
+  @JoinColumn(name = "discovery_service_id")
   @Exclude
   @JsonIgnore
   @NotNull
-  private DataSource dataSource;
+  private DiscoveryService discoveryService;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "organization_id")

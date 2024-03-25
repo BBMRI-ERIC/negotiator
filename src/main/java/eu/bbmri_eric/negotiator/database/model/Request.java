@@ -67,11 +67,11 @@ public class Request {
   private Negotiation negotiation;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "data_source_id")
+  @JoinColumn(name = "discovery_service_id")
   @JsonIgnore
   @NotNull
   @Exclude
-  private DataSource dataSource;
+  private DiscoveryService discoveryService;
 
   @Override
   public boolean equals(Object o) {

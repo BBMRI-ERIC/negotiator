@@ -2,9 +2,9 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.dto.ValidationGroups.Create;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups.Update;
-import eu.bbmri_eric.negotiator.dto.datasource.DataSourceCreateDTO;
-import eu.bbmri_eric.negotiator.dto.datasource.DataSourceDTO;
-import eu.bbmri_eric.negotiator.service.DataSourceService;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceDTO;
+import eu.bbmri_eric.negotiator.service.DiscoveryServiceService;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,37 +23,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @Validated
-public class DataSourceController {
+public class DiscoverServiceController {
 
-  @Autowired private DataSourceService dataSourceService;
+  @Autowired private DiscoveryServiceService discoveryServiceService;
   @Autowired private ModelMapper modelMapper;
 
-  @GetMapping("/data-sources")
-  List<DataSourceDTO> list() {
-    return dataSourceService.findAll();
+  @GetMapping("/discovery-services")
+  List<DiscoveryServiceDTO> list() {
+    return discoveryServiceService.findAll();
   }
 
-  @GetMapping("/data-sources/{id}")
-  DataSourceDTO retrieve(@PathVariable Long id) {
-    return dataSourceService.findById(id);
+  @GetMapping("/discovery-services/{id}")
+  DiscoveryServiceDTO retrieve(@PathVariable Long id) {
+    return discoveryServiceService.findById(id);
   }
 
   @PostMapping(
-      value = "/data-sources",
+      value = "/discovery-services",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  DataSourceDTO add(@Validated(Create.class) @RequestBody DataSourceCreateDTO request) {
-    return dataSourceService.create(request);
+  DiscoveryServiceDTO add(@Validated(Create.class) @RequestBody DiscoveryServiceCreateDTO request) {
+    return discoveryServiceService.create(request);
   }
 
   @PutMapping(
-      value = "/data-sources/{id}",
+      value = "/discovery-services/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  DataSourceDTO update(
-      @PathVariable Long id, @Validated(Update.class) @RequestBody DataSourceCreateDTO request) {
-    return dataSourceService.update(id, request);
+  DiscoveryServiceDTO update(
+      @PathVariable Long id,
+      @Validated(Update.class) @RequestBody DiscoveryServiceCreateDTO request) {
+    return discoveryServiceService.update(id, request);
   }
 }

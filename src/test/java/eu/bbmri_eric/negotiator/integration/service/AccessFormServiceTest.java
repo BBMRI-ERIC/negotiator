@@ -8,17 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
-import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.database.repository.AccessFormSectionRepository;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
-import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
-import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.*;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormSectionDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
@@ -56,7 +50,7 @@ public class AccessFormServiceTest {
   @Autowired AccessFormSectionRepository accessFormSectionRepository;
   @Autowired AccessFormElementRepository accessFormElementRepository;
 
-  @Autowired DataSourceRepository dataSourceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
 
@@ -363,28 +357,15 @@ public class AccessFormServiceTest {
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:99").build());
-    DataSource dataSource =
-        dataSourceRepository.save(
-            DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
-                .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
-                .name("")
-                .syncActive(true)
-                .build());
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     for (int i = 0; i < 4; i++) {
       Resource resource =
           resourceRepository.save(
               Resource.builder()
                   .organization(organization)
                   .accessForm(accessForm)
-                  .dataSource(dataSource)
+                  .discoveryService(discoveryService)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")
                   .build());

@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
@@ -30,7 +30,7 @@ public class PersonModelMapperTest {
         Resource.builder()
             .sourceId("test:collection")
             .name("My collection")
-            .dataSource(new DataSource())
+            .discoveryService(new DiscoveryService())
             .organization(Organization.builder().externalId("bb:1").name("BB").build())
             .build();
     Person inputPerson =

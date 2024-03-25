@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri_eric.negotiator.database.model.DataSource.ApiType;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
@@ -13,7 +12,7 @@ import eu.bbmri_eric.negotiator.database.model.Post;
 import eu.bbmri_eric.negotiator.database.model.PostStatus;
 import eu.bbmri_eric.negotiator.database.model.PostType;
 import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
-import eu.bbmri_eric.negotiator.dto.datasource.DataSourceCreateDTO;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.CollectionV2DTO;
@@ -32,19 +31,9 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 public class TestUtils {
 
-  public static final String DATA_SOURCE_NAME = "Data Source";
-  public static final String DATA_SOURCE_DESCRIPTION = "This is a data source";
-  public static final String DATA_SOURCE_URL = "http://datasource.test";
-  public static final String DATA_SOURCE_API_URL = "http://datasource.test/api";
-  public static final String DATA_SOURCE_API_USERNAME = "test";
-  public static final String DATA_SOURCE_API_PASSWORD = "test";
-  public static final String DATA_SOURCE_RESOURCE_NETWORK = "resource_networks";
-  public static final String DATA_SOURCE_RESOURCE_BIOBANK = "resource_biobanks";
-  public static final String DATA_SOURCE_RESOURCE_COLLECTION = "resource_collections";
-  public static final String DATA_SOURCE_SOURCE_PREFIX = "source_prefix";
-  public static final boolean DATA_SOURCE_SYNC_ACTIVE = false;
-
-  public static final String QUERY_URL = "http://datasource.dev";
+  public static final String DISCOVERY_SERVICE_NAME = "Discovery Service";
+  public static final String DISCOVERY_SERVICE_URL = "http://discoveryservice.test";
+  public static final String QUERY_URL = "http://discoveryservice.dev";
   public static final String QUERY_HUMAN_READABLE = "Request description";
   public static final String QUERY_BIOBANK_1_ID = "biobank:1";
   public static final String QUERY_BIOBANK_1_NAME = "Test Biobank #1";
@@ -70,21 +59,11 @@ public class TestUtils {
     "perun user identity 1", "perun user identity 2"
   };
 
-  public static DataSourceCreateDTO createDataSourceRequest(boolean update) {
+  public static DiscoveryServiceCreateDTO createDiscoveryServiceRequest(boolean update) {
     String suffix = update ? "u" : "";
-    return DataSourceCreateDTO.builder()
-        .name(String.format("%s%s", DATA_SOURCE_NAME, suffix))
-        .description(String.format("%s%s", DATA_SOURCE_DESCRIPTION, suffix))
-        .url(String.format("%s%s", DATA_SOURCE_URL, suffix))
-        .apiType(ApiType.MOLGENIS)
-        .apiUsername(String.format("%s%s", DATA_SOURCE_API_USERNAME, suffix))
-        .apiPassword(String.format("%s%s", DATA_SOURCE_API_PASSWORD, suffix))
-        .apiUrl(String.format("%s%s", DATA_SOURCE_API_URL, suffix))
-        .resourceNetwork(String.format("%s%s", DATA_SOURCE_RESOURCE_NETWORK, suffix))
-        .resourceBiobank(String.format("%s%s", DATA_SOURCE_RESOURCE_BIOBANK, suffix))
-        .resourceCollection(String.format("%s%s", DATA_SOURCE_RESOURCE_COLLECTION, suffix))
-        .syncActive(update)
-        .sourcePrefix(String.format("%s%s", DATA_SOURCE_SOURCE_PREFIX, suffix))
+    return DiscoveryServiceCreateDTO.builder()
+        .name(String.format("%s%s", DISCOVERY_SERVICE_NAME, suffix))
+        .url(String.format("%s%s", DISCOVERY_SERVICE_URL, suffix))
         .build();
   }
 

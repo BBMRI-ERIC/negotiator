@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonSpecifications;
@@ -35,7 +35,7 @@ public class PersonRepositoryTest {
 
   @Autowired ResourceRepository resourceRepository;
 
-  @Autowired DataSourceRepository dataSourceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
 
@@ -45,27 +45,14 @@ public class PersonRepositoryTest {
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
-    DataSource dataSource =
-        dataSourceRepository.save(
-            DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
-                .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
-                .name("")
-                .syncActive(true)
-                .build());
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     Person person = savePerson("test");
     Resource resource =
         resourceRepository.saveAndFlush(
             Resource.builder()
                 .organization(organization)
-                .dataSource(dataSource)
+                .discoveryService(discoveryService)
                 .sourceId("collection:1")
                 .representatives(new HashSet<>())
                 .name("test")

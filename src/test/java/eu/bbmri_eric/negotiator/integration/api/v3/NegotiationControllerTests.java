@@ -13,12 +13,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
-import eu.bbmri_eric.negotiator.database.model.DataSource;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.DataSourceRepository;
+import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
@@ -74,7 +74,7 @@ public class NegotiationControllerTests {
 
   @Autowired RequestRepository requestRepository;
 
-  @Autowired DataSourceRepository dataSourceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
   @Autowired RoleRepository roleRepository;
@@ -1048,21 +1048,8 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheResearcher")
   void getNegotiation_2000resources_ok() throws Exception {
     Set<Resource> resources = new HashSet<>();
-    DataSource dataSource =
-        dataSourceRepository.save(
-            DataSource.builder()
-                .sourcePrefix("")
-                .apiPassword("")
-                .apiType(DataSource.ApiType.MOLGENIS)
-                .apiUrl("")
-                .apiUsername("")
-                .url("")
-                .resourceBiobank("")
-                .resourceCollection("")
-                .resourceNetwork("")
-                .name("")
-                .syncActive(true)
-                .build());
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     for (int i = 0; i < 2000; i++) {
       Organization organization1 =
           organizationRepository.save(
@@ -1074,7 +1061,7 @@ public class NegotiationControllerTests {
           resourceRepository.save(
               Resource.builder()
                   .organization(organization1)
-                  .dataSource(dataSource)
+                  .discoveryService(discoveryService)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")
                   .representatives(new HashSet<>())
