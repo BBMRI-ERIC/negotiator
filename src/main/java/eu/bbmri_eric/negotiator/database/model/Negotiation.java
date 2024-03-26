@@ -65,7 +65,7 @@ import org.hibernate.type.SqlTypes;
           name = "requests-detailed",
           attributeNodes = {
             @NamedAttributeNode(value = "resources"),
-            @NamedAttributeNode(value = "dataSource")
+            @NamedAttributeNode(value = "discoveryService")
           })
     })
 public class Negotiation extends AuditEntity {
