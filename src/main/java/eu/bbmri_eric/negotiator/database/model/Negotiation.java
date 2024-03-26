@@ -18,7 +18,6 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -134,6 +133,14 @@ public class Negotiation extends AuditEntity {
     this.lifecycleHistory.add(NegotiationLifecycleRecord.builder().changedTo(currentState).build());
   }
 
+  /**
+   * Updates the state of a Resource, belonging to the Negotiation, identified by the input
+   * resourceID. The update is performed by adding a new entry in the
+   * negotiationResourceLifecycleRecords of the Negotiation.
+   *
+   * @param resourceId the id of the input resource
+   * @param state the new state to set
+   */
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     NegotiationResourceLifecycleRecord record =
         NegotiationResourceLifecycleRecord.builder()
@@ -156,6 +163,12 @@ public class Negotiation extends AuditEntity {
         .orElse(null);
   }
 
+  /**
+   * For every Resource belonging to a negotiation, gets the current state and saves it in a HashMap
+   *
+   * @return A Hashmap providing, for each resource ID of the resource belonging to a negotiation,
+   *     the last State
+   */
   public Map<String, NegotiationResourceState> getCurrentStatePerResource() {
     Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
     NegotiationResourceLifecycleRecord lastResourceLifecycleRecord;
