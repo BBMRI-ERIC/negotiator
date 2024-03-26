@@ -23,6 +23,8 @@ public class ResourceWithStatusDTO {
 
   @NotNull private String id;
 
+  @NotNull private String externalId;
+
   @Nullable private String name;
 
   @Nullable private OrganizationDTO organization;
