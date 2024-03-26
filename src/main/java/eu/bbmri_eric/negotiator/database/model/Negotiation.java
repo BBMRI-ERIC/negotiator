@@ -51,7 +51,8 @@ import org.hibernate.type.SqlTypes;
     attributeNodes = {
       @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
       @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
-      @NamedAttributeNode(value = "attachments")
+      @NamedAttributeNode(value = "attachments"),
+      @NamedAttributeNode(value = "negotiationResourceLifecycleRecords")
     },
     subgraphs = {
       @NamedSubgraph(
@@ -62,7 +63,10 @@ import org.hibernate.type.SqlTypes;
           }),
       @NamedSubgraph(
           name = "requests-detailed",
-          attributeNodes = {@NamedAttributeNode(value = "resources")})
+          attributeNodes = {
+            @NamedAttributeNode(value = "resources"),
+            @NamedAttributeNode(value = "dataSource")
+          })
     })
 public class Negotiation extends AuditEntity {
 
@@ -85,7 +89,7 @@ public class Negotiation extends AuditEntity {
   @Exclude
   private Set<PersonNegotiationRole> persons = new HashSet<>();
 
-  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   @Exclude
   private Set<Request> requests;
 
