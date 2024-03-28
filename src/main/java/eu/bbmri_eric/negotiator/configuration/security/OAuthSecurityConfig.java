@@ -18,7 +18,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -81,6 +80,9 @@ public class OAuthSecurityConfig {
   @Value("${negotiator.authorization.resource-claim-prefix}")
   private String authzResourceIdPrefixClaim;
 
+  @Value("${spring.security.csrf.enabled:true}")
+  private boolean csrfEnabled;
+
   @Autowired ExceptionHandlerFilter exceptionHandlerFilter;
 
   @Bean
@@ -91,9 +93,7 @@ public class OAuthSecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
       throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable)
-        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-        .addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
+    http.addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(Customizer.withDefaults())
@@ -155,6 +155,9 @@ public class OAuthSecurityConfig {
                                   authzResearcherValue,
                                   authzBiobankerValue))
                           .decoder(jwtDecoder())));
+    }
+    if (!csrfEnabled) {
+      http.csrf(AbstractHttpConfigurer::disable);
     }
     return http.build();
   }
