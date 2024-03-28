@@ -38,7 +38,7 @@ public class DevDatabaseConfiguration {
         cmd -> {
           Objects.requireNonNull(cmd.getHostConfig())
               .withPortBindings(
-                  new PortBinding(Ports.Binding.bindPort(5432), new ExposedPort(5432)));
+                  new PortBinding(Ports.Binding.bindPort(5332), new ExposedPort(5432)));
         });
   }
 }
