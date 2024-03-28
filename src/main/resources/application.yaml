@@ -41,6 +41,8 @@ spring:
     url:
     locations:
   security:
+    csrf:
+      enabled: true
     oauth2:
       resourceserver:
         opaquetoken:
