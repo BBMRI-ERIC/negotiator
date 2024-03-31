@@ -94,6 +94,7 @@ public class OAuthSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
       throws Exception {
     http.addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(Customizer.withDefaults())
