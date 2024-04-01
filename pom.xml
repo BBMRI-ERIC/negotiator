@@ -21,7 +21,7 @@
         <spring-security.version>6.2.0</spring-security.version>
         <spring-boot.version>${project.parent.version}</spring-boot.version>
         <spring.version>6.1.5</spring.version>
-        <spring.state-machine.version>3.2.1</spring.state-machine.version>
+        <spring.state-machine.version>4.0.0</spring.state-machine.version>
     </properties>
     <build>
         <finalName>negotiator</finalName>
