@@ -41,6 +41,12 @@ spring:
     url:
     locations:
   security:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+      allowed-headers: "*"
+      allow-credentials: false
+      max-age: 3600
     csrf:
       enabled: false
     oauth2:
