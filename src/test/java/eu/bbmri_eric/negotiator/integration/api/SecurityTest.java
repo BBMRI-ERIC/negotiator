@@ -9,10 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +25,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -34,6 +37,21 @@ public class SecurityTest {
   @Autowired private WebApplicationContext context;
 
   @Autowired private UserDetailsService userDetailsService;
+
+  @Value("#{'${spring.security.cors.allowed-methods}'.split(',')}")
+  private List<String> ALLOWED_METHODS;
+
+  @Value("#{'${spring.security.cors.allowed-origins}'.split(',')}")
+  private List<String> ALLOWED_ORIGINS;
+
+  @Value("#{'${spring.security.cors.allowed-headers}'.split(',')}")
+  private List<String> ALLOWED_HEADERS;
+
+  @Value("${spring.security.cors.allow-credentials}")
+  private boolean ALLOW_CREDENTIALS;
+
+  @Value("${spring.security.cors.max-age}")
+  private Long MAX_AGE = 3600L;
 
   private MockMvc mockMvc;
 
@@ -103,5 +121,27 @@ public class SecurityTest {
         "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.CZ_MMCI.collection.LTS#perun.bbmri-eric.eu";
     String sub = StringUtils.substringBetween(full, "Directory:", "#perun").replace(".", ":");
     assertEquals("bbmri-eric:ID:CZ_MMCI:collection:LTS", sub);
+  }
+
+  @Test
+  public void corsHeadersArePresent() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.options("/v3/organizations")
+                .header("Access-Control-Request-Method", "GET")
+                .header("Origin", "http://localhost:8087")
+                .header("Access-Control-Request-Headers", "X-Requested-With"))
+        .andExpect(status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.header()
+                .string("Access-Control-Allow-Origin", String.join(",", ALLOWED_ORIGINS)))
+        .andExpect(
+            MockMvcResultMatchers.header()
+                .string("Access-Control-Allow-Methods", String.join(",", ALLOWED_METHODS)))
+        .andExpect(
+            MockMvcResultMatchers.header()
+                .string("Access-Control-Allow-Headers", "X-Requested-With"))
+        .andExpect(
+            MockMvcResultMatchers.header().string("Access-Control-Max-Age", MAX_AGE.toString()));
   }
 }
