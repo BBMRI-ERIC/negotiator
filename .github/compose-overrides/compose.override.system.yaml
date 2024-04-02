@@ -1,5 +1,7 @@
 version: '3.9'
 services:
   negotiator:
-    environment:
-      - SPRING_FLYWAY_LOCATIONS=$GITHUB_WORKSPACE/src/main/resources/db/dev/migration/R__Initial_data.sql
+    volumes:
+      - $GITHUB_WORKSPACE/src/main/resources/db/dev/migration:/app/data:ro
+    ports:
+      - '8081:8081'

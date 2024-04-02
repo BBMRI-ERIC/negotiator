@@ -259,8 +259,14 @@ jobs:
       - name: Get docker logs
         run: docker logs negotiator
 
+      - name: Get running containers
+        run: docker ps
+
       - name: Check health
         run: $GITHUB_WORKSPACE/.github/scripts/check_health.sh negotiator
+
+      - name: Send request
+        run: $GITHUB_WORKSPACE/.github/scripts/new_request.sh
 
   oauth-test:
     name: OAuth2 Authorization tests
