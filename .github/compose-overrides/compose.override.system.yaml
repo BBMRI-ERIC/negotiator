@@ -1,0 +1,7 @@
+version: '3.9'
+services:
+  negotiator:
+    volumes:
+      - $GITHUB_WORKSPACE/src/main/resources/db/dev/migration:/app/data:ro
+    ports:
+      - '8081:8081'

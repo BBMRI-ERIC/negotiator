@@ -42,7 +42,7 @@ spring:
     locations:
   security:
     csrf:
-      enabled: true
+      enabled: false
     oauth2:
       resourceserver:
         opaquetoken:

@@ -241,6 +241,9 @@ jobs:
           name: negotiator
           path: /tmp
 
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
       - name: Load image
         run: docker load --input /tmp/negotiator.tar
 
@@ -248,7 +251,7 @@ jobs:
         run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
 
       - name: Run docker compose
-        run: cd /opt/negotiator && docker compose up -d negotiator
+        run: cd /opt/negotiator && docker compose -f compose.yaml -f $GITHUB_WORKSPACE/.github/compose-overrides/compose.override.system.yaml up -d negotiator
 
       - name: Wait
         run: sleep 30
@@ -256,12 +259,14 @@ jobs:
       - name: Get docker logs
         run: docker logs negotiator
 
-
-      - name: Checkout codebase
-        uses: actions/checkout@v4
+      - name: Get running containers
+        run: docker ps
 
       - name: Check health
-        run: .github/scripts/check_health.sh negotiator
+        run: $GITHUB_WORKSPACE/.github/scripts/check_health.sh negotiator
+
+      - name: Send request
+        run: $GITHUB_WORKSPACE/.github/scripts/new_request.sh
 
   oauth-test:
     name: OAuth2 Authorization tests
