@@ -13,4 +13,4 @@ output=$(curl --location 'http://localhost:8081/api/directory/create_query' \
         "biobankId"    : "bbmri-eric:ID:SE_890"
     }]
 }' -s -w '%{response_code}')
-echo $output | grep -q 201 || echo "Failed to create query" $output && exit 1
+echo $output | grep -q 201 || (echo "Failed to create query" $output && exit 1)
