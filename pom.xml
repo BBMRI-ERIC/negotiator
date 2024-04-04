@@ -248,6 +248,16 @@
             <version>2.3.0</version>
         </dependency>
         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-security</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-hateoas</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
             <artifactId>json</artifactId>
             <groupId>org.json</groupId>
             <version>20240303</version>

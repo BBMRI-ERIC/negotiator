@@ -1,9 +1,6 @@
 package eu.bbmri_eric.negotiator.configuration;
 
 import eu.bbmri_eric.negotiator.database.model.Person;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,16 +26,5 @@ public class BaseConfig {
   @Bean
   public AuditorAware<Person> auditorProvider() {
     return new AuditorAwareImpl();
-  }
-
-  @Bean
-  public OpenAPI customOpenAPI() {
-    return new OpenAPI()
-        .info(
-            new Info()
-                .license(new License().name("GNU AFFERO GENERAL PUBLIC LICENSE"))
-                .title("Negotiator API")
-                .description("Documentation and examples for the REST API.")
-                .version("3.0.0"));
   }
 }
