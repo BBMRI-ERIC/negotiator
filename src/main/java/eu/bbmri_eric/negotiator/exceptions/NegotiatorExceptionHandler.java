@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.exceptions;
 
-import eu.bbmri_eric.negotiator.dto.error.ErrorResponse;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
@@ -159,10 +158,14 @@ public class NegotiatorExceptionHandler {
     ConstraintViolationException.class,
     MaxUploadSizeExceededException.class
   })
-  public final ResponseEntity<ErrorResponse> handleBadRequestExceptions(
+  public final ResponseEntity<HttpErrorResponseModel> handleBadRequestExceptions(
       RuntimeException ex, WebRequest request) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Bad request.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 

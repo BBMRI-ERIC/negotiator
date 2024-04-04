@@ -13,6 +13,7 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import java.io.IOException;
 import java.util.List;
@@ -52,32 +53,33 @@ public class DBAttachmentService implements AttachmentService {
   @Transactional
   public AttachmentMetadataDTO createForNegotiation(
       Long userId, String negotiationId, @Nullable String organizationId, MultipartFile file) {
-    Person uploader =
-        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    if (!uploader.isAdmin()
-        && !uploader.equals(negotiation.getCreatedBy())
-        && negotiation.getResources().stream().noneMatch(uploader.getResources()::contains)) {
-      throw new ForbiddenRequestException(
-          "User %s is not authorized to upload attachments for this negotiation."
-              .formatted(userId));
-    }
-    Attachment attachment;
+    Negotiation negotiation = fetchNegotiation(negotiationId);
+    Organization organization = fetchAddressedOrganization(organizationId);
+    checkAuthorization(userId, negotiation);
+    return saveAttachment(file, negotiation, organization);
+  }
 
-    Organization organization;
+  private Negotiation fetchNegotiation(String negotiationId) {
+    return negotiationRepository
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+  }
+
+  @Nullable
+  private Organization fetchAddressedOrganization(@Nullable String organizationId) {
+    Organization organization = null;
     if (organizationId != null) {
       organization =
           organizationRepository
               .findByExternalId(organizationId)
               .orElseThrow(() -> new EntityNotFoundException(organizationId));
-
-    } else {
-      organization = null;
     }
+    return organization;
+  }
 
+  private AttachmentMetadataDTO saveAttachment(
+      MultipartFile file, Negotiation negotiation, Organization organization) {
+    Attachment attachment;
     try {
       attachment =
           Attachment.builder()
@@ -92,7 +94,19 @@ public class DBAttachmentService implements AttachmentService {
       Attachment saved = attachmentRepository.save(attachment);
       return modelMapper.map(saved, AttachmentMetadataDTO.class);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new EntityNotStorableException("The attachment could not be stored.");
+    }
+  }
+
+  private void checkAuthorization(Long userId, Negotiation negotiation) {
+    Person uploader =
+        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+    if (!uploader.isAdmin()
+        && !uploader.equals(negotiation.getCreatedBy())
+        && negotiation.getResources().stream().noneMatch(uploader.getResources()::contains)) {
+      throw new ForbiddenRequestException(
+          "User %s is not authorized to upload attachments for this negotiation."
+              .formatted(userId));
     }
   }
 
