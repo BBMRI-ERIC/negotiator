@@ -25,7 +25,6 @@ public class AttachmentController {
 
   private final AttachmentService storageService;
 
-  
   public AttachmentController(AttachmentService storageService) {
     this.storageService = storageService;
   }
