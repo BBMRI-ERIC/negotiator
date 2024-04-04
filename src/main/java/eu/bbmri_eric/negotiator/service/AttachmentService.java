@@ -10,8 +10,17 @@ public interface AttachmentService {
 
   AttachmentMetadataDTO create(MultipartFile file);
 
+  /**
+   * Upload an attachment for a negotiation.
+   *
+   * @param userId The user id of the person uploading the attachment.
+   * @param negotiationId The negotiation id.
+   * @param organizationId The organization id.
+   * @param file The file to upload.
+   * @return The metadata of the uploaded attachment.
+   */
   AttachmentMetadataDTO createForNegotiation(
-      String negotiationId, @Nullable String organizationId, MultipartFile file);
+      Long userId, String negotiationId, @Nullable String organizationId, MultipartFile file);
 
   AttachmentMetadataDTO findMetadataById(String id);
 

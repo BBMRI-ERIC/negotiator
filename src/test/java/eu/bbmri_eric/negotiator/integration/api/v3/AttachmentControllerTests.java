@@ -217,14 +217,18 @@ public class AttachmentControllerTests {
         .andExpect(status().isUnauthorized());
   }
 
-  //  @Test
-  //  @WithUserDetails("researcher")
-  //  public void test_GetList_NoAttachmentsAreReturned() throws Exception {
-  //    mockMvc
-  //        .perform(MockMvcRequestBuilders.get(ENDPOINT))
-  //        .andExpect(status().isOk())
-  //        .andExpect(content().json("[]"));
-  //  }
+  @Test
+  @WithUserDetails("researcher")
+  void createAttachmentForNegotiation_notPartOfNegotiation_forbidden() throws Exception {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    mockMvc
+        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+        .andExpect(status().isForbidden());
+  }
 
   @Test
   public void testGetList_IsUnauthorized_whenNoAuth() throws Exception {

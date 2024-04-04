@@ -1,10 +1,10 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
+import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,7 +25,7 @@ public class AttachmentController {
 
   private final AttachmentService storageService;
 
-  @Autowired
+  
   public AttachmentController(AttachmentService storageService) {
     this.storageService = storageService;
   }
@@ -39,7 +39,11 @@ public class AttachmentController {
       @PathVariable String negotiationId,
       @RequestParam("file") MultipartFile file,
       @Nullable @RequestParam("organizationId") String organizationId) {
-    return storageService.createForNegotiation(negotiationId, organizationId, file);
+    return storageService.createForNegotiation(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+        negotiationId,
+        organizationId,
+        file);
   }
 
   @GetMapping(

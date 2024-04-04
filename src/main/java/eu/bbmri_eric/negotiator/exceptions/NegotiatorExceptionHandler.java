@@ -167,9 +167,14 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler({ForbiddenRequestException.class})
-  public final ResponseEntity<ErrorResponse> handleForbiddenException(
+  public final ResponseEntity<HttpErrorResponseModel> handleForbiddenException(
       ForbiddenRequestException ex, WebRequest request) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Forbidden.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.FORBIDDEN.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
   }
 
