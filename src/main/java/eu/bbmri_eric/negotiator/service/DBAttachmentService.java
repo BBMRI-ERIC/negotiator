@@ -113,21 +113,7 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO create(MultipartFile file) {
-    Attachment attachment;
-    try {
-      attachment =
-          Attachment.builder()
-              .name(file.getOriginalFilename())
-              .payload(file.getBytes())
-              .contentType(file.getContentType())
-              .size(file.getSize())
-              .build();
-
-      Attachment saved = attachmentRepository.save(attachment);
-      return modelMapper.map(saved, AttachmentMetadataDTO.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return saveAttachment(file, null, null);
   }
 
   @Override
