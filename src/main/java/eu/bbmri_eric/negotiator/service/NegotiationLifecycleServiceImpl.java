@@ -77,7 +77,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
                     .equals(
                         negotiationRepository
                             .findNegotiationStateById(negotiationId)
-                            .orElseThrow(() -> new EntityNotFoundException(negotiationId))))
+                            .orElseThrow(() -> new EntityNotFoundException(negotiationId))
+                            .toString()))
         .filter(
             transition ->
                 Optional.ofNullable(transition.getSecurityRule())
