@@ -69,12 +69,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
     List<String> roles = NegotiatorUserDetailsService.getRoles();
     return stateMachine.getTransitions().stream()
-        .filter(
-            transition ->
-                transition
-                    .getSource()
-                    .getId()
-                    .equals(getCurrentStateForNegotiation(negotiationId).toString()))
+        .filter(transition -> transition.getSource().getId().equals("SUBMITTED"))
         .filter(
             transition ->
                 Optional.ofNullable(transition.getSecurityRule())
