@@ -40,8 +40,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   @Override
   public Set<NegotiationEvent> getPossibleEvents(String negotiationId)
       throws EntityNotFoundException {
-    rehydrateStateMachineForNegotiation(negotiationId);
-    return Set.of(NegotiationEvent.CONCLUDE);
+    // rehydrateStateMachineForNegotiation(negotiationId);
+    return getPossibleEventsForCurrentStateMachine();
   }
 
   @Override
