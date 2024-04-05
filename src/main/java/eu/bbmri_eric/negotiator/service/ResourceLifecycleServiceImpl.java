@@ -17,7 +17,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.security.SecurityRule;
-import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
 /** Spring State Machine implementation of the ResourceLifecycleService. */
@@ -44,8 +43,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     if (Objects.isNull(currentState)) {
       throw new EntityNotFoundException(resourceId);
     }
-    rehydrateStateMachineForResource(negotiationId, resourceId);
-    return getPossibleEventsForCurrentStateMachine(negotiationId, resourceId);
+    return getPossibleEventsForCurrentStateMachine(negotiationId, resourceId, currentState);
   }
 
   @Override
@@ -82,10 +80,9 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   }
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
-      String negotiationId, String resourceId) {
+      String negotiationId, String resourceId, NegotiationResourceState resourceState) {
     return stateMachine.getTransitions().stream()
-        .filter(
-            transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
+        .filter(transition -> transition.getSource().getId().equals(resourceState.toString()))
         .filter(
             transition ->
                 isSecurityRuleMet(transition.getSecurityRule(), negotiationId, resourceId))
@@ -114,20 +111,5 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     } else {
       return true;
     }
-  }
-
-  private void rehydrateStateMachineForResource(String negotiationId, String resourceId) {
-    stateMachine
-        .getStateMachineAccessor()
-        .doWithAllRegions(
-            accessor ->
-                accessor
-                    .resetStateMachineReactively(
-                        new DefaultStateMachineContext<>(
-                            getCurrentStateForResource(negotiationId, resourceId).name(),
-                            null,
-                            null,
-                            null))
-                    .subscribe());
   }
 }
