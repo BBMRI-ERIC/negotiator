@@ -77,6 +77,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   public void getPossibleEvents_nonExistentId_throwsEntityNotFoundException() {
     assertThrows(
         EntityNotFoundException.class,

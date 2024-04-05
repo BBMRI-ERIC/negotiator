@@ -61,9 +61,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private NegotiationState getCurrentStateForNegotiation(String negotiationId) {
     return negotiationRepository
-        .findById(negotiationId)
-        .orElseThrow(() -> new EntityNotFoundException("Negotiation not found."))
-        .getCurrentState();
+        .findNegotiationStateById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
@@ -74,11 +73,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
                 transition
                     .getSource()
                     .getId()
-                    .equals(
-                        negotiationRepository
-                            .findNegotiationStateById(negotiationId)
-                            .orElseThrow(() -> new EntityNotFoundException(negotiationId))
-                            .toString()))
+                    .equals(getCurrentStateForNegotiation(negotiationId).toString()))
         .filter(
             transition ->
                 Optional.ofNullable(transition.getSecurityRule())

@@ -51,11 +51,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException {
     if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationEvent)) {
-      return negotiationRepository
-          .findById(negotiationId)
-          .orElseThrow(() -> new EntityNotFoundException("No such negotiation found."))
-          .getCurrentStatePerResource()
-          .get(resourceId);
+      return getCurrentStateForResource(negotiationId, resourceId);
     }
     persistStateMachineHandler
         .handleEventWithStateReactively(
@@ -65,11 +61,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
                 .build(),
             getCurrentStateForResource(negotiationId, resourceId).name())
         .subscribe();
-    return negotiationRepository
-        .findById(negotiationId)
-        .orElseThrow(() -> new EntityNotFoundException("No such negotiation found."))
-        .getCurrentStatePerResource()
-        .get(resourceId);
+    return getCurrentStateForResource(negotiationId, resourceId);
   }
 
   private NegotiationResourceState getCurrentStateForResource(
