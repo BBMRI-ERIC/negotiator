@@ -79,5 +79,7 @@ logging:
               ScriptUtils: debug
     org.springframeworf.web: debug
     eu.bbmri_eric.negotiator: debug
-
+reminder:
+  trigger-duration-days: "PT2M"
+  cron-schedule-expression: "0 */5 * ? * *"
 

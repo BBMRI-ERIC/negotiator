@@ -1,12 +1,16 @@
 package eu.bbmri_eric.negotiator.service;
 
+import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.database.model.*;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.NotificationDTO;
 import jakarta.transaction.Transactional;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -33,9 +37,13 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired EmailService emailService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired TemplateEngine templateEngine;
+  @Autowired NegotiationRepository negotiationRepository;
 
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
+
+  @Value("${reminder.trigger-duration-days:P7D}")
+  private String triggerDuration;
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
@@ -60,17 +68,13 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Override
   public void notifyAdmins(Negotiation negotiation) {
-    for (Person admin : personRepository.findAllByAdminIsTrue()) {
-      Notification new_notification =
-          buildNewNotification(
-              negotiation,
-              NotificationEmailStatus.EMAIL_SENT,
-              admin,
-              "New Negotiation %s was added for review.".formatted(negotiation.getId()));
-      notificationRepository.save(new_notification);
-      List<Notification> new_notification_list = Arrays.asList(new_notification);
-      sendEmail(admin, new_notification_list);
-    }
+    List<Notification> newNotifications =
+        createNotificationsForAdmins(
+            negotiation,
+            NotificationEmailStatus.EMAIL_SENT,
+            "New Negotiation %s was added for review.");
+    notificationRepository.saveAll(newNotifications);
+    sendNotificationsToAdmins(newNotifications);
   }
 
   @Override
@@ -131,7 +135,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @NonNull
   private static Set<Person> getRepresentativesOfOrganization(Post post) {
-    Set<Person> representatives = new java.util.HashSet<>(Set.of());
+    Set<Person> representatives = new HashSet<>(Set.of());
     post.getOrganization()
         .getResources()
         .forEach(resource -> representatives.addAll(resource.getRepresentatives()));
@@ -177,6 +181,24 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       Set<Resource> overlappingResources =
           getResourcesInNegotiationRepresentedBy(negotiation, representative);
       markReachableResources(negotiation, overlappingResources);
+    }
+  }
+
+  private List<Notification> createNotificationsForAdmins(
+      Negotiation negotiation, NotificationEmailStatus status, String messageTemplate) {
+    List<Notification> newNotifications = new ArrayList<>();
+    for (Person admin : personRepository.findAllByAdminIsTrue()) {
+      Notification newNotification =
+          buildNewNotification(
+              negotiation, status, admin, String.format(messageTemplate, negotiation.getId()));
+      newNotifications.add(newNotification);
+    }
+    return newNotifications;
+  }
+
+  private void sendNotificationsToAdmins(List<Notification> notifications) {
+    for (Notification notification : notifications) {
+      sendEmail(notification.getRecipient(), Collections.singletonList(notification));
     }
   }
 
@@ -253,6 +275,16 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   private void sendEmail(@NonNull Person recipient, @NonNull List<Notification> notifications) {
+    sendEmail(recipient, notifications, "email-notification");
+  }
+
+  private void sendReminderEmail(
+      @NonNull Person recipient, @NonNull List<Notification> notifications) {
+    sendEmail(recipient, notifications, "email-reminder-notification");
+  }
+
+  private void sendEmail(
+      @NonNull Person recipient, @NonNull List<Notification> notifications, String email_template) {
 
     Context context = new Context();
     List<Negotiation> negotiations =
@@ -269,7 +301,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     context.setVariable("roleForNegotiation", roleForNegotiation);
     context.setVariable("titleForNegotiation", titleForNegotiation);
 
-    String emailContent = templateEngine.process("email-notification", context);
+    String emailContent = templateEngine.process(email_template, context);
 
     emailService.sendEmail(recipient, "New Notifications", emailContent);
   }
@@ -336,5 +368,38 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     return notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
         .map(Notification::getRecipient)
         .collect(Collectors.toSet());
+  }
+
+  private List<Notification> remindAdmins(Negotiation negotiation) {
+    List<Notification> newNotifications =
+        createNotificationsForAdmins(
+            negotiation,
+            NotificationEmailStatus.EMAIL_SENT,
+            "The negotiation (%s) is pending review.");
+    notificationRepository.saveAll(newNotifications);
+    return newNotifications;
+  }
+
+  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 8 * * *}")
+  public void sendRemindersEveryMorning() {
+    sendReminderForPendingNegotiations();
+  }
+
+  public void sendReminderForPendingNegotiations() {
+    Duration durationThreshold = Duration.parse(triggerDuration);
+    LocalDateTime thresholdTime = LocalDateTime.now().minus(durationThreshold);
+
+    List<Negotiation> pendingNegotiations =
+        negotiationRepository.findByModifiedDateBeforeAndCurrentState(
+            thresholdTime, NegotiationState.SUBMITTED);
+    List<Notification> reminderNotifications = new ArrayList<>();
+
+    for (Negotiation negotiation : pendingNegotiations) {
+      reminderNotifications.addAll(remindAdmins(negotiation));
+    }
+
+    for (Person admin : personRepository.findAllByAdminIsTrue()) {
+      sendReminderEmail(admin, reminderNotifications);
+    }
   }
 }

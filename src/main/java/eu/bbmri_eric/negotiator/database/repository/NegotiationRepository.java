@@ -1,8 +1,11 @@
 package eu.bbmri_eric.negotiator.database.repository;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -27,6 +30,9 @@ public interface NegotiationRepository
       String negotiationId, String resourceId);
 
   boolean existsByIdAndCreatedBy_Id(String negotiationId, Long personId);
+
+  List<Negotiation> findByModifiedDateBeforeAndCurrentState(
+      LocalDateTime thresholdTime, NegotiationState currentState);
 
   @Query(
       value =
