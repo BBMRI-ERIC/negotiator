@@ -91,6 +91,9 @@ public class NegotiationController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   NegotiationDTO update(
       @Valid @PathVariable String id, @Valid @RequestBody NegotiationCreateDTO request) {
+    if (!isCreator(negotiationService.findById(id, false))) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
     return negotiationService.update(id, request);
   }
 

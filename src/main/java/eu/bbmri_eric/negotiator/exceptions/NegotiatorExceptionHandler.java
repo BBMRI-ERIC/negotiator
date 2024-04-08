@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.exceptions;
 
-import eu.bbmri_eric.negotiator.dto.error.ErrorResponse;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
@@ -159,17 +158,26 @@ public class NegotiatorExceptionHandler {
     ConstraintViolationException.class,
     MaxUploadSizeExceededException.class
   })
-  public final ResponseEntity<ErrorResponse> handleBadRequestExceptions(
+  public final ResponseEntity<HttpErrorResponseModel> handleBadRequestExceptions(
       RuntimeException ex, WebRequest request) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Bad request.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({ForbiddenRequestException.class})
-  public final ResponseEntity<ErrorResponse> handleForbiddenException(
+  public final ResponseEntity<HttpErrorResponseModel> handleForbiddenException(
       ForbiddenRequestException ex, WebRequest request) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    HttpErrorResponseModel errorResponse =
+        HttpErrorResponseModel.builder()
+            .title("Forbidden.")
+            .detail(ex.getMessage())
+            .status(HttpStatus.FORBIDDEN.value())
+            .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
   }
 

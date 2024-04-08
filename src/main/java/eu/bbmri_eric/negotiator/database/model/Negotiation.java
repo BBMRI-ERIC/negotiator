@@ -172,6 +172,11 @@ public class Negotiation extends AuditEntity {
     return Objects.hash(getId());
   }
 
+  /**
+   * Returns all resources involved in the negotiation.
+   *
+   * @return an UnmodifiableSet of resources
+   */
   public Set<Resource> getResources() {
     return requests.stream()
         .flatMap(request -> request.getResources().stream())

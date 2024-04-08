@@ -979,7 +979,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser
+  @WithUserDetails("TheResearcher")
   public void testUpdate_BadRequest_whenRequestIsAlreadyAssignedToAnotherNegotiation()
       throws Exception {
     // It tries to update the known NEGOTIATION_2 by assigning the request of NEGOTIATION_1
