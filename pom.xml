@@ -14,12 +14,12 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>3.1.2</version>
+        <version>3.2.4</version>
     </parent>
     <properties>
         <java.version>17</java.version>
         <spring-security.version>6.2.0</spring-security.version>
-        <spring-boot.version>3.2.4</spring-boot.version>
+        <spring-boot.version>${project.parent.version}</spring-boot.version>
         <spring.version>6.1.5</spring.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
     </properties>
