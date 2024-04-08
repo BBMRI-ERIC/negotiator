@@ -18,7 +18,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.security.SecurityRule;
-import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
 /** Spring State Machine implementation of the NegotiationLifecycleService. */
@@ -40,8 +39,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   @Override
   public Set<NegotiationEvent> getPossibleEvents(String negotiationId)
       throws EntityNotFoundException {
-    rehydrateStateMachineForNegotiation(negotiationId);
-    return getPossibleEventsForCurrentStateMachine();
+    return getPossibleEventsForCurrentStateMachine(negotiationId);
   }
 
   @Override
@@ -63,16 +61,19 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private NegotiationState getCurrentStateForNegotiation(String negotiationId) {
     return negotiationRepository
-        .findById(negotiationId)
-        .orElseThrow(() -> new EntityNotFoundException("Negotiation not found."))
-        .getCurrentState();
+        .findNegotiationStateById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine() {
+  private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
     List<String> roles = NegotiatorUserDetailsService.getRoles();
     return stateMachine.getTransitions().stream()
         .filter(
-            transition -> transition.getSource().getId().equals(stateMachine.getState().getId()))
+            transition ->
+                transition
+                    .getSource()
+                    .getId()
+                    .equals(getCurrentStateForNegotiation(negotiationId).toString()))
         .filter(
             transition ->
                 Optional.ofNullable(transition.getSecurityRule())
@@ -84,17 +85,5 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
         .map(transition -> transition.getTrigger().getEvent())
         .map(NegotiationEvent::valueOf)
         .collect(Collectors.toSet());
-  }
-
-  private void rehydrateStateMachineForNegotiation(String negotiationId) {
-    NegotiationState currentState = getCurrentStateForNegotiation(negotiationId);
-    stateMachine
-        .getStateMachineAccessor()
-        .doWithAllRegions(
-            accessor ->
-                accessor
-                    .resetStateMachineReactively(
-                        new DefaultStateMachineContext<>(currentState.name(), null, null, null))
-                    .subscribe());
   }
 }
