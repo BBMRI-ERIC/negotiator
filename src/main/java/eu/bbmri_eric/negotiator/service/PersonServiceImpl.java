@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
+@CommonsLog
 public class PersonServiceImpl implements PersonService {
 
   public PersonServiceImpl(
@@ -125,6 +127,9 @@ public class PersonServiceImpl implements PersonService {
   public void assignAsRepresentativeForResource(Long representativeId, Long resourceId) {
     Person representative = getRepresentative(representativeId);
     Resource resource = getResource(resourceId);
+    log.warn(
+        "AUTH_CHANGE: %s added as a representative for resource: %s"
+            .formatted(representative.getName(), resource.getSourceId()));
     representative.addResource(resource);
     personRepository.save(representative);
   }
@@ -133,6 +138,9 @@ public class PersonServiceImpl implements PersonService {
   public void removeAsRepresentativeForResource(Long representativeId, Long resourceId) {
     Person representative = getRepresentative(representativeId);
     Resource resource = getResource(resourceId);
+    log.warn(
+        "AUTH_CHANGE: %s removed as a representative for resource: %s"
+            .formatted(representative.getName(), resource.getSourceId()));
     representative.removeResource(resource);
     personRepository.save(representative);
   }
