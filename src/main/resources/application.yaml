@@ -62,6 +62,16 @@ spring:
           audiences: negotiator-api
   profiles:
     default: prod
+  springdoc:
+    oAuthFlow:
+      authorizationUrl: ""
+      tokenUrl: ""
+    swagger-ui:
+      oauth:
+        use-pkce-with-authorization-code-grant: true
+        client-id: ""
+        client-secret: ""
+        scopes: ""
 negotiator:
   molgenis-url: ""
   frontend-url: ""
