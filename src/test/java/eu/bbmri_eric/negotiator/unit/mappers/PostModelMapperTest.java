@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Post;
+import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.dto.post.PostDTO;
 import eu.bbmri_eric.negotiator.mappers.PostModelMapper;
 import org.junit.jupiter.api.BeforeEach;

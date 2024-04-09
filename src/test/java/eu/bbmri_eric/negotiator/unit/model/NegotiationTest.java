@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

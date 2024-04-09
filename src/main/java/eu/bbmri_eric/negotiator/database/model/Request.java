@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.database.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

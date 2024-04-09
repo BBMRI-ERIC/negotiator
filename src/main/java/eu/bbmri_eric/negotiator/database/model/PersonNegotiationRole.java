@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.database.model;
 
+import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

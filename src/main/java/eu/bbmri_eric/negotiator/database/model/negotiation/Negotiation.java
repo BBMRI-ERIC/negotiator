@@ -1,9 +1,15 @@
-package eu.bbmri_eric.negotiator.database.model;
+package eu.bbmri_eric.negotiator.database.model.negotiation;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.attachments.Attachment;
+import eu.bbmri_eric.negotiator.database.model.AuditEntity;
+import eu.bbmri_eric.negotiator.database.model.NegotiationLifecycleRecord;
+import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
+import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
+import eu.bbmri_eric.negotiator.database.model.Request;
+import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;

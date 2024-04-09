@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.database.model.Organization;
-import eu.bbmri_eric.negotiator.database.model.attachments.Attachment;
-import eu.bbmri_eric.negotiator.database.model.attachments.AttachmentProjection;
-import eu.bbmri_eric.negotiator.database.model.attachments.MetadataAttachmentProjection;
+import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
+import eu.bbmri_eric.negotiator.database.model.attachment.AttachmentProjection;
+import eu.bbmri_eric.negotiator.database.model.attachment.MetadataAttachmentProjection;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import jakarta.annotation.PostConstruct;
