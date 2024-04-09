@@ -90,7 +90,7 @@ springdoc:
       scopes: ""
       additional-query-string-params:
         {
-          "resources": "${spring.security.oauth2.resourceserver.jwt.audiences}"
+          "resource": "${spring.security.oauth2.resourceserver.jwt.audiences}"
         }
 info:
   application:
