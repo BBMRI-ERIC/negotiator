@@ -6,6 +6,7 @@ import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import eu.bbmri_eric.negotiator.configuration.ExceptionHandlerFilter;
 import eu.bbmri_eric.negotiator.configuration.security.auth.CustomJWTAuthConverter;
+import eu.bbmri_eric.negotiator.configuration.security.auth.IntrospectionValidator;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -183,7 +185,10 @@ public class OAuthSecurityConfig {
   private void addTokenValidators(NimbusJwtDecoder decoder) {
     decoder.setJwtValidator(
         new DelegatingOAuth2TokenValidator<>(
-            introspectionValidator(), new JwtIssuerValidator(jwtIssuer), audienceValidator()));
+            introspectionValidator(),
+            new JwtIssuerValidator(jwtIssuer),
+            audienceValidator(),
+            new JwtTimestampValidator()));
   }
 
   @Bean

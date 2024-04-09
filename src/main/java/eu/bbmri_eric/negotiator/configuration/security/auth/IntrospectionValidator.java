@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.configuration.security;
+package eu.bbmri_eric.negotiator.configuration.security.auth;
 
 import java.io.IOException;
 import java.net.URI;
@@ -6,7 +6,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -19,6 +21,7 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
   private final String introspectionUri;
   private final String clientId;
   private final String clientSecret;
+  private static final Map<String, Jwt> jwtCache = new ConcurrentHashMap<>();
 
   public IntrospectionValidator(String introspectionUri, String clientId, String clientSecret) {
     Objects.requireNonNull(
@@ -38,7 +41,7 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
   }
 
   private OAuth2TokenValidatorResult introspect(Jwt token) {
-    if (isRequestSuccessful(sendHttpRequest(token))) {
+    if (jwtCache.containsKey(token.getSubject()) || isRequestSuccessful(sendHttpRequest(token))) {
       log.debug("Introspection for subject %s was successful!".formatted(token.getSubject()));
       return OAuth2TokenValidatorResult.success();
     } else {
@@ -76,5 +79,10 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
                     .encodeToString((("%s:%s").formatted(clientId, clientSecret)).getBytes()))
         .POST(HttpRequest.BodyPublishers.ofString("token=" + token.getTokenValue()))
         .build();
+  }
+
+  static void cleanCache() {
+    log.debug("Clearing JWT cache.");
+    jwtCache.clear();
   }
 }
