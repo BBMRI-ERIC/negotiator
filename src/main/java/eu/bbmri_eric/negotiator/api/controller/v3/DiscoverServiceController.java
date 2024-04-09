@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.dto.ValidationGroups.Update;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceDTO;
 import eu.bbmri_eric.negotiator.service.DiscoveryServiceService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @Validated
+@Tag(name = "Discovery services", description = "Manage connected discovery services")
 public class DiscoverServiceController {
 
   @Autowired private DiscoveryServiceService discoveryServiceService;

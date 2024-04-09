@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
 import eu.bbmri_eric.negotiator.mappers.OrganizationModelAssembler;
 import eu.bbmri_eric.negotiator.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3/organizations")
+@Tag(name = "Organizations", description = "Retrieve connected organizations")
 public class OrganizationController {
   private final OrganizationService organizationService;
 

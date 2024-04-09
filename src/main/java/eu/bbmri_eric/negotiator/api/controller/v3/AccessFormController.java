@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @CrossOrigin
-@Tag(name = "Access-Form", description = "management and retrieval of access-forms")
+@Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
 public class AccessFormController {
 
   @Autowired private AccessCriteriaSetService accessCriteriaSetService;

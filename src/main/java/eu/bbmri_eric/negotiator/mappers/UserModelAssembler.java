@@ -4,9 +4,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
-import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
-import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationSortField;
 import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.database.repository;
 
-import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationRole;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;

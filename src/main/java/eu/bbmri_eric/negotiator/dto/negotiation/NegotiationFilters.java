@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.dto.negotiation;
 
-import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationRole;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import java.time.LocalDate;
 import java.util.List;

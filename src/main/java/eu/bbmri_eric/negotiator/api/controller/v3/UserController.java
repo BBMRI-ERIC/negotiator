@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.mappers.UserModelAssembler;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -37,7 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
-@Tag(name = "Users", description = "management of users and resources they represent")
+@Tag(name = "Users", description = "Manage users and resources they represent")
+@SecurityRequirement(name = "security_auth")
 public class UserController {
   @Autowired UserModelAssembler assembler;
 

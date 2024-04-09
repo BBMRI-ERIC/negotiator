@@ -4,6 +4,8 @@ import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetail
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/v3")
+@Tag(name = "Attachments", description = "Upload and download attachments")
+@SecurityRequirement(name = "security_auth")
 public class AttachmentController {
 
   private final AttachmentService storageService;

@@ -3,6 +3,8 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.dto.NotificationDTO;
 import eu.bbmri_eric.negotiator.service.UserNotificationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
+@Tag(name = "Notifications", description = "Retrieve and update user notifications")
+@SecurityRequirement(name = "security_auth")
 public class NotificationController {
 
   @Autowired UserNotificationService userNotificationService;
