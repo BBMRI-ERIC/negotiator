@@ -88,6 +88,10 @@ springdoc:
       client-id: ""
       client-secret: ""
       scopes: ""
+      additional-query-string-params:
+        {
+          "resources": "${spring.security.oauth2.resourceserver.jwt.audiences}"
+        }
 info:
   application:
     name: "BBMRI-ERIC Negotiator"
