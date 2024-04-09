@@ -135,7 +135,6 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private Map<String, Object> getClaims(Jwt jwt) {
     if (userInfoCache.containsKey(jwt.getSubject())) {
-      log.debug(userInfoCache.keySet().size());
       return userInfoCache.get(jwt.getSubject());
     }
     if (userInfoEndpoint != null
@@ -149,12 +148,15 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
     Object claims = requestClaimsFromUserInfoEndpoint(jwt);
+    LinkedHashMap<String, Object> mappedClaims;
     try {
-      userInfoCache.put(jwt.getSubject(), (LinkedHashMap<String, Object>) claims);
-      return (LinkedHashMap<String, Object>) claims;
+      mappedClaims = (LinkedHashMap<String, Object>) claims;
     } catch (ClassCastException ex) {
       return new LinkedHashMap<>();
     }
+    userInfoCache.put(jwt.getSubject(), mappedClaims);
+    log.info("USER_LOGIN: User %s logged in.".formatted(mappedClaims.get("name")));
+    return mappedClaims;
   }
 
   private Object requestClaimsFromUserInfoEndpoint(Jwt jwt) {
