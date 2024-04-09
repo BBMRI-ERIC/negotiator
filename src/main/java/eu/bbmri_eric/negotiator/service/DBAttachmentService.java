@@ -1,11 +1,13 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
-import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.attachments.Attachment;
+import eu.bbmri_eric.negotiator.database.model.attachments.BaseAttachmentProjection;
+import eu.bbmri_eric.negotiator.database.model.attachments.MetadataAttachmentProjection;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
@@ -119,7 +121,7 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO findMetadataById(String id) {
-    Attachment attachment =
+    MetadataAttachmentProjection attachment =
         attachmentRepository
             .findMetadataById(id)
             .orElseThrow(() -> new EntityNotFoundException(id));
@@ -132,8 +134,10 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentDTO findById(String id) {
-    Attachment attachment =
-        attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    MetadataAttachmentProjection attachment =
+        attachmentRepository
+            .findCompleteById(id)
+            .orElseThrow(() -> new EntityNotFoundException(id));
     if (!isAuthorizedForAttachment(attachment)) {
       throw new ForbiddenRequestException();
     }
@@ -143,7 +147,7 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public List<AttachmentMetadataDTO> findByNegotiation(String id) {
-    List<Attachment> attachments = attachmentRepository.findByNegotiationId(id);
+    List<MetadataAttachmentProjection> attachments = attachmentRepository.findMetadataByNegotiationId(id);
     return attachments.stream()
         .filter(this::isAuthorizedForAttachment)
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
@@ -153,9 +157,9 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
-    Attachment attachment =
+    MetadataAttachmentProjection attachment =
         attachmentRepository
-            .findByIdAndNegotiationId(id, negotiationId)
+            .findMetadataByIdAndNegotiationId(id, negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(id));
     if (!this.isAuthorizedForAttachment(attachment)) {
       throw new ForbiddenRequestException();
@@ -173,7 +177,7 @@ public class DBAttachmentService implements AttachmentService {
     return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
-  private boolean isAuthorizedForAttachment(Attachment attachment) {
+  private boolean isAuthorizedForAttachment(BaseAttachmentProjection attachment) {
     // The administrator of the negotiator is authorized to all attachements
     if (isAdmin()) return true;
 
@@ -181,8 +185,7 @@ public class DBAttachmentService implements AttachmentService {
     if (negotiation == null) {
       // If the attachment is not associated to a Negotiation yet, it can be accessed only by the
       // creator of the attachment
-      return attachment.isCreator(
-          NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+      return isCurrentAuthenticatedUserAttachmentCreator(attachment);
     } else {
       // otherwise the user has to be authorized for the negotiation and
       // the attachment must be either:
@@ -190,11 +193,21 @@ public class DBAttachmentService implements AttachmentService {
       // 2. created by the currently authenticated user
       // 3. addressed to the organization represented by the authenticated user
       return negotiationService.isAuthorizedForNegotiation(negotiation)
-          && (attachment.isPublic()
-              || attachment.isCreator(
-                  NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+          && (isAttachmentPublic(attachment)
+              || isCurrentAuthenticatedUserAttachmentCreator(attachment)
               || (attachment.getOrganization() != null
                   && isRepresentative(attachment.getOrganization())));
     }
+  }
+
+  boolean isCurrentAuthenticatedUserAttachmentCreator(BaseAttachmentProjection attachment) {
+    return attachment
+        .getCreatedBy()
+        .getId()
+        .equals(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+  }
+
+  boolean isAttachmentPublic(BaseAttachmentProjection attachment) {
+    return attachment.getOrganization() == null;
   }
 }

@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.database.model;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.database.model.attachments.Attachment;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri_eric.negotiator.database.model.Attachment;
+import eu.bbmri_eric.negotiator.database.model.attachments.Attachment;
 import eu.bbmri_eric.negotiator.database.model.PostStatus;
 import eu.bbmri_eric.negotiator.database.model.PostType;
 import jakarta.validation.Valid;
