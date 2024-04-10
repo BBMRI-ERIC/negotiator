@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.mappers;
 
+import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.dto.request.CollectionV2DTO;
 import eu.bbmri_eric.negotiator.dto.request.QueryCreateV2DTO;
 import eu.bbmri_eric.negotiator.dto.request.QueryV2DTO;

@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

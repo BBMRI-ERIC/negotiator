@@ -2,9 +2,9 @@ package eu.bbmri_eric.negotiator.database.repository;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationRole;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.criteria.CriteriaBuilder;

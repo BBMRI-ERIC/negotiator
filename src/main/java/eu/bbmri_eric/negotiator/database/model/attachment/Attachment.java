@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.database.model.attachment;
 
 import eu.bbmri_eric.negotiator.database.model.AuditEntity;
+import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
-import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

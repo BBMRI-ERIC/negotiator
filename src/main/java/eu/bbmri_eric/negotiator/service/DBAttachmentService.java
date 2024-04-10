@@ -1,13 +1,13 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
 import eu.bbmri_eric.negotiator.database.model.attachment.BaseAttachmentProjection;
 import eu.bbmri_eric.negotiator.database.model.attachment.MetadataAttachmentProjection;
-import eu.bbmri_eric.negotiator.database.model.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
