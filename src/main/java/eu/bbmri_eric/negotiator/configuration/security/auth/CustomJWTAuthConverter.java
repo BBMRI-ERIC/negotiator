@@ -101,6 +101,8 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
       String scopes = jwt.getClaimAsString("scope");
       if (scopes.contains("negotiator_authz_management")) {
         authorities.add(new SimpleGrantedAuthority("ROLE_AUTHORIZATION_MANAGER"));
+      } else if (scopes.contains("negotiator_monitoring")) {
+        authorities.add(new SimpleGrantedAuthority("ROLE_PROMETHEUS"));
       }
     }
     return authorities;

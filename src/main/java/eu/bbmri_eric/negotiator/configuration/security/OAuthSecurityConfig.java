@@ -138,6 +138,8 @@ public class OAuthSecurityConfig {
                     .hasRole("AUTHORIZATION_MANAGER")
                     .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
                     .authenticated()
+                    .requestMatchers(mvc.pattern("/actuator/prometheus"))
+                    .hasRole("PROMETHEUS")
                     .anyRequest()
                     .permitAll());
 
