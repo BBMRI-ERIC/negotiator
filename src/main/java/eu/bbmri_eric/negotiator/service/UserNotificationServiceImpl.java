@@ -446,7 +446,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     return reminderNotifications;
   }
 
-  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 8 * * *}")
+  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 8 * * MON}")
   @Async
   public void sendRemindersEveryMorning() {
     log.info("Sending reminder email notifications.");
