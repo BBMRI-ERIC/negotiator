@@ -6,8 +6,6 @@ import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
-import eu.bbmri_eric.negotiator.database.model.attachment.BaseAttachmentProjection;
-import eu.bbmri_eric.negotiator.database.model.attachment.MetadataAttachmentProjection;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
@@ -121,7 +119,7 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO findMetadataById(String id) {
-    MetadataAttachmentProjection attachment =
+    Attachment attachment =
         attachmentRepository
             .findMetadataById(id)
             .orElseThrow(() -> new EntityNotFoundException(id));
@@ -134,7 +132,7 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentDTO findById(String id) {
-    MetadataAttachmentProjection attachment =
+    Attachment attachment =
         attachmentRepository
             .findCompleteById(id)
             .orElseThrow(() -> new EntityNotFoundException(id));
@@ -147,10 +145,9 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public List<AttachmentMetadataDTO> findByNegotiation(String id) {
-    List<MetadataAttachmentProjection> attachments =
-        attachmentRepository.findMetadataByNegotiationId(id);
+    List<Attachment> attachments = attachmentRepository.getByNegotiationId(id);
     return attachments.stream()
-        .filter(this::isAuthorizedForAttachment)
+        //        .filter(this::isAuthorizedForAttachment)
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
         .toList();
   }
@@ -158,7 +155,7 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
-    MetadataAttachmentProjection attachment =
+    Attachment attachment =
         attachmentRepository
             .findMetadataByIdAndNegotiationId(id, negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(id));
@@ -178,7 +175,7 @@ public class DBAttachmentService implements AttachmentService {
     return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
-  private boolean isAuthorizedForAttachment(BaseAttachmentProjection attachment) {
+  private boolean isAuthorizedForAttachment(Attachment attachment) {
     // The administrator of the negotiator is authorized to all attachements
     if (isAdmin()) return true;
 
@@ -193,7 +190,7 @@ public class DBAttachmentService implements AttachmentService {
       // 1. public (in the negotiation)
       // 2. created by the currently authenticated user
       // 3. addressed to the organization represented by the authenticated user
-      return negotiationService.isAuthorizedForNegotiation(negotiation)
+      return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
           && (isAttachmentPublic(attachment)
               || isCurrentAuthenticatedUserAttachmentCreator(attachment)
               || (attachment.getOrganization() != null
@@ -201,14 +198,14 @@ public class DBAttachmentService implements AttachmentService {
     }
   }
 
-  boolean isCurrentAuthenticatedUserAttachmentCreator(BaseAttachmentProjection attachment) {
+  boolean isCurrentAuthenticatedUserAttachmentCreator(Attachment attachment) {
     return attachment
         .getCreatedBy()
         .getId()
         .equals(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  boolean isAttachmentPublic(BaseAttachmentProjection attachment) {
+  boolean isAttachmentPublic(Attachment attachment) {
     return attachment.getOrganization() == null;
   }
 }

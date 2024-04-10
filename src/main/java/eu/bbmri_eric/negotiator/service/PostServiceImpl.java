@@ -168,7 +168,7 @@ public class PostServiceImpl implements PostService {
   private boolean isAuthorized(Post post) {
     Negotiation negotiation = post.getNegotiation();
     if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
-    return negotiationService.isAuthorizedForNegotiation(negotiation)
+    return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
         && (post.isPublic()
             || post.isCreator(
                 NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())

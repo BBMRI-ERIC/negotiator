@@ -6,7 +6,6 @@ import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
@@ -47,7 +46,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;
   @Autowired ModelMapper modelMapper;
-  @Autowired EmailService notificationService;
   @Autowired UserNotificationService userNotificationService;
   @Autowired PersonService personService;
 
@@ -56,13 +54,19 @@ public class NegotiationServiceImpl implements NegotiationService {
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  public boolean isAuthorizedForNegotiation(Negotiation negotiation) {
-    return isNegotiationCreator(negotiation)
-        || personService.isRepresentativeOfAnyResource(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-            negotiation.getResources().stream()
-                .map(Resource::getSourceId)
-                .collect(Collectors.toList()));
+  /**
+   * Check if the currently authenticated user is authorized for teh negotiation
+   *
+   * @param negotiationId the id of the negotiaton to check
+   * @return true if the user is the creator of the negotiation or if he/she is representative of
+   *     any resource involved in the negotiation
+   */
+  @Override
+  public boolean isAuthorizedForNegotiation(String negotiationId) {
+    return negotiationRepository.isNegotiationCreator(
+            negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+        || personService.isRepresentativeOfAnyResourceOfNegotiation(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }
 
   private List<Request> findRequests(Set<String> requestsId) {
