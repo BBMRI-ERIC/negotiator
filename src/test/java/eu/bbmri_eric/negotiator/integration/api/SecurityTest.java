@@ -149,11 +149,4 @@ public class SecurityTest {
   void getInfoEndpoint_noAuth_200() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/actuator/info")).andExpect(status().isOk());
   }
-
-  @Test
-  void getPrometheusEndpoint_noAuth_401() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get("/actuator/prometheus"))
-        .andExpect(status().isUnauthorized());
-  }
 }

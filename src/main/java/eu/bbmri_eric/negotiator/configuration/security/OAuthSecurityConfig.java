@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -82,6 +83,9 @@ public class OAuthSecurityConfig {
 
   @Value("${spring.security.csrf.enabled:true}")
   private boolean csrfEnabled;
+
+  @Value("${management.endpoint.prometheus.ip}")
+  private String prometheusWhitelistedIp;
 
   @Autowired ExceptionHandlerFilter exceptionHandlerFilter;
 
@@ -139,7 +143,10 @@ public class OAuthSecurityConfig {
                     .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
                     .authenticated()
                     .requestMatchers(mvc.pattern("/actuator/prometheus"))
-                    .hasRole("PROMETHEUS")
+                    // Needs to be IPv6 address
+                    .access(
+                        new WebExpressionAuthorizationManager(
+                            "hasIpAddress('%s')".formatted(prometheusWhitelistedIp)))
                     .anyRequest()
                     .permitAll());
 
