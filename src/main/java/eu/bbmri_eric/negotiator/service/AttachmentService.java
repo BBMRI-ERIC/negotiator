@@ -22,11 +22,9 @@ public interface AttachmentService {
   AttachmentMetadataDTO createForNegotiation(
       Long userId, String negotiationId, @Nullable String organizationId, MultipartFile file);
 
-  AttachmentMetadataDTO findMetadataById(String id);
-
   List<AttachmentMetadataDTO> findByNegotiation(String negotiationId);
 
-  AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId);
+  AttachmentMetadataDTO findByIdAndNegotiationId(String id, String negotiationId);
 
   AttachmentDTO findById(String id);
 }

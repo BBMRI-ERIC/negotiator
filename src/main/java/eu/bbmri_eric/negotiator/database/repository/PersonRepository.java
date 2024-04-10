@@ -48,4 +48,17 @@ public interface PersonRepository
               + "))",
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfNegotiation(Long personId, String negotiationId);
+
+  @Query(
+      value =
+          "SELECT EXISTS ("
+              + "SELECT r.id "
+              + "FROM resource r "
+              + "WHERE organization_id = :organizationId and  r.id in ("
+              + "      SELECT rrl.resource_id "
+              + "      FROM person p JOIN resource_representative_link rrl ON p.id = rrl.person_id "
+              + "      WHERE p.id = :personId "
+              + "))",
+      nativeQuery = true)
+  boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, Long organizationId);
 }

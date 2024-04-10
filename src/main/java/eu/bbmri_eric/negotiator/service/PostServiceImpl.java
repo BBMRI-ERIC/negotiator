@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Post;
 import eu.bbmri_eric.negotiator.database.model.PostStatus;
 import eu.bbmri_eric.negotiator.database.model.PostType;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
@@ -156,9 +155,9 @@ public class PostServiceImpl implements PostService {
   }
 
   private boolean isRepresentative(Organization organization) {
-    return personService.isRepresentativeOfAnyResource(
+    return personService.isRepresentativeOfAnyResourceOfOrganization(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        organization.getResources().stream().map(Resource::getSourceId).toList());
+        organization.getId());
   }
 
   private boolean isAdmin() {

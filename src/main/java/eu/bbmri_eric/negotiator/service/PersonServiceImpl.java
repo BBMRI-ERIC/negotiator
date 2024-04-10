@@ -112,6 +112,11 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
+  public boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, Long organizationId) {
+    return personRepository.isRepresentativeOfAnyResourceOfOrganization(personId, organizationId);
+  }
+
+  @Override
   public boolean isRepresentativeOfAnyResourceOfNegotiation(Long personId, String negotiationId) {
     return personRepository.isRepresentativeOfAnyResourceOfNegotiation(personId, negotiationId);
   }

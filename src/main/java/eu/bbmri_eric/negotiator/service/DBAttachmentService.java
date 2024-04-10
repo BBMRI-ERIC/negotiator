@@ -1,12 +1,16 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
+import eu.bbmri_eric.negotiator.database.model.views.AttachmentView;
+import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentView;
+import eu.bbmri_eric.negotiator.database.model.views.NegotiationMinimal;
+import eu.bbmri_eric.negotiator.database.model.views.OrganizationMinimal;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
+import eu.bbmri_eric.negotiator.database.repository.AttachmentViewRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
@@ -18,6 +22,7 @@ import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import java.io.IOException;
 import java.util.List;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,28 +31,14 @@ import org.springframework.web.multipart.MultipartFile;
 @Service(value = "DefaultAttachmentService")
 public class DBAttachmentService implements AttachmentService {
 
-  private final AttachmentRepository attachmentRepository;
-  private final ModelMapper modelMapper;
-  private final NegotiationRepository negotiationRepository;
-  private OrganizationRepository organizationRepository;
-  private PersonService personService;
-  private NegotiationService negotiationService;
-  private PersonRepository personRepository;
-
-  public DBAttachmentService(
-      AttachmentRepository attachmentRepository,
-      NegotiationRepository negotiationRepository,
-      PersonService personService,
-      NegotiationService negotiationService,
-      ModelMapper modelMapper,
-      PersonRepository personRepository) {
-    this.attachmentRepository = attachmentRepository;
-    this.negotiationRepository = negotiationRepository;
-    this.modelMapper = modelMapper;
-    this.personService = personService;
-    this.negotiationService = negotiationService;
-    this.personRepository = personRepository;
-  }
+  @Autowired private AttachmentRepository attachmentRepository;
+  @Autowired private AttachmentViewRepository attachmentViewRepository;
+  @Autowired private ModelMapper modelMapper;
+  @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private OrganizationRepository organizationRepository;
+  @Autowired private PersonService personService;
+  @Autowired private NegotiationService negotiationService;
+  @Autowired private PersonRepository personRepository;
 
   @Override
   @Transactional
@@ -118,24 +109,9 @@ public class DBAttachmentService implements AttachmentService {
 
   @Override
   @Transactional
-  public AttachmentMetadataDTO findMetadataById(String id) {
-    Attachment attachment =
-        attachmentRepository
-            .findMetadataById(id)
-            .orElseThrow(() -> new EntityNotFoundException(id));
-    if (!isAuthorizedForAttachment(attachment)) {
-      throw new ForbiddenRequestException();
-    }
-    return modelMapper.map(attachment, AttachmentMetadataDTO.class);
-  }
-
-  @Override
-  @Transactional
   public AttachmentDTO findById(String id) {
-    Attachment attachment =
-        attachmentRepository
-            .findCompleteById(id)
-            .orElseThrow(() -> new EntityNotFoundException(id));
+    AttachmentView attachment =
+        attachmentViewRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     if (!isAuthorizedForAttachment(attachment)) {
       throw new ForbiddenRequestException();
     }
@@ -145,18 +121,18 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public List<AttachmentMetadataDTO> findByNegotiation(String id) {
-    List<Attachment> attachments = attachmentRepository.getByNegotiationId(id);
+    List<MetadataAttachmentView> attachments = attachmentViewRepository.findByNegotiationId(id);
     return attachments.stream()
-        //        .filter(this::isAuthorizedForAttachment)
+        .filter(this::isAuthorizedForAttachment)
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
         .toList();
   }
 
   @Override
   @Transactional
-  public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
-    Attachment attachment =
-        attachmentRepository
+  public AttachmentMetadataDTO findByIdAndNegotiationId(String id, String negotiationId) {
+    MetadataAttachmentView attachment =
+        attachmentViewRepository
             .findMetadataByIdAndNegotiationId(id, negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(id));
     if (!this.isAuthorizedForAttachment(attachment)) {
@@ -165,21 +141,21 @@ public class DBAttachmentService implements AttachmentService {
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
-  private boolean isRepresentative(Organization organization) {
-    return personService.isRepresentativeOfAnyResource(
+  private boolean isRepresentative(OrganizationMinimal organization) {
+    return personService.isRepresentativeOfAnyResourceOfOrganization(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        organization.getResources().stream().map(Resource::getSourceId).toList());
+        organization.getId());
   }
 
   private boolean isAdmin() {
     return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
-  private boolean isAuthorizedForAttachment(Attachment attachment) {
+  private boolean isAuthorizedForAttachment(MetadataAttachmentView attachment) {
     // The administrator of the negotiator is authorized to all attachements
     if (isAdmin()) return true;
 
-    Negotiation negotiation = attachment.getNegotiation();
+    NegotiationMinimal negotiation = attachment.getNegotiation();
     if (negotiation == null) {
       // If the attachment is not associated to a Negotiation yet, it can be accessed only by the
       // creator of the attachment
@@ -198,14 +174,14 @@ public class DBAttachmentService implements AttachmentService {
     }
   }
 
-  boolean isCurrentAuthenticatedUserAttachmentCreator(Attachment attachment) {
+  boolean isCurrentAuthenticatedUserAttachmentCreator(MetadataAttachmentView attachment) {
     return attachment
         .getCreatedBy()
         .getId()
         .equals(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  boolean isAttachmentPublic(Attachment attachment) {
+  boolean isAttachmentPublic(MetadataAttachmentView attachment) {
     return attachment.getOrganization() == null;
   }
 }

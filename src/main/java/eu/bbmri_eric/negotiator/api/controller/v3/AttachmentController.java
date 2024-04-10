@@ -63,7 +63,7 @@ public class AttachmentController {
   @ResponseStatus(HttpStatus.OK)
   public AttachmentMetadataDTO getByNegotiationAndId(
       @PathVariable String negotiationId, @PathVariable String attachmentId) {
-    return storageService.findByIdAndNegotiation(attachmentId, negotiationId);
+    return storageService.findByIdAndNegotiationId(attachmentId, negotiationId);
   }
 
   @PostMapping(

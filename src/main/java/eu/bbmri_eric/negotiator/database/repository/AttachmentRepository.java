@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.database.repository;
 
-import eu.bbmri_eric.negotiator.database.model.attachment.Attachment;
+import eu.bbmri_eric.negotiator.database.model.Attachment;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

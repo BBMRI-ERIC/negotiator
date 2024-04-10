@@ -22,6 +22,7 @@
         <spring-boot.version>${project.parent.version}</spring-boot.version>
         <spring.version>6.1.6</spring.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
+        <blaze-persistence.version>1.6.10</blaze-persistence.version>
     </properties>
     <build>
         <finalName>negotiator</finalName>
@@ -354,8 +355,56 @@
             <artifactId>spring-boot-devtools</artifactId>
             <version>3.1.4</version>
         </dependency>
-
-
+<!--        <dependency>-->
+<!--            <groupId>com.blazebit</groupId>-->
+<!--            <artifactId>blaze-persistence-core-api</artifactId>-->
+<!--            <scope>compile</scope>-->
+<!--            <version>1.6.11</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.2.24.Final</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-api-jakarta</artifactId>
+            <scope>compile</scope>
+            <version>${blaze-persistence.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-core-impl-jakarta</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-api-jakarta</artifactId>
+            <version>${blaze-persistence.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-impl-jakarta</artifactId>
+            <version>${blaze-persistence.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-entity-view-processor-jakarta</artifactId>
+            <version>${blaze-persistence.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-spring-data-3.1</artifactId>
+            <version>${blaze-persistence.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.blazebit</groupId>
+            <artifactId>blaze-persistence-integration-hibernate-6.2</artifactId>
+            <version>${blaze-persistence.version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
 </project>
