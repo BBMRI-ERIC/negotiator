@@ -397,7 +397,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       String negotiationCreator = notification.getNegotiation().getCreatedBy().getName();
       String postCreator = parts[1].trim();
       return (negotiationCreator.equals(postCreator)) ? "ROLE_REPRESENTATIVE" : "ROLE_RESEARCHER";
-    } else if (message.matches("New Negotiation .*")) {
+    } else if (message.matches("New Negotiation .*")
+        || message.matches("The negotiation .* is stale\\.")) {
       return "ROLE_REPRESENTATIVE";
     } else {
       return "ROLE_RESEARCHER";
