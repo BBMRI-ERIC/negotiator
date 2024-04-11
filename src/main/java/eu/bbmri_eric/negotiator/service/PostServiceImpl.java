@@ -17,6 +17,8 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import jakarta.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -138,7 +140,6 @@ public class PostServiceImpl implements PostService {
               .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                   negotiationId, PostStatus.CREATED, type, authors, organizationId);
     }
-
     return posts.stream()
         .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -167,6 +168,11 @@ public class PostServiceImpl implements PostService {
   private boolean isAuthorized(Post post) {
     Negotiation negotiation = post.getNegotiation();
     if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
+    boolean isPublic = post.isPublic();
+    boolean isCreator =
+        post.isCreator(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    boolean isRepresentative =
+        post.getOrganization() != null && isRepresentative(post.getOrganization());
     return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
         && (post.isPublic()
             || post.isCreator(

@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
@@ -13,6 +14,7 @@ import eu.bbmri_eric.negotiator.database.model.PostType;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.PostRepository;
+import eu.bbmri_eric.negotiator.dto.post.PostDTO;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
@@ -107,8 +109,8 @@ public class PostServiceTest {
 
     DiscoveryService discoveryService = new DiscoveryService();
 
-    Organization organization1 = Organization.builder().externalId(ORG_1).build();
-    Organization organization2 = Organization.builder().externalId(ORG_2).build();
+    Organization organization1 = Organization.builder().id(1L).externalId(ORG_1).build();
+    Organization organization2 = Organization.builder().id(2L).externalId(ORG_2).build();
 
     Resource resource1 =
         Resource.builder()
@@ -149,7 +151,7 @@ public class PostServiceTest {
             negotiation,
             researcher,
             organization2,
-            "private post from resercher to organization 1",
+            "private post from resercher to organization 2",
             PostType.PRIVATE);
     privateBio1ToOrg1 =
         TestUtils.createPost(
@@ -177,8 +179,15 @@ public class PostServiceTest {
             privateResToOrg2,
             privateBio2ToOrg2,
             privateBio1ToOrg1);
-    when(personService.isRepresentativeOfAnyResource(BIOBANKER_1_ID, List.of("resource:1")))
+
+//    when(personService.isRepresentativeOfAnyResource(BIOBANKER_1_ID, List.of("resource:1")))
+//        .thenReturn(true);
+    when(personService.isRepresentativeOfAnyResourceOfOrganization(
+            BIOBANKER_1_ID, organization1.getId()))
         .thenReturn(true);
+    when(personService.isRepresentativeOfAnyResourceOfOrganization(
+            BIOBANKER_1_ID, organization2.getId()))
+            .thenReturn(false);
   }
 
   @AfterEach
@@ -536,6 +545,8 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
+    List<PostDTO> returnedPost =
+        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null);
     Assertions.assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
@@ -697,19 +708,19 @@ public class PostServiceTest {
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findNewByNegotiationIdAndAuthors_AsBiobanker_Private() {
-    List<Post> posts =
-        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+//    List<Post> posts =
+//        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
     List<String> authors =
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
     when(postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
-            "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
-        .thenReturn(posts);
+            "neg1", PostStatus.CREATED, PostType.PRIVATE, authors))
+        .thenReturn(privatePosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         2,
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, null)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, null)
             .size());
   }
 
@@ -726,11 +737,11 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
-            "fakeId", PostStatus.CREATED, authors))
+            "neg1", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
     Assertions.assertEquals(
-        0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
+        0, postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, null).size());
   }
 
   @Test
@@ -738,10 +749,10 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, null, authors, ORG_1))
+                "neg1", PostStatus.CREATED, null, authors, ORG_1))
         .thenReturn(Collections.emptyList());
     Assertions.assertEquals(
-        0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+        0, postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
   @Test
@@ -755,12 +766,12 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
-            "fakeId", PostStatus.CREATED, authors, ORG_1))
+            "neg1", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(allPosts);
 
     Assertions.assertEquals(
         allPosts.size(),
-        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+        postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
   @Test
@@ -775,12 +786,12 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
-            "fakeId", PostStatus.CREATED, authors, ORG_1))
+            "neg1", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
         posts.size(),
-        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+        postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
   @Test
@@ -795,12 +806,12 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
-            "fakeId", PostStatus.CREATED, authors, ORG_1))
+            "neg1", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         posts.size(),
-        postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+        postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
   @Test
@@ -816,11 +827,11 @@ public class PostServiceTest {
     List<String> authors = List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT);
 
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
-            "fakeId", PostStatus.CREATED, authors, ORG_1))
+            "neg1", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
-        0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, ORG_1).size());
+        0, postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
   @Test
@@ -835,13 +846,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(allPosts);
 
     Assertions.assertEquals(
         allPosts.size(),
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
             .size());
   }
 
@@ -858,13 +869,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
         posts.size(),
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
             .size());
   }
 
@@ -881,13 +892,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         posts.size(),
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
             .size());
   }
 
@@ -905,13 +916,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
         0,
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
             .size());
   }
 
@@ -927,13 +938,13 @@ public class PostServiceTest {
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(privatePosts);
 
     Assertions.assertEquals(
         privatePosts.size(),
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)
             .size());
   }
 
@@ -952,13 +963,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
         posts.size(),
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)
             .size());
   }
 
@@ -977,13 +988,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     Assertions.assertEquals(
         2,
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)
             .size());
   }
 
@@ -1003,13 +1014,13 @@ public class PostServiceTest {
 
     when(postRepository
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
+                "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
 
     Assertions.assertEquals(
         0,
         postService
-            .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, ORG_1)
+            .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)
             .size());
   }
 }
