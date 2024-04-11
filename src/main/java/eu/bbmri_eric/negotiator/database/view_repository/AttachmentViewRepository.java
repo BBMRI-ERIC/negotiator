@@ -13,7 +13,7 @@ public interface AttachmentViewRepository
 
   List<MetadataAttachmentView> findByNegotiationId(String negotiationId);
 
-  Optional<AttachmentView> findById(String lastname);
+  Optional<AttachmentView> findById(String id);
 
   Optional<MetadataAttachmentView> findMetadataByIdAndNegotiationId(
       String id, String negotiationId);

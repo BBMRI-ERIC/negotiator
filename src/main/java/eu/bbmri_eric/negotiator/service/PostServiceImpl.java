@@ -17,8 +17,6 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import jakarta.transaction.Transactional;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;

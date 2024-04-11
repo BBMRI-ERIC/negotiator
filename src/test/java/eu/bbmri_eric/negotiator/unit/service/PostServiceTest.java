@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
@@ -180,14 +179,14 @@ public class PostServiceTest {
             privateBio2ToOrg2,
             privateBio1ToOrg1);
 
-//    when(personService.isRepresentativeOfAnyResource(BIOBANKER_1_ID, List.of("resource:1")))
-//        .thenReturn(true);
+    //    when(personService.isRepresentativeOfAnyResource(BIOBANKER_1_ID, List.of("resource:1")))
+    //        .thenReturn(true);
     when(personService.isRepresentativeOfAnyResourceOfOrganization(
             BIOBANKER_1_ID, organization1.getId()))
         .thenReturn(true);
     when(personService.isRepresentativeOfAnyResourceOfOrganization(
             BIOBANKER_1_ID, organization2.getId()))
-            .thenReturn(false);
+        .thenReturn(false);
   }
 
   @AfterEach
@@ -708,8 +707,8 @@ public class PostServiceTest {
       authEmail = BIOBANKER_1_AUTH_EMAIL,
       authorities = {"ROLE_REPRESENTATIVE_", "ROLE_REPRESENTATIVE_resource:1"})
   public void test_findNewByNegotiationIdAndAuthors_AsBiobanker_Private() {
-//    List<Post> posts =
-//        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
+    //    List<Post> posts =
+    //        List.of(privateResToOrg1, privateResToOrg2, privateBio1ToOrg1, privateBio2ToOrg2);
     List<String> authors =
         List.of(RESEARCHER_AUTH_SUBJECT, BIOBANKER_1_AUTH_SUBJECT, BIOBANKER_2_AUTH_SUBJECT);
 
