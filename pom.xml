@@ -22,7 +22,7 @@
         <spring-boot.version>${project.parent.version}</spring-boot.version>
         <spring.version>6.1.6</spring.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
-        <blaze-persistence.version>1.6.10</blaze-persistence.version>
+        <blaze-persistence.version>1.6.11</blaze-persistence.version>
     </properties>
     <build>
         <finalName>negotiator</finalName>

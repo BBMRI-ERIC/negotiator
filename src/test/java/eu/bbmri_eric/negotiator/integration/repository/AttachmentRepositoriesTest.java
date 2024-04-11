@@ -99,7 +99,6 @@ public class AttachmentRepositoriesTest {
   @BeforeEach
   void setUp() {
     addH2Function();
-
     this.discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     this.person = createPerson("person1");
