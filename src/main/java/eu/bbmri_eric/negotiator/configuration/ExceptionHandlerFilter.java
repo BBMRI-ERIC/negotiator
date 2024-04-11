@@ -24,8 +24,9 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     try {
-      log.debug("HTTP Request address is " + request.getRemoteAddr());
-      log.debug("HTTP Request URI is " + request.getRequestURI());
+      log.debug(
+          "HTTP %s Request to %s from %s"
+              .formatted(request.getMethod(), request.getRequestURI(), request.getRemoteAddr()));
       filterChain.doFilter(request, response);
     } catch (Exception e) {
       log.error("Spring Security Filter Chain Exception:", e);
