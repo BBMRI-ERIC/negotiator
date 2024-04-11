@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.convert.converter.Converter;
@@ -42,6 +43,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   private final String authzResearcherValue;
 
   private final String authzBiobankerValue;
+
+  private static final Map<String, LinkedHashMap<String, Object>> userInfoCache =
+      new ConcurrentHashMap<>();
 
   @Override
   public final AbstractAuthenticationToken convert(Jwt jwt) {
@@ -130,6 +134,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private Map<String, Object> getClaims(Jwt jwt) {
+    if (userInfoCache.containsKey(jwt.getSubject())) {
+      return userInfoCache.get(jwt.getSubject());
+    }
     if (userInfoEndpoint != null
         && !userInfoEndpoint.isBlank()
         && jwt.getClaimAsString("scope").contains("openid")) {
@@ -141,11 +148,15 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
 
   private LinkedHashMap<String, Object> getClaimsFromUserEndpoints(Jwt jwt) {
     Object claims = requestClaimsFromUserInfoEndpoint(jwt);
+    LinkedHashMap<String, Object> mappedClaims;
     try {
-      return (LinkedHashMap<String, Object>) claims;
+      mappedClaims = (LinkedHashMap<String, Object>) claims;
     } catch (ClassCastException ex) {
       return new LinkedHashMap<>();
     }
+    userInfoCache.put(jwt.getSubject(), mappedClaims);
+    log.info("USER_LOGIN: User %s logged in.".formatted(mappedClaims.get("name")));
+    return mappedClaims;
   }
 
   private Object requestClaimsFromUserInfoEndpoint(Jwt jwt) {
@@ -180,5 +191,10 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     }
     log.info(String.format("User with sub: %s added to the database", person.getSubjectId()));
     return person;
+  }
+
+  static void cleanCache() {
+    log.debug("Clearing userInfo cache.");
+    userInfoCache.clear();
   }
 }
