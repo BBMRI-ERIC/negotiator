@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.bbmri_eric.negotiator.configuration.BlazePersitenceConfig;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
@@ -13,10 +14,12 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest(showSql = false)
+@Import(BlazePersitenceConfig.class)
 @ActiveProfiles("test")
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
 public class ResourceRepositoryTest {

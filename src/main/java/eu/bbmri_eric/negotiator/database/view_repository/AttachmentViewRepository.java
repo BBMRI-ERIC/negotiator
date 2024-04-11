@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.database.repository;
+package eu.bbmri_eric.negotiator.database.view_repository;
 
 import com.blazebit.persistence.spring.data.repository.EntityViewRepository;
 import eu.bbmri_eric.negotiator.database.model.views.AttachmentView;
@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
-// @Repository
 @Transactional(readOnly = true)
 public interface AttachmentViewRepository
     extends EntityViewRepository<MetadataAttachmentView, String> {
@@ -15,10 +14,6 @@ public interface AttachmentViewRepository
   List<MetadataAttachmentView> findByNegotiationId(String negotiationId);
 
   Optional<AttachmentView> findById(String lastname);
-
-  Optional<MetadataAttachmentView> findMetadataById(String id);
-
-  List<MetadataAttachmentView> getByNegotiationId(String negotiationId);
 
   Optional<MetadataAttachmentView> findMetadataByIdAndNegotiationId(
       String id, String negotiationId);

@@ -4,16 +4,15 @@ import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetail
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
-import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.views.AttachmentView;
 import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentView;
 import eu.bbmri_eric.negotiator.database.model.views.NegotiationMinimal;
 import eu.bbmri_eric.negotiator.database.model.views.OrganizationMinimal;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
-import eu.bbmri_eric.negotiator.database.repository.AttachmentViewRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
+import eu.bbmri_eric.negotiator.database.view_repository.AttachmentViewRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -43,9 +42,11 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO createForNegotiation(
-      Long userId, String negotiationId, @Nullable String organizationId, MultipartFile file) {
+      String negotiationId, @Nullable String organizationId, MultipartFile file) {
+
     Negotiation negotiation = fetchNegotiation(negotiationId);
     Organization organization = fetchAddressedOrganization(organizationId);
+    Long userId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
     checkAuthorization(userId, negotiation);
     return saveAttachment(file, negotiation, organization);
   }
@@ -90,15 +91,21 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   private void checkAuthorization(Long userId, Negotiation negotiation) {
-    Person uploader =
-        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
-    if (!uploader.isAdmin()
-        && !uploader.equals(negotiation.getCreatedBy())
-        && negotiation.getResources().stream().noneMatch(uploader.getResources()::contains)) {
+    if (!negotiationService.isAuthorizedForNegotiation(negotiation.getId())) {
       throw new ForbiddenRequestException(
           "User %s is not authorized to upload attachments for this negotiation."
               .formatted(userId));
     }
+    //    Person uploader =
+    //        personRepository.findById(userId).orElseThrow(() -> new
+    // EntityNotFoundException(userId));
+    //    if (!uploader.isAdmin()
+    //        && !uploader.equals(negotiation.getCreatedBy())
+    //        && negotiation.getResources().stream().noneMatch(uploader.getResources()::contains)) {
+    //      throw new ForbiddenRequestException(
+    //          "User %s is not authorized to upload attachments for this negotiation."
+    //              .formatted(userId));
+    //    }
   }
 
   @Override

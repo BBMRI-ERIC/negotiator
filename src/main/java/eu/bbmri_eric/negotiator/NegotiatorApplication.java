@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories(basePackages = {"eu.bbmri_eric.negotiator.database.repository"})
 @EnableBlazeRepositories(
     considerNestedRepositories = true,
-    basePackages = {"eu.bbmri_eric.negotiator.database.viewrepository"})
+    basePackages = {"eu.bbmri_eric.negotiator.database.view_repository"})
 @EnableEntityViews("eu.bbmri_eric.negotiator.database.model.*")
 @EnableScheduling
 public class NegotiatorApplication {
