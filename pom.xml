@@ -154,6 +154,11 @@
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.12.4</version>
+        </dependency>
+        <dependency>
             <artifactId>spring-statemachine-core</artifactId>
             <groupId>org.springframework.statemachine</groupId>
             <version>${spring.state-machine.version}</version>

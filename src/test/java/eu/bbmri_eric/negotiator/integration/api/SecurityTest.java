@@ -144,4 +144,9 @@ public class SecurityTest {
         .andExpect(
             MockMvcResultMatchers.header().string("Access-Control-Max-Age", MAX_AGE.toString()));
   }
+
+  @Test
+  void getInfoEndpoint_noAuth_200() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/actuator/info")).andExpect(status().isOk());
+  }
 }
