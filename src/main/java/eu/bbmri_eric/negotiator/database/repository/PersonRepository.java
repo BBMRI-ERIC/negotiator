@@ -54,11 +54,25 @@ public interface PersonRepository
           "SELECT EXISTS ("
               + "SELECT r.id "
               + "FROM resource r "
-              + "WHERE organization_id = :organizationId and  r.id in ("
+              + "WHERE organization_id = :organizationId and  r.id IN ("
               + "      SELECT rrl.resource_id "
               + "      FROM person p JOIN resource_representative_link rrl ON p.id = rrl.person_id "
               + "      WHERE p.id = :personId "
               + "))",
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, Long organizationId);
+
+  @Query(
+      value =
+          "SELECT EXISTS ("
+              + "SELECT r.id "
+              + "FROM resource r "
+              + "JOIN organization o ON r.organization_id = o.id "
+              + "WHERE o.external_id = :organizationExternalId and r.id IN ("
+              + "      SELECT rrl.resource_id "
+              + "      FROM person p JOIN resource_representative_link rrl ON p.id = rrl.person_id "
+              + "      WHERE p.id = :personId "
+              + "))",
+      nativeQuery = true)
+  boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 }

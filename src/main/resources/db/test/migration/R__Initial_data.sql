@@ -118,6 +118,7 @@ values ('request-1', 4),
        ('request-v2', 7),
        ('request-3', 5),
        ('request-4', 5),
+       ('request-4', 7),
        ('request-unassigned', 7);
 
 insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
@@ -128,14 +129,6 @@ values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
 -- Adding just representatives since the AUTHOR is the createdBy field of the negotiation
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
 values ('negotiation-1', 109, 5);
---insert into person_negotiation_role (negotiation_id, person_id, role_id)
---values ('negotiation-2', 109, 5);
---insert into person_negotiation_role (negotiation_id, person_id, role_id)
---values ('negotiation-v2', 109, 5);
---insert into person_negotiation_role (negotiation_id, person_id, role_id)
---values ('negotiation-3', 105, 5);
---insert into person_negotiation_role (negotiation_id, person_id, role_id)
---values ('negotiation-4', 105, 5);
 
 insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, negotiation_id, organization_id,
                   type)

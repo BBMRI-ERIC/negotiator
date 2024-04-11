@@ -49,9 +49,16 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired UserNotificationService userNotificationService;
   @Autowired PersonService personService;
 
-  public static boolean isNegotiationCreator(Negotiation negotiation) {
+  @Override
+  public boolean isNegotiationCreator(Negotiation negotiation) {
     return negotiation.isCreator(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+  }
+
+  @Override
+  public boolean isNegotiationCreator(String negotiationId) {
+    return negotiationRepository.isNegotiationCreator(
+        negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
   /**
@@ -67,6 +74,12 @@ public class NegotiationServiceImpl implements NegotiationService {
             negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
+  }
+
+  public boolean isOrganizationPartOfNegotiation(
+      String negotiationId, String organizationExternalId) {
+    return negotiationRepository.isOrganizationPartOfNegotiation(
+        negotiationId, organizationExternalId);
   }
 
   private List<Request> findRequests(Set<String> requestsId) {

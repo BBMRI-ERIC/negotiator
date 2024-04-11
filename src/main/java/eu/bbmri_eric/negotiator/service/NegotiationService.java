@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
@@ -126,10 +127,37 @@ public interface NegotiationService {
   List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState);
 
   /**
-   * Cecks whether the currently authemticated user is authorized for negotiation
+   * Checks whether the currently authenticated user is authorized for negotiation
    *
    * @param negotiationId the id of the negotiaton to check
    * @return true if the authenticated user is authorized, false otherwise
    */
   boolean isAuthorizedForNegotiation(String negotiationId);
+
+  /**
+   * Checks whether the currently authenticated user is creator of negotiation
+   *
+   * @param negotiation the Negotiation entity to check
+   * @return true if the authenticated user is the creator of the negotiation, false otherwise
+   */
+  boolean isNegotiationCreator(Negotiation negotiation);
+
+  /**
+   * Checks whether the currently authenticated user is creator of negotiation
+   *
+   * @param negotiationId the id of the negotiaton to check
+   * @return true if the authenticated user is the creator of the negotiation, false otherwise
+   */
+  boolean isNegotiationCreator(String negotiationId);
+
+  /**
+   * Checks whether a an Organization is part of the negotiation, i.e., there is at least one
+   * resource part of the Organization that is part of the Negotiation
+   *
+   * @param negotiationId the negotiationId
+   * @param organizationExternalId the organizationExternalId
+   * @return true whether at least one resource of the organization is part of the negotiation,
+   *     false otherwise
+   */
+  boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
 }

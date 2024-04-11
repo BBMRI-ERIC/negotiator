@@ -15,7 +15,7 @@ public interface NegotiationRepository
 
   Optional<Negotiation> findDetailedById(String id);
 
-  @Query(value = "select currentState from Negotiation where id = :id")
+  @Query(value = "SELECT currentState from Negotiation where id = :id")
   Optional<NegotiationState> findNegotiationStateById(String id);
 
   @Query(
@@ -35,7 +35,7 @@ public interface NegotiationRepository
               + "                JOIN resource rs on rs.id = rrl.resource_id "
               + "WHERE rq.negotiation_id = :negotiationId AND "
               + "      rs.id in ("
-              + "         select rrl.resource_id "
+              + "         SELECT  rrl.resource_id "
               + "         from person p join resource_representative_link rrl ON p.id = rrl.person_id "
               + "         where p.id = :personId"
               + "))",
@@ -51,4 +51,29 @@ public interface NegotiationRepository
               + "n.created_by = :personId)",
       nativeQuery = true)
   boolean isNegotiationCreator(String negotiationId, Long personId);
+
+  @Query(
+      value =
+          "SELECT EXISTS ("
+              + "SELECT distinct(n.id) "
+              + "FROM negotiation n "
+              + "    JOIN request rq ON n.id = rq.negotiation_id "
+              + "    JOIN request_resources_link rrl ON rrl.request_id = rq.id "
+              + "    JOIN resource rs ON rrl.resource_id = rs.id "
+              + "    JOIN organization o ON rs.organization_id = o.id "
+              + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",
+      nativeQuery = true)
+  boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
+
+  @Query(
+      value =
+          "SELECT distinct(n.id) "
+              + "FROM negotiation n "
+              + "    JOIN request rq ON n.id = rq.negotiation_id "
+              + "    JOIN request_resources_link rrl ON rrl.request_id = rq.id "
+              + "    JOIN resource rs ON rrl.resource_id = rs.id "
+              + "    JOIN organization o ON rs.organization_id = o.id "
+              + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId",
+      nativeQuery = true)
+  String negotiationWhereOrganization(String negotiationId, String organizationExternalId);
 }
