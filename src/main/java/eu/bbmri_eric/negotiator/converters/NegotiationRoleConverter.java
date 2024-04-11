@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.converters;
 
-import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationRole;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;

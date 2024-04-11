@@ -79,6 +79,19 @@ logging:
     root: info
 springdoc:
   show-actuator: true
+  oAuthFlow:
+    authorizationUrl: ""
+    tokenUrl: ""
+  swagger-ui:
+    oauth:
+      use-pkce-with-authorization-code-grant: true
+      client-id: ""
+      client-secret: ""
+      scopes: ""
+      additional-query-string-params:
+        {
+          "resource": "${spring.security.oauth2.resourceserver.jwt.audiences}"
+        }
 info:
   application:
     name: "BBMRI-ERIC Negotiator"

@@ -46,6 +46,16 @@ spring:
           client-id: "https%3A//negotiator.bbmri-eric.eu"
           client-secret: "negotiator-secret"
           introspection-uri: "http://localhost:4011/connect/introspect"
+springdoc:
+  oAuthFlow:
+    authorizationUrl: "http://localhost:4011/connect/authorize"
+    tokenUrl: "http://localhost:4011/connect/token"
+  swagger-ui:
+    oauth:
+      use-pkce-with-authorization-code-grant: true
+      client-id: "client-credentials-mock-client"
+      client-secret: "authorization-code-with-pkce-client-secret"
+      scopes: "openid profile email permissions some-app-scope-1"
 negotiator:
   molgenis-url: "https://bbmritestnn.gcc.rug.nl"
   frontend-url: "http://localhost:8080"

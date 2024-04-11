@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationRole;
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
@@ -14,6 +16,7 @@ import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -55,7 +58,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/v3")
 @CommonsLog
-@Tag(name = "Negotiations", description = "management of negotiations and their content")
+@Tag(name = "Negotiations", description = "Submit and manage access negotiations")
+@SecurityRequirement(name = "security_auth")
 public class NegotiationController {
 
   @Autowired private NegotiationService negotiationService;

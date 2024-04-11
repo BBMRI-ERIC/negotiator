@@ -4,6 +4,8 @@ import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.mappers.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3/resources")
+@Tag(name = "Resources", description = "Retrieve offered resources")
 public class ResourceController {
   private final ResourceService resourceService;
   private final ResourceModelAssembler resourceModelAssembler;
@@ -34,6 +37,7 @@ public class ResourceController {
 
   @GetMapping()
   @Operation(summary = "List all resources")
+  @SecurityRequirements
   public PagedModel<EntityModel<ResourceResponseModel>> list(
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {

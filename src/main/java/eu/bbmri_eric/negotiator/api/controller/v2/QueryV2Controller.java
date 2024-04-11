@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.RequestService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Queries", description = "Deprecated! Replaced by Requests")
 public class QueryV2Controller {
 
   @Autowired private RequestService requestService;

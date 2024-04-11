@@ -7,12 +7,13 @@ import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostDTO;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PostService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3")
-@CrossOrigin
+@Tag(name = "Comments", description = "Submit and retrieve comments")
+@SecurityRequirement(name = "security_auth")
 public class PostController {
 
   @Autowired private PostService postService;
