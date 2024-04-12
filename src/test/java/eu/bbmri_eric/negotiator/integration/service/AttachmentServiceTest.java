@@ -256,7 +256,7 @@ public class AttachmentServiceTest {
    * Returns all the attachments of the negotiation
    */
   @Test
-  @WithMockNegotiatorUser(id = 108L) // 108 is the creator of the negotiation
+  @WithMockNegotiatorUser(id = 108L)
   public void testFindMetadata_ByNegotiationId_byCreator() {
     List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_2_ID);
     assertEquals(attachments.size(), 5);
@@ -267,7 +267,7 @@ public class AttachmentServiceTest {
    * Returns all the attachments of the negotiation
    */
   @Test
-  @WithMockNegotiatorUser(id = 108L) // 108 is the creator of the negotiation
+  @WithMockNegotiatorUser(id = 108L)
   public void testFindMetadata_ByNegotiationIdAndAttachmentId_byCreator() {
     AttachmentMetadataDTO attachment =
         attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
@@ -279,7 +279,7 @@ public class AttachmentServiceTest {
    * EntityNotFoundException
    */
   @Test
-  @WithMockNegotiatorUser(id = 108L) // 108
+  @WithMockNegotiatorUser(id = 108L)
   public void testFindMetadata_ByNegotiationId_fails_whenNegotiationNotExists() {
     assertThrows(EntityNotFoundException.class, () -> attachmentService.findByNegotiation("UNKN"));
   }
@@ -302,7 +302,7 @@ public class AttachmentServiceTest {
    * of the representative
    */
   @Test
-  @WithMockNegotiatorUser(id = 109L) // 108
+  @WithMockNegotiatorUser(id = 109L)
   public void testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_ok_whenPublic() {
     AttachmentMetadataDTO attachment =
         attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
@@ -310,16 +310,25 @@ public class AttachmentServiceTest {
   }
 
   /**
-   * Tests getting list of attachments metadata for a negotiation by the representative of a
-   * resource in the negotiation. Returns public attachments and the ones sent to the organization
-   * of the representative
+   * Tests getting a specific attachment for by a representative for his/her own organization. The
+   * retrieval is ok
    */
   @Test
-  @WithMockNegotiatorUser(id = 109L) // 108
+  @WithMockNegotiatorUser(id = 109L)
   public void
       testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_ok_whenPrivateForOrganization() {
     AttachmentMetadataDTO attachment =
         attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
     assertEquals(attachment.getId(), ATTACHMENT_1_ID);
+  }
+
+  /** Tests getting a specific attachment for by a representative for his/her own organization */
+  @Test
+  @WithMockNegotiatorUser(id = 105L)
+  public void
+      testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_fails_whenPrivateForOrganization() {
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> attachmentService.findByIdAndNegotiationId(ATTACHMENT_2_ID, NEGOTIATION_2_ID));
   }
 }
