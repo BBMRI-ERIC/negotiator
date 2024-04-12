@@ -4,8 +4,8 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationEventMetadataDto;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationStateMetadataDto;
-import eu.bbmri_eric.negotiator.mappers.LifecycleModelAssembler;
 import eu.bbmri_eric.negotiator.mappers.NegotiationEventAssembler;
+import eu.bbmri_eric.negotiator.mappers.NegotiationStateAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,14 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(
     name = "Negotiation Lifecycle",
     description = "Information about the lifecycle of Negotiations")
-public class LifecycleController {
+public class NegotiationLifecycleController {
   private final ModelMapper modelMapper;
-  private final LifecycleModelAssembler assembler;
+  private final NegotiationStateAssembler assembler;
   private final NegotiationEventAssembler negotiationEventAssembler;
 
-  public LifecycleController(
+  public NegotiationLifecycleController(
       ModelMapper modelMapper,
-      LifecycleModelAssembler assembler,
+      NegotiationStateAssembler assembler,
       NegotiationEventAssembler negotiationEventAssembler) {
     this.modelMapper = modelMapper;
     this.assembler = assembler;
@@ -69,11 +69,11 @@ public class LifecycleController {
             .collect(Collectors.toSet()));
   }
 
-  @GetMapping(value = "/negotiation-lifecycle/events/{state}")
+  @GetMapping(value = "/negotiation-lifecycle/events/{event}")
   @Operation(summary = "Retrieve metadata about all a specific negotiation event")
   public EntityModel<NegotiationEventMetadataDto> getEvent(
-      @Valid @PathVariable NegotiationState state) {
+      @Valid @PathVariable NegotiationEvent event) {
     return negotiationEventAssembler.toModel(
-        modelMapper.map(state, NegotiationEventMetadataDto.class));
+        modelMapper.map(event, NegotiationEventMetadataDto.class));
   }
 }

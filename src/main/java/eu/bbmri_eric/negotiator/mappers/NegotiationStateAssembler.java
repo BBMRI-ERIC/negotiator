@@ -9,7 +9,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LifecycleModelAssembler
+public class NegotiationStateAssembler
     implements RepresentationModelAssembler<
         NegotiationStateMetadataDto, EntityModel<NegotiationStateMetadataDto>> {
   @Override
