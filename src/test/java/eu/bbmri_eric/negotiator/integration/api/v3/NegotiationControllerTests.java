@@ -58,6 +58,7 @@ public class NegotiationControllerTests {
   // Request alrady present in data-h2. It is already assigned to a request
   private static final String REQUEST_1_ID = "request-1";
   private static final String REQUEST_2_ID = "request-2";
+  private static final String REQUEST_UNASSIGNED = "request-unassigned";
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String NEGOTIATION_2_ID = "negotiation-2";
   private static final String NEGOTIATION_V2_ID = "negotiation-v2";
@@ -673,11 +674,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_4_ID)));
   }
 
   /**
@@ -713,11 +715,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_4_ID)));
   }
 
   /**
@@ -736,11 +739,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)))
         .andDo(print());
   }
 
@@ -782,9 +786,11 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(1)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** Tests applying all filters */
@@ -873,7 +879,7 @@ public class NegotiationControllerTests {
   @Test
   @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));
     request.setRequests(null);
     mockMvc
         .perform(
@@ -930,7 +936,7 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheResearcher")
   @Transactional
   public void testCreate_Ok() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousRequestCount = negotiationRepository.count();
     MvcResult result =
@@ -968,7 +974,7 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,

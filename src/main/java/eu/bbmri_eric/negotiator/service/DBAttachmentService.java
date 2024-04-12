@@ -78,8 +78,13 @@ public class DBAttachmentService implements AttachmentService {
 
   @Override
   @Transactional
-  public List<AttachmentMetadataDTO> findByNegotiation(String id) {
-    List<MetadataAttachmentView> attachments = attachmentViewRepository.findByNegotiationId(id);
+  public List<AttachmentMetadataDTO> findByNegotiation(String negotiationId) {
+    if (!negotiationService.exists(negotiationId)) {
+      throw new EntityNotFoundException(
+          "Negotiation with id %s does not exist".formatted(negotiationId));
+    }
+    List<MetadataAttachmentView> attachments =
+        attachmentViewRepository.findByNegotiationId(negotiationId);
     return attachments.stream()
         .filter(this::isAuthorizedForAttachment)
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
@@ -189,6 +194,7 @@ public class DBAttachmentService implements AttachmentService {
       // 3. addressed to the organization represented by the authenticated user
       return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
           && (isAttachmentPublic(attachment)
+              || negotiationService.isNegotiationCreator(negotiation.getId())
               || isCurrentAuthenticatedUserAttachmentCreator(attachment)
               || (attachment.getOrganization() != null
                   && isRepresentativeOfOrganization(attachment.getOrganization().getId())));

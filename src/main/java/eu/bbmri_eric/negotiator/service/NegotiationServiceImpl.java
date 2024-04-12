@@ -50,12 +50,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired PersonService personService;
 
   @Override
-  public boolean isNegotiationCreator(Negotiation negotiation) {
-    return negotiation.isCreator(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
-  }
-
-  @Override
   public boolean isNegotiationCreator(String negotiationId) {
     return negotiationRepository.isNegotiationCreator(
         negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
@@ -70,8 +64,10 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Override
   public boolean isAuthorizedForNegotiation(String negotiationId) {
-    return negotiationRepository.isNegotiationCreator(
-            negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+    boolean isrepre =
+        personService.isRepresentativeOfAnyResourceOfNegotiation(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
+    return isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }

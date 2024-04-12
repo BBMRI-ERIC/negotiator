@@ -10,19 +10,14 @@ import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentView;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.database.view_repository.AttachmentViewRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
-import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
+import java.util.List;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,30 +28,30 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+/**
+ * Tests creation and retrieval of attachments using the DBAttachments service The scenario for
+ * testing attachments retrieval contains 5 attachments for one negotiation. The negotiation has two
+ * resource from two different organizations. There are 3 users involved: * - 108 (TheResearcher):
+ * creator of the negotiation * - 105 (SarahRepr): representative of biobank:3 * - 109
+ * (TheBiobanker): representative of biobank:1 The attachments are - 2 public (i.e., no organization
+ * is specified) - 2 private for biobank:1, one from TheResearcher, one from TheBiobanker - 1
+ * private for biobank:2 from TheResearcer
+ */
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class AttachmentServiceTest {
-  // TODO: test wrong when sending to an org part of the negotiation but from another representative
-  // (BadRequest)
 
-  private static final String ORG_1 = "org_1";
-  private static final String ORG_2 = "org_2";
+  // Negotiation creted by 109 with one resource and one organization biobank:1 represented by 108
   private static final String NEGOTIATION_1_ID = "negotiation-1";
-  private static final String NEGOTIATION_4_ID = "negotiation-4";
-  private static final String RESOURCE_1 = "resource_1";
-  private static final String RESOURCE_2 = "resource_2";
-  private static final String REQUEST_1 = "request_1";
-  private static final String REQUEST_2 = "request_2";
+  // Negotiation creted by 109 with two resources: one of organization biobank:1 represented by 108
+  // and one of organization biobank:2 represented by 105
+  private static final String NEGOTIATION_2_ID = "negotiation-2";
+  private static final String ATTACHMENT_1_ID = "attachment-1";
+  private static final String ATTACHMENT_2_ID = "attachment-2";
+
   @Autowired private AttachmentService attachmentService;
-  @Autowired private NegotiationService negotiationService;
   @Autowired private DataSource dbSource;
-  @Autowired private PersonRepository personRepository;
-  @Autowired private ResourceRepository resourceRepository;
-  @Autowired private RequestRepository requestRepository;
-  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
-  @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private AttachmentViewRepository attachmentViewRepository;
   @Autowired private AttachmentRepository attachmentRepository;
 
@@ -109,11 +104,12 @@ public class AttachmentServiceTest {
    */
   @Test
   @WithMockNegotiatorUser(id = 108L)
-  public void testCreate_ByCreator_success_when_negotiationCreator() {
+  public void testCreateForNegotiation_ByCreator_success_when_negotiationCreator() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, null, mockMultipartFile);
+
     Attachment created = attachmentRepository.findById(attachment.getId()).orElse(null);
     assertNotNull(created);
     assertEquals(created.getNegotiation().getId(), "negotiation-1");
@@ -126,24 +122,23 @@ public class AttachmentServiceTest {
    */
   @Test
   @WithMockNegotiatorUser(id = 109L)
-  public void testCreate_ByRepresentative_success() {
+  public void testCreateForNegotiation_ByRepresentative_success() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, null, mockMultipartFile);
+
     Attachment created = attachmentRepository.findById(attachment.getId()).orElse(null);
     assertNotNull(created);
     assertEquals(created.getNegotiation().getId(), "negotiation-1");
     assertEquals(created.getCreatedBy().getId(), 109L);
   }
 
-  /**
-   * Test that an attachment is created correctly for a negotiation when the creator is the
-   * representative of a resource involved in the Negotiation
-   */
+  /** Test that the creation fails when the user is not part of the negotiation */
   @Test
   @WithMockNegotiatorUser(id = 104L)
-  public void testCreate_ByRepresentative_forbidden_when_RepresentativeNotPartOfTheOrganization() {
+  public void
+      testCreateForNegotiation_ByRepresentative_forbidden_when_RepresentativeNotPartOfTheOrganization() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     assertThrows(
@@ -157,12 +152,12 @@ public class AttachmentServiceTest {
    */
   @Test
   @WithMockNegotiatorUser(id = 108L)
-  public void test_ByCreator_ToAnOrganization_ok() {
+  public void testCreateForNegotiation_ByCreator_ToAnOrganization_ok() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, "biobank:1", mockMultipartFile);
-    // using the view repository for convenienc, since it laod the LAZY loadad organization
+    // using the view repository for convenience, since it laod the LAZY loadad organization
     MetadataAttachmentView created =
         attachmentViewRepository.findById(attachment.getId()).orElse(null);
     assertNotNull(created);
@@ -177,12 +172,13 @@ public class AttachmentServiceTest {
    */
   @Test
   @WithMockNegotiatorUser(id = 109L)
-  public void test_ByRepresentative_ToOrganization_ok() {
+  public void testCreateForNegotiation_ByRepresentative_ToOrganization_ok() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, "biobank:1", mockMultipartFile);
-    // using the view repository for convenienc, since it laod the LAZY loadad organization
+    // using the view repository for convenienc, since it laod the otherwise LAZY loadad
+    // organization
     MetadataAttachmentView created =
         attachmentViewRepository.findById(attachment.getId()).orElse(null);
     assertNotNull(created);
@@ -197,7 +193,8 @@ public class AttachmentServiceTest {
    */
   @Test
   @WithMockNegotiatorUser(id = 108L)
-  public void test_ByCreator_ToAnOrganization_fails_when_organizationNotPartOfTheNegoatiation() {
+  public void
+      testCreateForNegotiation_ByCreator_ToAnOrganization_fails_when_organizationNotPartOfTheNegoatiation() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     assertThrows(
@@ -215,7 +212,7 @@ public class AttachmentServiceTest {
   @Test
   @WithMockNegotiatorUser(id = 109L)
   public void
-      testCreate_ByRepresentative_ToOrganization_fails_when_organizationNotPartOfNegotiation() {
+      testCreateForNegotiation_ByRepresentative_ToOrganization_fails_when_organizationNotPartOfNegotiation() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     assertThrows(
@@ -232,13 +229,97 @@ public class AttachmentServiceTest {
   @Test
   @WithMockNegotiatorUser(id = 109L) // 109 is the Biobanker and represents biobank 1 and 2 not 3
   public void
-      testCreate_ByRepresentative_ToOrganization_fails_when_noRepresentativeOfTheOrganization() {
+      testCreateForNegotiation_ByRepresentative_ToOrganization_fails_when_RepresentativeOfTheOrganization() {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     assertThrows(
         ForbiddenRequestException.class,
         () ->
             attachmentService.createForNegotiation(
-                NEGOTIATION_4_ID, "biobank:3", mockMultipartFile));
+                NEGOTIATION_2_ID, "biobank:3", mockMultipartFile));
+  }
+
+  /** Tests create successfully when not specifying a negotiation */
+  @Test
+  @WithMockNegotiatorUser(id = 108L)
+  public void testCreate() {
+    byte[] inputArray = "Test String".getBytes();
+    MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
+    AttachmentMetadataDTO attachment = attachmentService.create(mockMultipartFile);
+    MetadataAttachmentView created =
+        attachmentViewRepository.findById(attachment.getId()).orElse(null);
+    assertNotNull(created);
+  }
+
+  /**
+   * Tests getting list of attachments metadata for a negotiation by the creator of the negotiation.
+   * Returns all the attachments of the negotiation
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 108L) // 108 is the creator of the negotiation
+  public void testFindMetadata_ByNegotiationId_byCreator() {
+    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_2_ID);
+    assertEquals(attachments.size(), 5);
+  }
+
+  /**
+   * Tests getting list of attachments metadata for a negotiation by the creator of the negotiation.
+   * Returns all the attachments of the negotiation
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 108L) // 108 is the creator of the negotiation
+  public void testFindMetadata_ByNegotiationIdAndAttachmentId_byCreator() {
+    AttachmentMetadataDTO attachment =
+        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
+    assertEquals(attachment.getId(), ATTACHMENT_1_ID);
+  }
+
+  /**
+   * Tests that trying to access attachments of an unknown negotiation raise an
+   * EntityNotFoundException
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 108L) // 108
+  public void testFindMetadata_ByNegotiationId_fails_whenNegotiationNotExists() {
+    assertThrows(EntityNotFoundException.class, () -> attachmentService.findByNegotiation("UNKN"));
+  }
+
+  /**
+   * Tests getting list of attachments metadata for a negotiation by the representative of a
+   * resource in the negotiation. Returns public attachments and the ones sent to the organization
+   * of the representative
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  public void testFindMetadata_ByNegotiationId_byRepresentative_ok() {
+    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_2_ID);
+    assertEquals(attachments.size(), 4);
+  }
+
+  /**
+   * Tests getting list of attachments metadata for a negotiation by the representative of a
+   * resource in the negotiation. Returns public attachments and the ones sent to the organization
+   * of the representative
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 109L) // 108
+  public void testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_ok_whenPublic() {
+    AttachmentMetadataDTO attachment =
+        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
+    assertEquals(attachment.getId(), ATTACHMENT_1_ID);
+  }
+
+  /**
+   * Tests getting list of attachments metadata for a negotiation by the representative of a
+   * resource in the negotiation. Returns public attachments and the ones sent to the organization
+   * of the representative
+   */
+  @Test
+  @WithMockNegotiatorUser(id = 109L) // 108
+  public void
+      testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_ok_whenPrivateForOrganization() {
+    AttachmentMetadataDTO attachment =
+        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
+    assertEquals(attachment.getId(), ATTACHMENT_1_ID);
   }
 }

@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
@@ -133,14 +132,6 @@ public interface NegotiationService {
    * @return true if the authenticated user is authorized, false otherwise
    */
   boolean isAuthorizedForNegotiation(String negotiationId);
-
-  /**
-   * Checks whether the currently authenticated user is creator of negotiation
-   *
-   * @param negotiation the Negotiation entity to check
-   * @return true if the authenticated user is the creator of the negotiation, false otherwise
-   */
-  boolean isNegotiationCreator(Negotiation negotiation);
 
   /**
    * Checks whether the currently authenticated user is creator of negotiation

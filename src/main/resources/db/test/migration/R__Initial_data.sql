@@ -105,7 +105,7 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
 
 insert into request (id, url, human_readable, discovery_service_id, negotiation_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'negotiation-1'),
-       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1, null),
+       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1, 'negotiation-2'),
        ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-v2'),
        ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-3'),
        ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-4'),
@@ -114,7 +114,7 @@ values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'n
 insert into request_resources_link (request_id, resource_id)
 values ('request-1', 4),
        ('request-2', 5),
-       ('request-2', 6),
+       ('request-2', 7),
        ('request-v2', 7),
        ('request-3', 5),
        ('request-4', 5),
@@ -146,3 +146,16 @@ values ('post-1-researcher', '2023-06-19', '2023-06-19', 'CREATED', 'post-1-rese
         'negotiation-1', 4, 'PRIVATE'),
        ('post-4-representative', '2023-06-19', '2023-06-19', 'CREATED', 'post-2-representative-message', 109, 109,
         'negotiation-1', 5, 'PRIVATE');
+
+insert into attachment (id, creation_date, modified_date, content_type, name, payload, size, created_by, modified_by,
+                        negotiation_id, organization_id)
+ values ('attachment-1', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachment #1', rawtohex('AB'), 16, 108, 108,
+         'negotiation-2', null),  -- sent by creator publicly
+        ('attachment-2', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachment #2', rawtohex('CD'), 16, 108, 108,
+         'negotiation-2', 4), -- sent by creator to biobank:1
+        ('attachment-3', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachment #1', rawtohex('AB'), 16, 108, 108,
+         'negotiation-2', 6),  -- sent by creator to biobank:3
+        ('attachment-4', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachment #3', rawtohex('EF'), 16, 109, 109,
+         'negotiation-2', null),  -- sent by biobanker publicly
+        ('attachment-5', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachment #4', rawtohex('12'), 16, 109, 109,
+         'negotiation-2', 4);  -- sent by biobanker to his/her organization
