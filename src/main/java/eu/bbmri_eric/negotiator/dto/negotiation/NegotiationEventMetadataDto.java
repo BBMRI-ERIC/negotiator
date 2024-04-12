@@ -13,7 +13,6 @@ import org.springframework.hateoas.server.core.Relation;
 @NoArgsConstructor
 @Relation(collectionRelation = "events", itemRelation = "event")
 public class NegotiationEventMetadataDto implements Serializable {
-  private int id;
   private NegotiationEvent value;
   private String label;
   private String description;

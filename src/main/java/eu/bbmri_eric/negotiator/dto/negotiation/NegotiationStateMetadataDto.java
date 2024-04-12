@@ -13,7 +13,6 @@ import org.springframework.hateoas.server.core.Relation;
 @NoArgsConstructor
 @Relation(collectionRelation = "states", itemRelation = "state")
 public class NegotiationStateMetadataDto implements Serializable {
-  private int id;
   private NegotiationState value;
   private String label;
   private String description;

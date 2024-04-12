@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationStateMetadataDto;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -13,13 +14,13 @@ public class LifecycleModelAssembler
         NegotiationStateMetadataDto, EntityModel<NegotiationStateMetadataDto>> {
   @Override
   public @NotNull EntityModel<NegotiationStateMetadataDto> toModel(
-      NegotiationStateMetadataDto entity) {
+      @NonNull NegotiationStateMetadataDto entity) {
     return EntityModel.of(entity);
   }
 
   @Override
   public @NotNull CollectionModel<EntityModel<NegotiationStateMetadataDto>> toCollectionModel(
-      Iterable<? extends NegotiationStateMetadataDto> entities) {
+      @NonNull Iterable<? extends NegotiationStateMetadataDto> entities) {
     return RepresentationModelAssembler.super.toCollectionModel(entities);
   }
 }
