@@ -4,15 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Notification;
-import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.PostStatus;
-import eu.bbmri_eric.negotiator.database.model.PostType;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
@@ -25,10 +20,9 @@ import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.service.UserNotificationService;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -277,5 +271,49 @@ public class UserNotificationServiceTest {
         negotiation.getId());
     assertFalse(
         notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  public void testSendReminderEmails() {
+    String triggerDuration = "P7D";
+    int pendingNegotiation =
+        negotiationRepository
+            .findByModifiedDateBeforeAndCurrentState(
+                LocalDateTime.now().minus(Duration.parse(triggerDuration)),
+                NegotiationState.SUBMITTED)
+            .size();
+    assertTrue(pendingNegotiation > 0);
+
+    long staleNegotiation =
+        negotiationRepository.findAll().stream()
+            .filter(
+                record ->
+                    record.getNegotiationResourceLifecycleRecords().stream()
+                        .anyMatch(
+                            field ->
+                                field
+                                    .getChangedTo()
+                                    .equals(NegotiationResourceState.RESOURCE_UNAVAILABLE)))
+            .count();
+
+    assertTrue(staleNegotiation > 0);
+
+    assertTrue(notificationEmailRepository.findAll().isEmpty());
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    assertTrue(
+        negotiation.getResources().stream()
+            .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
+    userNotificationService.sendRemindersOldNegotiations();
+    int numOfEmails = notificationEmailRepository.findAll().size();
+    int numRepresentatives =
+        negotiation.getResources().stream()
+            .map(Resource::getRepresentatives)
+            .filter(rs -> rs != null)
+            .mapToInt(Set::size)
+            .sum();
+    assertTrue(numOfEmails == pendingNegotiation + (staleNegotiation * numRepresentatives));
+    userNotificationService.sendRemindersOldNegotiations();
+    assertEquals(numOfEmails * 2, notificationEmailRepository.findAll().size());
   }
 }

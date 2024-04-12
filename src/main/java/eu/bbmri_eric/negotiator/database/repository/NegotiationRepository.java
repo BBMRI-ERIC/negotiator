@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,4 +56,12 @@ public interface NegotiationRepository
               + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",
       nativeQuery = true)
   boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
+  @Query(
+      "SELECT DISTINCT n FROM Negotiation n JOIN n.negotiationResourceLifecycleRecords l "
+          + "WHERE l.modifiedDate = (SELECT MAX(l2.modifiedDate) FROM NegotiationResourceLifecycleRecord l2 WHERE l2.resource = l.resource AND l2.negotiation = n) "
+          + "  AND l.modifiedDate < :thresholdTime "
+          + "  AND l.changedTo IN :changedToStates")
+  List<Negotiation>
+      findByNegotiationResourceLifecycleRecordsModifiedDateBeforeAndNegotiationResourceLifecycleRecordsChangedToIn(
+          LocalDateTime thresholdTime, Collection<NegotiationResourceState> changedToStates);
 }

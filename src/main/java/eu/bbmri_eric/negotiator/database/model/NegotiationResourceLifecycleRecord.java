@@ -31,6 +31,10 @@ public class NegotiationResourceLifecycleRecord extends AuditEntity {
   @JoinColumn(name = "resource_id", referencedColumnName = "id")
   private Resource resource;
 
+  @ManyToOne
+  @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
+  private Negotiation negotiation;
+
   @Enumerated(EnumType.STRING)
   private NegotiationResourceState changedTo;
 }

@@ -448,7 +448,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 8 * * MON}")
   @Async
-  public void sendRemindersEveryMorning() {
+  public void sendRemindersOldNegotiations() {
     log.info("Sending reminder email notifications.");
     Duration durationThreshold = Duration.parse(triggerDuration);
     LocalDateTime thresholdTime = LocalDateTime.now().minus(durationThreshold);

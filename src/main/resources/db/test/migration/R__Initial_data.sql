@@ -94,7 +94,7 @@ values (4, 103),
 insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload)
 values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
         '{"project":{"title":"Biobanking project","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
-       ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-12', 108, 108,
+       ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-02', 108, 108,
         '{"project":{"title":"Interesting project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-v2', '2023-04-12', 'ABANDONED', '2024-10-12', 108, 108,
         '{"project":{"title":"A Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
@@ -104,6 +104,12 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
        ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108,
         '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON);
+
+
+insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
+values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
+       (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
+       (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_UNAVAILABLE', 'negotiation-3', 5);
 
 insert into request (id, url, human_readable, discovery_service_id, negotiation_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'negotiation-1'),
@@ -129,7 +135,8 @@ values ('request-1', 4),
 insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
        ('negotiation-1', 'biobank:1:collection:2', 'SUBMITTED'),
-       ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED');
+       ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED'),
+       ('negotiation-3', 'biobank:1:collection:2', 'RESOURCE_UNAVAILABLE');
 
 -- Adding just representatives since the AUTHOR is the createdBy field of the negotiation
 insert into person_negotiation_role (negotiation_id, person_id, role_id)
