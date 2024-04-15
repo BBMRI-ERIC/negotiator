@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
-import eu.bbmri_eric.negotiator.dto.access_form.AccessFormElementDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
@@ -29,9 +28,9 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   }
 
   @Override
-  public AccessFormElementDTO getById(Long id) {
+  public ElementMetaDTO getById(Long id) {
     return mapper.map(
         repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        AccessFormElementDTO.class);
+        ElementMetaDTO.class);
   }
 }
