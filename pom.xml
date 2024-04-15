@@ -303,7 +303,7 @@
             <artifactId>netty-resolver-dns-native-macos</artifactId>
             <scope>test</scope>
             <classifier>osx-aarch_64</classifier>
-            <version>4.1.108.Final</version>
+            <version>4.1.109.Final</version>
         </dependency>
         <dependency>
             <!-- Version 10.x.x is currently not compatible with spring 3.3.1 -->
