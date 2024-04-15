@@ -664,9 +664,6 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-
-
-
         .andExpect(jsonPath("$.page.totalElements", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)));
@@ -946,7 +943,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("researcher")  // researcher not
+  @WithUserDetails("researcher") // researcher not
   @Transactional
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));

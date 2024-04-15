@@ -236,7 +236,7 @@ public class AttachmentServiceTest {
         ForbiddenRequestException.class,
         () ->
             attachmentService.createForNegotiation(
-                    NEGOTIATION_5_ID, "biobank:3", mockMultipartFile));
+                NEGOTIATION_5_ID, "biobank:3", mockMultipartFile));
   }
 
   /** Tests create successfully when not specifying a negotiation */
