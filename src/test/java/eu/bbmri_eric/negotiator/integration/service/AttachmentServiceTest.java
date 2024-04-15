@@ -46,7 +46,7 @@ public class AttachmentServiceTest {
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   // Negotiation creted by 109 with two resources: one of organization biobank:1 represented by 108
   // and one of organization biobank:2 represented by 105
-  private static final String NEGOTIATION_2_ID = "negotiation-2";
+  private static final String NEGOTIATION_5_ID = "negotiation-5";
   private static final String ATTACHMENT_1_ID = "attachment-1";
   private static final String ATTACHMENT_2_ID = "attachment-2";
 
@@ -236,7 +236,7 @@ public class AttachmentServiceTest {
         ForbiddenRequestException.class,
         () ->
             attachmentService.createForNegotiation(
-                NEGOTIATION_2_ID, "biobank:3", mockMultipartFile));
+                    NEGOTIATION_5_ID, "biobank:3", mockMultipartFile));
   }
 
   /** Tests create successfully when not specifying a negotiation */
@@ -258,7 +258,7 @@ public class AttachmentServiceTest {
   @Test
   @WithMockNegotiatorUser(id = 108L)
   public void testFindMetadata_ByNegotiationId_byCreator() {
-    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_2_ID);
+    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_5_ID);
     assertEquals(attachments.size(), 5);
   }
 
@@ -270,7 +270,7 @@ public class AttachmentServiceTest {
   @WithMockNegotiatorUser(id = 108L)
   public void testFindMetadata_ByNegotiationIdAndAttachmentId_byCreator() {
     AttachmentMetadataDTO attachment =
-        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
+        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_5_ID);
     assertEquals(attachment.getId(), ATTACHMENT_1_ID);
   }
 
@@ -292,7 +292,7 @@ public class AttachmentServiceTest {
   @Test
   @WithMockNegotiatorUser(id = 109L)
   public void testFindMetadata_ByNegotiationId_byRepresentative_ok() {
-    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_2_ID);
+    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_5_ID);
     assertEquals(attachments.size(), 4);
   }
 
@@ -305,7 +305,7 @@ public class AttachmentServiceTest {
   @WithMockNegotiatorUser(id = 109L)
   public void testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_ok_whenPublic() {
     AttachmentMetadataDTO attachment =
-        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
+        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_5_ID);
     assertEquals(attachment.getId(), ATTACHMENT_1_ID);
   }
 
@@ -318,7 +318,7 @@ public class AttachmentServiceTest {
   public void
       testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_ok_whenPrivateForOrganization() {
     AttachmentMetadataDTO attachment =
-        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_2_ID);
+        attachmentService.findByIdAndNegotiationId(ATTACHMENT_1_ID, NEGOTIATION_5_ID);
     assertEquals(attachment.getId(), ATTACHMENT_1_ID);
   }
 
@@ -329,6 +329,6 @@ public class AttachmentServiceTest {
       testFindMetadata_ByNegotiationIdAndAttachment_byRepresentative_fails_whenPrivateForOrganization() {
     assertThrows(
         ForbiddenRequestException.class,
-        () -> attachmentService.findByIdAndNegotiationId(ATTACHMENT_2_ID, NEGOTIATION_2_ID));
+        () -> attachmentService.findByIdAndNegotiationId(ATTACHMENT_2_ID, NEGOTIATION_5_ID));
   }
 }
