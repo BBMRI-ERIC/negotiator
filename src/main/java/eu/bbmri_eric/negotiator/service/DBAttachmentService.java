@@ -9,7 +9,6 @@ import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -19,7 +18,6 @@ import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import java.io.IOException;
 import java.util.List;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +26,27 @@ import org.springframework.web.multipart.MultipartFile;
 @Service(value = "DefaultAttachmentService")
 public class DBAttachmentService implements AttachmentService {
 
-  @Autowired private AttachmentRepository attachmentRepository;
-  @Autowired private ModelMapper modelMapper;
-  @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private PersonService personService;
-  @Autowired private NegotiationService negotiationService;
-  @Autowired private PersonRepository personRepository;
+  private final AttachmentRepository attachmentRepository;
+  private final ModelMapper modelMapper;
+  private final NegotiationRepository negotiationRepository;
+  private final OrganizationRepository organizationRepository;
+  private final PersonService personService;
+  private final NegotiationService negotiationService;
+
+  public DBAttachmentService(
+      AttachmentRepository attachmentRepository,
+      ModelMapper modelMapper,
+      NegotiationRepository negotiationRepository,
+      OrganizationRepository organizationRepository,
+      PersonService personService,
+      NegotiationService negotiationService) {
+    this.attachmentRepository = attachmentRepository;
+    this.modelMapper = modelMapper;
+    this.negotiationRepository = negotiationRepository;
+    this.organizationRepository = organizationRepository;
+    this.personService = personService;
+    this.negotiationService = negotiationService;
+  }
 
   @Override
   @Transactional
@@ -180,15 +192,8 @@ public class DBAttachmentService implements AttachmentService {
 
     String negotiationId = attachment.getNegotiationId();
     if (negotiationId == null) {
-      // If the attachment is not associated to a Negotiation yet, it can be accessed only by the
-      // creator of the attachment
       return isCurrentAuthenticatedUserAttachmentCreator(attachment);
     } else {
-      // otherwise the user has to be authorized for the negotiation and
-      // the attachment must be either:
-      // 1. public (in the negotiation)
-      // 2. created by the currently authenticated user
-      // 3. addressed to the organization represented by the authenticated user
       return negotiationService.isAuthorizedForNegotiation(negotiationId)
           && (isAttachmentPublic(attachment)
               || negotiationService.isNegotiationCreator(negotiationId)
