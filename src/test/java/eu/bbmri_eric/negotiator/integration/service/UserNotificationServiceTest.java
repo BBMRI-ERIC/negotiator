@@ -304,7 +304,7 @@ public class UserNotificationServiceTest {
     assertTrue(
         negotiation.getResources().stream()
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
-    userNotificationService.sendRemindersOldNegotiations();
+    userNotificationService.createRemindersOldNegotiations();
     int numOfEmails = notificationEmailRepository.findAll().size();
     int numRepresentatives =
         negotiation.getResources().stream()
@@ -312,8 +312,12 @@ public class UserNotificationServiceTest {
             .filter(rs -> rs != null)
             .mapToInt(Set::size)
             .sum();
+    assertEquals(0, numOfEmails);
+    userNotificationService.sendEmailsForNewNotifications();
+    numOfEmails = notificationEmailRepository.findAll().size();
     assertTrue(numOfEmails == pendingNegotiation + (staleNegotiation * numRepresentatives));
-    userNotificationService.sendRemindersOldNegotiations();
+    userNotificationService.createRemindersOldNegotiations();
+    userNotificationService.sendEmailsForNewNotifications();
     assertEquals(numOfEmails * 2, notificationEmailRepository.findAll().size());
   }
 }

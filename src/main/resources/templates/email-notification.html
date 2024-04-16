@@ -43,7 +43,10 @@
                 border: 1px solid #D8DEE4;
                 padding: 25px;
             }
-
+            .email-notifications .email-content  ul ul{
+                border: none;
+                padding: 10px;
+            }
         </style>
     </head>
     <body>
@@ -57,13 +60,18 @@
                     Dear Negotiator User,
                     <br /><br />
                     <div style="text-indent: 20px;">
-                    You have a new message about your Negotiation(s):<br/>
+                    These Negotiation(s) require your attention:<br/>
                         <ul>
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
                                 <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/'+ ${roleForNegotiation.get(negotiation.id)}}">
                                     <span th:utext="${titleForNegotiation.get(negotiation.id)}"></span>
                                 </a>
+                                <ul>
+                                    <li th:each="notification : ${notificationsForNegotiation.get(negotiation)}">
+                                        <span th:utext="${#strings.replace(notification.getMessage(),negotiation.id,'')}"></span>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </div>

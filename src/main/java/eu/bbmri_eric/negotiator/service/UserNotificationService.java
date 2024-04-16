@@ -48,5 +48,5 @@ public interface UserNotificationService {
   void sendEmailsForNewNotifications();
 
   /** Send out reminder emails for pending and stale negotiations. */
-  void sendRemindersOldNegotiations();
+  void createRemindersOldNegotiations();
 }
