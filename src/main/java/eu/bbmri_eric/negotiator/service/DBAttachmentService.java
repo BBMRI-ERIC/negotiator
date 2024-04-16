@@ -4,14 +4,12 @@ import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetail
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
-import eu.bbmri_eric.negotiator.database.model.views.AttachmentView;
-import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentView;
-import eu.bbmri_eric.negotiator.database.model.views.NegotiationMinimal;
+import eu.bbmri_eric.negotiator.database.model.views.AttachmentViewDTO;
+import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.database.view_repository.AttachmentViewRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -31,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class DBAttachmentService implements AttachmentService {
 
   @Autowired private AttachmentRepository attachmentRepository;
-  @Autowired private AttachmentViewRepository attachmentViewRepository;
   @Autowired private ModelMapper modelMapper;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private OrganizationRepository organizationRepository;
@@ -68,8 +65,8 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentDTO findById(String id) {
-    AttachmentView attachment =
-        attachmentViewRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    AttachmentViewDTO attachment =
+        attachmentRepository.findAllById(id).orElseThrow(() -> new EntityNotFoundException(id));
     if (!isAuthorizedForAttachment(attachment)) {
       throw new ForbiddenRequestException();
     }
@@ -83,8 +80,8 @@ public class DBAttachmentService implements AttachmentService {
       throw new EntityNotFoundException(
           "Negotiation with id %s does not exist".formatted(negotiationId));
     }
-    List<MetadataAttachmentView> attachments =
-        attachmentViewRepository.findByNegotiationId(negotiationId);
+    List<MetadataAttachmentViewDTO> attachments =
+        attachmentRepository.findByNegotiationId(negotiationId);
     return attachments.stream()
         .filter(this::isAuthorizedForAttachment)
         .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
@@ -94,8 +91,8 @@ public class DBAttachmentService implements AttachmentService {
   @Override
   @Transactional
   public AttachmentMetadataDTO findByIdAndNegotiationId(String id, String negotiationId) {
-    MetadataAttachmentView attachment =
-        attachmentViewRepository
+    MetadataAttachmentViewDTO attachment =
+        attachmentRepository
             .findMetadataByIdAndNegotiationId(id, negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(id));
     if (!this.isAuthorizedForAttachment(attachment)) {
@@ -177,12 +174,12 @@ public class DBAttachmentService implements AttachmentService {
     return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
-  private boolean isAuthorizedForAttachment(MetadataAttachmentView attachment) {
+  private boolean isAuthorizedForAttachment(MetadataAttachmentViewDTO attachment) {
     // The administrator of the negotiator is authorized to all attachements
     if (isAdmin()) return true;
 
-    NegotiationMinimal negotiation = attachment.getNegotiation();
-    if (negotiation == null) {
+    String negotiationId = attachment.getNegotiationId();
+    if (negotiationId == null) {
       // If the attachment is not associated to a Negotiation yet, it can be accessed only by the
       // creator of the attachment
       return isCurrentAuthenticatedUserAttachmentCreator(attachment);
@@ -192,23 +189,22 @@ public class DBAttachmentService implements AttachmentService {
       // 1. public (in the negotiation)
       // 2. created by the currently authenticated user
       // 3. addressed to the organization represented by the authenticated user
-      return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
+      return negotiationService.isAuthorizedForNegotiation(negotiationId)
           && (isAttachmentPublic(attachment)
-              || negotiationService.isNegotiationCreator(negotiation.getId())
+              || negotiationService.isNegotiationCreator(negotiationId)
               || isCurrentAuthenticatedUserAttachmentCreator(attachment)
-              || (attachment.getOrganization() != null
-                  && isRepresentativeOfOrganization(attachment.getOrganization().getId())));
+              || (attachment.getOrganizationId() != null
+                  && isRepresentativeOfOrganization(attachment.getOrganizationId())));
     }
   }
 
-  boolean isCurrentAuthenticatedUserAttachmentCreator(MetadataAttachmentView attachment) {
+  boolean isCurrentAuthenticatedUserAttachmentCreator(MetadataAttachmentViewDTO attachment) {
     return attachment
-        .getCreatedBy()
-        .getId()
+        .getCreatedById()
         .equals(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  boolean isAttachmentPublic(MetadataAttachmentView attachment) {
-    return attachment.getOrganization() == null;
+  boolean isAttachmentPublic(MetadataAttachmentViewDTO attachment) {
+    return attachment.getOrganizationId() == null;
   }
 }

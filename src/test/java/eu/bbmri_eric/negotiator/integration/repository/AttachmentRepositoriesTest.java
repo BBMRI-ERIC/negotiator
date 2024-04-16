@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import eu.bbmri_eric.negotiator.configuration.BlazePersitenceConfig;
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
@@ -12,8 +11,8 @@ import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.views.AttachmentView;
-import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentView;
+import eu.bbmri_eric.negotiator.database.model.views.AttachmentViewDTO;
+import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
@@ -21,7 +20,6 @@ import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.database.view_repository.AttachmentViewRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -38,7 +35,6 @@ import org.springframework.test.context.TestPropertySource;
 
 /** Tests for both AttachmentRepository (JPA) and AttachmentViewRepository (EntityView) */
 @DataJpaTest(showSql = false)
-@Import(BlazePersitenceConfig.class)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
@@ -59,7 +55,6 @@ public class AttachmentRepositoriesTest {
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired private OrganizationRepository organizationRepository;
   @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private AttachmentViewRepository attachmentViewRepository;
   @Autowired private AttachmentRepository attachmentRepository;
 
   private DiscoveryService discoveryService;
@@ -185,8 +180,8 @@ public class AttachmentRepositoriesTest {
     Attachment attachment2 = createAttachment(null, negotiation1, creator);
     createAttachment(organization2, negotiation2, creator);
 
-    List<MetadataAttachmentView> attachmentsViews =
-        attachmentViewRepository.findByNegotiationId(this.negotiation1.getId());
+    List<MetadataAttachmentViewDTO> attachmentsViews =
+        attachmentRepository.findByNegotiationId(this.negotiation1.getId());
 
     assertEquals(2, attachmentsViews.size());
 
@@ -196,11 +191,10 @@ public class AttachmentRepositoriesTest {
     assertEquals(attachmentsViews.get(0).getSize(), attachment1.getSize());
     assertEquals(attachmentsViews.get(0).getContentType(), attachment1.getContentType());
     assertEquals(attachmentsViews.get(0).getName(), attachment1.getName());
-    assertEquals(attachmentsViews.get(0).getNegotiation().getId(), this.negotiation1.getId());
+    assertEquals(attachmentsViews.get(0).getNegotiationId(), this.negotiation1.getId());
     assertEquals(
-        attachmentsViews.get(0).getOrganization().getExternalId(), organization1.getExternalId());
-    assertEquals(
-        attachmentsViews.get(0).getCreatedBy().getId(), attachment1.getCreatedBy().getId());
+        attachmentsViews.get(0).getOrganizationExternalId(), organization1.getExternalId());
+    assertEquals(attachmentsViews.get(0).getCreatedById(), attachment1.getCreatedBy().getId());
   }
 
   /** Tests get by negotiation id with empty results */
@@ -210,8 +204,8 @@ public class AttachmentRepositoriesTest {
     createAttachment(organization1, negotiation1, creator);
     createAttachment(null, negotiation1, creator);
 
-    List<MetadataAttachmentView> attachmentsViews =
-        attachmentViewRepository.findByNegotiationId(negotiation2.getId());
+    List<MetadataAttachmentViewDTO> attachmentsViews =
+        attachmentRepository.findByNegotiationId(negotiation2.getId());
 
     assertEquals(0, attachmentsViews.size());
   }
@@ -227,8 +221,8 @@ public class AttachmentRepositoriesTest {
     createAttachment(organization2, negotiation1, creator);
     createAttachment(organization2, negotiation2, creator);
 
-    MetadataAttachmentView attachmentView =
-        attachmentViewRepository
+    MetadataAttachmentViewDTO attachmentView =
+        attachmentRepository
             .findMetadataByIdAndNegotiationId(attachment1.getId(), this.negotiation1.getId())
             .orElse(null);
 
@@ -237,9 +231,9 @@ public class AttachmentRepositoriesTest {
     assertEquals(attachmentView.getSize(), attachment1.getSize());
     assertEquals(attachmentView.getContentType(), attachment1.getContentType());
     assertEquals(attachmentView.getName(), attachment1.getName());
-    assertEquals(attachmentView.getNegotiation().getId(), this.negotiation1.getId());
-    assertEquals(attachmentView.getOrganization().getExternalId(), organization1.getExternalId());
-    assertEquals(attachmentView.getCreatedBy().getId(), attachment1.getCreatedBy().getId());
+    assertEquals(attachmentView.getNegotiationId(), this.negotiation1.getId());
+    assertEquals(attachmentView.getOrganizationExternalId(), organization1.getExternalId());
+    assertEquals(attachmentView.getCreatedById(), attachment1.getCreatedBy().getId());
   }
 
   /**
@@ -253,8 +247,8 @@ public class AttachmentRepositoriesTest {
     createAttachment(organization2, negotiation1, creator);
     Attachment attachment3 = createAttachment(organization2, negotiation2, creator);
 
-    MetadataAttachmentView attachmentView =
-        attachmentViewRepository
+    MetadataAttachmentViewDTO attachmentView =
+        attachmentRepository
             .findMetadataByIdAndNegotiationId(attachment3.getId(), this.negotiation1.getId())
             .orElse(null);
 
@@ -270,8 +264,8 @@ public class AttachmentRepositoriesTest {
     Person creator = createPerson("pers1");
     Attachment attachment3 = createAttachment(organization2, negotiation2, creator);
 
-    MetadataAttachmentView attachmentView =
-        attachmentViewRepository
+    MetadataAttachmentViewDTO attachmentView =
+        attachmentRepository
             .findMetadataByIdAndNegotiationId(attachment3.getId(), this.negotiation1.getId())
             .orElse(null);
 
@@ -283,17 +277,17 @@ public class AttachmentRepositoriesTest {
     Person creator = createPerson("pers1");
     Attachment attachment1 = createAttachment(organization1, negotiation1, creator);
 
-    AttachmentView attachmentView =
-        attachmentViewRepository.findById(attachment1.getId()).orElse(null);
+    AttachmentViewDTO attachmentView =
+        attachmentRepository.findAllById(attachment1.getId()).orElse(null);
 
     assertNotNull(attachmentView);
     assertEquals(attachmentView.getId(), attachment1.getId());
     assertEquals(attachmentView.getSize(), attachment1.getSize());
     assertEquals(attachmentView.getContentType(), attachment1.getContentType());
     assertEquals(attachmentView.getName(), attachment1.getName());
-    assertEquals(attachmentView.getNegotiation().getId(), this.negotiation1.getId());
-    assertEquals(attachmentView.getOrganization().getExternalId(), organization1.getExternalId());
-    assertEquals(attachmentView.getCreatedBy().getId(), attachment1.getCreatedBy().getId());
+    assertEquals(attachmentView.getNegotiationId(), this.negotiation1.getId());
+    assertEquals(attachmentView.getOrganizationExternalId(), organization1.getExternalId());
+    assertEquals(attachmentView.getCreatedById(), attachment1.getCreatedBy().getId());
     assertEquals(attachmentView.getPayload().length, 2);
     assertEquals(attachmentView.getPayload()[0], attachment1.getPayload()[0]);
     assertEquals(attachmentView.getPayload()[1], attachment1.getPayload()[1]);
@@ -303,7 +297,7 @@ public class AttachmentRepositoriesTest {
   void getPayloadById_notFound() {
     Person creator = createPerson("pers1");
     createAttachment(organization1, negotiation1, creator);
-    assertNull(attachmentViewRepository.findById("unknown").orElse(null));
+    assertNull(attachmentRepository.findById("unknown").orElse(null));
   }
 
   @Test

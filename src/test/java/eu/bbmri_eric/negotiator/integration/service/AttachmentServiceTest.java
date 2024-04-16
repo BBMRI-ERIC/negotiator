@@ -8,9 +8,8 @@ import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentView;
+import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
-import eu.bbmri_eric.negotiator.database.view_repository.AttachmentViewRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
@@ -52,7 +51,6 @@ public class AttachmentServiceTest {
 
   @Autowired private AttachmentService attachmentService;
   @Autowired private DataSource dbSource;
-  @Autowired private AttachmentViewRepository attachmentViewRepository;
   @Autowired private AttachmentRepository attachmentRepository;
 
   public void addH2Function() {
@@ -157,13 +155,12 @@ public class AttachmentServiceTest {
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, "biobank:1", mockMultipartFile);
-    // using the view repository for convenience, since it laod the LAZY loadad organization
-    MetadataAttachmentView created =
-        attachmentViewRepository.findById(attachment.getId()).orElse(null);
+    MetadataAttachmentViewDTO created =
+        attachmentRepository.findMetadataById(attachment.getId()).orElse(null);
     assertNotNull(created);
-    assertEquals(created.getNegotiation().getId(), "negotiation-1");
-    assertEquals(created.getCreatedBy().getId(), 108L);
-    assertEquals(created.getOrganization().getExternalId(), "biobank:1");
+    assertEquals(created.getNegotiationId(), "negotiation-1");
+    assertEquals(created.getCreatedById(), 108L);
+    assertEquals(created.getOrganizationExternalId(), "biobank:1");
   }
 
   /**
@@ -177,14 +174,12 @@ public class AttachmentServiceTest {
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, "biobank:1", mockMultipartFile);
-    // using the view repository for convenienc, since it laod the otherwise LAZY loadad
-    // organization
-    MetadataAttachmentView created =
-        attachmentViewRepository.findById(attachment.getId()).orElse(null);
+    MetadataAttachmentViewDTO created =
+        attachmentRepository.findMetadataById(attachment.getId()).orElse(null);
     assertNotNull(created);
-    assertEquals(created.getNegotiation().getId(), "negotiation-1");
-    assertEquals(created.getCreatedBy().getId(), 109L);
-    assertEquals(created.getOrganization().getExternalId(), "biobank:1");
+    assertEquals(created.getNegotiationId(), "negotiation-1");
+    assertEquals(created.getCreatedById(), 109L);
+    assertEquals(created.getOrganizationExternalId(), "biobank:1");
   }
 
   /**
@@ -246,8 +241,7 @@ public class AttachmentServiceTest {
     byte[] inputArray = "Test String".getBytes();
     MockMultipartFile mockMultipartFile = new MockMultipartFile("tempFileName", inputArray);
     AttachmentMetadataDTO attachment = attachmentService.create(mockMultipartFile);
-    MetadataAttachmentView created =
-        attachmentViewRepository.findById(attachment.getId()).orElse(null);
+    Attachment created = attachmentRepository.findById(attachment.getId()).orElse(null);
     assertNotNull(created);
   }
 

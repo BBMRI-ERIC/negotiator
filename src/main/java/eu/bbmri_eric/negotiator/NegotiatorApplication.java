@@ -1,7 +1,5 @@
 package eu.bbmri_eric.negotiator;
 
-import com.blazebit.persistence.integration.view.spring.EnableEntityViews;
-import com.blazebit.persistence.spring.data.repository.config.EnableBlazeRepositories;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -11,10 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EntityScan(basePackages = {"eu.bbmri_eric.negotiator.database.*"})
 @EnableJpaRepositories(basePackages = {"eu.bbmri_eric.negotiator.database.repository"})
-@EnableBlazeRepositories(
-    considerNestedRepositories = true,
-    basePackages = {"eu.bbmri_eric.negotiator.database.view_repository"})
-@EnableEntityViews("eu.bbmri_eric.negotiator.database.model.*")
 @EnableScheduling
 public class NegotiatorApplication {
 
