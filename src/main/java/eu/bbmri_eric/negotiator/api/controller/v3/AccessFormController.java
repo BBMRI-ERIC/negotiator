@@ -1,14 +1,16 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
+import eu.bbmri_eric.negotiator.service.AccessFormElementService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -27,11 +29,19 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
 public class AccessFormController {
 
-  @Autowired private AccessCriteriaSetService accessCriteriaSetService;
-  @Autowired private AccessFormService accessFormService;
-  @Autowired private AccessFormModelAssembler accessFormModelAssembler;
+   private final AccessCriteriaSetService accessCriteriaSetService;
+  private final AccessFormElementService elementService;
+   private final AccessFormService accessFormService;
+   private final AccessFormModelAssembler accessFormModelAssembler;
 
-  @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
+    public AccessFormController(AccessCriteriaSetService accessCriteriaSetService, AccessFormElementService elementService, AccessFormService accessFormService, AccessFormModelAssembler accessFormModelAssembler) {
+        this.accessCriteriaSetService = accessCriteriaSetService;
+        this.elementService = elementService;
+        this.accessFormService = accessFormService;
+        this.accessFormModelAssembler = accessFormModelAssembler;
+    }
+
+    @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(
       summary = "Search access criteria",
@@ -67,5 +77,19 @@ public class AccessFormController {
       @RequestParam(required = false, defaultValue = "50") int size) {
     return accessFormModelAssembler.toPagedModel(
         (Page<AccessFormDTO>) accessFormService.getAllAccessForms(PageRequest.of(page, size)));
+  }
+
+  @GetMapping(value = "/elements", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "List all available elements")
+  public CollectionModel<ElementMetaDTO> getAll() {
+    return CollectionModel.of(elementService.getAll());
+  }
+
+  @GetMapping(value = "/elements/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Get an element by id", description = "Returns an element by id")
+  public EntityModel<ElementMetaDTO> getElementById(@PathVariable Long id) {
+    return EntityModel.of(elementService.getById(id));
   }
 }
