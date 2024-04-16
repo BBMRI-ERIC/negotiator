@@ -374,7 +374,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   private String extractRoleFromNotificationMessage(Notification notification) {
     String message = notification.getMessage();
     if (message.matches("New Negotiation .* was added for review\\.")
-        || message.matches("The negotiation .* is pending review\\.")) {
+        || message.matches("The negotiation .* is awaiting review\\.")) {
       return "ROLE_ADMIN";
     } else if (message.matches("Negotiation .* had a change of status of .* to .*")) {
       // TODO if status changed to "ACCESS_CONDITIONS_MET" role should be "ROLE_REPRESENTATIVE"
@@ -386,7 +386,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       String postCreator = parts[1].trim();
       return (negotiationCreator.equals(postCreator)) ? "ROLE_REPRESENTATIVE" : "ROLE_RESEARCHER";
     } else if (message.matches("New Negotiation .*")
-        || message.matches("The negotiation .* is stale\\.")) {
+        || message.matches("The negotiation .* is stale and had no status change in a while\\.")) {
       return "ROLE_REPRESENTATIVE";
     } else {
       return "ROLE_RESEARCHER";
@@ -409,7 +409,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         createNotificationsForAdmins(
             negotiation,
             NotificationEmailStatus.EMAIL_NOT_SENT,
-            "The negotiation %s is pending review.".formatted(negotiation.getId()));
+            "The negotiation %s is awaiting review.".formatted(negotiation.getId()));
     notificationRepository.saveAll(newNotifications);
   }
 
@@ -418,7 +418,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         createNotificationsForRepresentatives(
             negotiation,
             NotificationEmailStatus.EMAIL_NOT_SENT,
-            "The negotiation %s is stale.".formatted(negotiation.getId()));
+            "The negotiation %s is stale and had no status change in a while.".formatted(negotiation.getId()));
     notificationRepository.saveAll(reminderNotifications);
   }
 
