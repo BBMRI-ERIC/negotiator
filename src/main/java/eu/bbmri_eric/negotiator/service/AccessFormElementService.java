@@ -10,4 +10,6 @@ public interface AccessFormElementService {
   ElementMetaDTO getById(Long id);
 
   ElementMetaDTO create(ElementCreateDTO dto);
+
+  ElementMetaDTO update(ElementCreateDTO dto, Long id);
 }

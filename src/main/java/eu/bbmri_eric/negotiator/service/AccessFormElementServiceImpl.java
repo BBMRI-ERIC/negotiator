@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,7 +25,7 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
 
   @Override
   public List<ElementMetaDTO> getAll() {
-    return repository.findAll().stream()
+    return repository.findAll(Sort.by("id").ascending()).stream()
         .map((element) -> mapper.map(element, ElementMetaDTO.class))
         .toList();
   }
@@ -39,6 +40,13 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   @Override
   public ElementMetaDTO create(ElementCreateDTO dto) {
     AccessFormElement element = mapper.map(dto, AccessFormElement.class);
+    return mapper.map(repository.save(element), ElementMetaDTO.class);
+  }
+
+  @Override
+  public ElementMetaDTO update(ElementCreateDTO dto, Long id) {
+    AccessFormElement element = mapper.map(dto, AccessFormElement.class);
+    element.setId(id);
     return mapper.map(repository.save(element), ElementMetaDTO.class);
   }
 }

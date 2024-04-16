@@ -10,6 +10,7 @@ import eu.bbmri_eric.negotiator.service.AccessFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,16 +39,19 @@ public class AccessFormController {
   private final AccessFormElementService elementService;
   private final AccessFormService accessFormService;
   private final AccessFormModelAssembler accessFormModelAssembler;
+  private final ModelMapper modelMapper;
 
   public AccessFormController(
       AccessCriteriaSetService accessCriteriaSetService,
       AccessFormElementService elementService,
       AccessFormService accessFormService,
-      AccessFormModelAssembler accessFormModelAssembler) {
+      AccessFormModelAssembler accessFormModelAssembler,
+      ModelMapper modelMapper) {
     this.accessCriteriaSetService = accessCriteriaSetService;
     this.elementService = elementService;
     this.accessFormService = accessFormService;
     this.accessFormModelAssembler = accessFormModelAssembler;
+    this.modelMapper = modelMapper;
   }
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -104,7 +109,16 @@ public class AccessFormController {
   @PostMapping(value = "/elements", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Create a new element")
-  public EntityModel<ElementMetaDTO> create(@RequestBody @Valid ElementCreateDTO elementCreateDTO) {
+  public EntityModel<ElementMetaDTO> createElement(
+      @RequestBody @Valid ElementCreateDTO elementCreateDTO) {
     return EntityModel.of(elementService.create(elementCreateDTO));
+  }
+
+  @PutMapping(value = "/elements/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Update an existing element")
+  public EntityModel<ElementMetaDTO> updateElement(
+      @RequestBody @Valid ElementCreateDTO dto, @PathVariable Long id) {
+    return EntityModel.of(elementService.update(dto, id));
   }
 }
