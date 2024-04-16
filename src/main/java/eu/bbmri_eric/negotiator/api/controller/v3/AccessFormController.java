@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
@@ -8,6 +9,7 @@ import eu.bbmri_eric.negotiator.service.AccessFormElementService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -18,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -95,5 +99,12 @@ public class AccessFormController {
   @Operation(summary = "Get an element by id", description = "Returns an element by id")
   public EntityModel<ElementMetaDTO> getElementById(@PathVariable Long id) {
     return EntityModel.of(elementService.getById(id));
+  }
+
+  @PostMapping(value = "/elements", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Create a new element")
+  public EntityModel<ElementMetaDTO> create(@RequestBody @Valid ElementCreateDTO elementCreateDTO) {
+    return EntityModel.of(elementService.create(elementCreateDTO));
   }
 }
