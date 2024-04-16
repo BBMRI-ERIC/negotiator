@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.database.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -35,12 +34,12 @@ public class Attachment extends AuditEntity {
   @Column(name = "id")
   private String id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "negotiation_id")
   @Exclude
   Negotiation negotiation;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "organization_id")
   @Exclude
   private Organization organization;

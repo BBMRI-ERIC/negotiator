@@ -30,20 +30,6 @@ public interface NegotiationRepository
 
   @Query(
       value =
-          "SELECT EXISTS (SELECT rs.id "
-              + "FROM request rq JOIN request_resources_link rrl on rq.id = rrl.request_id "
-              + "                JOIN resource rs on rs.id = rrl.resource_id "
-              + "WHERE rq.negotiation_id = :negotiationId AND "
-              + "      rs.id in ("
-              + "         SELECT  rrl.resource_id "
-              + "         from person p join resource_representative_link rrl ON p.id = rrl.person_id "
-              + "         where p.id = :personId"
-              + "))",
-      nativeQuery = true)
-  boolean isRepresentativeOfAnyResource(String negotiationId, Long personId);
-
-  @Query(
-      value =
           "SELECT EXISTS ("
               + "SELECT n.id "
               + "FROM negotiation n "
@@ -64,16 +50,4 @@ public interface NegotiationRepository
               + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",
       nativeQuery = true)
   boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
-
-  @Query(
-      value =
-          "SELECT distinct(n.id) "
-              + "FROM negotiation n "
-              + "    JOIN request rq ON n.id = rq.negotiation_id "
-              + "    JOIN request_resources_link rrl ON rrl.request_id = rq.id "
-              + "    JOIN resource rs ON rrl.resource_id = rs.id "
-              + "    JOIN organization o ON rs.organization_id = o.id "
-              + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId",
-      nativeQuery = true)
-  String negotiationWhereOrganization(String negotiationId, String organizationExternalId);
 }
