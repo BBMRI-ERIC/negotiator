@@ -29,19 +29,23 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
 public class AccessFormController {
 
-   private final AccessCriteriaSetService accessCriteriaSetService;
+  private final AccessCriteriaSetService accessCriteriaSetService;
   private final AccessFormElementService elementService;
-   private final AccessFormService accessFormService;
-   private final AccessFormModelAssembler accessFormModelAssembler;
+  private final AccessFormService accessFormService;
+  private final AccessFormModelAssembler accessFormModelAssembler;
 
-    public AccessFormController(AccessCriteriaSetService accessCriteriaSetService, AccessFormElementService elementService, AccessFormService accessFormService, AccessFormModelAssembler accessFormModelAssembler) {
-        this.accessCriteriaSetService = accessCriteriaSetService;
-        this.elementService = elementService;
-        this.accessFormService = accessFormService;
-        this.accessFormModelAssembler = accessFormModelAssembler;
-    }
+  public AccessFormController(
+      AccessCriteriaSetService accessCriteriaSetService,
+      AccessFormElementService elementService,
+      AccessFormService accessFormService,
+      AccessFormModelAssembler accessFormModelAssembler) {
+    this.accessCriteriaSetService = accessCriteriaSetService;
+    this.elementService = elementService;
+    this.accessFormService = accessFormService;
+    this.accessFormModelAssembler = accessFormModelAssembler;
+  }
 
-    @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(
       summary = "Search access criteria",
