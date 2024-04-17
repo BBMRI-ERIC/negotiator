@@ -24,7 +24,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
     value = "/v3",
     produces = MediaTypes.HAL_JSON_VALUE,
     consumes = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin
 @Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
 public class AccessFormController {
 
@@ -132,7 +130,7 @@ public class AccessFormController {
     return accessFormElementAssembler.toModel(elementService.create(elementCreateDTO));
   }
 
-  @PutMapping(value = "/elements/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(value = "/elements/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update an existing element")
   public EntityModel<ElementMetaDTO> updateElement(
@@ -140,21 +138,21 @@ public class AccessFormController {
     return accessFormElementAssembler.toModel(elementService.update(dto, id));
   }
 
-  @GetMapping(value = "/sections", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/sections")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available sections")
   public CollectionModel<EntityModel<SectionMetaDTO>> getAllSections() {
     return accessFormSectionAssembler.toCollectionModel(sectionService.getAllSections());
   }
 
-  @GetMapping(value = "/sections/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/sections/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get a section by id")
   public EntityModel<SectionMetaDTO> getSectionById(@PathVariable Long id) {
     return accessFormSectionAssembler.toModel(sectionService.getSectionById(id));
   }
 
-  @PostMapping(value = "/sections", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/sections")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new section")
   public EntityModel<SectionMetaDTO> createSection(
@@ -162,7 +160,7 @@ public class AccessFormController {
     return accessFormSectionAssembler.toModel(sectionService.createSection(elementCreateDTO));
   }
 
-  @PutMapping(value = "/section/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(value = "/section/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update an existing section")
   public EntityModel<SectionMetaDTO> updateSection(

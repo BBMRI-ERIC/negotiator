@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,7 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,9 +26,11 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class AccessFormElementSetControllerTests {
+public class AccessFormTests {
 
   private static final String ENDPOINT = "/v3/access-criteria";
+  private static final String ELEMENTS_ENDPOINT = "/v3/elements";
+  private static final String SECTIONS_ENDPOINT = "/v3/sections";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
   private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";
@@ -76,7 +81,10 @@ public class AccessFormElementSetControllerTests {
   @Test
   public void testGet_Ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(ENDPOINT).param("resourceId", "biobank:1:collection:1"))
+        .perform(
+            MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("resourceId", "biobank:1:collection:1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sections[0].elements").isArray())
         .andExpect(jsonPath("$.sections[0].name", is("project")))
@@ -87,4 +95,65 @@ public class AccessFormElementSetControllerTests {
         .andExpect(jsonPath("$.sections[1].elements[0].name", is("description")))
         .andExpect(jsonPath("$.sections[2].name", is("ethics-vote")));
   }
+
+  @Test
+  void getAllElements_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.elements").isArray())
+        .andExpect(jsonPath("$._embedded.elements[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.elements[0].name").isString())
+        .andExpect(jsonPath("$._embedded.elements[0].type").isString())
+        .andExpect(jsonPath("$._embedded.elements[0].description").isString())
+        .andExpect(jsonPath("$._embedded.elements[0].label").isString());
+  }
+
+  @Test
+  void getElementById_exists_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isMap())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name").isString())
+        .andExpect(jsonPath("$.type").isString())
+        .andExpect(jsonPath("$.description").isString())
+        .andExpect(jsonPath("$.label").isString());
+  }
+
+  @Test
+  void getAllSections_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(SECTIONS_ENDPOINT).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.sections").isArray())
+        .andExpect(jsonPath("$._embedded.sections[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.sections[0].name").isString())
+        .andExpect(jsonPath("$._embedded.sections[0].description").isString());
+  }
+
+  @Test
+  void getSectionById_exists_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(SECTIONS_ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isMap())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name").isString())
+        .andExpect(jsonPath("$.description").isString());
+  }
+
+  @Test
+  void createElement_correctPayload_ok() {}
 }
