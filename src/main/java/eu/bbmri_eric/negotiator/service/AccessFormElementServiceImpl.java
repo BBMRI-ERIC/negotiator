@@ -24,28 +24,28 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   }
 
   @Override
-  public List<ElementMetaDTO> getAll() {
+  public List<ElementMetaDTO> getAllElements() {
     return repository.findAll(Sort.by("id").ascending()).stream()
         .map((element) -> mapper.map(element, ElementMetaDTO.class))
         .toList();
   }
 
   @Override
-  public ElementMetaDTO getById(Long id) {
+  public ElementMetaDTO getElementById(Long id) {
     return mapper.map(
         repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
         ElementMetaDTO.class);
   }
 
   @Override
-  public ElementMetaDTO create(ElementCreateDTO dto) {
-    AccessFormElement element = mapper.map(dto, AccessFormElement.class);
+  public ElementMetaDTO createElement(ElementCreateDTO elementCreateDTO) {
+    AccessFormElement element = mapper.map(elementCreateDTO, AccessFormElement.class);
     return mapper.map(repository.save(element), ElementMetaDTO.class);
   }
 
   @Override
-  public ElementMetaDTO update(ElementCreateDTO dto, Long id) {
-    AccessFormElement element = mapper.map(dto, AccessFormElement.class);
+  public ElementMetaDTO updateElement(ElementCreateDTO elementCreateDTO, Long id) {
+    AccessFormElement element = mapper.map(elementCreateDTO, AccessFormElement.class);
     element.setId(id);
     return mapper.map(repository.save(element), ElementMetaDTO.class);
   }

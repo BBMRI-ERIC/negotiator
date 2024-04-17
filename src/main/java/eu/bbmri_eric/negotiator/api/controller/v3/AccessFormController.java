@@ -112,14 +112,14 @@ public class AccessFormController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available elements")
   public CollectionModel<EntityModel<ElementMetaDTO>> getAll() {
-    return accessFormElementAssembler.toCollectionModel(elementService.getAll());
+    return accessFormElementAssembler.toCollectionModel(elementService.getAllElements());
   }
 
   @GetMapping(value = "/elements/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get an element by id", description = "Returns an element by id")
   public EntityModel<ElementMetaDTO> getElementById(@PathVariable Long id) {
-    return accessFormElementAssembler.toModel(elementService.getById(id));
+    return accessFormElementAssembler.toModel(elementService.getElementById(id));
   }
 
   @PostMapping(value = "/elements")
@@ -127,7 +127,7 @@ public class AccessFormController {
   @Operation(summary = "Create a new element")
   public EntityModel<ElementMetaDTO> createElement(
       @RequestBody @Valid ElementCreateDTO elementCreateDTO) {
-    return accessFormElementAssembler.toModel(elementService.create(elementCreateDTO));
+    return accessFormElementAssembler.toModel(elementService.createElement(elementCreateDTO));
   }
 
   @PutMapping(value = "/elements/{id}")
@@ -135,7 +135,7 @@ public class AccessFormController {
   @Operation(summary = "Update an existing element")
   public EntityModel<ElementMetaDTO> updateElement(
       @RequestBody @Valid ElementCreateDTO dto, @PathVariable Long id) {
-    return accessFormElementAssembler.toModel(elementService.update(dto, id));
+    return accessFormElementAssembler.toModel(elementService.updateElement(dto, id));
   }
 
   @GetMapping(value = "/sections")
@@ -160,7 +160,7 @@ public class AccessFormController {
     return accessFormSectionAssembler.toModel(sectionService.createSection(elementCreateDTO));
   }
 
-  @PutMapping(value = "/section/{id}")
+  @PutMapping(value = "/sections/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update an existing section")
   public EntityModel<SectionMetaDTO> updateSection(

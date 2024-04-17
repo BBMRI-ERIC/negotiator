@@ -5,11 +5,35 @@ import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import java.util.List;
 
 public interface AccessFormElementService {
-  List<ElementMetaDTO> getAll();
+  /**
+   * Get all elements.
+   *
+   * @return a list of all elements
+   */
+  List<ElementMetaDTO> getAllElements();
 
-  ElementMetaDTO getById(Long id);
+  /**
+   * Get a specific element by its identifier.
+   *
+   * @param id the identifier of the element
+   * @return an element
+   */
+  ElementMetaDTO getElementById(Long id);
 
-  ElementMetaDTO create(ElementCreateDTO dto);
+  /**
+   * Create a new element.
+   *
+   * @param elementCreateDTO containing desired information
+   * @return the created element
+   */
+  ElementMetaDTO createElement(ElementCreateDTO elementCreateDTO);
 
-  ElementMetaDTO update(ElementCreateDTO dto, Long id);
+  /**
+   * Update an existing element or create a new one.
+   *
+   * @param elementCreateDTO containing desired information
+   * @param id the identifier of the updated element
+   * @return updated element or a new one if an existing one with the provided id wasn't found
+   */
+  ElementMetaDTO updateElement(ElementCreateDTO elementCreateDTO, Long id);
 }
