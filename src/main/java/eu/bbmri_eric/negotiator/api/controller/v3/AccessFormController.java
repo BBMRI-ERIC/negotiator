@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
+import eu.bbmri_eric.negotiator.mappers.AccessFormElementAssembler;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.service.AccessFormElementService;
@@ -40,18 +41,21 @@ public class AccessFormController {
   private final AccessFormService accessFormService;
   private final AccessFormModelAssembler accessFormModelAssembler;
   private final ModelMapper modelMapper;
+  private final AccessFormElementAssembler accessFormElementAssembler;
 
   public AccessFormController(
       AccessCriteriaSetService accessCriteriaSetService,
       AccessFormElementService elementService,
       AccessFormService accessFormService,
       AccessFormModelAssembler accessFormModelAssembler,
-      ModelMapper modelMapper) {
+      ModelMapper modelMapper,
+      AccessFormElementAssembler accessFormElementAssembler) {
     this.accessCriteriaSetService = accessCriteriaSetService;
     this.elementService = elementService;
     this.accessFormService = accessFormService;
     this.accessFormModelAssembler = accessFormModelAssembler;
     this.modelMapper = modelMapper;
+    this.accessFormElementAssembler = accessFormElementAssembler;
   }
 
   @GetMapping(value = "/access-criteria", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,15 +99,15 @@ public class AccessFormController {
   @GetMapping(value = "/elements", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available elements")
-  public CollectionModel<ElementMetaDTO> getAll() {
-    return CollectionModel.of(elementService.getAll());
+  public CollectionModel<EntityModel<ElementMetaDTO>> getAll() {
+    return accessFormElementAssembler.toCollectionModel(elementService.getAll());
   }
 
   @GetMapping(value = "/elements/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get an element by id", description = "Returns an element by id")
   public EntityModel<ElementMetaDTO> getElementById(@PathVariable Long id) {
-    return EntityModel.of(elementService.getById(id));
+    return accessFormElementAssembler.toModel(elementService.getById(id));
   }
 
   @PostMapping(value = "/elements", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -111,7 +115,7 @@ public class AccessFormController {
   @Operation(summary = "Create a new element")
   public EntityModel<ElementMetaDTO> createElement(
       @RequestBody @Valid ElementCreateDTO elementCreateDTO) {
-    return EntityModel.of(elementService.create(elementCreateDTO));
+    return accessFormElementAssembler.toModel(elementService.create(elementCreateDTO));
   }
 
   @PutMapping(value = "/elements/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -119,6 +123,6 @@ public class AccessFormController {
   @Operation(summary = "Update an existing element")
   public EntityModel<ElementMetaDTO> updateElement(
       @RequestBody @Valid ElementCreateDTO dto, @PathVariable Long id) {
-    return EntityModel.of(elementService.update(dto, id));
+    return accessFormElementAssembler.toModel(elementService.update(dto, id));
   }
 }
