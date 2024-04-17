@@ -36,14 +36,14 @@ public class AccessFormsSectionServiceImpl implements AccessFormsSectionService 
   }
 
   @Override
-  public SectionMetaDTO createSection(SectionCreateDTO createDTO) {
-    AccessFormSection section = mapper.map(createDTO, AccessFormSection.class);
+  public SectionMetaDTO createSection(SectionCreateDTO sectionCreateDTO) {
+    AccessFormSection section = mapper.map(sectionCreateDTO, AccessFormSection.class);
     return mapper.map(repository.save(section), SectionMetaDTO.class);
   }
 
   @Override
-  public SectionMetaDTO updateSection(SectionCreateDTO createDTO, Long id) {
-    AccessFormSection section = mapper.map(createDTO, AccessFormSection.class);
+  public SectionMetaDTO updateSection(SectionCreateDTO sectionCreateDTO, Long id) {
+    AccessFormSection section = mapper.map(sectionCreateDTO, AccessFormSection.class);
     section.setId(id);
     return mapper.map(repository.save(section), SectionMetaDTO.class);
   }
