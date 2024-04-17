@@ -418,7 +418,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         createNotificationsForRepresentatives(
             negotiation,
             NotificationEmailStatus.EMAIL_NOT_SENT,
-            "The negotiation %s is stale and had no status change in a while.".formatted(negotiation.getId()));
+            "The negotiation %s is stale and had no status change in a while."
+                .formatted(negotiation.getId()));
     notificationRepository.saveAll(reminderNotifications);
   }
 
