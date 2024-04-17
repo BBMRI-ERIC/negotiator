@@ -94,6 +94,7 @@ springdoc:
           "resource": "${spring.security.oauth2.resourceserver.jwt.audiences}"
         }
     tags-sorter: "alpha"
+    operations-sorter: "alpha"
 info:
   application:
     name: "BBMRI-ERIC Negotiator"
