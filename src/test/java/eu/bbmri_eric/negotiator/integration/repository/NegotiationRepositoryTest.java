@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,20 +41,15 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = {"spring.sql.init.mode=never"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NegotiationRepositoryTest {
-  @Autowired javax.sql.DataSource dbSource;
-
+  @Autowired DataSource dbSource;
   @Autowired PersonRepository personRepository;
-
   @Autowired ResourceRepository resourceRepository;
-
   @Autowired RequestRepository requestRepository;
-
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
-
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired RoleRepository roleRepository;
-  private Organization organization;
+
   private DiscoveryService discoveryService;
   private Person person;
   private Resource resource;
@@ -100,7 +96,7 @@ public class NegotiationRepositoryTest {
   @BeforeEach
   void setUp() {
     addH2Function();
-    this.organization =
+    Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
     this.discoveryService =

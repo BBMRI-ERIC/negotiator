@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -33,4 +34,45 @@ public interface PersonRepository
 
   @EntityGraph(value = "person-detailed")
   boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
+
+  @Query(
+      value =
+          "SELECT EXISTS (SELECT rs.id "
+              + "FROM request rq JOIN request_resources_link rrl on rq.id = rrl.request_id "
+              + "                JOIN resource rs on rs.id = rrl.resource_id "
+              + "WHERE rq.negotiation_id = :negotiationId AND "
+              + "      rs.id in ("
+              + "         select rrl.resource_id "
+              + "         from person p join resource_representative_link rrl ON p.id = rrl.person_id "
+              + "         where p.id = :personId"
+              + "))",
+      nativeQuery = true)
+  boolean isRepresentativeOfAnyResourceOfNegotiation(Long personId, String negotiationId);
+
+  @Query(
+      value =
+          "SELECT EXISTS ("
+              + "SELECT r.id "
+              + "FROM resource r "
+              + "WHERE organization_id = :organizationId and  r.id IN ("
+              + "      SELECT rrl.resource_id "
+              + "      FROM person p JOIN resource_representative_link rrl ON p.id = rrl.person_id "
+              + "      WHERE p.id = :personId "
+              + "))",
+      nativeQuery = true)
+  boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, Long organizationId);
+
+  @Query(
+      value =
+          "SELECT EXISTS ("
+              + "SELECT r.id "
+              + "FROM resource r "
+              + "JOIN organization o ON r.organization_id = o.id "
+              + "WHERE o.external_id = :organizationExternalId and r.id IN ("
+              + "      SELECT rrl.resource_id "
+              + "      FROM person p JOIN resource_representative_link rrl ON p.id = rrl.person_id "
+              + "      WHERE p.id = :personId "
+              + "))",
+      nativeQuery = true)
+  boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 }

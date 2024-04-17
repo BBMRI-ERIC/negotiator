@@ -51,18 +51,20 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @CommonsLog
 public class NegotiationControllerTests {
 
   // Request alrady present in data-h2. It is already assigned to a request
   private static final String REQUEST_1_ID = "request-1";
   private static final String REQUEST_2_ID = "request-2";
+  private static final String REQUEST_UNASSIGNED = "request-unassigned";
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String NEGOTIATION_2_ID = "negotiation-2";
   private static final String NEGOTIATION_V2_ID = "negotiation-v2";
   private static final String NEGOTIATION_3_ID = "negotiation-3";
   private static final String NEGOTIATION_4_ID = "negotiation-4";
+  private static final String NEGOTIATION_5_ID = "negotiation-5";
   private static final String NEGOTIATION_1_CREATION_DATE = "2024-10-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
 
@@ -120,13 +122,14 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("/v3/negotiations"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
+        .andExpect(jsonPath("$.page.totalElements", is(6)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(6)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_4_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is(NEGOTIATION_4_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[5].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests that using an unsupported sort column it returns 400 Bad Request */
@@ -177,7 +180,7 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("%s?size=%s".formatted(endpoint, pageSize)))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
+        .andExpect(jsonPath("$.page.totalElements", is(6)))
         .andExpect(jsonPath("$.page.totalPages", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
@@ -211,11 +214,11 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("%s?page=1&size=%s".formatted(endpoint, pageSize)))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
+        .andExpect(jsonPath("$.page.totalElements", is(6)))
         .andExpect(jsonPath("$.page.totalPages", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
         .andExpect(jsonPath("$._links.first.href", is(firstLink)))
         .andExpect(jsonPath("$._links.current.href", is(currentLink)))
         .andExpect(jsonPath("$._links.last.href", is(lastLink)));
@@ -285,13 +288,14 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("/v3/negotiations?sortBy=currentState"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
+        .andExpect(jsonPath("$.page.totalElements", is(6)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(6)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is(NEGOTIATION_4_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[5].id", is(NEGOTIATION_4_ID)));
   }
 
   /**
@@ -312,11 +316,12 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get(endpoint))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)))
         .andExpect(jsonPath("$._links.first.href", is(link)))
         .andExpect(jsonPath("$._links.current.href", is(link)))
         .andExpect(jsonPath("$._links.last.href", is(link)));
@@ -376,7 +381,7 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("%s?size=%s".formatted(endpoint, pageSize)))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
         .andExpect(jsonPath("$.page.totalPages", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
@@ -399,11 +404,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests sorting by status */
@@ -419,8 +425,8 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
@@ -439,11 +445,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests sorting by title default order (descending) */
@@ -458,11 +465,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests sorting by title ascending */
@@ -478,8 +486,8 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_2_ID)));
@@ -498,11 +506,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests sorting by status */
@@ -530,11 +539,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_1_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /**
@@ -552,11 +562,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /**
@@ -612,8 +623,8 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(2)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)));
   }
@@ -653,8 +664,8 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(1)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(1)))
+        .andExpect(jsonPath("$.page.totalElements", is(2)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_2_ID)));
   }
 
@@ -673,11 +684,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_4_ID)));
   }
 
   /**
@@ -713,11 +725,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_4_ID)));
   }
 
   /**
@@ -736,11 +749,12 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_3_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)))
         .andDo(print());
   }
 
@@ -782,9 +796,11 @@ public class NegotiationControllerTests {
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(1)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_V2_ID)));
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** Tests applying all filters */
@@ -873,7 +889,7 @@ public class NegotiationControllerTests {
   @Test
   @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));
     request.setRequests(null);
     mockMvc
         .perform(
@@ -927,10 +943,10 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
+  @WithUserDetails("researcher") // researcher not
   @Transactional
   public void testCreate_Ok() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousRequestCount = negotiationRepository.count();
     MvcResult result =
@@ -951,7 +967,7 @@ public class NegotiationControllerTests {
     String negotiationId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     Optional<Negotiation> negotiation = negotiationRepository.findById(negotiationId);
     assert negotiation.isPresent();
-    assertEquals(negotiation.get().getCreatedBy().getName(), "TheResearcher");
+    assertEquals(negotiation.get().getCreatedBy().getName(), "researcher");
   }
 
   @Test
@@ -968,7 +984,7 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_2_ID));
+    NegotiationCreateDTO request = TestUtils.createNegotiation(Set.of(REQUEST_UNASSIGNED));
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -1041,7 +1057,7 @@ public class NegotiationControllerTests {
                     .formatted(
                         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)));
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)));
   }
 
   @Test
@@ -1114,9 +1130,9 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheBiobanker")
   void testGetNegotiationRepresentativeShouldHaveAccessTo() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
+        .perform(MockMvcRequestBuilders.get("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_5_ID)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is("negotiation-1")));
+        .andExpect(jsonPath("$.id", is(NEGOTIATION_5_ID)));
   }
 
   @Test

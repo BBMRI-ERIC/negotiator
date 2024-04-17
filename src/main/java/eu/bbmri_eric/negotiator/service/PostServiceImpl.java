@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Post;
 import eu.bbmri_eric.negotiator.database.model.PostStatus;
 import eu.bbmri_eric.negotiator.database.model.PostType;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
@@ -139,7 +138,6 @@ public class PostServiceImpl implements PostService {
               .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                   negotiationId, PostStatus.CREATED, type, authors, organizationId);
     }
-
     return posts.stream()
         .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -156,9 +154,9 @@ public class PostServiceImpl implements PostService {
   }
 
   private boolean isRepresentative(Organization organization) {
-    return personService.isRepresentativeOfAnyResource(
+    return personService.isRepresentativeOfAnyResourceOfOrganization(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        organization.getResources().stream().map(Resource::getSourceId).toList());
+        organization.getId());
   }
 
   private boolean isAdmin() {
@@ -167,8 +165,8 @@ public class PostServiceImpl implements PostService {
 
   private boolean isAuthorized(Post post) {
     Negotiation negotiation = post.getNegotiation();
-    if (isAdmin() || NegotiationServiceImpl.isNegotiationCreator(negotiation)) return true;
-    return negotiationService.isAuthorizedForNegotiation(negotiation)
+    if (isAdmin() || negotiationService.isNegotiationCreator(negotiation.getId())) return true;
+    return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
         && (post.isPublic()
             || post.isCreator(
                 NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())

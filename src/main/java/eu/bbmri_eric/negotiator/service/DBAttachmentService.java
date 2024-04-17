@@ -4,17 +4,17 @@ import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetail
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.model.views.AttachmentViewDTO;
+import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import java.io.IOException;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -29,34 +29,88 @@ public class DBAttachmentService implements AttachmentService {
   private final AttachmentRepository attachmentRepository;
   private final ModelMapper modelMapper;
   private final NegotiationRepository negotiationRepository;
-  private OrganizationRepository organizationRepository;
-  private PersonService personService;
-  private NegotiationService negotiationService;
-  private PersonRepository personRepository;
+  private final OrganizationRepository organizationRepository;
+  private final PersonService personService;
+  private final NegotiationService negotiationService;
 
   public DBAttachmentService(
       AttachmentRepository attachmentRepository,
-      NegotiationRepository negotiationRepository,
-      PersonService personService,
-      NegotiationService negotiationService,
       ModelMapper modelMapper,
-      PersonRepository personRepository) {
+      NegotiationRepository negotiationRepository,
+      OrganizationRepository organizationRepository,
+      PersonService personService,
+      NegotiationService negotiationService) {
     this.attachmentRepository = attachmentRepository;
-    this.negotiationRepository = negotiationRepository;
     this.modelMapper = modelMapper;
+    this.negotiationRepository = negotiationRepository;
+    this.organizationRepository = organizationRepository;
     this.personService = personService;
     this.negotiationService = negotiationService;
-    this.personRepository = personRepository;
   }
 
   @Override
   @Transactional
   public AttachmentMetadataDTO createForNegotiation(
-      Long userId, String negotiationId, @Nullable String organizationId, MultipartFile file) {
+      String negotiationId, @Nullable String organizationExternalId, MultipartFile file)
+      throws WrongRequestException {
+    if (organizationExternalId != null
+        && !negotiationService.isOrganizationPartOfNegotiation(
+            negotiationId, organizationExternalId)) {
+      throw new WrongRequestException(
+          "The organization specified is not involved in the negotiation");
+    }
+
+    Long userId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
+    checkAuthorization(userId, negotiationId, organizationExternalId);
+
     Negotiation negotiation = fetchNegotiation(negotiationId);
-    Organization organization = fetchAddressedOrganization(organizationId);
-    checkAuthorization(userId, negotiation);
+    Organization organization = fetchAddressedOrganization(organizationExternalId);
     return saveAttachment(file, negotiation, organization);
+  }
+
+  @Override
+  @Transactional
+  public AttachmentMetadataDTO create(MultipartFile file) {
+    return saveAttachment(file, null, null);
+  }
+
+  @Override
+  @Transactional
+  public AttachmentDTO findById(String id) {
+    AttachmentViewDTO attachment =
+        attachmentRepository.findAllById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    if (!isAuthorizedForAttachment(attachment)) {
+      throw new ForbiddenRequestException();
+    }
+    return modelMapper.map(attachment, AttachmentDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public List<AttachmentMetadataDTO> findByNegotiation(String negotiationId) {
+    if (!negotiationService.exists(negotiationId)) {
+      throw new EntityNotFoundException(
+          "Negotiation with id %s does not exist".formatted(negotiationId));
+    }
+    List<MetadataAttachmentViewDTO> attachments =
+        attachmentRepository.findByNegotiationId(negotiationId);
+    return attachments.stream()
+        .filter(this::isAuthorizedForAttachment)
+        .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
+        .toList();
+  }
+
+  @Override
+  @Transactional
+  public AttachmentMetadataDTO findByIdAndNegotiationId(String id, String negotiationId) {
+    MetadataAttachmentViewDTO attachment =
+        attachmentRepository
+            .findMetadataByIdAndNegotiationId(id, negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(id));
+    if (!this.isAuthorizedForAttachment(attachment)) {
+      throw new ForbiddenRequestException();
+    }
+    return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
   private Negotiation fetchNegotiation(String negotiationId) {
@@ -66,13 +120,13 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Nullable
-  private Organization fetchAddressedOrganization(@Nullable String organizationId) {
+  private Organization fetchAddressedOrganization(@Nullable String externalId) {
     Organization organization = null;
-    if (organizationId != null) {
+    if (externalId != null) {
       organization =
           organizationRepository
-              .findByExternalId(organizationId)
-              .orElseThrow(() -> new EntityNotFoundException(organizationId));
+              .findByExternalId(externalId)
+              .orElseThrow(() -> new EntityNotFoundException(externalId));
     }
     return organization;
   }
@@ -98,103 +152,64 @@ public class DBAttachmentService implements AttachmentService {
     }
   }
 
-  private void checkAuthorization(Long userId, Negotiation negotiation) {
-    Person uploader =
-        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
-    if (!uploader.isAdmin()
-        && !uploader.equals(negotiation.getCreatedBy())
-        && negotiation.getResources().stream().noneMatch(uploader.getResources()::contains)) {
+  private void checkAuthorization(Long userId, String negotiationId, String organizationExternalId)
+      throws ForbiddenRequestException {
+    // if the recipient organization is specified and the sender is not the negotiation creator,
+    // checks whether the user is representative of the organization
+    if (organizationExternalId != null
+        && !negotiationService.isNegotiationCreator(negotiationId)
+        && !isRepresentativeOfOrganization(organizationExternalId)) {
+      throw new ForbiddenRequestException(
+          "User %s is not authorized to upload attachments to this organization for this negotiation"
+              .formatted(userId));
+    }
+
+    if (!negotiationService.isAuthorizedForNegotiation(negotiationId)) {
       throw new ForbiddenRequestException(
           "User %s is not authorized to upload attachments for this negotiation."
               .formatted(userId));
     }
   }
 
-  @Override
-  @Transactional
-  public AttachmentMetadataDTO create(MultipartFile file) {
-    return saveAttachment(file, null, null);
+  private boolean isRepresentativeOfOrganization(Long organizationId) {
+    return personService.isRepresentativeOfAnyResourceOfOrganization(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), organizationId);
   }
 
-  @Override
-  @Transactional
-  public AttachmentMetadataDTO findMetadataById(String id) {
-    Attachment attachment =
-        attachmentRepository
-            .findMetadataById(id)
-            .orElseThrow(() -> new EntityNotFoundException(id));
-    if (!isAuthorizedForAttachment(attachment)) {
-      throw new ForbiddenRequestException();
-    }
-    return modelMapper.map(attachment, AttachmentMetadataDTO.class);
-  }
-
-  @Override
-  @Transactional
-  public AttachmentDTO findById(String id) {
-    Attachment attachment =
-        attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    if (!isAuthorizedForAttachment(attachment)) {
-      throw new ForbiddenRequestException();
-    }
-    return modelMapper.map(attachment, AttachmentDTO.class);
-  }
-
-  @Override
-  @Transactional
-  public List<AttachmentMetadataDTO> findByNegotiation(String id) {
-    List<Attachment> attachments = attachmentRepository.findByNegotiationId(id);
-    return attachments.stream()
-        .filter(this::isAuthorizedForAttachment)
-        .map((attachment) -> modelMapper.map(attachment, AttachmentMetadataDTO.class))
-        .toList();
-  }
-
-  @Override
-  @Transactional
-  public AttachmentMetadataDTO findByIdAndNegotiation(String id, String negotiationId) {
-    Attachment attachment =
-        attachmentRepository
-            .findByIdAndNegotiationId(id, negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(id));
-    if (!this.isAuthorizedForAttachment(attachment)) {
-      throw new ForbiddenRequestException();
-    }
-    return modelMapper.map(attachment, AttachmentMetadataDTO.class);
-  }
-
-  private boolean isRepresentative(Organization organization) {
-    return personService.isRepresentativeOfAnyResource(
+  private boolean isRepresentativeOfOrganization(String organizationExternalId) {
+    return personService.isRepresentativeOfAnyResourceOfOrganization(
         NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        organization.getResources().stream().map(Resource::getSourceId).toList());
+        organizationExternalId);
   }
 
   private boolean isAdmin() {
     return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
-  private boolean isAuthorizedForAttachment(Attachment attachment) {
+  private boolean isAuthorizedForAttachment(MetadataAttachmentViewDTO attachment) {
     // The administrator of the negotiator is authorized to all attachements
     if (isAdmin()) return true;
 
-    Negotiation negotiation = attachment.getNegotiation();
-    if (negotiation == null) {
-      // If the attachment is not associated to a Negotiation yet, it can be accessed only by the
-      // creator of the attachment
-      return attachment.isCreator(
-          NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    String negotiationId = attachment.getNegotiationId();
+    if (negotiationId == null) {
+      return isCurrentAuthenticatedUserAttachmentCreator(attachment);
     } else {
-      // otherwise the user has to be authorized for the negotiation and
-      // the attachment must be either:
-      // 1. public (in the negotiation)
-      // 2. created by the currently authenticated user
-      // 3. addressed to the organization represented by the authenticated user
-      return negotiationService.isAuthorizedForNegotiation(negotiation)
-          && (attachment.isPublic()
-              || attachment.isCreator(
-                  NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
-              || (attachment.getOrganization() != null
-                  && isRepresentative(attachment.getOrganization())));
+      return negotiationService.isAuthorizedForNegotiation(negotiationId)
+          && (isAttachmentPublic(attachment)
+              || negotiationService.isNegotiationCreator(negotiationId)
+              || isCurrentAuthenticatedUserAttachmentCreator(attachment)
+              || (attachment.getOrganizationId() != null
+                  && isRepresentativeOfOrganization(attachment.getOrganizationId())));
     }
+  }
+
+  boolean isCurrentAuthenticatedUserAttachmentCreator(MetadataAttachmentViewDTO attachment) {
+    return attachment
+        .getCreatedById()
+        .equals(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+  }
+
+  boolean isAttachmentPublic(MetadataAttachmentViewDTO attachment) {
+    return attachment.getOrganizationId() == null;
   }
 }

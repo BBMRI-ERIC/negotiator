@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.database.model.Attachment;
+import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import jakarta.annotation.PostConstruct;
@@ -22,5 +23,8 @@ public class AttachmentMapper {
 
     TypeMap<Attachment, AttachmentMetadataDTO> typeMapMetadata =
         modelMapper.createTypeMap(Attachment.class, AttachmentMetadataDTO.class);
+
+    TypeMap<MetadataAttachmentViewDTO, AttachmentMetadataDTO> projectionMapMetadata =
+        modelMapper.createTypeMap(MetadataAttachmentViewDTO.class, AttachmentMetadataDTO.class);
   }
 }

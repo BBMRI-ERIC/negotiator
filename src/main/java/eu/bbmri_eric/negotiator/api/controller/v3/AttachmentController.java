@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
@@ -42,11 +41,7 @@ public class AttachmentController {
       @PathVariable String negotiationId,
       @RequestParam("file") MultipartFile file,
       @Nullable @RequestParam("organizationId") String organizationId) {
-    return storageService.createForNegotiation(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        negotiationId,
-        organizationId,
-        file);
+    return storageService.createForNegotiation(negotiationId, organizationId, file);
   }
 
   @GetMapping(
@@ -63,7 +58,7 @@ public class AttachmentController {
   @ResponseStatus(HttpStatus.OK)
   public AttachmentMetadataDTO getByNegotiationAndId(
       @PathVariable String negotiationId, @PathVariable String attachmentId) {
-    return storageService.findByIdAndNegotiation(attachmentId, negotiationId);
+    return storageService.findByIdAndNegotiationId(attachmentId, negotiationId);
   }
 
   @PostMapping(
@@ -77,7 +72,6 @@ public class AttachmentController {
 
   @GetMapping(value = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  //  @ResponseBody
   public ResponseEntity<byte[]> retrieve(@PathVariable String id) {
     AttachmentDTO attachmentInfo = storageService.findById(id);
     return ResponseEntity.ok()

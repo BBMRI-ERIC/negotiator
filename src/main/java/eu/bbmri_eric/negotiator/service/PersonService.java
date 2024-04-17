@@ -58,6 +58,35 @@ public interface PersonService {
   boolean isRepresentativeOfAnyResource(Long personId, List<String> resourceExternalIds);
 
   /**
+   * Checks if the person with the specified id represents any of the resources of an organization
+   *
+   * @param personId the id of the person to check;
+   * @param organizationId the list of resource external ids to check;
+   * @return true if the person represents any of the resources, false otherwise.
+   */
+  boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, Long organizationId);
+
+  /**
+   * Checks if the person with the specified id represents any of the resources of the organization
+   * identified by the externalId
+   *
+   * @param personId the id of the person to check;
+   * @param organizationExternalId the list of resource external ids to check;
+   * @return true if the person represents any of the resources, false otherwise.
+   */
+  boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
+
+  /**
+   * Checks whether a person is representative of at least one resource that is involved in the
+   * Negotiation
+   *
+   * @param personId the id of the person to check
+   * @param negotiationId the id of the negotiation with the resources to check
+   * @return true if the person represents any of the resources of the negotiation, false otherwise
+   */
+  boolean isRepresentativeOfAnyResourceOfNegotiation(Long personId, String negotiationId);
+
+  /**
    * Retrieves all resources represented by a person.
    *
    * @param personId the id of the person to retrieve the resources for.

@@ -2,13 +2,10 @@ package eu.bbmri_eric.negotiator.database.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import java.sql.Types;
 import lombok.AllArgsConstructor;
@@ -29,14 +26,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Getter
 @Setter
 @Table(name = "attachment")
-@NamedEntityGraph(
-    name = "attachment-metadata",
-    attributeNodes = {
-      @NamedAttributeNode(value = "id"),
-      @NamedAttributeNode(value = "name"),
-      @NamedAttributeNode(value = "size"),
-      @NamedAttributeNode(value = "contentType"),
-    })
 public class Attachment extends AuditEntity {
 
   @Id
@@ -50,7 +39,7 @@ public class Attachment extends AuditEntity {
   @Exclude
   Negotiation negotiation;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "organization_id")
   @Exclude
   private Organization organization;
