@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -133,6 +134,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createElement_correctPayload_ok() throws Exception {
     ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", "test");
     mockMvc
@@ -147,6 +149,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void updateElement_elementExists_ok() throws Exception {
     ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", "test");
     MvcResult mvcResult =
@@ -201,6 +204,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void createSection_correctPayload_ok() throws Exception {
     SectionCreateDTO createDTO = new SectionCreateDTO("test", "test", "test");
     mockMvc
@@ -215,6 +219,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   void updateSection_sectionExists_ok() throws Exception {
     SectionCreateDTO createDTO = new SectionCreateDTO("test", "test", "test");
     MvcResult mvcResult =
