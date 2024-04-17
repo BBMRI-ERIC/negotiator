@@ -56,6 +56,7 @@ public interface NegotiationRepository
               + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",
       nativeQuery = true)
   boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
+
   @Query(
       "SELECT DISTINCT n FROM Negotiation n JOIN n.negotiationResourceLifecycleRecords l "
           + "WHERE l.modifiedDate = (SELECT MAX(l2.modifiedDate) FROM NegotiationResourceLifecycleRecord l2 WHERE l2.resource = l.resource AND l2.negotiation = n) "
