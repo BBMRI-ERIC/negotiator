@@ -52,7 +52,7 @@
     <body>
         <div class="email-notifications">
             <div class="email-header">
-                <img class="logo-bbmri" th:src="@{${frontendurl} + '/api/images/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png'}" alt="BBMRI-ERIC Logo"/>
+                <img class="logo-bbmri" th:src="@{${frontendUrl} + '/api/images/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png'}" alt="BBMRI-ERIC Logo"/>
             </div>
             <hr />
             <div class="email-content">
@@ -64,7 +64,7 @@
                         <ul>
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
-                                <a th:href="@{${frontendurl} + '/negotiations/' + ${negotiation.id} + '/'+ ${roleForNegotiation.get(negotiation.id)}}">
+                                <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation.id} + '/'+ ${roleForNegotiation.get(negotiation.id)}}">
                                     <span th:utext="${titleForNegotiation.get(negotiation.id)}"></span>
                                 </a>
                                 <ul>

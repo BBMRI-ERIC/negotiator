@@ -328,7 +328,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         notifications.stream().collect(Collectors.groupingBy(Notification::getNegotiation));
 
     context.setVariable("negotiations", negotiations);
-    context.setVariable("frontendurl", frontendUrl);
+    context.setVariable("frontendUrl", frontendUrl);
     context.setVariable("roleForNegotiation", roleForNegotiation);
     context.setVariable("titleForNegotiation", titleForNegotiation);
     context.setVariable("notificationsForNegotiation", notificationsForNegotiation);
