@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -7,7 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
+import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -19,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -128,6 +133,47 @@ public class AccessFormTests {
   }
 
   @Test
+  void createElement_correctPayload_ok() throws Exception {
+    ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", "test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name", is("test")))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  void updateElement_elementExists_ok() throws Exception {
+    ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", "test");
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(createDTO)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Long id =
+        new ObjectMapper()
+            .readTree(mvcResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
+    createDTO.setName("updatedTest");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ELEMENTS_ENDPOINT + "/%s".formatted(id))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(id.intValue())))
+        .andExpect(jsonPath("$.name", is(createDTO.getName())));
+  }
+
+  @Test
   void getAllSections_ok() throws Exception {
     mockMvc
         .perform(
@@ -155,5 +201,43 @@ public class AccessFormTests {
   }
 
   @Test
-  void createElement_correctPayload_ok() {}
+  void createSection_correctPayload_ok() throws Exception {
+    SectionCreateDTO createDTO = new SectionCreateDTO("test", "test", "test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(SECTIONS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name", is("test")))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  void updateSection_sectionExists_ok() throws Exception {
+    SectionCreateDTO createDTO = new SectionCreateDTO("test", "test", "test");
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(SECTIONS_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(createDTO)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    Long id =
+        new ObjectMapper()
+            .readTree(mvcResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
+    createDTO.setName("updatedTest");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(SECTIONS_ENDPOINT + "/%s".formatted(id))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(id.intValue())))
+        .andExpect(jsonPath("$.name", is(createDTO.getName())));
+  }
 }
