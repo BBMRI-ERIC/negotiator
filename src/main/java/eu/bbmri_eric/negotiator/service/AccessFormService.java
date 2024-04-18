@@ -57,4 +57,14 @@ public interface AccessFormService {
    * @return the modified Access-form
    */
   AccessFormDTO addElement(ElementLinkDTO linkDTO, Long formId, Long sectionId);
+
+  /**
+   * Remove an element from a specific section of a given Access-form.
+   *
+   * @param formId the identifier of the Access-form to be modified
+   * @param sectionId the identifier of the Section to be modified
+   * @param elementId the identifier of the Element to be removed
+   * @return the modified Access-form
+   */
+  AccessFormDTO removeElement(Long formId, Long sectionId, Long elementId);
 }

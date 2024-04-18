@@ -25,6 +25,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -110,12 +111,23 @@ public class AccessFormController {
   @PutMapping(value = "/access-forms/{formId}/sections/{sectionId}/elements")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Link an element to a specific section in an access form ")
-  public EntityModel<AccessFormDTO> linkSection(
+  public EntityModel<AccessFormDTO> linkElement(
       @Valid @PathVariable Long formId,
       @Valid @PathVariable Long sectionId,
       @Valid @RequestBody ElementLinkDTO createDTO) {
     return accessFormModelAssembler.toModel(
         accessFormService.addElement(createDTO, formId, sectionId));
+  }
+
+  @DeleteMapping(value = "/access-forms/{formId}/sections/{sectionId}/elements/{elementId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Unlink an element from a specific section in an access form ")
+  public EntityModel<AccessFormDTO> unlinkElementFromSection(
+      @Valid @PathVariable Long formId,
+      @Valid @PathVariable Long sectionId,
+      @Valid @PathVariable Long elementId) {
+    return accessFormModelAssembler.toModel(
+        accessFormService.removeElement(formId, sectionId, elementId));
   }
 
   @GetMapping(value = "/requests/{id}/access-form")

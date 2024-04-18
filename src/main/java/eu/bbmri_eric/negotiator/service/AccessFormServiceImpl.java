@@ -137,6 +137,27 @@ public class AccessFormServiceImpl implements AccessFormService {
     return modelMapper.map(accessForm, AccessFormDTO.class);
   }
 
+  @Override
+  @Transactional
+  public AccessFormDTO removeElement(Long formId, Long sectionId, Long elementId) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    AccessFormElement elementToBeLinked =
+        accessFormElementRepository
+            .findById(elementId)
+            .orElseThrow(() -> new EntityNotFoundException(elementId));
+    AccessFormSection accessFormSection =
+        accessForm.getLinkedSections().stream()
+            .filter(section -> section.getId().equals(sectionId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException(sectionId));
+    accessForm.unlinkElementFromSection(accessFormSection, elementToBeLinked);
+    accessForm = accessFormRepository.saveAndFlush(accessForm);
+    return modelMapper.map(accessForm, AccessFormDTO.class);
+  }
+
   private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {
     return request.getResources().stream()
         .allMatch(resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()));
