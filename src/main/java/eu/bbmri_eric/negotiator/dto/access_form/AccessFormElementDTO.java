@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
 @Getter
@@ -17,7 +18,8 @@ import org.springframework.hateoas.server.core.Relation;
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "elements", itemRelation = "element")
-public class AccessFormElementDTO {
+public class AccessFormElementDTO extends RepresentationModel<AccessFormElementDTO> {
+  @NotNull private Long id;
 
   @NotNull private String name;
 

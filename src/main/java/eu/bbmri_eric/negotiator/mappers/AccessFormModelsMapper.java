@@ -46,6 +46,7 @@ public class AccessFormModelsMapper {
                       .map(
                           accessFormElement ->
                               new AccessFormElementDTO(
+                                  accessFormElement.getId(),
                                   accessFormElement.getName(),
                                   accessFormElement.getLabel(),
                                   accessFormElement.getDescription(),
@@ -53,6 +54,7 @@ public class AccessFormModelsMapper {
                                   accessFormElement.isRequired()))
                       .toList();
               return new AccessFormSectionDTO(
+                  section.getId(),
                   section.getName(),
                   section.getLabel(),
                   section.getDescription(),
