@@ -23,6 +23,7 @@ import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -300,22 +301,28 @@ public class UserNotificationServiceTest {
     assertTrue(staleNegotiation > 0);
 
     assertTrue(notificationEmailRepository.findAll().isEmpty());
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Negotiation negotiation = negotiationRepository.findById("negotiation-3").get();
     assertTrue(
         negotiation.getResources().stream()
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
     userNotificationService.createRemindersOldNegotiations();
     int numOfEmails = notificationEmailRepository.findAll().size();
-    int numRepresentatives =
-        negotiation.getResources().stream()
-            .map(Resource::getRepresentatives)
-            .filter(rs -> rs != null)
-            .mapToInt(Set::size)
-            .sum();
+    Set<Person> representatives = new HashSet<Person>();
+    for (var resource_state : negotiation.getCurrentStatePerResource().entrySet()) {
+      if (!resource_state.getValue().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE)) {
+        representatives.addAll(
+            resourceRepository.findBySourceId(resource_state.getKey()).stream()
+                .map(Resource::getRepresentatives)
+                .flatMap(Set::stream)
+                .filter(rs -> rs != null)
+                .collect(Collectors.toSet()));
+      }
+    }
+    long numRepresentatives = representatives.stream().distinct().count();
     assertEquals(0, numOfEmails);
     userNotificationService.sendEmailsForNewNotifications();
     numOfEmails = notificationEmailRepository.findAll().size();
-    assertTrue(numOfEmails == pendingNegotiation + (staleNegotiation * numRepresentatives));
+    assertEquals(numOfEmails, pendingNegotiation + (staleNegotiation * numRepresentatives));
     userNotificationService.createRemindersOldNegotiations();
     userNotificationService.sendEmailsForNewNotifications();
     assertEquals(numOfEmails * 2, notificationEmailRepository.findAll().size());

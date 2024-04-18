@@ -43,8 +43,10 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
 
-  @Value("${reminder.trigger-duration-days:P7D}")
+  @Value("${reminder.trigger-duration-days:P14D}")
   private String triggerDuration;
+
+  private static LocalDateTime thresholdTime;
 
   private static Collection<NegotiationResourceState> activeNegotiationResourceStates =
       Arrays.asList(
@@ -74,12 +76,26 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   private static Set<Person> getRepresentativesForStaleNegotiation(Negotiation negotiation) {
-    return negotiation.getNegotiationResourceLifecycleRecords().stream()
-        .filter(record -> activeNegotiationResourceStates.contains(record.getChangedTo()))
-        .map(NegotiationResourceLifecycleRecord::getResource)
-        .map(Resource::getRepresentatives)
-        .flatMap(Set::stream)
-        .collect(Collectors.toSet());
+    Set<Person> representatives =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .collect(
+                Collectors.groupingBy(
+                    record ->
+                        new AbstractMap.SimpleEntry<>(
+                            record.getNegotiation(), record.getResource()),
+                    Collectors.maxBy(
+                        Comparator.comparing(NegotiationResourceLifecycleRecord::getModifiedDate))))
+            .values()
+            .stream()
+            .map(Optional::get)
+            .filter(record -> record.getModifiedDate().isBefore(thresholdTime))
+            .filter(record -> activeNegotiationResourceStates.contains(record.getChangedTo()))
+            .map(NegotiationResourceLifecycleRecord::getResource)
+            .map(Resource::getRepresentatives)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
+
+    return representatives;
   }
 
   @Override
@@ -423,12 +439,12 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     notificationRepository.saveAll(reminderNotifications);
   }
 
-  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 8 * * MON}")
+  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
   @Async
   public void createRemindersOldNegotiations() {
     log.info("Creating reminder email notifications.");
     Duration durationThreshold = Duration.parse(triggerDuration);
-    LocalDateTime thresholdTime = LocalDateTime.now().minus(durationThreshold);
+    thresholdTime = LocalDateTime.now().minus(durationThreshold);
 
     createReminderForPendingNegotiations(thresholdTime);
     createReminderForStaleNegotiations(thresholdTime);
@@ -446,12 +462,12 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private void createReminderForStaleNegotiations(LocalDateTime thresholdTime) {
     log.info("Creating reminder email for stale notifications.");
-    List<Negotiation> staleNegotiations =
-        negotiationRepository
-            .findByNegotiationResourceLifecycleRecordsModifiedDateBeforeAndNegotiationResourceLifecycleRecordsChangedToIn(
-                thresholdTime, activeNegotiationResourceStates);
 
-    for (Negotiation negotiation : staleNegotiations) {
+    List<Negotiation> inProgressNegotiations =
+        negotiationRepository.findByModifiedDateBeforeAndCurrentState(
+            thresholdTime, NegotiationState.IN_PROGRESS);
+
+    for (Negotiation negotiation : inProgressNegotiations) {
       remindRepresentatives(negotiation);
     }
   }
