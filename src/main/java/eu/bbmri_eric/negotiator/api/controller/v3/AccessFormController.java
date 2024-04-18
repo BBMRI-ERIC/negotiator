@@ -69,7 +69,7 @@ public class AccessFormController {
   @GetMapping(value = "/access-forms")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get all access forms", description = "List all access forms")
-  public PagedModel<EntityModel<AccessFormDTO>> list(
+  public PagedModel<EntityModel<AccessFormDTO>> getAllAccessForms(
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
     return accessFormModelAssembler.toPagedModel(
@@ -96,7 +96,7 @@ public class AccessFormController {
   @GetMapping(value = "/access-forms/{formId}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
-  public EntityModel<AccessFormDTO> findById(@PathVariable Long formId) {
+  public EntityModel<AccessFormDTO> getAccessFormById(@PathVariable Long formId) {
     return accessFormModelAssembler.toModel(accessFormService.getAccessForm(formId));
   }
 
@@ -152,7 +152,7 @@ public class AccessFormController {
   @GetMapping(value = "/elements")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available elements")
-  public CollectionModel<EntityModel<ElementMetaDTO>> getAll() {
+  public CollectionModel<EntityModel<ElementMetaDTO>> getAllElements() {
     return accessFormElementAssembler.toCollectionModel(elementService.getAllElements());
   }
 

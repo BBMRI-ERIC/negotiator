@@ -28,7 +28,8 @@ public class AccessFormModelAssembler
     List<Link> formLinks = new ArrayList<>();
     formLinks.add(linkTo(AccessFormController.class).slash("access-forms").withRel("access-forms"));
     formLinks.add(
-        linkTo(methodOn(AccessFormController.class).findById(entity.getId())).withSelfRel());
+        linkTo(methodOn(AccessFormController.class).getAccessFormById(entity.getId()))
+            .withSelfRel());
     formLinks.add(
         linkTo(methodOn(AccessFormController.class).linkSection(entity.getId(), null))
             .withRel("add_sections"));
@@ -52,7 +53,8 @@ public class AccessFormModelAssembler
       section.add(sectionLinks);
       for (AccessFormElementDTO elementDTO : section.getElements()) {
         List<Link> elementLinks = new ArrayList<>();
-        elementLinks.add(linkTo(methodOn(AccessFormController.class).getAll()).withRel("elements"));
+        elementLinks.add(
+            linkTo(methodOn(AccessFormController.class).getAllElements()).withRel("elements"));
         elementLinks.add(
             linkTo(
                     methodOn(AccessFormController.class)

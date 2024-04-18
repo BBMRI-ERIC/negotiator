@@ -21,7 +21,7 @@ public class AccessFormElementAssembler
   @Override
   public @NotNull EntityModel<ElementMetaDTO> toModel(@NotNull ElementMetaDTO entity) {
     List<Link> links = new ArrayList<>();
-    links.add(linkTo(methodOn(AccessFormController.class).getAll()).withRel("elements"));
+    links.add(linkTo(methodOn(AccessFormController.class).getAllElements()).withRel("elements"));
     links.add(
         linkTo(methodOn(AccessFormController.class).getElementById(entity.getId())).withSelfRel());
     return EntityModel.of(entity).add(links);
