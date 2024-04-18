@@ -93,19 +93,19 @@ public class AccessFormController {
     return accessFormModelAssembler.toModel(accessFormService.createAccessForm(createDTO));
   }
 
-  @GetMapping(value = "/access-forms/{id}")
+  @GetMapping(value = "/access-forms/{formId}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
-  public EntityModel<AccessFormDTO> findById(@PathVariable Long id) {
-    return accessFormModelAssembler.toModel(accessFormService.getAccessForm(id));
+  public EntityModel<AccessFormDTO> findById(@PathVariable Long formId) {
+    return accessFormModelAssembler.toModel(accessFormService.getAccessForm(formId));
   }
 
-  @PutMapping(value = "/access-forms/{id}/sections")
+  @PutMapping(value = "/access-forms/{formId}/sections")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Link a section to an access form")
   public EntityModel<AccessFormDTO> linkSection(
-      @Valid @PathVariable Long id, @Valid @RequestBody SectionLinkDTO createDTO) {
-    return accessFormModelAssembler.toModel(accessFormService.addSection(createDTO, id));
+      @Valid @PathVariable Long formId, @Valid @RequestBody SectionLinkDTO createDTO) {
+    return accessFormModelAssembler.toModel(accessFormService.addSection(createDTO, formId));
   }
 
   @DeleteMapping(value = "/access-forms/{formId}/sections/{sectionId}")
