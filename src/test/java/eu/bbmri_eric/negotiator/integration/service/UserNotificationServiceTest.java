@@ -309,16 +309,19 @@ public class UserNotificationServiceTest {
     int numOfEmails = notificationEmailRepository.findAll().size();
     Set<Person> representatives = new HashSet<Person>();
     for (var resource_state : negotiation.getCurrentStatePerResource().entrySet()) {
-      if (!resource_state.getValue().equals(NegotiationResourceState.RESOURCE_UNAVAILABLE)) {
-        representatives.addAll(
+      representatives.addAll(
             resourceRepository.findBySourceId(resource_state.getKey()).stream()
                 .map(Resource::getRepresentatives)
                 .flatMap(Set::stream)
                 .filter(rs -> rs != null)
                 .collect(Collectors.toSet()));
-      }
     }
     long numRepresentatives = representatives.stream().distinct().count();
+    assertEquals(1, numRepresentatives);
+    assertEquals(1, staleNegotiation);
+    assertEquals(1, pendingNegotiation);
+
+
     assertEquals(0, numOfEmails);
     userNotificationService.sendEmailsForNewNotifications();
     numOfEmails = notificationEmailRepository.findAll().size();
