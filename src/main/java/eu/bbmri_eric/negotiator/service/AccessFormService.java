@@ -23,11 +23,38 @@ public interface AccessFormService {
    */
   AccessFormDTO getAccessForm(Long id);
 
+  /**
+   * Get all access forms.
+   *
+   * @param pageable object specifying retrieval parameters.
+   * @return a group of Access-forms
+   */
   Iterable<AccessFormDTO> getAllAccessForms(Pageable pageable);
 
+  /**
+   * Create a new Access-form.
+   *
+   * @param createDTO creation request object
+   * @return the newly created Access-form
+   */
   AccessFormDTO createAccessForm(FormCreateDTO createDTO);
 
+  /**
+   * Add a section to a specific Access-form.
+   *
+   * @param linkDTO object specifying additional linking parameters
+   * @param formId the identifier of the Access-form to be modified
+   * @return the modified Access-form
+   */
   AccessFormDTO addSection(SectionLinkDTO linkDTO, Long formId);
 
+  /**
+   * Add an element to a specific section of a given Access-form.
+   *
+   * @param linkDTO object specifying additional linking parameters
+   * @param formId the identifier of the Access-form to be modified
+   * @param sectionId the identifier of the Section to be modified
+   * @return the modified Access-form
+   */
   AccessFormDTO addElement(ElementLinkDTO linkDTO, Long formId, Long sectionId);
 }
