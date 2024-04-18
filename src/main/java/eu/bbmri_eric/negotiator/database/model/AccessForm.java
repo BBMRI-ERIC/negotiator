@@ -124,6 +124,15 @@ public class AccessForm extends AuditEntity {
     formLinks.add(accessFormSectionLink);
   }
 
+  public void unlinkSection(AccessFormSection section) {
+    AccessFormSectionLink accessFormSectionLink =
+        formLinks.stream()
+            .filter(link -> link.getAccessFormSection().equals(section))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Section not found"));
+    formLinks.remove(accessFormSectionLink);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

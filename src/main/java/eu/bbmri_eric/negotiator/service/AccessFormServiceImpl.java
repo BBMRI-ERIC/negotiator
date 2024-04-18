@@ -118,6 +118,21 @@ public class AccessFormServiceImpl implements AccessFormService {
 
   @Override
   @Transactional
+  public AccessFormDTO removeSection(Long formId, Long sectionId) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    AccessFormSection sectionToBeRemoved =
+        accessFormSectionRepository
+            .findById(sectionId)
+            .orElseThrow(() -> new EntityNotFoundException(sectionId));
+    accessForm.unlinkSection(sectionToBeRemoved);
+    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
   public AccessFormDTO addElement(ElementLinkDTO linkDTO, Long formId, Long sectionId) {
     AccessForm accessForm =
         accessFormRepository
@@ -154,8 +169,7 @@ public class AccessFormServiceImpl implements AccessFormService {
             .findFirst()
             .orElseThrow(() -> new EntityNotFoundException(sectionId));
     accessForm.unlinkElementFromSection(accessFormSection, elementToBeLinked);
-    accessForm = accessFormRepository.saveAndFlush(accessForm);
-    return modelMapper.map(accessForm, AccessFormDTO.class);
+    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
   }
 
   private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {

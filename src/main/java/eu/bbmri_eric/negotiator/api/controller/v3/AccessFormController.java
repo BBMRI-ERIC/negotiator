@@ -108,6 +108,14 @@ public class AccessFormController {
     return accessFormModelAssembler.toModel(accessFormService.addSection(createDTO, id));
   }
 
+  @DeleteMapping(value = "/access-forms/{formId}/sections/{sectionId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Unlink an element from a specific section in an access form ")
+  public EntityModel<AccessFormDTO> unlinkSection(
+      @Valid @PathVariable Long formId, @Valid @PathVariable Long sectionId) {
+    return accessFormModelAssembler.toModel(accessFormService.removeSection(formId, sectionId));
+  }
+
   @PutMapping(value = "/access-forms/{formId}/sections/{sectionId}/elements")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Link an element to a specific section in an access form ")

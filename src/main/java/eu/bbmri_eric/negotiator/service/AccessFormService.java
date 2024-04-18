@@ -49,6 +49,15 @@ public interface AccessFormService {
   AccessFormDTO addSection(SectionLinkDTO linkDTO, Long formId);
 
   /**
+   * Remove a sections from a specific Access-form.
+   *
+   * @param formId the identifier of the Access-form to be modified
+   * @param sectionId the identifier of the Section to be unlinked
+   * @return the modified Access-form
+   */
+  AccessFormDTO removeSection(Long formId, Long sectionId);
+
+  /**
    * Add an element to a specific section of a given Access-form.
    *
    * @param linkDTO object specifying additional linking parameters
