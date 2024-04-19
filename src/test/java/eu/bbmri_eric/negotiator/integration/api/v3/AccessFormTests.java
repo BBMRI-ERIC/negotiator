@@ -11,7 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.FormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -35,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 public class AccessFormTests {
 
   private static final String ENDPOINT = "/v3/access-criteria";
+  private static final String ACCESS_FORMS_ENDPOINT = "/v3/access-forms";
   private static final String ELEMENTS_ENDPOINT = "/v3/elements";
   private static final String SECTIONS_ENDPOINT = "/v3/sections";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
@@ -244,5 +248,171 @@ public class AccessFormTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", equalTo(id.intValue())))
         .andExpect(jsonPath("$.name", is(createDTO.getName())));
+  }
+
+  @Test
+  void getAllAccessForms_someExist_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ACCESS_FORMS_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.access-forms").isArray())
+        .andExpect(jsonPath("$._embedded.access-forms[0].name").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.access-forms[0].sections").isArray())
+        .andExpect(jsonPath("$._embedded.access-forms[0].sections[0].elements").isArray())
+        .andExpect(jsonPath("$._embedded.access-forms[0].sections[0].elements[0].name").isString());
+  }
+
+  @Test
+  void getAccessFormById_exists_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ACCESS_FORMS_ENDPOINT + "/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").isNotEmpty())
+        .andExpect(jsonPath("$.sections").isArray())
+        .andExpect(jsonPath("$.sections[0].elements").isArray())
+        .andExpect(jsonPath("$.sections[0].elements[0].name").isString());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void createAccessForm_correctPayload_ok() throws Exception {
+    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(requestPayload)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void linkSectionToAccessForm_bothExist_ok() throws Exception {
+    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(requestPayload)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isEmpty());
+    SectionLinkDTO linkDTO = new SectionLinkDTO(1L, 0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ACCESS_FORMS_ENDPOINT + "/100/sections")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(linkDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isArray())
+        .andExpect(jsonPath("$.sections[0].id", equalTo(linkDTO.getSectionId().intValue())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void unlinkSectionFromAccessForm_bothExist_ok() throws Exception {
+    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(requestPayload)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isEmpty());
+    SectionLinkDTO linkDTO = new SectionLinkDTO(1L, 0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ACCESS_FORMS_ENDPOINT + "/100/sections")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(linkDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isArray())
+        .andExpect(jsonPath("$.sections[0].id", equalTo(linkDTO.getSectionId().intValue())));
+    mockMvc
+        .perform(MockMvcRequestBuilders.delete(ACCESS_FORMS_ENDPOINT + "/100/sections/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isEmpty());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void linkElementToAccessForm_allExist_ok() throws Exception {
+    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(requestPayload)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isEmpty());
+    SectionLinkDTO linkDTO = new SectionLinkDTO(1L, 0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ACCESS_FORMS_ENDPOINT + "/100/sections")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(linkDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isArray())
+        .andExpect(jsonPath("$.sections[0].id", equalTo(linkDTO.getSectionId().intValue())))
+        .andExpect(jsonPath("$.sections[0].elements").isEmpty());
+    ElementLinkDTO elementLinkDTO = new ElementLinkDTO(1L, true, 0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ACCESS_FORMS_ENDPOINT + "/100/sections/1/elements")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(elementLinkDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements").isArray())
+        .andExpect(
+            jsonPath(
+                "$.sections[0].elements[0].id", equalTo(elementLinkDTO.getElementId().intValue())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void unlinkElementFromAccessForm_allExist_ok() throws Exception {
+    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(requestPayload)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isEmpty());
+    SectionLinkDTO linkDTO = new SectionLinkDTO(1L, 0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ACCESS_FORMS_ENDPOINT + "/100/sections")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(linkDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name", is(requestPayload.getName())))
+        .andExpect(jsonPath("$.sections").isArray())
+        .andExpect(jsonPath("$.sections[0].id", equalTo(linkDTO.getSectionId().intValue())))
+        .andExpect(jsonPath("$.sections[0].elements").isEmpty());
+    ElementLinkDTO elementLinkDTO = new ElementLinkDTO(1L, true, 0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(ACCESS_FORMS_ENDPOINT + "/100/sections/1/elements")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(elementLinkDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements").isArray())
+        .andExpect(
+            jsonPath(
+                "$.sections[0].elements[0].id", equalTo(elementLinkDTO.getElementId().intValue())));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(ACCESS_FORMS_ENDPOINT + "/100/sections/1/elements/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sections[0].elements").isEmpty());
   }
 }
