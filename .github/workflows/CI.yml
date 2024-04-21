@@ -404,3 +404,4 @@ jobs:
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
+          build_args: ARTIFACT_VERSION=${{ github.ref == format('refs/heads/{0}', 'unknown') }}

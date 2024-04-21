@@ -1,8 +1,10 @@
 # Build jar file with dependencies
 FROM maven:3.9.1-eclipse-temurin-17-focal as BUILD_IMAGE
+ARG ARTIFACT_VERSION=unknown
 COPY src /app/src
 COPY pom.xml /app
 WORKDIR /app
+RUN mvn --quiet -B versions:set -DnewVersion=$ARTIFACT_VERSION
 RUN mvn --quiet -B clean package -Dmaven.test.skip=true
 
 
