@@ -349,7 +349,7 @@ jobs:
         run: .github/scripts/check_health.sh negotiator
 
   build-push-image:
-    name: Docker image
+    name: Publish Docker image
     runs-on: ubuntu-latest
     needs:
       - system-test
@@ -407,7 +407,7 @@ jobs:
           build_args: ARTIFACT_VERSION=${{ github.ref == format('refs/heads/{0}', 'unknown') }}
 
   publish-jar:
-    name: Publish jar file
+    name: Publish JAR file
     runs-on: ubuntu-latest
     needs:
       - system-test
