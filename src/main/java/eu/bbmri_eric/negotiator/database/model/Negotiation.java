@@ -211,7 +211,6 @@ public class Negotiation extends AuditEntity {
    *
    * @return an UnmodifiableSet of resources
    */
-  @Transactional
   public Set<Resource> getResources() {
     return requests.stream()
         .flatMap(request -> request.getResources().stream())
