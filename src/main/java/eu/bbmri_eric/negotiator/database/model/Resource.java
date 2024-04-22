@@ -43,7 +43,9 @@ public class Resource {
   @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 
-  @NotNull private String sourceId;
+  @NotNull
+  @Column(unique = true)
+  private String sourceId;
 
   @ManyToMany(
       fetch = FetchType.LAZY,
