@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
-
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
@@ -14,5 +13,4 @@ public class NegotiatorUserDetailServiceTest {
 
   @Autowired NegotiatorUserDetailsService negotiatorUserDetailsService;
   @Autowired PersonRepository personRepository;
-  
 }
