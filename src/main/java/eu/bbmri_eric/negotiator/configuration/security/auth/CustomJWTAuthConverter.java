@@ -186,7 +186,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
       throw new WrongJWTException();
     }
     try {
-      personRepository.save(person);
+      personRepository.saveAndFlush(person);
     } catch (DataIntegrityViolationException e) {
       log.info(String.format("User with sub: %s already present in the db", person.getSubjectId()));
       return person;

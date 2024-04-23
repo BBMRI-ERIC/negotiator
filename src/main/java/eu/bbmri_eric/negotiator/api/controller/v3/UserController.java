@@ -71,8 +71,8 @@ public class UserController {
   @Operation(summary = "Get information about the user based on the provided bearer token")
   public EntityModel<UserInfoModel> userInfo() {
     return assembler.toModel(
-        personService.findById(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()),
+        modelMapper.map(
+            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUser(), UserResponseModel.class),
         NegotiatorUserDetailsService.getRoles());
   }
 

@@ -1,27 +1,24 @@
 package eu.bbmri_eric.negotiator.configuration.security.auth;
 
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class NegotiatorUserDetailsService implements UserDetailsService {
-
-  @Autowired private PersonRepository personRepository;
+@Component
+public class NegotiatorUserDetailsService {
 
   public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
+  }
+
+  public static Person getCurrentlyAuthenticatedUser() throws ClassCastException {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson();
   }
 
   public static boolean isCurrentlyAuthenticatedUserAdmin() {
@@ -33,15 +30,5 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
-  }
-
-  @Override
-  @Transactional
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Person person =
-        personRepository
-            .findByName(username)
-            .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new HttpBasicUserDetails(person);
   }
 }
