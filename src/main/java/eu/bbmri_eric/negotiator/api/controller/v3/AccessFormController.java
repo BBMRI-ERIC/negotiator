@@ -23,7 +23,6 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,8 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(
     value = "/v3",
-    produces = MediaTypes.HAL_JSON_VALUE,
-    consumes = MediaType.APPLICATION_JSON_VALUE)
+    produces = MediaTypes.HAL_JSON_VALUE)
 @Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
 public class AccessFormController {
 
