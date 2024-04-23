@@ -1,9 +1,12 @@
 package eu.bbmri_eric.negotiator.exceptions;
 
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
@@ -12,9 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
@@ -60,21 +65,33 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public final ResponseEntity<HttpErrorResponseModel> handleRequestValidationException(
       MethodArgumentNotValidException ex, WebRequest request) {
-    String message;
-    if (ex.getBindingResult().getTarget() instanceof NegotiationFilters) {
-      message = "One or more query parameters are not valid";
-    } else {
-      message = "The body of the Negotiation is not valid";
-    }
+    String result = getErrorDetails(ex);
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
-            .title(message)
+            .title("Incorrect parameters")
+            .detail(result)
             .status(HttpStatus.BAD_REQUEST.value())
             .build();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  private static @NonNull String getErrorDetails(MethodArgumentNotValidException ex) {
+    Map<String, String> errors = new HashMap<>();
+    ex.getBindingResult()
+        .getAllErrors()
+        .forEach(
+            (error) -> {
+              String fieldName = ((FieldError) error).getField();
+              String errorMessage = error.getDefaultMessage();
+              errors.put(fieldName, errorMessage);
+            });
+    return errors.entrySet().stream()
+        .map(entry -> entry.getKey() + " " + entry.getValue())
+        .collect(Collectors.joining(" and "));
   }
 
   @ExceptionHandler(EntityNotFoundException.class)

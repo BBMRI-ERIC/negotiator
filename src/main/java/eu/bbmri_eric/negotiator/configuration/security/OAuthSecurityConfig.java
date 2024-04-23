@@ -144,6 +144,14 @@ public class OAuthSecurityConfig {
                     .hasRole("AUTHORIZATION_MANAGER")
                     .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
                     .authenticated()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/sections"))
+                    .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/sections/**"))
+                    .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/elements"))
+                    .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/elements/**"))
+                    .hasRole("ADMIN")
                     .requestMatchers(mvc.pattern("/actuator/prometheus"))
                     // Needs to be IPv6 address
                     .access(
