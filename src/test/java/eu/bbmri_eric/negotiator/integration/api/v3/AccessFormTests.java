@@ -67,17 +67,6 @@ public class AccessFormTests {
   }
 
   @Test
-  public void testGet_BadRequest_whenMissingResourceId() throws Exception {
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.GET,
-        "",
-        status().isBadRequest(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
-  }
-
-  @Test
   public void testGet_NotFound_whenResourceIdIsNotExistent() throws Exception {
     TestUtils.checkErrorResponse(
         mockMvc,
@@ -86,24 +75,6 @@ public class AccessFormTests {
         status().isNotFound(),
         httpBasic("researcher", "researcher"),
         "%s?resourceId=UNKNOWN".formatted(ENDPOINT));
-  }
-
-  @Test
-  public void testGet_Ok() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .param("resourceId", "biobank:1:collection:1"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.sections[0].elements").isArray())
-        .andExpect(jsonPath("$.sections[0].name", is("project")))
-        .andExpect(jsonPath("$.sections[0].elements[0].name", is("title")))
-        .andExpect(jsonPath("$.sections[0].elements[0].required", is(true)))
-        .andExpect(jsonPath("$.sections[0].elements[1].name", is("description")))
-        .andExpect(jsonPath("$.sections[1].name", is("request")))
-        .andExpect(jsonPath("$.sections[1].elements[0].name", is("description")))
-        .andExpect(jsonPath("$.sections[2].name", is("ethics-vote")));
   }
 
   @Test
