@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
@@ -25,6 +26,15 @@ public class AccessFormTest {
                 new AccessFormElement("test", "test", "test", "test"),
                 0,
                 true));
+  }
+
+  @Test
+  void linkSection() {
+    AccessForm accessForm = new AccessForm("test");
+    AccessFormSection allowedSection = new AccessFormSection("test", "test", "test");
+    allowedSection.setId(2L);
+    accessForm.linkSection(allowedSection, 0);
+    assertEquals(allowedSection.getId(), accessForm.getLinkedSections().iterator().next().getId());
   }
 
   @Test

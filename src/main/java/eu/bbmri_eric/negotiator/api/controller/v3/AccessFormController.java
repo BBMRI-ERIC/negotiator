@@ -1,9 +1,12 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionMetaDTO;
 import eu.bbmri_eric.negotiator.mappers.AccessFormElementAssembler;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
@@ -22,7 +25,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,14 +66,67 @@ public class AccessFormController {
     this.accessFormSectionAssembler = accessFormSectionAssembler;
   }
 
-  @GetMapping(value = "/access-criteria")
+  @GetMapping(value = "/access-forms")
   @ResponseStatus(HttpStatus.OK)
-  @Operation(
-      summary = "Search access criteria",
-      description = "Search access criteria by resource id",
-      deprecated = true)
-  EntityModel<AccessFormDTO> search(@RequestParam String resourceId) {
-    return accessFormModelAssembler.toModel(accessCriteriaSetService.findByResourceId(resourceId));
+  @Operation(summary = "Get all access forms", description = "List all access forms")
+  public PagedModel<EntityModel<AccessFormDTO>> getAllAccessForms(
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size) {
+    return accessFormModelAssembler.toPagedModel(
+        (Page<AccessFormDTO>) accessFormService.getAllAccessForms(PageRequest.of(page, size)));
+  }
+
+  @PostMapping(value = "/access-forms")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Create a new access form")
+  public EntityModel<AccessFormDTO> createAccessForm(
+      @Valid @RequestBody AccessFormCreateDTO createDTO) {
+    return accessFormModelAssembler.toModel(accessFormService.createAccessForm(createDTO));
+  }
+
+  @GetMapping(value = "/access-forms/{formId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
+  public EntityModel<AccessFormDTO> getAccessFormById(@PathVariable Long formId) {
+    return accessFormModelAssembler.toModel(accessFormService.getAccessForm(formId));
+  }
+
+  @PutMapping(value = "/access-forms/{formId}/sections")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Link a section to an access form")
+  public EntityModel<AccessFormDTO> linkSection(
+      @Valid @PathVariable Long formId, @Valid @RequestBody SectionLinkDTO createDTO) {
+    return accessFormModelAssembler.toModel(accessFormService.addSection(createDTO, formId));
+  }
+
+  @DeleteMapping(value = "/access-forms/{formId}/sections/{sectionId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Unlink an element from a specific section in an access form ")
+  public EntityModel<AccessFormDTO> unlinkSection(
+      @Valid @PathVariable Long formId, @Valid @PathVariable Long sectionId) {
+    return accessFormModelAssembler.toModel(accessFormService.removeSection(formId, sectionId));
+  }
+
+  @PutMapping(value = "/access-forms/{formId}/sections/{sectionId}/elements")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Link an element to a specific section in an access form ")
+  public EntityModel<AccessFormDTO> linkElement(
+      @Valid @PathVariable Long formId,
+      @Valid @PathVariable Long sectionId,
+      @Valid @RequestBody ElementLinkDTO createDTO) {
+    return accessFormModelAssembler.toModel(
+        accessFormService.addElement(createDTO, formId, sectionId));
+  }
+
+  @DeleteMapping(value = "/access-forms/{formId}/sections/{sectionId}/elements/{elementId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Unlink an element from a specific section in an access form ")
+  public EntityModel<AccessFormDTO> unlinkElementFromSection(
+      @Valid @PathVariable Long formId,
+      @Valid @PathVariable Long sectionId,
+      @Valid @PathVariable Long elementId) {
+    return accessFormModelAssembler.toModel(
+        accessFormService.removeElement(formId, sectionId, elementId));
   }
 
   @GetMapping(value = "/requests/{id}/access-form")
@@ -84,27 +140,10 @@ public class AccessFormController {
     return accessFormModelAssembler.toModel(accessFormService.getAccessFormForRequest(id));
   }
 
-  @GetMapping(value = "/access-forms/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
-  public EntityModel<AccessFormDTO> findById(@PathVariable Long id) {
-    return accessFormModelAssembler.toModel(accessFormService.getAccessForm(id));
-  }
-
-  @GetMapping(value = "/access-forms")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Get all access forms", description = "List all access forms")
-  public PagedModel<EntityModel<AccessFormDTO>> list(
-      @RequestParam(required = false, defaultValue = "0") int page,
-      @RequestParam(required = false, defaultValue = "50") int size) {
-    return accessFormModelAssembler.toPagedModel(
-        (Page<AccessFormDTO>) accessFormService.getAllAccessForms(PageRequest.of(page, size)));
-  }
-
   @GetMapping(value = "/elements")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available elements")
-  public CollectionModel<EntityModel<ElementMetaDTO>> getAll() {
+  public CollectionModel<EntityModel<ElementMetaDTO>> getAllElements() {
     return accessFormElementAssembler.toCollectionModel(elementService.getAllElements());
   }
 
@@ -115,7 +154,7 @@ public class AccessFormController {
     return accessFormElementAssembler.toModel(elementService.getElementById(id));
   }
 
-  @PostMapping(value = "/elements", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/elements", produces = MediaTypes.HAL_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new element")
   public EntityModel<ElementMetaDTO> createElement(
@@ -145,7 +184,7 @@ public class AccessFormController {
     return accessFormSectionAssembler.toModel(sectionService.getSectionById(id));
   }
 
-  @PostMapping(value = "/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/sections")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new section")
   public EntityModel<SectionMetaDTO> createSection(

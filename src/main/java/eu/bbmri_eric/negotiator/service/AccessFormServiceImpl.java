@@ -5,9 +5,14 @@ import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormSectionRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
+import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
@@ -19,6 +24,8 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class AccessFormServiceImpl implements AccessFormService {
+  private final AccessFormSectionRepository accessFormSectionRepository;
+  private final AccessFormElementRepository accessFormElementRepository;
   RequestRepository requestRepository;
   AccessFormRepository accessFormRepository;
   ModelMapper modelMapper;
@@ -26,10 +33,14 @@ public class AccessFormServiceImpl implements AccessFormService {
   public AccessFormServiceImpl(
       RequestRepository requestRepository,
       AccessFormRepository accessFormRepository,
-      ModelMapper modelMapper) {
+      ModelMapper modelMapper,
+      AccessFormSectionRepository accessFormSectionRepository,
+      AccessFormElementRepository accessFormElementRepository) {
     this.requestRepository = requestRepository;
     this.accessFormRepository = accessFormRepository;
     this.modelMapper = modelMapper;
+    this.accessFormSectionRepository = accessFormSectionRepository;
+    this.accessFormElementRepository = accessFormElementRepository;
   }
 
   @Override
@@ -82,6 +93,83 @@ public class AccessFormServiceImpl implements AccessFormService {
     return accessFormRepository
         .findAll(pageable)
         .map(accessForm -> modelMapper.map(accessForm, AccessFormDTO.class));
+  }
+
+  @Override
+  public AccessFormDTO createAccessForm(AccessFormCreateDTO createDTO) {
+    AccessForm accessForm = modelMapper.map(createDTO, AccessForm.class);
+    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public AccessFormDTO addSection(SectionLinkDTO linkDTO, Long formId) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    AccessFormSection sectionToBeLinked =
+        accessFormSectionRepository
+            .findById(linkDTO.getSectionId())
+            .orElseThrow(() -> new EntityNotFoundException(linkDTO.getSectionId()));
+    accessForm.linkSection(sectionToBeLinked, linkDTO.getSectionOrder());
+    return modelMapper.map(accessForm, AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public AccessFormDTO removeSection(Long formId, Long sectionId) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    AccessFormSection sectionToBeRemoved =
+        accessFormSectionRepository
+            .findById(sectionId)
+            .orElseThrow(() -> new EntityNotFoundException(sectionId));
+    accessForm.unlinkSection(sectionToBeRemoved);
+    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public AccessFormDTO addElement(ElementLinkDTO linkDTO, Long formId, Long sectionId) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    AccessFormElement elementToBeLinked =
+        accessFormElementRepository
+            .findById(linkDTO.getElementId())
+            .orElseThrow(() -> new EntityNotFoundException(linkDTO.getElementId()));
+    AccessFormSection accessFormSection =
+        accessForm.getLinkedSections().stream()
+            .filter(section -> section.getId().equals(sectionId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException(sectionId));
+    accessForm.linkElementToSection(
+        accessFormSection, elementToBeLinked, linkDTO.getElementOrder(), linkDTO.isRequired());
+    return modelMapper.map(accessForm, AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public AccessFormDTO removeElement(Long formId, Long sectionId, Long elementId) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    AccessFormElement elementToBeLinked =
+        accessFormElementRepository
+            .findById(elementId)
+            .orElseThrow(() -> new EntityNotFoundException(elementId));
+    AccessFormSection accessFormSection =
+        accessForm.getLinkedSections().stream()
+            .filter(section -> section.getId().equals(sectionId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException(sectionId));
+    accessForm.unlinkElementFromSection(accessFormSection, elementToBeLinked);
+    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
   }
 
   private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {
