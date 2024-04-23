@@ -404,7 +404,7 @@ jobs:
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
-          build_args: ARTIFACT_VERSION=${{ github.head_ref }}
+          build_args: ARTIFACT_VERSION=${{  github.ref_name }}
 
   publish-jar:
     if: github.event_name == 'push' && github.ref_type == 'tag'
@@ -428,7 +428,7 @@ jobs:
       - name: Publish package
         run: mvn --quiet -B versions:set -DnewVersion="${ARTIFACT_VERSION//v}"
         env:
-          ARTIFACT_VERSION: ${{ github.head_ref }}
+          ARTIFACT_VERSION: ${{  github.ref_name }}
 
       - name: Publish package
         run: mvn --batch-mode deploy
