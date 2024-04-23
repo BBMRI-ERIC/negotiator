@@ -6,7 +6,7 @@
     <groupId>eu.bbmri_eric</groupId>
     <artifactId>negotiator</artifactId>
     <name>BBMRI-ERIC Negotiator</name>
-    <version>3.3.0</version>
+    <version>unknown</version>
     <packaging>jar</packaging>
     <description>
         An open-source access negotiation tool for research infrastructures.
@@ -23,6 +23,13 @@
         <spring.version>6.1.6</spring.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
     </properties>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/BBMRI-ERIC/negotiator</url>
+        </repository>
+    </distributionManagement>
     <build>
         <finalName>negotiator</finalName>
         <plugins>

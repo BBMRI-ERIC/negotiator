@@ -349,7 +349,7 @@ jobs:
         run: .github/scripts/check_health.sh negotiator
 
   build-push-image:
-    name: Docker image
+    name: Publish Docker image
     runs-on: ubuntu-latest
     needs:
       - system-test
@@ -404,3 +404,33 @@ jobs:
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
+          build_args: ARTIFACT_VERSION=${{ github.head_ref }}
+
+  publish-jar:
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    name: Publish JAR file
+    runs-on: ubuntu-latest
+    needs:
+      - system-test
+      - oauth-test
+      - backwards-compatibility
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Publish package
+        run: mvn --quiet -B versions:set -DnewVersion="${ARTIFACT_VERSION//v}"
+        env:
+          ARTIFACT_VERSION: ${{ github.head_ref }}
+
+      - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

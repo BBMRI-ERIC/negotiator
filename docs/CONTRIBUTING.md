@@ -44,5 +44,10 @@ We have also provided
 a [template](https://github.com/BBMRI-ERIC/negotiator-v3/blob/master/.github/pull_request_template.md)
 with a checklist to help you with providing a high-quality contribution.
 
+## Releasing
+
+To create a release, simply go to Releases -> Draft a new release
+-> Choose new tag -> Generate release notes -> Publish release
+
 **Good luck and thank you! 🙇🏻‍♂️** 
 
