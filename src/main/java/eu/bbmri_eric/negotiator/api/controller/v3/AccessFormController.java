@@ -7,8 +7,6 @@ import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.FormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionMetaDTO;
 import eu.bbmri_eric.negotiator.mappers.AccessFormElementAssembler;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
@@ -28,7 +26,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -187,66 +184,6 @@ public class AccessFormController {
   }
 
   @PostMapping(value = "/sections")
-  @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Create a new section")
-  public EntityModel<SectionMetaDTO> createSection(
-      @RequestBody @Valid SectionCreateDTO elementCreateDTO) {
-    return accessFormSectionAssembler.toModel(sectionService.createSection(elementCreateDTO));
-  }
-
-  @PutMapping(value = "/sections/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Update an existing section")
-  public EntityModel<SectionMetaDTO> updateSection(
-      @RequestBody @Valid SectionCreateDTO dto, @PathVariable Long id) {
-    return accessFormSectionAssembler.toModel(sectionService.updateSection(dto, id));
-  }
-
-  @GetMapping(value = "/elements")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "List all available elements")
-  public CollectionModel<EntityModel<ElementMetaDTO>> getAll() {
-    return accessFormElementAssembler.toCollectionModel(elementService.getAllElements());
-  }
-
-  @GetMapping(value = "/elements/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Get an element by id", description = "Returns an element by id")
-  public EntityModel<ElementMetaDTO> getElementById(@PathVariable Long id) {
-    return accessFormElementAssembler.toModel(elementService.getElementById(id));
-  }
-
-  @PostMapping(value = "/elements", consumes = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Create a new element")
-  public EntityModel<ElementMetaDTO> createElement(
-      @RequestBody @Valid ElementCreateDTO elementCreateDTO) {
-    return accessFormElementAssembler.toModel(elementService.createElement(elementCreateDTO));
-  }
-
-  @PutMapping(value = "/elements/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Update an existing element")
-  public EntityModel<ElementMetaDTO> updateElement(
-      @RequestBody @Valid ElementCreateDTO dto, @PathVariable Long id) {
-    return accessFormElementAssembler.toModel(elementService.updateElement(dto, id));
-  }
-
-  @GetMapping(value = "/sections")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "List all available sections")
-  public CollectionModel<EntityModel<SectionMetaDTO>> getAllSections() {
-    return accessFormSectionAssembler.toCollectionModel(sectionService.getAllSections());
-  }
-
-  @GetMapping(value = "/sections/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Get a section by id")
-  public EntityModel<SectionMetaDTO> getSectionById(@PathVariable Long id) {
-    return accessFormSectionAssembler.toModel(sectionService.getSectionById(id));
-  }
-
-  @PostMapping(value = "/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new section")
   public EntityModel<SectionMetaDTO> createSection(
