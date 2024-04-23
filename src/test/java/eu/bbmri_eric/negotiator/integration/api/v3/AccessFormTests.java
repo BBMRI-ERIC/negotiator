@@ -89,7 +89,6 @@ public class AccessFormTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
                 .param("resourceId", "biobank:1:collection:1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sections[0].elements").isArray())
@@ -105,8 +104,7 @@ public class AccessFormTests {
   @Test
   void getAllElements_ok() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT).contentType(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT))
         .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.elements").isArray())
@@ -120,9 +118,7 @@ public class AccessFormTests {
   @Test
   void getElementById_exists_ok() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT + "/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT + "/1"))
         .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links").isMap())
@@ -179,8 +175,7 @@ public class AccessFormTests {
   @Test
   void getAllSections_ok() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(SECTIONS_ENDPOINT).contentType(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(SECTIONS_ENDPOINT))
         .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.sections").isArray())
@@ -192,9 +187,7 @@ public class AccessFormTests {
   @Test
   void getSectionById_exists_ok() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(SECTIONS_ENDPOINT + "/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(SECTIONS_ENDPOINT + "/1"))
         .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links").isMap())
