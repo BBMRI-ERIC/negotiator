@@ -22,6 +22,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,7 +115,7 @@ public class AccessFormController {
     return accessFormElementAssembler.toModel(elementService.getElementById(id));
   }
 
-  @PostMapping(value = "/elements")
+  @PostMapping(value = "/elements", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new element")
   public EntityModel<ElementMetaDTO> createElement(
@@ -144,7 +145,7 @@ public class AccessFormController {
     return accessFormSectionAssembler.toModel(sectionService.getSectionById(id));
   }
 
-  @PostMapping(value = "/sections")
+  @PostMapping(value = "/sections", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new section")
   public EntityModel<SectionMetaDTO> createSection(
