@@ -42,7 +42,7 @@ public class AccessFormController {
   private final AccessFormsSectionService sectionService;
   private final AccessFormService accessFormService;
   private final AccessFormModelAssembler accessFormModelAssembler;
-    private final AccessFormElementAssembler accessFormElementAssembler;
+  private final AccessFormElementAssembler accessFormElementAssembler;
   private final AccessFormSectionAssembler accessFormSectionAssembler;
 
   public AccessFormController(
@@ -58,7 +58,7 @@ public class AccessFormController {
     this.sectionService = sectionService;
     this.accessFormService = accessFormService;
     this.accessFormModelAssembler = accessFormModelAssembler;
-      this.accessFormElementAssembler = accessFormElementAssembler;
+    this.accessFormElementAssembler = accessFormElementAssembler;
     this.accessFormSectionAssembler = accessFormSectionAssembler;
   }
 
