@@ -13,6 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class FormCreateDTO {
+public class AccessFormCreateDTO {
   private String name;
 }

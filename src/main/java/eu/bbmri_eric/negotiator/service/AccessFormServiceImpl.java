@@ -9,9 +9,9 @@ import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormSectionRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.FormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -96,7 +96,7 @@ public class AccessFormServiceImpl implements AccessFormService {
   }
 
   @Override
-  public AccessFormDTO createAccessForm(FormCreateDTO createDTO) {
+  public AccessFormDTO createAccessForm(AccessFormCreateDTO createDTO) {
     AccessForm accessForm = modelMapper.map(createDTO, AccessForm.class);
     return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
   }

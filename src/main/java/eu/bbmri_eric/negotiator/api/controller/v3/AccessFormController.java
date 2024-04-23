@@ -1,10 +1,10 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.FormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionMetaDTO;
@@ -79,7 +79,8 @@ public class AccessFormController {
   @PostMapping(value = "/access-forms")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new access form")
-  public EntityModel<AccessFormDTO> createAccessForm(@Valid @RequestBody FormCreateDTO createDTO) {
+  public EntityModel<AccessFormDTO> createAccessForm(
+      @Valid @RequestBody AccessFormCreateDTO createDTO) {
     return accessFormModelAssembler.toModel(accessFormService.createAccessForm(createDTO));
   }
 

@@ -10,9 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
+import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.FormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -241,7 +241,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void createAccessForm_correctPayload_ok() throws Exception {
-    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    AccessFormCreateDTO requestPayload = new AccessFormCreateDTO("test");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
@@ -254,7 +254,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void linkSectionToAccessForm_bothExist_ok() throws Exception {
-    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    AccessFormCreateDTO requestPayload = new AccessFormCreateDTO("test");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
@@ -278,7 +278,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void unlinkSectionFromAccessForm_bothExist_ok() throws Exception {
-    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    AccessFormCreateDTO requestPayload = new AccessFormCreateDTO("test");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
@@ -307,7 +307,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void linkElementToAccessForm_allExist_ok() throws Exception {
-    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    AccessFormCreateDTO requestPayload = new AccessFormCreateDTO("test");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
@@ -343,7 +343,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void unlinkElementFromAccessForm_allExist_ok() throws Exception {
-    FormCreateDTO requestPayload = new FormCreateDTO("test");
+    AccessFormCreateDTO requestPayload = new AccessFormCreateDTO("test");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ACCESS_FORMS_ENDPOINT)
