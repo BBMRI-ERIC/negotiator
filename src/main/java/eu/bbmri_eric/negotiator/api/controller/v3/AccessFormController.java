@@ -15,7 +15,6 @@ import eu.bbmri_eric.negotiator.service.AccessFormsSectionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
@@ -34,9 +33,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(
-    value = "/v3",
-    produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
 @Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
 public class AccessFormController {
 
@@ -45,8 +42,7 @@ public class AccessFormController {
   private final AccessFormsSectionService sectionService;
   private final AccessFormService accessFormService;
   private final AccessFormModelAssembler accessFormModelAssembler;
-  private final ModelMapper modelMapper;
-  private final AccessFormElementAssembler accessFormElementAssembler;
+    private final AccessFormElementAssembler accessFormElementAssembler;
   private final AccessFormSectionAssembler accessFormSectionAssembler;
 
   public AccessFormController(
@@ -55,7 +51,6 @@ public class AccessFormController {
       AccessFormsSectionService sectionService,
       AccessFormService accessFormService,
       AccessFormModelAssembler accessFormModelAssembler,
-      ModelMapper modelMapper,
       AccessFormElementAssembler accessFormElementAssembler,
       AccessFormSectionAssembler accessFormSectionAssembler) {
     this.accessCriteriaSetService = accessCriteriaSetService;
@@ -63,8 +58,7 @@ public class AccessFormController {
     this.sectionService = sectionService;
     this.accessFormService = accessFormService;
     this.accessFormModelAssembler = accessFormModelAssembler;
-    this.modelMapper = modelMapper;
-    this.accessFormElementAssembler = accessFormElementAssembler;
+      this.accessFormElementAssembler = accessFormElementAssembler;
     this.accessFormSectionAssembler = accessFormSectionAssembler;
   }
 
