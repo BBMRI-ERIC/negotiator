@@ -35,7 +35,6 @@ import org.springframework.web.context.WebApplicationContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class AccessFormTests {
 
-
   private static final String ACCESS_FORMS_ENDPOINT = "/v3/access-forms";
   private static final String ELEMENTS_ENDPOINT = "/v3/elements";
   private static final String SECTIONS_ENDPOINT = "/v3/sections";
