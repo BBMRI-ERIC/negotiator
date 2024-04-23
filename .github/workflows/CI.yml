@@ -426,7 +426,7 @@ jobs:
           cache: maven
 
       - name: Publish package
-        run: mvn --quiet -B versions:set -DnewVersion=$ARTIFACT_VERSION
+        run: mvn --quiet -B versions:set -DnewVersion="${ARTIFACT_VERSION//v}"
         env:
           ARTIFACT_VERSION: ${{ github.head_ref }}
 
