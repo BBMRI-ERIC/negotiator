@@ -38,7 +38,7 @@ public class ResourceModelMapperTest {
             .organization(Organization.builder().externalId("bb:1").name("BB").build())
             .build();
     ResourceDTO resourceDTO = mapper.map(resource, ResourceDTO.class);
-    assertEquals(resource.getSourceId(), resourceDTO.getExternalId());
+    assertEquals(resource.getSourceId(), resourceDTO.getId());
     assertEquals(resource.getName(), resourceDTO.getName());
     assertNotNull(resourceDTO.getOrganization());
     assertEquals(resource.getOrganization().getName(), resourceDTO.getOrganization().getName());

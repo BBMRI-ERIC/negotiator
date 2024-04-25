@@ -97,8 +97,7 @@ public class RequestServiceTest {
     RequestDTO savedRequest = requestService.create(requestCreateDTO);
     assertEquals(requestToBeSaved.getId(), savedRequest.getId());
     assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
-    assertEquals(
-        resourceDTO.getExternalId(), savedRequest.getResources().iterator().next().getId());
+    assertEquals(resourceDTO.getId(), savedRequest.getResources().iterator().next().getId());
   }
 
   @Test

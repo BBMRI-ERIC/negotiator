@@ -140,7 +140,7 @@ public class NegotiationRepositoryTest {
   @Test
   void save_10000differentResources_ok() {
     resourceRepository.deleteAll();
-    for (int i = 2; i < 10002; i++) {
+    for (int i = 0; i < 10000; i++) {
       Organization organization1 =
           organizationRepository.save(
               Organization.builder()

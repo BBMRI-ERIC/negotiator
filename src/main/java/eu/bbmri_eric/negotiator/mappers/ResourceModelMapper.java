@@ -29,10 +29,8 @@ public class ResourceModelMapper {
     TypeMap<Resource, ResourceDTO> resourceToDTOTypeMap =
         modelMapper.createTypeMap(Resource.class, ResourceDTO.class);
 
-    resourceToDTOTypeMap.addMappings(mapper -> mapper.map(Resource::getId, ResourceDTO::setId));
-
     resourceToDTOTypeMap.addMappings(
-        mapper -> mapper.map(Resource::getSourceId, ResourceDTO::setExternalId));
+        mapper -> mapper.map(Resource::getSourceId, ResourceDTO::setId));
 
     resourceToDTOTypeMap.addMappings(mapper -> mapper.map(Resource::getName, ResourceDTO::setName));
 

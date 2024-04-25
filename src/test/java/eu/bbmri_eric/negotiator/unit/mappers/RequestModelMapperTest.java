@@ -71,8 +71,7 @@ public class RequestModelMapperTest {
             .build();
     RequestDTO requestDTO = this.mapper.map(request, RequestDTO.class);
     assertEquals(1, requestDTO.getResources().size());
-    assertEquals(
-        resource.getSourceId(), requestDTO.getResources().iterator().next().getExternalId());
+    assertEquals(resource.getSourceId(), requestDTO.getResources().iterator().next().getId());
     assertEquals("http://localhost:8080/requests/newRequest", requestDTO.getRedirectUrl());
   }
 

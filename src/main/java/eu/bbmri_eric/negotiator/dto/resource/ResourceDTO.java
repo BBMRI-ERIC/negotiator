@@ -22,8 +22,6 @@ public class ResourceDTO {
 
   @NotNull private String id;
 
-  @NotNull private String externalId;
-
   @Nullable private String name;
 
   @NotNull private OrganizationDTO organization;

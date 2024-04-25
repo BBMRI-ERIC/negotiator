@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
@@ -15,7 +14,6 @@ import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelMapper;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +34,6 @@ public class NegotiationMapperTest {
             .resources(
                 Set.of(
                     Resource.builder()
-                        .id(Long.valueOf(1))
                         .sourceId("collection:1")
                         .organization(
                             Organization.builder()
@@ -47,24 +44,13 @@ public class NegotiationMapperTest {
                         .build()))
             .build();
 
-    Resource resource = Resource.builder().build();
-    resource.setId(Long.valueOf(1));
-    resource.setSourceId("collection:1");
-    NegotiationResourceLifecycleRecord resourceLifecycleRecord =
-        NegotiationResourceLifecycleRecord.builder()
-            .changedTo(NegotiationResourceState.SUBMITTED)
-            .resource(resource)
-            .build();
-    resourceLifecycleRecord.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
-    Set<NegotiationResourceLifecycleRecord> records = new HashSet<>();
-    records.add(resourceLifecycleRecord);
     Negotiation negotiation =
         Negotiation.builder()
             .requests(Set.of(request))
             .currentState(NegotiationState.SUBMITTED)
-            .negotiationResourceLifecycleRecords(records)
             .build();
     negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));
+    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
     return negotiation;
   }
 
@@ -108,6 +94,8 @@ public class NegotiationMapperTest {
   @Test
   void map_statePerResource_Ok() {
     Negotiation negotiation = buildNegotiation();
+    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+
     NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
     String status = negotiationDTO.getStatusForResource("collection:1");
     assertEquals("SUBMITTED", status);
