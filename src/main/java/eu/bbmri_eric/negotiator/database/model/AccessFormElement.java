@@ -1,6 +1,9 @@
 package eu.bbmri_eric.negotiator.database.model;
 
+import eu.bbmri_eric.negotiator.dto.FormElementType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,7 +42,9 @@ public class AccessFormElement extends AuditEntity {
 
   @NotNull private String description;
 
-  @NotNull private String type;
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  private FormElementType type;
 
   @OneToMany(mappedBy = "accessFormElement")
   @ToString.Exclude
@@ -52,7 +57,7 @@ public class AccessFormElement extends AuditEntity {
   @ToString.Exclude
   private AccessFormSection linkedSection;
 
-  public AccessFormElement(String name, String label, String description, String type) {
+  public AccessFormElement(String name, String label, String description, FormElementType type) {
     this.name = name;
     this.label = label;
     this.description = description;

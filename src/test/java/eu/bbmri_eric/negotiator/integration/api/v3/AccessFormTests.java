@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
+import eu.bbmri_eric.negotiator.dto.FormElementType;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
@@ -83,7 +84,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void createElement_correctPayload_ok() throws Exception {
-    ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", "test");
+    ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", FormElementType.TEXT);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
@@ -98,7 +99,7 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void updateElement_elementExists_ok() throws Exception {
-    ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", "test");
+    ElementCreateDTO createDTO = new ElementCreateDTO("test", "test", "test", FormElementType.TEXT);
     MvcResult mvcResult =
         mockMvc
             .perform(

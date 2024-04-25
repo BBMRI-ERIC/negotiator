@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.dto.access_form;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri_eric.negotiator.dto.FormElementType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +22,5 @@ public class ElementCreateDTO {
 
   @NotNull private String description;
 
-  @NotNull private String type;
+  @NotNull private FormElementType type;
 }

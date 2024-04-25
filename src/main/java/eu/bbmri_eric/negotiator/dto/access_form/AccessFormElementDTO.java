@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.dto.access_form;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri_eric.negotiator.dto.FormElementType;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class AccessFormElementDTO extends RepresentationModel<AccessFormElementD
 
   @NotNull private String description;
 
-  @NotNull private String type;
+  @NotNull private FormElementType type;
 
   @NotNull private Boolean required;
 

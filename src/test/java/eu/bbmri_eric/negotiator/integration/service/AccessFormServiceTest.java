@@ -13,6 +13,7 @@ import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.*;
+import eu.bbmri_eric.negotiator.dto.FormElementType;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormSectionDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
@@ -159,7 +160,7 @@ public class AccessFormServiceTest {
             .anyMatch(res -> res.getId().equals(resource.getSourceId())));
     AccessForm accessForm = resource.getAccessForm();
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", "test");
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection =
@@ -216,7 +217,7 @@ public class AccessFormServiceTest {
             .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", "test");
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection = accessFormSectionRepository.findById(1L).get();
