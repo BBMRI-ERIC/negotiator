@@ -5,12 +5,14 @@ import eu.bbmri_eric.negotiator.database.repository.ValueSetRepository;
 import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
 import eu.bbmri_eric.negotiator.dto.ValueSetDto;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class ValueSetServiceImpl implements ValueSetService {
 
   private final ValueSetRepository repository;

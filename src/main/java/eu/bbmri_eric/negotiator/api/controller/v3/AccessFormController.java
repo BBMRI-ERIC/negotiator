@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
+import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
+import eu.bbmri_eric.negotiator.dto.ValueSetDto;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
@@ -11,10 +13,12 @@ import eu.bbmri_eric.negotiator.dto.access_form.SectionMetaDTO;
 import eu.bbmri_eric.negotiator.mappers.AccessFormElementAssembler;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.mappers.AccessFormSectionAssembler;
+import eu.bbmri_eric.negotiator.mappers.ValueSetAssembler;
 import eu.bbmri_eric.negotiator.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.service.AccessFormElementService;
 import eu.bbmri_eric.negotiator.service.AccessFormService;
 import eu.bbmri_eric.negotiator.service.AccessFormsSectionService;
+import eu.bbmri_eric.negotiator.service.ValueSetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -45,9 +49,11 @@ public class AccessFormController {
   private final AccessFormElementService elementService;
   private final AccessFormsSectionService sectionService;
   private final AccessFormService accessFormService;
+  private final ValueSetService valueSetService;
   private final AccessFormModelAssembler accessFormModelAssembler;
   private final AccessFormElementAssembler accessFormElementAssembler;
   private final AccessFormSectionAssembler accessFormSectionAssembler;
+  private final ValueSetAssembler valueSetAssembler;
 
   public AccessFormController(
       AccessCriteriaSetService accessCriteriaSetService,
@@ -56,14 +62,18 @@ public class AccessFormController {
       AccessFormService accessFormService,
       AccessFormModelAssembler accessFormModelAssembler,
       AccessFormElementAssembler accessFormElementAssembler,
-      AccessFormSectionAssembler accessFormSectionAssembler) {
+      AccessFormSectionAssembler accessFormSectionAssembler,
+      ValueSetService valueSetService,
+      ValueSetAssembler valueSetAssembler) {
     this.accessCriteriaSetService = accessCriteriaSetService;
     this.elementService = elementService;
     this.sectionService = sectionService;
     this.accessFormService = accessFormService;
+    this.valueSetService = valueSetService;
     this.accessFormModelAssembler = accessFormModelAssembler;
     this.accessFormElementAssembler = accessFormElementAssembler;
     this.accessFormSectionAssembler = accessFormSectionAssembler;
+    this.valueSetAssembler = valueSetAssembler;
   }
 
   @GetMapping(value = "/access-forms")
@@ -198,5 +208,34 @@ public class AccessFormController {
   public EntityModel<SectionMetaDTO> updateSection(
       @RequestBody @Valid SectionCreateDTO dto, @PathVariable Long id) {
     return accessFormSectionAssembler.toModel(sectionService.updateSection(dto, id));
+  }
+
+  @GetMapping(value = "/value-sets")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "List all available value sets")
+  public CollectionModel<EntityModel<ValueSetDto>> getAllValueSets() {
+    return valueSetAssembler.toCollectionModel(valueSetService.getAllValueSets());
+  }
+
+  @GetMapping(value = "/value-sets/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Get a value set by id")
+  public EntityModel<ValueSetDto> getValueSetById(@PathVariable Long id) {
+    return valueSetAssembler.toModel(valueSetService.getValueSetById(id));
+  }
+
+  @PostMapping(value = "/value-sets")
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Create a new ValueSet")
+  public EntityModel<ValueSetDto> createValueSet(@RequestBody @Valid ValueSetCreateDTO createDTO) {
+    return valueSetAssembler.toModel(valueSetService.createValueSet(createDTO));
+  }
+
+  @PutMapping(value = "/value-sets/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Update an existing ValueSet")
+  public EntityModel<ValueSetDto> updateValueSet(
+      @RequestBody @Valid ValueSetCreateDTO dto, @PathVariable Long id) {
+    return valueSetAssembler.toModel(valueSetService.updateValueSet(dto, id));
   }
 }
