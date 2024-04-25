@@ -126,10 +126,10 @@ values ('request-1', 4),
        ('request-5', 7),
        ('request-unassigned', 7);
 
-insert into negotiation_resource_lifecycle_record (created_by,creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id )
-values (108, '2024-03-15', 108, '2024-03-15', 'SUBMITTED', 'negotiation-1', 4),
-       (108, '2024-03-15', 108, '2024-03-15', 'SUBMITTED', 'negotiation-1', 5),
-       (108, '2024-03-15', 108, '2024-03-15', 'SUBMITTED', 'negotiation-v2', 7);
+insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
+values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
+       ('negotiation-1', 'biobank:1:collection:2', 'SUBMITTED'),
+       ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED');
 
 -- Adding just representatives since the AUTHOR is the createdBy field of the negotiation
 insert into person_negotiation_role (negotiation_id, person_id, role_id)

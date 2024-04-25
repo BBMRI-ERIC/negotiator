@@ -4,7 +4,6 @@ import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetail
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationResourceLifecycleRecordRepository;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import java.util.List;
@@ -26,9 +25,6 @@ import org.springframework.stereotype.Service;
 public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   @Autowired NegotiationRepository negotiationRepository;
-
-  @Autowired
-  NegotiationResourceLifecycleRecordRepository negotiationResourceLifecycleRecordRepository;
 
   @Autowired
   @Qualifier("resourcePersistHandler")
@@ -70,7 +66,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private NegotiationResourceState getCurrentStateForResource(
       String negotiationId, String resourceId) throws EntityNotFoundException {
-    return negotiationResourceLifecycleRecordRepository
+    return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
         .orElseThrow(() -> new EntityNotFoundException("No such negotiation found."));
   }

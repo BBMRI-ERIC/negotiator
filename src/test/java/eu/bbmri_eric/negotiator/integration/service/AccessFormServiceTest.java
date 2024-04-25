@@ -68,7 +68,7 @@ public class AccessFormServiceTest {
     assertEquals(1, requestDTO.getResources().size());
     AccessFormDTO resourceForm =
         accessCriteriaSetService.findByResourceId(
-            requestDTO.getResources().iterator().next().getExternalId());
+            requestDTO.getResources().iterator().next().getId());
     AccessFormDTO requestForm = accessFormService.getAccessFormForRequest(requestDTO.getId());
     assertEquals(3, accessFormRepository.findAll().get(0).getLinkedSections().size());
     assertEquals(resourceForm.getSections().size(), requestForm.getSections().size());
@@ -212,7 +212,7 @@ public class AccessFormServiceTest {
     RequestDTO requestDTO = requestService.create(requestCreateDTO);
     Resource originalResource =
         resourceRepository
-            .findBySourceId(requestDTO.getResources().iterator().next().getExternalId())
+            .findBySourceId(requestDTO.getResources().iterator().next().getId())
             .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessFormElement newElement =
@@ -286,7 +286,7 @@ public class AccessFormServiceTest {
     RequestDTO requestDTO = requestService.create(requestCreateDTO);
     Resource originalResource =
         resourceRepository
-            .findBySourceId(requestDTO.getResources().iterator().next().getExternalId())
+            .findBySourceId(requestDTO.getResources().iterator().next().getId())
             .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessForm originalAccessForm = originalResource.getAccessForm();
