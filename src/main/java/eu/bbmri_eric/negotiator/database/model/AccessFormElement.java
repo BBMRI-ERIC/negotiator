@@ -57,6 +57,11 @@ public class AccessFormElement extends AuditEntity {
   @ToString.Exclude
   private AccessFormSection linkedSection;
 
+  @ManyToOne
+  @JoinColumn(name = "linked_value_set_id")
+  @ToString.Exclude
+  private ValueSet linkedValueSet;
+
   public AccessFormElement(String name, String label, String description, FormElementType type) {
     this.name = name;
     this.label = label;

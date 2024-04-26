@@ -64,6 +64,13 @@ public class AccessFormModelAssembler
         elementLinks.add(
             linkTo(methodOn(AccessFormController.class).getElementById(entity.getId()))
                 .withSelfRel());
+        if (elementDTO.getLinkedValueSetId() == 0L) {
+          elementLinks.add(
+              linkTo(
+                      methodOn(AccessFormController.class)
+                          .getValueSetById(elementDTO.getLinkedValueSetId()))
+                  .withRel("value-set"));
+        }
         elementDTO.add(elementLinks);
       }
     }
