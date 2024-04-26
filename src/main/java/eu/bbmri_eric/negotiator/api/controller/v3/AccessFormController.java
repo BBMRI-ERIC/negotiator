@@ -20,6 +20,7 @@ import eu.bbmri_eric.negotiator.service.AccessFormService;
 import eu.bbmri_eric.negotiator.service.AccessFormsSectionService;
 import eu.bbmri_eric.negotiator.service.ValueSetService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
 @Tag(name = "Dynamic access forms", description = "Setup and retrieve dynamic access forms")
+@SecurityRequirement(name = "security_auth")
 public class AccessFormController {
 
   private final AccessCriteriaSetService accessCriteriaSetService;
