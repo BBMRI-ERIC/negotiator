@@ -40,4 +40,4 @@ negotiator:
     subject-claim: "subject_id"
     resource-claim-prefix: "resource_id"
 reminder:
-  trigger-duration-days: "P14D"
+  trigger-duration-days: "PT0S"

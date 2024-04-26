@@ -43,23 +43,17 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
 
-  @Value("${reminder.trigger-duration-days:P14D}")
+  @Value("${reminder.trigger-duration-days:P7D}")
   private String triggerDuration;
 
   private static LocalDateTime thresholdTime;
 
-  private static Collection<NegotiationResourceState> activeNegotiationResourceStates =
+  private static Collection<NegotiationResourceState> nonactiveNegotiationResourceStates =
       Arrays.asList(
-          NegotiationResourceState.SUBMITTED,
-          NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-          NegotiationResourceState.RETURNED_FOR_RESUBMISSION,
-          NegotiationResourceState.CHECKING_AVAILABILITY,
-          NegotiationResourceState.RESOURCE_AVAILABLE,
-          NegotiationResourceState
-              .RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT, // Maybe exclude this state as well as it
-          // might take some time to collect the data
-          NegotiationResourceState.ACCESS_CONDITIONS_INDICATED,
-          NegotiationResourceState.ACCESS_CONDITIONS_MET);
+          NegotiationResourceState.RESOURCE_UNAVAILABLE,
+          NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+          NegotiationResourceState.RESOURCE_NOT_MADE_AVAILABLE);
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
@@ -76,21 +70,28 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   private static Set<Person> getRepresentativesForStaleNegotiation(Negotiation negotiation) {
-    Set<Person> representatives =
+
+    Map<Resource, Set<NegotiationResourceLifecycleRecord>> recordsByResource =
         negotiation.getNegotiationResourceLifecycleRecords().stream()
             .collect(
                 Collectors.groupingBy(
-                    record ->
-                        new AbstractMap.SimpleEntry<>(
-                            record.getNegotiation(), record.getResource()),
-                    Collectors.maxBy(
-                        Comparator.comparing(NegotiationResourceLifecycleRecord::getModifiedDate))))
-            .values()
-            .stream()
-            .map(Optional::get)
-            .filter(record -> record.getModifiedDate().isBefore(thresholdTime))
-            .filter(record -> activeNegotiationResourceStates.contains(record.getChangedTo()))
-            .map(NegotiationResourceLifecycleRecord::getResource)
+                    NegotiationResourceLifecycleRecord::getResource, Collectors.toSet()));
+
+    Set<Resource> resourcesWithoutRecentRecord =
+        recordsByResource.entrySet().stream()
+            .filter(
+                entry ->
+                    entry.getValue().stream()
+                        .noneMatch(
+                            record ->
+                                record.getModifiedDate().isAfter(thresholdTime)
+                                    || nonactiveNegotiationResourceStates.contains(
+                                        record.getChangedTo())))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
+
+    Set<Person> representatives =
+        resourcesWithoutRecentRecord.stream()
             .map(Resource::getRepresentatives)
             .flatMap(Set::stream)
             .collect(Collectors.toSet());
@@ -343,6 +344,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     Map<Negotiation, List<Notification>> notificationsForNegotiation =
         notifications.stream().collect(Collectors.groupingBy(Notification::getNegotiation));
 
+    context.setVariable("recipient", recipient);
     context.setVariable("negotiations", negotiations);
     context.setVariable("frontendUrl", frontendUrl);
     context.setVariable("roleForNegotiation", roleForNegotiation);

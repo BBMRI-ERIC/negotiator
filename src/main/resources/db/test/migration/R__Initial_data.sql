@@ -109,7 +109,7 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
 values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
-       (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_UNAVAILABLE', 'negotiation-3', 5);
+       (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
 
 insert into request (id, url, human_readable, discovery_service_id, negotiation_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'negotiation-1'),
