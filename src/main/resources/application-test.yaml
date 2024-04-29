@@ -39,3 +39,5 @@ negotiator:
     biobanker-claim-value: "biobanker_group"
     subject-claim: "subject_id"
     resource-claim-prefix: "resource_id"
+reminder:
+  trigger-duration-days: "PT0S"

@@ -1,12 +1,17 @@
 package eu.bbmri_eric.negotiator.service;
 
+import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.*;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.NotificationDTO;
 import jakarta.transaction.Transactional;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -33,9 +38,22 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired EmailService emailService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired TemplateEngine templateEngine;
+  @Autowired NegotiationRepository negotiationRepository;
 
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
+
+  @Value("${reminder.trigger-duration-days:P7D}")
+  private String triggerDuration;
+
+  private static LocalDateTime thresholdTime;
+
+  private static Collection<NegotiationResourceState> nonactiveNegotiationResourceStates =
+      Arrays.asList(
+          NegotiationResourceState.RESOURCE_UNAVAILABLE,
+          NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+          NegotiationResourceState.RESOURCE_NOT_MADE_AVAILABLE);
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {
@@ -51,6 +69,36 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         .collect(Collectors.toSet());
   }
 
+  private static Set<Person> getRepresentativesForStaleNegotiation(Negotiation negotiation) {
+
+    Map<Resource, Set<NegotiationResourceLifecycleRecord>> recordsByResource =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .collect(
+                Collectors.groupingBy(
+                    NegotiationResourceLifecycleRecord::getResource, Collectors.toSet()));
+
+    Set<Resource> resourcesWithoutRecentRecord =
+        recordsByResource.entrySet().stream()
+            .filter(
+                entry ->
+                    entry.getValue().stream()
+                        .noneMatch(
+                            record ->
+                                record.getModifiedDate().isAfter(thresholdTime)
+                                    || nonactiveNegotiationResourceStates.contains(
+                                        record.getChangedTo())))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
+
+    Set<Person> representatives =
+        resourcesWithoutRecentRecord.stream()
+            .map(Resource::getRepresentatives)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
+
+    return representatives;
+  }
+
   @Override
   public List<NotificationDTO> getNotificationsForUser(Long userId) {
     return notificationRepository.findByRecipientId(userId).stream()
@@ -60,17 +108,13 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Override
   public void notifyAdmins(Negotiation negotiation) {
-    for (Person admin : personRepository.findAllByAdminIsTrue()) {
-      Notification new_notification =
-          buildNewNotification(
-              negotiation,
-              NotificationEmailStatus.EMAIL_SENT,
-              admin,
-              "New Negotiation %s was added for review.".formatted(negotiation.getId()));
-      notificationRepository.save(new_notification);
-      List<Notification> new_notification_list = Arrays.asList(new_notification);
-      sendEmail(admin, new_notification_list);
-    }
+    List<Notification> newNotifications =
+        createNotificationsForAdmins(
+            negotiation,
+            NotificationEmailStatus.EMAIL_SENT,
+            "New Negotiation %s was added for review.".formatted(negotiation.getId()));
+    notificationRepository.saveAll(newNotifications);
+    sendNotificationsToAdmins(newNotifications);
   }
 
   @Override
@@ -131,7 +175,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @NonNull
   private static Set<Person> getRepresentativesOfOrganization(Post post) {
-    Set<Person> representatives = new java.util.HashSet<>(Set.of());
+    Set<Person> representatives = new HashSet<>(Set.of());
     post.getOrganization()
         .getResources()
         .forEach(resource -> representatives.addAll(resource.getRepresentatives()));
@@ -177,6 +221,35 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       Set<Resource> overlappingResources =
           getResourcesInNegotiationRepresentedBy(negotiation, representative);
       markReachableResources(negotiation, overlappingResources);
+    }
+  }
+
+  private List<Notification> createNotificationsForRepresentatives(
+      Negotiation negotiation, NotificationEmailStatus emailStatus, String emailMessage) {
+    Set<Person> representatives = getRepresentativesForStaleNegotiation(negotiation);
+    List<Notification> newNotifications = new ArrayList<>();
+    for (Person representative : representatives) {
+      Notification reminderNotification =
+          buildNewNotification(negotiation, emailStatus, representative, emailMessage);
+      newNotifications.add(reminderNotification);
+    }
+    return newNotifications;
+  }
+
+  private List<Notification> createNotificationsForAdmins(
+      Negotiation negotiation, NotificationEmailStatus status, String notificationMessage) {
+    List<Notification> newNotifications = new ArrayList<>();
+    for (Person admin : personRepository.findAllByAdminIsTrue()) {
+      Notification newNotification =
+          buildNewNotification(negotiation, status, admin, notificationMessage);
+      newNotifications.add(newNotification);
+    }
+    return newNotifications;
+  }
+
+  private void sendNotificationsToAdmins(List<Notification> notifications) {
+    for (Notification notification : notifications) {
+      sendEmail(notification.getRecipient(), Collections.singletonList(notification));
     }
   }
 
@@ -253,6 +326,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   private void sendEmail(@NonNull Person recipient, @NonNull List<Notification> notifications) {
+    sendEmail(recipient, notifications, "email-notification");
+  }
+
+  private void sendEmail(
+      @NonNull Person recipient, @NonNull List<Notification> notifications, String email_template) {
 
     Context context = new Context();
     List<Negotiation> negotiations =
@@ -263,13 +341,17 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
     Map<String, String> roleForNegotiation = populateRoleForNegotiationMap(notifications);
     Map<String, String> titleForNegotiation = populateTitleForNegotiationMap(notifications);
+    Map<Negotiation, List<Notification>> notificationsForNegotiation =
+        notifications.stream().collect(Collectors.groupingBy(Notification::getNegotiation));
 
+    context.setVariable("recipient", recipient);
     context.setVariable("negotiations", negotiations);
-    context.setVariable("frontendurl", frontendUrl);
+    context.setVariable("frontendUrl", frontendUrl);
     context.setVariable("roleForNegotiation", roleForNegotiation);
     context.setVariable("titleForNegotiation", titleForNegotiation);
+    context.setVariable("notificationsForNegotiation", notificationsForNegotiation);
 
-    String emailContent = templateEngine.process("email-notification", context);
+    String emailContent = templateEngine.process(email_template, context);
 
     emailService.sendEmail(recipient, "New Notifications", emailContent);
   }
@@ -309,7 +391,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private String extractRoleFromNotificationMessage(Notification notification) {
     String message = notification.getMessage();
-    if (message.matches("New Negotiation .* was added for review\\.")) {
+    if (message.matches("New Negotiation .* was added for review\\.")
+        || message.matches("The negotiation .* is awaiting review\\.")) {
       return "ROLE_ADMIN";
     } else if (message.matches("Negotiation .* had a change of status of .* to .*")) {
       // TODO if status changed to "ACCESS_CONDITIONS_MET" role should be "ROLE_REPRESENTATIVE"
@@ -320,7 +403,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       String negotiationCreator = notification.getNegotiation().getCreatedBy().getName();
       String postCreator = parts[1].trim();
       return (negotiationCreator.equals(postCreator)) ? "ROLE_REPRESENTATIVE" : "ROLE_RESEARCHER";
-    } else if (message.matches("New Negotiation .*")) {
+    } else if (message.matches("New Negotiation .*")
+        || message.matches("The negotiation .* is stale and had no status change in a while\\.")) {
       return "ROLE_REPRESENTATIVE";
     } else {
       return "ROLE_RESEARCHER";
@@ -336,5 +420,57 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     return notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
         .map(Notification::getRecipient)
         .collect(Collectors.toSet());
+  }
+
+  private void remindAdmins(Negotiation negotiation) {
+    List<Notification> newNotifications =
+        createNotificationsForAdmins(
+            negotiation,
+            NotificationEmailStatus.EMAIL_NOT_SENT,
+            "The negotiation %s is awaiting review.".formatted(negotiation.getId()));
+    notificationRepository.saveAll(newNotifications);
+  }
+
+  private void remindRepresentatives(Negotiation negotiation) {
+    List<Notification> reminderNotifications =
+        createNotificationsForRepresentatives(
+            negotiation,
+            NotificationEmailStatus.EMAIL_NOT_SENT,
+            "The negotiation %s is stale and had no status change in a while."
+                .formatted(negotiation.getId()));
+    notificationRepository.saveAll(reminderNotifications);
+  }
+
+  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
+  @Async
+  public void createRemindersOldNegotiations() {
+    log.info("Creating reminder email notifications.");
+    Duration durationThreshold = Duration.parse(triggerDuration);
+    thresholdTime = LocalDateTime.now().minus(durationThreshold);
+
+    createReminderForPendingNegotiations(thresholdTime);
+    createReminderForStaleNegotiations(thresholdTime);
+  }
+
+  private void createReminderForPendingNegotiations(LocalDateTime thresholdTime) {
+    log.info("Creating reminder email for pending notifications.");
+    List<Negotiation> pendingNegotiations =
+        negotiationRepository.findByModifiedDateBeforeAndCurrentState(
+            thresholdTime, NegotiationState.SUBMITTED);
+    for (Negotiation negotiation : pendingNegotiations) {
+      remindAdmins(negotiation);
+    }
+  }
+
+  private void createReminderForStaleNegotiations(LocalDateTime thresholdTime) {
+    log.info("Creating reminder email for stale notifications.");
+
+    List<Negotiation> inProgressNegotiations =
+        negotiationRepository.findByModifiedDateBeforeAndCurrentState(
+            thresholdTime, NegotiationState.IN_PROGRESS);
+
+    for (Negotiation negotiation : inProgressNegotiations) {
+      remindRepresentatives(negotiation);
+    }
   }
 }
