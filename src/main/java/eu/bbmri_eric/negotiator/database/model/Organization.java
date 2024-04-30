@@ -1,16 +1,6 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
@@ -59,4 +49,8 @@ public class Organization extends AuditEntity {
   public int hashCode() {
     return Objects.hash(externalId);
   }
+
+  @ManyToOne
+  @JoinColumn(name = "network_id")
+    private Network network;
 }
