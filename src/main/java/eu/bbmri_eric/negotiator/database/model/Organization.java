@@ -37,6 +37,10 @@ public class Organization extends AuditEntity {
   @OneToMany(mappedBy = "organization", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   private Set<Resource> resources;
 
+  @ManyToOne
+  @JoinColumn(name = "network_id")
+  private Network network;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -49,8 +53,4 @@ public class Organization extends AuditEntity {
   public int hashCode() {
     return Objects.hash(externalId);
   }
-
-  @ManyToOne
-  @JoinColumn(name = "network_id")
-    private Network network;
 }

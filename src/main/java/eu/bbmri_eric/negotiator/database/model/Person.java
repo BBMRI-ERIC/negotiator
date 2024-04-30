@@ -82,6 +82,10 @@ public class Person {
     resource.getRepresentatives().remove(this);
   }
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "network_id")
+  private Network network;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -94,8 +98,4 @@ public class Person {
   public int hashCode() {
     return Objects.hash(subjectId);
   }
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "network_id")
-  private Network network;
 }
