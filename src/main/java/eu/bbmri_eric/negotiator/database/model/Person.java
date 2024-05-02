@@ -65,6 +65,13 @@ public class Person {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
   private Set<Authority> authorities;
 
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "network_person_link",
+      joinColumns = @JoinColumn(name = "network_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  private Set<Network> networks;
+
   public void addResource(Resource resource) {
     this.resources.add(resource);
     resource.getRepresentatives().add(this);
@@ -82,9 +89,22 @@ public class Person {
     resource.getRepresentatives().remove(this);
   }
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "network_id")
-  private Network network;
+  public void addNetwork(Network network) {
+    this.networks.add(network);
+    network.getManagers().add(this);
+  }
+
+  public Set<Network> getNetworks() {
+    if (Objects.isNull(this.networks)) {
+      return Set.of();
+    }
+    return Collections.unmodifiableSet(this.networks);
+  }
+
+  public void removeNetwork(Network network) {
+    this.networks.remove(network);
+    network.getManagers().remove(this);
+  }
 
   @Override
   public boolean equals(Object o) {

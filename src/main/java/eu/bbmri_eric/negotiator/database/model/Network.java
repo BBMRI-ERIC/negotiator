@@ -11,8 +11,6 @@ import lombok.*;
 @Setter
 @Entity
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Network {
 
   @Id
@@ -32,8 +30,7 @@ public class Network {
 
   private String contactEmail;
 
-  @OneToMany(mappedBy = "network", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-  @Builder.Default
+  @ManyToMany(mappedBy = "networks")
   private Set<Person> managers = new HashSet<>();
 
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -43,6 +40,37 @@ public class Network {
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Builder.Default
   private Set<Resource> resources = new HashSet<>();
+
+  /** No-args constructor for JPA and other reflection-based tools. */
+  Network() {}
+
+  /**
+   * All-args constructor for creating new instances.
+   *
+   * @param id the network's ID
+   * @param uri the network's URI
+   * @param name the network's name
+   * @param externalId the network's external ID
+   * @param contactEmail the network's contact email
+   * @param managers the network's managers
+   * @param resources the network's resources
+   */
+  Network(
+      Long id,
+      String uri,
+      String name,
+      String externalId,
+      String contactEmail,
+      Set<Person> managers,
+      Set<Resource> resources) {
+    this.id = id;
+    this.uri = uri;
+    this.name = name;
+    this.externalId = externalId;
+    this.contactEmail = contactEmail;
+    this.managers = managers;
+    this.resources = resources;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -65,15 +93,5 @@ public class Network {
   public void removeResource(Resource collection) {
     resources.remove(collection);
     collection.getNetworks().remove(this);
-  }
-
-  public void addManager(Person person) {
-    managers.add(person);
-    person.setNetwork(this);
-  }
-
-  public void removeManager(Person person) {
-    managers.remove(person);
-    person.setNetwork(null);
   }
 }
