@@ -77,6 +77,7 @@ public class ResourceLifecycleController {
   }
 
   @GetMapping(value = "/resource-lifecycle")
+  @Operation(summary = "Retrieve a state machine diagram with all states and transitions")
   public EntityModel<Map<String, Object>> getStateMachineDiagram() {
     return EntityModel.of(resourceLifecycleService.getStateMachineDiagram());
   }
