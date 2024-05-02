@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NetworkRepository extends JpaRepository<Network, Long> {
 
-  Optional<Network> findDetailedById(Long id);
-
   Optional<Network> findByExternalId(String externalId);
 
   boolean existsByExternalId(@NotNull String externalId);
