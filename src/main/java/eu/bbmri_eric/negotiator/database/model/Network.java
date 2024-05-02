@@ -33,7 +33,8 @@ public class Network {
   private String contactEmail;
 
   @OneToMany(mappedBy = "network", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-  private Set<Person> managers;
+  @Builder.Default
+  private Set<Person> managers = new HashSet<>();
 
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(
@@ -59,5 +60,20 @@ public class Network {
   public void addResource(Resource collection) {
     resources.add(collection);
     collection.getNetworks().add(this);
+  }
+
+  public void removeResource(Resource collection) {
+    resources.remove(collection);
+    collection.getNetworks().remove(this);
+  }
+
+  public void addManager(Person person) {
+    managers.add(person);
+    person.setNetwork(this);
+  }
+
+  public void removeManager(Person person) {
+    managers.remove(person);
+    person.setNetwork(null);
   }
 }
