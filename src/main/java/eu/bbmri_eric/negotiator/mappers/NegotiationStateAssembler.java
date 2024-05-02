@@ -1,10 +1,17 @@
 package eu.bbmri_eric.negotiator.mappers;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationLifecycleController;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationStateMetadataDto;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +22,13 @@ public class NegotiationStateAssembler
   @Override
   public @NotNull EntityModel<NegotiationStateMetadataDto> toModel(
       @NonNull NegotiationStateMetadataDto entity) {
-    return EntityModel.of(entity);
+    List<Link> links = new ArrayList<>();
+    links.add(
+        linkTo(methodOn(NegotiationLifecycleController.class).getAllStates()).withRel("states"));
+    links.add(
+        linkTo(methodOn(NegotiationLifecycleController.class).getState(entity.getValue()))
+            .withSelfRel());
+    return EntityModel.of(entity, links);
   }
 
   @Override

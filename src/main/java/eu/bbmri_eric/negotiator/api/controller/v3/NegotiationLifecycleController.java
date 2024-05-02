@@ -15,13 +15,14 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v3")
+@RequestMapping(value = "/v3", produces = MediaTypes.HAL_JSON_VALUE)
 @CommonsLog
 @Tag(
     name = "Negotiation Lifecycle",
