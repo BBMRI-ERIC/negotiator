@@ -6,10 +6,12 @@ import eu.bbmri_eric.negotiator.dto.resource.ResourceEventMetadataDto;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceStateMetadataDto;
 import eu.bbmri_eric.negotiator.mappers.ResourceEventAssembler;
 import eu.bbmri_eric.negotiator.mappers.ResourceStateAssembler;
+import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -29,14 +31,17 @@ public class ResourceLifecycleController {
   private final ModelMapper modelMapper;
   private final ResourceStateAssembler assembler;
   private final ResourceEventAssembler resourceEventAssembler;
+  private final ResourceLifecycleService resourceLifecycleService;
 
   public ResourceLifecycleController(
       ModelMapper modelMapper,
       ResourceStateAssembler assembler,
-      ResourceEventAssembler resourceEventAssembler) {
+      ResourceEventAssembler resourceEventAssembler,
+      ResourceLifecycleService resourceLifecycleService) {
     this.modelMapper = modelMapper;
     this.assembler = assembler;
     this.resourceEventAssembler = resourceEventAssembler;
+    this.resourceLifecycleService = resourceLifecycleService;
   }
 
   @GetMapping(value = "/resource-lifecycle/states")
@@ -69,5 +74,10 @@ public class ResourceLifecycleController {
   public EntityModel<ResourceEventMetadataDto> getEvent(
       @Valid @PathVariable NegotiationResourceEvent event) {
     return resourceEventAssembler.toModel(modelMapper.map(event, ResourceEventMetadataDto.class));
+  }
+
+  @GetMapping(value = "/resource-lifecycle")
+  public EntityModel<Map<String, Object>> getStateMachineDiagram() {
+    return EntityModel.of(resourceLifecycleService.getStateMachineDiagram());
   }
 }

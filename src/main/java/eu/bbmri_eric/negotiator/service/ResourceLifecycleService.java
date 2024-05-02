@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.resource.Negotiation
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -32,4 +33,11 @@ public interface ResourceLifecycleService {
   NegotiationResourceState sendEvent(
       String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException;
+
+  /**
+   * Get a tree like diagram of the state machine configuration.
+   *
+   * @return a nested object
+   */
+  public Map<String, Object> getStateMachineDiagram();
 }
