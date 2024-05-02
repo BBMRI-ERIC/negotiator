@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -297,6 +298,7 @@ public class NegotiationController {
   }
 
   @GetMapping("/negotiations/lifecycle")
+  @Operation(deprecated = true, description = "Replaced by /v3/negotiation-lifecycle/states")
   List<NegotiationState> getPossibleEventsForNegotiationResource() {
     return Arrays.stream(NegotiationState.values()).toList();
   }
