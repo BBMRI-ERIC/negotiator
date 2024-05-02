@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.unit.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri_eric.negotiator.database.model.Network;
+import eu.bbmri_eric.negotiator.database.model.Resource;
 import org.junit.jupiter.api.Test;
 
 class NetworkTest {
@@ -33,7 +34,9 @@ class NetworkTest {
   }
 
   @Test
-  void getMembers_null_null() {
-    assertNull(Network.builder().externalId("validId").build().getMembers());
+  void addCollection() {
+    Network network = Network.builder().uri("http://example.com").externalId("validId").build();
+    network.addResource(Resource.builder().build());
+    assertEquals(1, network.getResources().size());
   }
 }

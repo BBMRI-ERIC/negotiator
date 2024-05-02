@@ -71,6 +71,10 @@ public class Resource {
   @Exclude
   private AccessForm accessForm;
 
+  @ManyToMany(mappedBy = "resources")
+  @Builder.Default
+  private Set<Network> networks = new HashSet<>();
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

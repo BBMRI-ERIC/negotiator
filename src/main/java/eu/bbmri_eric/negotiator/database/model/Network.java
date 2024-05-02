@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.database.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.*;
@@ -34,8 +35,14 @@ public class Network {
   @OneToMany(mappedBy = "network", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
   private Set<Person> managers;
 
-  @OneToMany(mappedBy = "network", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-  private Set<Organization> members;
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "network_resources_link",
+      joinColumns = @JoinColumn(name = "network_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
+  @ToString.Exclude
+  @Builder.Default
+  private Set<Resource> resources = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {
@@ -48,5 +55,10 @@ public class Network {
   @Override
   public int hashCode() {
     return Objects.hash(externalId);
+  }
+
+  public void addResource(Resource collection) {
+    resources.add(collection);
+    collection.getNetworks().add(this);
   }
 }
