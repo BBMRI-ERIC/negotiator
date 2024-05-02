@@ -1,17 +1,36 @@
 package eu.bbmri_eric.negotiator.configuration.state_machine.resource;
 
-public enum NegotiationResourceEvent {
-  CONTACT,
-  MARK_AS_UNREACHABLE,
-  RETURN_FOR_RESUBMISSION,
-  MARK_AS_CHECKING_AVAILABILITY,
-  MARK_AS_AVAILABLE,
+import lombok.Getter;
 
-  MARK_AS_UNAVAILABLE,
-  MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT,
-  STEP_AWAY,
-  INDICATE_ACCESS_CONDITIONS,
-  ACCEPT_ACCESS_CONDITIONS,
-  DECLINE_ACCESS_CONDITIONS,
-  GRANT_ACCESS_TO_RESOURCE
+@Getter
+public enum NegotiationResourceEvent {
+  CONTACT("Contact", "Contact the representative"),
+  MARK_AS_UNREACHABLE("Mark as Unreachable", "Mark the representative as unreachable"),
+  RETURN_FOR_RESUBMISSION("Return for Resubmission", "Return the resource for resubmission"),
+  MARK_AS_CHECKING_AVAILABILITY(
+      "Mark as Checking Availability", "Mark the resource as checking availability"),
+  MARK_AS_AVAILABLE("Mark as Available", "Mark the resource as available"),
+  MARK_AS_UNAVAILABLE("Mark as Unavailable", "Mark the resource as unavailable"),
+  MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT(
+      "Mark as Currently Unavailable, But Willing to Collect",
+      "Mark the resource as currently unavailable, but willing to collect"),
+  STEP_AWAY("Step Away", "Step away from negotiation"),
+  INDICATE_ACCESS_CONDITIONS(
+      "Indicate Access Conditions", "Indicate access conditions for the resource"),
+  ACCEPT_ACCESS_CONDITIONS("Accept Access Conditions", "Accept access conditions for the resource"),
+  DECLINE_ACCESS_CONDITIONS(
+      "Decline Access Conditions", "Decline access conditions for the resource"),
+  GRANT_ACCESS_TO_RESOURCE("Grant Access to Resource", "Grant access to the resource");
+
+  private final String label;
+  private final String description;
+
+  NegotiationResourceEvent(String label, String description) {
+    this.label = label;
+    this.description = description;
+  }
+
+  public String getValue() {
+    return this.name();
+  }
 }
