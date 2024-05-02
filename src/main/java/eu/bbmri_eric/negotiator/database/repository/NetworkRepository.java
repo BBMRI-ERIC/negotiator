@@ -14,5 +14,4 @@ public interface NetworkRepository extends JpaRepository<Network, Long> {
   boolean existsByExternalId(@NotNull String externalId);
 
   boolean existsByUri(@NotNull String uri);
-
 }

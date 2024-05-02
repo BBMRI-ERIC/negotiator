@@ -40,7 +40,6 @@ public class Network {
       name = "network_resources_link",
       joinColumns = @JoinColumn(name = "network_id"),
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
-  @ToString.Exclude
   @Builder.Default
   private Set<Resource> resources = new HashSet<>();
 
