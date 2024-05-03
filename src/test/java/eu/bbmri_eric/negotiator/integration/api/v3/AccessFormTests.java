@@ -10,11 +10,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.dto.FormElementType;
+import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -39,6 +41,7 @@ public class AccessFormTests {
   private static final String ACCESS_FORMS_ENDPOINT = "/v3/access-forms";
   private static final String ELEMENTS_ENDPOINT = "/v3/elements";
   private static final String SECTIONS_ENDPOINT = "/v3/sections";
+  private static final String VALUE_SETS_ENDPOINT = "/v3/value-sets";
   private static final String CORRECT_TOKEN_VALUE = "researcher";
   private static final String FORBIDDEN_TOKEN_VALUE = "unknown";
   private static final String UNAUTHORIZED_TOKEN_VALUE = "unauthorized";
@@ -370,5 +373,49 @@ public class AccessFormTests {
             MockMvcRequestBuilders.delete(ACCESS_FORMS_ENDPOINT + "/100/sections/1/elements/1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sections[0].elements").isEmpty());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void createValueSet_correctPayload_ok() throws Exception {
+    ValueSetCreateDTO createDTO = new ValueSetCreateDTO("test", "test", List.of("idk", "lol"));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(VALUE_SETS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name", is("test")))
+        .andExpect(jsonPath("$.externalDocumentation", is("test")))
+        .andExpect(jsonPath("$.availableValues").isArray())
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void updateValueSet_correctPayload_ok() throws Exception {
+    ValueSetCreateDTO createDTO = new ValueSetCreateDTO("test", "test", List.of("idk", "lol"));
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(VALUE_SETS_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(createDTO)))
+            .andReturn();
+    Long id =
+        new ObjectMapper()
+            .readTree(mvcResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
+    createDTO.setName("updatedTest");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(VALUE_SETS_ENDPOINT + "/%s".formatted(id))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", equalTo(id.intValue())))
+        .andExpect(jsonPath("$.name", is(createDTO.getName())));
   }
 }
