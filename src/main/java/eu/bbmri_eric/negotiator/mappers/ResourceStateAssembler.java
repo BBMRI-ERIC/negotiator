@@ -26,7 +26,7 @@ public class ResourceStateAssembler
     links.add(
         linkTo(methodOn(ResourceLifecycleController.class).getState(entity.getValue()))
             .withSelfRel());
-    return EntityModel.of(entity);
+    return EntityModel.of(entity, links);
   }
 
   @Override

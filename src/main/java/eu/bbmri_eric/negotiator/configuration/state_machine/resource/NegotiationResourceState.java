@@ -4,22 +4,22 @@ import lombok.Getter;
 
 @Getter
 public enum NegotiationResourceState {
-  SUBMITTED("Submitted", "The resource has been submitted"),
+  SUBMITTED("Submitted", "Initial state"),
   REPRESENTATIVE_CONTACTED(
-      "Representative Contacted", "Contact has been made with the representative"),
-  REPRESENTATIVE_UNREACHABLE("Representative Unreachable", "Unable to reach the representative"),
+      "Representative Contacted", "Representative of the given resource was notified about this new request"),
+  REPRESENTATIVE_UNREACHABLE("Representative Unreachable", "This resource does not have any representatives in the system"),
   RETURNED_FOR_RESUBMISSION(
-      "Returned for Resubmission", "The resource has been returned for resubmission"),
+      "Returned for Resubmission", "A representative has asked for further clarification of the request"),
   CHECKING_AVAILABILITY("Checking Availability", "Currently checking availability of the resource"),
-  RESOURCE_AVAILABLE("Resource Available", "The resource is available"),
+  RESOURCE_AVAILABLE("Resource Available", "The resource is available for access"),
   RESOURCE_UNAVAILABLE_WILLING_TO_COLLECT(
       "Resource Unavailable, Willing to Collect",
-      "The resource is unavailable but willing to be collected"),
-  RESOURCE_UNAVAILABLE("Resource Unavailable", "The resource is unavailable"),
+      "The resource is unavailable at this time, but the organization is willing to collect it and make it available for access"),
+  RESOURCE_UNAVAILABLE("Resource Unavailable", "The resource is unavailable for access"),
   ACCESS_CONDITIONS_INDICATED(
-      "Access Conditions Indicated", "Indicated access conditions for the resource"),
+      "Access Conditions Indicated", "A representative has indicated access conditions for the resource"),
   ACCESS_CONDITIONS_MET(
-      "Access Conditions Met", "Access conditions for the resource have been met"),
+      "Access Conditions Met", "Access conditions for the resource have been met by the requester"),
   RESOURCE_NOT_MADE_AVAILABLE(
       "Resource Not Made Available", "The resource has not been made available"),
   RESOURCE_MADE_AVAILABLE("Resource Made Available", "The resource has been made available");
