@@ -7,8 +7,7 @@ public enum NegotiationResourceEvent {
   CONTACT("Contact", "Contact representatives"),
   MARK_AS_UNREACHABLE("Mark as Unreachable", "Mark representatives as unreachable"),
   RETURN_FOR_RESUBMISSION("Return for Resubmission", "Ask for further clarification"),
-  MARK_AS_CHECKING_AVAILABILITY(
-      "Mark as Checking Availability", "Mark as checking availability"),
+  MARK_AS_CHECKING_AVAILABILITY("Mark as Checking Availability", "Mark as checking availability"),
   MARK_AS_AVAILABLE("Mark as Available", "Mark the resource as available for access"),
   MARK_AS_UNAVAILABLE("Mark as Unavailable", "Mark the resource as unavailable for access"),
   MARK_AS_CURRENTLY_UNAVAILABLE_BUT_WILLING_TO_COLLECT(
