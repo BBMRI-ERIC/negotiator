@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.ValueSet;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.database.repository.ValueSetRepository;
+import eu.bbmri_eric.negotiator.dto.FormElementType;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -31,6 +32,15 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
     this.mapper = mapper;
   }
 
+  private static void verifyTypeAndValueSetCombination(ElementCreateDTO elementCreateDTO) {
+    if ((elementCreateDTO.getType() == FormElementType.MULTIPLE_CHOICE
+            || elementCreateDTO.getType() == FormElementType.SINGLE_CHOICE)
+        && (elementCreateDTO.getValueSetId() == null
+            || elementCreateDTO.getValueSetId().equals(0L))) {
+      throw new IllegalArgumentException("The chosen element type must have a value set");
+    }
+  }
+
   @Override
   public List<ElementMetaDTO> getAllElements() {
     return repository.findAll(Sort.by("id").ascending()).stream()
@@ -47,6 +57,7 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
 
   @Override
   public ElementMetaDTO createElement(ElementCreateDTO elementCreateDTO) {
+    verifyTypeAndValueSetCombination(elementCreateDTO);
     AccessFormElement element = mapper.map(elementCreateDTO, AccessFormElement.class);
     if (Objects.nonNull(elementCreateDTO.getValueSetId())) {
       ValueSet valueSet =
@@ -60,6 +71,7 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
 
   @Override
   public ElementMetaDTO updateElement(ElementCreateDTO elementCreateDTO, Long id) {
+    verifyTypeAndValueSetCombination(elementCreateDTO);
     AccessFormElement element = mapper.map(elementCreateDTO, AccessFormElement.class);
     element.setId(id);
     if (Objects.nonNull(elementCreateDTO.getValueSetId())) {
