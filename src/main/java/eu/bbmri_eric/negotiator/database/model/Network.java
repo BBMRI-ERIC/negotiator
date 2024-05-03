@@ -11,6 +11,8 @@ import lombok.*;
 @Setter
 @Entity
 @Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Network {
 
   @Id
@@ -20,19 +22,48 @@ public class Network {
 
   @NotNull private String uri;
 
+  /**
+   * The name of the network.
+   *
+   * @param name the name of the network
+   * @return the name of the network
+   */
   @Column(unique = true)
   private String name;
 
-  /** A unique and persistent identifier issued by an appropriate institution. */
+  /**
+   * A unique and persistent identifier issued by an appropriate institution.
+   *
+   * @param externalId the external identifier of the network
+   * @return the external identifier of the network
+   */
   @NotNull
   @Column(unique = true)
   private String externalId;
 
+  /**
+   * The contact email of the network.
+   *
+   * @param contactEmail the contact email of the network
+   * @return the contact email of the network
+   */
   private String contactEmail;
 
+  /**
+   * The managers of the network.
+   *
+   * @param managers the managers of the network
+   * @return the managers of the network
+   */
   @ManyToMany(mappedBy = "networks")
   private Set<Person> managers = new HashSet<>();
 
+  /**
+   * The resources of the network.
+   *
+   * @param resources the resources of the network
+   * @return the resources of the network
+   */
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(
       name = "network_resources_link",
@@ -40,37 +71,6 @@ public class Network {
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Builder.Default
   private Set<Resource> resources = new HashSet<>();
-
-  /** No-args constructor for JPA and other reflection-based tools. */
-  Network() {}
-
-  /**
-   * All-args constructor for creating new instances.
-   *
-   * @param id the network's ID
-   * @param uri the network's URI
-   * @param name the network's name
-   * @param externalId the network's external ID
-   * @param contactEmail the network's contact email
-   * @param managers the network's managers
-   * @param resources the network's resources
-   */
-  Network(
-      Long id,
-      String uri,
-      String name,
-      String externalId,
-      String contactEmail,
-      Set<Person> managers,
-      Set<Resource> resources) {
-    this.id = id;
-    this.uri = uri;
-    this.name = name;
-    this.externalId = externalId;
-    this.contactEmail = contactEmail;
-    this.managers = managers;
-    this.resources = resources;
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -85,11 +85,13 @@ public class Network {
     return Objects.hash(externalId);
   }
 
+  // ** Adds a resource to the network. */
   public void addResource(Resource collection) {
     resources.add(collection);
     collection.getNetworks().add(this);
   }
 
+  // ** Removes a resource from the network. */
   public void removeResource(Resource collection) {
     resources.remove(collection);
     collection.getNetworks().remove(this);
