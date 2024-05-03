@@ -8,8 +8,6 @@ CREATE TABLE network
     CONSTRAINT pk_network PRIMARY KEY (id)
 );
 
-ALTER TABLE person
-    ADD network_id BIGINT;
 
 ALTER TABLE network
     ADD CONSTRAINT uc_network_externalid UNIQUE (external_id);
@@ -17,8 +15,6 @@ ALTER TABLE network
 ALTER TABLE network
     ADD CONSTRAINT uc_network_name UNIQUE (name);
 
-ALTER TABLE person
-    ADD CONSTRAINT FK_PERSON_ON_NETWORK FOREIGN KEY (network_id) REFERENCES network (id);
 
 CREATE TABLE network_resources_link
 (
@@ -32,4 +28,17 @@ ALTER TABLE network_resources_link
 
 ALTER TABLE network_resources_link
     ADD CONSTRAINT fk_netres_on_resource FOREIGN KEY (resource_id) REFERENCES resource (id);
+
+CREATE TABLE network_person_link
+(
+    network_id  BIGINT NOT NULL,
+    person_id BIGINT NOT NULL,
+    CONSTRAINT pk_network_person_link PRIMARY KEY (network_id, person_id)
+);
+
+ALTER TABLE network_person_link
+    ADD CONSTRAINT fk_netper_on_network FOREIGN KEY (network_id) REFERENCES network (id);
+
+ALTER TABLE network_person_link
+    ADD CONSTRAINT fk_netper_on_person FOREIGN KEY (person_id) REFERENCES person (id);
 
