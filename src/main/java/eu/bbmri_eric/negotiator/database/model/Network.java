@@ -16,8 +16,8 @@ import lombok.*;
 public class Network {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resource_id_seq")
-  @SequenceGenerator(name = "resource_id_seq", initialValue = 10000, allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "network_id_seq")
+  @SequenceGenerator(name = "network_id_seq", initialValue = 10000, allocationSize = 1)
   private Long id;
 
   /** The URI of the network */
