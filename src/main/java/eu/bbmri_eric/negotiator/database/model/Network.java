@@ -23,48 +23,23 @@ public class Network {
   /** The URI of the network */
   @NotNull private String uri;
 
-  /**
-   * The name of the network.
-   *
-   * @param name the name of the network
-   * @return the name of the network
-   */
+  /** The name of the network */
   @Column(unique = true)
   private String name;
 
-  /**
-   * A unique and persistent identifier issued by an appropriate institution.
-   *
-   * @param externalId the external identifier of the network
-   * @return the external identifier of the network
-   */
+  /** A unique and persistent identifier issued by an appropriate institution */
   @NotNull
   @Column(unique = true)
   private String externalId;
 
-  /**
-   * The contact email of the network.
-   *
-   * @param contactEmail the contact email of the network
-   * @return the contact email of the network
-   */
+  /** The contact email of the network. */
   private String contactEmail;
 
-  /**
-   * The managers of the network.
-   *
-   * @param managers the managers of the network
-   * @return the managers of the network
-   */
+  /** The managers of the network. */
   @ManyToMany(mappedBy = "networks")
   private Set<Person> managers = new HashSet<>();
 
-  /**
-   * The resources of the network.
-   *
-   * @param resources the resources of the network
-   * @return the resources of the network
-   */
+  /** The resources of the network. */
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(
       name = "network_resources_link",
@@ -86,13 +61,13 @@ public class Network {
     return Objects.hash(externalId);
   }
 
-  // ** Adds a resource to the network. */
+  /** Adds a resource to the network. */
   public void addResource(Resource collection) {
     resources.add(collection);
     collection.getNetworks().add(this);
   }
 
-  // ** Removes a resource from the network. */
+  /** Removes a resource from the network. */
   public void removeResource(Resource collection) {
     resources.remove(collection);
     collection.getNetworks().remove(this);
