@@ -20,6 +20,7 @@ public class Network {
   @SequenceGenerator(name = "resource_id_seq", initialValue = 10000, allocationSize = 1)
   private Long id;
 
+  /** The URI of the network */
   @NotNull private String uri;
 
   /**
