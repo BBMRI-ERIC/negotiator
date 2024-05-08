@@ -20,6 +20,19 @@ SPRING_MAIL_USERNAME="user"
 SPRING_MAIL_PASSWORD="pass"
 ```
 
+### Email template
+Templates ensure consistent and automated communications for various functions. 
+We are using [Thymeleaf](https://www.thymeleaf.org/) as the template engine, the email templates are stored in the `resources/templates/` directory.
+
+### Email reminder
+Automates the sending of emails based on schedules. The email reminder service is implemented using [Spring's Task Execution and Scheduling](https://spring.io/guides/gs/scheduling-tasks/). 
+The reminder service is configured in the `application-prod.yml` file.
+```yaml
+reminder:
+  trigger-duration-days: "P7D"
+  cron-schedule-expression: "0 0 0 * * TUE"
+```
+
 ## Development
 
 For development, we advise to use a service called [Mailhog](https://github.com/mailhog/MailHog).
