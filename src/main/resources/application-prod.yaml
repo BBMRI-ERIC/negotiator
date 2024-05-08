@@ -43,4 +43,4 @@ logging:
     eu.bbmri_eric.negotiator: info
 reminder:
   trigger-duration-days: "P7D"
-  cron-schedule-expression: "0 0 0 * * MON-FRI"
+  cron-schedule-expression: "0 0 0 * * TUE"
