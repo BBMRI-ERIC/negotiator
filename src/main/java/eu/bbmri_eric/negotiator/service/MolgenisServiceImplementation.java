@@ -1,7 +1,14 @@
 package eu.bbmri_eric.negotiator.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -30,6 +37,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
                   .block())
           .is2xxSuccessful();
     } catch (WebClientRequestException e) {
+      log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
       return false;
     }
@@ -65,6 +73,100 @@ public class MolgenisServiceImplementation implements MolgenisService {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn("Molgenis is not reachable!");
       return Optional.empty();
+    }
+  }
+
+  @Override
+  public List<MolgenisBiobank> findAllBiobanks() {
+    try {
+      String response =
+          webClient
+              .get()
+              .uri("/api/v2/eu_bbmri_eric_biobanks?attrs=id,name")
+              .retrieve()
+              .bodyToMono(String.class)
+              .block();
+      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+      JsonArray items = jsonResponse.getAsJsonArray("items");
+      List<MolgenisBiobank> biobanks = new ArrayList<MolgenisBiobank>();
+
+      for (JsonElement e : items) {
+        JsonObject jsonBiobank = e.getAsJsonObject();
+        MolgenisBiobank biobank =
+            new MolgenisBiobank(
+                jsonBiobank.get("id").getAsString(),
+                jsonBiobank.get("name").getAsString(),
+                jsonBiobank.get("_href").getAsString());
+        biobanks.add(biobank);
+      }
+      return biobanks;
+
+      // convert the array of generic objects to an array of MolgenisBiobanks
+      // ObjectMapper mapper = new ObjectMapper();
+      // return Arrays.stream(items.asList().toArray())
+      //    .map(object -> mapper.convertValue(object, MolgenisBiobank.class))
+      //    .collect(Collectors.toList());
+
+      /*return Optional.ofNullable(
+      Collections.singletonList(webClient
+          .get()
+          .uri("/api/v2/eu_bbmri_eric_biobanks?attrs=id,name")
+          .retrieve()
+          .bodyToMono(MolgenisBiobank.class)
+          .block()));*/
+    } catch (WebClientResponseException | WebClientRequestException e) {
+      log.warn(e.getMessage());
+      log.warn("Molgenis is not reachable!");
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public List<MolgenisCollection> findAllCollectionsByBiobankId(String biobankId) {
+    try {
+      String response =
+          webClient
+              .get()
+              .uri(
+                  String.format(
+                      "https://bbmritestnn.gcc.rug.nl/api/v2/eu_bbmri_eric_collections?q=biobank==%s&attrs=id,name,description",
+                      biobankId))
+              .retrieve()
+              .bodyToMono(String.class)
+              .block();
+      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+      JsonArray items = jsonResponse.getAsJsonArray("items");
+      List<MolgenisCollection> collections = new ArrayList<MolgenisCollection>();
+
+      for (JsonElement e : items) {
+        JsonObject jsonCollection = e.getAsJsonObject();
+        MolgenisCollection collection =
+            new MolgenisCollection(
+                jsonCollection.get("id").getAsString(),
+                jsonCollection.get("name").getAsString(),
+                jsonCollection.get("description").getAsString(),
+                findBiobankById(biobankId).get());
+        collections.add(collection);
+      }
+      return collections;
+
+      // convert the array of generic objects to an array of MolgenisBiobanks
+      // ObjectMapper mapper = new ObjectMapper();
+      // return Arrays.stream(items.asList().toArray())
+      //    .map(object -> mapper.convertValue(object, MolgenisBiobank.class))
+      //    .collect(Collectors.toList());
+
+      /*return Optional.ofNullable(
+      Collections.singletonList(webClient
+          .get()
+          .uri("/api/v2/eu_bbmri_eric_biobanks?attrs=id,name")
+          .retrieve()
+          .bodyToMono(MolgenisBiobank.class)
+          .block()));*/
+    } catch (WebClientResponseException | WebClientRequestException e) {
+      log.warn(e.getMessage());
+      log.warn("Molgenis is not reachable!");
+      return Collections.emptyList();
     }
   }
 }
