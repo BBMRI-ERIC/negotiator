@@ -71,12 +71,16 @@ public class Network {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Network that = (Network) o;
-    return Objects.equals(externalId, that.externalId);
+    return Objects.equals(externalId, that.externalId)
+        && Objects.equals(id, that.id)
+        && Objects.equals(uri, that.uri)
+        && Objects.equals(name, that.name)
+        && Objects.equals(contactEmail, that.contactEmail);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(externalId);
+    return Objects.hash(externalId, id, uri, name, contactEmail);
   }
 
   /** Adds a resource to the network. */
