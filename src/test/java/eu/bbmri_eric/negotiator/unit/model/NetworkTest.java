@@ -31,8 +31,11 @@ class NetworkTest {
   @Test
   void addCollection() {
     Network network = Network.builder().uri("http://example.com").externalId("validId").build();
-    network.addResource(Resource.builder().build());
+    Resource resource = Resource.builder().build();
+    network.addResource(resource);
     assertEquals(1, network.getResources().size());
+    assertEquals(network, resource.getNetworks().stream().toList().get(0));
+    assertEquals(resource, network.getResources().stream().toList().get(0));
   }
 
   @Test
@@ -42,5 +45,6 @@ class NetworkTest {
     network.addResource(resource);
     network.removeResource(resource);
     assertEquals(0, network.getResources().size());
+    assertEquals(0, resource.getNetworks().size());
   }
 }
