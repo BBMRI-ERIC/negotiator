@@ -15,4 +15,6 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
   Optional<Resource> findBySourceId(String sourceId);
 
   List<Resource> findAllBySourceIdIn(Set<String> sourceIds);
+
+  List<Resource> findAllByOrganizationId(Long organizationId);
 }
