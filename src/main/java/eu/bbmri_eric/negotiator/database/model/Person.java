@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -70,6 +71,8 @@ public class Person {
       name = "network_person_link",
       joinColumns = @JoinColumn(name = "network_id"),
       inverseJoinColumns = @JoinColumn(name = "person_id"))
+  @Exclude
+  @Setter(AccessLevel.NONE)
   private Set<Network> networks;
 
   public void addResource(Resource resource) {
@@ -91,7 +94,9 @@ public class Person {
 
   public void addNetwork(Network network) {
     this.networks.add(network);
-    network.getManagers().add(this);
+    if (!network.getManagers().contains(this)) {
+      network.addManager(this);
+    }
   }
 
   public Set<Network> getNetworks() {
@@ -103,7 +108,9 @@ public class Person {
 
   public void removeNetwork(Network network) {
     this.networks.remove(network);
-    network.getManagers().remove(this);
+    if (network.getManagers().contains(this)) {
+      network.removeManager(this);
+    }
   }
 
   @Override

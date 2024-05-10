@@ -48,15 +48,22 @@ public class Network {
 
   /** The managers of the network. */
   @ManyToMany(mappedBy = "networks")
+  @Exclude
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
   private Set<Person> managers = new HashSet<>();
 
   /** The resources of the network. */
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @ManyToMany(
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+      fetch = FetchType.EAGER)
   @JoinTable(
       name = "network_resources_link",
       joinColumns = @JoinColumn(name = "network_id"),
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Builder.Default
+  @Exclude
+  @Setter(AccessLevel.NONE)
   private Set<Resource> resources = new HashSet<>();
 
   @Override
@@ -75,12 +82,47 @@ public class Network {
   /** Adds a resource to the network. */
   public void addResource(Resource collection) {
     resources.add(collection);
-    collection.getNetworks().add(this);
+    if (!collection.getNetworks().contains(this)) {
+      collection.addNetwork(this);
+    }
   }
 
   /** Removes a resource from the network. */
   public void removeResource(Resource collection) {
     resources.remove(collection);
-    collection.getNetworks().remove(this);
+    if (collection.getNetworks().contains(this)) {
+      collection.removeNetwork(this);
+    }
+  }
+
+  /** Returns all resources in the network. */
+  public Set<Resource> getResources() {
+    if (Objects.isNull(this.resources)) {
+      return Set.of();
+    }
+    return Collections.unmodifiableSet(this.resources);
+  }
+
+  /** Adds a manager to the network. */
+  public void addManager(Person manager) {
+    managers.add(manager);
+    if (!manager.getNetworks().contains(this)) {
+      manager.addNetwork(this);
+    }
+  }
+
+  /** Removes a manager from the network. */
+  public void removeManager(Person manager) {
+    managers.remove(manager);
+    if (manager.getNetworks().contains(this)) {
+      manager.removeNetwork(this);
+    }
+  }
+
+  public Set<Person> getManagers() {
+    if (Objects.isNull(this.managers)) {
+      return Set.of();
+    }
+    return Collections.unmodifiableSet(this.managers);
   }
 }

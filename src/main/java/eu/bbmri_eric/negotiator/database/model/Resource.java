@@ -13,15 +13,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.ToString.Exclude;
 
 @ToString
@@ -73,7 +69,29 @@ public class Resource {
 
   @ManyToMany(mappedBy = "resources")
   @Builder.Default
+  @Setter(AccessLevel.NONE)
   private Set<Network> networks = new HashSet<>();
+
+  public void addNetwork(Network network) {
+    this.networks.add(network);
+    if (!network.getResources().contains(this)) {
+      network.addResource(this);
+    }
+  }
+
+  public Set<Network> getNetworks() {
+    if (Objects.isNull(this.networks)) {
+      return Set.of();
+    }
+    return Collections.unmodifiableSet(this.networks);
+  }
+
+  public void removeNetwork(Network network) {
+    this.networks.remove(network);
+    if (network.getResources().contains(this)) {
+      network.removeResource(this);
+    }
+  }
 
   @Override
   public boolean equals(Object o) {
