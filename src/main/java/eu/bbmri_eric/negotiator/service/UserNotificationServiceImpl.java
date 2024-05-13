@@ -312,6 +312,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .recipient(representative)
             .message(message)
             .build();
+    new_notification.setModifiedDate(LocalDateTime.now());
+    new_notification.setCreationDate(LocalDateTime.now());
     return new_notification;
   }
 
@@ -335,6 +337,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   private void markNotificationsAsEmailSent(@NonNull List<Notification> notifications) {
     for (Notification notification : notifications) {
       notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
+      notification.setModifiedDate(LocalDateTime.now());
       notificationRepository.save(notification);
     }
   }
