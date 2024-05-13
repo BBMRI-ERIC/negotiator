@@ -66,7 +66,7 @@ public class Network {
   /** The resources of the network. */
   @ManyToMany(
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   @JoinTable(
       name = "network_resources_link",
       joinColumns = @JoinColumn(name = "network_id"),
