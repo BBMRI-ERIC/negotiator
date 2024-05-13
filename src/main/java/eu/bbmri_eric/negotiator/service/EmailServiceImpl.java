@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.repository.NotificationEmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -84,7 +85,11 @@ public class EmailServiceImpl implements EmailService {
     }
     NotificationEmail notificationEmail =
         notificationEmailRepository.save(
-            NotificationEmail.builder().recipient(recipient).message(mailBody).build());
+            NotificationEmail.builder()
+                .recipient(recipient)
+                .message(mailBody)
+                .sentAt(LocalDateTime.now())
+                .build());
     try {
       javaMailSender.send(mimeMessage);
     } catch (MailSendException e) {
