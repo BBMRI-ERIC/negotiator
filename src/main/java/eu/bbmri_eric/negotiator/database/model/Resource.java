@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -70,6 +71,11 @@ public class Resource {
   @JoinColumn(name = "access_form_id")
   @Exclude
   private AccessForm accessForm;
+
+  @ManyToMany(mappedBy = "resources")
+  @Builder.Default
+  @Setter(AccessLevel.NONE)
+  private Set<Network> networks = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {
