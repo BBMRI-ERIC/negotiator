@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -77,27 +76,6 @@ public class Resource {
   @Builder.Default
   @Setter(AccessLevel.NONE)
   private Set<Network> networks = new HashSet<>();
-
-  public void addNetwork(Network network) {
-    this.networks.add(network);
-    if (!network.getResources().contains(this)) {
-      network.addResource(this);
-    }
-  }
-
-  public Set<Network> getNetworks() {
-    if (Objects.isNull(this.networks)) {
-      return Set.of();
-    }
-    return Collections.unmodifiableSet(this.networks);
-  }
-
-  public void removeNetwork(Network network) {
-    this.networks.remove(network);
-    if (network.getResources().contains(this)) {
-      network.removeResource(this);
-    }
-  }
 
   @Override
   public boolean equals(Object o) {

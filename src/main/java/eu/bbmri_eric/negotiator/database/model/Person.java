@@ -106,27 +106,6 @@ public class Person {
     resource.getRepresentatives().remove(this);
   }
 
-  public void addNetwork(Network network) {
-    this.networks.add(network);
-    if (!network.getManagers().contains(this)) {
-      network.addManager(this);
-    }
-  }
-
-  public Set<Network> getNetworks() {
-    if (Objects.isNull(this.networks)) {
-      return Set.of();
-    }
-    return Collections.unmodifiableSet(this.networks);
-  }
-
-  public void removeNetwork(Network network) {
-    this.networks.remove(network);
-    if (network.getManagers().contains(this)) {
-      network.removeManager(this);
-    }
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

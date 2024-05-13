@@ -96,17 +96,13 @@ public class Network {
   /** Adds a resource to the network. */
   public void addResource(Resource collection) {
     resources.add(collection);
-    if (!collection.getNetworks().contains(this)) {
-      collection.addNetwork(this);
-    }
+    collection.getNetworks().add(this);
   }
 
   /** Removes a resource from the network. */
   public void removeResource(Resource collection) {
     resources.remove(collection);
-    if (collection.getNetworks().contains(this)) {
-      collection.removeNetwork(this);
-    }
+    collection.getNetworks().remove(this);
   }
 
   /** Returns all resources in the network. */
@@ -120,17 +116,13 @@ public class Network {
   /** Adds a manager to the network. */
   public void addManager(Person manager) {
     managers.add(manager);
-    if (!manager.getNetworks().contains(this)) {
-      manager.addNetwork(this);
-    }
+    manager.getNetworks().add(this);
   }
 
   /** Removes a manager from the network. */
   public void removeManager(Person manager) {
     managers.remove(manager);
-    if (manager.getNetworks().contains(this)) {
-      manager.removeNetwork(this);
-    }
+    manager.getNetworks().remove(this);
   }
 
   public Set<Person> getManagers() {
