@@ -1,20 +1,22 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
-import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceDTO;
-
-import java.util.List;
-import java.util.Set;
+import org.springframework.data.domain.Pageable;
 
 public interface NetworkService {
 
+  /**
+   * Retrieves a NetworkDTO with the specified ID.
+   *
+   * @param id The ID of the network to retrieve.
+   * @return The NetworkDTO with the specified ID.
+   */
   NetworkDTO findNetworkById(Long id);
 
-  List<NetworkDTO> findAllNetworks();
-
-  List<ResourceDTO> getResources(Long networkId);
-
-  Set<OrganizationDTO> getOrganizations(Long networkId);
+  /**
+   * Retrieves all networks.
+   *
+   * @return All networks.
+   */
+  Iterable<NetworkDTO> findAllNetworks(Pageable pageable);
 }

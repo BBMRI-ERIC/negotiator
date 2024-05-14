@@ -220,6 +220,6 @@ public class OAuthSecurityConfig {
   }
 
   OAuth2TokenValidator<Jwt> audienceValidator() {
-    return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(audience));
+    return new JwtClaimValidator<List<String>>(AUD, aud -> aud != null && aud.contains(audience));
   }
 }

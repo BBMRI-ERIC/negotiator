@@ -153,4 +153,13 @@ public interface NegotiationService {
    *     false otherwise
    */
   boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
+
+  /**
+   * Retrieves all negotiations related to a network
+   *
+   * @param pageable the page request
+   * @param networkId the id of the network
+   * @return a paged list of NegotiationDTOs
+   */
+  Iterable<NegotiationDTO> findAllForNetwork(Pageable pageable, Long networkId);
 }

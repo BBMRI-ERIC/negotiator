@@ -109,4 +109,12 @@ public interface PersonService {
    * @param resourceId the ID of the resource
    */
   void removeAsRepresentativeForResource(Long representativeId, Long resourceId);
+
+  /**
+   * Retrieves all managers of a network.
+   *
+   * @param networkId the ID of the network to retrieve the managers for.
+   * @return a List of UserResponseModel objects representing the managers of the network.
+   */
+  List<UserResponseModel> findAllForNetwork(Long networkId);
 }

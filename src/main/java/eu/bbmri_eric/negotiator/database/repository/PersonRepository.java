@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.database.repository;
 
+import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import java.util.List;
@@ -85,4 +86,6 @@ public interface PersonRepository
               + "))",
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
+
+  List<Person> findAllByNetworksContains(Network network);
 }

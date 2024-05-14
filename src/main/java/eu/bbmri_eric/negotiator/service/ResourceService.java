@@ -19,4 +19,6 @@ public interface ResourceService {
    * @return All resources.
    */
   Iterable<ResourceResponseModel> findAll(Pageable pageable);
+
+  Iterable<ResourceResponseModel> findAllForNetwork(Pageable pageable, Long networkId);
 }

@@ -68,6 +68,14 @@ public class NegotiationModelAssembler
         links);
   }
 
+  public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(@NonNull Page<NegotiationDTO> page) {
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
+        new ArrayList<>());
+  }
+
   private List<Link> getLinks(
       Page<NegotiationDTO> page,
       NegotiationFilters filters,
