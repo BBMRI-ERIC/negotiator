@@ -173,3 +173,18 @@ insert into attachment (id, creation_date, modified_date, content_type, name, pa
          'negotiation-5', null),  -- sent by biobanker publicly
         ('attachment-5', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachment #4', rawtohex('12'), 16, 109, 109,
          'negotiation-5', 4);  -- sent by biobanker to his/her organization
+
+
+insert into network (id, external_id, name, uri, contact_email)
+values (1, 'bbmri-eric:ID:SE_890:network:bbmri-eric', 'network-1', 'https://network-1/', 'office@negotiator.org'),
+       (2, 'bbmri-eric:ID:SE_891:network:bbmri-eric', 'network-2', 'https://network-2/', 'office@negotiator.org'),
+       (3, 'bbmri-eric:ID:SE_892:network:bbmri-eric', 'network-3', 'https://network-3/', 'office@negotiator.org');
+
+insert into network_resources_link (network_id, resource_id)
+values (1, 4),
+       (1, 5),
+       (1, 6);
+
+insert into network_person_link (network_id, person_id)
+values (1, 101),
+       (1, 102);
