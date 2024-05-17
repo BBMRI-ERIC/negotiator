@@ -36,8 +36,6 @@ import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -330,8 +328,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  @Scheduled(cron = "${notification.cron-schedule-expression:0 0 * * * *}")
-  @Async
+  //  @Scheduled(cron = "${notification.cron-schedule-expression:0 0 * * * *}")
+  //  @Async
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
     Set<Person> recipients = getPendingRecipients();
@@ -477,8 +475,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     notificationRepository.saveAll(reminderNotifications);
   }
 
-  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
-  @Async
+  //  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
+  //  @Async
   public void createRemindersOldNegotiations() {
     log.info("Creating reminder email notifications.");
     Duration durationThreshold = Duration.parse(triggerDuration);

@@ -98,12 +98,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public boolean exists(String negotiationId) {
-    try {
-      findEntityById(negotiationId, false);
-      return true;
-    } catch (EntityNotFoundException ex) {
-      return false;
-    }
+    return negotiationRepository.existsById(negotiationId);
   }
 
   private void addPersonToNegotiation(

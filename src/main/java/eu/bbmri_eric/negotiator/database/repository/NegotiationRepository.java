@@ -17,6 +17,16 @@ public interface NegotiationRepository
 
   Optional<Negotiation> findDetailedById(String id);
 
+  //  @Override
+  //  @Query(
+  //      value =
+  //          "SELECT EXISTS ("
+  //              + "SELECT n.id "
+  //              + "FROM negotiation n "
+  //              + "WHERE n.id = :negotiationId",
+  //      nativeQuery = true)
+  //  boolean existsById(@Nonnull String id);
+
   @Query(value = "SELECT currentState from Negotiation where id = :id")
   Optional<NegotiationState> findNegotiationStateById(String id);
 
