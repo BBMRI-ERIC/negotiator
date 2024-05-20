@@ -13,13 +13,16 @@ import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import jakarta.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
+import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -32,6 +35,8 @@ public class MolgenisDirectorySyncService {
   private String molgenisURL;
 
   private MolgenisService molgenisService = null;
+
+  private DirectorySyncJobRecord jobRecord;
 
   @Autowired private OrganizationRepository organizationRepository;
 
@@ -49,15 +54,26 @@ public class MolgenisDirectorySyncService {
 
   @Async
   public void syncDirectoryResources() {
-    log.info("Started sync Directory recources at: " + new Date());
-    DirectorySyncJobRecord directorySyncJobRecord = createJobRecord();
-    log.info("Fetching all organizations... " + new Date());
-    List<MolgenisBiobank> biobanks = molgenisService.findAllBiobanks();
-    log.info("Adding missing organizations... " + new Date());
-    addMissingOrganizationsAndResources(biobanks);
-    log.info("Job successfully completed");
-    directorySyncJobRecord.setJobState(DirectorySyncJobState.COMPLETED);
-    directorySyncJobRecordRepository.save(directorySyncJobRecord);
+    try {
+      jobRecord = createJobRecord();
+      jobRecord.setJobState(DirectorySyncJobState.IN_PROGRESS);
+      directorySyncJobRecordRepository.save(jobRecord);
+      log.info("Started sync Directory recources at: " + new Date());
+      log.info("Fetching all organizations... " + new Date());
+      List<MolgenisBiobank> biobanks = molgenisService.findAllBiobanks();
+      log.info("Adding missing organizations... " + new Date());
+      addMissingOrganizationsAndResources(biobanks);
+      log.info("Job successfully completed");
+      jobRecord.setJobState(DirectorySyncJobState.COMPLETED);
+      directorySyncJobRecordRepository.save(jobRecord);
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while updating Directory sync job record");
+      log.error(ex);
+      jobRecord.setJobState(DirectorySyncJobState.FAILED);
+      jobRecord.setJobException(ex.toString());
+      directorySyncJobRecordRepository.save(jobRecord);
+      throw new EntityNotStorableException();
+    }
   }
 
   public void addMissingOrganizationsAndResources(List<MolgenisBiobank> directoryBiobanks) {
@@ -75,32 +91,18 @@ public class MolgenisDirectorySyncService {
             molgenisService.findAllCollectionsByBiobankId(biobankId);
 
       } else {
-        // If the organization is present, check if the metadata hasn't changed and update it;
-        // same for the Collections
-        // additionally, add all the missing collections
         if (!bb.getName().equals(organization.get().getName())) {
           updateOrganizationName(organization.get(), bb);
         }
-        // get collections at the moment present in the Negotator
-        // List<Resource> resources =
-        // resourceRepository.findAllByOrganizationId(organization.get().getId());
-        // for (Resource r : resources){
-        // check if the resource is not present, and add it
-
-        // }
-        // Collections (resources) retrieved from directory
         List<MolgenisCollection> biobankCollections =
             molgenisService.findAllCollectionsByBiobankId(bb.getId());
         for (MolgenisCollection c : biobankCollections) {
           String collectionId = c.getId();
           Optional<Resource> r = resourceRepository.findBySourceId(collectionId);
           if (r.isEmpty()) {
-            // add the missing collection to the Resources, for that biobank
             log.info("Adding missing collection for the Biobank: " + bb.getId());
             addMissingCollections(organization.get(), bb.getId(), discoveryService, accessForm);
           } else {
-            // The Collection is already present. Check name and description information and
-            // eventually update it
             if (!r.get().getName().equals(c.getName())
                 || !r.get().getDescription().equals((c.getDescription()))) {
               updateResourceNameAndDescription(r.get(), c);
@@ -115,8 +117,17 @@ public class MolgenisDirectorySyncService {
     log.info("Adding organization:" + biobank.getId());
     Organization newOrganization =
         Organization.builder().externalId(biobank.getId()).name(biobank.getName()).build();
-    organizationRepository.save(newOrganization);
-    return newOrganization;
+    try {
+      organizationRepository.save(newOrganization);
+      return newOrganization;
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while adding missing organization");
+      log.error(ex);
+      jobRecord.setJobState(DirectorySyncJobState.FAILED);
+      jobRecord.setJobException(ex.toString());
+      directorySyncJobRecordRepository.save(jobRecord);
+      throw new EntityNotStorableException();
+    }
   }
 
   private void addMissingCollections(
@@ -134,26 +145,62 @@ public class MolgenisDirectorySyncService {
               .name(collection.getName())
               .description(collection.getDescription())
               .build();
-      resourceRepository.save(newResource);
+      try {
+        resourceRepository.save(newResource);
+      } catch (DataException | DataIntegrityViolationException ex) {
+        log.error("Error while adding missing Collection as a resource");
+        log.error(ex);
+        jobRecord.setJobState(DirectorySyncJobState.FAILED);
+        jobRecord.setJobException(ex.toString());
+        directorySyncJobRecordRepository.save(jobRecord);
+        throw new EntityNotStorableException();
+      }
     }
   }
 
   private void updateOrganizationName(Organization organization, MolgenisBiobank biobank) {
     log.info(String.format("Updating name for existing organization {0}", biobank.getId()));
     organization.setName(biobank.getName());
-    organizationRepository.save(organization);
+    try {
+      organizationRepository.save(organization);
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while updating Organization name");
+      log.error(ex);
+      jobRecord.setJobState(DirectorySyncJobState.FAILED);
+      jobRecord.setJobException(ex.toString());
+      directorySyncJobRecordRepository.save(jobRecord);
+      throw new EntityNotStorableException();
+    }
   }
 
   private void updateResourceNameAndDescription(Resource resource, MolgenisCollection collection) {
     resource.setName(collection.getName());
     resource.setDescription(collection.getDescription());
-    resourceRepository.save(resource);
+    try {
+      resourceRepository.save(resource);
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while updating Resource name and description");
+      log.error(ex);
+      jobRecord.setJobState(DirectorySyncJobState.FAILED);
+      jobRecord.setJobException(ex.toString());
+      directorySyncJobRecordRepository.save(jobRecord);
+      throw new EntityNotStorableException();
+    }
   }
 
   private DirectorySyncJobRecord createJobRecord() {
     DirectorySyncJobRecord directorySyncJobRecord =
         DirectorySyncJobRecord.builder().jobState(DirectorySyncJobState.SUBMITTED).build();
-    directorySyncJobRecordRepository.save(directorySyncJobRecord);
-    return directorySyncJobRecord;
+    try {
+      directorySyncJobRecordRepository.save(directorySyncJobRecord);
+      return directorySyncJobRecord;
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while creating Directory sync job record");
+      log.error(ex);
+      jobRecord.setJobState(DirectorySyncJobState.FAILED);
+      jobRecord.setJobException(ex.toString());
+      directorySyncJobRecordRepository.save(jobRecord);
+      throw new EntityNotStorableException();
+    }
   }
 }

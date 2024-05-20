@@ -82,7 +82,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
       String response =
           webClient
               .get()
-              .uri("/api/v2/eu_bbmri_eric_biobanks?attrs=id,name")
+              .uri("api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==falsea&attrs=id,name")
               .retrieve()
               .bodyToMono(String.class)
               .block();
@@ -129,7 +129,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
               .get()
               .uri(
                   String.format(
-                      "https://bbmritestnn.gcc.rug.nl/api/v2/eu_bbmri_eric_collections?q=biobank==%s&attrs=id,name,description",
+                      "/api/v2/eu_bbmri_eric_collections?q=biobank==%s&num=10000&attrs=id,name,description",
                       biobankId))
               .retrieve()
               .bodyToMono(String.class)
