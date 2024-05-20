@@ -100,20 +100,6 @@ public class MolgenisServiceImplementation implements MolgenisService {
         biobanks.add(biobank);
       }
       return biobanks;
-
-      // convert the array of generic objects to an array of MolgenisBiobanks
-      // ObjectMapper mapper = new ObjectMapper();
-      // return Arrays.stream(items.asList().toArray())
-      //    .map(object -> mapper.convertValue(object, MolgenisBiobank.class))
-      //    .collect(Collectors.toList());
-
-      /*return Optional.ofNullable(
-      Collections.singletonList(webClient
-          .get()
-          .uri("/api/v2/eu_bbmri_eric_biobanks?attrs=id,name")
-          .retrieve()
-          .bodyToMono(MolgenisBiobank.class)
-          .block()));*/
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
@@ -149,20 +135,6 @@ public class MolgenisServiceImplementation implements MolgenisService {
         collections.add(collection);
       }
       return collections;
-
-      // convert the array of generic objects to an array of MolgenisBiobanks
-      // ObjectMapper mapper = new ObjectMapper();
-      // return Arrays.stream(items.asList().toArray())
-      //    .map(object -> mapper.convertValue(object, MolgenisBiobank.class))
-      //    .collect(Collectors.toList());
-
-      /*return Optional.ofNullable(
-      Collections.singletonList(webClient
-          .get()
-          .uri("/api/v2/eu_bbmri_eric_biobanks?attrs=id,name")
-          .retrieve()
-          .bodyToMono(MolgenisBiobank.class)
-          .block()));*/
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
