@@ -85,23 +85,23 @@ public class MolgenisDirectorySyncService {
       Optional<Organization> organization = organizationRepository.findByExternalId(biobankId);
       if (organization.isEmpty()) {
         Organization newOrganization = addMissingOrganization(bb);
-        addMissingCollections(newOrganization, biobankId, discoveryService, accessForm);
+        addMissingCollections(newOrganization, bb, discoveryService, accessForm);
 
         List<MolgenisCollection> newBiobankCollections =
-            molgenisService.findAllCollectionsByBiobankId(biobankId);
+            molgenisService.findAllCollectionsByBiobankId(bb);
 
       } else {
         if (!bb.getName().equals(organization.get().getName())) {
           updateOrganizationName(organization.get(), bb);
         }
         List<MolgenisCollection> biobankCollections =
-            molgenisService.findAllCollectionsByBiobankId(bb.getId());
+            molgenisService.findAllCollectionsByBiobankId(bb);
         for (MolgenisCollection c : biobankCollections) {
           String collectionId = c.getId();
           Optional<Resource> r = resourceRepository.findBySourceId(collectionId);
           if (r.isEmpty()) {
             log.info("Adding missing collection for the Biobank: " + bb.getId());
-            addMissingCollections(organization.get(), bb.getId(), discoveryService, accessForm);
+            addMissingCollections(organization.get(), bb, discoveryService, accessForm);
           } else {
             if (!r.get().getName().equals(c.getName())
                 || !r.get().getDescription().equals((c.getDescription()))) {
@@ -131,9 +131,12 @@ public class MolgenisDirectorySyncService {
   }
 
   private void addMissingCollections(
-      Organization organization, String biobankId, DiscoveryService service, AccessForm form) {
+      Organization organization,
+      MolgenisBiobank biobank,
+      DiscoveryService service,
+      AccessForm form) {
     List<MolgenisCollection> newBiobankCollections =
-        molgenisService.findAllCollectionsByBiobankId(biobankId);
+        molgenisService.findAllCollectionsByBiobankId(biobank);
     for (MolgenisCollection collection : newBiobankCollections) {
       log.info("Adding collection:" + collection.getId());
       Resource newResource =

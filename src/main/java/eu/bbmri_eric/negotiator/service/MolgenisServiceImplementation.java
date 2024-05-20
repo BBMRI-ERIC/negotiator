@@ -82,7 +82,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
       String response =
           webClient
               .get()
-              .uri("api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==falsea&attrs=id,name")
+              .uri("/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==false&attrs=id,name")
               .retrieve()
               .bodyToMono(String.class)
               .block();
@@ -122,7 +122,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
   }
 
   @Override
-  public List<MolgenisCollection> findAllCollectionsByBiobankId(String biobankId) {
+  public List<MolgenisCollection> findAllCollectionsByBiobankId(MolgenisBiobank biobank) {
     try {
       String response =
           webClient
@@ -130,7 +130,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
               .uri(
                   String.format(
                       "/api/v2/eu_bbmri_eric_collections?q=biobank==%s&num=10000&attrs=id,name,description",
-                      biobankId))
+                      biobank.getId()))
               .retrieve()
               .bodyToMono(String.class)
               .block();
@@ -145,7 +145,7 @@ public class MolgenisServiceImplementation implements MolgenisService {
                 jsonCollection.get("id").getAsString(),
                 jsonCollection.get("name").getAsString(),
                 jsonCollection.get("description").getAsString(),
-                findBiobankById(biobankId).get());
+                biobank);
         collections.add(collection);
       }
       return collections;
