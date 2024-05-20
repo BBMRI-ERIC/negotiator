@@ -9,45 +9,18 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-  @Query(
-      "SELECT new eu.bbmri_eric.negotiator.database.model.views.NotificationViewDTO("
-          + "nt.id, nt.message, nt.emailStatus, ng.id, ng.title, c.name, p) "
-          + "FROM Notification nt "
-          + "JOIN nt.negotiation ng "
-          + "JOIN ng.createdBy c "
-          + "JOIN nt.recipient p "
-          + "WHERE p.id = :recipientId")
-  List<NotificationViewDTO> findViewByRecipientId(Long recipientId);
-
   List<Notification> findByRecipientId(Long personId);
-
-  @Query(
-      "SELECT new eu.bbmri_eric.negotiator.database.model.views.NotificationViewDTO("
-          + "nt.id, nt.message, nt.emailStatus, ng.id, ng.title, c.name, p) "
-          + "FROM Notification nt "
-          + "JOIN nt.negotiation ng "
-          + "JOIN ng.createdBy c "
-          + "JOIN nt.recipient p "
-          + "WHERE nt.emailStatus = :status")
-  List<NotificationViewDTO> findViewByEmailStatus(NotificationEmailStatus status);
 
   List<Notification> findByEmailStatus(NotificationEmailStatus status);
 
-  List<Notification> findByEmailStatusAndMessageEndsWith(
-      NotificationEmailStatus status, String messageSuffix);
-
   @Query(
       "SELECT new eu.bbmri_eric.negotiator.database.model.views.NotificationViewDTO("
-          + "nt.id, nt.message, nt.emailStatus, ng.id, ng.title, c.name, p) "
+          + "nt.id, nt.message, nt.emailStatus, ng.id, ng.title, p) "
           + "FROM Notification nt "
           + "JOIN nt.negotiation ng "
-          + "JOIN ng.createdBy c "
           + "JOIN nt.recipient p "
           + "WHERE p.id = :recipientId AND "
           + "nt.emailStatus = :status")
   List<NotificationViewDTO> findViewByRecipientIdAndEmailStatus(
-      Long recipientId, NotificationEmailStatus status);
-
-  List<Notification> findByRecipientIdAndEmailStatus(
       Long recipientId, NotificationEmailStatus status);
 }

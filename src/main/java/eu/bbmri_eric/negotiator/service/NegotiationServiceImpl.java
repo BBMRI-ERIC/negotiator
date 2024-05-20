@@ -51,8 +51,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public boolean isNegotiationCreator(String negotiationId) {
-    return negotiationRepository.isNegotiationCreator(
-        negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    return personRepository.isNegotiationCreator(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }
 
   /**

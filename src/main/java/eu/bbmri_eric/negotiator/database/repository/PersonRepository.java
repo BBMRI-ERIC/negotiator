@@ -37,6 +37,16 @@ public interface PersonRepository
 
   @Query(
       value =
+          "SELECT EXISTS ("
+              + "SELECT n.id "
+              + "FROM negotiation n "
+              + "WHERE n.id = :negotiationId AND "
+              + "n.created_by = :personId)",
+      nativeQuery = true)
+  boolean isNegotiationCreator(Long personId, String negotiationId);
+
+  @Query(
+      value =
           "SELECT EXISTS (SELECT rs.id "
               + "FROM request rq JOIN request_resources_link rrl on rq.id = rrl.request_id "
               + "                JOIN resource rs on rs.id = rrl.resource_id "

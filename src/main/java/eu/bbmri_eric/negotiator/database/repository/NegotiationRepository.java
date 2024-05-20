@@ -17,16 +17,6 @@ public interface NegotiationRepository
 
   Optional<Negotiation> findDetailedById(String id);
 
-  //  @Override
-  //  @Query(
-  //      value =
-  //          "SELECT EXISTS ("
-  //              + "SELECT n.id "
-  //              + "FROM negotiation n "
-  //              + "WHERE n.id = :negotiationId",
-  //      nativeQuery = true)
-  //  boolean existsById(@Nonnull String id);
-
   @Query(value = "SELECT currentState from Negotiation where id = :id")
   Optional<NegotiationState> findNegotiationStateById(String id);
 
@@ -42,16 +32,6 @@ public interface NegotiationRepository
 
   List<Negotiation> findByModifiedDateBeforeAndCurrentState(
       LocalDateTime thresholdTime, NegotiationState currentState);
-
-  @Query(
-      value =
-          "SELECT EXISTS ("
-              + "SELECT n.id "
-              + "FROM negotiation n "
-              + "WHERE n.id = :negotiationId AND "
-              + "n.created_by = :personId)",
-      nativeQuery = true)
-  boolean isNegotiationCreator(String negotiationId, Long personId);
 
   @Query(
       value =

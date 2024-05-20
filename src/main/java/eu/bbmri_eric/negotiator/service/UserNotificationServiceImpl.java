@@ -36,6 +36,8 @@ import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -137,7 +139,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                         notification.getEmailStatus(),
                         negotiation.getId(),
                         negotiation.getTitle(),
-                        negotiation.getCreatedBy().getName(),
                         notification.getRecipient()))
             .collect(Collectors.toList()));
   }
@@ -328,8 +329,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  //  @Scheduled(cron = "${notification.cron-schedule-expression:0 0 * * * *}")
-  //  @Async
+  @Scheduled(cron = "${notification.cron-schedule-expression:0 0 * * * *}")
+  @Async
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");
     Set<Person> recipients = getPendingRecipients();
@@ -394,7 +395,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     Map<String, String> roleForNegotiation = new HashMap<>();
     for (NotificationViewDTO notification : notifications) {
       String negotiationId = notification.getNegotiationId();
-      String role = extractRoleFromNotificationMessage(notification);
+      String role = extractRole(notification);
       roleForNegotiation.put(negotiationId, role);
     }
     return roleForNegotiation;
@@ -423,25 +424,16 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     return title;
   }
 
-  private String extractRoleFromNotificationMessage(NotificationViewDTO notification) {
+  private String extractRole(NotificationViewDTO notification) {
     String message = notification.getMessage();
     if (message.matches("New Negotiation .* was added for review\\.")
         || message.matches("The negotiation .* is awaiting review\\.")) {
       return "ROLE_ADMIN";
-    } else if (message.matches("Negotiation .* had a change of status of .* to .*")) {
-      // TODO if status changed to "ACCESS_CONDITIONS_MET" role should be "ROLE_REPRESENTATIVE"
-      // (once notification also goes to REPRESENTATIVE)
+    } else if (personRepository.isNegotiationCreator(
+        notification.getRecipient().getId(), notification.getNegotiationId())) {
       return "ROLE_RESEARCHER";
-    } else if (message.matches("Negotiation .* had a new post by .*")) {
-      String[] parts = message.split("new post by");
-      String negotiationCreator = notification.getNegotiationCreatorName();
-      String postCreator = parts[1].trim();
-      return (negotiationCreator.equals(postCreator)) ? "ROLE_REPRESENTATIVE" : "ROLE_RESEARCHER";
-    } else if (message.matches("New Negotiation .*")
-        || message.matches("The negotiation .* is stale and had no status change in a while\\.")) {
-      return "ROLE_REPRESENTATIVE";
     } else {
-      return "ROLE_RESEARCHER";
+      return "ROLE_REPRESENTATIVE";
     }
   }
 

@@ -17,6 +17,5 @@ public class NotificationViewDTO {
   private NotificationEmailStatus emailStatus;
   private String negotiationId;
   private String negotiationTitle;
-  private String negotiationCreatorName;
   private Person recipient;
 }
