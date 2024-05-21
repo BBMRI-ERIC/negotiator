@@ -153,7 +153,8 @@ public class PersonServiceImpl implements PersonService {
         "AUTH_CHANGE: %s added as a representative for resource: %s"
             .formatted(representative.getName(), resource.getSourceId()));
     if (resource.getRepresentatives().isEmpty()) {
-      eventPublisher.publishEvent(new FirstRepresentativeEvent(this, resource.getId()));
+      eventPublisher.publishEvent(
+          new FirstRepresentativeEvent(this, resource.getId(), resource.getSourceId()));
     }
     representative.addResource(resource);
     personRepository.save(representative);

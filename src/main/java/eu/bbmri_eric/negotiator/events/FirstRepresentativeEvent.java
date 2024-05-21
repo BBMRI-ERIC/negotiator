@@ -10,13 +10,11 @@ import org.springframework.context.ApplicationEvent;
 public class FirstRepresentativeEvent extends ApplicationEvent {
 
   private Long resourceId;
+  private String sourceId;
 
-  public FirstRepresentativeEvent(Object source) {
-    super(source);
-  }
-
-  public FirstRepresentativeEvent(Object source, Long resourceId) {
+  public FirstRepresentativeEvent(Object source, Long resourceId, String sourceId) {
     super(source);
     this.resourceId = resourceId;
+    this.sourceId = sourceId;
   }
 }
