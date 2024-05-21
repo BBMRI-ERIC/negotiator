@@ -152,8 +152,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  @Async
-  @Transactional
   public void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource) {
     log.info("Notifying researcher about status change.");
     notificationRepository.save(
