@@ -467,8 +467,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     notificationRepository.saveAll(reminderNotifications);
   }
 
-  //  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
-  //  @Async
+  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
+  @Async
   public void createRemindersOldNegotiations() {
     log.info("Creating reminder email notifications.");
     Duration durationThreshold = Duration.parse(triggerDuration);
