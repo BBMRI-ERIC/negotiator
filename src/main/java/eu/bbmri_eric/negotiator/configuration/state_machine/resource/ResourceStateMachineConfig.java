@@ -52,7 +52,7 @@ public class ResourceStateMachineConfig extends StateMachineConfigurerAdapter<St
         .source(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE.name())
         .event(NegotiationResourceEvent.CONTACT.name())
         .target(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())
-        .secured("isRepresentative")
+        .secured("ROLE_ADMIN,ROLE_AUTHORIZATION_MANAGER", SecurityRule.ComparisonType.ANY)
         .and()
         .withExternal()
         .source(NegotiationResourceState.REPRESENTATIVE_CONTACTED.name())

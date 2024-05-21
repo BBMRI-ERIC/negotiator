@@ -29,18 +29,25 @@ public class FirstRepresentativeListener implements ApplicationListener<FirstRep
   @Override
   public void onApplicationEvent(@NonNull FirstRepresentativeEvent event) {
     List<NegotiationResourceLifecycleRecord> records =
-        repository.findAllByResource_IdAndChangedToAAndNegotiation_CurrentState(
+        repository.findAllByResource_IdAndChangedToAndNegotiation_CurrentState(
             event.getResourceId(),
             NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
             NegotiationState.IN_PROGRESS);
     for (NegotiationResourceLifecycleRecord record : records) {
-      log.info(
-          "LIFECYCLE_CHANGE: Resource %s in Negotiation %s was marked as Contacted"
-              .formatted(record.getResource().getSourceId(), record.getNegotiation().getId()));
-      resourceLifecycleService.sendEvent(
-          record.getNegotiation().getId(),
-          record.getResource().getSourceId(),
-          NegotiationResourceEvent.CONTACT);
+      if (resourceLifecycleService
+          .sendEvent(
+              record.getNegotiation().getId(),
+              record.getResource().getSourceId(),
+              NegotiationResourceEvent.CONTACT)
+          .equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED)) {
+        log.info(
+            "LIFECYCLE_CHANGE: Representative for Resource %s in Negotiation %s was contacted"
+                .formatted(record.getResource().getSourceId(), record.getNegotiation().getId()));
+      } else {
+        log.error(
+            "LIFECYCLE_CHANGE: Resource %s in Negotiation %s could not be updated"
+                .formatted(record.getResource().getSourceId(), record.getNegotiation().getId()));
+      }
     }
   }
 }

@@ -10,6 +10,6 @@ public interface NegotiationResourceLifecycleRepository
     extends JpaRepository<NegotiationResourceLifecycleRecord, Long> {
 
   List<NegotiationResourceLifecycleRecord>
-      findAllByResource_IdAndChangedToAAndNegotiation_CurrentState(
+      findAllByResource_IdAndChangedToAndNegotiation_CurrentState(
           Long resourceId, NegotiationResourceState changedTo, NegotiationState currentState);
 }

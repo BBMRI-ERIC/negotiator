@@ -141,7 +141,7 @@ public class OAuthSecurityConfig {
                     .requestMatchers(mvc.pattern("/v3/users/resources"))
                     .authenticated()
                     .requestMatchers(mvc.pattern("/v3/users/*/resources"))
-                    .hasRole("AUTHORIZATION_MANAGER")
+                    .hasAnyRole("AUTHORIZATION_MANAGER", "ADMIN")
                     .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
                     .authenticated()
                     .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/sections"))
