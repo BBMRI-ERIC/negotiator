@@ -64,8 +64,8 @@ public class NetworkController {
 
   @GetMapping("/networks/{id}")
   @Operation(summary = "Get network by id")
-  public NetworkDTO findById(@PathVariable("id") Long id) {
-    return networkService.findNetworkById(id);
+  public EntityModel<NetworkDTO> findById(@PathVariable("id") Long id) {
+    return networkModelAssembler.toModel(networkService.findNetworkById(id));
   }
 
   @GetMapping("/networks/{id}/resources")
