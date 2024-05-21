@@ -144,6 +144,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
+  @Async
   public void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation) {
     log.info("Notifying representatives about new negotiation.");
     createNotificationsForRepresentatives(negotiation);
