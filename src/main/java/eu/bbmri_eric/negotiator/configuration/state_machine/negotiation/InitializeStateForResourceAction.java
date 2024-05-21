@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
@@ -26,10 +27,20 @@ public class InitializeStateForResourceAction implements Action<String, String> 
   @Transactional
   public void execute(StateContext<String, String> context) {
     String negotiationId = context.getMessage().getHeaders().get("negotiationId", String.class);
+    initializeStateMachine(negotiationId);
+    notifyReps(negotiationId);
+  }
+
+  protected void initializeStateMachine(String negotiationId) {
     Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).orElseThrow();
     for (Resource resource : negotiation.getResources()) {
       negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
     }
+  }
+
+  @Async
+  protected void notifyReps(String negotiationId) {
+    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).orElseThrow();
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
   }
 }
