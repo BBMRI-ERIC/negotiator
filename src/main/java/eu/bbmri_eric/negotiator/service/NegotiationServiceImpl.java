@@ -64,9 +64,6 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Override
   public boolean isAuthorizedForNegotiation(String negotiationId) {
-    boolean isrepre =
-        personService.isRepresentativeOfAnyResourceOfNegotiation(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
     return isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
