@@ -4,8 +4,6 @@ import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
