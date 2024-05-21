@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.state.State;
@@ -55,7 +56,8 @@ public class ResourcePersistStateChangeListener
     return message.getHeaders().get("resourceId", String.class);
   }
 
-  private void notifyRequester(Negotiation negotiation, String resourceId) {
+  @Async
+  protected void notifyRequester(Negotiation negotiation, String resourceId) {
     userNotificationService.notifyRequesterAboutStatusChange(
         negotiation,
         negotiation.getResources().stream()
