@@ -14,7 +14,10 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.resource.Negotiation
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
+import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -49,6 +52,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
   @Autowired private WebApplicationContext context;
+  @Autowired RequestRepository requestRepository;
 
   private void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
@@ -118,6 +122,14 @@ public class NegotiationLifecycleServiceImplTest {
 
   private NegotiationDTO saveNegotiation() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    Request request = requestRepository.findById("request-2").get();
+    Negotiation negotiation =
+        Negotiation.builder()
+            .requests(Set.of(request))
+            .payload(negotiationCreateDTO.getPayload().toString())
+            .build();
+    negotiation.setCreatedBy(Person.builder().id(101L).name("TheBuilder").build());
+    negotiationRepository.save(negotiation);
     return negotiationService.create(negotiationCreateDTO, 101L);
   }
 

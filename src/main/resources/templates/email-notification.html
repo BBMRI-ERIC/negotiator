@@ -64,12 +64,12 @@
                         <ul>
                             <!-- Loop through notifications and display them -->
                             <li th:each="negotiation : ${negotiations}">
-                                <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation.id} + '/'+ ${roleForNegotiation.get(negotiation.id)}}">
-                                    <span th:utext="${titleForNegotiation.get(negotiation.id)}"></span>
+                                <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation} + '/'+ ${roleForNegotiation.get(negotiation)}}">
+                                    <span th:utext="${titleForNegotiation.get(negotiation)}"></span>
                                 </a>
                                 <ul>
                                     <li th:each="notification : ${notificationsForNegotiation.get(negotiation)}">
-                                        <span th:utext="${#strings.replace(notification.getMessage(),negotiation.id,'')}"></span>
+                                        <span th:utext="${#strings.replace(notification.getMessage(),negotiation,'')}"></span>
                                     </li>
                                 </ul>
                             </li>

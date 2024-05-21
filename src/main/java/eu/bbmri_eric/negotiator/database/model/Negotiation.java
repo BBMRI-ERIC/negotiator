@@ -11,7 +11,6 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -76,18 +75,16 @@ public class Negotiation extends AuditEntity {
 
   @OneToMany(
       mappedBy = "negotiation",
-      cascade = {CascadeType.MERGE},
-      fetch = FetchType.LAZY)
+      cascade = {CascadeType.MERGE})
   private Set<Attachment> attachments;
 
   @OneToMany(
       mappedBy = "negotiation",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-      fetch = FetchType.LAZY)
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   @Exclude
   private Set<PersonNegotiationRole> persons = new HashSet<>();
 
-  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE)
   @Exclude
   private Set<Request> requests;
 
@@ -104,7 +101,7 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @CollectionTable(
       name = "resource_state_per_negotiation",
       joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
@@ -115,17 +112,13 @@ public class Negotiation extends AuditEntity {
   @Builder.Default
   private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
 
-  @OneToMany(
-      fetch = FetchType.EAGER,
-      cascade = {CascadeType.ALL})
+  @OneToMany(cascade = {CascadeType.ALL})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
 
-  @OneToMany(
-      fetch = FetchType.EAGER,
-      cascade = {CascadeType.ALL})
+  @OneToMany(cascade = {CascadeType.ALL})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
   @Builder.Default

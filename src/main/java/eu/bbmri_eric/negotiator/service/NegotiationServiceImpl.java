@@ -51,8 +51,8 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public boolean isNegotiationCreator(String negotiationId) {
-    return negotiationRepository.isNegotiationCreator(
-        negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    return personRepository.isNegotiationCreator(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }
 
   /**
@@ -64,9 +64,6 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   @Override
   public boolean isAuthorizedForNegotiation(String negotiationId) {
-    boolean isrepre =
-        personService.isRepresentativeOfAnyResourceOfNegotiation(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
     return isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
@@ -98,12 +95,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Override
   public boolean exists(String negotiationId) {
-    try {
-      findEntityById(negotiationId, false);
-      return true;
-    } catch (EntityNotFoundException ex) {
-      return false;
-    }
+    return negotiationRepository.existsById(negotiationId);
   }
 
   private void addPersonToNegotiation(
