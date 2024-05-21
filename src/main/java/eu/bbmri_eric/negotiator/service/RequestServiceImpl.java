@@ -94,7 +94,7 @@ public class RequestServiceImpl implements RequestService {
     if (resource.isPresent()) {
       return resource;
     }
-    log.info("Resource not found in database. Fetching from Molgenis...");
+    log.info("Resource with ID %s not found in database. Fetching from Molgenis.".formatted(id));
     return fetchResourceFromMolgenis(id);
   }
 
