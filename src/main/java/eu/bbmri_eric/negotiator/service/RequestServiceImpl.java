@@ -84,7 +84,8 @@ public class RequestServiceImpl implements RequestService {
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
-                                "Some of the specified resources were not found.")))
+                                "Resource with source id: %s was not found and could not be fetched from the Discovery Service."
+                                    .formatted(resourceDTO.getId()))))
         .collect(Collectors.toSet());
   }
 
