@@ -129,6 +129,8 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
         creatorId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
       } catch (ClassCastException e) {
         return false;
+      } catch (NullPointerException e) {
+        return true;
       }
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
     } else if (securityRule.getExpression().equals("isRepresentative")) {
