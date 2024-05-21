@@ -20,12 +20,12 @@ import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.EmailService;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +34,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -42,7 +43,11 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration
 public class NegotiationServiceTest {
   @Mock NegotiationRepository negotiationRepository;
   @Mock RoleRepository roleRepository;
@@ -91,8 +96,38 @@ public class NegotiationServiceTest {
 
   @Test
   public void test_Exist_IsFalse_WhenNegotiationIsNotFound() {
-    when(negotiationRepository.findById(any())).thenThrow(EntityNotFoundException.class);
+    when(negotiationRepository.existsById(any())).thenReturn(false);
     assertFalse(negotiationService.exists("unknown"));
+  }
+
+  @Test
+  public void test_Exist_IsTrue_WhenNegotiationIsFound() {
+    when(negotiationRepository.existsById(any())).thenReturn(true);
+    assertTrue(negotiationService.exists("123"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "researcher",
+      authSubject = "researcher@aai.eu",
+      authEmail = "researcher@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_isNegotiatorCreator_IsFalse_WhenPersonRepositoryIsNegotiatiorCreator_IsFalse() {
+    when(personRepository.isNegotiationCreator(any(), any())).thenReturn(false);
+    assertFalse(negotiationService.isNegotiationCreator("123"));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      id = 2L,
+      authName = "researcher",
+      authSubject = "researcher@aai.eu",
+      authEmail = "researcher@aai.eu",
+      authorities = {"ROLE_RESEARCHER"})
+  public void test_isNegotiatorCreator_IsTrue_WhenPersonRepositoryIsNegotiatiorCreator_IsTrue() {
+    when(personRepository.isNegotiationCreator(any(), any())).thenReturn(true);
+    assertTrue(negotiationService.isNegotiationCreator("123"));
   }
 
   @Disabled
