@@ -151,14 +151,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  public void notifyRepresentativesAboutNewNegotiation(String negotiationId) {
-    log.info("Notifying representatives about new negotiation.");
-    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).orElseThrow();
-    createNotificationsForRepresentatives(negotiation);
-    markResourcesWithoutARepresentative(negotiation);
-  }
-
-  @Override
   public void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource) {
     log.info("Notifying researcher about status change.");
     notificationRepository.save(

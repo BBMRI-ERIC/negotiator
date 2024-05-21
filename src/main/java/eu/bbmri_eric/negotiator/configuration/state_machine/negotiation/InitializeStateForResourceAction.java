@@ -4,12 +4,10 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.resource.Negotiation
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.events.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.service.UserNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -24,20 +22,14 @@ public class InitializeStateForResourceAction implements Action<String, String> 
 
   @Autowired @Lazy UserNotificationService userNotificationService;
 
-  @Autowired @Lazy ApplicationEventPublisher eventPublisher;
-
   @Override
   @Transactional
   public void execute(StateContext<String, String> context) {
     String negotiationId = context.getMessage().getHeaders().get("negotiationId", String.class);
-    initializeStateMachine(negotiationId);
-    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiationId));
-  }
-
-  protected void initializeStateMachine(String negotiationId) {
     Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).orElseThrow();
     for (Resource resource : negotiation.getResources()) {
       negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
     }
+    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
   }
 }

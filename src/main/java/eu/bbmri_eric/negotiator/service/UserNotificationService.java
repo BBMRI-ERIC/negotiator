@@ -31,13 +31,6 @@ public interface UserNotificationService {
   void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
 
   /**
-   * Create notifications for all representatives of resources involved in a new negotiation.
-   *
-   * @param negotiation that was created.
-   */
-  void notifyRepresentativesAboutNewNegotiation(String negotiationId);
-
-  /**
    * Create a notification of a resource status change for the author of the request.
    *
    * @param negotiation that was updated.
