@@ -138,7 +138,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                         notification.getMessage(),
                         notification.getEmailStatus(),
                         negotiation.getId(),
-                        negotiation.getTitle(),
+                        parseTitleFromNegotiation(negotiation),
                         notification.getRecipient()))
             .collect(Collectors.toList()));
   }
