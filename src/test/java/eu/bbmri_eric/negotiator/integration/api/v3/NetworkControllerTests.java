@@ -54,7 +54,7 @@ public class NetworkControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1"))
         .andExpect(status().isOk())
-        .andExpect(content().contentType("application/json"))
+        .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.id", is(1)));
   }
 
@@ -76,9 +76,11 @@ public class NetworkControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/managers"))
         .andExpect(status().isOk())
-        .andExpect(content().contentType("application/json"))
-        .andExpect(jsonPath("$.[0].id", is("101")))
-        .andExpect(jsonPath("$.[1].id", is("102")));
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(2)))
+        .andExpect(jsonPath("$._embedded.users.length()", is(2)))
+        .andExpect(jsonPath("$._embedded.users.[0].id", is("101")))
+        .andExpect(jsonPath("$._embedded.users.[1].id", is("102")));
   }
 
   @Test

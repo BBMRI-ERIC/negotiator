@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.exceptions.UnsupportedFilterException;
 import eu.bbmri_eric.negotiator.exceptions.WrongSortingPropertyException;
 import java.util.List;
 import java.util.Set;
+import org.springframework.data.domain.Pageable;
 
 public interface PersonService {
 
@@ -116,5 +117,6 @@ public interface PersonService {
    * @param networkId the ID of the network to retrieve the managers for.
    * @return a List of UserResponseModel objects representing the managers of the network.
    */
-  List<UserResponseModel> findAllForNetwork(Long networkId);
+  Iterable<UserResponseModel> findAllForNetwork(Pageable pageable, Long networkId);
+
 }

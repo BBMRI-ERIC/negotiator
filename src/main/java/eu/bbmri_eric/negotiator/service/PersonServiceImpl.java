@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
@@ -177,14 +178,14 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public List<UserResponseModel> findAllForNetwork(Long networkId) {
+  public Iterable<UserResponseModel> findAllForNetwork(Pageable pageable, Long networkId) {
     Network network =
         networkRepository
             .findById(networkId)
             .orElseThrow(() -> new EntityNotFoundException(networkId));
-    return personRepository.findAllByNetworksContains(network).stream()
-        .map(resource -> modelMapper.map(resource, UserResponseModel.class))
-        .collect(Collectors.toList());
+    return personRepository
+        .findAllByNetworksContains(network, pageable)
+        .map(person -> modelMapper.map(person, UserResponseModel.class));
   }
 
   private Resource getResource(Long resourceId) {

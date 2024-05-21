@@ -87,5 +87,5 @@ public interface PersonRepository
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 
-  List<Person> findAllByNetworksContains(Network network);
+  Page<Person> findAllByNetworksContains(Network network, Pageable pageable);
 }

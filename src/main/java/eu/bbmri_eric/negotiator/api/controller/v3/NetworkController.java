@@ -7,13 +7,13 @@ import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.mappers.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.mappers.ResourceModelAssembler;
+import eu.bbmri_eric.negotiator.mappers.UserModelAssembler;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.NetworkService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
@@ -37,6 +37,7 @@ public class NetworkController {
   private final ResourceModelAssembler resourceModelAssembler;
   private final NegotiationModelAssembler negotiationModelAssembler =
       new NegotiationModelAssembler();
+  private final UserModelAssembler userModelAssembler;
 
   public NetworkController(
       NetworkService networkService,
@@ -44,13 +45,15 @@ public class NetworkController {
       ResourceService resourceService,
       ResourceModelAssembler resourceModelAssembler,
       PersonService personService,
-      NegotiationService negotiationService) {
+      NegotiationService negotiationService,
+      UserModelAssembler userModelAssembler) {
     this.networkService = networkService;
     this.networkModelAssembler = networkModelAssembler;
     this.resourceService = resourceService;
     this.resourceModelAssembler = resourceModelAssembler;
     this.personService = personService;
     this.negotiationService = negotiationService;
+    this.userModelAssembler = userModelAssembler;
   }
 
   @GetMapping("/networks")
@@ -81,8 +84,12 @@ public class NetworkController {
 
   @GetMapping("/networks/{id}/managers")
   @Operation(summary = "List all managers of a network")
-  public List<UserResponseModel> getManagers(@PathVariable("id") Long id) {
-    return personService.findAllForNetwork(id);
+  public PagedModel<EntityModel<UserResponseModel>> getManagers(
+      @PathVariable("id") Long id,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size) {
+    return userModelAssembler.toPagedModel(
+        (Page<UserResponseModel>) personService.findAllForNetwork(PageRequest.of(page, size), id));
   }
 
   @GetMapping("/networks/{id}/negotiations")
