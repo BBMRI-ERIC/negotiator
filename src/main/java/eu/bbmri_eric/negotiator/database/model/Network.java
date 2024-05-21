@@ -125,6 +125,7 @@ public class Network {
     manager.getNetworks().remove(this);
   }
 
+  /** Returns all managers of the network. */
   public Set<Person> getManagers() {
     if (Objects.isNull(this.managers)) {
       return Set.of();
