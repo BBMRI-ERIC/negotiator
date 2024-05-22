@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
+import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,6 +76,13 @@ public class NetworkController {
     return networkModelAssembler.toModel(networkService.findNetworkById(id));
   }
 
+  @DeleteMapping("/networks/{id}")
+  @Operation(summary = "Delete network by id")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteById(@PathVariable("id") Long id) {
+    networkService.deleteNetworkById(id);
+  }
+
   @GetMapping("/networks/{id}/resources")
   @Operation(summary = "List all resources of a network")
   public PagedModel<EntityModel<ResourceResponseModel>> getResources(
@@ -81,10 +91,16 @@ public class NetworkController {
       @RequestParam(required = false, defaultValue = "50") int size) {
     return resourceModelAssembler.toPagedModel(
         (Page<ResourceResponseModel>)
-            resourceService.findAllForNetwork(PageRequest.of(page, size), id));
             resourceService.findAllForNetwork(PageRequest.of(page, size), id),
         id);
   }
+
+  @DeleteMapping("/networks/{id}/resources/{resourceId}")
+  @Operation(summary = "Remove resource from network")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void removeResourceFromNetwork(
+      @PathVariable("id") Long id, @PathVariable("resourceId") Long resourceId) {
+    networkService.removeResourceFromNetwork(id, resourceId);
   }
 
   @GetMapping("/networks/{id}/managers")
@@ -96,6 +112,14 @@ public class NetworkController {
     return userModelAssembler.toPagedModel(
         (Page<UserResponseModel>) personService.findAllForNetwork(PageRequest.of(page, size), id),
         id);
+  }
+
+  @DeleteMapping("/networks/{id}/managers/{managerId}")
+  @Operation(summary = "Remove manager from network")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void removeManagerFromNetwork(
+      @PathVariable("id") Long id, @PathVariable("managerId") Long managerId) {
+    networkService.removeManagerFromNetwork(id, managerId);
   }
 
   @GetMapping("/networks/{id}/negotiations")

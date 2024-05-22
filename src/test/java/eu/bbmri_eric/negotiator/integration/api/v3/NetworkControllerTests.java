@@ -92,8 +92,8 @@ public class NetworkControllerTests {
         .andExpect(jsonPath("$.page.totalElements", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-1")))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-3")))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-4")))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-5")));
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-5")))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-3")))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-4")));
   }
 }

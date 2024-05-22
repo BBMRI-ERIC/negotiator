@@ -1,16 +1,26 @@
 package eu.bbmri_eric.negotiator.service;
 
+import eu.bbmri_eric.negotiator.database.model.Network;
+import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
+import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
+import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+@Transactional
 @Service
 public class NetworkServiceImpl implements NetworkService {
   @Autowired NetworkRepository networkRepository;
+  @Autowired ResourceRepository resourceRepository;
+  @Autowired PersonRepository personRepository;
 
   ModelMapper modelMapper = new ModelMapper();
 
@@ -26,5 +36,47 @@ public class NetworkServiceImpl implements NetworkService {
     return networkRepository
         .findAll(pageable)
         .map(network -> modelMapper.map(network, NetworkDTO.class));
+  }
+
+  @Override
+  public void deleteNetworkById(Long id) {
+    Network network = getNetwork(id);
+    network.getResources().forEach(resource -> network.removeResource(resource));
+    network.getManagers().forEach(manager -> network.removeManager(manager));
+    networkRepository.deleteById(id);
+  }
+
+  @Override
+  public void removeResourceFromNetwork(Long networkId, Long resourceId) {
+    Network network = getNetwork(networkId);
+    Resource resource = getResource(resourceId);
+    network.removeResource(resource);
+    networkRepository.save(network);
+  }
+
+  @Override
+  public void removeManagerFromNetwork(Long networkId, Long managerId) {
+    Network network = getNetwork(networkId);
+    Person manager = getManager(managerId);
+    network.removeManager(manager);
+    networkRepository.save(network);
+  }
+
+  private Resource getResource(Long resourceId) {
+    return resourceRepository
+        .findById(resourceId)
+        .orElseThrow(() -> new EntityNotFoundException(resourceId));
+  }
+
+  private Person getManager(Long managerId) {
+    return personRepository
+        .findById(managerId)
+        .orElseThrow(() -> new UserNotFoundException(managerId));
+  }
+
+  private Network getNetwork(Long networkId) {
+    return networkRepository
+        .findById(networkId)
+        .orElseThrow(() -> new EntityNotFoundException(networkId));
   }
 }

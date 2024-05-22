@@ -19,4 +19,27 @@ public interface NetworkService {
    * @return All networks.
    */
   Iterable<NetworkDTO> findAllNetworks(Pageable pageable);
+
+  /**
+   * Deletes a network with the specified ID.
+   *
+   * @param id The ID of the network to delete.
+   */
+  void deleteNetworkById(Long id);
+
+  /**
+   * Removes a resource from a network.
+   *
+   * @param networkId
+   * @param resourceId
+   */
+  void removeResourceFromNetwork(Long networkId, Long resourceId);
+
+  /**
+   * Removes a manager from a network.
+   *
+   * @param networkId
+   * @param managerId
+   */
+  void removeManagerFromNetwork(Long networkId, Long managerId);
 }
