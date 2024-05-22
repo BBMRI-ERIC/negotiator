@@ -5,8 +5,8 @@ import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJo
 import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJobStatus;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
-import eu.bbmri_eric.negotiator.dto.discoverySyncJobservice.DiscoverySyncJobServiceCreateDTO;
-import eu.bbmri_eric.negotiator.dto.discoverySyncJobservice.DiscoverySyncJobServiceDTO;
+import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceCreateDTO;
+import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceDTO;
 import eu.bbmri_eric.negotiator.publishers.DiscoveryServiceSynchronizationEventPublisher;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
           String.format(
               "Sync Job %s properly instantiated for Discovery Service %s",
               job.getId(), discoveryServiceName);
-      publisher.publishDiscoveryServiceSynchronizationEvent(discoveryServiceName);
+      publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), discoveryServiceName);
       log.info(
           String.format(
               "Sync job event for discovery service %s properly published", discoveryServiceName));

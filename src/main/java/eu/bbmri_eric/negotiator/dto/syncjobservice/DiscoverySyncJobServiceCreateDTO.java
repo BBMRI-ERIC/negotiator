@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.dto.discoverySyncJobservice;
+package eu.bbmri_eric.negotiator.dto.syncjobservice;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

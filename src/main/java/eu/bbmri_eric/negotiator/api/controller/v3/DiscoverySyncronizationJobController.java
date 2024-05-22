@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
-import eu.bbmri_eric.negotiator.dto.discoverySyncJobservice.DiscoverySyncJobServiceCreateDTO;
-import eu.bbmri_eric.negotiator.dto.discoverySyncJobservice.DiscoverySyncJobServiceDTO;
+import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceCreateDTO;
+import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceDTO;
 import eu.bbmri_eric.negotiator.service.DiscoverySynchronizationJobService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
