@@ -139,7 +139,6 @@ public class Negotiation extends AuditEntity {
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
-      System.out.println("here");
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder()
               .negotiation(this)
@@ -148,7 +147,6 @@ public class Negotiation extends AuditEntity {
               .build();
       this.negotiationResourceLifecycleRecords.add(record);
     }
-    System.out.println(this.negotiationResourceLifecycleRecords.size());
   }
 
   @Override
