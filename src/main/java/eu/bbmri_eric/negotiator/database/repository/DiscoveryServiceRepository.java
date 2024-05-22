@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface DiscoveryServiceRepository extends JpaRepository<DiscoveryService, Long> {
 
   Optional<DiscoveryService> findByUrl(String url);
+
+  Optional<DiscoveryService> findByName(String name);
 }
