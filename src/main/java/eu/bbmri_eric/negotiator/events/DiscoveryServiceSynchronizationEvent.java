@@ -9,10 +9,13 @@ import org.springframework.context.ApplicationEvent;
 @Setter
 public class DiscoveryServiceSynchronizationEvent extends ApplicationEvent {
 
+  private String jobId;
   private String discoveryServiceName;
 
-  public DiscoveryServiceSynchronizationEvent(Object source, String discoveryServiceName) {
+  public DiscoveryServiceSynchronizationEvent(
+      Object source, String jobId, String discoveryServiceName) {
     super(source);
+    this.jobId = jobId;
     this.discoveryServiceName = discoveryServiceName;
   }
 }
