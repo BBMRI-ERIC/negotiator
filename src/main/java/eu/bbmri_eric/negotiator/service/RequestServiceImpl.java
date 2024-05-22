@@ -84,7 +84,8 @@ public class RequestServiceImpl implements RequestService {
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
-                                "Some of the specified resources were not found.")))
+                                "Resource with source id: %s was not found and could not be fetched from the Discovery Service."
+                                    .formatted(resourceDTO.getId()))))
         .collect(Collectors.toSet());
   }
 
@@ -93,21 +94,25 @@ public class RequestServiceImpl implements RequestService {
     if (resource.isPresent()) {
       return resource;
     }
-    log.info("Resource not found in database. Fetching from Molgenis...");
+    log.info("Resource with ID %s not found in database. Fetching from Molgenis.".formatted(id));
     return fetchResourceFromMolgenis(id);
   }
 
   private Optional<Resource> fetchResourceFromMolgenis(String id) {
     Optional<MolgenisCollection> molgenisCollection = molgenisService.findCollectionById(id);
     if (molgenisCollection.isPresent()) {
+      log.info(
+          "Fetched resource with ID %s from the Discovery Service."
+              .formatted(molgenisCollection.get().getId()));
       return persistAsResource(molgenisCollection);
     }
+    log.error("Resource with ID %s was not found in the Discovery Service.".formatted(id));
     return Optional.empty();
   }
 
   private Optional<Resource> persistAsResource(Optional<MolgenisCollection> molgenisCollection) {
     Resource resource = prepareResourceForPersisting(molgenisCollection);
-    resourceRepository.save(resource);
+    resource = resourceRepository.save(resource);
     return Optional.of(resource);
   }
 
