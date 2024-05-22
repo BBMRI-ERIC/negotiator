@@ -12,4 +12,7 @@ public interface NegotiationResourceLifecycleRepository
   List<NegotiationResourceLifecycleRecord>
       findAllByResource_IdAndChangedToAndNegotiation_CurrentState(
           Long resourceId, NegotiationResourceState changedTo, NegotiationState currentState);
+
+  boolean existsByResource_IdAndChangedToAndNegotiation_CurrentState(
+      Long resourceId, NegotiationResourceState changedTo, NegotiationState currentState);
 }
