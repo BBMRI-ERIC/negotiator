@@ -12,7 +12,7 @@ import org.springframework.hateoas.server.core.Relation;
 @ToString
 @Relation(collectionRelation = "networks", itemRelation = "network")
 public class NetworkDTO {
-  @NotNull private Long id;
+  private Long id;
 
   @NotNull private String externalId;
 

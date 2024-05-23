@@ -64,7 +64,8 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO) throws EntityNotStorableException {
+  public NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO)
+      throws EntityNotStorableException {
     Network network = getNetwork(id);
     network.setName(networkDTO.getName());
     network.setUri(networkDTO.getUri());
@@ -72,6 +73,19 @@ public class NetworkServiceImpl implements NetworkService {
     network.setContactEmail(networkDTO.getContactEmail());
     networkRepository.save(network);
     return modelMapper.map(network, NetworkDTO.class);
+  }
+
+  @Override
+  public NetworkDTO createNetwork(NetworkDTO networkDTO) throws EntityNotStorableException {
+    if (networkDTO.getId() !=null && networkRepository.existsById(networkDTO.getId())) {
+      throw new EntityNotStorableException();
+    }
+    Network network = modelMapper.map(networkDTO, Network.class);
+    try {
+      return modelMapper.map(networkRepository.save(network), NetworkDTO.class);
+    } catch (Exception ex) {
+      throw new EntityNotStorableException();
+    }
   }
 
   private Resource getResource(Long resourceId) {

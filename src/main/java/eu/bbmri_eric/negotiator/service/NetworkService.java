@@ -51,4 +51,12 @@ public interface NetworkService {
    * @return The updated network.
    */
   NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO);
+
+  /**
+   * Creates a new network.
+   *
+   * @param networkDTO The data of the network to create.
+   * @return The newly created network.
+   */
+  NetworkDTO createNetwork(NetworkDTO networkDTO);
 }

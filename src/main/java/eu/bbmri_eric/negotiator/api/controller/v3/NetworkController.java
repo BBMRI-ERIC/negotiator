@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
+import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
@@ -22,10 +23,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,15 +50,16 @@ public class NetworkController {
   private final NegotiationModelAssembler negotiationModelAssembler =
       new NegotiationModelAssembler();
   private final UserModelAssembler userModelAssembler;
+  private final NetworkRepository networkRepository;
 
   public NetworkController(
-      NetworkService networkService,
-      NetworkModelAssembler networkModelAssembler,
-      ResourceService resourceService,
-      ResourceModelAssembler resourceModelAssembler,
-      PersonService personService,
-      NegotiationService negotiationService,
-      UserModelAssembler userModelAssembler) {
+          NetworkService networkService,
+          NetworkModelAssembler networkModelAssembler,
+          ResourceService resourceService,
+          ResourceModelAssembler resourceModelAssembler,
+          PersonService personService,
+          NegotiationService negotiationService,
+          UserModelAssembler userModelAssembler, NetworkRepository networkRepository) {
     this.networkService = networkService;
     this.networkModelAssembler = networkModelAssembler;
     this.resourceService = resourceService;
@@ -63,6 +67,7 @@ public class NetworkController {
     this.personService = personService;
     this.negotiationService = negotiationService;
     this.userModelAssembler = userModelAssembler;
+    this.networkRepository = networkRepository;
   }
 
   @GetMapping("/networks")
@@ -72,6 +77,17 @@ public class NetworkController {
       @RequestParam(required = false, defaultValue = "50") int size) {
     return networkModelAssembler.toPagedModel(
         (Page<NetworkDTO>) networkService.findAllNetworks(PageRequest.of(page, size)));
+  }
+
+  @PostMapping(
+      value = "/networks",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Create a new network")
+  @ResponseStatus(HttpStatus.CREATED)
+  public EntityModel<NetworkDTO> create(
+      @Validated(ValidationGroups.Create.class) @RequestBody NetworkDTO networkDTO) {
+    return networkModelAssembler.toModel(networkService.createNetwork(networkDTO));
   }
 
   @GetMapping("/networks/{id}")
@@ -87,7 +103,10 @@ public class NetworkController {
     networkService.deleteNetworkById(id);
   }
 
-  @PutMapping("/networks/{id}")
+  @PutMapping(
+      value = "/networks/{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Update network by id")
   public EntityModel<NetworkDTO> update(
       @PathVariable("id") Long id,
