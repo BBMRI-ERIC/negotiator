@@ -141,7 +141,6 @@ public class Negotiation extends AuditEntity {
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder()
-              .negotiation(this)
               .changedTo(state)
               .resource(lookupResource(getResources(), resourceId))
               .build();
