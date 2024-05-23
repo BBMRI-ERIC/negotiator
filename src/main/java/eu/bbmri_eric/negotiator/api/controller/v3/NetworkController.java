@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -53,13 +54,14 @@ public class NetworkController {
   private final NetworkRepository networkRepository;
 
   public NetworkController(
-          NetworkService networkService,
-          NetworkModelAssembler networkModelAssembler,
-          ResourceService resourceService,
-          ResourceModelAssembler resourceModelAssembler,
-          PersonService personService,
-          NegotiationService negotiationService,
-          UserModelAssembler userModelAssembler, NetworkRepository networkRepository) {
+      NetworkService networkService,
+      NetworkModelAssembler networkModelAssembler,
+      ResourceService resourceService,
+      ResourceModelAssembler resourceModelAssembler,
+      PersonService personService,
+      NegotiationService negotiationService,
+      UserModelAssembler userModelAssembler,
+      NetworkRepository networkRepository) {
     this.networkService = networkService;
     this.networkModelAssembler = networkModelAssembler;
     this.resourceService = resourceService;
@@ -143,6 +145,16 @@ public class NetworkController {
     return userModelAssembler.toPagedModel(
         (Page<UserResponseModel>) personService.findAllForNetwork(PageRequest.of(page, size), id),
         id);
+  }
+
+  @PostMapping(value = "/networks/{id}/managers",
+          consumes = MediaType.APPLICATION_JSON_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Add a list of managers to network")
+  @ResponseStatus(HttpStatus.OK)
+  public void addManagersToNetwork(
+      @PathVariable("id") Long id, @RequestBody List<Long> managerIds) {
+    networkService.addManagersToNetwork(id, managerIds);
   }
 
   @DeleteMapping("/networks/{id}/managers/{managerId}")

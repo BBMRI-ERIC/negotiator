@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface NetworkService {
@@ -59,4 +60,12 @@ public interface NetworkService {
    * @return The newly created network.
    */
   NetworkDTO createNetwork(NetworkDTO networkDTO);
+
+  /**
+   * Adds a list of managers to a network.
+   *
+   * @param networkId
+   * @param managerIds
+   */
+  void addManagersToNetwork(Long networkId, List<Long> managerIds);
 }

@@ -11,6 +11,7 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -77,7 +78,7 @@ public class NetworkServiceImpl implements NetworkService {
 
   @Override
   public NetworkDTO createNetwork(NetworkDTO networkDTO) throws EntityNotStorableException {
-    if (networkDTO.getId() !=null && networkRepository.existsById(networkDTO.getId())) {
+    if (networkDTO.getId() != null && networkRepository.existsById(networkDTO.getId())) {
       throw new EntityNotStorableException();
     }
     Network network = modelMapper.map(networkDTO, Network.class);
@@ -86,6 +87,17 @@ public class NetworkServiceImpl implements NetworkService {
     } catch (Exception ex) {
       throw new EntityNotStorableException();
     }
+  }
+
+  @Override
+  public void addManagersToNetwork(Long id, List<Long> managerIds) {
+    Network network = getNetwork(id);
+    managerIds.forEach(
+        managerId -> {
+          Person manager = getManager(managerId);
+          network.addManager(manager);
+        });
+    networkRepository.save(network);
   }
 
   private Resource getResource(Long resourceId) {
