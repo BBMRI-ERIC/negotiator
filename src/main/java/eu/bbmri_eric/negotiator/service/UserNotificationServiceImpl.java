@@ -295,10 +295,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   private void markReachableResources(
       Negotiation negotiation, @NonNull Set<Resource> overlappingResources) {
     for (Resource resourceWithRepresentative : overlappingResources) {
-      resourceLifecycleService.sendEvent(
-          negotiation.getId(),
-          resourceWithRepresentative.getSourceId(),
-          NegotiationResourceEvent.CONTACT);
+      log.info(
+          resourceLifecycleService.sendEvent(
+              negotiation.getId(),
+              resourceWithRepresentative.getSourceId(),
+              NegotiationResourceEvent.CONTACT));
     }
   }
 

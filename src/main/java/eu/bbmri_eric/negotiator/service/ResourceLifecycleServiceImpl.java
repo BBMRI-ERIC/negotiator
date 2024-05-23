@@ -16,6 +16,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.security.SecurityRule;
@@ -123,20 +124,24 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     if (securityRule == null || securityRule.getExpression() == null) {
       return true;
     }
+    Long creatorId;
+    try {
+      creatorId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
+    } catch (ClassCastException e) {
+      return false;
+    } catch (NullPointerException e) {
+      creatorId = 0L;
+    }
     if (securityRule.getExpression().equals("isCreator")) {
-      Long creatorId;
-      try {
-        creatorId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
-      } catch (ClassCastException e) {
-        return false;
-      }
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
     } else if (securityRule.getExpression().equals("isRepresentative")) {
       return personService.isRepresentativeOfAnyResource(
           NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
           List.of(resourceId));
-    } else {
-      return true;
+    } else if (securityRule.getExpression().equals("isAdmin")) {
+      return Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
+          || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
     }
+    return true;
   }
 }
