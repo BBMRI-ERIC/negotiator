@@ -100,6 +100,17 @@ public class NetworkServiceImpl implements NetworkService {
     networkRepository.save(network);
   }
 
+  @Override
+  public void addResourcesToNetwork(Long id, List<Long> resourceIds) {
+    Network network = getNetwork(id);
+    resourceIds.forEach(
+        resourceId -> {
+          Resource resource = getResource(resourceId);
+          network.addResource(resource);
+        });
+    networkRepository.save(network);
+  }
+
   private Resource getResource(Long resourceId) {
     return resourceRepository
         .findById(resourceId)

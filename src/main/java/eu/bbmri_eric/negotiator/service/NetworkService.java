@@ -68,4 +68,12 @@ public interface NetworkService {
    * @param managerIds
    */
   void addManagersToNetwork(Long networkId, List<Long> managerIds);
+
+  /**
+   * Adds a list of resources to a network.
+   *
+   * @param networkId
+   * @param resourceIds
+   */
+  void addResourcesToNetwork(Long networkId, List<Long> resourceIds);
 }

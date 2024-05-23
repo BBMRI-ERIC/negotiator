@@ -136,6 +136,17 @@ public class NetworkController {
     networkService.removeResourceFromNetwork(id, resourceId);
   }
 
+  @PostMapping(
+      value = "/networks/{id}/resources",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Add a list of resources to network")
+  @ResponseStatus(HttpStatus.OK)
+  public void addResourcesToNetwork(
+      @PathVariable("id") Long id, @RequestBody List<Long> resourceIds) {
+    networkService.addResourcesToNetwork(id, resourceIds);
+  }
+
   @GetMapping("/networks/{id}/managers")
   @Operation(summary = "List all managers of a network")
   public PagedModel<EntityModel<UserResponseModel>> getManagers(
@@ -147,9 +158,10 @@ public class NetworkController {
         id);
   }
 
-  @PostMapping(value = "/networks/{id}/managers",
-          consumes = MediaType.APPLICATION_JSON_VALUE,
-          produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(
+      value = "/networks/{id}/managers",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Add a list of managers to network")
   @ResponseStatus(HttpStatus.OK)
   public void addManagersToNetwork(
