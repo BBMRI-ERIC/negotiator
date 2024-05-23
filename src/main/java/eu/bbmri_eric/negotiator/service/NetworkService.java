@@ -42,4 +42,13 @@ public interface NetworkService {
    * @param managerId
    */
   void removeManagerFromNetwork(Long networkId, Long managerId);
+
+  /**
+   * Updates a network with the specified ID.
+   *
+   * @param id The ID of the network to update.
+   * @param networkDTO The updated network data.
+   * @return The updated network.
+   */
+  NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO);
 }

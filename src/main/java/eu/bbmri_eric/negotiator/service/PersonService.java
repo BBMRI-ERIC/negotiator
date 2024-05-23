@@ -118,5 +118,4 @@ public interface PersonService {
    * @return a List of UserResponseModel objects representing the managers of the network.
    */
   Iterable<UserResponseModel> findAllForNetwork(Pageable pageable, Long networkId);
-
 }

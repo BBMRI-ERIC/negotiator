@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
+import eu.bbmri_eric.negotiator.dto.ValidationGroups;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
@@ -21,9 +22,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -81,6 +85,14 @@ public class NetworkController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteById(@PathVariable("id") Long id) {
     networkService.deleteNetworkById(id);
+  }
+
+  @PutMapping("/networks/{id}")
+  @Operation(summary = "Update network by id")
+  public EntityModel<NetworkDTO> update(
+      @PathVariable("id") Long id,
+      @Validated(ValidationGroups.Update.class) @RequestBody NetworkDTO networkDTO) {
+    return networkModelAssembler.toModel(networkService.updateNetwork(id, networkDTO));
   }
 
   @GetMapping("/networks/{id}/resources")

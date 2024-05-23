@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -60,6 +61,17 @@ public class NetworkServiceImpl implements NetworkService {
     Person manager = getManager(managerId);
     network.removeManager(manager);
     networkRepository.save(network);
+  }
+
+  @Override
+  public NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO) throws EntityNotStorableException {
+    Network network = getNetwork(id);
+    network.setName(networkDTO.getName());
+    network.setUri(networkDTO.getUri());
+    network.setExternalId(networkDTO.getExternalId());
+    network.setContactEmail(networkDTO.getContactEmail());
+    networkRepository.save(network);
+    return modelMapper.map(network, NetworkDTO.class);
   }
 
   private Resource getResource(Long resourceId) {
