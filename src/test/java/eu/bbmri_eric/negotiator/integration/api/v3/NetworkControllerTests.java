@@ -157,6 +157,25 @@ public class NetworkControllerTests {
   }
 
   @Test
+  public void testCreate_Network_alreadyExists() throws Exception {
+    NetworkDTO networkDTO =
+        NetworkDTO.builder()
+            .id(1L)
+            .externalId("externalId")
+            .contactEmail("new@negotiator.com")
+            .name("newNetwork")
+            .uri("http://newuri.org")
+            .build();
+    String requestBody = TestUtils.jsonFromRequest(networkDTO);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(NETWORKS_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   public void testUpdate_Network_ok() throws Exception {
     NetworkDTO networkDTO =
         NetworkDTO.builder()
