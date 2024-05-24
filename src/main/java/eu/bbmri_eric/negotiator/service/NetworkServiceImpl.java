@@ -11,11 +11,9 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;

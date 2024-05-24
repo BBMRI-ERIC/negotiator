@@ -14,9 +14,8 @@ import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.dto.NetworkDTO;
-import java.util.Optional;
-
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
