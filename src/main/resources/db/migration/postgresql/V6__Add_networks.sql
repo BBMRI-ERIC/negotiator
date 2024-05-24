@@ -42,9 +42,3 @@ ALTER TABLE network_person_link
 ALTER TABLE network_person_link
     ADD CONSTRAINT fk_netper_on_person FOREIGN KEY (person_id) REFERENCES person (id);
 
-create sequence network_id_seq
-    start with 1
-    increment by 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
