@@ -11,7 +11,11 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +47,10 @@ public class NetworkServiceImpl implements NetworkService {
   @Override
   public void deleteNetworkById(Long id) {
     Network network = getNetwork(id);
-    network.getResources().forEach(resource -> network.removeResource(resource));
-    network.getManagers().forEach(manager -> network.removeManager(manager));
+    Set<Resource> resources = new HashSet<>(network.getResources());
+    Set<Person> managers = new HashSet<>(network.getManagers());
+    resources.forEach(resource -> network.removeResource(resource));
+    managers.forEach(manager -> network.removeManager(manager));
     networkRepository.deleteById(id);
   }
 
