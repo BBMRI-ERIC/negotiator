@@ -20,6 +20,8 @@ public interface NegotiationRepository
   @Query(value = "SELECT currentState from Negotiation where id = :id")
   Optional<NegotiationState> findNegotiationStateById(String id);
 
+  List<Negotiation> findAllByCurrentState(NegotiationState state);
+
   @Query(
       "SELECT n.currentStatePerResource "
           + "FROM Negotiation n "

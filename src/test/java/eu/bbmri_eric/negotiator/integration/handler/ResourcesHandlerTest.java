@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.handlers.NonRepresentedResourcesHandler;
+import eu.bbmri_eric.negotiator.service.PersonService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 public class ResourcesHandlerTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NonRepresentedResourcesHandler handler;
+  @Autowired PersonService personService;
+  @Autowired TestEventListener testEventListener;
 
   @Test
   @Transactional
@@ -34,5 +37,26 @@ public class ResourcesHandlerTest {
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         negotiation.getCurrentStatePerResource().get(resource.getSourceId()));
+  }
+
+  @Test
+  @Transactional
+  void updateState_abandonedNegotiation_noChange() {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    Resource resource = negotiation.getResources().iterator().next();
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    negotiation.setCurrentState(NegotiationState.ABANDONED);
+    assertEquals(NegotiationState.ABANDONED, negotiation.getCurrentState());
+    handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
+        negotiation.getCurrentStatePerResource().get(resource.getSourceId()));
+  }
+
+  @Test
+  void addRepresentative_firstRepresentative_eventPublished() {
+    personService.assignAsRepresentativeForResource(103L, 10L);
+    assertEquals(1, testEventListener.events.size());
   }
 }

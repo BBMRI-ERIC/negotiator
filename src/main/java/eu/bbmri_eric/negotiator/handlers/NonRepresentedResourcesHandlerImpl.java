@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.handlers;
 
+import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
@@ -27,7 +28,8 @@ public class NonRepresentedResourcesHandlerImpl implements NonRepresentedResourc
   @Override
   @Transactional
   public void updateResourceInOngoingNegotiations(Long resourceId, String sourceId) {
-    for (Negotiation negotiation : negotiationRepository.findAll()) {
+    for (Negotiation negotiation :
+        negotiationRepository.findAllByCurrentState(NegotiationState.IN_PROGRESS)) {
       if (Objects.equals(
           negotiation.getCurrentStatePerResource().get(sourceId),
           NegotiationResourceState.REPRESENTATIVE_UNREACHABLE)) {

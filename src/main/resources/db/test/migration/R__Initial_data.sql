@@ -78,6 +78,8 @@ values (4, 'Test collection #1 of biobank #1', 'This is the first test collectio
        (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3',
         'biobank:3:collection:2', 1, 6, 1),
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
+        'biobank:3:collection:3', 1, 6, 1),
+       (10, 'Test collection #10 of biobank #3', 'This is the third test collection of biobank 3',
         'biobank:3:collection:3', 1, 6, 1);
 
 -- TheBiobanker (109) represents resources of biobank1 and biobank2.
