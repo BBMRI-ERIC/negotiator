@@ -44,11 +44,6 @@ public class NetworkServiceImpl implements NetworkService {
 
   @Override
   public void deleteNetworkById(Long id) {
-    Network network = getNetwork(id);
-    Set<Resource> resources = new HashSet<>(network.getResources());
-    Set<Person> managers = new HashSet<>(network.getManagers());
-    resources.forEach(resource -> network.removeResource(resource));
-    managers.forEach(manager -> network.removeManager(manager));
     networkRepository.deleteById(id);
   }
 

@@ -57,7 +57,11 @@ public class Network {
   private String contactEmail;
 
   /** The managers of the network. */
-  @ManyToMany(mappedBy = "networks")
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+          name = "network_person_link",
+          joinColumns = @JoinColumn(name = "person_id"),
+          inverseJoinColumns = @JoinColumn(name = "network_id"))
   @Exclude
   @Setter(AccessLevel.NONE)
   @Builder.Default

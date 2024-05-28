@@ -80,11 +80,7 @@ public class Person {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
   private Set<Authority> authorities;
 
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-      name = "network_person_link",
-      joinColumns = @JoinColumn(name = "person_id"),
-      inverseJoinColumns = @JoinColumn(name = "network_id"))
+  @ManyToMany(mappedBy = "managers")
   @Exclude
   @Setter(AccessLevel.NONE)
   private Set<Network> networks;
