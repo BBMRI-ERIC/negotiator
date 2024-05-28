@@ -59,9 +59,9 @@ public class Network {
   /** The managers of the network. */
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinTable(
-          name = "network_person_link",
-          joinColumns = @JoinColumn(name = "person_id"),
-          inverseJoinColumns = @JoinColumn(name = "network_id"))
+      name = "network_person_link",
+      joinColumns = @JoinColumn(name = "network_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
   @Exclude
   @Setter(AccessLevel.NONE)
   @Builder.Default
