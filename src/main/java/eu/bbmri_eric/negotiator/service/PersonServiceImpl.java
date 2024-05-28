@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.database.repository.PersonSpecifications;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
+import eu.bbmri_eric.negotiator.events.FirstRepresentativeEvent;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.UnsupportedFilterException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,16 +35,19 @@ public class PersonServiceImpl implements PersonService {
   public PersonServiceImpl(
       PersonRepository personRepository,
       ResourceRepository resourceRepository,
-      ModelMapper modelMapper) {
+      ModelMapper modelMapper,
+      ApplicationEventPublisher eventPublisher) {
     this.personRepository = personRepository;
     this.resourceRepository = resourceRepository;
     this.modelMapper = modelMapper;
+    this.eventPublisher = eventPublisher;
   }
 
   private final PersonRepository personRepository;
 
   private final ResourceRepository resourceRepository;
   private final ModelMapper modelMapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   public UserResponseModel findById(Long id) {
     return modelMapper.map(getRepresentative(id), UserResponseModel.class);
@@ -147,6 +152,10 @@ public class PersonServiceImpl implements PersonService {
     log.warn(
         "AUTH_CHANGE: %s added as a representative for resource: %s"
             .formatted(representative.getName(), resource.getSourceId()));
+    if (resource.getRepresentatives().isEmpty()) {
+      eventPublisher.publishEvent(
+          new FirstRepresentativeEvent(this, resource.getId(), resource.getSourceId()));
+    }
     representative.addResource(resource);
     personRepository.save(representative);
   }

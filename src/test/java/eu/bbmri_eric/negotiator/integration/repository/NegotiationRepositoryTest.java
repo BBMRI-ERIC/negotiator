@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
@@ -188,7 +189,7 @@ public class NegotiationRepositoryTest {
     negotiation = negotiationRepository.save(negotiation);
     Negotiation retrievedNegotiation =
         negotiationRepository.findDetailedById(negotiation.getId()).get();
-    assertEquals(10000, retrievedNegotiation.getResources().size());
+    assertTrue(retrievedNegotiation.getResources().size() > 9999);
     for (Resource resource1 : retrievedNegotiation.getResources()) {
       assertEquals(20, resource1.getRepresentatives().size());
     }

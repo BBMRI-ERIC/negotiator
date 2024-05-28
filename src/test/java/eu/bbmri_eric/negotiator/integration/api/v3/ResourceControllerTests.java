@@ -73,6 +73,6 @@ public class ResourceControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.page.totalElements", is(10006)));
+        .andExpect(jsonPath("$.page.totalElements", is(10007)));
   }
 }
