@@ -4,3 +4,4 @@ create sequence network_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+
