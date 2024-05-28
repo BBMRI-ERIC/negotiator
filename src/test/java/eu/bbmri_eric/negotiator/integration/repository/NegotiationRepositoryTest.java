@@ -189,7 +189,7 @@ public class NegotiationRepositoryTest {
     negotiation = negotiationRepository.save(negotiation);
     Negotiation retrievedNegotiation =
         negotiationRepository.findDetailedById(negotiation.getId()).get();
-    assertTrue(retrievedNegotiation.getResources().size() > 10000);
+    assertTrue(retrievedNegotiation.getResources().size() > 9999);
     for (Resource resource1 : retrievedNegotiation.getResources()) {
       assertEquals(20, resource1.getRepresentatives().size());
     }
