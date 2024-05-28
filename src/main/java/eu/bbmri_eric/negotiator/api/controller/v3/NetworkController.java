@@ -94,14 +94,14 @@ public class NetworkController {
 
   @GetMapping("/networks/{id}")
   @Operation(summary = "Get network by id")
-  public EntityModel<NetworkDTO> findById(@PathVariable("id") Long id) {
+  public EntityModel<NetworkDTO> findById(@PathVariable Long id) {
     return networkModelAssembler.toModel(networkService.findNetworkById(id));
   }
 
   @DeleteMapping("/networks/{id}")
   @Operation(summary = "Delete network by id")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteById(@PathVariable("id") Long id) {
+  public void deleteById(@PathVariable Long id) {
     networkService.deleteNetworkById(id);
   }
 
@@ -111,7 +111,7 @@ public class NetworkController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Update network by id")
   public EntityModel<NetworkDTO> update(
-      @PathVariable("id") Long id,
+      @PathVariable Long id,
       @Validated(ValidationGroups.Update.class) @RequestBody NetworkDTO networkDTO) {
     return networkModelAssembler.toModel(networkService.updateNetwork(id, networkDTO));
   }
@@ -119,7 +119,7 @@ public class NetworkController {
   @GetMapping("/networks/{id}/resources")
   @Operation(summary = "List all resources of a network")
   public PagedModel<EntityModel<ResourceResponseModel>> getResources(
-      @PathVariable("id") Long id,
+      @PathVariable Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
     return resourceModelAssembler.toPagedModel(
@@ -132,7 +132,7 @@ public class NetworkController {
   @Operation(summary = "Remove resource from network")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void removeResourceFromNetwork(
-      @PathVariable("id") Long id, @PathVariable("resourceId") Long resourceId) {
+      @PathVariable Long id, @PathVariable("resourceId") Long resourceId) {
     networkService.removeResourceFromNetwork(id, resourceId);
   }
 
@@ -142,15 +142,14 @@ public class NetworkController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Add a list of resources to network")
   @ResponseStatus(HttpStatus.OK)
-  public void addResourcesToNetwork(
-      @PathVariable("id") Long id, @RequestBody List<Long> resourceIds) {
+  public void addResourcesToNetwork(@PathVariable Long id, @RequestBody List<Long> resourceIds) {
     networkService.addResourcesToNetwork(id, resourceIds);
   }
 
   @GetMapping("/networks/{id}/managers")
   @Operation(summary = "List all managers of a network")
   public PagedModel<EntityModel<UserResponseModel>> getManagers(
-      @PathVariable("id") Long id,
+      @PathVariable Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
     return userModelAssembler.toPagedModel(
@@ -164,8 +163,7 @@ public class NetworkController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Add a list of managers to network")
   @ResponseStatus(HttpStatus.OK)
-  public void addManagersToNetwork(
-      @PathVariable("id") Long id, @RequestBody List<Long> managerIds) {
+  public void addManagersToNetwork(@PathVariable Long id, @RequestBody List<Long> managerIds) {
     networkService.addManagersToNetwork(id, managerIds);
   }
 
@@ -173,14 +171,14 @@ public class NetworkController {
   @Operation(summary = "Remove manager from network")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void removeManagerFromNetwork(
-      @PathVariable("id") Long id, @PathVariable("managerId") Long managerId) {
+      @PathVariable Long id, @PathVariable("managerId") Long managerId) {
     networkService.removeManagerFromNetwork(id, managerId);
   }
 
   @GetMapping("/networks/{id}/negotiations")
   @Operation(summary = "List all negotiations associated with a network")
   public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
-      @PathVariable("id") Long id,
+      @PathVariable Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size,
       @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
