@@ -178,7 +178,7 @@ public class NetworkController {
   }
 
   @GetMapping("/networks/{id}/negotiations")
-  @Operation(summary = "List all negotiations associated a network")
+  @Operation(summary = "List all negotiations associated with a network")
   public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
       @PathVariable("id") Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
