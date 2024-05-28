@@ -55,8 +55,9 @@ public class ResourcesHandlerTest {
   }
 
   @Test
-  void addRepresentative_firstRepresentative_eventPublished() {
+  void addRepresentative_firstRepresentative_eventPublished() throws InterruptedException {
     personService.assignAsRepresentativeForResource(103L, 10L);
+    Thread.sleep(100L);
     assertEquals(1, testEventListener.events.size());
   }
 }
