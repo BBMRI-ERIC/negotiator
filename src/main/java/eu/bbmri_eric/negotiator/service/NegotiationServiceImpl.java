@@ -307,21 +307,21 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Transactional
-  public void enablePosts(String negotiationId) {
-    updatePostStatus(negotiationId, true);
+  public void enablePrivatePosts(String negotiationId) {
+    updatePrivatePostStatus(negotiationId, true);
   }
 
   @Transactional
-  public void disablePosts(String negotiationId) {
-    updatePostStatus(negotiationId, false);
+  public void disablePrivatePosts(String negotiationId) {
+    updatePrivatePostStatus(negotiationId, false);
   }
 
-  private void updatePostStatus(String negotiationId, boolean enabled) {
+  private void updatePrivatePostStatus(String negotiationId, boolean enabled) {
     Negotiation negotiation =
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    negotiation.setPostsEnabled(enabled);
+    negotiation.setPrivatePostsEnabled(enabled);
     negotiationRepository.save(negotiation);
   }
 

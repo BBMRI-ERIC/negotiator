@@ -108,14 +108,14 @@ public interface NegotiationService {
    *
    * @param negotiationId the ID of the Negotiation
    */
-  void enablePosts(String negotiationId);
+  void enablePrivatePosts(String negotiationId);
 
   /**
    * Sets the enabledPosts attrubute to false for the input Negotiation
    *
    * @param negotiationId the ID of the Negotiation
    */
-  void disablePosts(String negotiationId);
+  void disablePrivatePosts(String negotiationId);
 
   /**
    * Retrieves all Negotiations with specific current state.
