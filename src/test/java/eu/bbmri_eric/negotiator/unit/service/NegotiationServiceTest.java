@@ -166,30 +166,48 @@ public class NegotiationServiceTest {
   }
 
   @Test
-  public void updatePostStatus_to_true() {
+  public void updatePrivatePostStatus_to_true() {
     Negotiation negotiation = buildNegotiation();
     String negotiationId = "biobank:1:collection:1";
     negotiation.setId(negotiationId);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
-
-    negotiation.setPublicPostsEnabled(false);
-
+    negotiation.setPrivatePostsEnabled(false);
     negotiationService.enablePrivatePosts(negotiationId);
-
-    assertTrue(negotiation.getPublicPostsEnabled());
+    assertTrue(negotiation.getPrivatePostsEnabled());
   }
 
   @Test
-  public void updatePostStatus_to_false() {
+  public void updatePrivatePostStatus_to_false() {
     Negotiation negotiation = buildNegotiation();
     String negotiationId = "biobank:1:collection:1";
     negotiation.setId(negotiationId);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
-
-    negotiation.setPublicPostsEnabled(true);
-
+    negotiation.setPrivatePostsEnabled(true);
     negotiationService.disablePrivatePosts(negotiationId);
+    assertFalse(negotiation.getPrivatePostsEnabled());
+  }
 
+  @Test
+  public void updatePublicPostStatus_to_false() {
+    Negotiation negotiation = buildNegotiation();
+    String negotiationId = "biobank:1:collection:1";
+    negotiation.setId(negotiationId);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    negotiation.setPublicPostsEnabled(true);
+    negotiationService.disablePublicPosts(negotiationId);
     assertFalse(negotiation.getPublicPostsEnabled());
+  }
+
+  @Test
+  public void updateAllPostStatus_to_false() {
+    Negotiation negotiation = buildNegotiation();
+    String negotiationId = "biobank:1:collection:1";
+    negotiation.setId(negotiationId);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    negotiation.setPublicPostsEnabled(true);
+    negotiation.setPrivatePostsEnabled(true);
+    negotiationService.disableAllPosts(negotiationId);
+    assertFalse(negotiation.getPublicPostsEnabled());
+    assertFalse(negotiation.getPrivatePostsEnabled());
   }
 }

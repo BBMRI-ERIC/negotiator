@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
+import eu.bbmri_eric.negotiator.database.model.PostType;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -308,20 +310,37 @@ public class NegotiationServiceImpl implements NegotiationService {
 
   @Transactional
   public void enablePrivatePosts(String negotiationId) {
-    updatePrivatePostStatus(negotiationId, true);
+    updatePostStatus(negotiationId, PostType.PRIVATE, true);
   }
 
   @Transactional
   public void disablePrivatePosts(String negotiationId) {
-    updatePrivatePostStatus(negotiationId, false);
+    updatePostStatus(negotiationId, PostType.PRIVATE, false);
   }
 
-  private void updatePrivatePostStatus(String negotiationId, boolean enabled) {
+  @Transactional
+  public void disablePublicPosts(String negotiationId) {
+    updatePostStatus(negotiationId, PostType.PUBLIC, false);
+  }
+
+  @Transactional
+  public void disableAllPosts(String negotiationId) {
+    updatePostStatus(negotiationId, null, false);
+  }
+
+  private void updatePostStatus(
+      String negotiationId, @Nullable PostType postType, boolean enabled) {
     Negotiation negotiation =
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    negotiation.setPrivatePostsEnabled(enabled);
+
+    if (postType == null || postType.equals(PostType.PRIVATE)) {
+      negotiation.setPrivatePostsEnabled(enabled);
+    }
+    if (postType == null || postType.equals(PostType.PUBLIC)) {
+      negotiation.setPublicPostsEnabled(enabled);
+    }
     negotiationRepository.save(negotiation);
   }
 

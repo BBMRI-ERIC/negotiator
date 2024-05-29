@@ -161,6 +161,21 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_approveCorrectly_calledActionDisablePosts() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(
+        NegotiationState.IN_PROGRESS,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+    assertEquals(
+        NegotiationState.ABANDONED,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
+    assertFalse(
+        negotiationService.findById(negotiationDTO.getId(), false).getPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPublicPostsEnabled());
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_historyIsUpdated() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
