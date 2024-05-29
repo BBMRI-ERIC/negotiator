@@ -11,11 +11,10 @@ public interface PostService {
    * Creates a new post for the specified Negotiation
    *
    * @param postRequest the Post DTO containing request information
-   * @param personId the ID pf the person that is creating the post
    * @param negotiationId thr ID of the negotiation to which the post refers
    * @return the response PostDTO object
    */
-  PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId);
+  PostDTO create(PostCreateDTO postRequest, String negotiationId);
 
   /**
    * Finds all the posts related to a negotiation

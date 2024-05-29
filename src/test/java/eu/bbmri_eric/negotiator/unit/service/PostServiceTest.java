@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -12,8 +14,11 @@ import eu.bbmri_eric.negotiator.database.model.PostStatus;
 import eu.bbmri_eric.negotiator.database.model.PostType;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PostRepository;
+import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostDTO;
+import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
@@ -21,9 +26,9 @@ import eu.bbmri_eric.negotiator.service.PostServiceImpl;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,10 +66,11 @@ public class PostServiceTest {
   private static final String ORG_2 = "Organization_2";
   private static final String NEG_1 = "negotiationId";
   @Mock PostRepository postRepository;
+  @Mock NegotiationRepository negotiationRepository;
 
   @Mock PersonService personService;
-
   @Mock NegotiationService negotiationService;
+
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
   private AutoCloseable closeable;
@@ -78,6 +84,7 @@ public class PostServiceTest {
   private List<Post> allPosts;
   private List<Post> publicPosts;
   private List<Post> privatePosts;
+  private Negotiation negotiation;
 
   @BeforeEach
   void before() {
@@ -132,7 +139,7 @@ public class PostServiceTest {
 
     Request request = Request.builder().resources(Set.of(resource1, resource2)).build();
 
-    Negotiation negotiation = Negotiation.builder().id(NEG_1).requests(Set.of(request)).build();
+    negotiation = Negotiation.builder().id(NEG_1).requests(Set.of(request)).build();
     negotiation.setCreatedBy(researcher);
 
     publicPost1 =
@@ -194,9 +201,40 @@ public class PostServiceTest {
   }
 
   @Test
+  public void test_createPublicForNegotiationId_isForbidden() {
+    negotiation.setPublicPostsEnabled(false);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder()
+            .status(PostStatus.CREATED)
+            .text("message")
+            .type(PostType.PUBLIC)
+            .build();
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> postService.create(postCreateDTO, negotiation.getId()));
+  }
+
+  @Test
+  public void test_createPrivateForNegotiationId_isForbidden() {
+    negotiation.setPrivatePostsEnabled(false);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder()
+            .status(PostStatus.CREATED)
+            .text("message")
+            .organizationId(ORG_1)
+            .type(PostType.PRIVATE)
+            .build();
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> postService.create(postCreateDTO, negotiation.getId()));
+  }
+
+  @Test
   public void test_findByNegotiationId_NoResults() {
     when(postRepository.findByNegotiationId("fakeId")).thenReturn(Collections.emptyList());
-    Assertions.assertEquals(0, postService.findByNegotiationId("fakeId", null, null).size());
+    assertEquals(0, postService.findByNegotiationId("fakeId", null, null).size());
   }
 
   /** Tests that the admin gets all the posts of a negotiation */
@@ -209,8 +247,7 @@ public class PostServiceTest {
       authorities = {"ROLE_ADMIN"})
   public void test_findByNegotiationId_AsAdmin_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
-    Assertions.assertEquals(
-        allPosts.size(), postService.findByNegotiationId(NEG_1, null, null).size());
+    assertEquals(allPosts.size(), postService.findByNegotiationId(NEG_1, null, null).size());
   }
 
   /** Tests that the researcger gets all the posts of a negotiation */
@@ -224,8 +261,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsResearcher_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
-        allPosts.size(), postService.findByNegotiationId(NEG_1, null, null).size());
+    assertEquals(allPosts.size(), postService.findByNegotiationId(NEG_1, null, null).size());
   }
 
   /** Tests that the biobanker gets the public posts and the ones sent to their organization */
@@ -239,7 +275,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsBiobanker_All() {
     when(postRepository.findByNegotiationId(NEG_1)).thenReturn(allPosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(4, postService.findByNegotiationId(NEG_1, null, null).size());
+    assertEquals(4, postService.findByNegotiationId(NEG_1, null, null).size());
   }
 
   /** Tests that a person not involved in the negotiation, gets no posts */
@@ -254,7 +290,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(allPosts);
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
 
@@ -268,7 +304,7 @@ public class PostServiceTest {
       authorities = {"ROLE_ADMIN"})
   public void test_findByNegotiationId_AsAdmin_Public() {
     when(postRepository.findByNegotiationIdAndType(NEG_1, PostType.PUBLIC)).thenReturn(publicPosts);
-    Assertions.assertEquals(
+    assertEquals(
         publicPosts.size(), postService.findByNegotiationId(NEG_1, PostType.PUBLIC, null).size());
   }
 
@@ -283,7 +319,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsResearcher_Public() {
     when(postRepository.findByNegotiationIdAndType(NEG_1, PostType.PUBLIC)).thenReturn(publicPosts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         publicPosts.size(), postService.findByNegotiationId(NEG_1, PostType.PUBLIC, null).size());
   }
 
@@ -298,7 +334,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsBiobanker_Public() {
     when(postRepository.findByNegotiationIdAndType(NEG_1, PostType.PUBLIC)).thenReturn(publicPosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         publicPosts.size(), postService.findByNegotiationId(NEG_1, PostType.PUBLIC, null).size());
   }
 
@@ -314,7 +350,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(publicPosts);
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
 
@@ -329,7 +365,7 @@ public class PostServiceTest {
   public void test_findByNegotiationId_AsAdmin_Private() {
     when(postRepository.findByNegotiationIdAndType(NEG_1, PostType.PRIVATE))
         .thenReturn(privatePosts);
-    Assertions.assertEquals(
+    assertEquals(
         privatePosts.size(), postService.findByNegotiationId(NEG_1, PostType.PRIVATE, null).size());
   }
 
@@ -345,7 +381,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndType(NEG_1, PostType.PRIVATE))
         .thenReturn(privatePosts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         privatePosts.size(), postService.findByNegotiationId(NEG_1, PostType.PRIVATE, null).size());
   }
 
@@ -361,8 +397,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndType(NEG_1, PostType.PRIVATE))
         .thenReturn(privatePosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
-        2, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, null).size());
+    assertEquals(2, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, null).size());
   }
 
   /** Tests that a person not involved in the negotiation, gets no posts */
@@ -377,7 +412,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(privatePosts);
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
 
@@ -397,7 +432,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(posts);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
@@ -416,7 +451,7 @@ public class PostServiceTest {
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
@@ -435,7 +470,7 @@ public class PostServiceTest {
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         2, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
 
@@ -452,7 +487,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
             NEG_1, PostType.PRIVATE, "organization:1"))
         .thenReturn(posts);
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findByNegotiationId(NEG_1, PostType.PRIVATE, "organization:1").size());
   }
 
@@ -462,7 +497,7 @@ public class PostServiceTest {
     when(postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(Collections.emptyList());
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
   }
 
@@ -480,7 +515,7 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(allPosts);
 
-    Assertions.assertEquals(
+    assertEquals(
         allPosts.size(),
         postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
   }
@@ -500,7 +535,7 @@ public class PostServiceTest {
             NEG_1, PostStatus.CREATED, authors))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors(NEG_1, authors, null, null).size());
   }
@@ -521,7 +556,7 @@ public class PostServiceTest {
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
     List<PostDTO> returnedPost =
         postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
   }
@@ -541,7 +576,7 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
   }
 
@@ -559,7 +594,7 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(allPosts);
 
-    Assertions.assertEquals(
+    assertEquals(
         allPosts.size(),
         postService
             .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, null)
@@ -581,7 +616,7 @@ public class PostServiceTest {
             NEG_1, PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors(NEG_1, authors, PostType.PUBLIC, null).size());
   }
@@ -601,7 +636,7 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, PostType.PUBLIC, authors))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService
             .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PUBLIC, null)
@@ -623,7 +658,7 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findNewByNegotiationIdAndAuthors("fakeId", authors, null, null).size());
   }
 
@@ -641,7 +676,7 @@ public class PostServiceTest {
             "fakeId", PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(privatePosts);
 
-    Assertions.assertEquals(
+    assertEquals(
         privatePosts.size(),
         postService
             .findNewByNegotiationIdAndAuthors("fakeId", authors, PostType.PRIVATE, null)
@@ -665,7 +700,7 @@ public class PostServiceTest {
             NEG_1, PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService
             .findNewByNegotiationIdAndAuthors(NEG_1, authors, PostType.PRIVATE, null)
@@ -689,7 +724,7 @@ public class PostServiceTest {
             "neg1", PostStatus.CREATED, PostType.PRIVATE, authors))
         .thenReturn(privatePosts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         2,
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, null)
@@ -712,7 +747,7 @@ public class PostServiceTest {
             "neg1", PostStatus.CREATED, authors))
         .thenReturn(posts);
 
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, null).size());
   }
 
@@ -723,7 +758,7 @@ public class PostServiceTest {
             .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
                 "neg1", PostStatus.CREATED, null, authors, ORG_1))
         .thenReturn(Collections.emptyList());
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
@@ -741,7 +776,7 @@ public class PostServiceTest {
             "neg1", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(allPosts);
 
-    Assertions.assertEquals(
+    assertEquals(
         allPosts.size(),
         postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
@@ -761,7 +796,7 @@ public class PostServiceTest {
             NEG_1, PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors(NEG_1, authors, null, ORG_1).size());
   }
@@ -781,7 +816,7 @@ public class PostServiceTest {
             "neg1", PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
@@ -802,7 +837,7 @@ public class PostServiceTest {
             NEG_1, PostStatus.CREATED, authors, ORG_1))
         .thenReturn(posts);
 
-    Assertions.assertEquals(
+    assertEquals(
         0, postService.findNewByNegotiationIdAndAuthors("neg1", authors, null, ORG_1).size());
   }
 
@@ -821,7 +856,7 @@ public class PostServiceTest {
                 "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(allPosts);
 
-    Assertions.assertEquals(
+    assertEquals(
         allPosts.size(),
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
@@ -844,7 +879,7 @@ public class PostServiceTest {
                 NEG_1, PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService
             .findNewByNegotiationIdAndAuthors(NEG_1, authors, PostType.PUBLIC, ORG_1)
@@ -867,7 +902,7 @@ public class PostServiceTest {
                 "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
@@ -891,7 +926,7 @@ public class PostServiceTest {
                 "neg1", PostStatus.CREATED, PostType.PUBLIC, authors, ORG_1))
         .thenReturn(posts);
 
-    Assertions.assertEquals(
+    assertEquals(
         0,
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PUBLIC, ORG_1)
@@ -913,7 +948,7 @@ public class PostServiceTest {
                 "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(privatePosts);
 
-    Assertions.assertEquals(
+    assertEquals(
         privatePosts.size(),
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)
@@ -938,7 +973,7 @@ public class PostServiceTest {
                 NEG_1, PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isNegotiationCreator(NEG_1)).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         posts.size(),
         postService
             .findNewByNegotiationIdAndAuthors(NEG_1, authors, PostType.PRIVATE, ORG_1)
@@ -963,7 +998,7 @@ public class PostServiceTest {
                 "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
     when(negotiationService.isAuthorizedForNegotiation(any())).thenReturn(true);
-    Assertions.assertEquals(
+    assertEquals(
         2,
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)
@@ -989,7 +1024,7 @@ public class PostServiceTest {
                 "neg1", PostStatus.CREATED, PostType.PRIVATE, authors, ORG_1))
         .thenReturn(posts);
 
-    Assertions.assertEquals(
+    assertEquals(
         0,
         postService
             .findNewByNegotiationIdAndAuthors("neg1", authors, PostType.PRIVATE, ORG_1)

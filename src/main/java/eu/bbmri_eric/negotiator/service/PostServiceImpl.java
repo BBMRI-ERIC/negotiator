@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -43,9 +44,24 @@ public class PostServiceImpl implements PostService {
   @Autowired private NegotiationService negotiationService;
   @Autowired private UserNotificationService userNotificationService;
 
+  /**
+   * Checks whether the post is allowed. The choice is made according to the postsEnabled flags of
+   * the Negotiation and the post type
+   *
+   * @return true if the post's type is enabled for the Negotiation
+   */
+  private boolean isPostAllowed(PostCreateDTO postDTO, Negotiation negotiation) {
+    return (postDTO.getType() == PostType.PRIVATE && negotiation.getPrivatePostsEnabled())
+        || (postDTO.getType() == PostType.PUBLIC && negotiation.getPublicPostsEnabled());
+  }
+
   @Transactional
-  public PostDTO create(PostCreateDTO postRequest, Long personId, String negotiationId) {
-    Post postEntity = setUpPostEntity(postRequest, negotiationId);
+  public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
+    Negotiation negotiation = getNegotiation(negotiationId);
+    if (!isPostAllowed(postRequest, negotiation)) {
+      throw new ForbiddenRequestException();
+    }
+    Post postEntity = setUpPostEntity(postRequest, negotiation);
     try {
       postEntity = postRepository.save(postEntity);
     } catch (DataIntegrityViolationException ex) {
@@ -56,10 +72,10 @@ public class PostServiceImpl implements PostService {
   }
 
   @NonNull
-  private Post setUpPostEntity(PostCreateDTO postRequest, String negotiationId) {
+  private Post setUpPostEntity(PostCreateDTO postRequest, Negotiation negotiation) {
     Post postEntity = getPostEntity(postRequest);
     postEntity.setOrganization(getOrganization(postRequest));
-    postEntity.setNegotiation(getNegotiation(negotiationId));
+    postEntity.setNegotiation(negotiation);
     Person author =
         personRepository
             .findById(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
