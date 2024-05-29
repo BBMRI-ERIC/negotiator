@@ -2,9 +2,10 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
 import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
-import eu.bbmri_eric.negotiator.dto.NetworkDTO;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
@@ -88,7 +89,7 @@ public class NetworkController {
   @Operation(summary = "Create a new network")
   @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<NetworkDTO> create(
-      @Validated(ValidationGroups.Create.class) @RequestBody NetworkDTO networkDTO) {
+      @Validated(ValidationGroups.Create.class) @RequestBody NetworkCreateDTO networkDTO) {
     return networkModelAssembler.toModel(networkService.createNetwork(networkDTO));
   }
 
@@ -112,7 +113,7 @@ public class NetworkController {
   @Operation(summary = "Update network by id")
   public EntityModel<NetworkDTO> update(
       @PathVariable Long id,
-      @Validated(ValidationGroups.Update.class) @RequestBody NetworkDTO networkDTO) {
+      @Validated(ValidationGroups.Update.class) @RequestBody NetworkCreateDTO networkDTO) {
     return networkModelAssembler.toModel(networkService.updateNetwork(id, networkDTO));
   }
 

@@ -1,10 +1,18 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.dto.NetworkDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface NetworkService {
+
+  /**
+   * Retrieves all networks.
+   *
+   * @return All networks.
+   */
+  Iterable<NetworkDTO> findAllNetworks(Pageable pageable);
 
   /**
    * Retrieves a network with the specified ID.
@@ -13,13 +21,6 @@ public interface NetworkService {
    * @return The NetworkDTO with the specified ID.
    */
   NetworkDTO findNetworkById(Long id);
-
-  /**
-   * Retrieves all networks.
-   *
-   * @return All networks.
-   */
-  Iterable<NetworkDTO> findAllNetworks(Pageable pageable);
 
   /**
    * Deletes a network with the specified ID.
@@ -51,7 +52,7 @@ public interface NetworkService {
    * @param networkDTO The updated network data.
    * @return The updated network.
    */
-  NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO);
+  NetworkDTO updateNetwork(Long id, NetworkCreateDTO networkDTO);
 
   /**
    * Creates a new network.
@@ -59,7 +60,7 @@ public interface NetworkService {
    * @param networkDTO The data of the network to create.
    * @return The newly created network.
    */
-  NetworkDTO createNetwork(NetworkDTO networkDTO);
+  NetworkDTO createNetwork(NetworkCreateDTO networkDTO);
 
   /**
    * Adds a list of managers to a network.

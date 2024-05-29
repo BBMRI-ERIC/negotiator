@@ -13,7 +13,8 @@ import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
-import eu.bbmri_eric.negotiator.dto.NetworkDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -49,7 +50,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testGetAll_Networks_ok() throws Exception {
+  public void getNetworks_validURL_allNetworks() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL))
         .andExpect(status().isOk())
@@ -62,7 +63,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testGet_Network_ok() throws Exception {
+  public void getNetwork_validNetworkId_Network() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1"))
         .andExpect(status().isOk())
@@ -71,7 +72,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testGet_resources_ok() throws Exception {
+  public void getNetworkResources_validNetworkId_returnsResources() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/resources"))
         .andExpect(status().isOk())
@@ -84,7 +85,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testGet_managers_ok() throws Exception {
+  public void getNetworkManagers_validNetworkId_returnsManagers() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/managers"))
         .andExpect(status().isOk())
@@ -96,7 +97,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testGet_negotiations_ok() throws Exception {
+  public void getNetworkNegotiations_validNetworkId_returnsNegotiations() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations"))
         .andExpect(status().isOk())
@@ -110,7 +111,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testDelete_Network_ok() throws Exception {
+  public void deleteNetwork_NetworkExists_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1"))
         .andExpect(status().isNoContent());
@@ -120,16 +121,16 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testDelete_Network_EntityNotFound() throws Exception {
+  public void deleteNetwork_noNetworkExists_throws400() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/314"))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void testCreate_Network_ok() throws Exception {
-    NetworkDTO networkDTO =
-        NetworkDTO.builder()
+  public void postNetwork_validNetwork_returnsNewNetwork() throws Exception {
+    NetworkCreateDTO networkDTO =
+        NetworkCreateDTO.builder()
             .externalId("externalId")
             .contactEmail("new@negotiator.com")
             .name("newNetwork")
@@ -157,14 +158,14 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testCreate_Network_alreadyExists() throws Exception {
+  public void postNetwork_alreadyExists_throws400() throws Exception {
     NetworkDTO networkDTO =
         NetworkDTO.builder()
             .id(1L)
-            .externalId("externalId")
-            .contactEmail("new@negotiator.com")
-            .name("newNetwork")
-            .uri("http://newuri.org")
+            .externalId("bbmri-eric:ID:SE_890:network:bbmri-eric")
+            .contactEmail("office@negotiator.org")
+            .name("network-1")
+            .uri("https://network-1/")
             .build();
     String requestBody = TestUtils.jsonFromRequest(networkDTO);
     mockMvc
@@ -176,7 +177,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  public void testUpdate_Network_ok() throws Exception {
+  public void putNetwork_validNetwork_returnsUpdatedNetwork() throws Exception {
     NetworkDTO networkDTO =
         NetworkDTO.builder()
             .id(1L)
@@ -202,7 +203,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
-  public void testAddResourcesToNetwork_ok() throws Exception {
+  public void postNetworkResources_validIds_returns201() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NETWORKS_URL + "/1/resources")
@@ -218,7 +219,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
-  public void testAddManagersToNetwork_ok() throws Exception {
+  public void postNetworkManagers_validIds_returns200() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NETWORKS_URL + "/1/managers")
@@ -234,7 +235,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
-  public void testRemoveResourceFromNetwork_ok() throws Exception {
+  public void deleteNetworkResource_validId_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1/resources/4"))
         .andExpect(status().isNoContent());
@@ -246,7 +247,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
-  public void testRemoveManagerFromNetwork_ok() throws Exception {
+  public void deleteNetworkManager_validId_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1/managers/101"))
         .andExpect(status().isNoContent());

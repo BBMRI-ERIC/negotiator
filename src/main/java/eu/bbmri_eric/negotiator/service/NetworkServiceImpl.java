@@ -6,14 +6,13 @@ import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.dto.NetworkDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +24,7 @@ public class NetworkServiceImpl implements NetworkService {
   @Autowired NetworkRepository networkRepository;
   @Autowired ResourceRepository resourceRepository;
   @Autowired PersonRepository personRepository;
-
-  ModelMapper modelMapper = new ModelMapper();
+  @Autowired ModelMapper modelMapper;
 
   @Override
   public NetworkDTO findNetworkById(Long id) {
@@ -44,7 +42,8 @@ public class NetworkServiceImpl implements NetworkService {
 
   @Override
   public void deleteNetworkById(Long id) {
-    networkRepository.deleteById(id);
+    Network network = getNetwork(id);
+    networkRepository.delete(network);
   }
 
   @Override
@@ -64,7 +63,7 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public NetworkDTO updateNetwork(Long id, NetworkDTO networkDTO)
+  public NetworkDTO updateNetwork(Long id, NetworkCreateDTO networkDTO)
       throws EntityNotStorableException {
     Network network = getNetwork(id);
     network.setName(networkDTO.getName());
@@ -76,13 +75,12 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public NetworkDTO createNetwork(NetworkDTO networkDTO) throws EntityNotStorableException {
-    if (networkDTO.getId() != null && networkRepository.existsById(networkDTO.getId())) {
-      throw new EntityNotStorableException();
-    }
-    Network network = modelMapper.map(networkDTO, Network.class);
+  public NetworkDTO createNetwork(NetworkCreateDTO networkCreateDTO)
+      throws EntityNotStorableException {
+    Network network = modelMapper.map(networkCreateDTO, Network.class);
     try {
-      return modelMapper.map(networkRepository.save(network), NetworkDTO.class);
+      Network savedNetwork = networkRepository.saveAndFlush(network);
+      return modelMapper.map(savedNetwork, NetworkDTO.class);
     } catch (Exception ex) {
       throw new EntityNotStorableException();
     }

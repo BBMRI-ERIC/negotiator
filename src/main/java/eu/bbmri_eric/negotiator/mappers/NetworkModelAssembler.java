@@ -4,7 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NetworkController;
-import eu.bbmri_eric.negotiator.dto.NetworkDTO;
+import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

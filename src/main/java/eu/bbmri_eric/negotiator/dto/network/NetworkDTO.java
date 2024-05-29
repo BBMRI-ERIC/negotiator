@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.dto;
+package eu.bbmri_eric.negotiator.dto.network;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -12,7 +12,7 @@ import org.springframework.hateoas.server.core.Relation;
 @ToString
 @Relation(collectionRelation = "networks", itemRelation = "network")
 public class NetworkDTO {
-  private Long id;
+  @NotNull private Long id;
 
   @NotNull private String externalId;
 
