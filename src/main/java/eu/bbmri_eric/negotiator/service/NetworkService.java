@@ -23,27 +23,12 @@ public interface NetworkService {
   NetworkDTO findNetworkById(Long id);
 
   /**
-   * Deletes a network with the specified ID.
+   * Creates a new network.
    *
-   * @param id The ID of the network to delete.
+   * @param networkDTO The data of the network to create.
+   * @return The newly created network.
    */
-  void deleteNetworkById(Long id);
-
-  /**
-   * Removes a resource from a network.
-   *
-   * @param networkId
-   * @param resourceId
-   */
-  void removeResourceFromNetwork(Long networkId, Long resourceId);
-
-  /**
-   * Removes a manager from a network.
-   *
-   * @param networkId
-   * @param managerId
-   */
-  void removeManagerFromNetwork(Long networkId, Long managerId);
+  NetworkDTO createNetwork(NetworkCreateDTO networkDTO);
 
   /**
    * Updates a network with the specified ID.
@@ -55,12 +40,11 @@ public interface NetworkService {
   NetworkDTO updateNetwork(Long id, NetworkCreateDTO networkDTO);
 
   /**
-   * Creates a new network.
+   * Deletes a network with the specified ID.
    *
-   * @param networkDTO The data of the network to create.
-   * @return The newly created network.
+   * @param id The ID of the network to delete.
    */
-  NetworkDTO createNetwork(NetworkCreateDTO networkDTO);
+  void deleteNetworkById(Long id);
 
   /**
    * Adds a list of managers to a network.
@@ -77,4 +61,20 @@ public interface NetworkService {
    * @param resourceIds
    */
   void addResourcesToNetwork(Long networkId, List<Long> resourceIds);
+
+  /**
+   * Removes a resource from a network.
+   *
+   * @param networkId
+   * @param resourceId
+   */
+  void removeResourceFromNetwork(Long networkId, Long resourceId);
+
+  /**
+   * Removes a manager from a network.
+   *
+   * @param networkId
+   * @param managerId
+   */
+  void removeManagerFromNetwork(Long networkId, Long managerId);
 }
