@@ -15,6 +15,8 @@ import eu.bbmri_eric.negotiator.database.model.PostType;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
+import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.PostRepository;
 import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostDTO;
@@ -23,6 +25,7 @@ import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.PostServiceImpl;
+import eu.bbmri_eric.negotiator.service.UserNotificationServiceImpl;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.Collections;
 import java.util.List;
@@ -67,12 +70,15 @@ public class PostServiceTest {
   private static final String NEG_1 = "negotiationId";
   @Mock PostRepository postRepository;
   @Mock NegotiationRepository negotiationRepository;
+  @Mock OrganizationRepository organizationRepository;
+  @Mock PersonRepository personRepository;
 
   @Mock PersonService personService;
   @Mock NegotiationService negotiationService;
 
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
+  @Mock UserNotificationServiceImpl userNotificationService;
   private AutoCloseable closeable;
 
   private Post publicPost1;
@@ -85,12 +91,17 @@ public class PostServiceTest {
   private List<Post> publicPosts;
   private List<Post> privatePosts;
   private Negotiation negotiation;
+  private Organization organization1;
+  private Organization organization2;
+  private Person researcher;
+  private Person biobanker1;
+  private Person biobanker2;
 
   @BeforeEach
   void before() {
     closeable = MockitoAnnotations.openMocks(this);
 
-    Person researcher =
+    researcher =
         Person.builder()
             .id(RESEARCHER_ID)
             .name(RESEARCHER_AUTH_NAME)
@@ -98,7 +109,7 @@ public class PostServiceTest {
             .subjectId(RESEARCHER_AUTH_SUBJECT)
             .build();
 
-    Person biobanker1 =
+    biobanker1 =
         Person.builder()
             .id(BIOBANKER_1_ID)
             .name(BIOBANKER_1_AUTH_NAME)
@@ -106,7 +117,7 @@ public class PostServiceTest {
             .subjectId(BIOBANKER_1_AUTH_SUBJECT)
             .build();
 
-    Person biobanker2 =
+    biobanker2 =
         Person.builder()
             .id(BIOBANKER_2_ID)
             .name(BIOBANKER_2_AUTH_NAME)
@@ -116,8 +127,8 @@ public class PostServiceTest {
 
     DiscoveryService discoveryService = new DiscoveryService();
 
-    Organization organization1 = Organization.builder().id(1L).externalId(ORG_1).build();
-    Organization organization2 = Organization.builder().id(2L).externalId(ORG_2).build();
+    organization1 = Organization.builder().id(1L).externalId(ORG_1).build();
+    organization2 = Organization.builder().id(2L).externalId(ORG_2).build();
 
     Resource resource1 =
         Resource.builder()
@@ -229,6 +240,52 @@ public class PostServiceTest {
     assertThrows(
         ForbiddenRequestException.class,
         () -> postService.create(postCreateDTO, negotiation.getId()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  public void test_createPrivateForNegotiationId_Ok() {
+    negotiation.setPrivatePostsEnabled(true);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    when(organizationRepository.findByExternalId(any())).thenReturn(Optional.of(organization1));
+    when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    when(postRepository.save(any())).thenReturn(privateResToOrg1);
+
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder()
+            .status(PostStatus.CREATED)
+            .text(privateResToOrg1.getText())
+            .organizationId(ORG_1)
+            .type(PostType.PRIVATE)
+            .build();
+    PostDTO postDTO =
+        PostDTO.builder().text(privateResToOrg1.getText()).type(PostType.PRIVATE).build();
+    when(modelMapper.map(privateResToOrg1, PostDTO.class)).thenReturn(postDTO);
+    PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
+    assertEquals(returnedPostDTO.getText(), privateResToOrg1.getText());
+    assertEquals(returnedPostDTO.getType(), PostType.PRIVATE);
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  public void test_createPublicForNegotiationId_Ok() {
+    negotiation.setPublicPostsEnabled(true);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    when(organizationRepository.findByExternalId(any())).thenReturn(Optional.of(organization1));
+    when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    when(postRepository.save(any())).thenReturn(publicPost1);
+
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder()
+            .status(PostStatus.CREATED)
+            .text(publicPost1.getText())
+            .type(PostType.PUBLIC)
+            .build();
+    PostDTO postDTO = PostDTO.builder().text(publicPost1.getText()).type(PostType.PUBLIC).build();
+    when(modelMapper.map(publicPost1, PostDTO.class)).thenReturn(postDTO);
+    PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
+    assertEquals(returnedPostDTO.getText(), publicPost1.getText());
+    assertEquals(returnedPostDTO.getType(), PostType.PUBLIC);
   }
 
   @Test
