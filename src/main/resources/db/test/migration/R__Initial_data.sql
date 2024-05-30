@@ -49,13 +49,13 @@ values (1, 'title', 'Title', 'Give a title', 'text', 1),
        (4, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'textarea', 3),
        (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'file', 3);
 
-INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
-VALUES (1, 1, 1, 0),
+insert into ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
+values (1, 1, 1, 0),
        (2, 1, 2, 1),
        (3, 1, 3, 2);
-INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
+insert into ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
                                               ELEMENT_ORDER)
-VALUES (1, 1, 1, true, 1),
+values (1, 1, 1, true, 1),
        (2, 1, 2, true, 2),
        (3, 2, 3, true, 1),
        (4, 3, 4, true, 1),
@@ -93,19 +93,19 @@ values (4, 103),
        (8, 105),
        (9, 105);
 
-insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload)
+insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload, private_posts_enabled, public_posts_enabled)
 values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
-        '{"project":{"title":"Biobanking project","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+        '{"project":{"title":"Biobanking project","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON, true, true),
        ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-02', 108, 108,
-        '{"project":{"title":"Interesting project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+        '{"project":{"title":"Interesting project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON, false, true),
        ('negotiation-v2', '2023-04-12', 'ABANDONED', '2024-10-12', 108, 108,
-        '{"project":{"title":"A Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+        '{"project":{"title":"A Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON, false, false),
        ('negotiation-3', '2024-02-24', 'IN_PROGRESS', '2024-02-24', 105, 105,
-        '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+        '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON, true, true),
        ('negotiation-4', '2024-01-10', 'ABANDONED', '2024-01-10', 105, 105,
-        '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON),
+        '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON, false, false),
        ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108,
-        '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON);
+        '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}' FORMAT JSON, false, true);
 
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)

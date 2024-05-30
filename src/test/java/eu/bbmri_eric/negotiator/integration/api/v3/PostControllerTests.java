@@ -51,7 +51,7 @@ public class PostControllerTests {
   private MockMvc mockMvc;
 
   @BeforeEach
-  public void beforeEach() throws Exception {
+  public void beforeEach() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
   }
 
@@ -102,14 +102,13 @@ public class PostControllerTests {
     String requestBody = TestUtils.jsonFromRequest(request);
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post(URI.create(uri))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody))
-            .andExpect(status().isBadRequest())
-            .andReturn();
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(URI.create(uri))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest())
+        .andReturn();
   }
 
   @Test
