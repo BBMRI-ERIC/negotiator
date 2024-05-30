@@ -58,7 +58,9 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
     Negotiation negotiation = getNegotiation(negotiationId);
-    if (!isPostAllowed(postRequest, negotiation)) {
+
+    if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
+        || !isPostAllowed(postRequest, negotiation)) {
       throw new ForbiddenRequestException();
     }
     Post postEntity = setUpPostEntity(postRequest, negotiation);

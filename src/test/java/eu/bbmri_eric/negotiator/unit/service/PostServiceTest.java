@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.unit.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
@@ -212,14 +213,25 @@ public class PostServiceTest {
   }
 
   @Test
-  public void test_createPublicForNegotiationId_isForbidden() {
+  public void test_createPublicForNegotiationId_isForbidden_whenPublicPostsAreDisabled() {
     negotiation.setPublicPostsEnabled(false);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder().text("message").type(PostType.PUBLIC).build();
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> postService.create(postCreateDTO, negotiation.getId()));
+  }
+
+  @Test
+  public void test_createPrivateForNegotiationId_isForbidden_whenPublicPostsAreDisabled() {
+    negotiation.setPrivatePostsEnabled(false);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
-            .status(PostStatus.CREATED)
             .text("message")
-            .type(PostType.PUBLIC)
+            .organizationId(ORG_1)
+            .type(PostType.PRIVATE)
             .build();
     assertThrows(
         ForbiddenRequestException.class,
@@ -227,16 +239,35 @@ public class PostServiceTest {
   }
 
   @Test
-  public void test_createPrivateForNegotiationId_isForbidden() {
-    negotiation.setPrivatePostsEnabled(false);
+  @WithMockNegotiatorUser(id = 4L)
+  public void
+      test_createPrivateForNegotiationId_isForbidden_whenUserIsNotAuthorizedForNegotiation() {
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(false);
+    negotiation.setPrivatePostsEnabled(true);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
-            .status(PostStatus.CREATED)
             .text("message")
             .organizationId(ORG_1)
             .type(PostType.PRIVATE)
             .build();
+
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> postService.create(postCreateDTO, negotiation.getId()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 4L)
+  public void
+      test_createPublicForNegotiationId_isForbidden_whenUserIsNotAuthorizedForNegotiation() {
+    negotiation.setPublicPostsEnabled(true);
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(false);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder().text("message").type(PostType.PUBLIC).build();
     assertThrows(
         ForbiddenRequestException.class,
         () -> postService.create(postCreateDTO, negotiation.getId()));
@@ -250,6 +281,7 @@ public class PostServiceTest {
     when(organizationRepository.findByExternalId(any())).thenReturn(Optional.of(organization1));
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
     when(postRepository.save(any())).thenReturn(privateResToOrg1);
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
 
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
@@ -264,6 +296,7 @@ public class PostServiceTest {
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), privateResToOrg1.getText());
     assertEquals(returnedPostDTO.getType(), PostType.PRIVATE);
+    verify(userNotificationService).notifyUsersAboutNewPost(any());
   }
 
   @Test
@@ -274,6 +307,7 @@ public class PostServiceTest {
     when(organizationRepository.findByExternalId(any())).thenReturn(Optional.of(organization1));
     when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
     when(postRepository.save(any())).thenReturn(publicPost1);
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
 
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
@@ -286,6 +320,7 @@ public class PostServiceTest {
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), publicPost1.getText());
     assertEquals(returnedPostDTO.getType(), PostType.PUBLIC);
+    verify(userNotificationService).notifyUsersAboutNewPost(any());
   }
 
   @Test
