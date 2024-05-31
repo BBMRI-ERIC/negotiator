@@ -150,13 +150,13 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEvent_approveCorrectly_calledActionEnablePost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertFalse(
-        negotiationService.findById(negotiationDTO.getId(), false).getPrivatePostsEnabled());
-    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPublicPostsEnabled());
+        negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
     assertEquals(
         NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
-    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPrivatePostsEnabled());
-    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPublicPostsEnabled());
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
   }
 
   @Test
@@ -170,8 +170,8 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
     assertFalse(
-        negotiationService.findById(negotiationDTO.getId(), false).getPrivatePostsEnabled());
-    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPublicPostsEnabled());
+        negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
   }
 
   @Test

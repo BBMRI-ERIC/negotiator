@@ -173,7 +173,7 @@ public class NegotiationServiceTest {
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     negotiation.setPrivatePostsEnabled(false);
     negotiationService.enablePrivatePosts(negotiationId);
-    assertTrue(negotiation.getPrivatePostsEnabled());
+    assertTrue(negotiation.isPrivatePostsEnabled());
   }
 
   @Test
@@ -184,7 +184,7 @@ public class NegotiationServiceTest {
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     negotiation.setPrivatePostsEnabled(true);
     negotiationService.disablePrivatePosts(negotiationId);
-    assertFalse(negotiation.getPrivatePostsEnabled());
+    assertFalse(negotiation.isPrivatePostsEnabled());
   }
 
   @Test
@@ -195,7 +195,7 @@ public class NegotiationServiceTest {
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     negotiation.setPublicPostsEnabled(true);
     negotiationService.disablePublicPosts(negotiationId);
-    assertFalse(negotiation.getPublicPostsEnabled());
+    assertFalse(negotiation.isPublicPostsEnabled());
   }
 
   @Test
@@ -207,7 +207,7 @@ public class NegotiationServiceTest {
     negotiation.setPublicPostsEnabled(true);
     negotiation.setPrivatePostsEnabled(true);
     negotiationService.disableAllPosts(negotiationId);
-    assertFalse(negotiation.getPublicPostsEnabled());
-    assertFalse(negotiation.getPrivatePostsEnabled());
+    assertFalse(negotiation.isPublicPostsEnabled());
+    assertFalse(negotiation.isPrivatePostsEnabled());
   }
 }

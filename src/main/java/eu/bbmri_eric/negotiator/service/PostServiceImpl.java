@@ -51,17 +51,22 @@ public class PostServiceImpl implements PostService {
    * @return true if the post's type is enabled for the Negotiation
    */
   private boolean isPostAllowed(PostCreateDTO postDTO, Negotiation negotiation) {
-    return (postDTO.getType() == PostType.PRIVATE && negotiation.getPrivatePostsEnabled())
-        || (postDTO.getType() == PostType.PUBLIC && negotiation.getPublicPostsEnabled());
+    return (postDTO.getType() == PostType.PRIVATE && negotiation.isPrivatePostsEnabled())
+        || (postDTO.getType() == PostType.PUBLIC && negotiation.isPublicPostsEnabled());
   }
 
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
     Negotiation negotiation = getNegotiation(negotiationId);
 
-    if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
-        || !isPostAllowed(postRequest, negotiation)) {
-      throw new ForbiddenRequestException();
+    if (!negotiationService.isAuthorizedForNegotiation(negotiationId)) {
+      throw new ForbiddenRequestException(
+          "You're not authorized to send messages to this negotiation");
+    }
+    if (!isPostAllowed(postRequest, negotiation)) {
+      throw new ForbiddenRequestException(
+          "%s posts are not currently allowed for this negotiation"
+              .formatted(postRequest.getType()));
     }
     Post postEntity = setUpPostEntity(postRequest, negotiation);
     try {

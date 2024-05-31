@@ -33,8 +33,8 @@ public class NegotiationDTO {
   private Set<RequestDTO> requests;
   @NotNull private JsonNode payload;
   @NotNull private String status;
-  @NotNull private Boolean publicPostsEnabled;
-  @NotNull private Boolean privatePostsEnabled;
+  @NotNull private boolean publicPostsEnabled;
+  @NotNull private boolean privatePostsEnabled;
   @NotNull private LocalDateTime creationDate;
   @NotNull private LocalDateTime modifiedDate;
 
