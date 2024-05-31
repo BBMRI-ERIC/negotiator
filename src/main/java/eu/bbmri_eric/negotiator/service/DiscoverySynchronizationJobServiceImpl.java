@@ -5,9 +5,8 @@ import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJo
 import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJobStatus;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
-import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceCreateDTO;
 import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceDTO;
-import eu.bbmri_eric.negotiator.publishers.DiscoveryServiceSynchronizationEventPublisher;
+import eu.bbmri_eric.negotiator.plugins.resourcesync.publishers.JobEventPublisher;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -20,17 +19,14 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
 
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
-  @Autowired DiscoveryServiceSynchronizationEventPublisher publisher;
+  @Autowired JobEventPublisher publisher;
 
   @Autowired
   DiscoveryServiceSynchronizationJobRepository discoveryServiceSynchronizationJobRepository;
 
   @Override
-  public DiscoverySyncJobServiceDTO createSyncJob(
-      DiscoverySyncJobServiceCreateDTO discoverySyncJobServiceCreateDTO) {
-    String discoveryServiceName = discoverySyncJobServiceCreateDTO.getDiscoveryServiceName();
-    Optional<DiscoveryService> discoveryService =
-        discoveryServiceRepository.findByName(discoveryServiceName);
+  public DiscoverySyncJobServiceDTO createSyncJob(Long jobId) {
+    Optional<DiscoveryService> discoveryService = discoveryServiceRepository.findById(jobId);
     if (!discoveryService.isEmpty()) {
       LocalDateTime creationDate = LocalDateTime.now();
       LocalDateTime modifyDate = LocalDateTime.now();
@@ -47,16 +43,13 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
 
       String message =
           String.format(
-              "Sync Job %s properly instantiated for Discovery Service %s",
-              job.getId(), discoveryServiceName);
-      publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), discoveryServiceName);
-      log.info(
-          String.format(
-              "Sync job event for discovery service %s properly published", discoveryServiceName));
+              "Sync Job %s properly instantiated for Discovery Service %s", job.getId(), jobId);
+      publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), jobId.toString());
+      log.info(String.format("Sync job event for discovery service %s properly published", jobId));
 
       return DiscoverySyncJobServiceDTO.builder()
           .id(job.getId())
-          .discoveryServiceName(discoveryServiceName)
+          .discoveryServiceName(discoveryService.get().getName())
           .creationDate(LocalDateTime.now())
           .modifiedDate(LocalDateTime.now())
           .message(message)
@@ -64,8 +57,7 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
     } else {
       String message =
           String.format(
-              "Impossible to create sync job: no such discovery service with name",
-              discoveryServiceName);
+              "Impossible to create sync job: no such discovery service with id %s", jobId);
       log.error(message);
       throw new RuntimeException(message);
     }
