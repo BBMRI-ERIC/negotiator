@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.listeners;
+package eu.bbmri_eric.negotiator.plugins.resourcesync.listeners;
 
 import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJob;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJobStatus;
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
 
 @CommonsLog
 @Component
-public class DiscoveryServiceSyncJobManager
-    implements ApplicationListener<DiscoveryServiceSynchronizationEvent> {
+public class JobEventManager implements ApplicationListener<DiscoveryServiceSynchronizationEvent> {
   @Autowired
   private DiscoveryServiceSynchronizationJobRepository discoveryServiceSynchronizationJobRepository;
 

@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.publishers;
+package eu.bbmri_eric.negotiator.plugins.resourcesync.publishers;
 
 import eu.bbmri_eric.negotiator.events.DiscoveryServiceSynchronizationEvent;
 import lombok.extern.apachecommons.CommonsLog;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @CommonsLog
-public class DiscoveryServiceSynchronizationEventPublisher {
+public class JobEventPublisher {
   @Autowired private ApplicationEventPublisher applicationEventPublisher;
 
   public void publishDiscoveryServiceSynchronizationEvent(
