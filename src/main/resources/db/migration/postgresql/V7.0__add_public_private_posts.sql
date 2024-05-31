@@ -1,5 +1,5 @@
 ALTER TABLE negotiation RENAME COLUMN posts_enabled TO public_posts_enabled;
-ALTER TABLE negotiation UPDATE COLUMN public_posts_enabled SET DEFAULT true;
+ALTER TABLE negotiation ALTER COLUMN public_posts_enabled SET DEFAULT true;
 ALTER TABLE negotiation ADD COLUMN private_posts_enabled boolean DEFAULT false;
 
 UPDATE negotiation n
