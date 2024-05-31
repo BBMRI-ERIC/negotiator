@@ -149,8 +149,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_calledActionEnablePost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertFalse(
-        negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
     assertEquals(
         NegotiationState.IN_PROGRESS,
@@ -169,8 +168,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
-    assertFalse(
-        negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
   }
 
