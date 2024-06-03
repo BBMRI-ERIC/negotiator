@@ -159,9 +159,8 @@ public class NetworkControllerTests {
 
   @Test
   public void postNetwork_alreadyExists_throws400() throws Exception {
-    NetworkDTO networkDTO =
-        NetworkDTO.builder()
-            .id(1L)
+    NetworkCreateDTO networkDTO =
+        NetworkCreateDTO.builder()
             .externalId("bbmri-eric:ID:SE_890:network:bbmri-eric")
             .contactEmail("office@negotiator.org")
             .name("network-1")
