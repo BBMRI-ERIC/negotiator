@@ -14,11 +14,14 @@ import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.mappers.NetworkCreateModelMapper;
 import jakarta.transaction.Transactional;
 import java.util.List;
+
+import jakarta.validation.ConstraintViolationException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
 
 @Transactional
 @Service
@@ -88,6 +91,10 @@ public class NetworkServiceImpl implements NetworkService {
       throw new EntityNotStorableException("Database error occurred while saving network");
     } catch (IllegalArgumentException iae) {
       throw new EntityNotStorableException("Invalid data provided");
+    } catch (ConstraintViolationException cve) {
+      throw new EntityNotStorableException("Constraint violation");
+    } catch (TransactionException te) {
+      throw new EntityNotStorableException("Transaction error");
     } catch (Exception ex) {
       throw new EntityNotStorableException("An unexpected error occurred");
     }
