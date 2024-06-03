@@ -324,16 +324,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     negotiation.setPublicPostsEnabled(enabled);
   }
 
-  @Transactional
-  public void disableAllPosts(String negotiationId) {
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    negotiation.setPrivatePostsEnabled(false);
-    negotiation.setPublicPostsEnabled(false);
-  }
-
   @Override
   public List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState) {
     return negotiationRepository

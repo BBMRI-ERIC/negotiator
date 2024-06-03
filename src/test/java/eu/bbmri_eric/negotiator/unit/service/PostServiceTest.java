@@ -21,6 +21,7 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.PostRepository;
 import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostDTO;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
@@ -40,6 +41,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -214,17 +216,22 @@ public class PostServiceTest {
 
   @Test
   public void test_createPublicForNegotiationId_isForbidden_whenPublicPostsAreDisabled() {
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
     negotiation.setPublicPostsEnabled(false);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder().text("message").type(PostType.PUBLIC).build();
-    assertThrows(
-        ForbiddenRequestException.class,
-        () -> postService.create(postCreateDTO, negotiation.getId()));
+    ForbiddenRequestException exception =
+        assertThrows(
+            ForbiddenRequestException.class,
+            () -> postService.create(postCreateDTO, negotiation.getId()));
+    assertEquals(
+        exception.getMessage(), "PUBLIC posts are not currently allowed for this negotiation");
   }
 
   @Test
-  public void test_createPrivateForNegotiationId_isForbidden_whenPublicPostsAreDisabled() {
+  public void test_createPrivateForNegotiationId_isForbidden_whenPrivatePostsAreDisabled() {
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
     negotiation.setPrivatePostsEnabled(false);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
     PostCreateDTO postCreateDTO =
@@ -233,9 +240,12 @@ public class PostServiceTest {
             .organizationId(ORG_1)
             .type(PostType.PRIVATE)
             .build();
-    assertThrows(
-        ForbiddenRequestException.class,
-        () -> postService.create(postCreateDTO, negotiation.getId()));
+    ForbiddenRequestException exception =
+        assertThrows(
+            ForbiddenRequestException.class,
+            () -> postService.create(postCreateDTO, negotiation.getId()));
+    assertEquals(
+        exception.getMessage(), "PRIVATE posts are not currently allowed for this negotiation");
   }
 
   @Test
@@ -253,9 +263,12 @@ public class PostServiceTest {
             .type(PostType.PRIVATE)
             .build();
 
-    assertThrows(
-        ForbiddenRequestException.class,
-        () -> postService.create(postCreateDTO, negotiation.getId()));
+    ForbiddenRequestException exception =
+        assertThrows(
+            ForbiddenRequestException.class,
+            () -> postService.create(postCreateDTO, negotiation.getId()));
+    assertEquals(
+        exception.getMessage(), "You're not authorized to send messages to this negotiation");
   }
 
   @Test
@@ -263,14 +276,18 @@ public class PostServiceTest {
   public void
       test_createPublicForNegotiationId_isForbidden_whenUserIsNotAuthorizedForNegotiation() {
     negotiation.setPublicPostsEnabled(true);
+    negotiation.setPrivatePostsEnabled(true);
     when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(false);
     when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
 
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder().text("message").type(PostType.PUBLIC).build();
-    assertThrows(
-        ForbiddenRequestException.class,
-        () -> postService.create(postCreateDTO, negotiation.getId()));
+    ForbiddenRequestException exception =
+        assertThrows(
+            ForbiddenRequestException.class,
+            () -> postService.create(postCreateDTO, negotiation.getId()));
+    assertEquals(
+        exception.getMessage(), "You're not authorized to send messages to this negotiation");
   }
 
   @Test
@@ -297,6 +314,30 @@ public class PostServiceTest {
     assertEquals(returnedPostDTO.getText(), privateResToOrg1.getText());
     assertEquals(returnedPostDTO.getType(), PostType.PRIVATE);
     verify(userNotificationService).notifyUsersAboutNewPost(any());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = RESEARCHER_ID)
+  public void test_createPosts_failWithEntityNotStorableException_whenDataIntegrityViolation() {
+    negotiation.setPrivatePostsEnabled(true);
+    when(negotiationRepository.findById(any())).thenReturn(Optional.of(negotiation));
+    when(organizationRepository.findByExternalId(any())).thenReturn(Optional.of(organization1));
+    when(personRepository.findById(any())).thenReturn(Optional.of(researcher));
+    when(postRepository.save(any())).thenThrow(new DataIntegrityViolationException(""));
+    when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
+
+    PostCreateDTO postCreateDTO =
+        PostCreateDTO.builder()
+            .status(PostStatus.CREATED)
+            .text(privateResToOrg1.getText())
+            .organizationId(ORG_1)
+            .type(PostType.PRIVATE)
+            .build();
+    assertThrows(
+        EntityNotStorableException.class,
+        () -> {
+          postService.create(postCreateDTO, negotiation.getId());
+        });
   }
 
   @Test
