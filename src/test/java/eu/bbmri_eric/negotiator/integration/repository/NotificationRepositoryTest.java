@@ -133,7 +133,7 @@ public class NotificationRepositoryTest {
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
             .requests(requests)
-            .postsEnabled(false)
+            .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);

@@ -179,7 +179,7 @@ public class NegotiationRepositoryTest {
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
             .requests(Set.of(request))
-            .postsEnabled(false)
+            .publicPostsEnabled(false)
             .payload(payload)
             .build();
     Role role = roleRepository.save(new Role(1L, "test"));
@@ -348,7 +348,7 @@ public class NegotiationRepositoryTest {
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
             .requests(requests)
-            .postsEnabled(false)
+            .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreationDate(LocalDateTime.now());
@@ -379,7 +379,7 @@ public class NegotiationRepositoryTest {
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
             .requests(requests)
-            .postsEnabled(false)
+            .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);

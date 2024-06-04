@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 /** SpringStateMachine action for enabling posts in a Negotiation */
 @Component
-public class EnablePostsAction implements Action<String, String> {
+public class EnablePrivatePostsAction implements Action<String, String> {
 
   @Autowired @Lazy NegotiationService negotiationService;
 
@@ -17,6 +17,6 @@ public class EnablePostsAction implements Action<String, String> {
   public void execute(StateContext<String, String> stateContext) {
     String negotiationId =
         stateContext.getMessage().getHeaders().get("negotiationId", String.class);
-    negotiationService.enablePosts(negotiationId);
+    negotiationService.setPrivatePostsEnabled(negotiationId, true);
   }
 }

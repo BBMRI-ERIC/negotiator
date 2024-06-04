@@ -17,6 +17,7 @@ public class DisablePostsAction implements Action<String, String> {
   public void execute(StateContext<String, String> stateContext) {
     String negotiationId =
         stateContext.getMessage().getHeaders().get("negotiationId", String.class);
-    negotiationService.disablePosts(negotiationId);
+    negotiationService.setPublicPostsEnabled(negotiationId, false);
+    negotiationService.setPrivatePostsEnabled(negotiationId, false);
   }
 }

@@ -149,11 +149,27 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockUser(authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_calledActionEnablePost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
     assertEquals(
         NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
-    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).getPostsEnabled());
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_approveCorrectly_calledActionDisablePosts() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(
+        NegotiationState.IN_PROGRESS,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+    assertEquals(
+        NegotiationState.ABANDONED,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
   }
 
   @Test

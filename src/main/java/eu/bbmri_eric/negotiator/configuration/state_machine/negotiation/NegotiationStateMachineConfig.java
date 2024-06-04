@@ -40,7 +40,7 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .target(NegotiationState.IN_PROGRESS.name())
         .event(NegotiationEvent.APPROVE.name())
         .secured("ROLE_ADMIN", SecurityRule.ComparisonType.ALL)
-        .action(enablePosts())
+        .action(enablePrivatePosts())
         .action(initializeStateForResources())
         .and()
         .withExternal()
@@ -77,8 +77,8 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
   }
 
   @Bean
-  public Action<String, String> enablePosts() {
-    return new EnablePostsAction();
+  public Action<String, String> enablePrivatePosts() {
+    return new EnablePrivatePostsAction();
   }
 
   @Bean

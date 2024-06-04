@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.database.model.PostType;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
@@ -41,10 +40,7 @@ public class PostController {
   @ResponseStatus(HttpStatus.CREATED)
   PostDTO add(
       @Valid @RequestBody PostCreateDTO request, @Valid @PathVariable String negotiationId) {
-    return postService.create(
-        request,
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        negotiationId);
+    return postService.create(request, negotiationId);
   }
 
   @GetMapping("/negotiations/{negotiationId}/posts")

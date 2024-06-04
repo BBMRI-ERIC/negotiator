@@ -104,18 +104,20 @@ public interface NegotiationService {
   NegotiationDTO findById(String id, boolean includeDetails);
 
   /**
-   * Sets the enabledPosts attrubute to true for the input Negotiation
+   * Enables or disables private posts for negotiation with id negotiationId
    *
    * @param negotiationId the ID of the Negotiation
+   * @param enabled whether to enable or disable the private posts
    */
-  void enablePosts(String negotiationId);
+  void setPrivatePostsEnabled(String negotiationId, boolean enabled);
 
   /**
-   * Sets the enabledPosts attrubute to false for the input Negotiation
+   * Enables or disables public posts for negotiation with id negotiationId
    *
    * @param negotiationId the ID of the Negotiation
+   * @param enabled whether to enable or disable the public posts
    */
-  void disablePosts(String negotiationId);
+  void setPublicPostsEnabled(String negotiationId, boolean enabled);
 
   /**
    * Retrieves all Negotiations with specific current state.

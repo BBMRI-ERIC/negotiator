@@ -196,7 +196,6 @@ public class UserNotificationServiceTest {
             .text("I know")
             .status(PostStatus.CREATED)
             .build(),
-        109L,
         "negotiation-1");
     assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
   }
@@ -219,7 +218,6 @@ public class UserNotificationServiceTest {
             .text("I know")
             .status(PostStatus.CREATED)
             .build(),
-        109L,
         "negotiation-1");
     assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
   }
@@ -248,7 +246,6 @@ public class UserNotificationServiceTest {
             .text("I know")
             .status(PostStatus.CREATED)
             .build(),
-        109L,
         negotiation.getId());
     assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
   }
@@ -269,7 +266,6 @@ public class UserNotificationServiceTest {
             .text("I know")
             .status(PostStatus.CREATED)
             .build(),
-        103L,
         negotiation.getId());
     assertFalse(
         notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
