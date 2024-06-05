@@ -11,11 +11,9 @@ import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
-import eu.bbmri_eric.negotiator.mappers.NetworkCreateModelMapper;
 import jakarta.transaction.Transactional;
-import java.util.List;
-
 import jakarta.validation.ConstraintViolationException;
+import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -30,7 +28,6 @@ public class NetworkServiceImpl implements NetworkService {
   @Autowired ResourceRepository resourceRepository;
   @Autowired PersonRepository personRepository;
   @Autowired ModelMapper modelMapper;
-  @Autowired private NetworkCreateModelMapper networkCreateModelMapper;
 
   @Override
   public NetworkDTO findNetworkById(Long id) {
@@ -83,7 +80,7 @@ public class NetworkServiceImpl implements NetworkService {
   @Override
   public NetworkDTO createNetwork(NetworkCreateDTO networkCreateDTO)
       throws EntityNotStorableException {
-    Network network = networkCreateModelMapper.mapToEntity(networkCreateDTO);
+    Network network = modelMapper.map(networkCreateDTO, Network.class);
     try {
       Network savedNetwork = networkRepository.saveAndFlush(network);
       return modelMapper.map(savedNetwork, NetworkDTO.class);
