@@ -12,14 +12,11 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionException;
 
 @Transactional
 @Service
@@ -81,20 +78,8 @@ public class NetworkServiceImpl implements NetworkService {
   public NetworkDTO createNetwork(NetworkCreateDTO networkCreateDTO)
       throws EntityNotStorableException {
     Network network = modelMapper.map(networkCreateDTO, Network.class);
-    try {
-      Network savedNetwork = networkRepository.saveAndFlush(network);
-      return modelMapper.map(savedNetwork, NetworkDTO.class);
-    } catch (DataAccessException dae) {
-      throw new EntityNotStorableException("Database error occurred while saving network");
-    } catch (IllegalArgumentException iae) {
-      throw new EntityNotStorableException("Invalid data provided");
-    } catch (ConstraintViolationException cve) {
-      throw new EntityNotStorableException("Constraint violation");
-    } catch (TransactionException te) {
-      throw new EntityNotStorableException("Transaction error");
-    } catch (Exception ex) {
-      throw new EntityNotStorableException("An unexpected error occurred");
-    }
+    Network savedNetwork = networkRepository.saveAndFlush(network);
+    return modelMapper.map(savedNetwork, NetworkDTO.class);
   }
 
   @Override
