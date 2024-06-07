@@ -94,13 +94,13 @@ public class NetworkController {
   }
 
   @GetMapping("/networks/{id}")
-  @Operation(summary = "Get network by id")
+  @Operation(summary = "Get a network by its id")
   public EntityModel<NetworkDTO> findById(@PathVariable Long id) {
     return networkModelAssembler.toModel(networkService.findNetworkById(id));
   }
 
   @DeleteMapping("/networks/{id}")
-  @Operation(summary = "Delete network by id")
+  @Operation(summary = "Delete a network by its id")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteById(@PathVariable Long id) {
     networkService.deleteNetworkById(id);
@@ -110,7 +110,7 @@ public class NetworkController {
       value = "/networks/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(summary = "Update network by id")
+  @Operation(summary = "Update a network by its id")
   public EntityModel<NetworkDTO> update(
       @PathVariable Long id,
       @Validated(ValidationGroups.Update.class) @RequestBody NetworkCreateDTO networkDTO) {
@@ -130,7 +130,7 @@ public class NetworkController {
   }
 
   @DeleteMapping("/networks/{id}/resources/{resourceId}")
-  @Operation(summary = "Remove resource from network")
+  @Operation(summary = "Remove a resource from a network")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void removeResourceFromNetwork(
       @PathVariable Long id, @PathVariable("resourceId") Long resourceId) {
@@ -141,7 +141,7 @@ public class NetworkController {
       value = "/networks/{id}/resources",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(summary = "Add a list of resources to network")
+  @Operation(summary = "Add a list of resources to a network")
   @ResponseStatus(HttpStatus.OK)
   public void addResourcesToNetwork(@PathVariable Long id, @RequestBody List<Long> resourceIds) {
     networkService.addResourcesToNetwork(id, resourceIds);
@@ -161,14 +161,14 @@ public class NetworkController {
       value = "/networks/{id}/managers",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(summary = "Add a list of managers to network")
+  @Operation(summary = "Add a list of managers to a network")
   @ResponseStatus(HttpStatus.OK)
   public void addManagersToNetwork(@PathVariable Long id, @RequestBody List<Long> managerIds) {
     networkService.addManagersToNetwork(id, managerIds);
   }
 
   @DeleteMapping("/networks/{id}/managers/{managerId}")
-  @Operation(summary = "Remove manager from network")
+  @Operation(summary = "Remove a manager from a network")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void removeManagerFromNetwork(
       @PathVariable Long id, @PathVariable("managerId") Long managerId) {
