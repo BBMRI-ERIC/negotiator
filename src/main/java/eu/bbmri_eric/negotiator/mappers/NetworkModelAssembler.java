@@ -4,6 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.NetworkController;
+import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
 import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,16 +27,39 @@ public class NetworkModelAssembler
 
   @Override
   public @NonNull EntityModel<NetworkDTO> toModel(@NonNull NetworkDTO entity) {
-    return EntityModel.of(entity)
-        .add(
-            WebMvcLinkBuilder.linkTo(
-                    WebMvcLinkBuilder.methodOn(NetworkController.class).findById(entity.getId()))
-                .withSelfRel(),
-            WebMvcLinkBuilder.linkTo(NetworkController.class).withRel("networks"));
+    EntityModel<NetworkDTO> networkModel =
+        EntityModel.of(entity)
+            .add(
+                WebMvcLinkBuilder.linkTo(
+                        WebMvcLinkBuilder.methodOn(NetworkController.class)
+                            .findById(entity.getId()))
+                    .withSelfRel())
+            .add(WebMvcLinkBuilder.linkTo(NetworkController.class).withRel("networks"));
+
+    networkModel.add(
+        WebMvcLinkBuilder.linkTo(
+                WebMvcLinkBuilder.methodOn(NetworkController.class)
+                    .getManagers(entity.getId(), 0, 50))
+            .withRel("managers"));
+
+    return networkModel;
   }
 
   public PagedModel<EntityModel<NetworkDTO>> toPagedModel(@NonNull Page<NetworkDTO> page) {
     List<Link> links = getLinks(page);
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
+        links);
+  }
+
+  public PagedModel<EntityModel<NetworkDTO>> toPagedModel(
+      @NonNull Page<NetworkDTO> page, Long managerId) {
+    List<Link> links = new ArrayList<>();
+    if (page.hasContent()) {
+      links = getLinks(page, managerId);
+    }
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
         new PagedModel.PageMetadata(
@@ -70,6 +94,46 @@ public class NetworkModelAssembler
             .expand());
     links.add(
         linkTo(methodOn(NetworkController.class).list(page.getTotalPages() - 1, page.getSize()))
+            .withRel(IanaLinkRelations.LAST)
+            .expand(parameters));
+    return links;
+  }
+
+  @NonNull
+  private static List<Link> getLinks(Page<NetworkDTO> page, long managerId) {
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("filter", null);
+    List<Link> links = new ArrayList<>();
+    if (page.hasPrevious()) {
+      links.add(
+          linkTo(
+                  methodOn(UserController.class)
+                      .getRepresentedNetworks(managerId, page.getNumber() - 1, page.getSize()))
+              .withRel(IanaLinkRelations.PREVIOUS)
+              .expand(parameters));
+    }
+    if (page.hasNext()) {
+      links.add(
+          linkTo(
+                  methodOn(UserController.class)
+                      .getRepresentedNetworks(managerId, page.getNumber() + 1, page.getSize()))
+              .withRel(IanaLinkRelations.NEXT)
+              .expand(parameters));
+    }
+    links.add(
+        linkTo(methodOn(UserController.class).getRepresentedNetworks(managerId, 0, page.getSize()))
+            .withRel("first")
+            .expand(parameters));
+    links.add(
+        linkTo(
+                methodOn(UserController.class)
+                    .getRepresentedNetworks(managerId, page.getNumber(), page.getSize()))
+            .withRel(IanaLinkRelations.CURRENT)
+            .expand());
+    links.add(
+        linkTo(
+                methodOn(UserController.class)
+                    .getRepresentedNetworks(managerId, page.getTotalPages() - 1, page.getSize()))
             .withRel(IanaLinkRelations.LAST)
             .expand(parameters));
     return links;

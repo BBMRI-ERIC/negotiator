@@ -41,6 +41,17 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
+  public Iterable<NetworkDTO> findAllForManager(Long managerId, Pageable pageable) {
+    Person manager =
+        personRepository
+            .findById(managerId)
+            .orElseThrow(() -> new EntityNotFoundException(managerId));
+    return networkRepository
+        .findAllByManagersContains(manager, pageable)
+        .map(network -> modelMapper.map(network, NetworkDTO.class));
+  }
+
+  @Override
   public void deleteNetworkById(Long id) {
     Network network = getNetwork(id);
     networkRepository.delete(network);

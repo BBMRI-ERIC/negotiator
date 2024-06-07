@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -111,6 +112,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
   public void deleteNetwork_NetworkExists_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1"))
@@ -121,6 +123,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
   public void deleteNetwork_noNetworkExists_throws400() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/314"))
@@ -128,6 +131,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
   public void postNetwork_validNetwork_returnsNewNetwork() throws Exception {
     NetworkCreateDTO networkDTO =
         NetworkCreateDTO.builder()
@@ -158,6 +162,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
   public void postNetwork_alreadyExists_throws400() throws Exception {
     NetworkCreateDTO networkDTO =
         NetworkCreateDTO.builder()
@@ -176,6 +181,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
   public void putNetwork_validNetwork_returnsUpdatedNetwork() throws Exception {
     NetworkDTO networkDTO =
         NetworkDTO.builder()
@@ -202,6 +208,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
+  @WithUserDetails("admin")
   public void postNetworkResources_validIds_returns201() throws Exception {
     mockMvc
         .perform(
@@ -218,6 +225,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
+  @WithUserDetails("admin")
   public void postNetworkManagers_validIds_returns200() throws Exception {
     mockMvc
         .perform(
@@ -234,6 +242,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
+  @WithUserDetails("admin")
   public void deleteNetworkResource_validId_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1/resources/4"))
@@ -246,6 +255,7 @@ public class NetworkControllerTests {
 
   @Test
   @Transactional
+  @WithUserDetails("admin")
   public void deleteNetworkManager_validId_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1/managers/101"))

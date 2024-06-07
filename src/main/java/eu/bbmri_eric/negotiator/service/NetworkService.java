@@ -23,6 +23,14 @@ public interface NetworkService {
   NetworkDTO findNetworkById(Long id);
 
   /**
+   * Retrieves all networks for a manager.
+   *
+   * @param networkId the ID of the network to retrieve the managers for.
+   * @return a Set of managers.
+   */
+  Iterable<NetworkDTO> findAllForManager(Long managerId, Pageable pageable);
+
+  /**
    * Creates a new network.
    *
    * @param networkDTO The data of the network to create.
