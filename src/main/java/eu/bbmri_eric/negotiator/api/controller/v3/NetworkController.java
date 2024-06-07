@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3")
-@Tag(name = "Networks", description = "Retrieve connected networks")
+@Tag(name = "Networks", description = "Manage networks of resources and organizations")
 public class NetworkController {
 
   private final NetworkService networkService;
