@@ -153,9 +153,8 @@ public class NetworkController {
       @PathVariable Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    return userModelAssembler.toPagedModel(
-        (Page<UserResponseModel>) personService.findAllForNetwork(PageRequest.of(page, size), id),
-        id);
+    return userModelAssembler.toUnLinkedPagedModel(
+        (Page<UserResponseModel>) personService.findAllForNetwork(PageRequest.of(page, size), id));
   }
 
   @PostMapping(
