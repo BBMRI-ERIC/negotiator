@@ -64,10 +64,6 @@ public class Person {
   @Column(nullable = false, columnDefinition = "boolean default false")
   boolean isServiceAccount;
 
-  @OneToMany(mappedBy = "person")
-  @Exclude
-  Set<PersonNegotiationRole> roles = new HashSet<>();
-
   @NotNull private String name;
 
   @NotNull private String email;
