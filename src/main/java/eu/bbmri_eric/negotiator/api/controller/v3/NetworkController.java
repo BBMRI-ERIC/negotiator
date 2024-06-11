@@ -142,7 +142,7 @@ public class NetworkController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Add a list of resources to a network")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   public void addResourcesToNetwork(@PathVariable Long id, @RequestBody List<Long> resourceIds) {
     networkService.addResourcesToNetwork(id, resourceIds);
   }
@@ -162,7 +162,7 @@ public class NetworkController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Add a list of managers to a network")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   public void addManagersToNetwork(@PathVariable Long id, @RequestBody List<Long> managerIds) {
     networkService.addManagersToNetwork(id, managerIds);
   }

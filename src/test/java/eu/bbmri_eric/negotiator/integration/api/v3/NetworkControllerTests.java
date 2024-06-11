@@ -209,13 +209,13 @@ public class NetworkControllerTests {
   @Test
   @Transactional
   @WithUserDetails("admin")
-  public void postNetworkResources_validIds_returns201() throws Exception {
+  public void postNetworkResources_validIds_returns204() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NETWORKS_URL + "/1/resources")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("[7,8]"))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
 
     Optional<Network> network = networkRepository.findById(1L);
     assert network.isPresent();
@@ -226,13 +226,13 @@ public class NetworkControllerTests {
   @Test
   @Transactional
   @WithUserDetails("admin")
-  public void postNetworkManagers_validIds_returns200() throws Exception {
+  public void postNetworkManagers_validIds_returns204() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NETWORKS_URL + "/1/managers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("[103,104]"))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
 
     Optional<Network> network = networkRepository.findById(1L);
     assert network.isPresent();
