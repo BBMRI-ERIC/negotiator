@@ -9,8 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -34,11 +32,6 @@ import lombok.ToString.Exclude;
 @Setter
 @Builder
 @Table(name = "person")
-@NamedEntityGraph(
-    name = "person-detailed",
-    attributeNodes = {
-      @NamedAttributeNode(value = "roles"),
-    })
 @SequenceGenerator(name = "person_id_seq", initialValue = 10000)
 public class Person {
 

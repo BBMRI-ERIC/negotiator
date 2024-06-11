@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -24,16 +23,10 @@ public interface PersonRepository
 
   Optional<Person> findBySubjectId(String authSubject);
 
-  @EntityGraph(value = "person-detailed")
   Optional<Person> findDetailedById(Long id);
 
-  @EntityGraph(value = "person-detailed")
   List<Person> findAllByAdminIsTrue();
 
-  @EntityGraph(value = "person-detailed")
-  List<Person> findAllByResourcesIn(Set<Resource> resources);
-
-  @EntityGraph(value = "person-detailed")
   boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
 
   @Query(
