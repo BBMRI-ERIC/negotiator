@@ -12,11 +12,11 @@ public class JobEventPublisher {
   @Autowired private ApplicationEventPublisher applicationEventPublisher;
 
   public void publishDiscoveryServiceSynchronizationEvent(
-      final String jobId, final String serviceName) {
+      final String jobId, final Long serviceId) {
     System.out.println("Publishing custom event. ");
     DiscoveryServiceSynchronizationEvent discoveryServiceSynchronizationEvent =
-        new DiscoveryServiceSynchronizationEvent(this, jobId, serviceName);
-    log.info(String.format("Publishing new sync event for service: %s ", serviceName));
+        new DiscoveryServiceSynchronizationEvent(this, jobId, serviceId);
+    log.info(String.format("Publishing new sync event for service: %s ", serviceId));
     applicationEventPublisher.publishEvent(discoveryServiceSynchronizationEvent);
   }
 }

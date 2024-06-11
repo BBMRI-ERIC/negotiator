@@ -44,7 +44,7 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
       String message =
           String.format(
               "Sync Job %s properly instantiated for Discovery Service %s", job.getId(), jobId);
-      publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), jobId.toString());
+      publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), jobId);
       log.info(String.format("Sync job event for discovery service %s properly published", jobId));
 
       return DiscoverySyncJobServiceDTO.builder()
