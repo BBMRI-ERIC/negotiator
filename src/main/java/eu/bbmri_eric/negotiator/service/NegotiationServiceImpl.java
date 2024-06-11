@@ -11,7 +11,6 @@ import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
@@ -39,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class NegotiationServiceImpl implements NegotiationService {
 
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired RoleRepository roleRepository;
   @Autowired PersonRepository personRepository;
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;

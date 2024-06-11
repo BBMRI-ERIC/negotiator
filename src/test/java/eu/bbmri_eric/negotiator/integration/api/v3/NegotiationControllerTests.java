@@ -24,7 +24,6 @@ import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import jakarta.transaction.Transactional;
 import java.net.URI;
@@ -79,7 +78,6 @@ public class NegotiationControllerTests {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
-  @Autowired RoleRepository roleRepository;
 
   private MockMvc mockMvc;
 

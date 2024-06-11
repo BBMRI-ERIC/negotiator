@@ -1,10 +1,3 @@
-insert into role (id, name)
-values (1, 'CREATOR'),
-       (2, 'ADMINISTRATOR'),
-       (3, 'MANAGER'),
-       (4, 'ROLE_RESEARCHER'),
-       (5, 'REPRESENTATIVE');
-
 insert into discovery_service (url, name)
 values ('https://bbmritestnn.gcc.rug.nl', 'Biobank Directory');
 

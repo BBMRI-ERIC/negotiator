@@ -13,11 +13,9 @@ import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
@@ -50,7 +48,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration
 public class NegotiationServiceTest {
   @Mock NegotiationRepository negotiationRepository;
-  @Mock RoleRepository roleRepository;
   @Mock PersonRepository personRepository;
   @Captor ArgumentCaptor<Specification<Negotiation>> specificationCaptor;
   @Captor ArgumentCaptor<Pageable> pageableCaptor;
@@ -133,7 +130,6 @@ public class NegotiationServiceTest {
   @Disabled
   void testCreateNegotiation() throws IOException {
     when(personRepository.findById(100L)).thenReturn(Optional.of(new Person()));
-    when(roleRepository.findByName("ROLE_RESEARCHER")).thenReturn(Optional.of(new Role()));
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
     Negotiation negotiation = new Negotiation();
     Request request = new Request();

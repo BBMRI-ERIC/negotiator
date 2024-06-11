@@ -1,10 +1,3 @@
-insert into role (id, name)
-values (1, 'CREATOR'),
-       (2, 'ADMINISTRATOR'),
-       (3, 'MANAGER'),
-       (4, 'ROLE_RESEARCHER'),
-       (5, 'REPRESENTATIVE');
-
 insert into discovery_service (url, name)
 values ('http://discoveryservice.dev','Biobank Directory');
 
@@ -139,10 +132,6 @@ values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
        ('negotiation-1', 'biobank:1:collection:2', 'SUBMITTED'),
        ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED'),
        ('negotiation-3', 'biobank:1:collection:2', 'RESOURCE_UNAVAILABLE');
-
--- Adding just representatives since the AUTHOR is the createdBy field of the negotiation
-insert into person_negotiation_role (negotiation_id, person_id, role_id)
-values ('negotiation-1', 109, 5);
 
 insert into post (id, creation_date, modified_date, status, text, created_by, modified_by, negotiation_id, organization_id,
                   type)
