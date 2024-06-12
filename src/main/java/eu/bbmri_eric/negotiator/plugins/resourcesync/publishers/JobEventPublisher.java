@@ -13,10 +13,10 @@ public class JobEventPublisher {
 
   public void publishDiscoveryServiceSynchronizationEvent(
       final String jobId, final Long serviceId) {
-    System.out.println("Publishing custom event. ");
+    log.debug("Publishing custom event. ");
     DiscoveryServiceSynchronizationEvent discoveryServiceSynchronizationEvent =
         new DiscoveryServiceSynchronizationEvent(this, jobId, serviceId);
-    log.info(String.format("Publishing new sync event for service: %s ", serviceId));
+    log.debug(String.format("Publishing new sync event for service: %s ", serviceId));
     applicationEventPublisher.publishEvent(discoveryServiceSynchronizationEvent);
   }
 }
