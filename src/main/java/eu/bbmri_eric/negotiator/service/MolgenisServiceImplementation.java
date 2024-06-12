@@ -106,38 +106,39 @@ public class MolgenisServiceImplementation implements MolgenisService {
     }
   }
 
-  @Override
-  public List<MolgenisCollection> findAllCollectionsByBiobankId(MolgenisBiobank biobank) {
-    try {
-      String response =
-          webClient
-              .get()
-              .uri(
-                  String.format(
-                      "/api/v2/eu_bbmri_eric_collections?q=biobank==%s&num=10000&attrs=id,name,description",
-                      biobank.getId()))
-              .retrieve()
-              .bodyToMono(String.class)
-              .block();
-      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
-      JsonArray items = jsonResponse.getAsJsonArray("items");
-      List<MolgenisCollection> collections = new ArrayList<MolgenisCollection>();
-
-      for (JsonElement e : items) {
-        JsonObject jsonCollection = e.getAsJsonObject();
-        MolgenisCollection collection =
-            new MolgenisCollection(
-                jsonCollection.get("id").getAsString(),
-                jsonCollection.get("name").getAsString(),
-                jsonCollection.get("description").getAsString(),
-                biobank);
-        collections.add(collection);
-      }
-      return collections;
-    } catch (WebClientResponseException | WebClientRequestException e) {
-      log.warn(e.getMessage());
-      log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
-    }
-  }
+  //  @Override
+  //  public List<MolgenisCollection> findAllCollectionsByBiobankId(MolgenisBiobank biobank) {
+  //    try {
+  //      String response =
+  //          webClient
+  //              .get()
+  //              .uri(
+  //                  String.format(
+  //
+  // "/api/v2/eu_bbmri_eric_collections?q=biobank==%s&num=10000&attrs=id,name,description",
+  //                      biobank.getId()))
+  //              .retrieve()
+  //              .bodyToMono(String.class)
+  //              .block();
+  //      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+  //      JsonArray items = jsonResponse.getAsJsonArray("items");
+  //      List<MolgenisCollection> collections = new ArrayList<MolgenisCollection>();
+  //
+  //      for (JsonElement e : items) {
+  //        JsonObject jsonCollection = e.getAsJsonObject();
+  //        MolgenisCollection collection =
+  //            new MolgenisCollection(
+  //                jsonCollection.get("id").getAsString(),
+  //                jsonCollection.get("name").getAsString(),
+  //                jsonCollection.get("description").getAsString(),
+  //                biobank);
+  //        collections.add(collection);
+  //      }
+  //      return collections;
+  //    } catch (WebClientResponseException | WebClientRequestException e) {
+  //      log.warn(e.getMessage());
+  //      log.warn("Molgenis is not reachable!");
+  //      return Collections.emptyList();
+  //    }
+  //  }
 }

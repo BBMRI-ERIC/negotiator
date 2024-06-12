@@ -5,7 +5,7 @@ import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJob
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
 import eu.bbmri_eric.negotiator.events.DiscoveryServiceSynchronizationEvent;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.service.BBMRIDirectoryServiceSynchClient;
+import eu.bbmri_eric.negotiator.service.DiscoveryServiceClient;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -17,7 +17,7 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
   @Autowired
   private DiscoveryServiceSynchronizationJobRepository discoveryServiceSynchronizationJobRepository;
 
-  @Autowired private BBMRIDirectoryServiceSynchClient bbmriDirectoryServiceSyncClient;
+  @Autowired private DiscoveryServiceClient bbmriDirectoryServiceSyncClient;
 
   @Override
   public void onApplicationEvent(DiscoveryServiceSynchronizationEvent event) {
@@ -29,7 +29,8 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
     DiscoveryServiceSynchronizationJob savedJob =
         discoveryServiceSynchronizationJobRepository.save(job);
     try {
-      bbmriDirectoryServiceSyncClient.syncAllDiscoveryServiceObjects();
+      bbmriDirectoryServiceSyncClient.syncAllOrganizations();
+      bbmriDirectoryServiceSyncClient.syncAllResources();
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
     } catch (EntityNotStorableException e) {
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);

@@ -42,5 +42,5 @@ public interface MolgenisService {
    * @param id Identifier of the biobank
    * @return Optional String<MolgenisBiobank>
    */
-  List<MolgenisCollection> findAllCollectionsByBiobankId(MolgenisBiobank biobank);
+  // List<MolgenisCollection> findAllCollectionsByBiobankId(MolgenisBiobank biobank);
 }
