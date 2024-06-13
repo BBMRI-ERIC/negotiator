@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.plugins.resourcesync.schedulers;
 
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.service.DiscoverySynchronizationJobService;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Component;
 public class JobEventScheduler {
 
   @Autowired DiscoverySynchronizationJobService discoverySynchronizationJobService;
-
-  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Value("${synchronization.discoveryServiceId}")
   private String synchronizationDiscoveryServiceId;
