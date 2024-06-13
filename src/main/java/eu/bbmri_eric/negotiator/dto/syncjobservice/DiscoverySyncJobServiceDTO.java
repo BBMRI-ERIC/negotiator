@@ -19,5 +19,4 @@ public class DiscoverySyncJobServiceDTO {
   @NotNull private String discoveryServiceName;
   @NotNull private LocalDateTime creationDate;
   @NotNull private LocalDateTime modifiedDate;
-  private String message;
 }
