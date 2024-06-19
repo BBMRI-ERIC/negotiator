@@ -1,7 +1,9 @@
 package eu.bbmri_eric.negotiator.service;
 
+import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonSpecifications;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
@@ -20,9 +22,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
@@ -31,6 +35,8 @@ import org.springframework.stereotype.Service;
 @Transactional
 @CommonsLog
 public class PersonServiceImpl implements PersonService {
+
+  @Autowired NetworkRepository networkRepository;
 
   public PersonServiceImpl(
       PersonRepository personRepository,
@@ -169,6 +175,17 @@ public class PersonServiceImpl implements PersonService {
             .formatted(representative.getName(), resource.getSourceId()));
     representative.removeResource(resource);
     personRepository.save(representative);
+  }
+
+  @Override
+  public Iterable<UserResponseModel> findAllForNetwork(Pageable pageable, Long networkId) {
+    Network network =
+        networkRepository
+            .findById(networkId)
+            .orElseThrow(() -> new EntityNotFoundException(networkId));
+    return personRepository
+        .findAllByNetworksContains(network, pageable)
+        .map(person -> modelMapper.map(person, UserResponseModel.class));
   }
 
   private Resource getResource(Long resourceId) {

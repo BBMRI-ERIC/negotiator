@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -80,11 +79,7 @@ public class Person {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
   private Set<Authority> authorities;
 
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-  @JoinTable(
-      name = "network_person_link",
-      joinColumns = @JoinColumn(name = "network_id"),
-      inverseJoinColumns = @JoinColumn(name = "person_id"))
+  @ManyToMany(mappedBy = "managers")
   @Exclude
   @Setter(AccessLevel.NONE)
   private Set<Network> networks;

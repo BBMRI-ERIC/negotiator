@@ -57,7 +57,11 @@ public class Network {
   private String contactEmail;
 
   /** The managers of the network. */
-  @ManyToMany(mappedBy = "networks")
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "network_person_link",
+      joinColumns = @JoinColumn(name = "network_id"),
+      inverseJoinColumns = @JoinColumn(name = "person_id"))
   @Exclude
   @Setter(AccessLevel.NONE)
   @Builder.Default
@@ -125,6 +129,7 @@ public class Network {
     manager.getNetworks().remove(this);
   }
 
+  /** Returns all managers of the network. */
   public Set<Person> getManagers() {
     if (Objects.isNull(this.managers)) {
       return Set.of();

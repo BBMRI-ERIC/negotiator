@@ -27,3 +27,12 @@ values (1, 'Dummy test collection', 'This is the fist test collection',
 
 insert into resource_representative_link (resource_id, person_id)
 values (2, 2);
+
+insert into network (id, external_id, name, uri, contact_email)
+values (1, 'bbmri-eric:ID:SE_890:network:bbmri-eric', 'network-1', 'https://network-1/', 'office@negotiator.org');
+
+insert into network_resources_link (network_id, resource_id)
+values (1, 1);
+
+insert into network_person_link (network_id, person_id)
+values (1, 1);

@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +37,7 @@ public class UserControllerTest {
   private static final String ROLES_ENDPOINT = "/v3/users/roles";
   private static final String LIST_USERS_ENDPOINT = "/v3/users";
   private static final String RESOURCES_FOR_USER_ENDPOINT = "/v3/users/%s/resources";
+  private static final String NETWORKS_FOR_USER_ENDPOINT = "/v3/users/%s/networks";
   @Autowired private WebApplicationContext context;
   private MockMvc mockMvc;
 
@@ -77,6 +79,15 @@ public class UserControllerTest {
         .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(103)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.resources").isNotEmpty());
+  }
+
+  @Test
+  void getRepresentedNetworks_oneNetwork_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(102)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/json"))
+        .andExpect(jsonPath("$.page.totalElements", is(1)));
   }
 
   @Test

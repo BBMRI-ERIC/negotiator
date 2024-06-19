@@ -1,11 +1,14 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.dto.person.AssignResourceDTO;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
+import eu.bbmri_eric.negotiator.mappers.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.mappers.UserModelAssembler;
+import eu.bbmri_eric.negotiator.service.NetworkService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,6 +22,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -45,6 +49,9 @@ public class UserController {
 
   @Autowired PersonService personService;
   @Autowired ModelMapper modelMapper;
+
+  @Autowired NetworkService networkService;
+  @Autowired NetworkModelAssembler networkModelAssembler;
 
   @GetMapping(value = "/users")
   @ResponseStatus(HttpStatus.OK)
@@ -160,5 +167,16 @@ public class UserController {
         .stream()
         .map(ResourceResponseModel::getExternalId)
         .collect(Collectors.toList());
+  }
+
+  @GetMapping(value = "/users/{id}/networks", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "List all networks represented by a user")
+  @ResponseStatus(HttpStatus.OK)
+  public PagedModel<EntityModel<NetworkDTO>> getRepresentedNetworks(
+      @PathVariable Long id,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size) {
+    return networkModelAssembler.toPagedModel(
+        (Page<NetworkDTO>) networkService.findAllForManager(id, PageRequest.of(page, size)), id);
   }
 }

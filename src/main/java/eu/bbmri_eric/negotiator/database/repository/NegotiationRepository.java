@@ -6,6 +6,8 @@ import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -47,4 +49,14 @@ public interface NegotiationRepository
               + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",
       nativeQuery = true)
   boolean isOrganizationPartOfNegotiation(String negotiationId, String organizationExternalId);
+
+  @Query(
+      value =
+          "SELECT distinct (n) "
+              + "FROM Negotiation n "
+              + "JOIN n.requests rq "
+              + "JOIN rq.resources rs "
+              + "JOIN rs.networks net "
+              + "WHERE net.id = :networkId")
+  Page<Negotiation> findAllForNetwork(Long networkId, Pageable pageable);
 }

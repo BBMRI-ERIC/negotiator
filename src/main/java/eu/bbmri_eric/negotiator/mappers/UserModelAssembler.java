@@ -121,6 +121,14 @@ public class UserModelAssembler
     return PagedModel.of(List.of(toModel(entity)), new PagedModel.PageMetadata(1, 0, 1, 1));
   }
 
+  public PagedModel<EntityModel<UserResponseModel>> toUnLinkedPagedModel(
+      Page<UserResponseModel> page) {
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()));
+  }
+
   @NonNull
   private static List<Link> getLinks(Page<UserResponseModel> page) {
     Map<String, Object> parameters = new HashMap<>();
