@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.dto.access_form;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri_eric.negotiator.dto.FormElementType;
-import eu.bbmri_eric.negotiator.dto.ValueSetDto;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
+import eu.bbmri_eric.negotiator.dto.ValueSetDTO;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -35,7 +35,7 @@ public class AccessFormElementDTO extends RepresentationModel<AccessFormElementD
 
   @NotNull private Boolean required;
 
-  @JsonIgnore private ValueSetDto linkedValueSet;
+  @JsonIgnore private ValueSetDTO linkedValueSet;
 
   @Override
   public boolean equals(Object o) {

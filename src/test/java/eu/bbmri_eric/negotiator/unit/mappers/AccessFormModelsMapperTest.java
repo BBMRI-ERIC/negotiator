@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
-import eu.bbmri_eric.negotiator.dto.FormElementType;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.mappers.AccessFormModelsMapper;
 import org.junit.jupiter.api.BeforeEach;

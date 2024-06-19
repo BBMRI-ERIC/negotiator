@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import eu.bbmri_eric.negotiator.dto.FormElementType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ValueSetDto {
+public class ValueSetDTO {
   private Long id;
   private String name;
   private String externalDocumentation;

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
-import eu.bbmri_eric.negotiator.dto.ValueSetDto;
+import eu.bbmri_eric.negotiator.dto.ValueSetDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
@@ -215,28 +215,28 @@ public class AccessFormController {
   @GetMapping(value = "/value-sets")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available value sets")
-  public CollectionModel<EntityModel<ValueSetDto>> getAllValueSets() {
+  public CollectionModel<EntityModel<ValueSetDTO>> getAllValueSets() {
     return valueSetAssembler.toCollectionModel(valueSetService.getAllValueSets());
   }
 
   @GetMapping(value = "/value-sets/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get a value set by id")
-  public EntityModel<ValueSetDto> getValueSetById(@PathVariable Long id) {
+  public EntityModel<ValueSetDTO> getValueSetById(@PathVariable Long id) {
     return valueSetAssembler.toModel(valueSetService.getValueSetById(id));
   }
 
   @PostMapping(value = "/value-sets")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a new ValueSet")
-  public EntityModel<ValueSetDto> createValueSet(@RequestBody @Valid ValueSetCreateDTO createDTO) {
+  public EntityModel<ValueSetDTO> createValueSet(@RequestBody @Valid ValueSetCreateDTO createDTO) {
     return valueSetAssembler.toModel(valueSetService.createValueSet(createDTO));
   }
 
   @PutMapping(value = "/value-sets/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update an existing ValueSet")
-  public EntityModel<ValueSetDto> updateValueSet(
+  public EntityModel<ValueSetDTO> updateValueSet(
       @RequestBody @Valid ValueSetCreateDTO dto, @PathVariable Long id) {
     return valueSetAssembler.toModel(valueSetService.updateValueSet(dto, id));
   }

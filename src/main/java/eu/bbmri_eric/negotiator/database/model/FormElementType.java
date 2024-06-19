@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.dto;
+package eu.bbmri_eric.negotiator.database.model;
 
 public enum FormElementType {
   SINGLE_CHOICE,

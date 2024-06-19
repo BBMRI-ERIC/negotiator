@@ -4,7 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.AccessFormController;
-import eu.bbmri_eric.negotiator.dto.ValueSetDto;
+import eu.bbmri_eric.negotiator.dto.ValueSetDTO;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ValueSetAssembler
-    implements RepresentationModelAssembler<ValueSetDto, EntityModel<ValueSetDto>> {
+    implements RepresentationModelAssembler<ValueSetDTO, EntityModel<ValueSetDTO>> {
 
   @Override
-  public @NonNull EntityModel<ValueSetDto> toModel(@NonNull ValueSetDto entity) {
+  public @NonNull EntityModel<ValueSetDTO> toModel(@NonNull ValueSetDTO entity) {
     List<Link> links = new ArrayList<>();
     links.add(linkTo(methodOn(AccessFormController.class).getAllValueSets()).withRel("value-sets"));
     links.add(
@@ -28,8 +28,8 @@ public class ValueSetAssembler
   }
 
   @Override
-  public @NonNull CollectionModel<EntityModel<ValueSetDto>> toCollectionModel(
-      @NonNull Iterable<? extends ValueSetDto> entities) {
+  public @NonNull CollectionModel<EntityModel<ValueSetDTO>> toCollectionModel(
+      @NonNull Iterable<? extends ValueSetDTO> entities) {
     return RepresentationModelAssembler.super.toCollectionModel(entities);
   }
 }

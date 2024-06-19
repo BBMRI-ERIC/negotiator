@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
-import eu.bbmri_eric.negotiator.dto.ValueSetDto;
+import eu.bbmri_eric.negotiator.dto.ValueSetDTO;
 import java.util.List;
 
 public interface ValueSetService {
@@ -10,7 +10,7 @@ public interface ValueSetService {
    *
    * @return a list of all value sets.
    */
-  List<ValueSetDto> getAllValueSets();
+  List<ValueSetDTO> getAllValueSets();
 
   /**
    * Fetch a specific value set by its id.
@@ -18,7 +18,7 @@ public interface ValueSetService {
    * @param id the identifier of the value set
    * @return the value set
    */
-  ValueSetDto getValueSetById(long id);
+  ValueSetDTO getValueSetById(long id);
 
   /**
    * Create a new value set.
@@ -26,7 +26,7 @@ public interface ValueSetService {
    * @param createDTO creation object containing all necessary information
    * @return the created value set
    */
-  ValueSetDto createValueSet(ValueSetCreateDTO createDTO);
+  ValueSetDTO createValueSet(ValueSetCreateDTO createDTO);
 
   /**
    * Update a value set, or create a new one if there is none associated with the provided id.
@@ -35,5 +35,5 @@ public interface ValueSetService {
    * @param id the identifier of the value set
    * @return the updated/created value set
    */
-  ValueSetDto updateValueSet(ValueSetCreateDTO createDTO, Long id);
+  ValueSetDTO updateValueSet(ValueSetCreateDTO createDTO, Long id);
 }

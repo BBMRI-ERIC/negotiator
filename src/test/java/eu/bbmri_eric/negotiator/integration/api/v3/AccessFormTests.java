@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.dto.FormElementType;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
 import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;

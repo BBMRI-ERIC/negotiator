@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.service;
 import eu.bbmri_eric.negotiator.database.model.ValueSet;
 import eu.bbmri_eric.negotiator.database.repository.ValueSetRepository;
 import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
-import eu.bbmri_eric.negotiator.dto.ValueSetDto;
+import eu.bbmri_eric.negotiator.dto.ValueSetDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -24,29 +24,29 @@ public class ValueSetServiceImpl implements ValueSetService {
   }
 
   @Override
-  public List<ValueSetDto> getAllValueSets() {
+  public List<ValueSetDTO> getAllValueSets() {
     return repository.findAll(Sort.by("id").ascending()).stream()
-        .map((element) -> mapper.map(element, ValueSetDto.class))
+        .map((element) -> mapper.map(element, ValueSetDTO.class))
         .toList();
   }
 
   @Override
-  public ValueSetDto getValueSetById(long id) {
+  public ValueSetDTO getValueSetById(long id) {
     return mapper.map(
         repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        ValueSetDto.class);
+        ValueSetDTO.class);
   }
 
   @Override
-  public ValueSetDto createValueSet(ValueSetCreateDTO createDTO) {
+  public ValueSetDTO createValueSet(ValueSetCreateDTO createDTO) {
     ValueSet valueSet = mapper.map(createDTO, ValueSet.class);
-    return mapper.map(repository.save(valueSet), ValueSetDto.class);
+    return mapper.map(repository.save(valueSet), ValueSetDTO.class);
   }
 
   @Override
-  public ValueSetDto updateValueSet(ValueSetCreateDTO createDTO, Long id) {
+  public ValueSetDTO updateValueSet(ValueSetCreateDTO createDTO, Long id) {
     ValueSet valueSet = mapper.map(createDTO, ValueSet.class);
     valueSet.setId(id);
-    return mapper.map(repository.save(valueSet), ValueSetDto.class);
+    return mapper.map(repository.save(valueSet), ValueSetDTO.class);
   }
 }

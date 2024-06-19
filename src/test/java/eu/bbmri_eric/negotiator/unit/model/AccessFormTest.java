@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
 import eu.bbmri_eric.negotiator.database.model.ValueSet;
-import eu.bbmri_eric.negotiator.dto.FormElementType;
 import org.junit.jupiter.api.Test;
 
 public class AccessFormTest {

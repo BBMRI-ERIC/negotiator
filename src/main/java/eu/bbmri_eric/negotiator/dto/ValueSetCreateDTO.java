@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** DTO for {@link ValueSetDto} */
+/** DTO for {@link ValueSetDTO} */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

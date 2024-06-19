@@ -1,10 +1,10 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
 import eu.bbmri_eric.negotiator.database.model.ValueSet;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.database.repository.ValueSetRepository;
-import eu.bbmri_eric.negotiator.dto.FormElementType;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;

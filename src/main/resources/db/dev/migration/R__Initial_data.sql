@@ -62,6 +62,7 @@ values (100, '2024-05-29 13:14:33.787183', '2024-05-29 13:14:33.787183', 2, 2, '
         null, 101),
        (102, '2024-05-29 13:19:58.992884', '2024-05-29 13:19:58.992884', 2, 2, 'Bool test', 'Select one',
         'Yes-no selection', 'BOOLEAN', null, null);
+
 insert into public.access_form_section_element_link (id, access_form_section_link_id, access_form_element_id,
                                                      is_required, element_order)
 values (100, 7, 100, true, 10),
