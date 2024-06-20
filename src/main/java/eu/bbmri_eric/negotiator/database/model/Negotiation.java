@@ -49,18 +49,11 @@ import org.hibernate.type.SqlTypes;
 @NamedEntityGraph(
     name = "negotiation-with-detailed-children",
     attributeNodes = {
-      @NamedAttributeNode(value = "persons", subgraph = "persons-with-roles"),
       @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
       @NamedAttributeNode(value = "attachments"),
       @NamedAttributeNode(value = "currentStatePerResource")
     },
     subgraphs = {
-      @NamedSubgraph(
-          name = "persons-with-roles",
-          attributeNodes = {
-            @NamedAttributeNode(value = "person"),
-            @NamedAttributeNode(value = "role")
-          }),
       @NamedSubgraph(
           name = "requests-detailed",
           attributeNodes = {@NamedAttributeNode(value = "resources")})
@@ -77,12 +70,6 @@ public class Negotiation extends AuditEntity {
       mappedBy = "negotiation",
       cascade = {CascadeType.MERGE})
   private Set<Attachment> attachments;
-
-  @OneToMany(
-      mappedBy = "negotiation",
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-  @Exclude
-  private Set<PersonNegotiationRole> persons = new HashSet<>();
 
   @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE)
   @Exclude

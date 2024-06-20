@@ -9,10 +9,8 @@ import eu.bbmri_eric.negotiator.database.model.Notification;
 import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.model.views.NotificationViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
@@ -21,7 +19,6 @@ import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +46,6 @@ public class NotificationRepositoryTest {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired RoleRepository roleRepository;
   @Autowired NotificationRepository notificationRepository;
 
   String payload =
@@ -137,11 +133,6 @@ public class NotificationRepositoryTest {
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    Role role = roleRepository.save(new Role(1L, "test"));
-    Set<PersonNegotiationRole> roles = new HashSet<>();
-    PersonNegotiationRole personRole = new PersonNegotiationRole(author, negotiation, role);
-    roles.add(personRole);
-    negotiation.setPersons(roles);
     request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
     return negotiation;

@@ -228,15 +228,7 @@ public class UserNotificationServiceTest {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     Resource resource1 =
         negotiation.getRequests().iterator().next().getResources().iterator().next();
-    Person representative =
-        resource1.getRepresentatives().stream()
-            .filter(
-                person ->
-                    !person
-                        .getId()
-                        .equals(negotiation.getPersons().iterator().next().getPerson().getId()))
-            .findFirst()
-            .get();
+    Person representative = resource1.getRepresentatives().stream().findFirst().get();
     assertTrue(Objects.nonNull(representative.getId()));
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
     postService.create(

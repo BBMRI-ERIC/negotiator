@@ -5,15 +5,12 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
@@ -41,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class NegotiationServiceImpl implements NegotiationService {
 
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired RoleRepository roleRepository;
   @Autowired PersonRepository personRepository;
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;
@@ -98,16 +94,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiationRepository.existsById(negotiationId);
   }
 
-  private void addPersonToNegotiation(
-      Person person, Negotiation negotiationEntity, String roleName) {
-    Role role = roleRepository.findByName(roleName).orElseThrow(EntityNotStorableException::new);
-    // Creates the association between the Person and the Negotiation
-    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiationEntity, role);
-    // Updates person and negotiation with the person role
-    person.getRoles().add(personRole);
-    negotiationEntity.getPersons().add(personRole);
-  }
-
   /**
    * Creates a Negotiation into the repository.
    *
@@ -129,10 +115,6 @@ public class NegotiationServiceImpl implements NegotiationService {
           "One or more negotiationBody object is already assigned to another negotiation");
     }
 
-    Person creator =
-        personRepository.findById(creatorId).orElseThrow(EntityNotStorableException::new);
-    addPersonToNegotiation(creator, negotiationEntity, "ROLE_RESEARCHER");
-
     // Updates the bidirectional relationship between negotiation and requests
     negotiationEntity.setRequests(new HashSet<>(requests));
     requests.forEach(
@@ -142,8 +124,7 @@ public class NegotiationServiceImpl implements NegotiationService {
 
     Negotiation savedNegotiation;
     try {
-      // Finally, save the negotiation. NB: it also cascades operations for other Requests,
-      // PersonNegotiationRole
+      // Finally, save the negotiation. NB: it also cascades operations for other Requests
       savedNegotiation = negotiationRepository.save(negotiationEntity);
 
     } catch (DataException | DataIntegrityViolationException ex) {

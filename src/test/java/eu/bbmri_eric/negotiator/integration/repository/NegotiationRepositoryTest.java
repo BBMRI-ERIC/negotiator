@@ -8,10 +8,8 @@ import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.PersonNegotiationRole;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.Role;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationSpecification;
@@ -19,7 +17,6 @@ import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.database.repository.RoleRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -49,7 +46,6 @@ public class NegotiationRepositoryTest {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired RoleRepository roleRepository;
 
   private DiscoveryService discoveryService;
   private Person person;
@@ -182,9 +178,6 @@ public class NegotiationRepositoryTest {
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
-    Role role = roleRepository.save(new Role(1L, "test"));
-    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
-    negotiation.setPersons(Set.of(personRole));
     request.setNegotiation(negotiation);
     negotiation = negotiationRepository.save(negotiation);
     Negotiation retrievedNegotiation =
@@ -353,11 +346,6 @@ public class NegotiationRepositoryTest {
             .build();
     negotiation.setCreationDate(LocalDateTime.now());
     negotiation.setCreatedBy(person);
-    Role role = roleRepository.save(new Role(1L, "test"));
-    Set<PersonNegotiationRole> roles = new HashSet<>();
-    PersonNegotiationRole personRole = new PersonNegotiationRole(person, negotiation, role);
-    roles.add(personRole);
-    negotiation.setPersons(roles);
     request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
@@ -383,11 +371,6 @@ public class NegotiationRepositoryTest {
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    Role role = roleRepository.save(new Role(1L, "test"));
-    Set<PersonNegotiationRole> roles = new HashSet<>();
-    PersonNegotiationRole personRole = new PersonNegotiationRole(author, negotiation, role);
-    roles.add(personRole);
-    negotiation.setPersons(roles);
     request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
