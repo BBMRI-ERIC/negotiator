@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
 import eu.bbmri_eric.negotiator.database.model.Resource;
@@ -159,7 +160,7 @@ public class AccessFormServiceTest {
             .anyMatch(res -> res.getId().equals(resource.getSourceId())));
     AccessForm accessForm = resource.getAccessForm();
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", "test");
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection =
@@ -216,7 +217,7 @@ public class AccessFormServiceTest {
             .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", "test");
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection = accessFormSectionRepository.findById(1L).get();

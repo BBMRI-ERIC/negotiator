@@ -1,11 +1,14 @@
 package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
 import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
+import eu.bbmri_eric.negotiator.database.model.ValueSet;
 import org.junit.jupiter.api.Test;
 
 public class AccessFormTest {
@@ -23,7 +26,7 @@ public class AccessFormTest {
         () ->
             accessForm.linkElementToSection(
                 new AccessFormSection("test", "test", "test"),
-                new AccessFormElement("test", "test", "test", "test"),
+                new AccessFormElement("test", "test", "test", FormElementType.TEXT),
                 0,
                 true));
   }
@@ -44,11 +47,17 @@ public class AccessFormTest {
     notAllowedSection.setId(1L);
     AccessFormSection allowedSection = new AccessFormSection("test", "test", "test");
     allowedSection.setId(2L);
-    AccessFormElement element = new AccessFormElement("test", "test", "test", "test");
+    AccessFormElement element = new AccessFormElement("test", "test", "test", FormElementType.TEXT);
     element.setLinkedSection(allowedSection);
     accessForm.linkSection(notAllowedSection, 0);
     assertThrows(
         IllegalArgumentException.class,
         () -> accessForm.linkElementToSection(notAllowedSection, element, 0, true));
+  }
+
+  @Test
+  void newValueSet_ok() {
+    ValueSet valueSet = new ValueSet("Test set", null, null);
+    assertNull(valueSet.getAvailableValues());
   }
 }

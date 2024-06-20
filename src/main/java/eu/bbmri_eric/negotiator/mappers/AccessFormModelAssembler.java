@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.dto.access_form.AccessFormElementDTO;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormSectionDTO;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -64,6 +65,13 @@ public class AccessFormModelAssembler
         elementLinks.add(
             linkTo(methodOn(AccessFormController.class).getElementById(entity.getId()))
                 .withSelfRel());
+        if (Objects.nonNull(elementDTO.getLinkedValueSet())) {
+          elementLinks.add(
+              linkTo(
+                      methodOn(AccessFormController.class)
+                          .getValueSetById(elementDTO.getLinkedValueSet().getId()))
+                  .withRel("value-set"));
+        }
         elementDTO.add(elementLinks);
       }
     }

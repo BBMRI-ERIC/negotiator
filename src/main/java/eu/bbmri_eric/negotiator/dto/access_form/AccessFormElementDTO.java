@@ -1,8 +1,12 @@
 package eu.bbmri_eric.negotiator.dto.access_form;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri_eric.negotiator.database.model.FormElementType;
+import eu.bbmri_eric.negotiator.dto.ValueSetDTO;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +18,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "elements", itemRelation = "element")
@@ -27,9 +31,11 @@ public class AccessFormElementDTO extends RepresentationModel<AccessFormElementD
 
   @NotNull private String description;
 
-  @NotNull private String type;
+  @NotNull private FormElementType type;
 
   @NotNull private Boolean required;
+
+  @JsonIgnore private ValueSetDTO linkedValueSet;
 
   @Override
   public boolean equals(Object o) {
