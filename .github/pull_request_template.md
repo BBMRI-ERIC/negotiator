@@ -13,3 +13,4 @@ _Make sure you tick all the boxes below if they are true or do not apply before 
 - [ ] I have added relevant tests for my changes and the code coverage has not dropped substantially
 - [ ] I have removed all commented code
 - [ ] I have updated the documentation in all relevant places (Javadoc, Swagger, MDs...)
+- [ ] I have described the PR and added a meaningful title in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format
