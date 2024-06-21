@@ -2,10 +2,13 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.service.AttachmentMergingService;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
 import java.util.List;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,9 +30,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class AttachmentController {
 
   private final AttachmentService storageService;
+  private final AttachmentMergingService mergingService;
 
-  public AttachmentController(AttachmentService storageService) {
+  public AttachmentController(
+      AttachmentService storageService, AttachmentMergingService mergingService) {
     this.storageService = storageService;
+    this.mergingService = mergingService;
   }
 
   @PostMapping(
@@ -80,5 +86,20 @@ public class AttachmentController {
             String.format("attachment; filename=\"%s\"", attachmentInfo.getName()))
         .contentType(MediaType.valueOf(attachmentInfo.getContentType()))
         .body(attachmentInfo.getPayload());
+  }
+
+  @PostMapping("/negotiations/{negotiationId}/attachments/merge-to-pdf")
+  @ResponseStatus(HttpStatus.OK)
+  public ResponseEntity<byte[]> mergeAttachmentsToPdf(@PathVariable String negotiationId) {
+    List<String> attachmentIds =
+        storageService.findByNegotiation(negotiationId).stream()
+            .map(AttachmentMetadataDTO::getId)
+            .toList();
+    byte[] mergedPdf = mergingService.mergeAttachmentsToPdf(attachmentIds);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDisposition(
+        ContentDisposition.builder("attachment").filename("merged.pdf").build());
+    return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
   }
 }
