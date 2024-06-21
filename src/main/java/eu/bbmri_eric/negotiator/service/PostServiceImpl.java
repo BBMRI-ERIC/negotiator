@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -31,18 +30,40 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
-  @Autowired private OrganizationRepository organizationRepository;
+  private OrganizationRepository organizationRepository;
 
-  @Autowired private PostRepository postRepository;
+  private PostRepository postRepository;
 
-  @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private PersonRepository personRepository;
+  private NegotiationRepository negotiationRepository;
+  private PersonRepository personRepository;
 
-  @Autowired private ModelMapper modelMapper;
+  private ModelMapper modelMapper;
 
-  @Autowired private PersonService personService;
-  @Autowired private NegotiationService negotiationService;
-  @Autowired private UserNotificationService userNotificationService;
+  private PersonService personService;
+  private NegotiationService negotiationService;
+  private UserNotificationService userNotificationService;
+  private NegotiatorUserDetailsService userDetailsService;
+
+  public PostServiceImpl(
+      OrganizationRepository organizationRepository,
+      PostRepository postRepository,
+      NegotiationRepository negotiationRepository,
+      PersonRepository personRepository,
+      ModelMapper modelMapper,
+      PersonService personService,
+      NegotiationService negotiationService,
+      UserNotificationService userNotificationService,
+      NegotiatorUserDetailsService userDetailsService) {
+    this.organizationRepository = organizationRepository;
+    this.postRepository = postRepository;
+    this.negotiationRepository = negotiationRepository;
+    this.personRepository = personRepository;
+    this.modelMapper = modelMapper;
+    this.personService = personService;
+    this.negotiationService = negotiationService;
+    this.userNotificationService = userNotificationService;
+    this.userDetailsService = userDetailsService;
+  }
 
   /**
    * Checks whether the post is allowed. The choice is made according to the postsEnabled flags of
@@ -59,7 +80,8 @@ public class PostServiceImpl implements PostService {
   public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
     Negotiation negotiation = getNegotiation(negotiationId);
 
-    if (!negotiationService.isAuthorizedForNegotiation(negotiationId)) {
+    if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
+        || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException(
           "You're not authorized to send messages to this negotiation");
     }
