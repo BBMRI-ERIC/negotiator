@@ -174,7 +174,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     if (!postAuthorIsAlsoRequester(post)) {
       createNotificationForRequester(post);
     }
-    if (post.isPublic()) {
+    if (post.isPublic()
+        && Objects.equals(post.getNegotiation().getCurrentState(), NegotiationState.IN_PROGRESS)) {
       createNotificationsForRepresentatives(post);
     } else if (!post.isPublic() && Objects.nonNull(post.getOrganization())) {
       createNotificationsForPrivatePost(post);
