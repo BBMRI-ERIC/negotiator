@@ -99,7 +99,9 @@ public class AttachmentController {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
     headers.setContentDisposition(
-        ContentDisposition.builder("attachment").filename("merged.pdf").build());
+            ContentDisposition.builder("attachment")
+                    .filename(String.format("%s_merged.pdf", negotiationId))
+                    .build());
     return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
   }
 }
