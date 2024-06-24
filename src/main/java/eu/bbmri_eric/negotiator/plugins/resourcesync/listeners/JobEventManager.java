@@ -36,7 +36,7 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);
 
     } finally {
-      discoveryServiceSynchronizationJobRepository.save(job);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
     }
   }
 }
