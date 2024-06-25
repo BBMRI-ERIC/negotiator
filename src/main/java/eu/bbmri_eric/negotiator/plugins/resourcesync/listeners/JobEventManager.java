@@ -17,7 +17,7 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
   @Autowired
   private DiscoveryServiceSynchronizationJobRepository discoveryServiceSynchronizationJobRepository;
 
-  @Autowired private DiscoveryServiceClient bbmriDirectoryServiceSyncClient;
+  @Autowired private DiscoveryServiceClient discoveryServiceSyncClient;
 
   @Override
   public void onApplicationEvent(DiscoveryServiceSynchronizationEvent event) {
@@ -29,8 +29,8 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
     DiscoveryServiceSynchronizationJob savedJob =
         discoveryServiceSynchronizationJobRepository.save(job);
     try {
-      bbmriDirectoryServiceSyncClient.syncAllOrganizations();
-      bbmriDirectoryServiceSyncClient.syncAllResources();
+      discoveryServiceSyncClient.syncAllOrganizations();
+      discoveryServiceSyncClient.syncAllResources();
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
     } catch (EntityNotStorableException e) {
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);

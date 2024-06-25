@@ -35,7 +35,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @CommonsLog
-@Service
+@Service(value = "DefaultDiscoveryServiceClient")
 public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
 
   @Value("${negotiator.molgenis-url}")

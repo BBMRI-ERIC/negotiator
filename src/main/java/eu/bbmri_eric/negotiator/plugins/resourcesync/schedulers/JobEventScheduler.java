@@ -24,7 +24,7 @@ public class JobEventScheduler {
     } catch (RuntimeException e) {
       String message =
           String.format(
-              "Impossible to create sync job: no such discovery service with id",
+              "Impossible to create sync job: no such discovery service with id %s",
               synchronizationDiscoveryServiceId);
       log.error(message);
     }
