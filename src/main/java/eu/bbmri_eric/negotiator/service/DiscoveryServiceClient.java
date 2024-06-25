@@ -2,9 +2,12 @@ package eu.bbmri_eric.negotiator.service;
 
 public interface DiscoveryServiceClient {
 
-  public void syncAllOrganizations();
+  /** Synchronizes all the Organizations of the Discovery Service with the Negotiator. */
+  void syncAllOrganizations();
 
-  public void syncAllResources();
+  /** Synchronizes all the Resources of the Discovery Service with the Negotiator. */
+  void syncAllResources();
 
-  public void syncAllNetworks();
+  /** Synchronizes all the Networks of the Discovery Service with the Negotiator. */
+  void syncAllNetworks();
 }
