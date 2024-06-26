@@ -101,7 +101,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     for (MolgenisCollection coll : directoryCollections) {
       Optional<Resource> resource = resourceRepository.findBySourceId(coll.getId());
       if (resource.isEmpty()) {
-        addMissingCollection(coll, discoveryService, accessForm);
+        addMissingResource(coll, discoveryService, accessForm);
       } else {
         log.debug(
             String.format("Collection %s already present, check for updates...", coll.getId()));
@@ -113,7 +113,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  public void addMissingCollection(
+  public void addMissingResource(
       MolgenisCollection collection, DiscoveryService discoveryService, AccessForm accessForm) {
     log.info("Adding collection:" + collection.getId());
     log.info("Biobank external id:" + collection.getBiobank().getId());
@@ -141,7 +141,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
   }
 
   private Organization addMissingOrganization(MolgenisBiobank biobank) {
-    log.info("Adding organization:" + biobank.getId());
+    log.info("Adding organization: " + biobank.getId());
     Organization newOrganization =
         Organization.builder().externalId(biobank.getId()).name(biobank.getName()).build();
     try {
@@ -155,7 +155,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
   }
 
   private void updateOrganizationName(Organization organization, MolgenisBiobank biobank) {
-    log.info(String.format("Updating name for existing organization {0}", biobank.getId()));
+    log.info(String.format("Updating name for existing organization %s", biobank.getId()));
     organization.setName(biobank.getName());
     try {
       organizationRepository.save(organization);

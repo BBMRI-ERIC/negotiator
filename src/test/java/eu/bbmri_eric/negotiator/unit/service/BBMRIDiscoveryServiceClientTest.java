@@ -5,11 +5,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import eu.bbmri_eric.negotiator.database.model.AccessForm;
+import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
+import eu.bbmri_eric.negotiator.database.model.Organization;
+import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
@@ -20,13 +27,18 @@ import eu.bbmri_eric.negotiator.service.BBMRIDiscoveryServiceClientImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @WireMockTest(httpPort = 8080)
+@ExtendWith(MockitoExtension.class)
 public class BBMRIDiscoveryServiceClientTest {
 
   @Mock DiscoveryServiceRepository discoveryServiceRepository;
@@ -36,6 +48,8 @@ public class BBMRIDiscoveryServiceClientTest {
   @Mock AccessFormRepository accessFormRepository;
 
   @Mock ResourceRepository resourceRepository;
+
+  @InjectMocks private BBMRIDiscoveryServiceClientImpl discoveryService;
 
   private AutoCloseable closeable;
 
@@ -176,5 +190,124 @@ public class BBMRIDiscoveryServiceClientTest {
 
     List retrievedCollections = new BBMRIDiscoveryServiceClientImpl(baseUrl).findAllCollections();
     assertTrue(this.testBiobanks.size() == retrievedCollections.size());
+  }
+
+  @Test
+  void testAddMissingOrganizationsWithOrgNotPresent() {
+    when(organizationRepository.findByExternalId("test_bb1")).thenReturn(Optional.empty());
+    when(organizationRepository.findByExternalId("test_bb2")).thenReturn(Optional.empty());
+    when(organizationRepository.findByExternalId("test_bb3")).thenReturn(Optional.empty());
+    when(organizationRepository.findByExternalId("test_bb4")).thenReturn(Optional.empty());
+    discoveryService.addMissingOrganizations(testBiobanks);
+
+    verify(organizationRepository, times(1))
+        .save(Organization.builder().externalId("test_bb1").name("test_bb1").build());
+    verify(organizationRepository, times(1))
+        .save(Organization.builder().externalId("test_bb2").name("test_bb2").build());
+    verify(organizationRepository, times(1))
+        .save(Organization.builder().externalId("test_bb3").name("test_bb3").build());
+    verify(organizationRepository, times(1))
+        .save(Organization.builder().externalId("test_bb4").name("test_bb4").build());
+  }
+
+  @Test
+  void testAddMissingOrganizationsWithOrgAlreadyPresent() {
+    List<MolgenisBiobank> testModifyBiobanks =
+        Arrays.asList(new MolgenisBiobank("test_bb1", "test_bb1_newname", "/api/v2/test_bb1"));
+    when(organizationRepository.findByExternalId("test_bb1"))
+        .thenReturn(
+            Optional.of(Organization.builder().externalId("test_bb1").name("test_bb1").build()));
+    discoveryService.addMissingOrganizations(testModifyBiobanks);
+    verify(organizationRepository, times(1))
+        .save(Organization.builder().externalId("test_bb1").name("test_bb1_newname").build());
+  }
+
+  @Test
+  void testAddMissingResourceWithResourceNotPresent() {
+    when(resourceRepository.findBySourceId("test_coll1")).thenReturn(Optional.empty());
+    when(resourceRepository.findBySourceId("test_coll2")).thenReturn(Optional.empty());
+    when(resourceRepository.findBySourceId("test_coll3")).thenReturn(Optional.empty());
+    when(resourceRepository.findBySourceId("test_coll4")).thenReturn(Optional.empty());
+
+    when(discoveryServiceRepository.findById(Long.valueOf("1")))
+        .thenReturn(Optional.of(new DiscoveryService()));
+    when(accessFormRepository.findById(Long.valueOf("1")))
+        .thenReturn(Optional.of(new AccessForm("name")));
+
+    Organization org1 = Organization.builder().externalId("test_bb1").name("test_bb1").build();
+    Organization org2 = Organization.builder().externalId("test_bb2").name("test_bb2").build();
+    Organization org3 = Organization.builder().externalId("test_bb3").name("test_bb3").build();
+    Organization org4 = Organization.builder().externalId("test_bb4").name("test_bb4").build();
+
+    when(organizationRepository.findByExternalId("test_bb1")).thenReturn(Optional.of(org1));
+    when(organizationRepository.findByExternalId("test_bb2")).thenReturn(Optional.of(org2));
+    when(organizationRepository.findByExternalId("test_bb3")).thenReturn(Optional.of(org3));
+    when(organizationRepository.findByExternalId("test_bb4")).thenReturn(Optional.of(org4));
+
+    discoveryService.addMissingResources(testCollections);
+
+    verify(resourceRepository, times(1))
+        .save(
+            Resource.builder()
+                .sourceId("test_coll1")
+                .name("test_coll_1")
+                .description("test_coll_1")
+                .organization(org1)
+                .build());
+    verify(resourceRepository, times(1))
+        .save(
+            Resource.builder()
+                .sourceId("test_coll2")
+                .name("test_coll_2")
+                .description("test_coll_2")
+                .organization(org1)
+                .build());
+    verify(resourceRepository, times(1))
+        .save(
+            Resource.builder()
+                .sourceId("test_coll3")
+                .name("test_coll_3")
+                .description("test_coll_3")
+                .organization(org1)
+                .build());
+    verify(resourceRepository, times(1))
+        .save(
+            Resource.builder()
+                .sourceId("test_coll4")
+                .name("test_coll_4")
+                .description("test_coll_4")
+                .organization(org1)
+                .build());
+  }
+
+  @Test
+  void testAddMissingResourcesWithResAlreadyPresent() {
+    List<MolgenisCollection> testModifyResources =
+        Arrays.asList(
+            new MolgenisCollection(
+                "test_coll1", "test_coll1_newname", "test_coll1", testBiobanks.get(0)));
+    Organization org1 = Organization.builder().externalId("test_bb1").name("test_bb1").build();
+    when(resourceRepository.findBySourceId("test_coll1"))
+        .thenReturn(
+            Optional.of(
+                Resource.builder()
+                    .sourceId("test_coll1")
+                    .name("test_coll_1")
+                    .description("test_coll_1")
+                    .organization(org1)
+                    .build()));
+    when(discoveryServiceRepository.findById(Long.valueOf("1")))
+        .thenReturn(Optional.of(new DiscoveryService()));
+    when(accessFormRepository.findById(Long.valueOf("1")))
+        .thenReturn(Optional.of(new AccessForm("name")));
+    discoveryService.addMissingResources(testModifyResources);
+    verify(resourceRepository, times(1))
+        .save(
+            Resource.builder()
+                .sourceId("test_coll1")
+                .name("test_coll_1_newname")
+                .description("test_coll_1")
+                .organization(org1)
+                .build());
   }
 }
