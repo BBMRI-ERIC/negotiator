@@ -17,7 +17,6 @@ import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
-import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +37,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @Service(value = "DefaultDiscoveryServiceClient")
 public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
 
-  @Value("${negotiator.molgenis-url}")
-  private String molgenisURL;
+  // @Value("${negotiator.molgenis-url}")
+  // private String molgenisURL;
 
   private BBMRIDiscoveryServiceClientImpl bbmriService = null;
 
@@ -57,12 +56,8 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
 
   private WebClient webClient;
 
-  // public BBMRIDiscoveryServiceClientImpl(String molgenisServiceURL) {
-  //   this.webClient = WebClient.create(molgenisServiceURL);
-  // }
-
-  @PostConstruct
-  public void init() {
+  @Autowired
+  public BBMRIDiscoveryServiceClientImpl(@Value("${negotiator.molgenis-url}") String molgenisURL) {
     final int size = 16 * 1024 * 1024;
     final ExchangeStrategies strategies =
         ExchangeStrategies.builder()
