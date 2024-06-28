@@ -193,7 +193,7 @@ public class NetworkController {
         id);
   }
 
-  @GetMapping("/networks/negotiations")
+  @PostMapping("/networks/negotiations")
   @Operation(summary = "List all negotiations associated with a network")
   public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
       @RequestBody List<Long> networkIds,

@@ -116,7 +116,7 @@ public class NetworkControllerTests {
   public void getNegotiations_validNetworkIds_returnsNegotiations() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(NETWORKS_URL + "/negotiations")
+            MockMvcRequestBuilders.post(NETWORKS_URL + "/negotiations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("[1,2]"))
         .andExpect(status().isOk())
