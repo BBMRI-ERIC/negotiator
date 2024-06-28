@@ -85,6 +85,22 @@ public class NegotiationModelAssembler
         links);
   }
 
+  public PagedModel<EntityModel<NegotiationDTO>> toPagedModel(
+      @NonNull Page<NegotiationDTO> page,
+      NegotiationSortField sortBy,
+      Sort.Direction sortOrder,
+      List<Long> networkIds) {
+    List<Link> links = new ArrayList<>();
+    if (page.hasContent()) {
+      links = getLinks(page, sortBy, sortOrder, networkIds);
+    }
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
+        links);
+  }
+
   private List<Link> getLinks(
       Page<NegotiationDTO> page,
       NegotiationFilters filters,
@@ -304,6 +320,53 @@ public class NegotiationModelAssembler
                 methodOn(NetworkController.class)
                     .getNegotiations(
                         networkId, page.getTotalPages() - 1, page.getSize(), sortBy, sortOrder))
+            .withRel(IanaLinkRelations.LAST)
+            .expand());
+    return links;
+  }
+
+  private List<Link> getLinks(
+      Page<NegotiationDTO> page,
+      NegotiationSortField sortBy,
+      Sort.Direction sortOrder,
+      List<Long> networkIds) {
+    List<Link> links = new ArrayList<>();
+    if (page.hasPrevious()) {
+      links.add(
+          linkTo(
+                  methodOn(NetworkController.class)
+                      .getNegotiations(
+                          networkIds, page.getNumber() - 1, page.getSize(), sortBy, sortOrder))
+              .withRel(IanaLinkRelations.PREVIOUS)
+              .expand());
+    }
+    if (page.hasNext()) {
+      links.add(
+          linkTo(
+                  methodOn(NetworkController.class)
+                      .getNegotiations(
+                          networkIds, page.getNumber() + 1, page.getSize(), sortBy, sortOrder))
+              .withRel(IanaLinkRelations.NEXT)
+              .expand());
+    }
+    links.add(
+        linkTo(
+                methodOn(NetworkController.class)
+                    .getNegotiations(networkIds, 0, page.getSize(), sortBy, sortOrder))
+            .withRel(IanaLinkRelations.FIRST)
+            .expand());
+    links.add(
+        linkTo(
+                methodOn(NetworkController.class)
+                    .getNegotiations(
+                        networkIds, page.getNumber(), page.getSize(), sortBy, sortOrder))
+            .withRel(IanaLinkRelations.CURRENT)
+            .expand());
+    links.add(
+        linkTo(
+                methodOn(NetworkController.class)
+                    .getNegotiations(
+                        networkIds, page.getTotalPages() - 1, page.getSize(), sortBy, sortOrder))
             .withRel(IanaLinkRelations.LAST)
             .expand());
     return links;

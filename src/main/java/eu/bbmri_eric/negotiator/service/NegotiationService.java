@@ -162,4 +162,13 @@ public interface NegotiationService {
    * @return a paged list of NegotiationDTOs
    */
   Iterable<NegotiationDTO> findAllForNetwork(Pageable pageable, Long networkId);
+
+  /**
+   * Retrieves all negotiations related to a list of networks
+   *
+   * @param pageable the page request
+   * @param networkIds the list of network ids
+   * @return a paged list of NegotiationDTOs
+   */
+  Iterable<NegotiationDTO> findAllForNetworks(Pageable pageable, List<Long> networkIds);
 }

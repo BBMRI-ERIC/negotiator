@@ -59,4 +59,14 @@ public interface NegotiationRepository
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId")
   Page<Negotiation> findAllForNetwork(Long networkId, Pageable pageable);
+
+  @Query(
+      value =
+          "SELECT distinct (n) "
+              + "FROM Negotiation n "
+              + "JOIN n.requests rq "
+              + "JOIN rq.resources rs "
+              + "JOIN rs.networks net "
+              + "WHERE net.id IN :networkIds")
+  Page<Negotiation> findAllForNetworks(List<Long> networkIds, Pageable pageable);
 }

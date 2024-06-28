@@ -268,6 +268,13 @@ public class NegotiationServiceImpl implements NegotiationService {
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
+  @Override
+  public Iterable<NegotiationDTO> findAllForNetworks(Pageable pageable, List<Long> networkIds) {
+    return negotiationRepository
+        .findAllForNetworks(networkIds, pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
+  }
+
   private Negotiation findEntityById(String negotiationId, boolean includeDetails) {
     if (includeDetails) {
       return negotiationRepository

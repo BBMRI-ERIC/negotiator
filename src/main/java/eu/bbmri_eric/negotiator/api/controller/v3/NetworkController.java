@@ -192,4 +192,22 @@ public class NetworkController {
         sortOrder,
         id);
   }
+
+  @GetMapping("/networks/negotiations")
+  @Operation(summary = "List all negotiations associated with a network")
+  public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
+      @RequestBody List<Long> networkIds,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "50") int size,
+      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
+      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder) {
+
+    return negotiationModelAssembler.toPagedModel(
+        (Page<NegotiationDTO>)
+            negotiationService.findAllForNetworks(
+                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), networkIds),
+        sortBy,
+        sortOrder,
+        networkIds);
+  }
 }
