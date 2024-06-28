@@ -113,6 +113,25 @@ public class NetworkControllerTests {
 
   @Test
   @WithUserDetails("admin")
+  public void getNegotiations_validNetworkIds_returnsNegotiations() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(NETWORKS_URL + "/negotiations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("[1,2]"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(5)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-1")))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-5")))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-3")))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-4")))
+        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is("negotiation-v2")));
+  }
+
+  @Test
+  @WithUserDetails("admin")
   public void deleteNetwork_NetworkExists_returns204() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.delete(NETWORKS_URL + "/1"))
