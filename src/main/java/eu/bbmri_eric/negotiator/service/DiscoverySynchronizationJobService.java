@@ -4,5 +4,5 @@ import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceDTO;
 
 public interface DiscoverySynchronizationJobService {
 
-  DiscoverySyncJobServiceDTO createSyncJob(Long jobId);
+  DiscoverySyncJobServiceDTO createSyncJob(Long discoveryServiceId);
 }
