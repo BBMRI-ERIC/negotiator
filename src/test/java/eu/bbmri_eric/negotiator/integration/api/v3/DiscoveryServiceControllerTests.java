@@ -225,4 +225,34 @@ public class DiscoveryServiceControllerTests {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testCreateDiscoveryServiceSynchronizationJJob() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-service/1/sync-job")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated());
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  public void testCreateDiscoveryServiceSynchronizationJobUnauthorized() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-service/1/sync-job")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testCreateDiscoveryServiceSynchronizationJJobUnknownService() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-service/999/sync-job")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
 }

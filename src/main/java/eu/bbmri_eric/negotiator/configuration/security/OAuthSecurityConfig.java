@@ -133,7 +133,7 @@ public class OAuthSecurityConfig {
                     .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/discovery-services/**"))
                     .hasAuthority("ADMIN")
                     .requestMatchers(
-                        mvc.pattern(HttpMethod.PUT, "/v3/discovery-service/*/sync-job"))
+                        mvc.pattern(HttpMethod.POST, "/v3/discovery-service/*/sync-job"))
                     .hasAuthority("ADMIN")
                     .requestMatchers(mvc.pattern("/v3/users"))
                     .authenticated()
