@@ -12,9 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@TestPropertySource(properties = {"synchronization.frequency=0 * * * * *"})
 public class JobEventSchedulerTest {
 
   @Autowired private DiscoveryServiceRepository testServiceRepository;
@@ -27,6 +29,7 @@ public class JobEventSchedulerTest {
 
   @BeforeEach
   void initializeDiscoveryService() {
+    testJobRepository.deleteAll();
     testDiscoveryservice =
         DiscoveryService.builder()
             .id(Long.valueOf("1"))
@@ -34,16 +37,19 @@ public class JobEventSchedulerTest {
             .url("http://testservice.net")
             .build();
     testServiceRepository.save(testDiscoveryservice);
-    testJobRepository.deleteAll();
   }
 
   @Test
-  void testJobTrriggeredBySerice() throws InterruptedException {
+  void testJobTriggeredByService() throws InterruptedException {
     testDiscoverySyncJobService.createSyncJob(testDiscoveryservice.getId());
     Thread.sleep(5000);
     assertEquals(1, testJobRepository.findAll().size());
   }
 
   @Test
-  void testJobTriggeredByChron() {}
+  void testJobTriggeredByChron() throws InterruptedException {
+
+    Thread.sleep(65000);
+    assertEquals(1, testJobRepository.findAll().size());
+  }
 }
