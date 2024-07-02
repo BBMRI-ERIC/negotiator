@@ -231,7 +231,7 @@ public class DiscoveryServiceControllerTests {
   public void testCreateDiscoveryServiceSynchronizationJJob() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/discovery-service/1/sync-job")
+            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-job")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated());
   }
@@ -241,7 +241,7 @@ public class DiscoveryServiceControllerTests {
   public void testCreateDiscoveryServiceSynchronizationJobUnauthorized() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/discovery-service/1/sync-job")
+            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-job")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden());
   }
@@ -251,7 +251,7 @@ public class DiscoveryServiceControllerTests {
   public void testCreateDiscoveryServiceSynchronizationJJobUnknownService() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/discovery-service/999/sync-job")
+            MockMvcRequestBuilders.post("/v3/discovery-services/999/sync-job")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }

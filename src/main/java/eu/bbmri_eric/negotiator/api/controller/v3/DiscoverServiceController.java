@@ -65,7 +65,7 @@ public class DiscoverServiceController {
   }
 
   @PostMapping(
-      value = "/discovery-service/{id}/sync-job",
+      value = "/discovery-services/{id}/sync-job",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   DiscoverySyncJobServiceDTO add(@PathVariable Long id) {
