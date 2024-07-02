@@ -23,13 +23,10 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.usermodel.CharacterRun;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.docx4j.convert.out.FOSettings;
 import org.springframework.stereotype.Service;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
-
+import org.docx4j.Docx4J;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 
 @Service
 public class AttachmentMergingService {
@@ -131,35 +128,19 @@ public class AttachmentMergingService {
     }
 
     private byte[] convertDocxToPdf(byte[] docxBytes) throws Exception {
-        Document pdfDoc = null;
+
         try (ByteArrayInputStream docxInputStream = new ByteArrayInputStream(docxBytes);
              ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
-            XWPFDocument docx = new XWPFDocument(docxInputStream);
-            List<XWPFParagraph> paragraphs = docx.getParagraphs();
-            PdfOptions options = PdfOptions.create();
-            pdfDoc = new Document();
-            PdfConverter.getInstance().convert(docx, pdfOutputStream, options);
-//            PdfWriter.getInstance(pdfDoc, pdfOutputStream);
-//            pdfDoc.open();
-//            for (XWPFParagraph paragraph : paragraphs) {
-//                pdfDoc.add(new com.lowagie.text.Paragraph(paragraph.getText()));
-//            }
-//            pdfDoc.close();
+            WordprocessingMLPackage wordMLPackage = Docx4J.load(docxInputStream);
+
+            FOSettings foSettings = Docx4J.createFOSettings();
+            foSettings.setWmlPackage(wordMLPackage);
+            foSettings.setApacheFopMime("application/pdf");
+
+            Docx4J.toFO(foSettings, pdfOutputStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             return pdfOutputStream.toByteArray();
-        } finally {
-            if (pdfDoc != null) {
-                pdfDoc.close();
-            }
         }
-//        try (ByteArrayInputStream docxInputStream = new ByteArrayInputStream(docxBytes);
-//             ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
-//
-//            WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(docxInputStream);
-//            PdfConversion conversion = Docx4J.toPDF(wordMLPackage);
-//            conversion.output(pdfOutputStream, new PdfConversion.PdfSettings());
-//
-//            return pdfOutputStream.toByteArray();
-//        }
+
     }
 }
