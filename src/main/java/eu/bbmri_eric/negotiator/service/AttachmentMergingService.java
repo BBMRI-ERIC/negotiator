@@ -1,18 +1,19 @@
 package eu.bbmri_eric.negotiator.service;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 import eu.bbmri_eric.negotiator.dto.attachments.AttachmentDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.docx4j.Docx4J;
+import org.docx4j.convert.out.FOSettings;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,7 +39,7 @@ public class AttachmentMergingService {
 
     List<byte[]> convertedAttachments = convertAttachmentsToPdf(attachmentsList);
     byte[] mergedPdf = null;
-    try{
+    try {
       mergedPdf = PdfMergerService.mergePdfs(convertedAttachments);
     } catch (IOException e) {
       throw new RuntimeException("Failed to merge attachments to PDF", e);
@@ -64,7 +65,7 @@ public class AttachmentMergingService {
                 } else {
                   return null;
                 }
-              } catch (IOException e) {
+              } catch (Exception e) {
                 e.printStackTrace();
                 return null;
               }
@@ -73,64 +74,43 @@ public class AttachmentMergingService {
         .collect(Collectors.toList());
   }
 
-  private byte[] convertDocToPdf(byte[] docBytes) throws IOException {
-    try (HWPFDocument doc = new HWPFDocument(new ByteArrayInputStream(docBytes));
-        ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
-        PDDocument pdfDoc = new PDDocument()) {
+  private byte[] convertDocToPdf(byte[] docBytes) throws Exception {
+    Document pdfDoc = null;
 
-      PDPage page = new PDPage();
-      pdfDoc.addPage(page);
+    try (ByteArrayInputStream docInputStream = new ByteArrayInputStream(docBytes);
+        HWPFDocument doc = new HWPFDocument(docInputStream);
+        ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
-      try (PDPageContentStream contentStream = new PDPageContentStream(pdfDoc, page);
-          WordExtractor extractor = new WordExtractor(doc)) {
+      Range range = doc.getRange();
 
-        contentStream.beginText();
-        contentStream.setFont(PDType1Font.HELVETICA, 12);
-        contentStream.setLeading(14.5f);
-        contentStream.newLineAtOffset(25, 725);
+      pdfDoc = new Document();
+      PdfWriter.getInstance(pdfDoc, pdfOutputStream);
+      pdfDoc.open();
 
-        for (String paragraph : extractor.getParagraphText()) {
-          contentStream.showText(paragraph.trim());
-          contentStream.newLine();
-        }
-
-        contentStream.endText();
+      for (int i = 0; i < range.numParagraphs(); i++) {
+        pdfDoc.add(new Paragraph(range.getParagraph(i).text()));
       }
-
-      pdfDoc.save(pdfOutputStream);
+      pdfDoc.close();
       return pdfOutputStream.toByteArray();
+    } finally {
+      if (pdfDoc != null) {
+        pdfDoc.close();
+      }
     }
   }
 
-  private byte[] convertDocxToPdf(byte[] docxBytes) throws IOException {
-    try (XWPFDocument docx = new XWPFDocument(new ByteArrayInputStream(docxBytes));
-        ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
-        PDDocument pdfDoc = new PDDocument()) {
+  private byte[] convertDocxToPdf(byte[] docxBytes) throws Exception {
 
-      PDPage page = new PDPage();
-      pdfDoc.addPage(page);
+    try (ByteArrayInputStream docxInputStream = new ByteArrayInputStream(docxBytes);
+        ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
-      try (PDPageContentStream contentStream = new PDPageContentStream(pdfDoc, page)) {
-        contentStream.beginText();
-        contentStream.setFont(PDType1Font.HELVETICA, 12);
-        contentStream.setLeading(14.5f);
-        contentStream.newLineAtOffset(25, 725);
+      WordprocessingMLPackage wordMLPackage = Docx4J.load(docxInputStream);
 
-        docx.getParagraphs()
-            .forEach(
-                paragraph -> {
-                  try {
-                    contentStream.showText(paragraph.getText());
-                    contentStream.newLine();
-                  } catch (IOException e) {
-                    e.printStackTrace();
-                  }
-                });
+      FOSettings foSettings = Docx4J.createFOSettings();
+      foSettings.setWmlPackage(wordMLPackage);
+      foSettings.setApacheFopMime("application/pdf");
 
-        contentStream.endText();
-      }
-
-      pdfDoc.save(pdfOutputStream);
+      Docx4J.toFO(foSettings, pdfOutputStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
       return pdfOutputStream.toByteArray();
     }
   }
