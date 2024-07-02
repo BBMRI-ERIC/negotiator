@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class MolgenisCollection {
   private String id;
   private String name;
+  private String description;
   private MolgenisBiobank biobank;
 }

@@ -47,7 +47,8 @@ public class ResourceModelMapperTest {
   @Test
   void molgenisCollectionToResource_map_ok() {
     MolgenisCollection molgenisCollection =
-        new MolgenisCollection("bbmri:eric:collection:1", "Collection 1", new MolgenisBiobank());
+        new MolgenisCollection(
+            "bbmri:eric:collection:1", "Collection 1", "Collection 1", new MolgenisBiobank());
     Resource resource = mapper.map(molgenisCollection, Resource.class);
     assertEquals(molgenisCollection.getId(), resource.getSourceId());
     assertEquals(molgenisCollection.getName(), resource.getName());
