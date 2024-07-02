@@ -28,11 +28,11 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
   ModelMapper modelMapper = new ModelMapper();
 
   @Override
-  public DiscoverySyncJobServiceDTO createSyncJob(Long jobId) {
+  public DiscoverySyncJobServiceDTO createSyncJob(Long serviceId) {
     DiscoveryService discoveryService =
         discoveryServiceRepository
-            .findById(jobId)
-            .orElseThrow(() -> new EntityNotFoundException(jobId));
+            .findById(serviceId)
+            .orElseThrow(() -> new EntityNotFoundException(serviceId));
     LocalDateTime creationDate, modifyDate;
     creationDate = modifyDate = LocalDateTime.now();
     DiscoveryServiceSynchronizationJob job =
@@ -44,8 +44,9 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
             DiscoveryServiceSyncronizationJobStatus.SUBMITTED);
     log.debug("Saving new job entity....");
     discoveryServiceSynchronizationJobRepository.save(job);
-    publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), jobId);
-    log.debug(String.format("Sync job event for discovery service %s properly published", jobId));
+    publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), serviceId);
+    log.debug(
+        String.format("Sync job event for discovery service %s properly published", serviceId));
 
     return modelMapper.map(job, DiscoverySyncJobServiceDTO.class);
   }
