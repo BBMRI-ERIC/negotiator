@@ -6,7 +6,6 @@ import eu.bbmri_eric.negotiator.service.AttachmentMergingService;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.IOException;
 import java.util.List;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -99,7 +98,9 @@ public class AttachmentController {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
     headers.setContentDisposition(
-        ContentDisposition.builder("attachment").filename("merged.pdf").build());
+        ContentDisposition.builder("attachment")
+            .filename(String.format("%s_merged.pdf", negotiationId))
+            .build());
     return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
   }
 }

@@ -7,6 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -242,6 +243,23 @@ public class AttachmentControllerTests {
     mockMvc
         .perform(
             get(String.format("%s", WITH_NEGOTIATIONS_ENDPOINT))
+                .with(httpBasic("researcher", "wrong_pass")))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  public void testMergeAttachmentsToPdf_validNegotiationId_Ok() throws Exception {
+    mockMvc
+        .perform(post(String.format("%s/%s", WITH_NEGOTIATIONS_ENDPOINT, "merge-to-pdf")))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void testMergeAttachmentsToPdf_IsUnauthorized_whenBasicAuth() throws Exception {
+    mockMvc
+        .perform(
+            post(String.format("%s/%s", WITH_NEGOTIATIONS_ENDPOINT, "merge-to-pdf"))
                 .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
   }
