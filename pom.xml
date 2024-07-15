@@ -188,7 +188,7 @@
         <dependency>
             <artifactId>spring-context-support</artifactId>
             <groupId>org.springframework</groupId>
-            <version>6.1.9</version>
+            <version>6.1.11</version>
         </dependency>
         <dependency>
             <artifactId>jakarta.activation-api</artifactId>
