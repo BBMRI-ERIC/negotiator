@@ -94,7 +94,7 @@ jobs:
         run: mvn --quiet clean test -B --file pom.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v4.4.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -122,7 +122,7 @@ jobs:
         run: mvn --quiet clean verify -B -Dfmt.skip -Dspring.profiles.active=test
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v4.4.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
