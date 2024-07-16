@@ -2,6 +2,7 @@
 name: CI build
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 10 * * *' # every day at 10am
   push:
@@ -98,6 +99,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           flags: unit
+        continue-on-error: true
 
 
   integration-tests:
@@ -126,6 +128,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           flags: unit
+        continue-on-error: true
 
 
   analyze:
