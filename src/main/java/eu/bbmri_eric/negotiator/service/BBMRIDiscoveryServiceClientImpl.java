@@ -11,7 +11,6 @@ import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
@@ -36,10 +35,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @CommonsLog
 @Service(value = "DefaultDiscoveryServiceClient")
 public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
-
-  // @Value("${negotiator.molgenis-url}")
-  // private String molgenisURL;
-
   private BBMRIDiscoveryServiceClientImpl bbmriService = null;
 
   @Autowired private OrganizationRepository organizationRepository;
@@ -49,19 +44,15 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired private ResourceRepository resourceRepository;
 
-  @Autowired
-  private DiscoveryServiceSynchronizationJobRepository discoveryServiceSynchronizationJobRepository;
-
   private DiscoveryServiceSynchronizationJob jobRecord;
 
   private WebClient webClient;
 
-  @Autowired
   public BBMRIDiscoveryServiceClientImpl(@Value("${negotiator.molgenis-url}") String molgenisURL) {
-    final int size = 16 * 1024 * 1024;
+    final int dataBufferSizeLimit = 16 * 1024 * 1024;
     final ExchangeStrategies strategies =
         ExchangeStrategies.builder()
-            .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+            .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(dataBufferSizeLimit))
             .build();
     this.webClient =
         WebClient.builder().baseUrl(molgenisURL).exchangeStrategies(strategies).build();
@@ -79,7 +70,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
 
   public void syncAllNetworks() {}
 
-  public void addMissingOrganizations(List<MolgenisBiobank> directoryBiobanks) {
+  private void addMissingOrganizations(List<MolgenisBiobank> directoryBiobanks) {
     for (MolgenisBiobank bb : directoryBiobanks) {
       String biobankId = bb.getId();
       Optional<Organization> organization = organizationRepository.findByExternalId(biobankId);
@@ -94,7 +85,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  public void addMissingResources(List<MolgenisCollection> directoryCollections) {
+  private void addMissingResources(List<MolgenisCollection> directoryCollections) {
     DiscoveryService discoveryService =
         discoveryServiceRepository.findById(Long.valueOf("1")).get();
     AccessForm accessForm = accessFormRepository.findById(Long.valueOf("1")).get();
@@ -113,7 +104,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  public void addMissingResource(
+  private void addMissingResource(
       MolgenisCollection collection, DiscoveryService discoveryService, AccessForm accessForm) {
     log.info("Adding collection:" + collection.getId());
     log.info("Biobank external id:" + collection.getBiobank().getId());
@@ -178,7 +169,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  public List<MolgenisBiobank> findAllBiobanks() {
+  private List<MolgenisBiobank> findAllBiobanks() {
     try {
       String response =
           webClient
@@ -208,7 +199,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  public List<MolgenisCollection> findAllCollections() {
+  private List<MolgenisCollection> findAllCollections() {
     try {
       String response =
           webClient

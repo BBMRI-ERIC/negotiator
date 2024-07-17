@@ -1,10 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +32,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
+import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
+import reactor.core.publisher.Mono;
 
 @WireMockTest(httpPort = 8080)
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,16 @@ public class BBMRIDiscoveryServiceClientTest {
   @Mock AccessFormRepository accessFormRepository;
 
   @Mock ResourceRepository resourceRepository;
+
+  @Mock private WebClient.Builder webClientBuilder;
+
+  @Mock private WebClient webClient;
+
+  @Mock private RequestHeadersUriSpec requestHeadersUriSpec;
+
+  @Mock private RequestHeadersSpec requestHeadersSpec;
+
+  @Mock private ResponseSpec responseSpec;
 
   @InjectMocks private BBMRIDiscoveryServiceClientImpl discoveryService;
 
@@ -87,17 +98,13 @@ public class BBMRIDiscoveryServiceClientTest {
     this.testCollections = new ArrayList<>(Arrays.asList(coll1, coll2, coll3, coll4));
   }
 
-  @Test
-  void testFindAllBiobanks() {
-    String baseUrl = "http://localhost:8080/directory";
+  ArrayNode getTestBiobanks() {
     ObjectMapper mapper = new ObjectMapper();
-    ObjectNode root = mapper.createObjectNode();
+    ArrayNode biobanks = mapper.createArrayNode();
     ObjectNode biobank1 = mapper.createObjectNode();
     ObjectNode biobank2 = mapper.createObjectNode();
     ObjectNode biobank3 = mapper.createObjectNode();
     ObjectNode biobank4 = mapper.createObjectNode();
-
-    ArrayNode biobanks = mapper.createArrayNode();
     biobank1.put("_href", "/api/v2/test_bb1");
     biobank1.put("id", "test_bb1");
     biobank1.put("name", "test_bb1");
@@ -115,91 +122,62 @@ public class BBMRIDiscoveryServiceClientTest {
     biobanks.add(biobank2);
     biobanks.add(biobank3);
     biobanks.add(biobank4);
-
-    root.set("items", biobanks);
-
-    stubFor(
-        get(urlEqualTo(
-                "/directory/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn%3D%3Dfalse&attrs=id,name"))
-            .willReturn(
-                aResponse().withHeader("Content-Type", "application/json").withJsonBody(root)));
-
-    List retrievedBiobanks = new BBMRIDiscoveryServiceClientImpl(baseUrl).findAllBiobanks();
-    assertTrue(this.testBiobanks.size() == retrievedBiobanks.size());
+    return biobanks;
   }
 
-  @Test
-  void testFindAllCollections() {
+  ArrayNode getTestCollections() {
     String baseUrl = "http://localhost:8080/directory";
     ObjectMapper mapper = new ObjectMapper();
-    ObjectNode root = mapper.createObjectNode();
 
     ObjectNode collection1 = mapper.createObjectNode();
     ObjectNode collection2 = mapper.createObjectNode();
     ObjectNode collection3 = mapper.createObjectNode();
     ObjectNode collection4 = mapper.createObjectNode();
 
-    ObjectNode biobank1 = mapper.createObjectNode();
-    ObjectNode biobank2 = mapper.createObjectNode();
-    ObjectNode biobank3 = mapper.createObjectNode();
-    ObjectNode biobank4 = mapper.createObjectNode();
-
-    biobank1.put("_href", "/api/v2/test_bb1");
-    biobank1.put("id", "test_bb1");
-    biobank1.put("name", "test_bb1");
-    biobank2.put("_href", "/api/v2/test_bb2");
-    biobank2.put("id", "test_bb2");
-    biobank2.put("name", "test_bb2");
-    biobank3.put("_href", "/api/v2/test_bb3");
-    biobank3.put("id", "test_bb3");
-    biobank3.put("name", "test_bb3");
-    biobank4.put("_href", "/api/v2/test_bb4");
-    biobank4.put("id", "test_bb4");
-    biobank4.put("name", "test_bb4");
+    ArrayNode biobanks = getTestBiobanks();
 
     ArrayNode collections = mapper.createArrayNode();
     collection1.put("id", "test_coll1");
     collection1.put("name", "test_coll1");
     collection1.put("description", "test_coll1");
-    collection1.put("biobank", biobank1);
+    collection1.put("biobank", biobanks.get(0));
     collection2.put("id", "test_coll2");
     collection2.put("name", "test_coll2");
     collection2.put("description", "test_coll2");
-    collection2.put("biobank", biobank2);
+    collection2.put("biobank", biobanks.get(1));
     collection3.put("id", "test_coll3");
     collection3.put("name", "test_coll3");
     collection3.put("description", "test_coll3");
-    collection3.put("biobank", biobank3);
+    collection3.put("biobank", biobanks.get(2));
     collection4.put("id", "test_coll4");
     collection4.put("name", "test_coll4");
     collection4.put("description", "test_coll4");
-    collection4.put("biobank", biobank4);
+    collection4.put("biobank", biobanks.get(3));
 
     collections.add(collection1);
     collections.add(collection2);
     collections.add(collection3);
     collections.add(collection4);
 
-    root.set("items", collections);
-
-    stubFor(
-        get(urlEqualTo(
-                "/directory/api/v2/eu_bbmri_eric_collections?num=10000&attrs=id,name,description,biobank"))
-            .willReturn(
-                aResponse().withHeader("Content-Type", "application/json").withJsonBody(root)));
-
-    List retrievedCollections = new BBMRIDiscoveryServiceClientImpl(baseUrl).findAllCollections();
-    assertTrue(this.testBiobanks.size() == retrievedCollections.size());
+    return collections;
   }
 
   @Test
-  void testAddMissingOrganizationsWithOrgNotPresent() {
-    when(organizationRepository.findByExternalId("test_bb1")).thenReturn(Optional.empty());
-    when(organizationRepository.findByExternalId("test_bb2")).thenReturn(Optional.empty());
-    when(organizationRepository.findByExternalId("test_bb3")).thenReturn(Optional.empty());
-    when(organizationRepository.findByExternalId("test_bb4")).thenReturn(Optional.empty());
-    discoveryService.addMissingOrganizations(testBiobanks);
+  void testSyncAllOrganizationsWhenAllMissing() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode biobanks = getTestBiobanks();
+    root.set("items", biobanks);
 
+    String uriString = "/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==false&attrs=id,name";
+
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    discoveryService.syncAllOrganizations();
     verify(organizationRepository, times(1))
         .save(Organization.builder().externalId("test_bb1").name("test_bb1").build());
     verify(organizationRepository, times(1))
@@ -211,23 +189,19 @@ public class BBMRIDiscoveryServiceClientTest {
   }
 
   @Test
-  void testAddMissingOrganizationsWithOrgAlreadyPresent() {
-    List<MolgenisBiobank> testModifyBiobanks =
-        Arrays.asList(new MolgenisBiobank("test_bb1", "test_bb1_newname", "/api/v2/test_bb1"));
-    when(organizationRepository.findByExternalId("test_bb1"))
-        .thenReturn(
-            Optional.of(Organization.builder().externalId("test_bb1").name("test_bb1").build()));
-    discoveryService.addMissingOrganizations(testModifyBiobanks);
-    verify(organizationRepository, times(1))
-        .save(Organization.builder().externalId("test_bb1").name("test_bb1_newname").build());
-  }
+  void testSyncAllResourcesWhenAllMissing() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode collections = getTestCollections();
+    root.set("items", collections);
+    String uriString =
+        "/api/v2/eu_bbmri_eric_collections?num=10000&attrs=id,name,description,biobank";
 
-  @Test
-  void testAddMissingResourceWithResourceNotPresent() {
-    when(resourceRepository.findBySourceId("test_coll1")).thenReturn(Optional.empty());
-    when(resourceRepository.findBySourceId("test_coll2")).thenReturn(Optional.empty());
-    when(resourceRepository.findBySourceId("test_coll3")).thenReturn(Optional.empty());
-    when(resourceRepository.findBySourceId("test_coll4")).thenReturn(Optional.empty());
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
 
     when(discoveryServiceRepository.findById(Long.valueOf("1")))
         .thenReturn(Optional.of(new DiscoveryService()));
@@ -244,7 +218,7 @@ public class BBMRIDiscoveryServiceClientTest {
     when(organizationRepository.findByExternalId("test_bb3")).thenReturn(Optional.of(org3));
     when(organizationRepository.findByExternalId("test_bb4")).thenReturn(Optional.of(org4));
 
-    discoveryService.addMissingResources(testCollections);
+    discoveryService.syncAllResources();
 
     verify(resourceRepository, times(1))
         .save(
@@ -260,7 +234,7 @@ public class BBMRIDiscoveryServiceClientTest {
                 .sourceId("test_coll2")
                 .name("test_coll_2")
                 .description("test_coll_2")
-                .organization(org1)
+                .organization(org2)
                 .build());
     verify(resourceRepository, times(1))
         .save(
@@ -268,7 +242,7 @@ public class BBMRIDiscoveryServiceClientTest {
                 .sourceId("test_coll3")
                 .name("test_coll_3")
                 .description("test_coll_3")
-                .organization(org1)
+                .organization(org3)
                 .build());
     verify(resourceRepository, times(1))
         .save(
@@ -276,18 +250,69 @@ public class BBMRIDiscoveryServiceClientTest {
                 .sourceId("test_coll4")
                 .name("test_coll_4")
                 .description("test_coll_4")
-                .organization(org1)
+                .organization(org4)
                 .build());
   }
 
   @Test
-  void testAddMissingResourcesWithResAlreadyPresent() {
-    List<MolgenisCollection> testModifyResources =
-        Arrays.asList(
-            new MolgenisCollection(
-                "test_coll1", "test_coll1_newname", "test_coll1", testBiobanks.get(0)));
+  void testSyncAllOrganizationsUpdateOrgAlreadyPresent() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode biobanks = getTestBiobanks();
+
+    String uriString = "/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==false&attrs=id,name";
+
+    biobanks.remove(0);
+    ObjectNode updatedBiobank1 = mapper.createObjectNode();
+    updatedBiobank1.put("_href", "/api/v2/test_bb1");
+    updatedBiobank1.put("id", "test_bb1");
+    updatedBiobank1.put("name", "test_newname_bb1");
+
+    biobanks.add(updatedBiobank1);
+    root.set("items", biobanks);
+
+    lenient()
+        .when(organizationRepository.findByExternalId("test_bb1"))
+        .thenReturn(
+            Optional.of(Organization.builder().externalId("test_bb1").name("test_bb1").build()));
+
+    lenient().when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    lenient().when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    lenient().when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    discoveryService.syncAllOrganizations();
+
+    verify(organizationRepository, times(1))
+        .save(Organization.builder().externalId("test_bb1").name("test_newname_bb1").build());
+  }
+
+  @Test
+  void testSyncAllResourcesUpdateResAlreadyPresent() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode collections = getTestCollections();
+
+    String uriString =
+        "/api/v2/eu_bbmri_eric_collections?num=10000&attrs=id,name,description,biobank";
+
+    collections.remove(0);
+
+    ObjectNode updatedCollection1 = mapper.createObjectNode();
+    updatedCollection1.put("id", "test_coll1");
+    updatedCollection1.put("name", "test_coll1_newname");
+    updatedCollection1.put("description", "test_coll1");
+    updatedCollection1.put("biobank", getTestBiobanks().get(0));
+
+    collections.add(updatedCollection1);
+
+    root.set("items", collections);
+
     Organization org1 = Organization.builder().externalId("test_bb1").name("test_bb1").build();
-    when(resourceRepository.findBySourceId("test_coll1"))
+    lenient()
+        .when(resourceRepository.findBySourceId("test_coll1"))
         .thenReturn(
             Optional.of(
                 Resource.builder()
@@ -296,11 +321,21 @@ public class BBMRIDiscoveryServiceClientTest {
                     .description("test_coll_1")
                     .organization(org1)
                     .build()));
-    when(discoveryServiceRepository.findById(Long.valueOf("1")))
+
+    lenient().when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    lenient().when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    lenient().when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    lenient()
+        .when(discoveryServiceRepository.findById(Long.valueOf("1")))
         .thenReturn(Optional.of(new DiscoveryService()));
-    when(accessFormRepository.findById(Long.valueOf("1")))
+    lenient()
+        .when(accessFormRepository.findById(Long.valueOf("1")))
         .thenReturn(Optional.of(new AccessForm("name")));
-    discoveryService.addMissingResources(testModifyResources);
+
+    discoveryService.syncAllResources();
+
     verify(resourceRepository, times(1))
         .save(
             Resource.builder()

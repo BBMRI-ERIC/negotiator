@@ -16,7 +16,7 @@ public class JobEventScheduler {
   @Value("${synchronization.discoveryServiceId}")
   private String synchronizationDiscoveryServiceId;
 
-  @Scheduled(cron = "${synchronization.frequency}") // Cron expression for running every minute
+  @Scheduled(cron = "${synchronization.frequency}")
   public void scheduleDiscoverySynchronizationJob() {
     log.debug("Scheduled discovery triggered, creating sync job");
     try {
