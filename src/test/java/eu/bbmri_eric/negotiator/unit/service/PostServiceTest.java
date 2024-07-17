@@ -228,7 +228,7 @@ public class PostServiceTest {
     assertEquals(
         exception.getMessage(), "PUBLIC posts are not currently allowed for this negotiation");
   }
-  
+
   @Test
   public void test_createPrivateForNegotiationId_isForbidden_whenPrivatePostsAreDisabled() {
     when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
