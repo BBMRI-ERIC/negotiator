@@ -201,8 +201,7 @@ public class NegotiationLifecycleServiceImplTest {
     Map<String, NegotiationResourceState> states =
         negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
     assertTrue(states.containsKey("biobank:1:collection:2"));
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED, states.get("biobank:1:collection:2"));
+    assertEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
   }
 
   @Test
@@ -274,6 +273,25 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  void sendEventForResource_notAuthorized_noChange() {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    assertEquals(
+        negotiation.getCurrentStatePerResource().get("biobank:1:collection:2"),
+        resourceLifecycleService.sendEvent(
+            negotiation.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
+  }
+
+  @Test
+  void sendEventForNegotiation_notAuthorized_noChange() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertEquals(
+        NegotiationState.SUBMITTED,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+  }
+
+  @Test
   void getCurrentStateForResource_newNegotiation_isNull() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertNull(
@@ -283,12 +301,33 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockUser
+  void getPossibleStatesForResource_notAuthorized_isEmpty() {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    assertEquals(
+        Set.of(),
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:2"));
+    negotiation.setStateForResource(
+        "biobank:1:collection:2", NegotiationResourceState.RESOURCE_AVAILABLE);
+    assertEquals(
+        Set.of(),
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:2"));
+  }
+
+  @Test
+  @WithMockUser
+  void getPossibleStatesForNegotiation_notAuthorized_isEmpty() {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    assertEquals(Set.of(), negotiationLifecycleService.getPossibleEvents(negotiation.getId()));
+  }
+
+  @Test
   @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void getCurrentStateForResource_approvedNegotiation_isSubmitted() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        NegotiationResourceState.SUBMITTED,
         NegotiationResourceState.valueOf(
             negotiationService
                 .findById(negotiationDTO.getId(), false)

@@ -84,7 +84,9 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void notifyRepresentativesAboutNewNegotiation_atLeastOne_ok() {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     assertTrue(
@@ -110,8 +112,10 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
-  void notifyRepresentatives_sameRepFor2Resources_oneNotification() {
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
+  void notifyRepresentatives_sameRepFor2Resources_oneNotification() throws InterruptedException {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     Resource resource1 =
         negotiation.getRequests().iterator().next().getResources().iterator().next();
@@ -134,7 +138,9 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void notifyRepresentatives_resWithNoRep_markedAsUnreachable() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     Resource resource = resourceRepository.findBySourceId("biobank:1:collection:1").get();
@@ -158,7 +164,9 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void notifyRepresentatives_called2Times_noNewEmailsSent() {
     assertTrue(notificationEmailRepository.findAll().isEmpty());
     Negotiation negotiation = negotiationRepository.findAll().get(0);
@@ -174,7 +182,9 @@ public class UserNotificationServiceTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, roles = "ADMIN")
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void notifyRequester_resStatusChanged_ok() {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     assertTrue(

@@ -121,7 +121,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private boolean isSecurityRuleMet(
       SecurityRule securityRule, String negotiationId, String resourceId) {
-    if (securityRule == null || securityRule.getExpression() == null) {
+    if (securityRule == null || securityRule.getAttributes().isEmpty()) {
       return true;
     }
     Long creatorId;
@@ -132,13 +132,14 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     } catch (NullPointerException e) {
       creatorId = 0L;
     }
-    if (securityRule.getExpression().equals("isCreator")) {
+    if (securityRule.getAttributes().contains("isCreator")) {
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
-    } else if (securityRule.getExpression().equals("isRepresentative")) {
+    } else if (securityRule.getAttributes().contains("isRepresentative")) {
       return personService.isRepresentativeOfAnyResource(
           NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
           List.of(resourceId));
-    } else if (securityRule.getExpression().equals("isAdmin")) {
+    } else if (securityRule.getAttributes().contains("isAdmin")) {
+      log.info(Objects.isNull(SecurityContextHolder.getContext().getAuthentication()));
       return Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
           || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
     }
