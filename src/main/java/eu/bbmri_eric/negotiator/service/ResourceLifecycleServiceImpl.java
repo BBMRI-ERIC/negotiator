@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 /** Spring State Machine implementation of the ResourceLifecycleService. */
 @Service
-@CommonsLog
 public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   @Autowired NegotiationRepository negotiationRepository;
@@ -139,7 +137,6 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
           NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
           List.of(resourceId));
     } else if (securityRule.getAttributes().contains("isAdmin")) {
-      log.info(Objects.isNull(SecurityContextHolder.getContext().getAuthentication()));
       return Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
           || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
     }
