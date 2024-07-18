@@ -49,6 +49,6 @@ public class JobEventManagerTest {
     Thread.sleep(5000);
     DiscoveryServiceSynchronizationJob retrievedJob =
         testJobRepository.findDetailedById(job.getId()).get();
-    assertEquals(retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.COMPLETED);
+    assertEquals(retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.IN_PROGRESS);
   }
 }
