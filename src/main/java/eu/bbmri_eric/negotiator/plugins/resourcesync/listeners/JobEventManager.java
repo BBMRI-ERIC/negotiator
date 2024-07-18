@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJo
 import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJobStatus;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
 import eu.bbmri_eric.negotiator.events.DiscoveryServiceSynchronizationEvent;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.service.DiscoveryServiceClient;
 import lombok.extern.apachecommons.CommonsLog;
@@ -24,7 +25,10 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
     log.info("Consuming spring custom event related to jobId - " + event.getJobId());
     log.info("Updating job status...");
     DiscoveryServiceSynchronizationJob job =
-        discoveryServiceSynchronizationJobRepository.findDetailedById(event.getJobId()).get();
+        discoveryServiceSynchronizationJobRepository
+            .findDetailedById(event.getJobId())
+            .orElseThrow(() -> new EntityNotFoundException(event.getJobId()));
+    new EntityNotFoundException(event.getJobId());
     job.setStatus(DiscoveryServiceSyncronizationJobStatus.IN_PROGRESS);
     DiscoveryServiceSynchronizationJob savedJob =
         discoveryServiceSynchronizationJobRepository.save(job);
@@ -34,9 +38,6 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
     } catch (EntityNotStorableException e) {
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);
-
-    } finally {
-      discoveryServiceSynchronizationJobRepository.save(savedJob);
     }
   }
 }

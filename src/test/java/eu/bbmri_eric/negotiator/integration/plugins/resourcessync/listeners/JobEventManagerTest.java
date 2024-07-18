@@ -13,10 +13,12 @@ import eu.bbmri_eric.negotiator.plugins.resourcesync.publishers.JobEventPublishe
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class JobEventManagerTest {
 
   @Autowired private JobEventPublisher testJobEventPublisher;

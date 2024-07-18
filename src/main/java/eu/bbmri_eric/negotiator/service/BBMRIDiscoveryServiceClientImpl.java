@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,8 +88,13 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
 
   private void addMissingResources(List<MolgenisCollection> directoryCollections) {
     DiscoveryService discoveryService =
-        discoveryServiceRepository.findById(Long.valueOf("1")).get();
-    AccessForm accessForm = accessFormRepository.findById(Long.valueOf("1")).get();
+        discoveryServiceRepository
+            .findById(Long.valueOf("1"))
+            .orElseThrow(() -> new EntityNotFoundException("1"));
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(Long.valueOf("1"))
+            .orElseThrow(() -> new EntityNotFoundException("1"));
     for (MolgenisCollection coll : directoryCollections) {
       Optional<Resource> resource = resourceRepository.findBySourceId(coll.getId());
       if (resource.isEmpty()) {
