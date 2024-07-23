@@ -20,7 +20,7 @@
         <java.version>17</java.version>
         <spring-security.version>6.2.0</spring-security.version>
         <spring-boot.version>${project.parent.version}</spring-boot.version>
-        <spring.version>6.1.8</spring.version>
+        <spring.version>6.1.11</spring.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
     </properties>
     <distributionManagement>
