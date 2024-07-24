@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.dto;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.hateoas.server.core.Relation;
 public class InformationRequirementDTO {
   private Long id;
   private AccessFormDTO requiredAccessForm;
-  private NegotiationResourceState forResourceState;
+  private NegotiationResourceEvent forResourceEvent;
 
   @Override
   public final boolean equals(Object o) {
@@ -29,14 +29,14 @@ public class InformationRequirementDTO {
 
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
-        && forResourceState == that.forResourceState;
+        && forResourceEvent == that.forResourceEvent;
   }
 
   @Override
   public int hashCode() {
     int result = Objects.hashCode(id);
     result = 31 * result + Objects.hashCode(requiredAccessForm);
-    result = 31 * result + Objects.hashCode(forResourceState);
+    result = 31 * result + Objects.hashCode(forResourceEvent);
     return result;
   }
 }

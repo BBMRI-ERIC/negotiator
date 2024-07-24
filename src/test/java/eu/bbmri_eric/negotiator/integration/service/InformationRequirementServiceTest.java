@@ -48,7 +48,7 @@ public class InformationRequirementServiceTest {
     createDTO.setForResourceState(NegotiationResourceEvent.CONTACT);
     savedDTO = service.updateInformationRequirement(createDTO, savedDTO.getId());
     assertEquals(accessForm.getId(), savedDTO.getRequiredAccessForm().getId());
-    assertEquals(NegotiationResourceEvent.CONTACT, savedDTO.getForResourceState());
+    assertEquals(NegotiationResourceEvent.CONTACT, savedDTO.getForResourceEvent());
   }
 
   @Test
