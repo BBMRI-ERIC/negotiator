@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.server.core.Relation;
 
-/** DTO for {@link eu.bbmri_eric.negotiator.database.model.InformationRequirement} */
 @Getter
 @Setter
 @NoArgsConstructor
