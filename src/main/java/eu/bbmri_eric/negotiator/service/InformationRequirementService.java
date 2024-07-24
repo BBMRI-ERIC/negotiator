@@ -18,9 +18,11 @@ public interface InformationRequirementService {
    * Update an information requirement.
    *
    * @param createDTO the DTO containing required information
+   * @param id
    * @return the updated InformationRequirement
    */
-  InformationRequirementDTO updateInformationRequirement(InformationRequirementCreateDTO createDTO);
+  InformationRequirementDTO updateInformationRequirement(
+      InformationRequirementCreateDTO createDTO, Long id);
 
   /**
    * Get a specific information requirement.
