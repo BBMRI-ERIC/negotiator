@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.service;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
@@ -12,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,17 +27,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
-  @Autowired NegotiationRepository negotiationRepository;
+  private final NegotiationRepository negotiationRepository;
+  private final InformationRequirementRepository requirementRepository;
 
-  @Autowired
-  @Qualifier("resourcePersistHandler")
-  private PersistStateMachineHandler persistStateMachineHandler;
+  private final PersistStateMachineHandler persistStateMachineHandler;
 
-  @Autowired
-  @Qualifier("resourceStateMachine")
-  private StateMachine<String, String> stateMachine;
+  private final StateMachine<String, String> stateMachine;
 
-  @Autowired PersonService personService;
+  PersonService personService;
+
+  public ResourceLifecycleServiceImpl(
+      NegotiationRepository negotiationRepository,
+      InformationRequirementRepository requirementRepository,
+      @Qualifier("resourcePersistHandler") PersistStateMachineHandler persistStateMachineHandler,
+      @Qualifier("resourceStateMachine") StateMachine<String, String> stateMachine,
+      PersonService personService) {
+    this.negotiationRepository = negotiationRepository;
+    this.requirementRepository = requirementRepository;
+    this.persistStateMachineHandler = persistStateMachineHandler;
+    this.stateMachine = stateMachine;
+    this.personService = personService;
+  }
 
   @Override
   public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)

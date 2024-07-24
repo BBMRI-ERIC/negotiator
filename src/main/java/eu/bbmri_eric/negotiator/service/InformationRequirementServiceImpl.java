@@ -55,7 +55,7 @@ public class InformationRequirementServiceImpl implements InformationRequirement
             .findById(createDTO.getRequiredAccessFormId())
             .orElseThrow(() -> new EntityNotFoundException(createDTO.getRequiredAccessFormId()));
     requirement.setRequiredAccessForm(accessForm);
-    requirement.setForResourceState(createDTO.getForResourceState());
+    requirement.setForEvent(createDTO.getForResourceState());
     return modelMapper.map(
         requirementRepository.save(requirement), InformationRequirementDTO.class);
   }

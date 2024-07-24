@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
@@ -35,20 +35,20 @@ public class InformationRequirementServiceTest {
   void createInformationRequirement_correctParameters_saved() {
     assertNotNull(
         service.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceState.SUBMITTED)));
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT)));
   }
 
   @Test
   void updateInformationRequirement_newParameters_ok() {
     AccessForm accessForm = accessFormRepository.save(new AccessForm("test2"));
     InformationRequirementCreateDTO createDTO =
-        new InformationRequirementCreateDTO(1L, NegotiationResourceState.SUBMITTED);
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     InformationRequirementDTO savedDTO = service.createInformationRequirement(createDTO);
     createDTO.setRequiredAccessFormId(accessForm.getId());
-    createDTO.setForResourceState(NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    createDTO.setForResourceState(NegotiationResourceEvent.CONTACT);
     savedDTO = service.updateInformationRequirement(createDTO, savedDTO.getId());
     assertEquals(accessForm.getId(), savedDTO.getRequiredAccessForm().getId());
-    assertEquals(NegotiationResourceState.RESOURCE_UNAVAILABLE, savedDTO.getForResourceState());
+    assertEquals(NegotiationResourceEvent.CONTACT, savedDTO.getForResourceState());
   }
 
   @Test
@@ -57,7 +57,7 @@ public class InformationRequirementServiceTest {
     assertEquals(0, informationRequirementRepository.findAll().size());
     assertNotNull(
         service.createInformationRequirement(
-            new InformationRequirementCreateDTO(1L, NegotiationResourceState.SUBMITTED)));
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT)));
     assertEquals(1, service.getAllInformationRequirements().size());
   }
 }

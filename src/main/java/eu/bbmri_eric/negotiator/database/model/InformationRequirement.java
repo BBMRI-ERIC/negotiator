@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.database.model;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,21 +20,20 @@ public class InformationRequirement {
   @ManyToOne private AccessForm requiredAccessForm;
 
   @Enumerated(EnumType.STRING)
-  private NegotiationResourceState forResourceState;
+  private NegotiationResourceEvent forEvent;
 
   protected InformationRequirement() {}
 
   public InformationRequirement(
-      Long id, AccessForm requiredAccessForm, NegotiationResourceState forResourceState) {
+      Long id, AccessForm requiredAccessForm, NegotiationResourceEvent forEvent) {
     this.id = id;
     this.requiredAccessForm = requiredAccessForm;
-    this.forResourceState = forResourceState;
+    this.forEvent = forEvent;
   }
 
-  public InformationRequirement(
-      AccessForm requiredAccessForm, NegotiationResourceState forResourceState) {
+  public InformationRequirement(AccessForm requiredAccessForm, NegotiationResourceEvent forEvent) {
     this.requiredAccessForm = requiredAccessForm;
-    this.forResourceState = forResourceState;
+    this.forEvent = forEvent;
   }
 
   public Long getId() {
@@ -53,12 +52,12 @@ public class InformationRequirement {
     this.requiredAccessForm = requiredAccessForm;
   }
 
-  public NegotiationResourceState getForResourceState() {
-    return forResourceState;
+  public NegotiationResourceEvent getForEvent() {
+    return forEvent;
   }
 
-  public void setForResourceState(NegotiationResourceState forResourceState) {
-    this.forResourceState = forResourceState;
+  public void setForEvent(NegotiationResourceEvent forEvent) {
+    this.forEvent = forEvent;
   }
 
   @Override
@@ -68,14 +67,14 @@ public class InformationRequirement {
 
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
-        && forResourceState == that.forResourceState;
+        && forEvent == that.forEvent;
   }
 
   @Override
   public int hashCode() {
     int result = Objects.hashCode(id);
     result = 31 * result + Objects.hashCode(requiredAccessForm);
-    result = 31 * result + Objects.hashCode(forResourceState);
+    result = 31 * result + Objects.hashCode(forEvent);
     return result;
   }
 }
