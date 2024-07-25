@@ -16,6 +16,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -42,7 +43,7 @@ public class InformationRequirementControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.title", is("Encountered a null pointer exception")));
+        .andExpect(jsonPath("$.title", is("Incorrect parameters")));
   }
 
   @Test
@@ -59,5 +60,87 @@ public class InformationRequirementControllerTest {
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
         .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser
+  void deleteInformationRequirement_existingId_ok() throws Exception {
+    InformationRequirementCreateDTO createDTO =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated());
+    long idToBeDeleted = 1L; // Replace with actual id from your setup
+    mockMvc
+        .perform(MockMvcRequestBuilders.delete(INFO_REQUIREMENT_ENDPOINT + "/" + idToBeDeleted))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser
+  void deleteInformationRequirement_nonExistingId_notFound() throws Exception {
+    long nonExistingId = 999L;
+    mockMvc
+        .perform(MockMvcRequestBuilders.delete(INFO_REQUIREMENT_ENDPOINT + "/" + nonExistingId))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser
+  void updateRequirement_null_returns400() throws Exception {
+    InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(null, null);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(INFO_REQUIREMENT_ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.title", is("Incorrect parameters")));
+  }
+
+  @Test
+  @WithMockUser
+  void updateRequirement_correctBody_ok() throws Exception {
+    InformationRequirementCreateDTO createDTO =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(createDTO)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    long id =
+        new ObjectMapper()
+            .readTree(mvcResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
+    createDTO = new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.STEP_AWAY);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(INFO_REQUIREMENT_ENDPOINT + "/" + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.forResourceEvent", is("STEP_AWAY")))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser
+  void updateRequirement_nonExistingId_notFound() throws Exception {
+    InformationRequirementCreateDTO createDTO =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(INFO_REQUIREMENT_ENDPOINT + "/999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isNotFound());
   }
 }

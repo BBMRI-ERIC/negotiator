@@ -61,7 +61,7 @@ public class InformationRequirementController {
   @PutMapping("/info-requirements/{id}")
   @Operation(summary = "Update an Information requirement")
   public EntityModel<InformationRequirementDTO> updateRequirement(
-      InformationRequirementCreateDTO createDTO, @PathVariable Long id) {
+      @Valid @RequestBody InformationRequirementCreateDTO createDTO, @PathVariable Long id) {
     return assembler.toModel(service.updateInformationRequirement(createDTO, id));
   }
 

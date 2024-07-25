@@ -80,6 +80,9 @@ public class InformationRequirementServiceImpl implements InformationRequirement
   @Override
   public void deleteInformationRequirement(Long id) {
     Objects.requireNonNull(id, "InformationRequirement ID must not be null");
+    if (!requirementRepository.existsById(id)) {
+      throw new EntityNotFoundException(id);
+    }
     requirementRepository.deleteById(id);
   }
 }
