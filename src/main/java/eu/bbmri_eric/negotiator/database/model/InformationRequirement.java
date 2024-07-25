@@ -63,7 +63,8 @@ public class InformationRequirement {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof InformationRequirement that)) return false;
+    if (o == null || getClass() != o.getClass()) return false;
+    InformationRequirement that = (InformationRequirement) o;
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
         && forEvent == that.forEvent;
