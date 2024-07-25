@@ -31,7 +31,8 @@ public class InformationRequirementServiceTest {
     assertThrows(NullPointerException.class, () -> service.createInformationRequirement(null));
     assertThrows(
         NullPointerException.class,
-        () -> service.createInformationRequirement(new InformationRequirementCreateDTO()));
+        () ->
+            service.createInformationRequirement(new InformationRequirementCreateDTO(null, null)));
   }
 
   @Test
@@ -48,7 +49,7 @@ public class InformationRequirementServiceTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     InformationRequirementDTO savedDTO = service.createInformationRequirement(createDTO);
     createDTO.setRequiredAccessFormId(accessForm.getId());
-    createDTO.setForResourceState(NegotiationResourceEvent.CONTACT);
+    createDTO.setForResourceEvent(NegotiationResourceEvent.CONTACT);
     savedDTO = service.updateInformationRequirement(createDTO, savedDTO.getId());
     assertEquals(accessForm.getId(), savedDTO.getRequiredAccessForm().getId());
     assertEquals(NegotiationResourceEvent.CONTACT, savedDTO.getForResourceEvent());

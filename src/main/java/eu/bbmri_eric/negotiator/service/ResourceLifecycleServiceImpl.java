@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.statemachine.state.State;
@@ -92,14 +93,18 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   @Override
   public NegotiationResourceState sendEvent(
-      String negotiationId, String resourceId, NegotiationResourceEvent negotiationEvent)
+      String negotiationId, String resourceId, NegotiationResourceEvent negotiationResourceEvent)
       throws WrongRequestException, EntityNotFoundException {
-    if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationEvent)) {
+    if (requirementRepository.existsByForEvent(negotiationResourceEvent)) {
+      throw new StateMachineException(
+          "The requirement for this operation was not met. Please make sure you have submitted the required form and try again.");
+    }
+    if (!getPossibleEvents(negotiationId, resourceId).contains(negotiationResourceEvent)) {
       return getCurrentStateForResource(negotiationId, resourceId);
     }
     persistStateMachineHandler
         .handleEventWithStateReactively(
-            MessageBuilder.withPayload(negotiationEvent.name())
+            MessageBuilder.withPayload(negotiationResourceEvent.name())
                 .setHeader("negotiationId", negotiationId)
                 .setHeader("resourceId", resourceId)
                 .build(),
