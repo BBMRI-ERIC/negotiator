@@ -22,10 +22,9 @@ public class InformationRequirementDTO {
   private NegotiationResourceEvent forResourceEvent;
 
   @Override
-  public final boolean equals(Object o) {
+  public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof InformationRequirementDTO that)) return false;
-
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
         && forResourceEvent == that.forResourceEvent;
@@ -33,9 +32,6 @@ public class InformationRequirementDTO {
 
   @Override
   public int hashCode() {
-    int result = Objects.hashCode(id);
-    result = 31 * result + Objects.hashCode(requiredAccessForm);
-    result = 31 * result + Objects.hashCode(forResourceEvent);
-    return result;
+    return Objects.hash(id, requiredAccessForm, forResourceEvent);
   }
 }

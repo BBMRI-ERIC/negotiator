@@ -61,10 +61,9 @@ public class InformationRequirement {
   }
 
   @Override
-  public final boolean equals(Object o) {
+  public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof InformationRequirement that)) return false;
-
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
         && forEvent == that.forEvent;
@@ -72,9 +71,6 @@ public class InformationRequirement {
 
   @Override
   public int hashCode() {
-    int result = Objects.hashCode(id);
-    result = 31 * result + Objects.hashCode(requiredAccessForm);
-    result = 31 * result + Objects.hashCode(forEvent);
-    return result;
+    return Objects.hash(id, requiredAccessForm, forEvent);
   }
 }
