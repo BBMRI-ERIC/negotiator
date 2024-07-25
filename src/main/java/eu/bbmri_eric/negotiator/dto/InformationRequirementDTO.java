@@ -24,7 +24,8 @@ public class InformationRequirementDTO {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof InformationRequirementDTO that)) return false;
+    if (o == null || getClass() != o.getClass()) return false;
+    InformationRequirementDTO that = (InformationRequirementDTO) o;
     return Objects.equals(id, that.id)
         && Objects.equals(requiredAccessForm, that.requiredAccessForm)
         && forResourceEvent == that.forResourceEvent;
