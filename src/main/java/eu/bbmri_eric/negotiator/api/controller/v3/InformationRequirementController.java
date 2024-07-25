@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v3")
+@RequestMapping(InformationRequirementController.BASE_URL)
 @Tag(
     name = "Information requirements",
     description = "Set requirements for Resource states in Negotiations.")
 @SecurityRequirement(name = "security_auth")
 public class InformationRequirementController {
+
+  public static final String BASE_URL = "/v3/info-requirements";
 
   private final InformationRequirementService service;
   private final InformationRequirementAssembler assembler;
@@ -38,34 +40,34 @@ public class InformationRequirementController {
     this.assembler = assembler;
   }
 
-  @GetMapping("/info-requirements")
+  @GetMapping
   @Operation(summary = "List all Information requirements")
   public CollectionModel<EntityModel<InformationRequirementDTO>> findAllRequirements() {
     return assembler.toCollectionModel(service.getAllInformationRequirements());
   }
 
-  @GetMapping("/info-requirements/{id}")
+  @GetMapping("/{id}")
   @Operation(summary = "Find an Information requirement by id")
   public EntityModel<InformationRequirementDTO> findRequirementById(@PathVariable Long id) {
     return assembler.toModel(service.getInformationRequirement(id));
   }
 
-  @PostMapping("/info-requirements")
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Create an Information requirement by id")
+  @Operation(summary = "Create an Information requirement")
   public EntityModel<InformationRequirementDTO> createNewRequirement(
       @Valid @RequestBody InformationRequirementCreateDTO createDTO) {
     return assembler.toModel(service.createInformationRequirement(createDTO));
   }
 
-  @PutMapping("/info-requirements/{id}")
+  @PutMapping("/{id}")
   @Operation(summary = "Update an Information requirement")
   public EntityModel<InformationRequirementDTO> updateRequirement(
       @Valid @RequestBody InformationRequirementCreateDTO createDTO, @PathVariable Long id) {
     return assembler.toModel(service.updateInformationRequirement(createDTO, id));
   }
 
-  @DeleteMapping("/info-requirements/{id}")
+  @DeleteMapping("/{id}")
   @Operation(summary = "Delete an Information requirement")
   public void deleteRequirement(@PathVariable Long id) {
     service.deleteInformationRequirement(id);

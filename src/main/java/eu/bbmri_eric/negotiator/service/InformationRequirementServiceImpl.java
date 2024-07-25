@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Transactional
 public class InformationRequirementServiceImpl implements InformationRequirementService {
-  private InformationRequirementRepository requirementRepository;
-  private AccessFormRepository accessFormRepository;
-  private ModelMapper modelMapper;
+  private final InformationRequirementRepository requirementRepository;
+  private final AccessFormRepository accessFormRepository;
+  private final ModelMapper modelMapper;
 
   public InformationRequirementServiceImpl(
       InformationRequirementRepository requirementRepository,
@@ -32,57 +32,54 @@ public class InformationRequirementServiceImpl implements InformationRequirement
   @Override
   public InformationRequirementDTO createInformationRequirement(
       InformationRequirementCreateDTO createDTO) {
-    Objects.requireNonNull(createDTO, "InformationRequirementCreateDTO must not be null");
-    Objects.requireNonNull(createDTO.getRequiredAccessFormId(), "Access form id must not be null");
-    AccessForm accessForm =
-        accessFormRepository
-            .findById(createDTO.getRequiredAccessFormId())
-            .orElseThrow(() -> new EntityNotFoundException(createDTO.getRequiredAccessFormId()));
+    validateInformationRequirementCreateDTO(createDTO);
+    AccessForm accessForm = findAccessFormById(createDTO.getRequiredAccessFormId());
     InformationRequirement requirement =
         new InformationRequirement(accessForm, createDTO.getForResourceEvent());
-    return modelMapper.map(
-        requirementRepository.save(requirement), InformationRequirementDTO.class);
+    return mapToDTO(requirementRepository.save(requirement));
   }
 
   @Override
   public InformationRequirementDTO updateInformationRequirement(
       InformationRequirementCreateDTO createDTO, Long id) {
-    Objects.requireNonNull(createDTO, "InformationRequirementCreateDTO must not be null");
-    InformationRequirement requirement =
-        requirementRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    AccessForm accessForm =
-        accessFormRepository
-            .findById(createDTO.getRequiredAccessFormId())
-            .orElseThrow(() -> new EntityNotFoundException(createDTO.getRequiredAccessFormId()));
+    validateInformationRequirementCreateDTO(createDTO);
+    InformationRequirement requirement = findInformationRequirementById(id);
+    AccessForm accessForm = findAccessFormById(createDTO.getRequiredAccessFormId());
     requirement.setRequiredAccessForm(accessForm);
     requirement.setForEvent(createDTO.getForResourceEvent());
-    return modelMapper.map(
-        requirementRepository.save(requirement), InformationRequirementDTO.class);
+    return mapToDTO(requirementRepository.save(requirement));
   }
 
   @Override
   public InformationRequirementDTO getInformationRequirement(Long id) {
-    Objects.requireNonNull(id, "InformationRequirement ID must not be null");
-    return modelMapper.map(
-        requirementRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        InformationRequirementDTO.class);
+    return mapToDTO(findInformationRequirementById(id));
   }
 
   @Override
   public List<InformationRequirementDTO> getAllInformationRequirements() {
-    return requirementRepository.findAll().stream()
-        .map(
-            informationRequirement ->
-                modelMapper.map(informationRequirement, InformationRequirementDTO.class))
-        .toList();
+    return requirementRepository.findAll().stream().map(this::mapToDTO).toList();
   }
 
   @Override
   public void deleteInformationRequirement(Long id) {
-    Objects.requireNonNull(id, "InformationRequirement ID must not be null");
-    if (!requirementRepository.existsById(id)) {
-      throw new EntityNotFoundException(id);
-    }
-    requirementRepository.deleteById(id);
+    InformationRequirement requirement = findInformationRequirementById(id);
+    requirementRepository.deleteById(requirement.getId());
+  }
+
+  private void validateInformationRequirementCreateDTO(InformationRequirementCreateDTO createDTO) {
+    Objects.requireNonNull(createDTO, "InformationRequirementCreateDTO must not be null");
+    Objects.requireNonNull(createDTO.getRequiredAccessFormId(), "Access form id must not be null");
+  }
+
+  private AccessForm findAccessFormById(Long id) {
+    return accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+  }
+
+  private InformationRequirement findInformationRequirementById(Long id) {
+    return requirementRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+  }
+
+  private InformationRequirementDTO mapToDTO(InformationRequirement informationRequirement) {
+    return modelMapper.map(informationRequirement, InformationRequirementDTO.class);
   }
 }
