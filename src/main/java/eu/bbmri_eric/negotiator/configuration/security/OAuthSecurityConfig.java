@@ -168,6 +168,14 @@ public class OAuthSecurityConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/networks/**"))
                     .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern("/v3/info-requirements/**"))
+                    .authenticated()
+                    .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/info-requirements/**"))
+                    .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/info-requirements/**"))
+                    .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/v3/info-requirements/**"))
+                    .hasRole("ADMIN")
                     .requestMatchers(mvc.pattern("/actuator/prometheus"))
                     // Needs to be IPv6 address
                     .access(

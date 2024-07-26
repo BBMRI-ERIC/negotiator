@@ -11,11 +11,15 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.database.model.AccessForm;
+import eu.bbmri_eric.negotiator.database.model.InformationRequirement;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Request;
+import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
@@ -37,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.context.WebApplicationContext;
@@ -53,6 +58,8 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired NegotiationService negotiationService;
   @Autowired private WebApplicationContext context;
   @Autowired RequestRepository requestRepository;
+  @Autowired InformationRequirementRepository requirementRepository;
+  @Autowired AccessFormRepository accessFormRepository;
 
   private void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
@@ -332,6 +339,31 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationService
                 .findById(negotiationDTO.getId(), false)
                 .getStatusForResource("biobank:1:collection:2")));
+  }
+
+  @Test
+  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
+  void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
+      throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(
+        NegotiationResourceState.SUBMITTED,
+        NegotiationResourceState.valueOf(
+            negotiationService
+                .findById(negotiationDTO.getId(), false)
+                .getStatusForResource("biobank:1:collection:2")));
+    AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
+    requirementRepository.save(
+        new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
+    assertTrue(requirementRepository.existsByForEvent(NegotiationResourceEvent.CONTACT));
+    assertThrows(
+        StateMachineException.class,
+        () ->
+            resourceLifecycleService.sendEvent(
+                negotiationDTO.getId(),
+                "biobank:1:collection:2",
+                NegotiationResourceEvent.CONTACT));
   }
 
   @Test
