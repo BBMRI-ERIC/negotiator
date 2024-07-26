@@ -143,4 +143,40 @@ public class InformationRequirementControllerTest {
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isNotFound());
   }
+
+
+  @Test
+  @WithMockUser
+  void findRequirementById_existingId_ok() throws Exception {
+    InformationRequirementCreateDTO createDTO =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(createDTO)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    long id =
+        new ObjectMapper()
+            .readTree(mvcResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT + "/" + id))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser
+  void findRequirementById_nonExistingId_notFound() throws Exception {
+    long nonExistingId = 999L;
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT + "/" + nonExistingId))
+        .andExpect(status().isNotFound());
+  }
 }
