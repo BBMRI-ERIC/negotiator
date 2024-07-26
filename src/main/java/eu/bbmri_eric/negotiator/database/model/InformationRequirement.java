@@ -9,8 +9,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
 /** Object depicting a requirement of filling out an access form in a particular Resource state. */
+@Setter
+@Getter
 @Entity
 public class InformationRequirement {
   @Id
@@ -36,31 +40,7 @@ public class InformationRequirement {
     this.forEvent = forEvent;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public AccessForm getRequiredAccessForm() {
-    return requiredAccessForm;
-  }
-
-  public void setRequiredAccessForm(AccessForm requiredAccessForm) {
-    this.requiredAccessForm = requiredAccessForm;
-  }
-
-  public NegotiationResourceEvent getForEvent() {
-    return forEvent;
-  }
-
-  public void setForEvent(NegotiationResourceEvent forEvent) {
-    this.forEvent = forEvent;
-  }
-
-  @Override
+    @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
