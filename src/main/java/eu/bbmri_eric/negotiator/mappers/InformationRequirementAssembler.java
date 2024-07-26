@@ -37,6 +37,11 @@ public class InformationRequirementAssembler
   @Override
   public @NonNull CollectionModel<EntityModel<InformationRequirementDTO>> toCollectionModel(
       @NonNull Iterable<? extends InformationRequirementDTO> entities) {
-    return RepresentationModelAssembler.super.toCollectionModel(entities);
+    List<Link> links = new ArrayList<>();
+    links.add(
+        linkTo(InformationRequirementController.class)
+            .slash("info-requirements")
+            .withRel("info-requirements"));
+    return RepresentationModelAssembler.super.toCollectionModel(entities).add(links);
   }
 }

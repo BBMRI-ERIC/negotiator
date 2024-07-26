@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementCreateDTO;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -128,6 +129,43 @@ public class InformationRequirementControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.forResourceEvent", is("STEP_AWAY")))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser
+  void findAllRequirements_noExist_returnsEmptyArray() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser
+  void findAllRequirements_twoExist_returnsArrayWithTwoElements() throws Exception {
+    InformationRequirementCreateDTO createDTO1 =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO1)))
+        .andExpect(status().isCreated());
+
+    InformationRequirementCreateDTO createDTO2 =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.STEP_AWAY);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO2)))
+        .andExpect(status().isCreated());
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.info-requirements", Matchers.hasSize(2)))
         .andExpect(jsonPath("$._links").isNotEmpty());
   }
 
