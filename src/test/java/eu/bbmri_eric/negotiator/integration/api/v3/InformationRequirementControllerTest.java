@@ -144,7 +144,6 @@ public class InformationRequirementControllerTest {
         .andExpect(status().isNotFound());
   }
 
-
   @Test
   @WithMockUser
   void findRequirementById_existingId_ok() throws Exception {
