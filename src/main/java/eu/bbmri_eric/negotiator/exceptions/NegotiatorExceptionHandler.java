@@ -280,15 +280,6 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(NullPointerException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public final ErrorResponse handleNullPointerException(NullPointerException ex) {
-    ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-    detail.setTitle("Encountered a null pointer exception");
-    detail.setDetail(ex.getMessage());
-    return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
-  }
-
   @ExceptionHandler(StateMachineException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public final ErrorResponse handleStateMachineException(StateMachineException ex) {
