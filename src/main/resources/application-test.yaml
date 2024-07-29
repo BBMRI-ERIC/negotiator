@@ -41,6 +41,3 @@ negotiator:
     resource-claim-prefix: "resource_id"
 reminder:
   trigger-duration-days: "PT0S"
-synchronization:
-  frequency: "0 0 0 * * ?"
-  discoveryServiceId: "1"

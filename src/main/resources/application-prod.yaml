@@ -44,6 +44,3 @@ logging:
 reminder:
   trigger-duration-days: "P7D"
   cron-schedule-expression: "0 0 0 * * TUE"
-synchronization:
-  frequency: "0 0 0 * * ?"
-  discoveryServiceId: "1"

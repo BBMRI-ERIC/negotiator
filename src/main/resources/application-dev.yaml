@@ -82,6 +82,3 @@ logging:
 reminder:
   trigger-duration-days: "PT2M"
   cron-schedule-expression: "0 */5 * ? * *"
-synchronization:
-  frequency: "0 0 0 * * ?"
-  discoveryServiceId: "1"
