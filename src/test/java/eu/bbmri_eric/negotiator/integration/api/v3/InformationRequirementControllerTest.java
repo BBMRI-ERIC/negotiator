@@ -1,16 +1,25 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.database.model.Negotiation;
+import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
+import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementCreateDTO;
+import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
+import eu.bbmri_eric.negotiator.dto.InformationSubmissionDTO;
+import eu.bbmri_eric.negotiator.service.InformationRequirementServiceImpl;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,7 +36,11 @@ import org.springframework.web.context.WebApplicationContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class InformationRequirementControllerTest {
   private final String INFO_REQUIREMENT_ENDPOINT = "/v3/info-requirements";
+  private final String INFO_SUBMISSION_ENDPOINT = "/v3/negotiations/%s/info-requirements/%s";
   private MockMvc mockMvc;
+  @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private InformationRequirementRepository informationRequirementRepository;
+  @Autowired private InformationRequirementServiceImpl informationRequirementServiceImpl;
 
   @BeforeEach
   void setup(WebApplicationContext wac) {
@@ -215,5 +228,68 @@ public class InformationRequirementControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT + "/" + nonExistingId))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void getSummary_nonExistingId_notFound() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(INFO_SUBMISSION_ENDPOINT.formatted("1", "1")))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void getSummary_nonExistingRequirement_notFound() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), "1")))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void getSummary_noSubmissions_emptyResponse() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId())))
+        .andExpect(status().isOk())
+        .andExpect(content().json("{}"));
+  }
+
+  @Test
+  void submitInformation_correctPayload_ok() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    String payload =
+        """
+                        {
+                       "sample-type": "DNA",
+                       "num-of-subjects": 10,
+                       "num-of-samples": 20,
+                       "volume-per-sample": 5
+                    }
+                    """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO = new InformationSubmissionDTO(1L, jsonPayload);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
+        .andExpect(jsonPath("$.payload.sample-type").value("DNA"));
   }
 }
