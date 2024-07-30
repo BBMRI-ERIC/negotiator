@@ -31,10 +31,17 @@ public class NegotiationModelAssemblerTest {
             .getContent()
             .getId());
     assertEquals(
-        "/v3/negotiations",
+        "/v3/negotiations/1/posts",
         negotiationModelAssembler
-            .toModel(new NegotiationDTO())
-            .getLink("negotiations")
+            .toModel(NegotiationDTO.builder().id("1").build())
+            .getLink("posts")
+            .get()
+            .getHref());
+    assertEquals(
+        "/v3/negotiations/1/attachments",
+        negotiationModelAssembler
+            .toModel(NegotiationDTO.builder().id("1").build())
+            .getLink("attachments")
             .get()
             .getHref());
   }
