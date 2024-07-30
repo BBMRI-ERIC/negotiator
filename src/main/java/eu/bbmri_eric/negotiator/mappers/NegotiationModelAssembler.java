@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.mappers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.api.controller.v3.AttachmentController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NetworkController;
 import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
@@ -28,10 +29,17 @@ public class NegotiationModelAssembler
   @Override
   public @NonNull EntityModel<NegotiationDTO> toModel(@NonNull NegotiationDTO entity) {
     List<Link> links = new ArrayList<>();
-    links.add(linkTo(NegotiationController.class).slash("negotiations").withRel("negotiations"));
     links.add(
         WebMvcLinkBuilder.linkTo(methodOn(NegotiationController.class).retrieve(entity.getId()))
             .withSelfRel());
+    links.add(
+        WebMvcLinkBuilder.linkTo(NegotiationController.class)
+            .slash("negotiations/%s/posts".formatted(entity.getId()))
+            .withRel("posts"));
+    links.add(
+        WebMvcLinkBuilder.linkTo(
+                methodOn(AttachmentController.class).listByNegotiation(entity.getId()))
+            .withRel("attachments"));
     return EntityModel.of(entity, links);
   }
 

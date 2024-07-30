@@ -66,6 +66,10 @@ public class NegotiationControllerTests {
   private static final String NEGOTIATION_5_ID = "negotiation-5";
   private static final String NEGOTIATION_1_CREATION_DATE = "2024-10-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
+  private static final String SELF_LINK_TPL = "http://localhost/v3/negotiations/%s";
+  private static final String POSTS_LINK_TPL = "http://localhost/v3/negotiations/%s/posts";
+  private static final String ATTACHMENTS_LINK_TPL =
+      "http://localhost/v3/negotiations/%s/attachments";
 
   @Autowired private WebApplicationContext context;
   @Autowired private NegotiationRepository negotiationRepository;
@@ -739,6 +743,7 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("SarahRepr")
   public void testGetAllForUserBothAuthorAndBiobanker_whenNoFilters() throws Exception {
+
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
@@ -750,6 +755,18 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.page.totalElements", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.self.href",
+                is(SELF_LINK_TPL.formatted(NEGOTIATION_5_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.posts.href",
+                is(POSTS_LINK_TPL.formatted(NEGOTIATION_5_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.attachments.href",
+                is(ATTACHMENTS_LINK_TPL.formatted(NEGOTIATION_5_ID))))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_3_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_4_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)))
@@ -774,6 +791,18 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.page.totalElements", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_3_ID)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.self.href",
+                is(SELF_LINK_TPL.formatted(NEGOTIATION_3_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.posts.href",
+                is(POSTS_LINK_TPL.formatted(NEGOTIATION_3_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.attachments.href",
+                is(ATTACHMENTS_LINK_TPL.formatted(NEGOTIATION_3_ID))))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)));
   }
 
@@ -797,6 +826,18 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$.page.totalElements", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_5_ID)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.self.href",
+                is(SELF_LINK_TPL.formatted(NEGOTIATION_5_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.posts.href",
+                is(POSTS_LINK_TPL.formatted(NEGOTIATION_5_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.attachments.href",
+                is(ATTACHMENTS_LINK_TPL.formatted(NEGOTIATION_5_ID))))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_4_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_V2_ID)));
   }
@@ -816,7 +857,19 @@ public class NegotiationControllerTests {
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(1)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_4_ID)));
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_4_ID)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.self.href",
+                is(SELF_LINK_TPL.formatted(NEGOTIATION_4_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.posts.href",
+                is(POSTS_LINK_TPL.formatted(NEGOTIATION_4_ID))))
+        .andExpect(
+            jsonPath(
+                "$._embedded.negotiations.[0]._links.attachments.href",
+                is(ATTACHMENTS_LINK_TPL.formatted(NEGOTIATION_4_ID))));
   }
 
   @Test
@@ -852,12 +905,20 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testGetById_Ok_whenCorrectId() throws Exception {
+    String selfLink = "http://localhost/v3/negotiations/%s".formatted(NEGOTIATION_1_ID);
+    String postsLink = "http://localhost/v3/negotiations/%s/posts".formatted(NEGOTIATION_1_ID);
+    String attachmentsLink =
+        "http://localhost/v3/negotiations/%s/attachments".formatted(NEGOTIATION_1_ID);
+
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID)))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.id", is(NEGOTIATION_1_ID)))
-        .andExpect(jsonPath("$.creationDate", is(NEGOTIATION_1_CREATION_DATE)));
+        .andExpect(jsonPath("$.creationDate", is(NEGOTIATION_1_CREATION_DATE)))
+        .andExpect(jsonPath("$._links.self.href", is(selfLink)))
+        .andExpect(jsonPath("$._links.posts.href", is(postsLink)))
+        .andExpect(jsonPath("$._links.attachments.href", is(attachmentsLink)));
   }
 
   @Test
