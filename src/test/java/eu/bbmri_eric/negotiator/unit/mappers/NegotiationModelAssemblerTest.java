@@ -44,13 +44,6 @@ public class NegotiationModelAssemblerTest {
             .getLink("attachments")
             .get()
             .getHref());
-    //    assertEquals(
-    //        "/v3/negotiations",
-    //        negotiationModelAssembler
-    //            .toModel(new NegotiationDTO())
-    //            .getLink("negotiations")
-    //            .get()
-    //            .getHref());
   }
 
   @Test
