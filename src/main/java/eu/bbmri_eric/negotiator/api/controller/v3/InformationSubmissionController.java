@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.dto.InformationSubmissionDTO;
 import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.service.InformationRequirementService;
+import eu.bbmri_eric.negotiator.service.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,12 +31,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class InformationSubmissionController {
   private final InformationRequirementService requirementService;
   private final NegotiationService negotiationService;
+  private final InformationSubmissionService submissionService;
   public static final String BASE_URL = "/v3";
 
   public InformationSubmissionController(
-      InformationRequirementService requirementService, NegotiationService negotiationService) {
+      InformationRequirementService requirementService,
+      NegotiationService negotiationService,
+      InformationSubmissionService submissionService) {
     this.requirementService = requirementService;
     this.negotiationService = negotiationService;
+    this.submissionService = submissionService;
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -54,6 +59,12 @@ public class InformationSubmissionController {
       @PathVariable String negotiationId,
       @PathVariable Long requirementId,
       @RequestBody InformationSubmissionDTO dto) {
-    return EntityModel.of(new SubmittedInformationDTO(1L, dto.getResourceId(), dto.getPayload()));
+    return EntityModel.of(submissionService.submit(dto, requirementId, negotiationId));
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/info-submissions/{id}")
+  public EntityModel<SubmittedInformationDTO> getInfoSubmission(@PathVariable Long id) {
+    return EntityModel.of(submissionService.findById(id));
   }
 }

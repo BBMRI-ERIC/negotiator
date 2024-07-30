@@ -37,6 +37,7 @@ import org.springframework.web.context.WebApplicationContext;
 public class InformationRequirementControllerTest {
   private final String INFO_REQUIREMENT_ENDPOINT = "/v3/info-requirements";
   private final String INFO_SUBMISSION_ENDPOINT = "/v3/negotiations/%s/info-requirements/%s";
+  private final String SUBMISSION_ENDPOINT = "/v3/info-submissions/%s";
   private MockMvc mockMvc;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private InformationRequirementRepository informationRequirementRepository;
@@ -279,7 +280,7 @@ public class InformationRequirementControllerTest {
                     """;
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
-    InformationSubmissionDTO submissionDTO = new InformationSubmissionDTO(1L, jsonPayload);
+    InformationSubmissionDTO submissionDTO = new InformationSubmissionDTO(4L, jsonPayload);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
@@ -291,5 +292,12 @@ public class InformationRequirementControllerTest {
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
         .andExpect(jsonPath("$.payload.sample-type").value("DNA"));
+  }
+
+  @Test
+  void getSubmission_exists_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(SUBMISSION_ENDPOINT.formatted("1")))
+        .andExpect(status().isOk());
   }
 }
