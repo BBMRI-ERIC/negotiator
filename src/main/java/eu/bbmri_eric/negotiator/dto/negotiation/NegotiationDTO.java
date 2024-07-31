@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
-import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
+import eu.bbmri_eric.negotiator.dto.request.RequestMinimalDTO;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class NegotiationDTO {
   public Set<ResourceWithStatusDTO> resources;
   @NotNull private String id;
   private UserResponseModel author;
-  private Set<RequestDTO> requests;
+  private Set<RequestMinimalDTO> requests;
   @NotNull private JsonNode payload;
   @NotNull private String status;
   @NotNull private boolean publicPostsEnabled;
