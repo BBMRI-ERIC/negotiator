@@ -12,15 +12,19 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.resource.Negotiation
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.InformationRequirement;
+import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.Request;
+import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
+import eu.bbmri_eric.negotiator.database.repository.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
+import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
@@ -60,6 +64,8 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired RequestRepository requestRepository;
   @Autowired InformationRequirementRepository requirementRepository;
   @Autowired AccessFormRepository accessFormRepository;
+  @Autowired private InformationSubmissionRepository informationSubmissionRepository;
+  @Autowired private ResourceRepository resourceRepository;
 
   private void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
@@ -368,6 +374,41 @@ public class NegotiationLifecycleServiceImplTest {
                 negotiationDTO.getId(),
                 "biobank:1:collection:2",
                 NegotiationResourceEvent.CONTACT));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
+  @Transactional
+  void sendEventForResource_fulfilledRequirement_ok() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        NegotiationResourceState.valueOf(
+            negotiationService
+                .findById(negotiationDTO.getId(), false)
+                .getStatusForResource("biobank:1:collection:2")));
+    AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
+    InformationRequirement requirement =
+        requirementRepository.save(
+            new InformationRequirement(
+                accessForm, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+    Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
+    Resource resource = resourceRepository.findBySourceId("biobank:1:collection:2").get();
+    informationSubmissionRepository.saveAndFlush(
+        new InformationSubmission(requirement, resource, negotiation, "{}"));
+    assertTrue(
+        requirementRepository.existsByForEvent(
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+    assertTrue(
+        informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
+            resource.getSourceId(), negotiation.getId()));
+    assertEquals(
+        NegotiationResourceState.CHECKING_AVAILABILITY,
+        resourceLifecycleService.sendEvent(
+            negotiation.getId(),
+            "biobank:1:collection:2",
+            NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
   }
 
   @Test
