@@ -4,7 +4,9 @@ import eu.bbmri_eric.negotiator.dto.ValidationGroups.Create;
 import eu.bbmri_eric.negotiator.dto.ValidationGroups.Update;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceDTO;
+import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceDTO;
 import eu.bbmri_eric.negotiator.service.DiscoveryServiceService;
+import eu.bbmri_eric.negotiator.service.DiscoverySynchronizationJobService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -29,6 +31,8 @@ public class DiscoverServiceController {
 
   @Autowired private DiscoveryServiceService discoveryServiceService;
   @Autowired private ModelMapper modelMapper;
+
+  @Autowired private DiscoverySynchronizationJobService discoverySynchronizationJobService;
 
   @GetMapping("/discovery-services")
   List<DiscoveryServiceDTO> list() {
@@ -58,5 +62,13 @@ public class DiscoverServiceController {
       @PathVariable Long id,
       @Validated(Update.class) @RequestBody DiscoveryServiceCreateDTO request) {
     return discoveryServiceService.update(id, request);
+  }
+
+  @PostMapping(
+      value = "/discovery-services/{id}/sync-job",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  DiscoverySyncJobServiceDTO add(@PathVariable Long id) {
+    return discoverySynchronizationJobService.createSyncJob(id);
   }
 }

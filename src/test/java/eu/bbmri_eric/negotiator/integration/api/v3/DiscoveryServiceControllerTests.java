@@ -25,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -35,7 +34,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = NegotiatorApplication.class)
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class DiscoveryServiceControllerTests {
 
   private static final String ENDPOINT = "/v3/discovery-services";
@@ -222,6 +220,36 @@ public class DiscoveryServiceControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("/v3/discovery-services/{id}", nonexistentId)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testCreateDiscoveryServiceSynchronizationJJob() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-job")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated());
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  public void testCreateDiscoveryServiceSynchronizationJobUnauthorized() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-job")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testCreateDiscoveryServiceSynchronizationJJobUnknownService() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-services/999/sync-job")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
