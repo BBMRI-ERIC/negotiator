@@ -11,41 +11,43 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class InformationSubmissionTest {
-    @Test
-    public void testPublicConstructor() {
-        InformationRequirement requirement = Mockito.mock(InformationRequirement.class);
-        Resource resource = Mockito.mock(Resource.class);
-        Negotiation negotiation = Mockito.mock(Negotiation.class);
-        String payload = "Test Payload";
+  @Test
+  public void testPublicConstructor() {
+    InformationRequirement requirement = Mockito.mock(InformationRequirement.class);
+    Resource resource = Mockito.mock(Resource.class);
+    Negotiation negotiation = Mockito.mock(Negotiation.class);
+    String payload = "Test Payload";
 
-        InformationSubmission infoSub = new InformationSubmission(requirement, resource, negotiation, payload);
-        assertNull(infoSub.getId());
-        assertEquals(requirement, infoSub.getRequirement());
-        assertEquals(resource, infoSub.getResource());
-        assertEquals(negotiation, infoSub.getNegotiation());
-        assertEquals(payload, infoSub.getPayload());
-    }
+    InformationSubmission infoSub =
+        new InformationSubmission(requirement, resource, negotiation, payload);
+    assertNull(infoSub.getId());
+    assertEquals(requirement, infoSub.getRequirement());
+    assertEquals(resource, infoSub.getResource());
+    assertEquals(negotiation, infoSub.getNegotiation());
+    assertEquals(payload, infoSub.getPayload());
+  }
 
-    @Test
-    public void testSettersAndGetters() {
-        InformationRequirement requirement = Mockito.mock(InformationRequirement.class);
-        Resource resource = Mockito.mock(Resource.class);
-        Negotiation negotiation = Mockito.mock(Negotiation.class);
-        String payload = "Test Payload";
+  @Test
+  public void testSettersAndGetters() {
+    InformationRequirement requirement = Mockito.mock(InformationRequirement.class);
+    Resource resource = Mockito.mock(Resource.class);
+    Negotiation negotiation = Mockito.mock(Negotiation.class);
+    String payload = "Test Payload";
 
-        InformationSubmission infoSub = new InformationSubmission(requirement, resource, negotiation, payload);
-        Long id = 1L;
+    InformationSubmission infoSub =
+        new InformationSubmission(requirement, resource, negotiation, payload);
+    Long id = 1L;
 
-        infoSub.setId(id);
-        infoSub.setRequirement(requirement);
-        infoSub.setResource(resource);
-        infoSub.setNegotiation(negotiation);
-        infoSub.setPayload(payload);
+    infoSub.setId(id);
+    infoSub.setRequirement(requirement);
+    infoSub.setResource(resource);
+    infoSub.setNegotiation(negotiation);
+    infoSub.setPayload(payload);
 
-        assertEquals(id, infoSub.getId());
-        assertEquals(requirement, infoSub.getRequirement());
-        assertEquals(resource, infoSub.getResource());
-        assertEquals(negotiation, infoSub.getNegotiation());
-        assertEquals(payload, infoSub.getPayload());
-    }
+    assertEquals(id, infoSub.getId());
+    assertEquals(requirement, infoSub.getRequirement());
+    assertEquals(resource, infoSub.getResource());
+    assertEquals(negotiation, infoSub.getNegotiation());
+    assertEquals(payload, infoSub.getPayload());
+  }
 }
