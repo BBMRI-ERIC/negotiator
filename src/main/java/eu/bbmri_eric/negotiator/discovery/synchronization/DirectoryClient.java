@@ -10,6 +10,9 @@ import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -36,6 +39,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @CommonsLog
 @Service(value = "DefaultDiscoveryServiceClient")
 public class DirectoryClient implements DiscoveryServiceClient {
+
   private DirectoryClient bbmriService = null;
 
   @Autowired private OrganizationRepository organizationRepository;
@@ -43,7 +47,10 @@ public class DirectoryClient implements DiscoveryServiceClient {
   @Autowired private AccessFormRepository accessFormRepository;
 
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
+
   @Autowired private ResourceRepository resourceRepository;
+
+  @Autowired private NetworkRepository networkRepository;
 
   private DiscoveryServiceSynchronizationJob jobRecord;
 
@@ -69,7 +76,9 @@ public class DirectoryClient implements DiscoveryServiceClient {
     addMissingResources(collections);
   }
 
-  public void syncAllNetworks() {}
+  public void syncAllNetworks() {
+    List<NetworkCreateDTO> networks = findAllNetworks();
+  }
 
   private void addMissingOrganizations(List<MolgenisBiobank> directoryBiobanks) {
     for (MolgenisBiobank bb : directoryBiobanks) {
@@ -236,6 +245,55 @@ public class DirectoryClient implements DiscoveryServiceClient {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
       return Collections.emptyList();
+    }
+  }
+
+  private List<NetworkCreateDTO> findAllNetworks() {
+    try {
+      String response =
+          webClient
+              .get()
+              .uri("api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact")
+              .retrieve()
+              .bodyToMono(String.class)
+              .block();
+      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+      JsonArray items = jsonResponse.getAsJsonArray("items");
+      List<NetworkCreateDTO> networks = new ArrayList();
+      for (JsonElement e : items) {
+        JsonObject jsonCollection = e.getAsJsonObject();
+        NetworkCreateDTO network =
+            new NetworkCreateDTO(
+                jsonCollection.get("id").getAsString(),
+                jsonCollection.get("name").getAsString(),
+                jsonCollection.get("contact").getAsJsonObject().get("email").getAsString(),
+                jsonCollection.get("url").getAsString());
+        networks.add(network);
+      }
+    } catch (WebClientResponseException | WebClientRequestException e) {
+      log.warn(e.getMessage());
+      log.warn("Molgenis is not reachable!");
+      return Collections.emptyList();
+    }
+    return null;
+  }
+
+  private Network addMissingNetwork(NetworkCreateDTO network) {
+    log.debug("Adding network:" + network.getExternalId());
+    Network newNetwork =
+        Network.builder()
+            .externalId(network.getExternalId())
+            .uri(network.getUri())
+            .contactEmail(network.getContactEmail())
+            .name(network.getName())
+            .build();
+    try {
+      networkRepository.save(newNetwork);
+      return newNetwork;
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while adding missing network");
+      log.error(ex);
+      throw new EntityNotStorableException();
     }
   }
 }

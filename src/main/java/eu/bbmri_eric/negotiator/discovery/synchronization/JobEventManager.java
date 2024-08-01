@@ -30,6 +30,7 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
     try {
       discoveryServiceSyncClient.syncAllOrganizations();
       discoveryServiceSyncClient.syncAllResources();
+      discoveryServiceSyncClient.syncAllNetworks();
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
     } catch (EntityNotStorableException e) {
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);
