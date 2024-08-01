@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.events.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
@@ -51,6 +52,17 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       InformationSubmissionDTO informationSubmissionDTO,
       Long informationRequirementId,
       String negotiationId) {
+    InformationSubmission submission =
+        buildSubmissionEntity(informationSubmissionDTO, informationRequirementId, negotiationId);
+    submission = informationSubmissionRepository.saveAndFlush(submission);
+    applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
+    return modelMapper.map(submission, SubmittedInformationDTO.class);
+  }
+
+  private @NonNull InformationSubmission buildSubmissionEntity(
+      InformationSubmissionDTO informationSubmissionDTO,
+      Long informationRequirementId,
+      String negotiationId) {
     InformationRequirement requirement =
         informationRequirementRepository
             .findById(informationRequirementId)
@@ -64,13 +76,8 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    InformationSubmission submission =
-        new InformationSubmission(
-            requirement, resource, negotiation, informationSubmissionDTO.getPayload().toString());
-    log.info(submission.getPayload());
-    applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
-    return modelMapper.map(
-        informationSubmissionRepository.saveAndFlush(submission), SubmittedInformationDTO.class);
+    return new InformationSubmission(
+        requirement, resource, negotiation, informationSubmissionDTO.getPayload().toString());
   }
 
   @Override
