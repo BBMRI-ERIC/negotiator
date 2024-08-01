@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.dto.InformationRequirementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.dto.InformationSubmissionDTO;
 import eu.bbmri_eric.negotiator.service.InformationRequirementServiceImpl;
+import jakarta.transaction.Transactional;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -264,6 +265,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
+  @Transactional
   void submitInformation_correctPayload_ok() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
@@ -280,7 +282,9 @@ public class InformationRequirementControllerTest {
                     """;
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
-    InformationSubmissionDTO submissionDTO = new InformationSubmissionDTO(4L, jsonPayload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
@@ -295,9 +299,46 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
+  @Transactional
   void getSubmission_exists_ok() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    String payload =
+        """
+                            {
+                           "sample-type": "DNA",
+                           "num-of-subjects": 10,
+                           "num-of-samples": 20,
+                           "volume-per-sample": 5
+                        }
+                        """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        INFO_SUBMISSION_ENDPOINT.formatted(
+                            negotiation.getId(), informationRequirementDTO.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
+            .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
+            .andReturn();
+    long id =
+        new ObjectMapper()
+            .readTree(mvcResult.getResponse().getContentAsString())
+            .get("id")
+            .asLong();
     mockMvc
-        .perform(MockMvcRequestBuilders.get(SUBMISSION_ENDPOINT.formatted("1")))
+        .perform(MockMvcRequestBuilders.get(SUBMISSION_ENDPOINT.formatted(id)))
         .andExpect(status().isOk());
   }
 }

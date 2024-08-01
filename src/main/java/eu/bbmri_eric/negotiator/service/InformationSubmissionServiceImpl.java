@@ -10,10 +10,13 @@ import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.InformationSubmissionDTO;
 import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
+import eu.bbmri_eric.negotiator.events.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,18 +29,21 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   private final ResourceRepository resourceRepository;
   private final NegotiationRepository negotiationRepository;
   private final ModelMapper modelMapper;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public InformationSubmissionServiceImpl(
       InformationSubmissionRepository informationSubmissionRepository,
       InformationRequirementRepository informationRequirementRepository,
       ResourceRepository resourceRepository,
       NegotiationRepository negotiationRepository,
-      ModelMapper modelMapper) {
+      ModelMapper modelMapper,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.informationSubmissionRepository = informationSubmissionRepository;
     this.informationRequirementRepository = informationRequirementRepository;
     this.resourceRepository = resourceRepository;
     this.negotiationRepository = negotiationRepository;
     this.modelMapper = modelMapper;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @Override
@@ -62,8 +68,9 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         new InformationSubmission(
             requirement, resource, negotiation, informationSubmissionDTO.getPayload().toString());
     log.info(submission.getPayload());
+    applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
     return modelMapper.map(
-        informationSubmissionRepository.save(submission), SubmittedInformationDTO.class);
+        informationSubmissionRepository.saveAndFlush(submission), SubmittedInformationDTO.class);
   }
 
   @Override
@@ -73,5 +80,14 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException(id)),
         SubmittedInformationDTO.class);
+  }
+
+  @Override
+  public List<SubmittedInformationDTO> findAllForNegotiation(String negotiationId) {
+    return informationSubmissionRepository.findAllByNegotiation_Id(negotiationId).stream()
+        .map(
+            informationSubmission ->
+                modelMapper.map(informationSubmission, SubmittedInformationDTO.class))
+        .toList();
   }
 }
