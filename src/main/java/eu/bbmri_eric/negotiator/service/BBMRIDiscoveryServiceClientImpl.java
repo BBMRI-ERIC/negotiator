@@ -7,14 +7,17 @@ import com.google.gson.JsonParser;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJob;
+import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @CommonsLog
 @Service(value = "DefaultDiscoveryServiceClient")
 public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
+
   private BBMRIDiscoveryServiceClientImpl bbmriService = null;
 
   @Autowired private OrganizationRepository organizationRepository;
@@ -43,7 +47,10 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
   @Autowired private AccessFormRepository accessFormRepository;
 
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
+
   @Autowired private ResourceRepository resourceRepository;
+
+  @Autowired private NetworkRepository networkRepository;
 
   private DiscoveryServiceSynchronizationJob jobRecord;
 
@@ -69,7 +76,9 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     addMissingResources(collections);
   }
 
-  public void syncAllNetworks() {}
+  public void syncAllNetworks() {
+    List<NetworkCreateDTO> networks = findAllNetworks();
+  }
 
   private void addMissingOrganizations(List<MolgenisBiobank> directoryBiobanks) {
     for (MolgenisBiobank bb : directoryBiobanks) {
@@ -236,6 +245,55 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
       return Collections.emptyList();
+    }
+  }
+
+  private List<NetworkCreateDTO> findAllNetworks() {
+    try {
+      String response =
+          webClient
+              .get()
+              .uri("api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact")
+              .retrieve()
+              .bodyToMono(String.class)
+              .block();
+      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+      JsonArray items = jsonResponse.getAsJsonArray("items");
+      List<NetworkCreateDTO> networks = new ArrayList();
+      for (JsonElement e : items) {
+        JsonObject jsonCollection = e.getAsJsonObject();
+        NetworkCreateDTO network =
+            new NetworkCreateDTO(
+                jsonCollection.get("id").getAsString(),
+                jsonCollection.get("name").getAsString(),
+                jsonCollection.get("contact").getAsJsonObject().get("email").getAsString(),
+                jsonCollection.get("url").getAsString());
+        networks.add(network);
+      }
+    } catch (WebClientResponseException | WebClientRequestException e) {
+      log.warn(e.getMessage());
+      log.warn("Molgenis is not reachable!");
+      return Collections.emptyList();
+    }
+    return null;
+  }
+
+  private Network addMissingNetwork(NetworkCreateDTO network) {
+    log.debug("Adding network:" + network.getExternalId());
+    Network newNetwork =
+        Network.builder()
+            .externalId(network.getExternalId())
+            .uri(network.getUri())
+            .contactEmail(network.getContactEmail())
+            .name(network.getName())
+            .build();
+    try {
+      networkRepository.save(newNetwork);
+      return newNetwork;
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while adding missing network");
+      log.error(ex);
+      throw new EntityNotStorableException();
     }
   }
 }
