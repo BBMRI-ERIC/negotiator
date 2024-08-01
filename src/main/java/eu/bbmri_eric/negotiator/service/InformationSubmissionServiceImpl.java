@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
 import eu.bbmri_eric.negotiator.events.InformationSubmissionEvent;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +68,11 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     }
     InformationSubmission submission =
         buildSubmissionEntity(informationSubmissionDTO, informationRequirementId, negotiationId);
+    if (informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id(
+        submission.getResource().getSourceId(), negotiationId, informationRequirementId)) {
+      throw new WrongRequestException(
+          "The required information for this resource was already provided");
+    }
     submission = informationSubmissionRepository.saveAndFlush(submission);
     applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
     return modelMapper.map(submission, SubmittedInformationDTO.class);

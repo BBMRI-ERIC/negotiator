@@ -394,6 +394,46 @@ public class InformationRequirementControllerTest {
         .andExpect(status().isForbidden());
   }
 
+  @Test
+  @WithUserDetails("TheBiobanker")
+  @Transactional
+  void submit_2forTheSameRequirement_400() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    String payload =
+        """
+                                    {
+                                   "sample-type": "DNA",
+                                   "num-of-subjects": 10,
+                                   "num-of-samples": 20,
+                                   "volume-per-sample": 5
+                                }
+                                """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isBadRequest());
+  }
+
   private long createInformationSubmission() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
