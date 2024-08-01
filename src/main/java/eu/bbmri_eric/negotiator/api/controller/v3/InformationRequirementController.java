@@ -75,6 +75,4 @@ public class InformationRequirementController {
   public void deleteRequirement(@PathVariable Long id) {
     service.deleteInformationRequirement(id);
   }
-
-
 }
