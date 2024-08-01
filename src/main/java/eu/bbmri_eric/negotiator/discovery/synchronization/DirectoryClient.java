@@ -78,6 +78,7 @@ public class DirectoryClient implements DiscoveryServiceClient {
 
   public void syncAllNetworks() {
     List<NetworkCreateDTO> networks = findAllNetworks();
+    addMissingNetworks(networks);
   }
 
   private void addMissingOrganizations(List<MolgenisBiobank> directoryBiobanks) {
@@ -262,20 +263,24 @@ public class DirectoryClient implements DiscoveryServiceClient {
       List<NetworkCreateDTO> networks = new ArrayList();
       for (JsonElement e : items) {
         JsonObject jsonCollection = e.getAsJsonObject();
+        String url = "";
+        if (jsonCollection.has("url")) {
+          url = jsonCollection.get("url").getAsString();
+        }
         NetworkCreateDTO network =
             new NetworkCreateDTO(
                 jsonCollection.get("id").getAsString(),
                 jsonCollection.get("name").getAsString(),
                 jsonCollection.get("contact").getAsJsonObject().get("email").getAsString(),
-                jsonCollection.get("url").getAsString());
+                url);
         networks.add(network);
       }
+      return networks;
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
       return Collections.emptyList();
     }
-    return null;
   }
 
   private Network addMissingNetwork(NetworkCreateDTO network) {
@@ -292,6 +297,37 @@ public class DirectoryClient implements DiscoveryServiceClient {
       return newNetwork;
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while adding missing network");
+      log.error(ex);
+      return null;
+    }
+  }
+
+  private void addMissingNetworks(List<NetworkCreateDTO> networks) {
+    for (NetworkCreateDTO network : networks) {
+      String networkId = network.getExternalId();
+      Optional<Network> nw = networkRepository.findByExternalId(networkId);
+      if (nw.isEmpty()) {
+        addMissingNetwork(network);
+      } else {
+        log.debug(String.format("Network %s already present, check for updates...", networkId));
+        Network existingNetwork = nw.get();
+        if (!existingNetwork.getName().equals(network.getName())
+            || !existingNetwork.getUri().equals(network.getUri())
+            || !existingNetwork.getContactEmail().equals(network.getContactEmail())) {
+          updateNetworkNameUriAndEmail(existingNetwork, network);
+        }
+      }
+    }
+  }
+
+  private void updateNetworkNameUriAndEmail(Network network, NetworkCreateDTO molgenisNetwork) {
+    network.setUri(molgenisNetwork.getUri());
+    network.setName(molgenisNetwork.getName());
+    network.setContactEmail(molgenisNetwork.getContactEmail());
+    try {
+      networkRepository.save(network);
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while updating Network information");
       log.error(ex);
       throw new EntityNotStorableException();
     }
