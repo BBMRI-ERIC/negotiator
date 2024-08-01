@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+/** Represents a submission of additional information by the resource representative. */
 @Setter
 @Getter
 @Entity

@@ -50,6 +50,7 @@ public class InformationSubmissionController {
     NegotiationDTO negotiationDTO = negotiationService.findById(negotiationId, false);
     InformationRequirementDTO requirementDTO =
         requirementService.getInformationRequirement(requirementId);
+    // TODO Finish the implementation
     return "{}";
   }
 
