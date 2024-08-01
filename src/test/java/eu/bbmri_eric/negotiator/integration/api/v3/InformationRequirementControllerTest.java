@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -8,9 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
+import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
+import eu.bbmri_eric.negotiator.database.repository.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementCreateDTO;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
@@ -24,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,6 +47,7 @@ public class InformationRequirementControllerTest {
   private MockMvc mockMvc;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private InformationRequirementRepository informationRequirementRepository;
+  @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private InformationRequirementServiceImpl informationRequirementServiceImpl;
 
   @BeforeEach
@@ -265,6 +271,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
+  @WithUserDetails("TheBiobanker")
   @Transactional
   void submitInformation_correctPayload_ok() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
@@ -299,8 +306,95 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
+  @WithUserDetails("researcher")
   @Transactional
-  void getSubmission_exists_ok() throws Exception {
+  void getSubmission_existsButNotAuth_403() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationSubmission informationSubmission =
+        informationSubmissionRepository.saveAndFlush(
+            new InformationSubmission(
+                null, negotiation.getResources().iterator().next(), negotiation, "{}"));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void getSubmission_existsAsRequestAuthor_ok() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    assertEquals(
+        negotiation.getCreatedBy().getId(),
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+    InformationSubmission informationSubmission =
+        informationSubmissionRepository.saveAndFlush(
+            new InformationSubmission(
+                null, negotiation.getResources().iterator().next(), negotiation, "{}"));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void getSubmission_existsAsRepresentative_ok() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+    InformationSubmission informationSubmission =
+        informationSubmissionRepository.saveAndFlush(
+            new InformationSubmission(
+                null,
+                negotiation.getResources().stream()
+                    .filter(resource -> resource.getId().equals(4L))
+                    .findFirst()
+                    .get(),
+                negotiation,
+                "{}"));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void submit_notARepresentative_403() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    String payload =
+        """
+                                {
+                               "sample-type": "DNA",
+                               "num-of-subjects": 10,
+                               "num-of-samples": 20,
+                               "volume-per-sample": 5
+                            }
+                            """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isForbidden());
+  }
+
+  private long createInformationSubmission() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
         informationRequirementServiceImpl.createInformationRequirement(
@@ -337,8 +431,6 @@ public class InformationRequirementControllerTest {
             .readTree(mvcResult.getResponse().getContentAsString())
             .get("id")
             .asLong();
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(SUBMISSION_ENDPOINT.formatted(id)))
-        .andExpect(status().isOk());
+    return id;
   }
 }
