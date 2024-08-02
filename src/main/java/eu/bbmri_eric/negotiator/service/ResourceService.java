@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 /** The ResourceService interface defines the contract for accessing and manipulating resources. */
@@ -21,4 +23,6 @@ public interface ResourceService {
   Iterable<ResourceResponseModel> findAll(Pageable pageable);
 
   Iterable<ResourceResponseModel> findAllForNetwork(Pageable pageable, Long networkId);
+
+  List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
 }

@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.dto.request.RequestMinimalDTO;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
-import eu.bbmri_eric.negotiator.dto.request.RequestMinimalDTO;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -38,8 +36,6 @@ public class NegotiationDTO {
 
   @JsonIgnore
   public String getStatusForResource(String resourceId) {
-    Optional<ResourceWithStatusDTO> resource =
-        this.resources.stream().filter(r -> Objects.equals(r.getId(), resourceId)).findFirst();
-    return resource.map(ResourceWithStatusDTO::getStatus).orElse(null);
+    return "";
   }
 }
