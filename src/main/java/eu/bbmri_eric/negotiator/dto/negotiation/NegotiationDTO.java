@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.dto.request.RequestMinimalDTO;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.dto.request.RequestMinimalDTO;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +25,7 @@ import org.springframework.hateoas.server.core.Relation;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "negotiations", itemRelation = "negotiation")
 public class NegotiationDTO {
-  @JsonIgnore public Set<ResourceWithStatusDTO> resources;
+
   @NotNull private String id;
   private UserResponseModel author;
   private Set<RequestMinimalDTO> requests;
@@ -40,16 +39,7 @@ public class NegotiationDTO {
   @JsonIgnore
   public String getStatusForResource(String resourceId) {
     Optional<ResourceWithStatusDTO> resource =
-        this.resources.stream()
-            .filter(r -> Objects.equals(r.getExternalId(), resourceId))
-            .findFirst();
-    if (resource.isPresent()) {
-      try {
-        return resource.get().getStatus().toString();
-      } catch (NullPointerException e) {
-        return "";
-      }
-    }
-    return "";
+        this.resources.stream().filter(r -> Objects.equals(r.getId(), resourceId)).findFirst();
+    return resource.map(ResourceWithStatusDTO::getStatus).orElse(null);
   }
 }

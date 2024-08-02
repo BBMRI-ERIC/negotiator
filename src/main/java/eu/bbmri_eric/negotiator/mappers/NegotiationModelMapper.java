@@ -67,12 +67,6 @@ public class NegotiationModelMapper {
             mapper
                 .using(negotiationStatusConverter)
                 .map(Negotiation::getCurrentState, NegotiationDTO::setStatus));
-
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(resourcesConverter)
-                .map(negotiation -> negotiation, NegotiationDTO::setResources));
   }
 
   private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {

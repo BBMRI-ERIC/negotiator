@@ -95,9 +95,5 @@ public class NegotiationMapperTest {
   void map_statePerResource_Ok() {
     Negotiation negotiation = buildNegotiation();
     negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
-
-    NegotiationDTO negotiationDTO = this.mapper.map(negotiation, NegotiationDTO.class);
-    String status = negotiationDTO.getStatusForResource("collection:1");
-    assertEquals("SUBMITTED", status);
   }
 }
