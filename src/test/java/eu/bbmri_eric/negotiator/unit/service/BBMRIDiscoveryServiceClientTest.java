@@ -11,14 +11,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri_eric.negotiator.database.model.AccessForm;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
+import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisCollection;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisNetwork;
 import eu.bbmri_eric.negotiator.service.BBMRIDiscoveryServiceClientImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +53,8 @@ public class BBMRIDiscoveryServiceClientTest {
 
   @Mock ResourceRepository resourceRepository;
 
+  @Mock NetworkRepository networkRepository;
+
   @Mock private WebClient.Builder webClientBuilder;
 
   @Mock private WebClient webClient;
@@ -78,8 +83,10 @@ public class BBMRIDiscoveryServiceClientTest {
 
   private List<MolgenisCollection> testCollections;
 
+  private List<MolgenisNetwork> testNetworks;
+
   @BeforeEach
-  public void createBiobanksAndCollections() {
+  public void createBiobanksCollectionsAndNetworks() {
     MolgenisBiobank bb1 = new MolgenisBiobank("test_bb1", "test_bb1", "/api/v2/test_bb1");
     MolgenisBiobank bb2 = new MolgenisBiobank("test_bb2", "test_bb2", "/api/v2/test_bb2");
     MolgenisBiobank bb3 = new MolgenisBiobank("test_bb3", "test_bb3", "/api/v2/test_bb3");
@@ -93,6 +100,15 @@ public class BBMRIDiscoveryServiceClientTest {
         new MolgenisCollection("test_coll3", "test_coll3", "test_coll3", bb3);
     MolgenisCollection coll4 =
         new MolgenisCollection("test_coll4", "test_coll4", "test_coll4", bb4);
+
+    MolgenisNetwork ntw1 =
+        new MolgenisNetwork("test_ntw1", "test_ntw1", "test_ntw1@test.it", "https://test_ntw1.it");
+    MolgenisNetwork ntw2 =
+        new MolgenisNetwork("test_ntw2", "test_ntw2", "test_ntw2@test.it", "https://test_ntw2.it");
+    MolgenisNetwork ntw3 =
+        new MolgenisNetwork("test_ntw3", "test_ntw3", "test_ntw3@test.it", "https://test_ntw3.it");
+    MolgenisNetwork ntw4 =
+        new MolgenisNetwork("test_ntw4", "test_ntw4", "test_ntw4@test.it", "https://test_ntw4.it");
 
     this.testBiobanks = new ArrayList<>(Arrays.asList(bb1, bb2, bb3, bb4));
     this.testCollections = new ArrayList<>(Arrays.asList(coll1, coll2, coll3, coll4));
@@ -160,6 +176,58 @@ public class BBMRIDiscoveryServiceClientTest {
     collections.add(collection4);
 
     return collections;
+  }
+
+  ArrayNode getTestNetworks() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+
+    ObjectNode network1 = mapper.createObjectNode();
+    ObjectNode network2 = mapper.createObjectNode();
+    ObjectNode network3 = mapper.createObjectNode();
+    ObjectNode network4 = mapper.createObjectNode();
+
+    ArrayNode networks = mapper.createArrayNode();
+
+    network1.put("id", "test_ntw1");
+    network1.put("name", "test_ntw1");
+    network1.put("url", "https://test_ntw1.it");
+    ObjectNode network1contact = mapper.createObjectNode();
+    network1contact.put("_href", "https://network1contact.it");
+    network1contact.put("name", "network1contact");
+    network1contact.put("email", "test_ntw1@test.it");
+    network1.put("contact", network1contact);
+    network2.put("id", "test_ntw2");
+    network2.put("name", "test_ntw2");
+    network2.put("url", "https://test_ntw2.it");
+    ObjectNode network2contact = mapper.createObjectNode();
+    network2contact.put("_href", "https://network2contact.it");
+    network2contact.put("name", "network2contact");
+    network2contact.put("email", "test_ntw2@test.it");
+    network2.put("contact", network2contact);
+    network3.put("id", "test_ntw3");
+    network3.put("name", "test_ntw3");
+    network3.put("url", "https://test_ntw3.it");
+    ObjectNode network3contact = mapper.createObjectNode();
+    network3contact.put("_href", "https://network3contact.it");
+    network3contact.put("name", "network3contact");
+    network3contact.put("email", "test_ntw3@test.it");
+    network3.put("contact", network3contact);
+    network4.put("id", "test_ntw4");
+    network4.put("name", "test_ntw4");
+    network4.put("url", "https://test_ntw4.it");
+    ObjectNode network4contact = mapper.createObjectNode();
+    network4contact.put("_href", "https://network4contact.it");
+    network4contact.put("name", "network4contact");
+    network4contact.put("email", "test_ntw4@test.it");
+    network4.put("contact", network4contact);
+
+    networks.add(network1);
+    networks.add(network2);
+    networks.add(network3);
+    networks.add(network4);
+
+    return networks;
   }
 
   @Test
@@ -343,6 +411,56 @@ public class BBMRIDiscoveryServiceClientTest {
                 .name("test_coll_1_newname")
                 .description("test_coll_1")
                 .organization(org1)
+                .build());
+  }
+
+  @Test
+  void testSyncAllNetworksWhenAllMissing() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode networks = getTestNetworks();
+    root.set("items", networks);
+
+    String uriString = "api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact";
+
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    discoveryService.syncAllNetworks();
+    verify(networkRepository, times(1))
+        .save(
+            Network.builder()
+                .externalId("test_ntw1")
+                .name("test_ntw1")
+                .contactEmail("test_ntw1@test.it")
+                .uri("https://test_ntw1.it")
+                .build());
+    verify(networkRepository, times(1))
+        .save(
+            Network.builder()
+                .externalId("test_ntw2")
+                .name("test_ntw2")
+                .contactEmail("test_ntw2@test.it")
+                .uri("https://test_ntw2.it")
+                .build());
+    verify(networkRepository, times(1))
+        .save(
+            Network.builder()
+                .externalId("test_ntw3")
+                .name("test_ntw3")
+                .contactEmail("test_ntw3@test.it")
+                .uri("https://test_ntw3.it")
+                .build());
+    verify(networkRepository, times(1))
+        .save(
+            Network.builder()
+                .externalId("test_ntw4")
+                .name("test_ntw4")
+                .contactEmail("test_ntw4@test.it")
+                .uri("https://test_ntw4.it")
                 .build());
   }
 }
