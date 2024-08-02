@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MolgenisBiobank {
+public class MolgenisBiobank implements GenericOrganization {
   String id;
   String name;
   String _href;
