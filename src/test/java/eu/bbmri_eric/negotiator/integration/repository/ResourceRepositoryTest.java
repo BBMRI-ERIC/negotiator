@@ -78,8 +78,6 @@ public class ResourceRepositoryTest {
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
-    DiscoveryService discoveryService =
-        discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     resourceRepository.save(
         Resource.builder()
@@ -148,5 +146,7 @@ public class ResourceRepositoryTest {
 
     List<ResourceViewDTO> resources = resourceRepository.findByNegotiation(negotiation.getId());
     assertFalse(resources.isEmpty());
+    assertEquals(res1.getSourceId(), resources.get(0).getSourceId());
+    assertEquals(res2.getSourceId(), resources.get(1).getSourceId());
   }
 }

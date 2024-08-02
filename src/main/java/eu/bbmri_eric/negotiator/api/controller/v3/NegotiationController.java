@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,6 +74,8 @@ public class NegotiationController {
 
   private PersonService personService;
 
+  private final ResourceService resourceService;
+
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
@@ -81,12 +84,14 @@ public class NegotiationController {
       NegotiationLifecycleService negotiationLifecycleService,
       ResourceLifecycleService resourceLifecycleService,
       PersonService personService,
+      ResourceService resourceService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler) {
     this.negotiationService = negotiationService;
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceLifecycleService = resourceLifecycleService;
     this.personService = personService;
+    this.resourceService = resourceService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
   }
@@ -324,9 +329,9 @@ public class NegotiationController {
   @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.GET)
   @Operation(summary = "List all resources in negotiation")
   @SecurityRequirement(name = "security_auth")
-  public CollectionModel<EntityModel<ResourceWithStatusDTO>> findForNegotiation(
+  public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
       @PathVariable String id) {
-    return resourceWithStatusAssembler.toCollectionModel(List.of());
+    return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
   }
 
   private List<String> getResourceIdsFromUserAuthorities() {

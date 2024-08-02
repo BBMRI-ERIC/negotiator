@@ -92,7 +92,7 @@ public class ResourceControllerTests {
 
   @Test
   @WithMockNegotiatorUser(id = 108L)
-  void getAllResourcesForNegotiation_is_ok() throws Exception {
+  void getAllResourcesForNegotiation_isAuthor_ok() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
     assertEquals(108L, negotiation.getCreatedBy().getId());
     mockMvc
@@ -118,6 +118,8 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._links").isNotEmpty())
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
   }
 
@@ -129,10 +131,6 @@ public class ResourceControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/negotiations/%s/resources".formatted(negotiation.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._links").isNotEmpty())
-        .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
-        .andExpect(jsonPath("$._embedded.resources[0].externalId").isString())
-        .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
+        .andExpect(status().isForbidden());
   }
 }
