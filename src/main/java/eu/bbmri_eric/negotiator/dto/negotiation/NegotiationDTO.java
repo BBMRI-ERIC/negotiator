@@ -26,8 +26,7 @@ import org.springframework.hateoas.server.core.Relation;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "negotiations", itemRelation = "negotiation")
 public class NegotiationDTO {
-
-  public Set<ResourceWithStatusDTO> resources;
+  @JsonIgnore public Set<ResourceWithStatusDTO> resources;
   @NotNull private String id;
   private UserResponseModel author;
   private Set<RequestMinimalDTO> requests;
@@ -41,7 +40,16 @@ public class NegotiationDTO {
   @JsonIgnore
   public String getStatusForResource(String resourceId) {
     Optional<ResourceWithStatusDTO> resource =
-        this.resources.stream().filter(r -> Objects.equals(r.getId(), resourceId)).findFirst();
-    return resource.map(ResourceWithStatusDTO::getStatus).orElse(null);
+        this.resources.stream()
+            .filter(r -> Objects.equals(r.getExternalId(), resourceId))
+            .findFirst();
+    if (resource.isPresent()) {
+      try {
+        return resource.get().getStatus().toString();
+      } catch (NullPointerException e) {
+        return "";
+      }
+    }
+    return "";
   }
 }

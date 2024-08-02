@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -301,7 +300,8 @@ public class NegotiationLifecycleServiceImplTest {
   @Test
   void getCurrentStateForResource_newNegotiation_isNull() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertNull(
+    assertEquals(
+        "",
         negotiationService
             .findById(negotiationDTO.getId(), false)
             .getStatusForResource("biobank:1:collection:2"));

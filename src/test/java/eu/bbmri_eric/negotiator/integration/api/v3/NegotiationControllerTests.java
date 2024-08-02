@@ -1150,8 +1150,7 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(NEGOTIATIONS_URL + "/" + request.getNegotiation().getId()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.resources.length()", is(2000)));
+        .andExpect(status().isOk());
   }
 
   @Test

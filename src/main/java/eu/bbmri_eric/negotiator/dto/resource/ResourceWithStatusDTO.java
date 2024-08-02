@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.dto.resource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -9,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.hateoas.server.core.Relation;
 import org.springframework.lang.Nullable;
 
 /** Resource DTO containing the status of the Resource, to be used as part of the Negotiation */
@@ -19,13 +22,15 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(collectionRelation = "resources", itemRelation = "resource")
 public class ResourceWithStatusDTO {
 
-  @NotNull private String id;
-
+  @NotNull private Long id;
+  @NotNull private String externalId;
   @Nullable private String name;
+  @JsonIgnore private String negotiationId;
 
   @Nullable private OrganizationDTO organization;
 
-  private String status;
+  private NegotiationResourceState status;
 }
