@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisCollection;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceDTO;
 import jakarta.annotation.PostConstruct;

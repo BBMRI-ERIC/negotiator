@@ -15,9 +15,9 @@ import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
-import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
-import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisBiobank;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisCollection;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisNetwork;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
   }
 
   public void syncAllNetworks() {
-    List<NetworkCreateDTO> networks = findAllNetworks();
+    List<MolgenisNetwork> networks = findAllNetworks();
     addMissingNetworks(networks);
   }
 
@@ -249,7 +249,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  private List<NetworkCreateDTO> findAllNetworks() {
+  private List<MolgenisNetwork> findAllNetworks() {
     try {
       String response =
           webClient
@@ -260,15 +260,15 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
               .block();
       JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
       JsonArray items = jsonResponse.getAsJsonArray("items");
-      List<NetworkCreateDTO> networks = new ArrayList();
+      List<MolgenisNetwork> networks = new ArrayList();
       for (JsonElement e : items) {
         JsonObject jsonCollection = e.getAsJsonObject();
         String url = "";
         if (jsonCollection.has("url")) {
           url = jsonCollection.get("url").getAsString();
         }
-        NetworkCreateDTO network =
-            new NetworkCreateDTO(
+        MolgenisNetwork network =
+            new MolgenisNetwork(
                 jsonCollection.get("id").getAsString(),
                 jsonCollection.get("name").getAsString(),
                 jsonCollection.get("contact").getAsJsonObject().get("email").getAsString(),
@@ -283,11 +283,11 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  private Network addMissingNetwork(NetworkCreateDTO network) {
-    log.debug("Adding network:" + network.getExternalId());
+  private Network addMissingNetwork(MolgenisNetwork network) {
+    log.debug("Adding network:" + network.getId());
     Network newNetwork =
         Network.builder()
-            .externalId(network.getExternalId())
+            .externalId(network.getId())
             .uri(network.getUri())
             .contactEmail(network.getContactEmail())
             .name(network.getName())
@@ -302,9 +302,9 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  private void addMissingNetworks(List<NetworkCreateDTO> networks) {
-    for (NetworkCreateDTO network : networks) {
-      String networkId = network.getExternalId();
+  private void addMissingNetworks(List<MolgenisNetwork> networks) {
+    for (MolgenisNetwork network : networks) {
+      String networkId = network.getId();
       Optional<Network> nw = networkRepository.findByExternalId(networkId);
       if (nw.isEmpty()) {
         addMissingNetwork(network);
@@ -320,7 +320,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     }
   }
 
-  private void updateNetworkNameUriAndEmail(Network network, NetworkCreateDTO molgenisNetwork) {
+  private void updateNetworkNameUriAndEmail(Network network, MolgenisNetwork molgenisNetwork) {
     network.setUri(molgenisNetwork.getUri());
     network.setName(molgenisNetwork.getName());
     network.setContactEmail(molgenisNetwork.getContactEmail());
