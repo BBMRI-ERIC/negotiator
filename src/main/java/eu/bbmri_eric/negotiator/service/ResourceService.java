@@ -22,7 +22,20 @@ public interface ResourceService {
    */
   Iterable<ResourceResponseModel> findAll(Pageable pageable);
 
+  /**
+   * Retrieve all resources linked to a Network.
+   *
+   * @param pageable Pageable request
+   * @param networkId id of the network
+   * @return an iterable collection of Resources
+   */
   Iterable<ResourceResponseModel> findAllForNetwork(Pageable pageable, Long networkId);
 
+  /**
+   * Find all Resources involved in a specific Negotiation
+   *
+   * @param negotiationId the id of the Negotiation
+   * @return a list of resources
+   */
   List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
 }
