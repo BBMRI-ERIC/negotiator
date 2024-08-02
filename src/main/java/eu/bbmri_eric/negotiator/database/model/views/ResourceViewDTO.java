@@ -6,7 +6,9 @@ public interface ResourceViewDTO {
   Long getId();
 
   String getName();
+
   String getSourceId();
+
   NegotiationResourceState getCurrentState();
 
   String getOrganizationName();
