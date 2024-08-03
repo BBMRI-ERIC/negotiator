@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 /** Spring State Machine implementation of the ResourceLifecycleService. */
 @Service
+@CommonsLog
 public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private final NegotiationRepository negotiationRepository;
@@ -115,9 +117,11 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private NegotiationResourceState getCurrentStateForResource(
       String negotiationId, String resourceId) throws EntityNotFoundException {
+    log.info(negotiationId);
+    log.info(resourceId);
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
-        .orElseThrow(() -> new EntityNotFoundException("No such negotiation found."));
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(

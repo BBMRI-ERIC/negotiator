@@ -92,7 +92,7 @@ public class NegotiationModelMapper {
     ResourceWithStatusDTO.ResourceWithStatusDTOBuilder builder =
         ResourceWithStatusDTO.builder()
             .id(resource.getId())
-            .externalId(resource.getSourceId())
+            .sourceId(resource.getSourceId())
             .negotiationId(negotiationId)
             .name(resource.getName())
             .organization(modelMapper.map(resource.getOrganization(), OrganizationDTO.class));

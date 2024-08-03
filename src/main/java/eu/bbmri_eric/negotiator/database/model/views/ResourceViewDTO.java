@@ -9,6 +9,8 @@ public interface ResourceViewDTO {
 
   String getSourceId();
 
+  String getNegotiationId();
+
   NegotiationResourceState getCurrentState();
 
   String getOrganizationName();

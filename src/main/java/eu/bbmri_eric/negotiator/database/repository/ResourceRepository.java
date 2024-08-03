@@ -17,7 +17,7 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
   @Query(
       value =
-          "SELECT rs.id as id , rs.name as name, rs.source_id as sourceId, rspn.current_state as currentState, o.name as organizationName, o.external_id as organizationExternalId, o.id as organizationId "
+          "SELECT rs.id as id, rspn.negotiation_id as negotiationId, rs.name as name, rs.source_id as sourceId, rspn.current_state as currentState, o.name as organizationName, o.external_id as organizationExternalId, o.id as organizationId "
               + "FROM resource rs join resource_state_per_negotiation rspn on rs.source_id = rspn.resource_id "
               + "join organization o on o.id = rs.organization_id "
               + "where rspn.negotiation_id = :negotiationId",

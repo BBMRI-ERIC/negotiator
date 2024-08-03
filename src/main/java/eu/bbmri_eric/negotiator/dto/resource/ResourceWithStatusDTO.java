@@ -26,7 +26,7 @@ import org.springframework.lang.Nullable;
 public class ResourceWithStatusDTO {
 
   @NotNull private Long id;
-  @NotNull private String externalId;
+  @NotNull private String sourceId;
   @Nullable private String name;
   @JsonIgnore private String negotiationId;
 
