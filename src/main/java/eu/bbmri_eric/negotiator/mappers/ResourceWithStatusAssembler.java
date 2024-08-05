@@ -49,34 +49,53 @@ public class ResourceWithStatusAssembler
   @Override
   public @NonNull EntityModel<ResourceWithStatusDTO> toModel(
       @NonNull ResourceWithStatusDTO entity) {
-    log.warn(entity.toString());
+    List<Link> links = addWebLinks(entity);
+    return EntityModel.of(entity).add(links);
+  }
+
+  private @NonNull List<Link> addWebLinks(@NonNull ResourceWithStatusDTO entity) {
     List<Link> links = new ArrayList<>();
     links.add(
         WebMvcLinkBuilder.linkTo(methodOn(ResourceController.class).getResourceById(entity.getId()))
             .withSelfRel());
     links.add(linkTo(ResourceController.class).withRel("resources"));
     addLifecycleLink(entity, links);
+    addSubmissionLinks(entity, links);
+    addRequirementLinks(links, entity.getId());
+    return links;
+  }
+
+  @Override
+  public @NonNull CollectionModel<EntityModel<ResourceWithStatusDTO>> toCollectionModel(
+      @NonNull Iterable<? extends ResourceWithStatusDTO> entities) {
+    return RepresentationModelAssembler.super
+        .toCollectionModel(entities)
+        .add(WebMvcLinkBuilder.linkTo(ResourceController.class).withRel("resources"));
+  }
+
+  private void addSubmissionLinks(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
     try {
       if (submittedInformationCache.isEmpty()) {
         submittedInformationCache =
             informationSubmissionService.findAllForNegotiation(entity.getNegotiationId());
       }
       for (SubmittedInformationDTO info : submittedInformationCache) {
-        if (info.getResourceId().equals(entity.getId())) {
-          links.add(
-              linkTo(
-                      methodOn(InformationSubmissionController.class)
-                          .getInfoSubmission(info.getId()))
-                  .withRel("submission-%s".formatted(info.getId()))
-                  .withTitle("Submitted Information")
-                  .withName("Submitted Information"));
-        }
+        addSubmissionLink(entity, links, info);
       }
     } catch (Exception e) {
       log.error("Could not attach submission links: " + e.getMessage());
     }
-    addRequirementLinks(links, entity.getId());
-    return EntityModel.of(entity).add(links);
+  }
+
+  private static void addSubmissionLink(
+      @NonNull ResourceWithStatusDTO entity, List<Link> links, SubmittedInformationDTO info) {
+    if (info.getResourceId().equals(entity.getId())) {
+      links.add(
+          linkTo(methodOn(InformationSubmissionController.class).getInfoSubmission(info.getId()))
+              .withRel("submission-%s".formatted(info.getId()))
+              .withTitle("Submitted Information")
+              .withName("Submitted Information"));
+    }
   }
 
   private void addRequirementLinks(List<Link> links, Long resourceId) {
@@ -85,22 +104,24 @@ public class ResourceWithStatusAssembler
         requirementsCache = informationRequirementService.getAllInformationRequirements();
       }
       for (InformationRequirementDTO dto : requirementsCache) {
-        if (!submittedInformationCache.stream()
-            .anyMatch(
-                i ->
-                    i.getResourceId().equals(resourceId)
-                        && i.getRequirementId().equals(dto.getId()))) {
-          links.add(
-              linkTo(
-                      methodOn(InformationRequirementController.class)
-                          .findRequirementById(dto.getId()))
-                  .withRel("requirement-%s".formatted(dto.getId()))
-                  .withTitle("Requirement to fulfill")
-                  .withName(dto.getForResourceEvent().toString() + " requirement"));
-        }
+        addRequirementLink(links, resourceId, dto);
       }
     } catch (Exception e) {
       log.error("Could not attach requirement links: " + e.getMessage());
+    }
+  }
+
+  private void addRequirementLink(
+      List<Link> links, Long resourceId, InformationRequirementDTO dto) {
+    if (submittedInformationCache.stream()
+        .noneMatch(
+            i ->
+                i.getResourceId().equals(resourceId) && i.getRequirementId().equals(dto.getId()))) {
+      links.add(
+          linkTo(methodOn(InformationRequirementController.class).findRequirementById(dto.getId()))
+              .withRel("requirement-%s".formatted(dto.getId()))
+              .withTitle("Requirement to fulfill")
+              .withName(dto.getForResourceEvent().toString() + " requirement"));
     }
   }
 
@@ -127,13 +148,5 @@ public class ResourceWithStatusAssembler
             .withRel(event.toString())
             .withTitle("Next Lifecycle event")
             .withName(event.getLabel()));
-  }
-
-  @Override
-  public @NonNull CollectionModel<EntityModel<ResourceWithStatusDTO>> toCollectionModel(
-      @NonNull Iterable<? extends ResourceWithStatusDTO> entities) {
-    return RepresentationModelAssembler.super
-        .toCollectionModel(entities)
-        .add(WebMvcLinkBuilder.linkTo(ResourceController.class).withRel("resources"));
   }
 }

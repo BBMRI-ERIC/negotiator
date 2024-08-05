@@ -138,7 +138,6 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
   }
 
-
   @Test
   @WithMockNegotiatorUser(id = 102L)
   void getAllResourcesForNegotiation_notInvolved_403() throws Exception {
