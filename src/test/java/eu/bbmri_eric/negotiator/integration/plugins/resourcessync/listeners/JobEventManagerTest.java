@@ -36,6 +36,29 @@ public class JobEventManagerTest {
   @MockBean private DiscoveryServiceClient discoveryService;
 
   @Test
+  void testWhenPublishingDiscoveryServiceSyncEvent() throws InterruptedException {
+    DiscoveryService service =
+        DiscoveryService.builder()
+            .id(Long.valueOf("1"))
+            .name("testservice")
+            .url("http://testservice.net")
+            .build();
+    testServiceRepository.save(service);
+    DiscoveryServiceSynchronizationJob job =
+        DiscoveryServiceSynchronizationJob.builder()
+            .status(DiscoveryServiceSyncronizationJobStatus.SUBMITTED)
+            .service(service)
+            .build();
+    testJobRepository.save(job);
+    testJobEventPublisher.publishDiscoveryServiceSynchronizationEvent(
+        job.getId(), Long.valueOf("1"));
+    Thread.sleep(500);
+    DiscoveryServiceSynchronizationJob retrievedJob =
+        testJobRepository.findDetailedById(job.getId()).get();
+    assertEquals(retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.COMPLETED);
+  }
+
+  @Test
   void testWhenPublishingDiscoveryServiceSyncEventWithServiceUnrecheable()
       throws InterruptedException {
     doThrow(new WebClientResponseException(500, "Not Recheable", null, null, null))
