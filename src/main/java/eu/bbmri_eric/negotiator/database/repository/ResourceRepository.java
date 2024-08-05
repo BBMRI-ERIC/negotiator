@@ -17,10 +17,21 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
   @Query(
       value =
-          "SELECT rs.id as id, rspn.negotiation_id as negotiationId, rs.name as name, rs.source_id as sourceId, rspn.current_state as currentState, o.name as organizationName, o.external_id as organizationExternalId, o.id as organizationId "
-              + "FROM resource rs join resource_state_per_negotiation rspn on rs.source_id = rspn.resource_id "
-              + "join organization o on o.id = rs.organization_id "
-              + "where rspn.negotiation_id = :negotiationId",
+          """
+select rs.id              as id,
+       r.negotiation_id   as negotiationId,
+       rs.name            as name,
+       rs.source_id       as sourceId,
+       rspn.current_state as currentState,
+       o.name             as organizationName,
+       o.external_id      as organizationExternalId,
+       o.id               as organizationId
+from resource rs
+         join public.request_resources_link rrl on rs.id = rrl.resource_id
+         join public.organization o on o.id = rs.organization_id
+         left join public.resource_state_per_negotiation rspn on rs.source_id = rspn.resource_id
+         join public.request r on r.id = rrl.request_id;
+""",
       nativeQuery = true)
   List<ResourceViewDTO> findByNegotiation(String negotiationId);
 

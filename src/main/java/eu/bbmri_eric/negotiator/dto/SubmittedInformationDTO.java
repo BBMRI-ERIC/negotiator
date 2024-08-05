@@ -16,5 +16,6 @@ import lombok.Setter;
 public class SubmittedInformationDTO {
   @NotNull private Long id;
   @NotNull private Long resourceId;
+  private Long requirementId;
   @NotNull private JsonNode payload;
 }

@@ -4,13 +4,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.InformationRequirementController;
+import eu.bbmri_eric.negotiator.api.controller.v3.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.ResourceController;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
+import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.service.InformationRequirementService;
+import eu.bbmri_eric.negotiator.service.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,21 +37,25 @@ public class ResourceWithStatusAssembler
         ResourceWithStatusDTO, EntityModel<ResourceWithStatusDTO>> {
   private final ResourceLifecycleService resourceLifecycleService;
   private final InformationRequirementService informationRequirementService;
-  private final Map<NegotiationResourceState, List<NegotiationResourceEvent>> cache =
+  private final InformationSubmissionService informationSubmissionService;
+  private Map<NegotiationResourceState, List<NegotiationResourceEvent>> cache = new HashMap<>();
+  private Map<NegotiationResourceEvent, List<InformationRequirementDTO>> requirementsCache =
       new HashMap<>();
-  private final Map<NegotiationResourceEvent, List<InformationRequirementDTO>> requirementsCache =
-      new HashMap<>();
+  private List<SubmittedInformationDTO> submittedInformationCache = new ArrayList<>();
 
   public ResourceWithStatusAssembler(
       ResourceLifecycleService resourceLifecycleService,
-      InformationRequirementService informationRequirementService) {
+      InformationRequirementService informationRequirementService,
+      InformationSubmissionService informationSubmissionService) {
     this.resourceLifecycleService = resourceLifecycleService;
     this.informationRequirementService = informationRequirementService;
+    this.informationSubmissionService = informationSubmissionService;
   }
 
   @Override
   public @NonNull EntityModel<ResourceWithStatusDTO> toModel(
       @NonNull ResourceWithStatusDTO entity) {
+    log.warn(entity.toString());
     List<Link> links = new ArrayList<>();
     links.add(
         WebMvcLinkBuilder.linkTo(methodOn(ResourceController.class).getResourceById(entity.getId()))
@@ -60,14 +67,29 @@ public class ResourceWithStatusAssembler
 
   private void attachLifeCycleLinks(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
     try {
+      if (submittedInformationCache.isEmpty()) {
+        submittedInformationCache =
+            informationSubmissionService.findAllForNegotiation(entity.getNegotiationId());
+      }
+      for (SubmittedInformationDTO submittedInformationDTO : submittedInformationCache) {
+        if (submittedInformationDTO.getResourceId().equals(entity.getId())) {
+          links.add(
+              linkTo(
+                      methodOn(InformationSubmissionController.class)
+                          .getInfoSubmission(submittedInformationDTO.getId()))
+                  .withRel("submission-%s".formatted(submittedInformationDTO.getId()))
+                  .withTitle("Submitted Information"));
+        }
+      }
       Set<NegotiationResourceEvent> events;
-      if (cache.containsKey(entity.getStatus())) {
-        events = cache.get(entity.getStatus()).stream().collect(Collectors.toUnmodifiableSet());
+      if (cache.containsKey(entity.getCurrentState())) {
+        events =
+            cache.get(entity.getCurrentState()).stream().collect(Collectors.toUnmodifiableSet());
       } else {
         events =
             resourceLifecycleService.getPossibleEvents(
                 entity.getNegotiationId(), entity.getSourceId());
-        cache.put(entity.getStatus(), new ArrayList<>(events));
+        cache.put(entity.getCurrentState(), new ArrayList<>(events));
       }
       for (NegotiationResourceEvent event : events) {
         List<InformationRequirementDTO> requirements;
@@ -81,7 +103,7 @@ public class ResourceWithStatusAssembler
                           informationRequirementDTO.getForResourceEvent().equals(event))
                   .toList();
           requirementsCache.put(event, requirements);
-          // log.warn(requirements);
+          log.warn(requirements);
         }
         for (InformationRequirementDTO dto : requirements) {
           links.add(
