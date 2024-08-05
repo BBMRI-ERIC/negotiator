@@ -12,10 +12,12 @@ import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
+import eu.bbmri_eric.negotiator.mappers.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.service.ResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,10 +35,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -51,6 +53,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -63,15 +66,35 @@ import org.springframework.web.server.ResponseStatusException;
 @SecurityRequirement(name = "security_auth")
 public class NegotiationController {
 
-  @Autowired private NegotiationService negotiationService;
+  private NegotiationService negotiationService;
 
-  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
+  private NegotiationLifecycleService negotiationLifecycleService;
 
-  @Autowired private ResourceLifecycleService resourceLifecycleService;
+  private ResourceLifecycleService resourceLifecycleService;
 
-  @Autowired private PersonService personService;
+  private PersonService personService;
 
-  private final NegotiationModelAssembler assembler = new NegotiationModelAssembler();
+  private final ResourceService resourceService;
+
+  private final NegotiationModelAssembler assembler;
+  private final ResourceWithStatusAssembler resourceWithStatusAssembler;
+
+  public NegotiationController(
+      NegotiationService negotiationService,
+      NegotiationLifecycleService negotiationLifecycleService,
+      ResourceLifecycleService resourceLifecycleService,
+      PersonService personService,
+      ResourceService resourceService,
+      NegotiationModelAssembler assembler,
+      ResourceWithStatusAssembler resourceWithStatusAssembler) {
+    this.negotiationService = negotiationService;
+    this.negotiationLifecycleService = negotiationLifecycleService;
+    this.resourceLifecycleService = resourceLifecycleService;
+    this.personService = personService;
+    this.resourceService = resourceService;
+    this.assembler = assembler;
+    this.resourceWithStatusAssembler = resourceWithStatusAssembler;
+  }
 
   /** Create a negotiation */
   @PostMapping(
@@ -253,7 +276,7 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{negotiationId}/resources/{resourceId}/lifecycle/{event}")
-  ResponseEntity<?> sendEventForNegotiationResource(
+  public ResponseEntity<?> sendEventForNegotiationResource(
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable("event") NegotiationResourceEvent event) {
@@ -303,6 +326,14 @@ public class NegotiationController {
     return Arrays.stream(NegotiationState.values()).toList();
   }
 
+  @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.GET)
+  @Operation(summary = "List all resources in negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
+      @PathVariable String id) {
+    return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
+  }
+
   private List<String> getResourceIdsFromUserAuthorities() {
     List<String> resourceIds = new ArrayList<>();
     for (GrantedAuthority grantedAuthority :
@@ -317,11 +348,9 @@ public class NegotiationController {
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
-        || personService.isRepresentativeOfAnyResource(
+        || personService.isRepresentativeOfAnyResourceOfNegotiation(
             NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-            negotiationDTO.getResources().stream()
-                .map(ResourceWithStatusDTO::getId)
-                .collect(Collectors.toList()))
+            negotiationDTO.getId())
         || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 

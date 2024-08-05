@@ -21,7 +21,9 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
   public NegotiationModelAssembler() {}

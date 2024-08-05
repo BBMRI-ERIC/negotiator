@@ -67,12 +67,6 @@ public class NegotiationModelMapper {
             mapper
                 .using(negotiationStatusConverter)
                 .map(Negotiation::getCurrentState, NegotiationDTO::setStatus));
-
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(resourcesConverter)
-                .map(negotiation -> negotiation, NegotiationDTO::setResources));
   }
 
   private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {
@@ -84,20 +78,27 @@ public class NegotiationModelMapper {
         .flatMap(
             request ->
                 request.getResources().stream()
-                    .map(resource -> buildResourceWithStatus(resource, statePerResource)))
+                    .map(
+                        resource ->
+                            buildResourceWithStatus(
+                                resource, statePerResource, negotiation.getId())))
         .collect(Collectors.toSet());
   }
 
   private ResourceWithStatusDTO buildResourceWithStatus(
-      Resource resource, Map<String, NegotiationResourceState> statePerResource) {
+      Resource resource,
+      Map<String, NegotiationResourceState> statePerResource,
+      String negotiationId) {
     ResourceWithStatusDTO.ResourceWithStatusDTOBuilder builder =
         ResourceWithStatusDTO.builder()
-            .id(resource.getSourceId())
+            .id(resource.getId())
+            .sourceId(resource.getSourceId())
+            .negotiationId(negotiationId)
             .name(resource.getName())
             .organization(modelMapper.map(resource.getOrganization(), OrganizationDTO.class));
     NegotiationResourceState state = statePerResource.get(resource.getSourceId());
     if (state != null) {
-      builder.status(state.name());
+      builder.status(state);
     }
     return builder.build();
   }
