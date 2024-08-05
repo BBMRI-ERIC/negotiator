@@ -467,4 +467,56 @@ public class BBMRIDiscoveryServiceClientTest {
                 .uri("https://test_ntw4.it")
                 .build());
   }
+
+  @Test
+  void testSyncAllNetworksUpdateNetworkAlreadyPresent() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode networks = getTestNetworks();
+    String uriString = "api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact";
+
+    networks.remove(0);
+
+    ObjectNode updatedNetwork1 = mapper.createObjectNode();
+    updatedNetwork1.put("id", "test_ntw1");
+    updatedNetwork1.put("name", "test_updt_ntw1");
+    updatedNetwork1.put("url", "https://test_ntw1.it");
+    ObjectNode network1contact = mapper.createObjectNode();
+    network1contact.put("_href", "https://network1contact.it");
+    network1contact.put("name", "network1contact");
+    network1contact.put("email", "test_ntw1@test.it");
+    updatedNetwork1.put("contact", network1contact);
+
+    networks.add(updatedNetwork1);
+
+    root.set("items", networks);
+
+    lenient()
+        .when(networkRepository.findByExternalId("test_ntw1"))
+        .thenReturn(
+            Optional.of(
+                Network.builder()
+                    .externalId("test_ntw1")
+                    .name("test_ntw1")
+                    .uri("https://test_ntw1.it")
+                    .contactEmail("test_ntw1@test.it")
+                    .build()));
+
+    lenient().when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    lenient().when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    lenient().when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    discoveryService.syncAllNetworks();
+
+    verify(networkRepository, times(1))
+        .save(
+            Network.builder()
+                .externalId("test_ntw1")
+                .name("test_updt_ntw1")
+                .uri("https://test_ntw1.it")
+                .contactEmail("test_ntw1@test.it")
+                .build());
+  }
 }
