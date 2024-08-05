@@ -21,7 +21,6 @@ import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisNetwork;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -211,7 +210,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 
@@ -245,7 +244,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 
@@ -279,7 +278,7 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 
