@@ -33,10 +33,13 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
       discoveryServiceSyncClient.syncAllResources();
       discoveryServiceSyncClient.syncAllNetworks();
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
     } catch (EntityNotStorableException e) {
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
     } catch (WebClientResponseException e) {
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
     }
   }
 }
