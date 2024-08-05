@@ -102,7 +102,7 @@ public class ResourceControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links").isNotEmpty())
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
-        .andExpect(jsonPath("$._embedded.resources[0].externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
   }
 
@@ -117,7 +117,7 @@ public class ResourceControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links").isNotEmpty())
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
-        .andExpect(jsonPath("$._embedded.resources[0].externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
