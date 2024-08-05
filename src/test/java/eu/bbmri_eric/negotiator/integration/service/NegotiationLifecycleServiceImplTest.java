@@ -383,11 +383,13 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        NegotiationResourceState.valueOf(
-            negotiationService
-                .findById(negotiationDTO.getId(), false)
-                .getStatusForResource("biobank:1:collection:2")));
+        NegotiationResourceState.SUBMITTED,
+        resourceRepository.findByNegotiation(negotiationDTO.getId()).stream()
+            .filter(
+                resourceViewDTO -> resourceViewDTO.getSourceId().equals("biobank:1:collection:2"))
+            .findFirst()
+            .get()
+            .getCurrentState());
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     InformationRequirement requirement =
         requirementRepository.save(
