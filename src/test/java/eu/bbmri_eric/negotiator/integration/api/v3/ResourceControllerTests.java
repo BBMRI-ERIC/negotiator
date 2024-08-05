@@ -6,16 +6,27 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
+import eu.bbmri_eric.negotiator.database.model.InformationRequirement;
+import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
+import eu.bbmri_eric.negotiator.database.repository.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
+import eu.bbmri_eric.negotiator.dto.InformationRequirementCreateDTO;
+import eu.bbmri_eric.negotiator.service.InformationRequirementService;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +54,9 @@ public class ResourceControllerTests {
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
   private MockMvc mockMvc;
   @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private InformationRequirementService informationRequirementService;
+  @Autowired private InformationSubmissionRepository informationSubmissionRepository;
+  @Autowired private InformationRequirementRepository informationRequirementRepository;
 
   @BeforeEach
   public void before() {
@@ -117,11 +131,13 @@ public class ResourceControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links").isNotEmpty())
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
   }
+
 
   @Test
   @WithMockNegotiatorUser(id = 102L)
@@ -132,5 +148,106 @@ public class ResourceControllerTests {
             MockMvcRequestBuilders.get(
                 "/v3/negotiations/%s/resources".formatted(negotiation.getId())))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void getAllResources_approvedNegotiation_resourceContainsLifecycleLinks() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
+    negotiation.setStateForResource(
+        negotiation.getResources().iterator().next().getSourceId(),
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiationRepository.save(negotiation);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/%s/resources".formatted(negotiation.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(
+            jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
+  }
+
+  @Test
+  @Transactional
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
+  void getAllResources_approvedNegotiation_resourceContainsAllLinks() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
+    Resource resource = negotiation.getResources().iterator().next();
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    negotiationRepository.save(negotiation);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/%s/resources".formatted(negotiation.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").doesNotExist())
+        .andExpect(
+            jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
+    Long requirementId =
+        informationRequirementService
+            .createInformationRequirement(
+                new InformationRequirementCreateDTO(
+                    1L, NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY))
+            .getId();
+    String payload =
+        """
+                            {
+                           "sample-type": "DNA",
+                           "num-of-subjects": 10,
+                           "num-of-samples": 20,
+                           "volume-per-sample": 5
+                        }
+                        """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/%s/resources".formatted(negotiation.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").isNotEmpty())
+        .andExpect(
+            jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
+
+    InformationRequirement informationRequirement =
+        informationRequirementRepository.findById(requirementId).get();
+    informationSubmissionRepository.save(
+        new InformationSubmission(
+            informationRequirement, resource, negotiation, jsonPayload.toString()));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/%s/resources".formatted(negotiation.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0]._links.submission-1").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").doesNotExist())
+        .andExpect(
+            jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
   }
 }

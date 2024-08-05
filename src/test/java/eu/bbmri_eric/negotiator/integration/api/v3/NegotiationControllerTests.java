@@ -1301,4 +1301,5 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("%s/lifecycle".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
+
 }
