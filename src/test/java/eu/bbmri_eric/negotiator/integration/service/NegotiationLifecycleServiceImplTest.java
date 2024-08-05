@@ -383,7 +383,7 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
-        NegotiationResourceState.SUBMITTED,
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceRepository.findByNegotiation(negotiationDTO.getId()).stream()
             .filter(
                 resourceViewDTO -> resourceViewDTO.getSourceId().equals("biobank:1:collection:2"))
