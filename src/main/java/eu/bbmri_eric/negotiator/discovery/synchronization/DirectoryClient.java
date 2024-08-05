@@ -20,7 +20,6 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -211,7 +210,7 @@ public class DirectoryClient implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 
@@ -245,7 +244,7 @@ public class DirectoryClient implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 
@@ -279,7 +278,7 @@ public class DirectoryClient implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 

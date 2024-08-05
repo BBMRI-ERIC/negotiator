@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,6 +38,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @WireMockTest(httpPort = 8080)
@@ -518,5 +520,80 @@ public class BBMRIDiscoveryServiceClientTest {
                 .uri("https://test_ntw1.it")
                 .contactEmail("test_ntw1@test.it")
                 .build());
+  }
+
+  @Test
+  void testSyncAllOrganizationWithMolgenisNotRecheable() {
+    String uriString = "/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==false&attrs=id,name";
+
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class))
+        .thenReturn(
+            Mono.error(new WebClientResponseException(500, "Not Recheable", null, null, null)));
+
+    assertThrows(
+        WebClientResponseException.class,
+        () -> {
+          discoveryService.syncAllOrganizations();
+        });
+    ;
+  }
+
+  @Test
+  void testSyncAllResourcesWithMolgenisNotRecheable() {
+    String uriString =
+        "/api/v2/eu_bbmri_eric_collections?num=10000&attrs=id,name,description,biobank";
+
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class))
+        .thenReturn(
+            Mono.error(new WebClientResponseException(500, "Not Recheable", null, null, null)));
+
+    assertThrows(
+        WebClientResponseException.class,
+        () -> {
+          discoveryService.syncAllResources();
+        });
+    ;
+  }
+
+  @Test
+  void testSyncAllOrganizationsWithMolgenisNotRecheable() {
+    String uriString = "/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==false&attrs=id,name";
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class))
+        .thenReturn(
+            Mono.error(new WebClientResponseException(500, "Not Recheable", null, null, null)));
+
+    assertThrows(
+        WebClientResponseException.class,
+        () -> {
+          discoveryService.syncAllOrganizations();
+        });
+    ;
+  }
+
+  @Test
+  void testSyncAllNetworksWithMolgenisNotRecheable() {
+    String uriString = "api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact";
+    when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    when(responseSpec.bodyToMono(String.class))
+        .thenReturn(
+            Mono.error(new WebClientResponseException(500, "Not Recheable", null, null, null)));
+
+    assertThrows(
+        WebClientResponseException.class,
+        () -> {
+          discoveryService.syncAllNetworks();
+        });
+    ;
   }
 }
