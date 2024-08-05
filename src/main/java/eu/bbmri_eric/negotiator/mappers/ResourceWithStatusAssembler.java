@@ -49,6 +49,9 @@ public class ResourceWithStatusAssembler
   @Override
   public @NonNull EntityModel<ResourceWithStatusDTO> toModel(
       @NonNull ResourceWithStatusDTO entity) {
+    requirementsCache = informationRequirementService.getAllInformationRequirements();
+    submittedInformationCache =
+        informationSubmissionService.findAllForNegotiation(entity.getNegotiationId());
     List<Link> links = addWebLinks(entity);
     return EntityModel.of(entity).add(links);
   }
@@ -75,10 +78,6 @@ public class ResourceWithStatusAssembler
 
   private void addSubmissionLinks(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
     try {
-      if (submittedInformationCache.isEmpty()) {
-        submittedInformationCache =
-            informationSubmissionService.findAllForNegotiation(entity.getNegotiationId());
-      }
       for (SubmittedInformationDTO info : submittedInformationCache) {
         addSubmissionLink(entity, links, info);
       }
@@ -90,19 +89,23 @@ public class ResourceWithStatusAssembler
   private static void addSubmissionLink(
       @NonNull ResourceWithStatusDTO entity, List<Link> links, SubmittedInformationDTO info) {
     if (info.getResourceId().equals(entity.getId())) {
+      String name =
+          requirementsCache.stream()
+              .filter(dto -> dto.getId().equals(info.getRequirementId()))
+              .findFirst()
+              .get()
+              .getRequiredAccessForm()
+              .getName();
       links.add(
           linkTo(methodOn(InformationSubmissionController.class).getInfoSubmission(info.getId()))
               .withRel("submission-%s".formatted(info.getId()))
               .withTitle("Submitted Information")
-              .withName("Submitted Information"));
+              .withName(name));
     }
   }
 
   private void addRequirementLinks(List<Link> links, Long resourceId) {
     try {
-      if (requirementsCache.isEmpty()) {
-        requirementsCache = informationRequirementService.getAllInformationRequirements();
-      }
       for (InformationRequirementDTO dto : requirementsCache) {
         addRequirementLink(links, resourceId, dto);
       }
@@ -114,13 +117,17 @@ public class ResourceWithStatusAssembler
   private void addRequirementLink(
       List<Link> links, Long resourceId, InformationRequirementDTO dto) {
     if (submittedInformationCache.stream()
-        .noneMatch(
-            i ->
-                i.getResourceId().equals(resourceId) && i.getRequirementId().equals(dto.getId()))) {
+            .noneMatch(
+                i ->
+                    i.getResourceId().equals(resourceId)
+                        && i.getRequirementId().equals(dto.getId()))
+        && links.stream()
+            .anyMatch(
+                link -> link.getRel().toString().equals(dto.getForResourceEvent().toString()))) {
       links.add(
           linkTo(methodOn(InformationRequirementController.class).findRequirementById(dto.getId()))
               .withRel("requirement-%s".formatted(dto.getId()))
-              .withTitle("Requirement to fulfill")
+              .withTitle(dto.getRequiredAccessForm().getName())
               .withName(dto.getForResourceEvent().toString() + " requirement"));
     }
   }

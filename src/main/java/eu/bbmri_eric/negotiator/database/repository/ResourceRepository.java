@@ -29,8 +29,9 @@ select rs.id              as id,
 from resource rs
          join public.request_resources_link rrl on rs.id = rrl.resource_id
          join public.organization o on o.id = rs.organization_id
-         left join public.resource_state_per_negotiation rspn on rs.source_id = rspn.resource_id
-         join public.request r on r.id = rrl.request_id;
+        join public.request r on r.id = rrl.request_id
+         left join public.resource_state_per_negotiation rspn on rs.source_id = rspn.resource_id and r.negotiation_id = rspn.negotiation_id
+          where r.negotiation_id = :negotiationId;
 """,
       nativeQuery = true)
   List<ResourceViewDTO> findByNegotiation(String negotiationId);
