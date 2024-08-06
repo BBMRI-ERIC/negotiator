@@ -294,10 +294,10 @@ public class DirectoryClient implements DiscoveryServiceClient {
     try {
       networkRepository.save(newNetwork);
       return newNetwork;
-    } catch (DataException | DataIntegrityViolationException ex) {
+    } catch (DataException | DataIntegrityViolationException e) {
       log.error("Error while adding missing network");
-      log.error(ex);
-      return null;
+      log.error(e.getMessage());
+      throw new EntityNotStorableException();
     }
   }
 
