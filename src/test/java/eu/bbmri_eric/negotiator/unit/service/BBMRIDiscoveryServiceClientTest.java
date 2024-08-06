@@ -451,6 +451,46 @@ public class BBMRIDiscoveryServiceClientTest {
   }
 
   @Test
+  void testSyncAllOrganizationsUpdateOrgAlreadyPresentStorageError() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode biobanks = getTestBiobanks();
+
+    String uriString = "/api/v2/eu_bbmri_eric_biobanks?num=10000&q=withdrawn==false&attrs=id,name";
+
+    biobanks.removeAll();
+    ObjectNode updatedBiobank1 = mapper.createObjectNode();
+    updatedBiobank1.put("_href", "/api/v2/test_bb1");
+    updatedBiobank1.put("id", "test_bb1");
+    updatedBiobank1.put("name", "test_newname_bb1");
+
+    biobanks.add(updatedBiobank1);
+    root.set("items", biobanks);
+
+    lenient()
+        .when(organizationRepository.findByExternalId("test_bb1"))
+        .thenReturn(
+            Optional.of(Organization.builder().externalId("test_bb1").name("test_bb1").build()));
+
+    lenient().when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    lenient().when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    lenient().when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    Organization org1 =
+        Organization.builder().externalId("test_bb1").name("test_newname_bb1").build();
+    when(organizationRepository.save(org1))
+        .thenThrow(new DataIntegrityViolationException("Constraint violation"));
+
+    assertThrows(
+        EntityNotStorableException.class,
+        () -> {
+          discoveryService.syncAllOrganizations();
+        });
+  }
+
+  @Test
   void testSyncAllResourcesUpdateResAlreadyPresentNameChange() {
     String baseUrl = "http://localhost:8080/directory";
     ObjectMapper mapper = new ObjectMapper();
@@ -506,6 +546,70 @@ public class BBMRIDiscoveryServiceClientTest {
                 .description("test_coll_1")
                 .organization(org1)
                 .build());
+  }
+
+  @Test
+  void testSyncAllResourcesUpdateResAlreadyPresentStorageError() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode collections = getTestCollections();
+
+    String uriString =
+        "/api/v2/eu_bbmri_eric_collections?num=10000&attrs=id,name,description,biobank";
+
+    collections.removeAll();
+
+    ObjectNode updatedCollection1 = mapper.createObjectNode();
+    updatedCollection1.put("id", "test_coll1");
+    updatedCollection1.put("name", "test_coll1_newname");
+    updatedCollection1.put("description", "test_coll1");
+    updatedCollection1.put("biobank", getTestBiobanks().get(0));
+
+    collections.add(updatedCollection1);
+
+    root.set("items", collections);
+
+    Organization org1 = Organization.builder().externalId("test_bb1").name("test_bb1").build();
+    lenient()
+        .when(resourceRepository.findBySourceId("test_coll1"))
+        .thenReturn(
+            Optional.of(
+                Resource.builder()
+                    .sourceId("test_coll1")
+                    .name("test_coll_1")
+                    .description("test_coll_1")
+                    .organization(org1)
+                    .build()));
+
+    lenient().when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    lenient().when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    lenient().when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    lenient()
+        .when(discoveryServiceRepository.findById(Long.valueOf("1")))
+        .thenReturn(Optional.of(new DiscoveryService()));
+    lenient()
+        .when(accessFormRepository.findById(Long.valueOf("1")))
+        .thenReturn(Optional.of(new AccessForm("name")));
+
+    Resource res1 =
+        Resource.builder()
+            .sourceId("test_coll1")
+            .name("test_coll_1_newname")
+            .description("test_coll_1")
+            .organization(org1)
+            .build();
+
+    when(resourceRepository.save(res1))
+        .thenThrow(new DataIntegrityViolationException("Constraint violation"));
+
+    assertThrows(
+        EntityNotStorableException.class,
+        () -> {
+          discoveryService.syncAllResources();
+        });
   }
 
   @Test
@@ -754,6 +858,64 @@ public class BBMRIDiscoveryServiceClientTest {
                 .uri("https://test_ntw1.it")
                 .contactEmail("test_ntw1@test.it")
                 .build());
+  }
+
+  @Test
+  void testSyncAllNetworksUpdateNetworkAlreadyPresentStorageError() {
+    String baseUrl = "http://localhost:8080/directory";
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode root = mapper.createObjectNode();
+    ArrayNode networks = getTestNetworks();
+    String uriString = "api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact";
+
+    networks.removeAll();
+
+    ObjectNode updatedNetwork1 = mapper.createObjectNode();
+    updatedNetwork1.put("id", "test_ntw1");
+    updatedNetwork1.put("name", "test_updt_ntw1");
+    updatedNetwork1.put("url", "https://test_ntw1.it");
+    ObjectNode network1contact = mapper.createObjectNode();
+    network1contact.put("_href", "https://network1contact.it");
+    network1contact.put("name", "network1contact");
+    network1contact.put("email", "test_ntw1@test.it");
+    updatedNetwork1.put("contact", network1contact);
+
+    networks.add(updatedNetwork1);
+
+    root.set("items", networks);
+
+    lenient()
+        .when(networkRepository.findByExternalId("test_ntw1"))
+        .thenReturn(
+            Optional.of(
+                Network.builder()
+                    .externalId("test_ntw1")
+                    .name("test_ntw1")
+                    .uri("https://test_ntw1.it")
+                    .contactEmail("test_ntw1@test.it")
+                    .build()));
+
+    lenient().when(webClient.get()).thenReturn(requestHeadersUriSpec);
+    lenient().when(requestHeadersUriSpec.uri(uriString)).thenReturn(requestHeadersSpec);
+    lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+    lenient().when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(root.toString()));
+
+    Network net1 =
+        Network.builder()
+            .externalId("test_ntw1")
+            .name("test_updt_ntw1")
+            .uri("https://test_ntw1.it")
+            .contactEmail("test_ntw1@test.it")
+            .build();
+
+    when(networkRepository.save(net1))
+        .thenThrow(new DataIntegrityViolationException("Constraint violation"));
+
+    assertThrows(
+        EntityNotStorableException.class,
+        () -> {
+          discoveryService.syncAllNetworks();
+        });
   }
 
   @Test
