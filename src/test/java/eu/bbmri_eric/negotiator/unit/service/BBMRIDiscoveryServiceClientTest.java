@@ -330,32 +330,32 @@ public class BBMRIDiscoveryServiceClientTest {
         .save(
             Resource.builder()
                 .sourceId("test_coll1")
-                .name("test_coll_1")
-                .description("test_coll_1")
+                .name("test_coll1")
+                .description("test_coll1")
                 .organization(org1)
                 .build());
     verify(resourceRepository, times(1))
         .save(
             Resource.builder()
                 .sourceId("test_coll2")
-                .name("test_coll_2")
-                .description("test_coll_2")
+                .name("test_coll2")
+                .description("test_coll2")
                 .organization(org2)
                 .build());
     verify(resourceRepository, times(1))
         .save(
             Resource.builder()
                 .sourceId("test_coll3")
-                .name("test_coll_3")
-                .description("test_coll_3")
+                .name("test_coll3")
+                .description("test_coll3")
                 .organization(org3)
                 .build());
     verify(resourceRepository, times(1))
         .save(
             Resource.builder()
                 .sourceId("test_coll4")
-                .name("test_coll_4")
-                .description("test_coll_4")
+                .name("test_coll4")
+                .description("test_coll4")
                 .organization(org4)
                 .build());
   }
@@ -519,8 +519,8 @@ public class BBMRIDiscoveryServiceClientTest {
             Optional.of(
                 Resource.builder()
                     .sourceId("test_coll1")
-                    .name("test_coll_1")
-                    .description("test_coll_1")
+                    .name("test_coll1")
+                    .description("test_coll1")
                     .organization(org1)
                     .build()));
 
@@ -641,8 +641,8 @@ public class BBMRIDiscoveryServiceClientTest {
             Optional.of(
                 Resource.builder()
                     .sourceId("test_coll1")
-                    .name("test_coll_1")
-                    .description("test_coll_1")
+                    .name("test_coll1")
+                    .description("test_coll1")
                     .organization(org1)
                     .build()));
 
