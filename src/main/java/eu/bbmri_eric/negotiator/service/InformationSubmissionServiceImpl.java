@@ -61,13 +61,42 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       InformationSubmissionDTO informationSubmissionDTO,
       Long informationRequirementId,
       String negotiationId) {
-    if (!isAuthorizedToWrite(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        informationSubmissionDTO.getResourceId())) {
-      throw new ForbiddenRequestException("You are not authorized to perform this action");
-    }
+    verifyAuthorization(informationSubmissionDTO);
     InformationSubmission submission =
         buildSubmissionEntity(informationSubmissionDTO, informationRequirementId, negotiationId);
+    return saveInformationSubmission(informationRequirementId, negotiationId, submission);
+  }
+
+  @Override
+  public SubmittedInformationDTO findById(Long id) {
+    InformationSubmission submission =
+        informationSubmissionRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(id));
+    verifyReadAuthorization(submission);
+    return modelMapper.map(submission, SubmittedInformationDTO.class);
+  }
+
+  private void verifyReadAuthorization(InformationSubmission submission) {
+    if (!isAuthorizedToRead(
+        submission.getNegotiation().getId(),
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+        submission.getResource().getId())) {
+      throw new ForbiddenRequestException("You are not authorized to perform this action");
+    }
+  }
+
+  @Override
+  public List<SubmittedInformationDTO> findAllForNegotiation(String negotiationId) {
+    return informationSubmissionRepository.findAllByNegotiation_Id(negotiationId).stream()
+        .map(
+            informationSubmission ->
+                modelMapper.map(informationSubmission, SubmittedInformationDTO.class))
+        .toList();
+  }
+
+  private SubmittedInformationDTO saveInformationSubmission(
+      Long informationRequirementId, String negotiationId, InformationSubmission submission) {
     if (informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id(
         submission.getResource().getSourceId(), negotiationId, informationRequirementId)) {
       throw new WrongRequestException(
@@ -76,6 +105,14 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     submission = informationSubmissionRepository.saveAndFlush(submission);
     applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
     return modelMapper.map(submission, SubmittedInformationDTO.class);
+  }
+
+  private void verifyAuthorization(InformationSubmissionDTO informationSubmissionDTO) {
+    if (!isAuthorizedToWrite(
+        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+        informationSubmissionDTO.getResourceId())) {
+      throw new ForbiddenRequestException("You are not authorized to perform this action");
+    }
   }
 
   private boolean isAuthorizedToWrite(Long personId, Long resourceId) {
@@ -112,29 +149,5 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
     return new InformationSubmission(
         requirement, resource, negotiation, informationSubmissionDTO.getPayload().toString());
-  }
-
-  @Override
-  public SubmittedInformationDTO findById(Long id) {
-    InformationSubmission submission =
-        informationSubmissionRepository
-            .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException(id));
-    if (!isAuthorizedToRead(
-        submission.getNegotiation().getId(),
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        submission.getResource().getId())) {
-      throw new ForbiddenRequestException("You are not authorized to perform this action");
-    }
-    return modelMapper.map(submission, SubmittedInformationDTO.class);
-  }
-
-  @Override
-  public List<SubmittedInformationDTO> findAllForNegotiation(String negotiationId) {
-    return informationSubmissionRepository.findAllByNegotiation_Id(negotiationId).stream()
-        .map(
-            informationSubmission ->
-                modelMapper.map(informationSubmission, SubmittedInformationDTO.class))
-        .toList();
   }
 }
