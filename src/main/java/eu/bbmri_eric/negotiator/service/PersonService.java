@@ -20,6 +20,14 @@ public interface PersonService {
   UserResponseModel findById(Long id) throws EntityNotFoundException;
 
   /**
+   * Retrieves the person identified by :email
+   *
+   * @param email the email of the person to retrieve
+   * @return the UserResponseModel
+   */
+  UserResponseModel findByEmail(String email) throws EntityNotFoundException;
+
+  /**
    * Retrieves all UserResponseModels that match the specified filter criteria.
    *
    * @param property the property to filter on

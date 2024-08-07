@@ -45,6 +45,14 @@ public interface NegotiationService {
       throws EntityNotFoundException;
 
   /**
+   * Updates owner of the negotiation with the provided id
+   *
+   * @param negotiationId
+   * @param newOwnerId
+   */
+  NegotiationDTO transferOwnership(String negotiationId, Long newOwnerId);
+
+  /**
    * Adds the request with :requestId to the negotiation with identified by :negotiationId
    *
    * @param negotiationId the id of the negotiation
