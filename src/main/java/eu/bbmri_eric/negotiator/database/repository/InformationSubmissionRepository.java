@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.database.repository;
 
 import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,7 @@ public interface InformationSubmissionRepository
       String sourceId, String negotiationId, Long requirementId);
 
   Set<InformationSubmission> findAllByNegotiation_Id(String negotiationId);
+
+  List<InformationSubmission> findAllByRequirement_IdAndNegotiation_Id(
+      Long requirementId, String negotiationId);
 }

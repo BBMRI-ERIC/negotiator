@@ -1,17 +1,18 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
-import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.dto.InformationSubmissionDTO;
 import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.service.InformationRequirementService;
 import eu.bbmri_eric.negotiator.service.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(
-    value = InformationSubmissionController.BASE_URL,
-    produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping(value = InformationSubmissionController.BASE_URL)
 @Tag(
     name = "Submit required information",
     description = "Submit required information on behalf of a resource in a Negotiation.")
@@ -44,18 +44,23 @@ public class InformationSubmissionController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping("/negotiations/{negotiationId}/info-requirements/{requirementId}")
-  public String getSummaryInformation(
-      @PathVariable String negotiationId, @PathVariable Long requirementId) {
-    NegotiationDTO negotiationDTO = negotiationService.findById(negotiationId, false);
-    InformationRequirementDTO requirementDTO =
-        requirementService.getInformationRequirement(requirementId);
-    // TODO Finish the implementation
-    return "{}";
+  @GetMapping(
+      value = "/negotiations/{negotiationId}/info-requirements/{requirementId}",
+      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  public ResponseEntity<byte[]> getSummaryInformation(
+      @PathVariable String negotiationId, @PathVariable Long requirementId) throws IOException {
+    MultipartFile file = submissionService.createSummary(requirementId, negotiationId);
+    return ResponseEntity.ok()
+        .header("Content-Disposition", "attachment; filename=\"%s\"".formatted(file.getName()))
+        .contentType(MediaType.valueOf("text/csv"))
+        .body(file.getBytes());
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @PostMapping("/negotiations/{negotiationId}/info-requirements/{requirementId}")
+  @PostMapping(
+      value = "/negotiations/{negotiationId}/info-requirements/{requirementId}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
   public EntityModel<SubmittedInformationDTO> submitInformation(
       @PathVariable String negotiationId,
       @PathVariable Long requirementId,
@@ -64,7 +69,7 @@ public class InformationSubmissionController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping("/info-submissions/{id}")
+  @GetMapping(value = "/info-submissions/{id}", produces = MediaTypes.HAL_JSON_VALUE)
   public EntityModel<SubmittedInformationDTO> getInfoSubmission(@PathVariable Long id) {
     return EntityModel.of(submissionService.findById(id));
   }
