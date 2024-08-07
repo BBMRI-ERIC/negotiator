@@ -12,7 +12,6 @@ import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.service.InformationRequirementService;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,22 +35,24 @@ public class NegotiationModelAssembler
     this.requirementService = requirementService;
   }
 
+  public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
+      @NonNull NegotiationDTO entity) {
+    EntityModel<NegotiationDTO> entityModel = toModel(entity);
+    for (InformationRequirementDTO requirement :
+        requirementService.getAllInformationRequirements()) {
+      entityModel.add(
+          WebMvcLinkBuilder.linkTo(
+                  methodOn(InformationSubmissionController.class)
+                      .getSummaryInformation(entity.getId(), requirement.getId()))
+              .withRel("Requirement summary %s".formatted(requirement.getId()))
+              .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
+    }
+    return entityModel;
+  }
+
   @Override
   public @NonNull EntityModel<NegotiationDTO> toModel(@NonNull NegotiationDTO entity) {
     List<Link> links = new ArrayList<>();
-    for (InformationRequirementDTO requirement :
-        requirementService.getAllInformationRequirements()) {
-      try {
-        links.add(
-            WebMvcLinkBuilder.linkTo(
-                    methodOn(InformationSubmissionController.class)
-                        .getSummaryInformation(entity.getId(), requirement.getId()))
-                .withRel("Requirement summary")
-                .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
     links.add(
         WebMvcLinkBuilder.linkTo(methodOn(NegotiationController.class).retrieve(entity.getId()))
             .withSelfRel());

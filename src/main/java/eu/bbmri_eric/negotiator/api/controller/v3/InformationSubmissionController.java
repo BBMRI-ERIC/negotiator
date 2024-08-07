@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ServerErrorException;
 
 @RestController
 @RequestMapping(value = InformationSubmissionController.BASE_URL)
@@ -48,12 +49,16 @@ public class InformationSubmissionController {
       value = "/negotiations/{negotiationId}/info-requirements/{requirementId}",
       produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> getSummaryInformation(
-      @PathVariable String negotiationId, @PathVariable Long requirementId) throws IOException {
+      @PathVariable String negotiationId, @PathVariable Long requirementId) {
     MultipartFile file = submissionService.createSummary(requirementId, negotiationId);
-    return ResponseEntity.ok()
-        .header("Content-Disposition", "attachment; filename=\"%s\"".formatted(file.getName()))
-        .contentType(MediaType.valueOf("text/csv"))
-        .body(file.getBytes());
+    try {
+      return ResponseEntity.ok()
+          .header("Content-Disposition", "attachment; filename=\"%s\"".formatted(file.getName()))
+          .contentType(MediaType.valueOf("text/csv"))
+          .body(file.getBytes());
+    } catch (IOException e) {
+      throw new ServerErrorException("Failed to create summary information", e);
+    }
   }
 
   @ResponseStatus(HttpStatus.OK)

@@ -111,7 +111,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   }
 
   @Override
-  public MultipartFile createSummary(Long requirementId, String negotiationId) throws IOException {
+  public MultipartFile createSummary(Long requirementId, String negotiationId) {
     if (negotiationRepository.existsByIdAndCreatedBy_Id(
             negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
         || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
@@ -141,8 +141,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     return modelMapper.map(submission, SubmittedInformationDTO.class);
   }
 
-  private MultipartFile generateCSVFile(List<InformationSubmission> submissions, String fileName)
-      throws IOException {
+  private MultipartFile generateCSVFile(List<InformationSubmission> submissions, String fileName) {
     ObjectMapper objectMapper = new ObjectMapper();
     Set<String> jsonKeys = generatedHeadersFromResponses(submissions, objectMapper);
     List<String> headers = setHeaders(jsonKeys);
@@ -201,11 +200,16 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   }
 
   private static @NonNull Set<String> generatedHeadersFromResponses(
-      List<InformationSubmission> submissions, ObjectMapper objectMapper)
-      throws JsonProcessingException {
+      List<InformationSubmission> submissions, ObjectMapper objectMapper) {
     Set<String> jsonKeys = new TreeSet<>();
     for (InformationSubmission submission : submissions) {
-      JsonNode payload = objectMapper.readTree(submission.getPayload());
+      JsonNode payload = null;
+      try {
+        payload = objectMapper.readTree(submission.getPayload());
+      } catch (JsonProcessingException e) {
+        log.error("Could not generate JSON payload", e);
+        throw new RuntimeException(e);
+      }
       Map<String, String> flattenedPayload = flattenJson(payload);
       jsonKeys.addAll(flattenedPayload.keySet());
     }
