@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OwnershipTransferDTO {
 
-    private Long newOwnerId;
-    private String newOwnerEmail;
+  private Long newOwnerId;
+  private String newOwnerEmail;
 }

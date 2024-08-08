@@ -187,15 +187,16 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO transferOwnership(String negotiationId, Long newOwnerId) {
     Negotiation negotiationEntity = findEntityById(negotiationId, false);
     Person newOwner =
-        personRepository.findById(newOwnerId).orElseThrow(() -> new EntityNotFoundException(newOwnerId));
+        personRepository
+            .findById(newOwnerId)
+            .orElseThrow(() -> new EntityNotFoundException(newOwnerId));
     negotiationEntity.setCreatedBy(newOwner);
-    try{
+    try {
       Negotiation negotiation = negotiationRepository.save(negotiationEntity);
       return modelMapper.map(negotiation, NegotiationDTO.class);
     } catch (DataException | DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
-
   }
 
   public NegotiationDTO addRequestToNegotiation(String negotiationId, String requestId) {
@@ -335,6 +336,4 @@ public class NegotiationServiceImpl implements NegotiationService {
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
   }
-
-
 }

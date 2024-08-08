@@ -50,7 +50,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -69,19 +68,18 @@ import org.springframework.web.server.ResponseStatusException;
 @SecurityRequirement(name = "security_auth")
 public class NegotiationController {
 
+  private NegotiationService negotiationService;
 
-    private NegotiationService negotiationService;
+  private NegotiationLifecycleService negotiationLifecycleService;
 
-    private NegotiationLifecycleService negotiationLifecycleService;
+  private ResourceLifecycleService resourceLifecycleService;
 
-    private ResourceLifecycleService resourceLifecycleService;
+  private PersonService personService;
 
-    private PersonService personService;
+  private final ResourceService resourceService;
 
-    private final ResourceService resourceService;
-
-    private final NegotiationModelAssembler assembler;
-    private final ResourceWithStatusAssembler resourceWithStatusAssembler;
+  private final NegotiationModelAssembler assembler;
+  private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
   public NegotiationController(
       NegotiationService negotiationService,
@@ -129,34 +127,33 @@ public class NegotiationController {
     return negotiationService.update(id, request);
   }
 
-    @PutMapping(
-            value = "/negotiations/{id}/transfer",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void transferOwnership(
-            @Valid @PathVariable String id, @Valid @RequestBody OwnershipTransferDTO request) {
-      if (!isCreator(negotiationService.findById(id, false))) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-      }
-
-      if (request.getNewOwnerId() == null) {
-        UserResponseModel newOwner = personService.findByEmail(request.getNewOwnerEmail());
-        request.setNewOwnerId( Long.parseLong(newOwner.getId()));
-      }
-      negotiationService.transferOwnership(id, request.getNewOwnerId());
+  @PutMapping(
+      value = "/negotiations/{id}/transfer",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void transferOwnership(
+      @Valid @PathVariable String id, @Valid @RequestBody OwnershipTransferDTO request) {
+    if (!isCreator(negotiationService.findById(id, false))) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-
-    private void checkNoUnknownParameters(
-            Enumeration<String> parameterNames, Set<String> allowedParams) {
-        while (parameterNames.hasMoreElements()) {
-            String paramName = parameterNames.nextElement();
-            if (!allowedParams.contains(paramName)) {
-                throw new WrongRequestException("Parameter %s is not allowed".formatted(paramName));
-            }
-        }
+    if (request.getNewOwnerId() == null) {
+      UserResponseModel newOwner = personService.findByEmail(request.getNewOwnerEmail());
+      request.setNewOwnerId(Long.parseLong(newOwner.getId()));
     }
+    negotiationService.transferOwnership(id, request.getNewOwnerId());
+  }
+
+  private void checkNoUnknownParameters(
+      Enumeration<String> parameterNames, Set<String> allowedParams) {
+    while (parameterNames.hasMoreElements()) {
+      String paramName = parameterNames.nextElement();
+      if (!allowedParams.contains(paramName)) {
+        throw new WrongRequestException("Parameter %s is not allowed".formatted(paramName));
+      }
+    }
+  }
 
   @GetMapping("/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> list(

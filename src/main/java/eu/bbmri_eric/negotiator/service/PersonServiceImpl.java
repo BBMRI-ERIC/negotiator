@@ -63,12 +63,11 @@ public class PersonServiceImpl implements PersonService {
   @Override
   public UserResponseModel findByEmail(String email) {
     Person person =
-            personRepository
-                    .findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException(email));
+        personRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
 
     return modelMapper.map(person, UserResponseModel.class);
   }
+
   @Override
   public Iterable<UserResponseModel> findAllByFilter(
       String property, String matchedValue, int page, int size) {
