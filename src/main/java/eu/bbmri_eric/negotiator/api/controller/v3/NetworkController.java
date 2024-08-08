@@ -49,8 +49,7 @@ public class NetworkController {
   private final NegotiationService negotiationService;
   private final NetworkModelAssembler networkModelAssembler;
   private final ResourceModelAssembler resourceModelAssembler;
-  private final NegotiationModelAssembler negotiationModelAssembler =
-      new NegotiationModelAssembler();
+  private final NegotiationModelAssembler negotiationModelAssembler;
   private final UserModelAssembler userModelAssembler;
   private final NetworkRepository networkRepository;
 
@@ -61,6 +60,7 @@ public class NetworkController {
       ResourceModelAssembler resourceModelAssembler,
       PersonService personService,
       NegotiationService negotiationService,
+      NegotiationModelAssembler negotiationModelAssembler,
       UserModelAssembler userModelAssembler,
       NetworkRepository networkRepository) {
     this.networkService = networkService;
@@ -69,6 +69,7 @@ public class NetworkController {
     this.resourceModelAssembler = resourceModelAssembler;
     this.personService = personService;
     this.negotiationService = negotiationService;
+    this.negotiationModelAssembler = negotiationModelAssembler;
     this.userModelAssembler = userModelAssembler;
     this.networkRepository = networkRepository;
   }

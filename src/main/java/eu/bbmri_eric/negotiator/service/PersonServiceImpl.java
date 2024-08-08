@@ -29,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,6 +58,14 @@ public class PersonServiceImpl implements PersonService {
 
   public UserResponseModel findById(Long id) {
     return modelMapper.map(getRepresentative(id), UserResponseModel.class);
+  }
+
+  @Override
+  public UserResponseModel findByEmail(String email) {
+    Person person =
+        personRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
+
+    return modelMapper.map(person, UserResponseModel.class);
   }
 
   @Override

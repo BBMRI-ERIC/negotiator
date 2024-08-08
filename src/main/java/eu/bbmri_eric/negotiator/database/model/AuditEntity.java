@@ -30,7 +30,7 @@ public abstract class AuditEntity {
   @LastModifiedDate @Exclude private LocalDateTime modifiedDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", updatable = false)
+  @JoinColumn(name = "created_by", updatable = true)
   @CreatedBy
   @Exclude
   private Person createdBy;

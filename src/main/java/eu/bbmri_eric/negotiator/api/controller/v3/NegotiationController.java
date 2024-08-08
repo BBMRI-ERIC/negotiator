@@ -9,6 +9,8 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.resource.Negotiation
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
+import eu.bbmri_eric.negotiator.dto.person.OwnershipTransferDTO;
+import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
@@ -123,6 +125,24 @@ public class NegotiationController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     return negotiationService.update(id, request);
+  }
+
+  @PutMapping(
+      value = "/negotiations/{id}/transfer",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void transferOwnership(
+      @Valid @PathVariable String id, @Valid @RequestBody OwnershipTransferDTO request) {
+    if (!isCreator(negotiationService.findById(id, false))) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+
+    if (request.getNewOwnerId() == null) {
+      UserResponseModel newOwner = personService.findByEmail(request.getNewOwnerEmail());
+      request.setNewOwnerId(Long.parseLong(newOwner.getId()));
+    }
+    negotiationService.transferOwnership(id, request.getNewOwnerId());
   }
 
   private void checkNoUnknownParameters(
@@ -241,6 +261,10 @@ public class NegotiationController {
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
     if (isAuthorizedForNegotiation(negotiationDTO)) {
+      if (negotiationService.isNegotiationCreator(id)
+          || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+        return assembler.toModelWithRequirementLink(negotiationDTO);
+      }
       return assembler.toModel(negotiationDTO);
     } else {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);

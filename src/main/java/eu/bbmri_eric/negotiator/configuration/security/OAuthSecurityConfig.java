@@ -179,6 +179,8 @@ public class OAuthSecurityConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/v3/info-requirements/**"))
                     .hasRole("ADMIN")
+                    .requestMatchers(mvc.pattern("/v3/info-submissions/**"))
+                    .authenticated()
                     .requestMatchers(mvc.pattern("/actuator/prometheus"))
                     // Needs to be IPv6 address
                     .access(

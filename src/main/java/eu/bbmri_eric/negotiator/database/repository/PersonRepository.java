@@ -19,6 +19,8 @@ public interface PersonRepository
 
   Optional<Person> findByName(String authName);
 
+  Optional<Person> findByEmail(String email);
+
   Page<Person> findAllByName(String name, Pageable pageable);
 
   Optional<Person> findBySubjectId(String authSubject);

@@ -32,5 +32,5 @@ public class ResourceWithStatusDTO {
 
   @Nullable private OrganizationDTO organization;
 
-  private NegotiationResourceState status;
+  private NegotiationResourceState currentState;
 }

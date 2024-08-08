@@ -4,20 +4,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.InformationRequirementController;
+import eu.bbmri_eric.negotiator.api.controller.v3.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.ResourceController;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
+import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
 import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.service.InformationRequirementService;
+import eu.bbmri_eric.negotiator.service.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.hateoas.CollectionModel;
@@ -34,77 +33,39 @@ public class ResourceWithStatusAssembler
         ResourceWithStatusDTO, EntityModel<ResourceWithStatusDTO>> {
   private final ResourceLifecycleService resourceLifecycleService;
   private final InformationRequirementService informationRequirementService;
-  private final Map<NegotiationResourceState, List<NegotiationResourceEvent>> cache =
-      new HashMap<>();
-  private final Map<NegotiationResourceEvent, List<InformationRequirementDTO>> requirementsCache =
-      new HashMap<>();
+  private final InformationSubmissionService informationSubmissionService;
+  private static List<InformationRequirementDTO> requirementsCache = new ArrayList<>();
+  private List<SubmittedInformationDTO> submittedInformationCache = new ArrayList<>();
 
   public ResourceWithStatusAssembler(
       ResourceLifecycleService resourceLifecycleService,
-      InformationRequirementService informationRequirementService) {
+      InformationRequirementService informationRequirementService,
+      InformationSubmissionService informationSubmissionService) {
     this.resourceLifecycleService = resourceLifecycleService;
     this.informationRequirementService = informationRequirementService;
+    this.informationSubmissionService = informationSubmissionService;
   }
 
   @Override
   public @NonNull EntityModel<ResourceWithStatusDTO> toModel(
       @NonNull ResourceWithStatusDTO entity) {
+    requirementsCache = informationRequirementService.getAllInformationRequirements();
+    submittedInformationCache =
+        informationSubmissionService.findAllForNegotiation(entity.getNegotiationId());
+    List<Link> links = addWebLinks(entity);
+    return EntityModel.of(entity).add(links);
+  }
+
+  private @NonNull List<Link> addWebLinks(@NonNull ResourceWithStatusDTO entity) {
     List<Link> links = new ArrayList<>();
     links.add(
         WebMvcLinkBuilder.linkTo(methodOn(ResourceController.class).getResourceById(entity.getId()))
             .withSelfRel());
     links.add(linkTo(ResourceController.class).withRel("resources"));
-    attachLifeCycleLinks(entity, links);
-    return EntityModel.of(entity).add(links);
-  }
-
-  private void attachLifeCycleLinks(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
-    try {
-      Set<NegotiationResourceEvent> events;
-      if (cache.containsKey(entity.getStatus())) {
-        events = cache.get(entity.getStatus()).stream().collect(Collectors.toUnmodifiableSet());
-      } else {
-        events =
-            resourceLifecycleService.getPossibleEvents(
-                entity.getNegotiationId(), entity.getSourceId());
-        cache.put(entity.getStatus(), new ArrayList<>(events));
-      }
-      for (NegotiationResourceEvent event : events) {
-        List<InformationRequirementDTO> requirements;
-        if (requirementsCache.containsKey(event)) {
-          requirements = requirementsCache.get(event);
-        } else {
-          requirements =
-              informationRequirementService.getAllInformationRequirements().stream()
-                  .filter(
-                      informationRequirementDTO ->
-                          informationRequirementDTO.getForResourceEvent().equals(event))
-                  .toList();
-          requirementsCache.put(event, requirements);
-          // log.warn(requirements);
-        }
-        for (InformationRequirementDTO dto : requirements) {
-          links.add(
-              linkTo(
-                      methodOn(InformationRequirementController.class)
-                          .findRequirementById(dto.getId()))
-                  .withRel("requirement-%s".formatted(dto.getId()))
-                  .withTitle("Requirement to fulfill")
-                  .withName(event.toString() + " requirement"));
-        }
-        links.add(
-            linkTo(
-                    methodOn(NegotiationController.class)
-                        .sendEventForNegotiationResource(
-                            entity.getNegotiationId(), entity.getSourceId(), event))
-                .withRel(event.toString())
-                .withTitle("Next Lifecycle event")
-                .withName(event.getLabel()));
-      }
-    } catch (Exception e) {
-      log.warn("Could not attach lifecycle links");
-      log.warn(e.getMessage());
-    }
+    addLifecycleLink(entity, links);
+    addSubmissionLinks(entity, links);
+    addRequirementLinks(links, entity.getId());
+    return links;
   }
 
   @Override
@@ -113,5 +74,86 @@ public class ResourceWithStatusAssembler
     return RepresentationModelAssembler.super
         .toCollectionModel(entities)
         .add(WebMvcLinkBuilder.linkTo(ResourceController.class).withRel("resources"));
+  }
+
+  private void addSubmissionLinks(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
+    try {
+      for (SubmittedInformationDTO info : submittedInformationCache) {
+        addSubmissionLink(entity, links, info);
+      }
+    } catch (Exception e) {
+      log.error("Could not attach submission links: " + e.getMessage());
+    }
+  }
+
+  private static void addSubmissionLink(
+      @NonNull ResourceWithStatusDTO entity, List<Link> links, SubmittedInformationDTO info) {
+    if (info.getResourceId().equals(entity.getId())) {
+      String name =
+          requirementsCache.stream()
+              .filter(dto -> dto.getId().equals(info.getRequirementId()))
+              .findFirst()
+              .get()
+              .getRequiredAccessForm()
+              .getName();
+      links.add(
+          linkTo(methodOn(InformationSubmissionController.class).getInfoSubmission(info.getId()))
+              .withRel("submission-%s".formatted(info.getId()))
+              .withTitle("Submitted Information")
+              .withName(name));
+    }
+  }
+
+  private void addRequirementLinks(List<Link> links, Long resourceId) {
+    try {
+      for (InformationRequirementDTO dto : requirementsCache) {
+        addRequirementLink(links, resourceId, dto);
+      }
+    } catch (Exception e) {
+      log.error("Could not attach requirement links: " + e.getMessage());
+    }
+  }
+
+  private void addRequirementLink(
+      List<Link> links, Long resourceId, InformationRequirementDTO dto) {
+    if (submittedInformationCache.stream()
+            .noneMatch(
+                i ->
+                    i.getResourceId().equals(resourceId)
+                        && i.getRequirementId().equals(dto.getId()))
+        && links.stream()
+            .anyMatch(
+                link -> link.getRel().toString().equals(dto.getForResourceEvent().toString()))) {
+      links.add(
+          linkTo(methodOn(InformationRequirementController.class).findRequirementById(dto.getId()))
+              .withRel("requirement-%s".formatted(dto.getId()))
+              .withTitle(dto.getRequiredAccessForm().getName())
+              .withName(dto.getForResourceEvent().toString() + " requirement"));
+    }
+  }
+
+  private void addLifecycleLink(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
+    try {
+      Set<NegotiationResourceEvent> events =
+          resourceLifecycleService.getPossibleEvents(
+              entity.getNegotiationId(), entity.getSourceId());
+      for (NegotiationResourceEvent event : events) {
+        addLifecycleEventLink(entity, event, links);
+      }
+    } catch (Exception e) {
+      log.error("Could not attach lifecycle links: " + e.getMessage());
+    }
+  }
+
+  private static void addLifecycleEventLink(
+      @NonNull ResourceWithStatusDTO entity, NegotiationResourceEvent event, List<Link> links) {
+    links.add(
+        linkTo(
+                methodOn(NegotiationController.class)
+                    .sendEventForNegotiationResource(
+                        entity.getNegotiationId(), entity.getSourceId(), event))
+            .withRel(event.toString())
+            .withTitle("Next Lifecycle event")
+            .withName(event.getLabel()));
   }
 }
