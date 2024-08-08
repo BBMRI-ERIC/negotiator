@@ -11,6 +11,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @CommonsLog
 @Component
@@ -35,9 +36,15 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
     try {
       discoveryServiceSyncClient.syncAllOrganizations();
       discoveryServiceSyncClient.syncAllResources();
+      discoveryServiceSyncClient.syncAllNetworks();
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
     } catch (EntityNotStorableException e) {
-      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);
+      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
+    } catch (WebClientResponseException e) {
+      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+      discoveryServiceSynchronizationJobRepository.save(savedJob);
     }
   }
 }

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
-import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisBiobank;
+import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisCollection;
 import java.util.Optional;
 
 public interface MolgenisService {

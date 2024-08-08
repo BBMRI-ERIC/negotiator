@@ -5,5 +5,6 @@ public enum DiscoveryServiceSyncronizationJobStatus {
   PROCESSED,
   IN_PROGRESS,
   FAILED,
-  COMPLETED
+  COMPLETED,
+  COMPLETED_WITH_ERRORS
 }
