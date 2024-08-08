@@ -90,7 +90,7 @@
                     </execution>
                 </executions>
                 <groupId>org.springframework.boot</groupId>
-                <version>3.2.5</version>
+                <version>3.3.2</version>
             </plugin>
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
