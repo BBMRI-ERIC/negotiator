@@ -98,7 +98,7 @@ public class NegotiationModelMapper {
             .organization(modelMapper.map(resource.getOrganization(), OrganizationDTO.class));
     NegotiationResourceState state = statePerResource.get(resource.getSourceId());
     if (state != null) {
-      builder.status(state);
+      builder.currentState(state);
     }
     return builder.build();
   }

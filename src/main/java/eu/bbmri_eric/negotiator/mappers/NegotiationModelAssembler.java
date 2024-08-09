@@ -4,11 +4,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.api.controller.v3.AttachmentController;
+import eu.bbmri_eric.negotiator.api.controller.v3.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NegotiationController;
 import eu.bbmri_eric.negotiator.api.controller.v3.NetworkController;
 import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
+import eu.bbmri_eric.negotiator.dto.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
+import eu.bbmri_eric.negotiator.service.InformationRequirementService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +29,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
-  public NegotiationModelAssembler() {}
+  private final InformationRequirementService requirementService;
+
+  public NegotiationModelAssembler(InformationRequirementService requirementService) {
+    this.requirementService = requirementService;
+  }
+
+  public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
+      @NonNull NegotiationDTO entity) {
+    EntityModel<NegotiationDTO> entityModel = toModel(entity);
+    for (InformationRequirementDTO requirement :
+        requirementService.getAllInformationRequirements()) {
+      entityModel.add(
+          WebMvcLinkBuilder.linkTo(
+                  methodOn(InformationSubmissionController.class)
+                      .getSummaryInformation(entity.getId(), requirement.getId()))
+              .withRel("Requirement summary %s".formatted(requirement.getId()))
+              .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
+    }
+    return entityModel;
+  }
 
   @Override
   public @NonNull EntityModel<NegotiationDTO> toModel(@NonNull NegotiationDTO entity) {

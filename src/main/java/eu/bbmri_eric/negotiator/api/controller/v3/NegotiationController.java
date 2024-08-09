@@ -241,6 +241,10 @@ public class NegotiationController {
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
     if (isAuthorizedForNegotiation(negotiationDTO)) {
+      if (negotiationService.isNegotiationCreator(id)
+          || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+        return assembler.toModelWithRequirementLink(negotiationDTO);
+      }
       return assembler.toModel(negotiationDTO);
     } else {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);

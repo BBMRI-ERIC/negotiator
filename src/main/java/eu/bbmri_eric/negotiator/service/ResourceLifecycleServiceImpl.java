@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetail
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.repository.InformationRequirementRepository;
+import eu.bbmri_eric.negotiator.database.repository.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
@@ -32,6 +33,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private final NegotiationRepository negotiationRepository;
   private final InformationRequirementRepository requirementRepository;
+  private final InformationSubmissionRepository requirementSubmissionRepository;
 
   private final PersistStateMachineHandler persistStateMachineHandler;
 
@@ -42,11 +44,13 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   public ResourceLifecycleServiceImpl(
       NegotiationRepository negotiationRepository,
       InformationRequirementRepository requirementRepository,
+      InformationSubmissionRepository requirementSubmissionRepository,
       @Qualifier("resourcePersistHandler") PersistStateMachineHandler persistStateMachineHandler,
       @Qualifier("resourceStateMachine") StateMachine<String, String> stateMachine,
       PersonService personService) {
     this.negotiationRepository = negotiationRepository;
     this.requirementRepository = requirementRepository;
+    this.requirementSubmissionRepository = requirementSubmissionRepository;
     this.persistStateMachineHandler = persistStateMachineHandler;
     this.stateMachine = stateMachine;
     this.personService = personService;
@@ -97,7 +101,9 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   public NegotiationResourceState sendEvent(
       String negotiationId, String resourceId, NegotiationResourceEvent negotiationResourceEvent)
       throws WrongRequestException, EntityNotFoundException {
-    if (requirementRepository.existsByForEvent(negotiationResourceEvent)) {
+    if (requirementRepository.existsByForEvent(negotiationResourceEvent)
+        && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
+            resourceId, negotiationId)) {
       throw new StateMachineException(
           "The requirement for this operation was not met. Please make sure you have submitted the required form and try again.");
     }
