@@ -104,7 +104,6 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     if (requirementRepository.existsByForEvent(negotiationResourceEvent)
         && !requirementSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resourceId, negotiationId)) {
-      log.warn("Req not met");
       throw new StateMachineException(
           "The requirement for this operation was not met. Please make sure you have submitted the required form and try again.");
     }
