@@ -123,8 +123,6 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private NegotiationResourceState getCurrentStateForResource(
       String negotiationId, String resourceId) throws EntityNotFoundException {
-    log.info(negotiationId);
-    log.info(resourceId);
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
