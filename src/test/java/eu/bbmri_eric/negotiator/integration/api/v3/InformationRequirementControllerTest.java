@@ -75,13 +75,13 @@ public class InformationRequirementControllerTest {
   @Test
   void createInformationRequirement_notAdmin_403() throws Exception {
     InformationRequirementCreateDTO createDTO =
-            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     mockMvc
-            .perform(
-                    MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(new ObjectMapper().writeValueAsString(createDTO)))
-            .andExpect(status().isUnauthorized());
+        .perform(
+            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -97,6 +97,34 @@ public class InformationRequirementControllerTest {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void createInformationRequirement_onlyForAdmin_ok() throws Exception {
+    InformationRequirementCreateDTO createDTO =
+        new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT, false);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
+        .andExpect(jsonPath("$.viewableOnlyByAdmin", is(false)))
+        .andExpect(jsonPath("$._links").isNotEmpty());
+    createDTO = new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(createDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
+        .andExpect(jsonPath("$.viewableOnlyByAdmin", is(true)))
         .andExpect(jsonPath("$._links").isNotEmpty());
   }
 

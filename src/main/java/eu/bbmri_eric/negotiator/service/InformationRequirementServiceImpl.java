@@ -35,7 +35,8 @@ public class InformationRequirementServiceImpl implements InformationRequirement
     validateInformationRequirementCreateDTO(createDTO);
     AccessForm accessForm = findAccessFormById(createDTO.getRequiredAccessFormId());
     InformationRequirement requirement =
-        new InformationRequirement(accessForm, createDTO.getForResourceEvent());
+        new InformationRequirement(
+            accessForm, createDTO.getForResourceEvent(), createDTO.isViewableOnlyByAdmin());
     return mapToDTO(requirementRepository.save(requirement));
   }
 
