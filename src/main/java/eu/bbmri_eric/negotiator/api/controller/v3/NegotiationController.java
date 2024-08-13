@@ -240,10 +240,10 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}")
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
+    boolean isAdmin = NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
     if (isAuthorizedForNegotiation(negotiationDTO)) {
-      if (negotiationService.isNegotiationCreator(id)
-          || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
-        return assembler.toModelWithRequirementLink(negotiationDTO);
+      if (negotiationService.isNegotiationCreator(id) || isAdmin) {
+        return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
       }
       return assembler.toModel(negotiationDTO);
     } else {

@@ -36,10 +36,13 @@ public class NegotiationModelAssembler
   }
 
   public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
-      @NonNull NegotiationDTO entity) {
+      @NonNull NegotiationDTO entity, boolean isAdmin) {
     EntityModel<NegotiationDTO> entityModel = toModel(entity);
     for (InformationRequirementDTO requirement :
         requirementService.getAllInformationRequirements()) {
+      if (requirement.isViewableOnlyByAdmin() && !isAdmin) {
+        continue;
+      }
       entityModel.add(
           WebMvcLinkBuilder.linkTo(
                   methodOn(InformationSubmissionController.class)

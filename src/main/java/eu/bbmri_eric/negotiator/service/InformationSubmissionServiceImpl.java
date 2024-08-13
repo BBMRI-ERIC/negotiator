@@ -115,15 +115,18 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     if (negotiationRepository.existsByIdAndCreatedBy_Id(
             negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
         || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+      InformationRequirement requirement =
+          informationRequirementRepository
+              .findById(requirementId)
+              .orElseThrow(() -> new EntityNotFoundException(requirementId));
+      if (requirement.isViewableOnlyByAdmin()
+          && !NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+        throw new ForbiddenRequestException("You are not authorized to perform this action");
+      }
       List<InformationSubmission> allSubmissions =
           informationSubmissionRepository.findAllByRequirement_IdAndNegotiation_Id(
               requirementId, negotiationId);
-      String name =
-          informationRequirementRepository
-              .findById(requirementId)
-              .orElseThrow(() -> new EntityNotFoundException(requirementId))
-              .getRequiredAccessForm()
-              .getName();
+      String name = requirement.getRequiredAccessForm().getName();
       return generateCSVFile(allSubmissions, "%s-summary.csv".formatted(name));
     }
     throw new ForbiddenRequestException("You are not authorized to perform this action");

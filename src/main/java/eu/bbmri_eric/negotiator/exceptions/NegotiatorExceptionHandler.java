@@ -28,11 +28,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 @CommonsLog
-public class NegotiatorExceptionHandler {
+public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
@@ -69,21 +69,6 @@ public class NegotiatorExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public final ResponseEntity<HttpErrorResponseModel> handleRequestValidationException(
-      MethodArgumentNotValidException ex, WebRequest request) {
-    String result = getErrorDetails(ex);
-    HttpErrorResponseModel errorResponse =
-        HttpErrorResponseModel.builder()
-            .title("Incorrect parameters")
-            .detail(result)
-            .status(HttpStatus.BAD_REQUEST.value())
-            .build();
-
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   private static @NonNull String getErrorDetails(MethodArgumentNotValidException ex) {
@@ -179,8 +164,7 @@ public class NegotiatorExceptionHandler {
   @ExceptionHandler({
     EntityNotStorableException.class,
     WrongRequestException.class,
-    ConstraintViolationException.class,
-    MaxUploadSizeExceededException.class
+    ConstraintViolationException.class
   })
   public final ResponseEntity<HttpErrorResponseModel> handleBadRequestExceptions(
       RuntimeException ex, WebRequest request) {

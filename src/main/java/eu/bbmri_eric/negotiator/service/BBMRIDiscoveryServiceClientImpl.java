@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
@@ -102,8 +103,8 @@ public class BBMRIDiscoveryServiceClientImpl implements DiscoveryServiceClient {
       } else {
         log.debug(
             String.format("Collection %s already present, check for updates...", coll.getId()));
-        if (!resource.get().getName().equals(coll.getName())
-            || !resource.get().getDescription().equals((coll.getDescription()))) {
+        if (!Objects.equals(resource.get().getName(), coll.getName())
+            || !Objects.equals(resource.get().getDescription(), coll.getDescription())) {
           updateResourceNameAndDescription(resource.get(), coll);
         }
       }

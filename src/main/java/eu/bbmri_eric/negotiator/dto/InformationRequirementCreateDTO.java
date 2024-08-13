@@ -12,9 +12,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class InformationRequirementCreateDTO {
+
+  public InformationRequirementCreateDTO(
+      Long requiredAccessFormId, NegotiationResourceEvent forResourceEvent) {
+    this.requiredAccessFormId = requiredAccessFormId;
+    this.forResourceEvent = forResourceEvent;
+  }
+
   @NotNull(message = "requiredAccessFormId must not be null")
   private Long requiredAccessFormId;
 
   @NotNull(message = "forResourceEvent must not be null")
   private NegotiationResourceEvent forResourceEvent;
+
+  private boolean isViewableOnlyByAdmin = true;
 }

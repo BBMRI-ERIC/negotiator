@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.database.model;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,6 +27,9 @@ public class InformationRequirement {
   @Enumerated(EnumType.STRING)
   private NegotiationResourceEvent forEvent;
 
+  @Column(columnDefinition = "boolean default true")
+  private boolean isViewableOnlyByAdmin = true;
+
   protected InformationRequirement() {}
 
   public InformationRequirement(
@@ -33,6 +37,15 @@ public class InformationRequirement {
     this.id = id;
     this.requiredAccessForm = requiredAccessForm;
     this.forEvent = forEvent;
+  }
+
+  public InformationRequirement(
+      AccessForm requiredAccessForm,
+      NegotiationResourceEvent forEvent,
+      Boolean isViewableOnlyByAdmin) {
+    this.requiredAccessForm = requiredAccessForm;
+    this.forEvent = forEvent;
+    this.isViewableOnlyByAdmin = isViewableOnlyByAdmin;
   }
 
   public InformationRequirement(AccessForm requiredAccessForm, NegotiationResourceEvent forEvent) {
