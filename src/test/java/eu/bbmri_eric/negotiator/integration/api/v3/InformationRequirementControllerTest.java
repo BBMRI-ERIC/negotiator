@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -55,11 +56,11 @@ public class InformationRequirementControllerTest {
 
   @BeforeEach
   void setup(WebApplicationContext wac) {
-    this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void createInformationRequirement_null_returns400() throws Exception {
     InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(null, null);
     mockMvc
@@ -68,11 +69,23 @@ public class InformationRequirementControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.title", is("Incorrect parameters")));
+        .andExpect(jsonPath("$.title", is("Bad Request")));
   }
 
   @Test
-  @WithMockUser
+  void createInformationRequirement_notAdmin_403() throws Exception {
+    InformationRequirementCreateDTO createDTO =
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writeValueAsString(createDTO)))
+            .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void createInformationRequirement_correctBody_ok() throws Exception {
     InformationRequirementCreateDTO createDTO =
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
@@ -88,7 +101,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void deleteInformationRequirement_existingId_ok() throws Exception {
     InformationRequirementCreateDTO createDTO =
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
@@ -105,7 +118,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void deleteInformationRequirement_nonExistingId_notFound() throws Exception {
     long nonExistingId = 999L;
     mockMvc
@@ -114,7 +127,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void updateRequirement_null_returns400() throws Exception {
     InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(null, null);
     mockMvc
@@ -123,11 +136,11 @@ public class InformationRequirementControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.title", is("Incorrect parameters")));
+        .andExpect(jsonPath("$.title", is("Bad Request")));
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void updateRequirement_correctBody_ok() throws Exception {
     InformationRequirementCreateDTO createDTO =
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
@@ -166,7 +179,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void findAllRequirements_twoExist_returnsArrayWithTwoElements() throws Exception {
     InformationRequirementCreateDTO createDTO1 =
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
@@ -194,7 +207,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void updateRequirement_nonExistingId_notFound() throws Exception {
     InformationRequirementCreateDTO createDTO =
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
@@ -207,7 +220,7 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   void findRequirementById_existingId_ok() throws Exception {
     InformationRequirementCreateDTO createDTO =
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
