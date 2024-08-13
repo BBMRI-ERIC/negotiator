@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceDTO;
 import eu.bbmri_eric.negotiator.dto.syncjobservice.DiscoverySyncJobServiceDTO;
 import eu.bbmri_eric.negotiator.service.DiscoveryServiceService;
 import eu.bbmri_eric.negotiator.service.DiscoverySynchronizationJobService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v3")
 @Validated
 @Tag(name = "Discovery services", description = "Manage connected discovery services")
+@SecurityRequirement(name = "security_auth")
 public class DiscoverServiceController {
 
   @Autowired private DiscoveryServiceService discoveryServiceService;
