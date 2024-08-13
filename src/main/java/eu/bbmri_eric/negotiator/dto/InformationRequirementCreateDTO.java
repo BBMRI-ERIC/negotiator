@@ -21,6 +21,7 @@ public class InformationRequirementCreateDTO {
 
   @NotNull(message = "requiredAccessFormId must not be null")
   private Long requiredAccessFormId;
+
   @NotNull(message = "forResourceEvent must not be null")
   private NegotiationResourceEvent forResourceEvent;
 
