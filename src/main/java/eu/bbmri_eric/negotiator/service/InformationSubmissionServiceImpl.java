@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -94,9 +95,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
 
   private void verifyReadAuthorization(InformationSubmission submission) {
     if (!isAuthorizedToRead(
-        submission.getNegotiation().getId(),
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        submission.getResource().getId())) {
+        submission, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())) {
       throw new ForbiddenRequestException("You are not authorized to perform this action");
     }
   }
@@ -257,9 +256,19 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     return false;
   }
 
-  private boolean isAuthorizedToRead(String negotiationId, Long personId, Long resourceId) {
-    return isAuthorizedToWrite(personId, resourceId)
-        || negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, personId);
+  private boolean isAuthorizedToRead(InformationSubmission submission, Long personId) {
+    if (isOnlyForAdmin(submission)) {
+      return false;
+    }
+    return isAuthorizedToWrite(personId, submission.getResource().getId())
+        || negotiationRepository.existsByIdAndCreatedBy_Id(
+            submission.getNegotiation().getId(), personId);
+  }
+
+  private static boolean isOnlyForAdmin(InformationSubmission submission) {
+    return Objects.nonNull(submission.getRequirement())
+        && submission.getRequirement().isViewableOnlyByAdmin()
+        && !NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private @NonNull InformationSubmission buildSubmissionEntity(
