@@ -29,6 +29,11 @@ spring:
     port: 1025
     username: "user"
     password: "pass"
+    properties:
+      debug: true
+      starttls: false
+      auth: true
+    protocol: "smtp"
   application:
     name: "Negotiator"
   jackson:
