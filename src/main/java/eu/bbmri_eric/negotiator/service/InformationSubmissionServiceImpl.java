@@ -257,18 +257,19 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   }
 
   private boolean isAuthorizedToRead(InformationSubmission submission, Long personId) {
-    if (isOnlyForAdmin(submission)) {
-      return false;
+    boolean isRepresentative = isAuthorizedToWrite(personId, submission.getResource().getId());
+    if (isOnlyForAdmin(submission)
+        && (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin() || isRepresentative)) {
+      return true;
     }
-    return isAuthorizedToWrite(personId, submission.getResource().getId())
+    return isRepresentative
         || negotiationRepository.existsByIdAndCreatedBy_Id(
             submission.getNegotiation().getId(), personId);
   }
 
-  private static boolean isOnlyForAdmin(InformationSubmission submission) {
-    return Objects.nonNull(submission.getRequirement())
-        && submission.getRequirement().isViewableOnlyByAdmin()
-        && !NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+  private boolean isOnlyForAdmin(InformationSubmission submission) {
+    return (Objects.nonNull(submission.getRequirement())
+        && submission.getRequirement().isViewableOnlyByAdmin());
   }
 
   private @NonNull InformationSubmission buildSubmissionEntity(
