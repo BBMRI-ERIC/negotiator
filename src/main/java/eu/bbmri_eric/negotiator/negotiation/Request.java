@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

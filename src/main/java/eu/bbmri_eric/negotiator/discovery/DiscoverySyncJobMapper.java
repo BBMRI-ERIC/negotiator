@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.discovery_service;
+package eu.bbmri_eric.negotiator.discovery;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;

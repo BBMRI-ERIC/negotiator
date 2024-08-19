@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.discovery_service;
+package eu.bbmri_eric.negotiator.discovery;
 
 import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
 import jakarta.persistence.Column;

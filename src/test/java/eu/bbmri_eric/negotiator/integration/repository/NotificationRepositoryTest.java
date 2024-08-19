@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;

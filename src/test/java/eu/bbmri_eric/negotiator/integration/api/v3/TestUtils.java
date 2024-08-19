@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;

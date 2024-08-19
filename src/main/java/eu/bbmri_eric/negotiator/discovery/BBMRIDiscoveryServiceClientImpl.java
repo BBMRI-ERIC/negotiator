@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.discovery_service;
+package eu.bbmri_eric.negotiator.discovery;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

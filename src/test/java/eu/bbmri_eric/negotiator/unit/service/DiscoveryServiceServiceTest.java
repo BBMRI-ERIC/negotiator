@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceCreateDTO;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceServiceImpl;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

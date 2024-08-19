@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.discovery_service;
+package eu.bbmri_eric.negotiator.discovery;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
