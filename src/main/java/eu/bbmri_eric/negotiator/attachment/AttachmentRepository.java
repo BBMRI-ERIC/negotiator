@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AttachmentRepository extends JpaRepository<Attachment, String> {
   @Query(
-      "SELECT new eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO("
+      "SELECT new eu.bbmri_eric.negotiator.attachment.MetadataAttachmentViewDTO("
           + "a.id, a.name, a.size, a.contentType, o.id, o.externalId, a.negotiation.id, a.createdBy.id) "
           + "FROM Attachment a "
           + "LEFT JOIN a.organization o "
@@ -17,7 +17,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, String> 
   List<MetadataAttachmentViewDTO> findByNegotiationId(String negotiationId);
 
   @Query(
-      "SELECT new eu.bbmri_eric.negotiator.database.model.views.AttachmentViewDTO("
+      "SELECT new eu.bbmri_eric.negotiator.attachment.AttachmentViewDTO("
           + "a.id, a.name, a.size, a.contentType, a.payload, o.id, o.externalId, a.negotiation.id, a.createdBy.id) "
           + "FROM Attachment a "
           + "LEFT JOIN a.organization o "
@@ -25,7 +25,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, String> 
   Optional<AttachmentViewDTO> findAllById(String attachmentId);
 
   @Query(
-      "SELECT new eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO("
+      "SELECT new eu.bbmri_eric.negotiator.attachment.MetadataAttachmentViewDTO("
           + "a.id, a.name, a.size, a.contentType, o.id, o.externalId, a.negotiation.id, a.createdBy.id) "
           + "FROM Attachment a "
           + "LEFT JOIN a.organization o "
@@ -34,7 +34,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, String> 
       String attachmentId, String negotiationId);
 
   @Query(
-      "SELECT new eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO("
+      "SELECT new eu.bbmri_eric.negotiator.attachment.MetadataAttachmentViewDTO("
           + "a.id, a.name, a.size, a.contentType, o.id, o.externalId, a.negotiation.id, a.createdBy.id) "
           + "FROM Attachment a "
           + "LEFT JOIN a.organization o "
