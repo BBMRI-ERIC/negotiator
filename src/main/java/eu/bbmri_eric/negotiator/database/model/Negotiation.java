@@ -75,10 +75,10 @@ public class Negotiation extends AuditEntity {
   @Exclude
   private Set<Request> requests;
 
-  @Formula(value = "JSON_EXTRACT_PATH(payload::json, 'project', 'title')")
+  @Formula(value = "JSONB_EXTRACT_PATH(payload::jsonb, 'project', 'title')")
   private String title;
 
-  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @JdbcTypeCode(SqlTypes.JSON)
   private String payload;
 
   private boolean publicPostsEnabled = true;
