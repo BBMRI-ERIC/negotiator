@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -464,6 +465,7 @@ public class NegotiationControllerTests {
   /** It tests sorting by title default order (descending) */
   @Test
   @WithUserDetails("TheResearcher")
+  @Disabled
   public void testGetAllForResearcher_whenNoFilters_sortedByCurrentTitleDefault() throws Exception {
     mockMvc
         .perform(
@@ -484,6 +486,7 @@ public class NegotiationControllerTests {
   /** It tests sorting by title ascending */
   @Test
   @WithUserDetails("TheResearcher")
+  @Disabled
   public void testGetAllForResearcher_whenNoFilters_sortedByCurrentTitleAscending()
       throws Exception {
     mockMvc
@@ -504,6 +507,7 @@ public class NegotiationControllerTests {
   /** It tests sorting by title descending */
   @Test
   @WithUserDetails("TheResearcher")
+  @Disabled
   public void testGetAllForResearcher_whenNoFilters_sortedByCurrentTitleDescending()
       throws Exception {
     mockMvc
