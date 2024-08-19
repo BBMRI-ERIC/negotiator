@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
+import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.user.Person;

@@ -9,13 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.negotiation.QueryV2Controller;
+import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.QueryV2Controller;
 import eu.bbmri_eric.negotiator.negotiation.RequestRepository;
+import eu.bbmri_eric.negotiator.negotiation.RequestServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.dto.CollectionV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.QueryCreateV2DTO;
-import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
-import eu.bbmri_eric.negotiator.negotiation.RequestServiceImpl;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;

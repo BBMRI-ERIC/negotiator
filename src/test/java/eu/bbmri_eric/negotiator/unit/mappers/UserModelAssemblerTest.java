@@ -3,8 +3,8 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import eu.bbmri_eric.negotiator.user.UserModelAssembler;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.EntityModel;
 

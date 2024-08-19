@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
+import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;

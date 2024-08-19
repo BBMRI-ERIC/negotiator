@@ -6,7 +6,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRole;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
