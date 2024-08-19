@@ -2,6 +2,10 @@ package eu.bbmri_eric.negotiator.discovery;
 
 import eu.bbmri_eric.negotiator.common.ValidationGroups.Create;
 import eu.bbmri_eric.negotiator.common.ValidationGroups.Update;
+import eu.bbmri_eric.negotiator.discovery.dto.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.discovery.dto.DiscoveryServiceDTO;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoverySyncJobServiceDTO;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoverySynchronizationJobService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

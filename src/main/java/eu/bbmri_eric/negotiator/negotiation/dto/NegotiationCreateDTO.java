@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import eu.bbmri_eric.negotiator.attachment.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

@@ -2,12 +2,12 @@ package eu.bbmri_eric.negotiator.negotiation.mappers;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
-import eu.bbmri_eric.negotiator.negotiation.Request;
 import eu.bbmri_eric.negotiator.negotiation.dto.CollectionV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.QueryCreateV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.QueryV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
+import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import jakarta.annotation.PostConstruct;
 import java.util.Set;
 import java.util.stream.Collectors;

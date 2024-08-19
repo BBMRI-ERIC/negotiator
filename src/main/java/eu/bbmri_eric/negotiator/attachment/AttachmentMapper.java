@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.attachment;
 
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;

@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.info_requirement;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.form.AccessForm;
-import eu.bbmri_eric.negotiator.form.AccessFormRepository;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;

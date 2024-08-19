@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.attachment;
 
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

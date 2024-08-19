@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
-import eu.bbmri_eric.negotiator.form.AccessFormElementRepository;
-import eu.bbmri_eric.negotiator.form.AccessFormRepository;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
-import eu.bbmri_eric.negotiator.form.AccessFormSectionRepository;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormSectionRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

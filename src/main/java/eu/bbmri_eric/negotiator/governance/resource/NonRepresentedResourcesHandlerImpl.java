@@ -2,10 +2,10 @@ package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;

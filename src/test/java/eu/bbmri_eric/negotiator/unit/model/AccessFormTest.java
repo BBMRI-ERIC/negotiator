@@ -8,7 +8,7 @@ import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
 import eu.bbmri_eric.negotiator.form.FormElementType;
-import eu.bbmri_eric.negotiator.form.ValueSet;
+import eu.bbmri_eric.negotiator.form.value_set.ValueSet;
 import org.junit.jupiter.api.Test;
 
 public class AccessFormTest {

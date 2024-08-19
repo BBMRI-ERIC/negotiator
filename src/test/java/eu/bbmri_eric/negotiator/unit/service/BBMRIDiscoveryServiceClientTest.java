@@ -9,11 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import eu.bbmri_eric.negotiator.discovery.BBMRIDiscoveryServiceClientImpl;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DirectoryClient;
 import eu.bbmri_eric.negotiator.form.AccessForm;
-import eu.bbmri_eric.negotiator.form.AccessFormRepository;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -60,7 +60,7 @@ public class BBMRIDiscoveryServiceClientTest {
 
   @Mock private ResponseSpec responseSpec;
 
-  @InjectMocks private BBMRIDiscoveryServiceClientImpl discoveryService;
+  @InjectMocks private DirectoryClient discoveryService;
 
   private AutoCloseable closeable;
 

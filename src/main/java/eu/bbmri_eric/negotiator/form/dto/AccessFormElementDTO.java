@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.form.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri_eric.negotiator.form.FormElementType;
-import eu.bbmri_eric.negotiator.form.ValueSetDTO;
+import eu.bbmri_eric.negotiator.form.value_set.ValueSetDTO;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AccessLevel;

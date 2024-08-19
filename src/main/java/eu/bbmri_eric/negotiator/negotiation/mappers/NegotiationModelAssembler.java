@@ -7,7 +7,7 @@ import eu.bbmri_eric.negotiator.attachment.AttachmentController;
 import eu.bbmri_eric.negotiator.governance.network.NetworkController;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
-import eu.bbmri_eric.negotiator.info_requirement.InformationSubmissionController;
+import eu.bbmri_eric.negotiator.info_requirement.submit.InformationSubmissionController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;

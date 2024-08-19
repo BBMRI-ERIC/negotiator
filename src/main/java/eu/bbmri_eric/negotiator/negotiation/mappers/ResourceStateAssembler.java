@@ -4,7 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceStateMetadataDto;
-import eu.bbmri_eric.negotiator.negotiation.ResourceLifecycleController;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleController;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;

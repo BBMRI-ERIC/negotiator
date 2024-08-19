@@ -15,9 +15,9 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementServiceImpl;
-import eu.bbmri_eric.negotiator.info_requirement.InformationSubmission;
-import eu.bbmri_eric.negotiator.info_requirement.InformationSubmissionDTO;
-import eu.bbmri_eric.negotiator.info_requirement.InformationSubmissionRepository;
+import eu.bbmri_eric.negotiator.info_requirement.submit.InformationSubmission;
+import eu.bbmri_eric.negotiator.info_requirement.submit.InformationSubmissionDTO;
+import eu.bbmri_eric.negotiator.info_requirement.submit.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;

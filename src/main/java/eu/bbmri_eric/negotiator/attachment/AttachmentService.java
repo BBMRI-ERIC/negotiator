@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.attachment;
 
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import java.util.List;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;

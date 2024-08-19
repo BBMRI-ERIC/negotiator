@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.discovery;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.discovery.dto.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.discovery.dto.DiscoveryServiceDTO;
 import java.util.List;
 
 public interface DiscoveryServiceService {
