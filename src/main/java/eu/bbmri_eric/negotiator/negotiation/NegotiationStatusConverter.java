@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;

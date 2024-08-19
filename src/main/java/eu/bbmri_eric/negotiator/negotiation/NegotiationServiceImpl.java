@@ -2,14 +2,14 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentMetadataDTO;
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.shared.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.Person;

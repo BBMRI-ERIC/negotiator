@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.discovery_service;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;

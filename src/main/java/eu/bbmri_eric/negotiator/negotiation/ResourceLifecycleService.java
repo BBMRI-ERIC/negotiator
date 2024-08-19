@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;

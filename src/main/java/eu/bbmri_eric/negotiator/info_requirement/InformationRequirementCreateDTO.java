@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.info_requirement;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

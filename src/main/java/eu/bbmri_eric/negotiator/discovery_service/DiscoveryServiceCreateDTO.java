@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.discovery_service;
 
-import eu.bbmri_eric.negotiator.shared.ValidationGroups;
+import eu.bbmri_eric.negotiator.common.ValidationGroups;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

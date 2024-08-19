@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.form;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.form.dto.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionMetaDTO;
 import java.util.List;

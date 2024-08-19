@@ -1,8 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -10,7 +8,9 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
-import eu.bbmri_eric.negotiator.shared.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;

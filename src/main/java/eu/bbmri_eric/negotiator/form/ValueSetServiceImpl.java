@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.form;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.modelmapper.ModelMapper;

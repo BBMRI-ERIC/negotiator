@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
 import java.util.List;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ public interface RequestService {
    *
    * @param requestBody a RequestCreateDTO with the data of the request to create
    * @return a RequestDTO with the data of the newly created request
-   * @throws eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException if some error
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException if some error
    *     occurs when creating the Request
    */
   RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException;
@@ -31,7 +31,7 @@ public interface RequestService {
    *
    * @param id the id of the request to retrieve
    * @return a RequestDTO with the data of the request
-   * @throws eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException if the request is
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException if the request is
    *     not found
    */
   RequestDTO findById(String id) throws EntityNotFoundException;

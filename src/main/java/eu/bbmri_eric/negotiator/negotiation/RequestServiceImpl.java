@@ -1,14 +1,12 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.discovery_service.MolgenisService;
 import eu.bbmri_eric.negotiator.discovery_service.MolgenisServiceImplementation;
-import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.shared.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.form.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
@@ -16,6 +14,8 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
 import jakarta.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;

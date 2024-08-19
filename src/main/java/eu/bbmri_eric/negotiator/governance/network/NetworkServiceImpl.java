@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.shared.exceptions.UserNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.user.Person;

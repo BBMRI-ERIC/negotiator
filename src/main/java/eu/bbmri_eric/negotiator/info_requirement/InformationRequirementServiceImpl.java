@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.info_requirement;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormRepository;
 import jakarta.transaction.Transactional;

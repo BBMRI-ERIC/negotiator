@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationJob;
-import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSyncronizationJobStatus;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationJob;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationJobRepository;
-import eu.bbmri_eric.negotiator.plugins.resourcesync.listeners.JobEventManager;
-import eu.bbmri_eric.negotiator.plugins.resourcesync.publishers.JobEventPublisher;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSyncronizationJobStatus;
+import eu.bbmri_eric.negotiator.discovery_service.JobEventManager;
+import eu.bbmri_eric.negotiator.discovery_service.JobEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

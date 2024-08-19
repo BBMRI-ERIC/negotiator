@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.context;
 
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorJwtAuthenticationToken;
+import eu.bbmri_eric.negotiator.common.configuration.security.auth.NegotiatorJwtAuthenticationToken;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

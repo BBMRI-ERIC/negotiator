@@ -2,17 +2,17 @@ package eu.bbmri_eric.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
-import eu.bbmri_eric.negotiator.negotiation.Negotiation;
-import eu.bbmri_eric.negotiator.negotiation.Request;
 import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.RequestRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.Request;
+import eu.bbmri_eric.negotiator.negotiation.RequestRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;

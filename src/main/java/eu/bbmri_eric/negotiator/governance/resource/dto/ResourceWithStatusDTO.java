@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.governance.resource.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.governance.OrganizationDTO;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,13 +1,13 @@
 package eu.bbmri_eric.negotiator.form;
 
-import eu.bbmri_eric.negotiator.negotiation.Request;
-import eu.bbmri_eric.negotiator.negotiation.RequestRepository;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.negotiation.Request;
+import eu.bbmri_eric.negotiator.negotiation.RequestRepository;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;

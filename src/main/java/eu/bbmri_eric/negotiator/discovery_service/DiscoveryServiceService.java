@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.discovery_service;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import java.util.List;
 
 public interface DiscoveryServiceService {
@@ -12,8 +12,8 @@ public interface DiscoveryServiceService {
    * @param discoveryServiceCreateDTO a DiscoveryServiceCreateDTO with the data of the
    *     DiscoveryService to create
    * @return a DiscoveryServiceDTO with the data of the newly created DiscoveryService
-   * @throws eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException if some error occurs
-   *     when creating the DiscoveryService
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException if some error
+   *     occurs when creating the DiscoveryService
    */
   DiscoveryServiceDTO create(DiscoveryServiceCreateDTO discoveryServiceCreateDTO)
       throws EntityNotStorableException;
@@ -41,8 +41,8 @@ public interface DiscoveryServiceService {
    *
    * @param id the id of the DiscoveryService
    * @return a DiscoveryServiceDTOs with the data of the DiscoveryService with the id requested
-   * @throws eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException if the DiscoveryService
-   *     identified by :id is not found
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException if the
+   *     DiscoveryService identified by :id is not found
    */
   DiscoveryServiceDTO findById(Long id) throws EntityNotFoundException;
 }

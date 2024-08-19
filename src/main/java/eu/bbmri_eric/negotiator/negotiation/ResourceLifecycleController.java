@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceEventMetadataDto;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceStateMetadataDto;
 import eu.bbmri_eric.negotiator.negotiation.mappers.ResourceEventAssembler;
 import eu.bbmri_eric.negotiator.negotiation.mappers.ResourceStateAssembler;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.discovery_service;
 
-import eu.bbmri_eric.negotiator.shared.ValidationGroups.Create;
-import eu.bbmri_eric.negotiator.shared.ValidationGroups.Update;
+import eu.bbmri_eric.negotiator.common.ValidationGroups.Create;
+import eu.bbmri_eric.negotiator.common.ValidationGroups.Update;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

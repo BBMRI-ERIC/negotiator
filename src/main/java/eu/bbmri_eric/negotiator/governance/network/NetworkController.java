@@ -1,12 +1,12 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
+import eu.bbmri_eric.negotiator.common.ValidationGroups;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.shared.ValidationGroups;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.user.UserModelAssembler;

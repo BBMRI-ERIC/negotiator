@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDto;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationStateMetadataDto;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationEventAssembler;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationStateAssembler;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

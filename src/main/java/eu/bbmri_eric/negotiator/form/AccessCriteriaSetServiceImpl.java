@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.form;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

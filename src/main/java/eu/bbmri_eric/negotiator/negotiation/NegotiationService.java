@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -25,7 +25,7 @@ public interface NegotiationService {
    * @param negotiationBody a NegotiationCreateDTO with the data of the negotiation to create
    * @param creatorId the id of the person that wants to create the negotiation
    * @return a NegotiationDTO with the data of the newly created negotiation
-   * @throws eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException if some error
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException if some error
    *     occurs when crating the negotiation
    */
   NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId)
@@ -38,7 +38,7 @@ public interface NegotiationService {
    * @param negotiationId the id of the negotiation to update
    * @return a NegotiationDTO with the updated data of the negotiation
    * @throws EntityNotStorableException if some error occurs when crating the negotiation
-   * @throws eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException if the negotiation
+   * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException if the negotiation
    *     to update is not found
    */
   NegotiationDTO update(String negotiationId, NegotiationCreateDTO negotiationBody)

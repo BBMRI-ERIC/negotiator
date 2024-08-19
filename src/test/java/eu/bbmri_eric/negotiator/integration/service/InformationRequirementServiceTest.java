@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
-import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
-import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormRepository;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

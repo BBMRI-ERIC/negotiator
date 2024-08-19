@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.user;
 
-import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.UnsupportedFilterException;
-import eu.bbmri_eric.negotiator.shared.exceptions.UserNotFoundException;
-import eu.bbmri_eric.negotiator.shared.exceptions.WrongSortingPropertyException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.UnsupportedFilterException;
+import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongSortingPropertyException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
