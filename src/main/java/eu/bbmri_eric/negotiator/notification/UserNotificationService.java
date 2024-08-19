@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.service;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Post;

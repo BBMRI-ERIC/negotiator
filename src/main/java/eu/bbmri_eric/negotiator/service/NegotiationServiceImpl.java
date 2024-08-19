@@ -18,6 +18,7 @@ import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationFilters;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +43,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Autowired RequestRepository requestRepository;
   @Autowired AttachmentRepository attachmentRepository;
   @Autowired ModelMapper modelMapper;
-  @Autowired UserNotificationService userNotificationService;
+  @Autowired
+  UserNotificationService userNotificationService;
   @Autowired PersonService personService;
 
   @Override

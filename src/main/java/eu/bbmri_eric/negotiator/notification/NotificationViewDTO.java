@@ -1,6 +1,5 @@
-package eu.bbmri_eric.negotiator.database.model.views;
+package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

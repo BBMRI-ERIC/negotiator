@@ -1,8 +1,5 @@
-package eu.bbmri_eric.negotiator.database.repository;
+package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.database.model.Notification;
-import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
-import eu.bbmri_eric.negotiator.database.model.views.NotificationViewDTO;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

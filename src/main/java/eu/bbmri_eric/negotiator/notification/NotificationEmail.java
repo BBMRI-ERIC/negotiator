@@ -1,5 +1,6 @@
-package eu.bbmri_eric.negotiator.database.model;
+package eu.bbmri_eric.negotiator.notification;
 
+import eu.bbmri_eric.negotiator.database.model.Person;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

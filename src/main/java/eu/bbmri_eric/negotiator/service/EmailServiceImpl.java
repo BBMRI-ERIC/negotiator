@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.database.model.NotificationEmail;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.repository.NotificationEmailRepository;
+import eu.bbmri_eric.negotiator.notification.NotificationEmail;
+import eu.bbmri_eric.negotiator.notification.NotificationEmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;

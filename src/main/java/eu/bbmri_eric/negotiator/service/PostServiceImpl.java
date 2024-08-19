@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
+import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;

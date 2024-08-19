@@ -4,7 +4,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.resource.Negotiation
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.service.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;

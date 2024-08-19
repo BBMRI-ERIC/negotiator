@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.configuration.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
+import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
