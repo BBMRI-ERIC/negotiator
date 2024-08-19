@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.plugins.resourcesync.schedulers;
 
-import eu.bbmri_eric.negotiator.service.DiscoverySynchronizationJobService;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoverySynchronizationJobService;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

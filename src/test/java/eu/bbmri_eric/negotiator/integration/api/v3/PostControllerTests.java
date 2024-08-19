@@ -9,11 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.Post;
-import eu.bbmri_eric.negotiator.database.model.PostStatus;
-import eu.bbmri_eric.negotiator.database.model.PostType;
-import eu.bbmri_eric.negotiator.database.repository.PostRepository;
-import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
+import eu.bbmri_eric.negotiator.post.PostRepository;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.post.PostCreateDTO;
+import eu.bbmri_eric.negotiator.post.PostStatus;
+import eu.bbmri_eric.negotiator.post.PostType;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.util.Optional;

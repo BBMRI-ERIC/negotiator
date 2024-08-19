@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
-import eu.bbmri_eric.negotiator.service.MolgenisServiceImplementation;
+import eu.bbmri_eric.negotiator.discovery_service.MolgenisServiceImplementation;
 import java.util.Optional;
 import lombok.NonNull;
 import org.junit.jupiter.api.Test;

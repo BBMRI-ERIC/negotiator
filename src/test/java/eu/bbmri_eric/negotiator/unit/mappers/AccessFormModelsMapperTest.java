@@ -3,12 +3,12 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.bbmri_eric.negotiator.database.model.AccessForm;
-import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
-import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
-import eu.bbmri_eric.negotiator.database.model.FormElementType;
-import eu.bbmri_eric.negotiator.dto.access_form.AccessFormDTO;
-import eu.bbmri_eric.negotiator.mappers.AccessFormModelsMapper;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.form.AccessFormElement;
+import eu.bbmri_eric.negotiator.form.AccessFormModelsMapper;
+import eu.bbmri_eric.negotiator.form.AccessFormSection;
+import eu.bbmri_eric.negotiator.form.FormElementType;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;

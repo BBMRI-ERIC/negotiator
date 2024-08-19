@@ -7,22 +7,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.*;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.post.PostCreateDTO;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationLifecycleService;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
+import eu.bbmri_eric.negotiator.negotiation.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.notification.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
-import eu.bbmri_eric.negotiator.service.*;
+import eu.bbmri_eric.negotiator.post.PostCreateDTO;
+import eu.bbmri_eric.negotiator.post.PostService;
+import eu.bbmri_eric.negotiator.post.PostStatus;
+import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -39,8 +45,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Transactional
 public class UserNotificationServiceTest {
 
-  @Autowired
-  UserNotificationService userNotificationService;
+  @Autowired UserNotificationService userNotificationService;
   @Autowired PersonRepository personRepository;
   @Autowired NotificationRepository notificationRepository;
   @Autowired NegotiationRepository negotiationRepository;

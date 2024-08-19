@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import org.springframework.data.domain.Page;

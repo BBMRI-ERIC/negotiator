@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.organization;
 
-import eu.bbmri_eric.negotiator.database.model.AuditEntity;
+import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

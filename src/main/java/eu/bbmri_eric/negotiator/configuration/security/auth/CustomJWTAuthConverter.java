@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.configuration.security.auth;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.exceptions.WrongJWTException;
+import eu.bbmri_eric.negotiator.shared.exceptions.WrongJWTException;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Collection;
 import java.util.HashSet;

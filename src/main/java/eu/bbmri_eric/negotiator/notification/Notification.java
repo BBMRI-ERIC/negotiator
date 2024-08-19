@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.database.model.AuditEntity;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

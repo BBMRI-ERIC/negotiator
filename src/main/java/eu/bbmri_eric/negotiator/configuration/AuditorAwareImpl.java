@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.configuration;
 
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetails;
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.user.NegotiatorUserDetails;
+import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;

@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri_eric.negotiator.database.model.AccessForm;
-import eu.bbmri_eric.negotiator.database.model.AccessFormElement;
-import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
-import eu.bbmri_eric.negotiator.database.model.FormElementType;
-import eu.bbmri_eric.negotiator.database.model.ValueSet;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.form.AccessFormElement;
+import eu.bbmri_eric.negotiator.form.AccessFormSection;
+import eu.bbmri_eric.negotiator.form.FormElementType;
+import eu.bbmri_eric.negotiator.form.ValueSet;
 import org.junit.jupiter.api.Test;
 
 public class AccessFormTest {

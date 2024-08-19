@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.unit.model;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.user.Person;
 import org.junit.jupiter.api.Test;
 
 public class PersonTest {

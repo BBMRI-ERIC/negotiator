@@ -3,11 +3,11 @@ package eu.bbmri_eric.negotiator.integration.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.bbmri_eric.negotiator.database.model.AccessForm;
-import eu.bbmri_eric.negotiator.database.model.AccessFormSection;
-import eu.bbmri_eric.negotiator.database.repository.AccessFormElementRepository;
-import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.database.repository.AccessFormSectionRepository;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.form.AccessFormElementRepository;
+import eu.bbmri_eric.negotiator.form.AccessFormRepository;
+import eu.bbmri_eric.negotiator.form.AccessFormSection;
+import eu.bbmri_eric.negotiator.form.AccessFormSectionRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

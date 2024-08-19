@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.configuration.security.auth.HttpBasicUserDetails;
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
+import eu.bbmri_eric.negotiator.user.HttpBasicUserDetails;
+import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

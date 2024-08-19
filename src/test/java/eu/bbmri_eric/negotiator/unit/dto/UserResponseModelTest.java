@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.unit.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import org.junit.jupiter.api.Test;
 
 public class UserResponseModelTest {

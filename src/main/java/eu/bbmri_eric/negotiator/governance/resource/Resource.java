@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import eu.bbmri_eric.negotiator.database.model.AccessForm;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
+import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

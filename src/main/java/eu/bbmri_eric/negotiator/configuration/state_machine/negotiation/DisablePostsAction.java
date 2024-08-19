@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.configuration.state_machine.negotiation;
 
-import eu.bbmri_eric.negotiator.service.NegotiationService;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.statemachine.StateContext;

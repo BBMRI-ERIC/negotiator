@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.configuration.security.auth;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.user.JwtUserDetails;
+import eu.bbmri_eric.negotiator.user.NegotiatorUserDetails;
+import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;

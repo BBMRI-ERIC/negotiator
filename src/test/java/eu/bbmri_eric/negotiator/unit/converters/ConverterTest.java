@@ -3,8 +3,8 @@ package eu.bbmri_eric.negotiator.unit.converters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri_eric.negotiator.converters.NegotiationRoleConverter;
-import eu.bbmri_eric.negotiator.converters.NegotiationStatusConverter;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRoleConverter;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationStatusConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 

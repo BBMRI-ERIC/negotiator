@@ -1,16 +1,16 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
-import eu.bbmri_eric.negotiator.api.controller.v3.utils.NegotiationSortField;
-import eu.bbmri_eric.negotiator.dto.ValidationGroups;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
-import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
-import eu.bbmri_eric.negotiator.mappers.NegotiationModelAssembler;
-import eu.bbmri_eric.negotiator.mappers.UserModelAssembler;
-import eu.bbmri_eric.negotiator.service.NegotiationService;
-import eu.bbmri_eric.negotiator.service.PersonService;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
+import eu.bbmri_eric.negotiator.shared.ValidationGroups;
+import eu.bbmri_eric.negotiator.user.PersonService;
+import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.user.UserModelAssembler;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

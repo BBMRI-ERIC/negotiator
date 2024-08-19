@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import java.util.List;
 import org.springframework.data.domain.Pageable;

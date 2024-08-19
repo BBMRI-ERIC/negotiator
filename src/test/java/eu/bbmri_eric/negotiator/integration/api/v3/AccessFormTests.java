@@ -9,13 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.FormElementType;
-import eu.bbmri_eric.negotiator.dto.ValueSetCreateDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.AccessFormCreateDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.ElementCreateDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.ElementLinkDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.SectionCreateDTO;
-import eu.bbmri_eric.negotiator.dto.access_form.SectionLinkDTO;
+import eu.bbmri_eric.negotiator.form.FormElementType;
+import eu.bbmri_eric.negotiator.form.ValueSetCreateDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
+import eu.bbmri_eric.negotiator.form.dto.ElementCreateDTO;
+import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
+import eu.bbmri_eric.negotiator.form.dto.SectionCreateDTO;
+import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

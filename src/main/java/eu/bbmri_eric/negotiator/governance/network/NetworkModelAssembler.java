@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.governance.network;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import eu.bbmri_eric.negotiator.api.controller.v3.UserController;
+import eu.bbmri_eric.negotiator.user.UserController;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

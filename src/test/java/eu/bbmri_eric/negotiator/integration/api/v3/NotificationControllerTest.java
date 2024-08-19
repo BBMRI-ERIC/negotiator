@@ -7,12 +7,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

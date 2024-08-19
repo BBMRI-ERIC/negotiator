@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.organization;
 
-import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.governance.OrganizationDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;

@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
+import eu.bbmri_eric.negotiator.user.Person;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

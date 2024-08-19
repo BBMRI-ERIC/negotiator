@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.configuration.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import jakarta.transaction.Transactional;

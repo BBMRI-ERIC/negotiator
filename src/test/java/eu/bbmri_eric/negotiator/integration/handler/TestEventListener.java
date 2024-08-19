@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.handler;
 
-import eu.bbmri_eric.negotiator.events.FirstRepresentativeEvent;
+import eu.bbmri_eric.negotiator.user.FirstRepresentativeEvent;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.event.EventListener;

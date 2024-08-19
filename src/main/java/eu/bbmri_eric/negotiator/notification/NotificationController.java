@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
-import eu.bbmri_eric.negotiator.dto.NotificationDTO;
+import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

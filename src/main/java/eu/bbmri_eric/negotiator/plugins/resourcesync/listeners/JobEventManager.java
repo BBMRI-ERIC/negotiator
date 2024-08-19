@@ -1,12 +1,12 @@
 package eu.bbmri_eric.negotiator.plugins.resourcesync.listeners;
 
-import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJob;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJobStatus;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
-import eu.bbmri_eric.negotiator.events.DiscoveryServiceSynchronizationEvent;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.service.DiscoveryServiceClient;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationJob;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSyncronizationJobStatus;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationJobRepository;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationEvent;
+import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceClient;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;

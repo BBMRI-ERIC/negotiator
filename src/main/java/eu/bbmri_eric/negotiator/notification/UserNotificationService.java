@@ -1,9 +1,8 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Post;
-import eu.bbmri_eric.negotiator.dto.NotificationDTO;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.post.Post;
 import java.util.List;
 
 public interface UserNotificationService {

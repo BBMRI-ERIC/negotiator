@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.plugins.resourcesync.publishers;
 
-import eu.bbmri_eric.negotiator.events.DiscoveryServiceSynchronizationEvent;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationEvent;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;

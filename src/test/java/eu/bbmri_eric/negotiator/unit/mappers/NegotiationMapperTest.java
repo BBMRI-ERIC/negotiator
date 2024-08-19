@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.mappers.NegotiationModelMapper;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.Request;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelMapper;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Set;

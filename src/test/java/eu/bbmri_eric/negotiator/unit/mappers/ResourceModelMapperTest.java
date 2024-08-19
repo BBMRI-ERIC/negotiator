@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelMapper;

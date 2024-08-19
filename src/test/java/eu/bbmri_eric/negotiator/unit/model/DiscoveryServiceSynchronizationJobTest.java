@@ -2,9 +2,9 @@ package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSynchronizationJob;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryServiceSyncronizationJobStatus;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSynchronizationJob;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceSyncronizationJobStatus;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 

@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.service.DiscoveryServiceServiceImpl;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

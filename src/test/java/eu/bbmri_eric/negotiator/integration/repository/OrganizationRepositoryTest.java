@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;

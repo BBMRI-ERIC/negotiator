@@ -1,12 +1,12 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
+import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.shared.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.shared.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.modelmapper.ModelMapper;

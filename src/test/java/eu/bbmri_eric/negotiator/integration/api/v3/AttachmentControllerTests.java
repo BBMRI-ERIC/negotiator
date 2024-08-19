@@ -14,9 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.api.controller.v3.AttachmentController;
-import eu.bbmri_eric.negotiator.database.model.Attachment;
-import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
+import eu.bbmri_eric.negotiator.attachment.Attachment;
+import eu.bbmri_eric.negotiator.attachment.AttachmentController;
+import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;

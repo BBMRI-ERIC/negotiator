@@ -3,9 +3,9 @@ package eu.bbmri_eric.negotiator.unit.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import eu.bbmri_eric.negotiator.database.model.InformationRequirement;
-import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
+import eu.bbmri_eric.negotiator.info_requirement.InformationSubmission;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

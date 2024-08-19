@@ -4,14 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.*;
-import eu.bbmri_eric.negotiator.database.repository.*;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery_service.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Optional;

@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
+import eu.bbmri_eric.negotiator.governance.OrganizationDTO;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import lombok.NonNull;
