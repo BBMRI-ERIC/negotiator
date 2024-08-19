@@ -34,9 +34,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @NoArgsConstructor
@@ -78,7 +76,6 @@ public class Negotiation extends AuditEntity {
   @Formula(value = "JSONB_EXTRACT_PATH(payload::jsonb, 'project', 'title')")
   private String title;
 
-  @JdbcTypeCode(SqlTypes.VARCHAR)
   private String payload;
 
   private boolean publicPostsEnabled = true;
