@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.database.model;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

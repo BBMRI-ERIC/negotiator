@@ -7,7 +7,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

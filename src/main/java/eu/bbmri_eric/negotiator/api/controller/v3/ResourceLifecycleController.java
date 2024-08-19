@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceEventMetadataDto;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceStateMetadataDto;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceEventMetadataDto;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceStateMetadataDto;
 import eu.bbmri_eric.negotiator.mappers.ResourceEventAssembler;
 import eu.bbmri_eric.negotiator.mappers.ResourceStateAssembler;
 import eu.bbmri_eric.negotiator.service.ResourceLifecycleService;

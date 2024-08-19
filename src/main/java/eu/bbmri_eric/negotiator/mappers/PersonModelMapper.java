@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.mappers;
 
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Set;

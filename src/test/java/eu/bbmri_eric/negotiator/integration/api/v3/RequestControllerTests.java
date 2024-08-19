@@ -19,7 +19,7 @@ import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.dto.request.RequestDTO;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.service.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.service.NegotiationService;
 import eu.bbmri_eric.negotiator.service.RequestServiceImpl;

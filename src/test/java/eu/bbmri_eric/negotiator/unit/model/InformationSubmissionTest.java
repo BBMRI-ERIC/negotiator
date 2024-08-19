@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import eu.bbmri_eric.negotiator.database.model.InformationRequirement;
 import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

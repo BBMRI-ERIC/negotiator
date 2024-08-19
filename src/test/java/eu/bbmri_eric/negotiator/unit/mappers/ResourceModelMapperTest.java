@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.model.Organization;
-import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
-import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceDTO;
-import eu.bbmri_eric.negotiator.mappers.ResourceModelMapper;
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceModelMapper;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisBiobank;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

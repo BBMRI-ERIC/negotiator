@@ -7,10 +7,10 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.dto.OrganizationDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Objects;

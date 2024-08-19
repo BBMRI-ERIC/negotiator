@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.dto.MolgenisBiobank;
-import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisBiobank;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;

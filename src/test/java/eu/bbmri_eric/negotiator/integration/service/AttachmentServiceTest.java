@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
 import eu.bbmri_eric.negotiator.database.model.views.MetadataAttachmentViewDTO;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
@@ -14,6 +13,7 @@ import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.service.AttachmentService;
 import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import java.util.List;

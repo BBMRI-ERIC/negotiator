@@ -1,14 +1,14 @@
 package eu.bbmri_eric.negotiator.api.controller.v3;
 
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
-import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.dto.person.AssignResourceDTO;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.person.UserInfoModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
-import eu.bbmri_eric.negotiator.mappers.NetworkModelAssembler;
+import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
+import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
+import eu.bbmri_eric.negotiator.governance.network.NetworkService;
 import eu.bbmri_eric.negotiator.mappers.UserModelAssembler;
-import eu.bbmri_eric.negotiator.service.NetworkService;
 import eu.bbmri_eric.negotiator.service.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

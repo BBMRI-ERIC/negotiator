@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.database.model;
 
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

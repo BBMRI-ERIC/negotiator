@@ -11,10 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.Network;
-import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
-import eu.bbmri_eric.negotiator.dto.network.NetworkCreateDTO;
-import eu.bbmri_eric.negotiator.dto.network.NetworkDTO;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.network.NetworkCreateDTO;
+import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.extern.apachecommons.CommonsLog;

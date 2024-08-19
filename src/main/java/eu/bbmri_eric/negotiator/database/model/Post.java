@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.database.model;
 
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

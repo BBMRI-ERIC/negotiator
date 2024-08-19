@@ -1,12 +1,8 @@
 package eu.bbmri_eric.negotiator.service;
 
-import eu.bbmri_eric.negotiator.database.model.Network;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonSpecifications;
-import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.dto.person.UserResponseModel;
 import eu.bbmri_eric.negotiator.events.FirstRepresentativeEvent;
@@ -14,6 +10,10 @@ import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.UnsupportedFilterException;
 import eu.bbmri_eric.negotiator.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.exceptions.WrongSortingPropertyException;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import jakarta.transaction.Transactional;
 import java.lang.reflect.Field;
 import java.util.Arrays;

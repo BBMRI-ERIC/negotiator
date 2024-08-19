@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Set;

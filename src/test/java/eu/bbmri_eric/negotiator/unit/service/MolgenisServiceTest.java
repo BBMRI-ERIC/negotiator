@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import eu.bbmri_eric.negotiator.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.service.MolgenisServiceImplementation;
 import java.util.Optional;
 import lombok.NonNull;

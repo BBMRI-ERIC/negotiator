@@ -13,9 +13,7 @@ import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.Negotiat
 import eu.bbmri_eric.negotiator.database.model.Attachment;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.AttachmentRepository;
 import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
@@ -24,6 +22,8 @@ import eu.bbmri_eric.negotiator.dto.attachments.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationDTO;
 import eu.bbmri_eric.negotiator.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.service.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.service.UserNotificationService;

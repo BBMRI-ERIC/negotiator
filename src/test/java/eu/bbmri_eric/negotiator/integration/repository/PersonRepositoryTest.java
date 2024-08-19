@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.model.Organization;
 import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Resource;
 import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.database.repository.OrganizationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonSpecifications;
-import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Set;
