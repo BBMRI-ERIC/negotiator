@@ -1360,8 +1360,7 @@ public class NegotiationControllerTests {
   @Transactional
   void addResources_correctPayload_resourcesAddedAndWithStatus() throws Exception {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    List<Resource> resources =
-        resourceRepository.findAll();
+    List<Resource> resources = resourceRepository.findAll();
     MvcResult result =
         mockMvc
             .perform(
@@ -1371,7 +1370,7 @@ public class NegotiationControllerTests {
                     .content(
                         new ObjectMapper()
                             .writeValueAsString(resources.stream().map(Resource::getId).toList())))
-                .andExpect(status().isOk())
+            .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())))
             .andReturn();
     JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
