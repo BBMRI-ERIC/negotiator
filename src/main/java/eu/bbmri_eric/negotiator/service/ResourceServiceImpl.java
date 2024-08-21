@@ -109,20 +109,25 @@ public class ResourceServiceImpl implements ResourceService {
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
     List<Resource> resources = repository.findAllById(resourceIds);
-    resources.removeAll(request.getResources());
+    resources.forEach(request.getResources()::remove);
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+      System.out.println(resources.size());
       for (Resource resource : resources) {
         negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
       }
     }
+    System.out.println(negotiation.getCurrentStatePerResource().keySet().size());
     negotiationRepository.saveAndFlush(negotiation);
     resources.addAll(request.getResources());
     request.setResources(new HashSet<>(resources));
     requestRepository.saveAndFlush(request);
-    if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
-      userNotificationServiceImpl.notifyRepresentativesAboutNewNegotiation(negotiation);
-    }
-    return findAllInNegotiation(negotiationId);
+    //    if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+    //      userNotificationServiceImpl.notifyRepresentativesAboutNewNegotiation(negotiation);
+    //    }
+    List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);
+    return resourceViewDTOS.stream()
+        .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class))
+        .toList();
   }
 
   private boolean userIsntAuthorized(String negotiationId, Long userId) {

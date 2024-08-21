@@ -1352,18 +1352,16 @@ public class NegotiationControllerTests {
                     new ObjectMapper()
                         .writeValueAsString(resources.stream().map(Resource::getId).toList())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())));
+        .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size() + count)));
   }
 
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional
   void addResources_correctPayload_resourcesAddedAndWithStatus() throws Exception {
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     List<Resource> resources =
-        resourceRepository.findAll().stream()
-            .filter(resource -> !negotiation.getResources().contains(resource))
-            .toList();
+        resourceRepository.findAll();
     MvcResult result =
         mockMvc
             .perform(
@@ -1373,12 +1371,13 @@ public class NegotiationControllerTests {
                     .content(
                         new ObjectMapper()
                             .writeValueAsString(resources.stream().map(Resource::getId).toList())))
-            .andExpect(status().isOk())
+                .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())))
             .andReturn();
     JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
     JsonNode resourcesAsJson = response.get("_embedded").get("resources");
     for (JsonNode resourceAsJson : resourcesAsJson) {
+      System.out.println(resourceAsJson);
       assertNotNull(resourceAsJson.get("currentState"));
     }
   }
