@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -10,9 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.Organization;
@@ -25,10 +29,12 @@ import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
 import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
 import eu.bbmri_eric.negotiator.dto.negotiation.NegotiationCreateDTO;
+import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
@@ -1300,5 +1306,108 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get("%s/lifecycle".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void addResources_emptyList_400() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(List.of())))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void addResources_nonExistingNegotiation_404() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("%s/%s/resources".formatted(NEGOTIATIONS_URL, "UNKNOWN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(List.of(1L))))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void addResources_correctPayload_resourcesAdded() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    int count = negotiation.getResources().size();
+    List<Resource> resources =
+        resourceRepository.findAll().stream()
+            .filter(resource -> !negotiation.getResources().contains(resource))
+            .toList();
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(resources.stream().map(Resource::getId).toList())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void addResources_correctPayload_resourcesAddedAndWithStatus() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    List<Resource> resources =
+        resourceRepository.findAll().stream()
+            .filter(resource -> !negotiation.getResources().contains(resource))
+            .toList();
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        new ObjectMapper()
+                            .writeValueAsString(resources.stream().map(Resource::getId).toList())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())))
+            .andReturn();
+    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
+    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
+    for (JsonNode resourceAsJson : resourcesAsJson) {
+      assertNotNull(resourceAsJson.get("currentState"));
+    }
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void addResources_resourcesAlreadyPresent_noChange() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        new ObjectMapper()
+                            .writeValueAsString(
+                                negotiation.getResources().stream().map(Resource::getId).toList())))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))
+            .andReturn();
+    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
+    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
+    for (JsonNode resourceAsJson : resourcesAsJson) {
+      assertEquals(
+          negotiation.getCurrentStatePerResource().get(resourceAsJson.get("sourceId").asText()),
+          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
+    }
   }
 }

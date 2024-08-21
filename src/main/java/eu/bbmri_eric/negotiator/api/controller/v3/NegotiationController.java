@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -335,7 +336,20 @@ public class NegotiationController {
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
       @PathVariable String id) {
+    if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+      return resourceWithStatusAssembler.toCollectionModelWithAdminLinks(
+          resourceService.findAllInNegotiation(id), id);
+    }
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
+  }
+
+  @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.PATCH)
+  @Operation(summary = "Add resources to a negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public CollectionModel<EntityModel<ResourceWithStatusDTO>> addResourcesForNegotiation(
+      @PathVariable String id, @RequestBody @NotEmpty List<Long> resourceIds) {
+    return resourceWithStatusAssembler.toCollectionModel(
+        resourceService.addResourcesToNegotiation(id, resourceIds));
   }
 
   private List<String> getResourceIdsFromUserAuthorities() {
