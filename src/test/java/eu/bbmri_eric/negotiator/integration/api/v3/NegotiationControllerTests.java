@@ -1128,6 +1128,7 @@ public class NegotiationControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
+  @Transactional
   void getNegotiation_2000resources_ok() throws Exception {
     Set<Resource> resources = new HashSet<>();
     DiscoveryService discoveryService =
@@ -1152,6 +1153,11 @@ public class NegotiationControllerTests {
     }
     Request request = requestRepository.findAll().get(0);
     request.setResources(resources);
+    for (Resource resource : resources) {
+      request
+          .getNegotiation()
+          .setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
+    }
     requestRepository.save(request);
     mockMvc
         .perform(
@@ -1376,7 +1382,6 @@ public class NegotiationControllerTests {
     JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
     JsonNode resourcesAsJson = response.get("_embedded").get("resources");
     for (JsonNode resourceAsJson : resourcesAsJson) {
-      System.out.println(resourceAsJson);
       assertNotNull(resourceAsJson.get("currentState"));
     }
   }
