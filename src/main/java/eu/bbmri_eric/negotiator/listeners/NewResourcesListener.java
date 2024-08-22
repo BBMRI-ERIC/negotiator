@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 public class NewResourcesListener implements ApplicationListener<NewResourcesAddedEvent> {
   UserNotificationService notificationService;
 
+  public NewResourcesListener(UserNotificationService notificationService) {
+    this.notificationService = notificationService;
+  }
+
   @Override
   public void onApplicationEvent(@NonNull NewResourcesAddedEvent event) {
     notificationService.notifyRepresentativesAboutNewNegotiation(event.getNegotiation());
