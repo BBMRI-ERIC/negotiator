@@ -82,28 +82,11 @@ public class Resource {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Resource resource = (Resource) o;
-    return Objects.equals(id, resource.id)
-        && Objects.equals(name, resource.name)
-        && Objects.equals(description, resource.description)
-        && Objects.equals(sourceId, resource.sourceId)
-        && Objects.equals(representatives, resource.representatives)
-        && Objects.equals(discoveryService, resource.discoveryService)
-        && Objects.equals(organization, resource.organization)
-        && Objects.equals(accessForm, resource.accessForm)
-        && Objects.equals(networks, resource.networks);
+    return Objects.equals(sourceId, resource.sourceId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        id,
-        name,
-        description,
-        sourceId,
-        representatives,
-        discoveryService,
-        organization,
-        accessForm,
-        networks);
+    return Objects.hash(sourceId);
   }
 }
