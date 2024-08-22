@@ -61,7 +61,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       throws EntityNotFoundException {
     NegotiationResourceState currentState = getCurrentStateForResource(negotiationId, resourceId);
     if (Objects.isNull(currentState)) {
-      return Set.of();
+      throw new EntityNotFoundException(resourceId);
     }
     return getPossibleEventsForCurrentStateMachine(negotiationId, resourceId, currentState);
   }
@@ -125,7 +125,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       String negotiationId, String resourceId) throws EntityNotFoundException {
     return negotiationRepository
         .findNegotiationResourceStateById(negotiationId, resourceId)
-        .orElse(null);
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
