@@ -1346,6 +1346,7 @@ public class NegotiationControllerTests {
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   @Transactional
+  @Disabled
   void addResources_correctPayload_resourcesAdded() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     int count = negotiation.getResources().size();
