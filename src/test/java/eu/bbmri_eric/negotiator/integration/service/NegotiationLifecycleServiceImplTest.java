@@ -289,10 +289,10 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_notAuthorized_noChange() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
-        negotiation.getCurrentStatePerResource().get("biobank:1:collection:2"),
+        negotiation.getCurrentStatePerResource().get("biobank:1:collection:1"),
         resourceLifecycleService.sendEvent(
             negotiation.getId(),
-            "biobank:1:collection:2",
+            "biobank:1:collection:1",
             NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
   }
 
@@ -321,12 +321,12 @@ public class NegotiationLifecycleServiceImplTest {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
         Set.of(),
-        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:2"));
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:1"));
     negotiation.setStateForResource(
-        "biobank:1:collection:2", NegotiationResourceState.RESOURCE_AVAILABLE);
+        "biobank:1:collection:1", NegotiationResourceState.RESOURCE_AVAILABLE);
     assertEquals(
         Set.of(),
-        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:2"));
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:1"));
   }
 
   @Test

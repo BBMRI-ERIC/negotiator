@@ -125,6 +125,7 @@ public class UserNotificationServiceTest {
     Set<Resource> resources = negotiation.getRequests().iterator().next().getResources();
     resources.add(resource2);
     negotiation.getRequests().iterator().next().setResources(resources);
+    negotiation.setStateForResource(resource2.getSourceId(), NegotiationResourceState.SUBMITTED);
     negotiation = negotiationRepository.save(negotiation);
     assertEquals(2, negotiation.getResources().size());
     assertTrue(resource2.getRepresentatives().contains(representative));
