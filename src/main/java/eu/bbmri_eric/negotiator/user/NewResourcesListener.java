@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
-import eu.bbmri_eric.negotiator.events.NewResourcesAddedEvent;
+import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import lombok.NonNull;
 import org.springframework.context.ApplicationListener;

@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.events;
+package eu.bbmri_eric.negotiator.negotiation;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
