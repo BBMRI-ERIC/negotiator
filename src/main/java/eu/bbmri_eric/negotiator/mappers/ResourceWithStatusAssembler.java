@@ -76,6 +76,17 @@ public class ResourceWithStatusAssembler
         .add(WebMvcLinkBuilder.linkTo(ResourceController.class).withRel("resources"));
   }
 
+  public @NonNull CollectionModel<EntityModel<ResourceWithStatusDTO>>
+      toCollectionModelWithAdminLinks(
+          @NonNull Iterable<? extends ResourceWithStatusDTO> entities, String negotiationId) {
+    return toCollectionModel(entities)
+        .add(
+            linkTo(
+                    WebMvcLinkBuilder.methodOn(NegotiationController.class)
+                        .addResourcesForNegotiation(negotiationId, List.of()))
+                .withRel("add_resources"));
+  }
+
   private void addSubmissionLinks(@NonNull ResourceWithStatusDTO entity, List<Link> links) {
     try {
       for (SubmittedInformationDTO info : submittedInformationCache) {

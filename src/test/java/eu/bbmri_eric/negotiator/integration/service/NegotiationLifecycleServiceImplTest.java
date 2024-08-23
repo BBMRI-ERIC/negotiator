@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,7 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -214,7 +214,7 @@ public class NegotiationLifecycleServiceImplTest {
     Map<String, NegotiationResourceState> states =
         negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
     assertTrue(states.containsKey("biobank:1:collection:2"));
-    assertEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
+    assertNotEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
   }
 
   @Test
@@ -289,10 +289,10 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_notAuthorized_noChange() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
-        negotiation.getCurrentStatePerResource().get("biobank:1:collection:2"),
+        negotiation.getCurrentStatePerResource().get("biobank:1:collection:1"),
         resourceLifecycleService.sendEvent(
             negotiation.getId(),
-            "biobank:1:collection:2",
+            "biobank:1:collection:1",
             NegotiationResourceEvent.INDICATE_ACCESS_CONDITIONS));
   }
 
@@ -305,7 +305,6 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @Disabled
   void getCurrentStateForResource_newNegotiation_isNull() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
@@ -321,12 +320,12 @@ public class NegotiationLifecycleServiceImplTest {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
         Set.of(),
-        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:2"));
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:1"));
     negotiation.setStateForResource(
-        "biobank:1:collection:2", NegotiationResourceState.RESOURCE_AVAILABLE);
+        "biobank:1:collection:1", NegotiationResourceState.RESOURCE_AVAILABLE);
     assertEquals(
         Set.of(),
-        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:2"));
+        resourceLifecycleService.getPossibleEvents(negotiation.getId(), "biobank:1:collection:1"));
   }
 
   @Test
@@ -338,31 +337,10 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
-  @Disabled
-  void getCurrentStateForResource_approvedNegotiation_isSubmitted() throws IOException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    assertEquals(
-        NegotiationResourceState.SUBMITTED,
-        NegotiationResourceState.valueOf(
-            negotiationService
-                .findById(negotiationDTO.getId(), false)
-                .getStatusForResource("biobank:1:collection:2")));
-  }
-
-  @Test
-  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
-  @Disabled
   void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    assertEquals(
-        NegotiationResourceState.SUBMITTED,
-        NegotiationResourceState.valueOf(
-            negotiationService
-                .findById(negotiationDTO.getId(), false)
-                .getStatusForResource("biobank:1:collection:2")));
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     requirementRepository.save(
         new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));

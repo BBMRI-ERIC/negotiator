@@ -38,4 +38,14 @@ public interface ResourceService {
    * @return a list of resources
    */
   List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
+
+  /**
+   * Add resources to a Negotiation.
+   *
+   * @param negotiationId a specific Negotiation
+   * @param resourceIds a list of resource IDs
+   * @return an updated list of resources
+   */
+  List<ResourceWithStatusDTO> addResourcesToNegotiation(
+      String negotiationId, List<Long> resourceIds);
 }

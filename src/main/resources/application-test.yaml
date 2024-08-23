@@ -29,6 +29,9 @@ spring:
           type: "JWT"
   flyway:
     enabled: false
+logging:
+  level:
+    eu.bbmri_eric.negotiator: debug
 negotiator:
   molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"

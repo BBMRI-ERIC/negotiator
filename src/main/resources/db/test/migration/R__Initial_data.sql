@@ -73,7 +73,7 @@ values (4, 'Test collection #1 of biobank #1', 'This is the first test collectio
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
         'biobank:3:collection:3', 1, 6, 1),
        (10, 'Test collection #10 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:3', 1, 6, 1);
+        'biobank:3:collection:4', 1, 6, 1);
 
 -- TheBiobanker (109) represents resources of biobank1 and biobank2.
 -- SareRepr (105) represents resources of biobank3
@@ -129,7 +129,6 @@ values ('request-1', 4),
 
 insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
-       ('negotiation-1', 'biobank:1:collection:2', 'SUBMITTED'),
        ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED'),
        ('negotiation-3', 'biobank:1:collection:2', 'RESOURCE_UNAVAILABLE');
 
