@@ -1,23 +1,21 @@
-package eu.bbmri_eric.negotiator.service;
+package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.configuration.security.auth.NegotiatorUserDetailsService;
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Network;
-import eu.bbmri_eric.negotiator.database.model.Request;
-import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.views.ResourceViewDTO;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.NetworkRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.database.repository.RequestRepository;
-import eu.bbmri_eric.negotiator.database.repository.ResourceRepository;
-import eu.bbmri_eric.negotiator.dto.person.ResourceResponseModel;
-import eu.bbmri_eric.negotiator.dto.resource.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.events.NewResourcesAddedEvent;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.request.Request;
+import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +46,7 @@ public class ResourceServiceImpl implements ResourceService {
       NegotiationRepository negotiationRepository,
       ModelMapper modelMapper,
       RequestRepository requestRepository,
-      UserNotificationServiceImpl userNotificationServiceImpl,
+      UserNotificationService userNotificationService,
       ApplicationEventPublisher applicationEventPublisher) {
     this.networkRepository = networkRepository;
     this.repository = repository;

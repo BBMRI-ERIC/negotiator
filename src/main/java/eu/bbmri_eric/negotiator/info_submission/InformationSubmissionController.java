@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.info_requirement.submit;
+package eu.bbmri_eric.negotiator.info_submission;
 
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;

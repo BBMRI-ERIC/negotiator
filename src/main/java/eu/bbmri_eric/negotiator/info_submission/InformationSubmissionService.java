@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.info_requirement.submit;
+package eu.bbmri_eric.negotiator.info_submission;
 
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;

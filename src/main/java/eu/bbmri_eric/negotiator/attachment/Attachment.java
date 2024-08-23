@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.attachment;
 
+import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
-import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.form.value_set;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import eu.bbmri_eric.negotiator.form.api.AccessFormController;
+import eu.bbmri_eric.negotiator.form.AccessFormController;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;

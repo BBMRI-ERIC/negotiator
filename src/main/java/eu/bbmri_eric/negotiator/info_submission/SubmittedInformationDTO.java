@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.info_requirement.submit;
+package eu.bbmri_eric.negotiator.info_submission;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,7 +13,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class InformationSubmissionDTO {
+public class SubmittedInformationDTO {
+  @NotNull private Long id;
   @NotNull private Long resourceId;
+  private Long requirementId;
   @NotNull private JsonNode payload;
 }

@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.common.configuration;
 
-import eu.bbmri_eric.negotiator.negotiation.NegotiationRoleConverter;
+import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationRoleConverter;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEventConverter;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEventConverter;
 import java.util.List;

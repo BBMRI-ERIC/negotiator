@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.info_requirement.submit;
+package eu.bbmri_eric.negotiator.info_submission;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -21,7 +21,7 @@ public class MolgenisServiceTest {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode actualObj = mapper.createObjectNode();
     ObjectNode biobank = mapper.createObjectNode();
-    biobank.put("_href", "/api/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
+    biobank.put("_href", "/assembler/v2/eu_bbmri_eric_biobanks/bbmri-eric:ID:BB");
     biobank.put("id", biobankId);
     biobank.put("name", "Biobank 1");
     actualObj.put("id", collectionId);

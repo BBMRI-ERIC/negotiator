@@ -1,8 +1,9 @@
-package eu.bbmri_eric.negotiator.form.api;
+package eu.bbmri_eric.negotiator.form.assembler;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.form.AccessFormController;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormElementDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormSectionDTO;

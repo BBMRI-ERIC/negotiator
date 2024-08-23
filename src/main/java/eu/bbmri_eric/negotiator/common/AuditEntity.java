@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.negotiation;
+package eu.bbmri_eric.negotiator.common;
 
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.persistence.EntityListeners;

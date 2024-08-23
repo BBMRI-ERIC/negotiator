@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.form;
 
-import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
+import eu.bbmri_eric.negotiator.common.AuditEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

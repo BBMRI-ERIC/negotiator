@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
+import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;

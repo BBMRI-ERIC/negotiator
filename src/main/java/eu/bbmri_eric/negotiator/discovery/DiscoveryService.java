@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.discovery;
 
-import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
+import eu.bbmri_eric.negotiator.common.AuditEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

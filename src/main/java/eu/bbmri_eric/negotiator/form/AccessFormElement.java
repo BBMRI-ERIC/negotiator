@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.form;
 
+import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSet;
-import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

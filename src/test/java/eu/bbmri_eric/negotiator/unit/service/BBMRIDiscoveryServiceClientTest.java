@@ -80,10 +80,10 @@ public class BBMRIDiscoveryServiceClientTest {
 
   @BeforeEach
   public void createBiobanksAndCollections() {
-    MolgenisBiobank bb1 = new MolgenisBiobank("test_bb1", "test_bb1", "/api/v2/test_bb1");
-    MolgenisBiobank bb2 = new MolgenisBiobank("test_bb2", "test_bb2", "/api/v2/test_bb2");
-    MolgenisBiobank bb3 = new MolgenisBiobank("test_bb3", "test_bb3", "/api/v2/test_bb3");
-    MolgenisBiobank bb4 = new MolgenisBiobank("test_bb4", "test_bb4", "/api/v2/test_bb4");
+    MolgenisBiobank bb1 = new MolgenisBiobank("test_bb1", "test_bb1", "/assembler/v2/test_bb1");
+    MolgenisBiobank bb2 = new MolgenisBiobank("test_bb2", "test_bb2", "/assembler/v2/test_bb2");
+    MolgenisBiobank bb3 = new MolgenisBiobank("test_bb3", "test_bb3", "/assembler/v2/test_bb3");
+    MolgenisBiobank bb4 = new MolgenisBiobank("test_bb4", "test_bb4", "/assembler/v2/test_bb4");
 
     MolgenisCollection coll1 =
         new MolgenisCollection("test_coll1", "test_coll1", "test_coll1", bb1);
@@ -105,16 +105,16 @@ public class BBMRIDiscoveryServiceClientTest {
     ObjectNode biobank2 = mapper.createObjectNode();
     ObjectNode biobank3 = mapper.createObjectNode();
     ObjectNode biobank4 = mapper.createObjectNode();
-    biobank1.put("_href", "/api/v2/test_bb1");
+    biobank1.put("_href", "/assembler/v2/test_bb1");
     biobank1.put("id", "test_bb1");
     biobank1.put("name", "test_bb1");
-    biobank2.put("_href", "/api/v2/test_bb2");
+    biobank2.put("_href", "/assembler/v2/test_bb2");
     biobank2.put("id", "test_bb2");
     biobank2.put("name", "test_bb2");
-    biobank3.put("_href", "/api/v2/test_bb3");
+    biobank3.put("_href", "/assembler/v2/test_bb3");
     biobank3.put("id", "test_bb3");
     biobank3.put("name", "test_bb3");
-    biobank4.put("_href", "/api/v2/test_bb4");
+    biobank4.put("_href", "/assembler/v2/test_bb4");
     biobank4.put("id", "test_bb4");
     biobank4.put("name", "test_bb4");
 
@@ -265,7 +265,7 @@ public class BBMRIDiscoveryServiceClientTest {
 
     biobanks.remove(0);
     ObjectNode updatedBiobank1 = mapper.createObjectNode();
-    updatedBiobank1.put("_href", "/api/v2/test_bb1");
+    updatedBiobank1.put("_href", "/assembler/v2/test_bb1");
     updatedBiobank1.put("id", "test_bb1");
     updatedBiobank1.put("name", "test_newname_bb1");
 

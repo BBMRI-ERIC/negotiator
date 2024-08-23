@@ -1,20 +1,17 @@
-package eu.bbmri_eric.negotiator.service;
+package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
-import eu.bbmri_eric.negotiator.database.model.Notification;
-import eu.bbmri_eric.negotiator.database.model.NotificationEmailStatus;
-import eu.bbmri_eric.negotiator.database.model.Person;
-import eu.bbmri_eric.negotiator.database.model.Post;
-import eu.bbmri_eric.negotiator.database.model.Resource;
-import eu.bbmri_eric.negotiator.database.model.views.NotificationViewDTO;
-import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
-import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
-import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
-import eu.bbmri_eric.negotiator.dto.NotificationDTO;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.notification.email.EmailService;
+import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -34,7 +31,6 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -47,12 +43,12 @@ import org.thymeleaf.context.Context;
 @Transactional
 public class UserNotificationServiceImpl implements UserNotificationService {
 
-  @Autowired NotificationRepository notificationRepository;
-  @Autowired PersonRepository personRepository;
-  @Autowired ModelMapper modelMapper;
-  @Autowired EmailService emailService;
-  @Autowired TemplateEngine templateEngine;
-  @Autowired NegotiationRepository negotiationRepository;
+  NotificationRepository notificationRepository;
+  PersonRepository personRepository;
+  ModelMapper modelMapper;
+  EmailService emailService;
+  TemplateEngine templateEngine;
+  NegotiationRepository negotiationRepository;
 
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
@@ -68,6 +64,21 @@ public class UserNotificationServiceImpl implements UserNotificationService {
           NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
           NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
           NegotiationResourceState.RESOURCE_NOT_MADE_AVAILABLE);
+
+  public UserNotificationServiceImpl(
+      NotificationRepository notificationRepository,
+      PersonRepository personRepository,
+      ModelMapper modelMapper,
+      EmailService emailService,
+      TemplateEngine templateEngine,
+      NegotiationRepository negotiationRepository) {
+    this.notificationRepository = notificationRepository;
+    this.personRepository = personRepository;
+    this.modelMapper = modelMapper;
+    this.emailService = emailService;
+    this.templateEngine = templateEngine;
+    this.negotiationRepository = negotiationRepository;
+  }
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
       Negotiation negotiation, Person representative) {

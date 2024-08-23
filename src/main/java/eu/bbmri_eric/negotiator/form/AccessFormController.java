@@ -1,5 +1,8 @@
-package eu.bbmri_eric.negotiator.form.api;
+package eu.bbmri_eric.negotiator.form;
 
+import eu.bbmri_eric.negotiator.form.assembler.AccessFormElementAssembler;
+import eu.bbmri_eric.negotiator.form.assembler.AccessFormModelAssembler;
+import eu.bbmri_eric.negotiator.form.assembler.AccessFormSectionAssembler;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementCreateDTO;

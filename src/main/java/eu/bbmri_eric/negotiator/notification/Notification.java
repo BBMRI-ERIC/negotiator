@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.negotiation.AuditEntity;
+import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.user.Person;
