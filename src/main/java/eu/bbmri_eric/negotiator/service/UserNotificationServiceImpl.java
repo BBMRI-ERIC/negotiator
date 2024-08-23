@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.service;
 
 import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import eu.bbmri_eric.negotiator.database.model.NegotiationResourceLifecycleRecord;
@@ -15,6 +14,7 @@ import eu.bbmri_eric.negotiator.database.repository.NegotiationRepository;
 import eu.bbmri_eric.negotiator.database.repository.NotificationRepository;
 import eu.bbmri_eric.negotiator.database.repository.PersonRepository;
 import eu.bbmri_eric.negotiator.dto.NotificationDTO;
+import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -51,7 +51,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Autowired PersonRepository personRepository;
   @Autowired ModelMapper modelMapper;
   @Autowired EmailService emailService;
-  @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired TemplateEngine templateEngine;
   @Autowired NegotiationRepository negotiationRepository;
 
@@ -155,6 +154,15 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     log.info("Notifying representatives about new negotiation.");
     createNotificationsForRepresentatives(negotiation);
     markResourcesWithoutARepresentative(negotiation);
+  }
+
+  @Override
+  public void notifyRepresentativesAboutNewNegotiation(String negotiationId) {
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    notifyRepresentativesAboutNewNegotiation(negotiation);
   }
 
   @Override
@@ -292,21 +300,20 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         negotiation.getResources().stream()
             .filter(resource -> resource.getRepresentatives().isEmpty())
             .collect(Collectors.toSet())) {
-      log.info(resourceWithoutRep.getSourceId());
-      resourceLifecycleService.sendEvent(
-          negotiation.getId(),
-          resourceWithoutRep.getSourceId(),
-          NegotiationResourceEvent.MARK_AS_UNREACHABLE);
+      log.warn(
+          "Resource with ID: %s does not have a representative."
+              .formatted(resourceWithoutRep.getSourceId()));
+      negotiation.setStateForResource(
+          resourceWithoutRep.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
     }
   }
 
   private void markReachableResources(
       Negotiation negotiation, @NonNull Set<Resource> overlappingResources) {
     for (Resource resourceWithRepresentative : overlappingResources) {
-      resourceLifecycleService.sendEvent(
-          negotiation.getId(),
+      negotiation.setStateForResource(
           resourceWithRepresentative.getSourceId(),
-          NegotiationResourceEvent.CONTACT);
+          NegotiationResourceState.REPRESENTATIVE_CONTACTED);
     }
   }
 

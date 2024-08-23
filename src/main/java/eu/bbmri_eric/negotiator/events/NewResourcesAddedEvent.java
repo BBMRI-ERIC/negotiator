@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.events;
 
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
@@ -8,10 +7,10 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class NewResourcesAddedEvent extends ApplicationEvent {
 
-  private final Negotiation negotiation;
+  private final String negotiationId;
 
-  public NewResourcesAddedEvent(Object source, Negotiation negotiation) {
+  public NewResourcesAddedEvent(Object source, String negotiationId) {
     super(source);
-    this.negotiation = negotiation;
+    this.negotiationId = negotiationId;
   }
 }

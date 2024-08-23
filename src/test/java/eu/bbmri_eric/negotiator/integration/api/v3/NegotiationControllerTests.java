@@ -1391,6 +1391,9 @@ public class NegotiationControllerTests {
   @Transactional
   void addResources_resourcesAlreadyPresent_noChange() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
+    negotiation.setStateForResource(
+        negotiation.getResources().iterator().next().getSourceId(),
+        NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
     MvcResult result =
         mockMvc
             .perform(
