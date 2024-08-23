@@ -10,10 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.api.controller.v3.DiscoverServiceController;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.dto.discoveryservice.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.discovery.DiscoverServiceController;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery.dto.DiscoveryServiceCreateDTO;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.hamcrest.core.Is;

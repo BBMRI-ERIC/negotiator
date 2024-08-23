@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import eu.bbmri_eric.negotiator.database.model.Network;
-import eu.bbmri_eric.negotiator.database.model.Resource;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import org.junit.jupiter.api.Test;
 
 class NetworkTest {

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import eu.bbmri_eric.negotiator.database.model.Request;
+import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import org.junit.jupiter.api.Test;
 
 public class RequestTest {

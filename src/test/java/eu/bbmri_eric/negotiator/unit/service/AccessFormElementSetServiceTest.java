@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri_eric.negotiator.database.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.service.AccessCriteriaSetServiceImpl;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.form.service.AccessCriteriaSetServiceImpl;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

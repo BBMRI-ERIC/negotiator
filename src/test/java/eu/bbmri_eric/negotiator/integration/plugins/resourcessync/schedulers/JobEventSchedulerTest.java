@@ -3,10 +3,10 @@ package eu.bbmri_eric.negotiator.integration.plugins.resourcessync.schedulers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.database.model.DiscoveryService;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.database.repository.DiscoveryServiceSynchronizationJobRepository;
-import eu.bbmri_eric.negotiator.service.DiscoverySynchronizationJobService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSynchronizationJobRepository;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoverySynchronizationJobService;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

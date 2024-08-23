@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.configuration.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.database.model.AccessForm;
-import eu.bbmri_eric.negotiator.database.model.InformationRequirement;
-import eu.bbmri_eric.negotiator.database.model.InformationSubmission;
-import eu.bbmri_eric.negotiator.dto.SubmittedInformationDTO;
-import eu.bbmri_eric.negotiator.mappers.InformationSubmissionMapper;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
+import eu.bbmri_eric.negotiator.info_submission.InformationSubmission;
+import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionMapper;
+import eu.bbmri_eric.negotiator.info_submission.SubmittedInformationDTO;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,10 +2,10 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.database.model.Negotiation;
-import eu.bbmri_eric.negotiator.database.model.Post;
-import eu.bbmri_eric.negotiator.dto.post.PostDTO;
-import eu.bbmri_eric.negotiator.mappers.PostModelMapper;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.post.PostDTO;
+import eu.bbmri_eric.negotiator.post.PostModelMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

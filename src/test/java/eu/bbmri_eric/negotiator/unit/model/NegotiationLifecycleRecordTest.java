@@ -2,8 +2,8 @@ package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.configuration.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.database.model.NegotiationLifecycleRecord;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import org.junit.jupiter.api.Test;
 
 public class NegotiationLifecycleRecordTest {
