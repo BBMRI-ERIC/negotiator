@@ -30,8 +30,8 @@ spring:
     username: "user"
     password: "pass"
     properties:
-      debug: true
-      starttls: false
+      debug: false
+      starttls: true
       auth: true
     protocol: "smtp"
   application:
