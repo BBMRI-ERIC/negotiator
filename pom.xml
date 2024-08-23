@@ -98,9 +98,8 @@
                 <version>0.8.12</version>
                 <configuration>
                     <excludes>
-                        <exclude>eu/bbmri_eric/negotiator/common/configuration/*</exclude>
+                        <exclude>eu/bbmri_eric/negotiator/common/**</exclude>
                         <exclude>eu/bbmri_eric/negotiator/NegotiatorApplication.class</exclude>
-                        <exclude>eu/bbmri_eric/negotiator/exceptions/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
