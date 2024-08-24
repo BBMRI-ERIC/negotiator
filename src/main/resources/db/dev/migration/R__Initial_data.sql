@@ -61,8 +61,3 @@ insert into public.access_form_section_element_link (id, access_form_section_lin
 values (100, 7, 100, true, 10),
        (101, 7, 101, true, 11),
        (102, 7, 102, true, 12);
-
-insert into network (id, external_id, name, uri, contact_email)
-values (1, 'bbmri-eric:ID:SE_890:network:bbmri-eric', 'network-1', 'https://network-1/', 'office@negotiator.org'),
-       (2, 'bbmri-eric:ID:SE_891:network:bbmri-eric', 'network-2', 'https://network-2/', 'office@negotiator.org'),
-       (3, 'bbmri-eric:ID:SE_892:network:bbmri-eric', 'network-3', 'https://network-3/', 'office@negotiator.org');
