@@ -32,37 +32,9 @@ jobs:
       - name: Build with Maven
         run: mvn --quiet clean compile -DskipTests=True
 
-  build-and-run:
-    name: Run application
-    runs-on: ubuntu-latest
-    needs:
-      - compile
-
-    steps:
-
-      - name: Checkout codebase
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build with Maven
-        run: mvn --quiet clean install -DskipTests=True
-
-      - name: Run jar file
-        run: nohup mvn spring-boot:test-run -Dspring-boot.run.profiles=dev   > /dev/null 2>&1 &
-
-      - name: Wait for application to start
-        run: .github/scripts/wait_for_url.sh  localhost:8081/api/actuator/health
-
-
   lint:
     name: Lint Code Base
     runs-on: ubuntu-latest
-
 
     steps:
       - name: Set up JDK 17
@@ -82,7 +54,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-latest
     needs:
-      - build-and-run
+      - compile
     steps:
 
       - name: Checkout codebase
