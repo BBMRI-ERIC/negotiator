@@ -30,7 +30,7 @@ spring:
     user: negotiator
     password: negotiator
     url: jdbc:tc:postgresql:///negotiator
-    locations: classpath:db/migration/,db/dev/migration
+    locations: classpath:db/migration/,db/migration
   jackson:
     date-format: "yyyy-MM-dd"
   security:
