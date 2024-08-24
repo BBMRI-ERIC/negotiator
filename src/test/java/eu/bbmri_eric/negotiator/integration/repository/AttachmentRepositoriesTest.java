@@ -58,7 +58,7 @@ public class AttachmentRepositoriesTest {
   private Negotiation negotiation2;
   private Organization organization1;
   private Organization organization2;
-  
+
   @BeforeEach
   void setUp() {
     this.discoveryService =

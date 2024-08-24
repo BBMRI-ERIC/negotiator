@@ -43,6 +43,7 @@ public class Resource {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resource_id_seq")
   @SequenceGenerator(name = "resource_id_seq", initialValue = 10000, allocationSize = 1)
   private Long id;
+
   private String name;
 
   @Column(columnDefinition = "VARCHAR(5000)")

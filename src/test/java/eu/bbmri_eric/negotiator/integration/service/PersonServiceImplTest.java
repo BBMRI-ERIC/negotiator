@@ -19,7 +19,6 @@ public class PersonServiceImplTest {
 
   @Autowired PersonService personService;
   @Autowired PersonRepository personRepository;
-  
 
   @Test
   void findAll_page_ok() {

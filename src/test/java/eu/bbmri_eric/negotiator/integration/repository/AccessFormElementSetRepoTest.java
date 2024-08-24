@@ -17,7 +17,6 @@ public class AccessFormElementSetRepoTest {
   @Autowired private AccessFormRepository accessFormRepository;
   @Autowired private AccessFormSectionRepository accessFormSectionRepository;
 
-
   @Test
   void save_noSection_ok() {
     AccessForm accessForm = accessFormRepository.saveAndFlush(new AccessForm("test"));
