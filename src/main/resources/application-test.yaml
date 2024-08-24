@@ -1,7 +1,7 @@
 spring:
   flyway:
     clean-disabled: false
-    locations: classpath:db/migration/
+    locations: classpath:db/migration/, classpath:db/test/migration
   servlet:
     multipart:
       max-file-size: 2MB

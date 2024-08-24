@@ -1,7 +1,8 @@
-package eu.bbmri_eric.negotiator.util;
+package eu.bbmri_eric.negotiator.config;
 
 import eu.bbmri_eric.negotiator.common.configuration.security.auth.NegotiatorJwtAuthenticationToken;
 import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;

@@ -8,8 +8,8 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -65,11 +65,11 @@ public class EnablePostgresTestContainerContextCustomizerFactory
     return loadData;
   }
 
-  @EqualsAndHashCode // See ContextCustomizer java doc
+  @EqualsAndHashCode
   private static class PostgresTestContainerContextCustomizer implements ContextCustomizer {
     private final boolean loadTestData;
     private static final DockerImageName image =
-        DockerImageName.parse("postgres").withTag("16-alpine");
+        DockerImageName.parse("postgres").withTag("15-alpine");
 
     public PostgresTestContainerContextCustomizer(boolean loadTestData) {
       this.loadTestData = loadTestData;
@@ -81,24 +81,13 @@ public class EnablePostgresTestContainerContextCustomizerFactory
         @NonNull MergedContextConfiguration mergedConfig) {
       var postgresContainer = new PostgreSQLContainer<>(image);
       postgresContainer.start();
-      var properties =
-          Map.<String, Object>of(
-              "spring.datasource.url", postgresContainer.getJdbcUrl(),
-              "spring.datasource.username", postgresContainer.getUsername(),
-              "spring.datasource.password", postgresContainer.getPassword(),
-              // Prevent any in memory db from replacing the data source
-              // See @AutoConfigureTestDatabase
-              "spring.test.database.replace", "NONE");
-      if (loadTestData) {
-        properties =
-            Map.of(
-                "spring.datasource.url", postgresContainer.getJdbcUrl(),
-                "spring.datasource.username", postgresContainer.getUsername(),
-                "spring.datasource.password", postgresContainer.getPassword(),
-                // Prevent any in memory db from replacing the data source
-                // See @AutoConfigureTestDatabase
-                "spring.test.database.replace", "NONE",
-                "spring.flyway.locations", "classpath:db/migration/, classpath:db/test/migration");
+      var properties = new HashMap<String, Object>();
+      properties.put("spring.datasource.url", postgresContainer.getJdbcUrl());
+      properties.put("spring.datasource.username", postgresContainer.getUsername());
+      properties.put("spring.datasource.password", postgresContainer.getPassword());
+      properties.put("spring.test.database.replace", "NONE");
+      if (!loadTestData) {
+        properties.put("spring.flyway.locations", "classpath:db/migration/");
       }
       var propertySource = new MapPropertySource("PostgresContainer Test Properties", properties);
       context.getEnvironment().getPropertySources().addFirst(propertySource);

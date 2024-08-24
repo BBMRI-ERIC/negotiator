@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.util;
 
+import eu.bbmri_eric.negotiator.config.WithMockCustomUserSecurityContextFactory;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.springframework.security.test.context.support.WithSecurityContext;
