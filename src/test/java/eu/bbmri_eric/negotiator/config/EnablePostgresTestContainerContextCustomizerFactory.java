@@ -69,7 +69,7 @@ public class EnablePostgresTestContainerContextCustomizerFactory
   private static class PostgresTestContainerContextCustomizer implements ContextCustomizer {
     private final boolean loadTestData;
     private static final DockerImageName image =
-        DockerImageName.parse("postgres").withTag("15-alpine");
+        DockerImageName.parse("postgres").withTag("16-alpine");
 
     public PostgresTestContainerContextCustomizer(boolean loadTestData) {
       this.loadTestData = loadTestData;
