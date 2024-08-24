@@ -13,23 +13,16 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonSpecifications;
-import jakarta.transaction.Transactional;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest(showSql = false)
-@ActiveProfiles("test")
-@TestPropertySource(properties = {"spring.sql.init.mode=never"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@RepositoryTest
 public class PersonRepositoryTest {
   @Autowired PersonRepository personRepository;
 
@@ -40,7 +33,6 @@ public class PersonRepositoryTest {
   @Autowired OrganizationRepository organizationRepository;
 
   @Test
-  @Transactional
   void existsByIdAndRepresentsResources_oneResource_Ok() {
     Organization organization =
         organizationRepository.save(
@@ -90,9 +82,17 @@ public class PersonRepositoryTest {
 
   @Test
   void findAllPage_1000People_ok() {
+    Set<Person> persons = new HashSet<>();
     for (int i = 0; i < 1000; i++) {
-      savePerson("test-" + i);
+      persons.add(
+          Person.builder()
+              .subjectId("test-%s".formatted(i))
+              .name("John")
+              .email("test@test.com")
+              .resources(new HashSet<>())
+              .build());
     }
+    personRepository.saveAll(persons);
     assertEquals(1000L, personRepository.findAll(PageRequest.of(0, 1)).getTotalElements());
     assertEquals(50, personRepository.findAll(PageRequest.of(0, 50)).getSize());
   }

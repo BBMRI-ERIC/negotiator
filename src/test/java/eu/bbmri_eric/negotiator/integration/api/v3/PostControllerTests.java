@@ -8,35 +8,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.post.PostStatus;
 import eu.bbmri_eric.negotiator.post.PostType;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.util.Optional;
-import lombok.extern.apachecommons.CommonsLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@CommonsLog
+@IntegrationTest(loadTestData = true)
 public class PostControllerTests {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
@@ -113,6 +106,7 @@ public class PostControllerTests {
 
   @Test
   @WithUserDetails("TheResearcher")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testGetAll() throws Exception {
     int numberOfPosts = (int) postRepository.count();
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);

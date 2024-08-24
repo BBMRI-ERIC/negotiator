@@ -43,7 +43,6 @@ public class Resource {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "resource_id_seq")
   @SequenceGenerator(name = "resource_id_seq", initialValue = 10000, allocationSize = 1)
   private Long id;
-
   private String name;
 
   @Column(columnDefinition = "VARCHAR(5000)")
@@ -66,7 +65,7 @@ public class Resource {
   @NotNull
   private DiscoveryService discoveryService;
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "organization_id")
   @Exclude
   @NotNull
@@ -80,7 +79,26 @@ public class Resource {
   @ManyToMany(mappedBy = "resources")
   @Builder.Default
   @Setter(AccessLevel.NONE)
+  @Exclude
   private Set<Network> networks = new HashSet<>();
+
+  public Resource(
+      String name,
+      String description,
+      String sourceId,
+      DiscoveryService discoveryService,
+      Organization organization) {
+    this.name = name;
+    this.description = description;
+    this.sourceId = sourceId;
+    this.discoveryService = discoveryService;
+    this.organization = organization;
+    this.organization.getResources().add(this);
+  }
+
+  public void setNetworks(Set<Network> networks) {
+    this.networks = networks;
+  }
 
   @Override
   public boolean equals(Object o) {

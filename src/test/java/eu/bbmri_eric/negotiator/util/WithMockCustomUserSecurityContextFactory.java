@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.unit.context;
+package eu.bbmri_eric.negotiator.util;
 
 import eu.bbmri_eric.negotiator.common.configuration.security.auth.NegotiatorJwtAuthenticationToken;
 import eu.bbmri_eric.negotiator.user.Person;

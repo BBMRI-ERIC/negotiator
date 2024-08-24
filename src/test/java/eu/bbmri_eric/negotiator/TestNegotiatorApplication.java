@@ -1,5 +1,6 @@
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
-import eu.bbmri_eric.negotiator.common.configuration.DevDatabaseConfiguration;
+package eu.bbmri_eric.negotiator;
+
+import eu.bbmri_eric.negotiator.config.DevDatabaseConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.test.context.ActiveProfiles;
 

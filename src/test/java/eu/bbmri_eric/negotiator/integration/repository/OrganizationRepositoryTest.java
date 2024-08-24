@@ -4,24 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
-import java.util.NoSuchElementException;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@RepositoryTest(loadTestData = true)
 public class OrganizationRepositoryTest {
 
   @Autowired OrganizationRepository organizationRepository;
@@ -51,23 +46,13 @@ public class OrganizationRepositoryTest {
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     Organization savedOrganization =
-        organizationRepository.save(Organization.builder().externalId("ExternalId").build());
+        organizationRepository.saveAndFlush(new Organization(1L, "testorg", "testname", Set.of()));
 
-    resourceRepository.save(
-        Resource.builder()
-            .name("test Resource")
-            .sourceId("collection:1")
-            .discoveryService(savedDiscoveryService)
-            .organization(savedOrganization)
-            .build());
+    Resource resource =
+        resourceRepository.saveAndFlush(
+            new Resource(
+                "test-resource", "test-desc", "test-id", savedDiscoveryService, savedOrganization));
     assertEquals(
-        "test Resource",
-        organizationRepository
-            .findDetailedById(savedOrganization.getId())
-            .orElseThrow(() -> new NoSuchElementException("Value is empty"))
-            .getResources()
-            .iterator()
-            .next()
-            .getName());
+        "test-resource", resource.getOrganization().getResources().iterator().next().getName());
   }
 }

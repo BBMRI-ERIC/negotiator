@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
@@ -25,23 +24,19 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@IntegrationTest(loadTestData = true)
 public class ResourceControllerTests {
 
   private static final String RESOURCE_ENDPOINT = "/v3/resources/%s";
@@ -75,6 +70,7 @@ public class ResourceControllerTests {
   }
 
   @Test
+  @Transactional
   void getAll_10kResourcesInDb_ok() throws Exception {
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());

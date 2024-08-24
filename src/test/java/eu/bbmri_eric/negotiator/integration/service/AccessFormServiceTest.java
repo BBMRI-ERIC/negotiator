@@ -29,18 +29,14 @@ import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestService;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@IntegrationTest(loadTestData = true)
 public class AccessFormServiceTest {
 
   @Autowired AccessFormService accessFormService;
@@ -195,7 +191,7 @@ public class AccessFormServiceTest {
     Request request = requestRepository.findById(requestDTO.getId()).get();
     request.getResources().add(resource);
     request = requestRepository.save(request);
-    assertEquals(2, accessFormRepository.findAll().size());
+    assertEquals(4, accessFormRepository.findAll().size());
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     Optional<AccessFormSectionDTO> section =
         accessFormDTO.getSections().stream()
@@ -264,7 +260,7 @@ public class AccessFormServiceTest {
     Request request = requestRepository.findById(requestDTO.getId()).get();
     request.getResources().add(resource);
     request = requestRepository.save(request);
-    assertEquals(2, accessFormRepository.findAll().size());
+    assertEquals(4, accessFormRepository.findAll().size());
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     Optional<AccessFormSectionDTO> section =
         accessFormDTO.getSections().stream()

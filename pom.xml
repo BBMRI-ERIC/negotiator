@@ -198,11 +198,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <artifactId>h2</artifactId>
-            <groupId>com.h2database</groupId>
-            <version>2.3.232</version>
-        </dependency>
-        <dependency>
             <artifactId>postgresql</artifactId>
             <groupId>org.postgresql</groupId>
             <version>42.7.3</version>
@@ -310,12 +305,9 @@
             <version>4.1.112.Final</version>
         </dependency>
         <dependency>
-            <!-- Version 10.x.x is currently not compatible with spring 3.3.1 -->
-            <!-- See https://github.com/spring-projects/spring-boot/issues/38164 -->
-            <!-- NB: version 10.x.x will need also package  flyway-database-postgresql -->
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>9.22.3</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -357,6 +349,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <version>3.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>9.22.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

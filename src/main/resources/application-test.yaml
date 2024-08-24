@@ -1,37 +1,24 @@
 spring:
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: "jdbc:h2:mem:negotiator;MODE=PostgreSQL;INIT=RUNSCRIPT FROM 'classpath:db/test/add_json_extract_function.sql'"
-    username: negotiator
-    password: negotiator
+  flyway:
+    clean-disabled: false
+    locations: classpath:db/migration/
   servlet:
     multipart:
-      max-file-size: 1MB
-      max-request-size: 1MB
-  sql:
-    init:
-      mode: always
-      platform: test
-      data-locations: classpath:db/test/migration/R__Initial_data.sql
-  jpa:
-    hibernate:
-      show-sql: false
-      ddl-auto: create-drop
-    defer-datasource-initialization: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+      max-file-size: 2MB
+      max-request-size: 2MB
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
-  flyway:
-    enabled: false
 logging:
   level:
     eu.bbmri_eric.negotiator: debug
+    org:
+      springframework:
+        context: debug
+
 negotiator:
   molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"

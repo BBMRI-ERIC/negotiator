@@ -40,12 +40,6 @@ spring:
     date-format: "yyyy-MM-dd"
   jpa:
     open-in-view: false
-  flyway:
-    enabled: true
-    user:
-    password:
-    url:
-    locations:
   security:
     cors:
       allowed-origins: "*"

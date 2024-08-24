@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.unit.context;
+package eu.bbmri_eric.negotiator.util;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

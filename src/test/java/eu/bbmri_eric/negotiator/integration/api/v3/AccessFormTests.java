@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementCreateDTO;
@@ -16,26 +15,22 @@ import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSetCreateDTO;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@IntegrationTest
 public class AccessFormTests {
 
   private static final String ACCESS_FORMS_ENDPOINT = "/v3/access-forms";

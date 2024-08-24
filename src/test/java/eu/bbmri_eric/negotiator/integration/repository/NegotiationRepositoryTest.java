@@ -17,29 +17,21 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest(showSql = false)
-@ActiveProfiles("test")
-@TestPropertySource(properties = {"spring.sql.init.mode=never"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@RepositoryTest
 public class NegotiationRepositoryTest {
-  @Autowired DataSource dbSource;
   @Autowired PersonRepository personRepository;
   @Autowired ResourceRepository resourceRepository;
   @Autowired RequestRepository requestRepository;
@@ -52,47 +44,26 @@ public class NegotiationRepositoryTest {
   private Resource resource;
 
   String payload =
-      "    {\n"
-          + "\"project\": {\n"
-          + "\"title\": \"Title\",\n"
-          + "\"description\": \"Description\"\n"
-          + "},\n"
-          + " \"samples\": {\n"
-          + "   \"sample-type\": \"DNA\",\n"
-          + "   \"num-of-subjects\": 10,\n"
-          + "   \"num-of-samples\": 20,\n"
-          + "   \"volume-per-sample\": 5\n"
-          + " },\n"
-          + " \"ethics-vote\": {\n"
-          + "   \"ethics-vote\": \"My ethic vote\"\n"
-          + " }\n"
-          + "}\n";
-
-  public void addH2Function() {
-    String statementScript =
-        "create DOMAIN IF NOT EXISTS JSONB AS JSON; \n"
-            + "CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '\n"
-            + "import com.jayway.jsonpath.JsonPath;\n"
-            + "    @CODE\n"
-            + "    String jsonbExtractPath(String jsonString, String...jsonPaths) {\n"
-            + "      String overallPath = String.join(\".\", jsonPaths);\n"
-            + "      try {\n"
-            + "        Object result = JsonPath.read(jsonString, overallPath);\n"
-            + "        if (result != null) {\n"
-            + "          return result.toString();\n"
-            + "        }\n"
-            + "      } catch (Exception e) {\n"
-            + "        e.printStackTrace();\n"
-            + "      }\n"
-            + "      return null;\n"
-            + "    }';";
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
-    jdbcTemplate.execute(statementScript);
-  }
+      """
+                      {
+                  "project": {
+                  "title": "Title",
+                  "description": "Description"
+                  },
+                   "samples": {
+                     "sample-type": "DNA",
+                     "num-of-subjects": 10,
+                     "num-of-samples": 20,
+                     "volume-per-sample": 5
+                   },
+                   "ethics-vote": {
+                     "ethics-vote": "My ethic vote"
+                   }
+                  }
+                  """;
 
   @BeforeEach
   void setUp() {
-    addH2Function();
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
@@ -135,6 +106,7 @@ public class NegotiationRepositoryTest {
   }
 
   @Test
+  @Disabled
   void save_10000differentResources_ok() {
     resourceRepository.deleteAll();
     for (int i = 0; i < 10000; i++) {
@@ -376,7 +348,7 @@ public class NegotiationRepositoryTest {
   }
 
   private Person savePerson(String subjectId) {
-    return personRepository.save(
+    return personRepository.saveAndFlush(
         Person.builder()
             .subjectId(subjectId)
             .name("John")

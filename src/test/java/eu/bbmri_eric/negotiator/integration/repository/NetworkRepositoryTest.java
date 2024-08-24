@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.integration.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.network.Network;
@@ -14,20 +13,14 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-@TestPropertySource(properties = {"spring.sql.init.mode=never"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@RepositoryTest
 public class NetworkRepositoryTest {
 
   @Autowired private NetworkRepository networkRepository;
@@ -40,7 +33,6 @@ public class NetworkRepositoryTest {
   @Autowired private PersonRepository personRepository;
 
   @Test
-  @Transactional
   void findByExternalIdReturnsNetworkWhenIdExists() {
     Network network = Network.builder().uri("http://example.com").externalId("validId").build();
     network.setExternalId("known-id");

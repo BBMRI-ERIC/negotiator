@@ -9,16 +9,12 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@IntegrationTest(loadTestData = true)
 public class ResourcesHandlerTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NonRepresentedResourcesHandler handler;

@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.common.configuration;
+package eu.bbmri_eric.negotiator.config;
 
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
@@ -9,11 +9,9 @@ import org.springframework.boot.devtools.restart.RestartScope;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 @TestConfiguration(proxyBeanMethods = false)
-@Profile({"dev"})
 public class DevDatabaseConfiguration {
 
   @Value("${spring.datasource.username}")

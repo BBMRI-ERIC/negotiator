@@ -9,23 +9,17 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@IntegrationTest
 public class PersonServiceImplTest {
 
   @Autowired PersonService personService;
   @Autowired PersonRepository personRepository;
-
-  @Test
-  void loadContext() {}
+  
 
   @Test
   void findAll_page_ok() {

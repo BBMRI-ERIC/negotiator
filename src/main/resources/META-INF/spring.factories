@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory=\
+eu.bbmri_eric.negotiator.config.EnablePostgresTestContainerContextCustomizerFactory
