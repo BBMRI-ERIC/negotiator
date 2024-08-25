@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -76,6 +77,7 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithUserDetails("researcher")
   void getRepresentedNetworks_oneNetwork_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(102)))

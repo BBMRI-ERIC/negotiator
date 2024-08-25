@@ -52,6 +52,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   void getAllElements_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT))
@@ -66,6 +67,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   void getElementById_exists_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(ELEMENTS_ENDPOINT + "/1"))
@@ -138,6 +140,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   void getAllSections_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(SECTIONS_ENDPOINT))
@@ -150,6 +153,7 @@ public class AccessFormTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   void getSectionById_exists_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(SECTIONS_ENDPOINT + "/1"))

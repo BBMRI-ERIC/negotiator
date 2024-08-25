@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import java.util.HashMap;
 import java.util.List;
@@ -146,7 +146,7 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
     }
     Long creatorId;
     try {
-      creatorId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
+      creatorId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     } catch (ClassCastException e) {
       return false;
     } catch (NullPointerException e) {
@@ -156,11 +156,10 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
       return negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, creatorId);
     } else if (securityRule.getAttributes().contains("isRepresentative")) {
       return personService.isRepresentativeOfAnyResource(
-          NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-          List.of(resourceId));
+          AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), List.of(resourceId));
     } else if (securityRule.getAttributes().contains("isAdmin")) {
       return Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
-          || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+          || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
     }
     return true;
   }

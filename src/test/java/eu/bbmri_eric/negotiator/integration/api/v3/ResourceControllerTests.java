@@ -59,6 +59,7 @@ public class ResourceControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   void getResourceById_validId_ok() throws Exception {
     Resource resource = repository.findById(4L).get();
     mockMvc
@@ -71,6 +72,7 @@ public class ResourceControllerTests {
 
   @Test
   @Transactional
+  @WithMockUser("researcher")
   void getAll_10kResourcesInDb_ok() throws Exception {
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());

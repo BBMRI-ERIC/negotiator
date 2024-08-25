@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
@@ -13,7 +14,6 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import jakarta.transaction.Transactional;
@@ -88,9 +88,9 @@ public class ResourceServiceImpl implements ResourceService {
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
     }
-    Long userId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     if (userIsntAuthorized(negotiationId, userId)
-        && !NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You do not have permission to access this resource");
     }
     List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);

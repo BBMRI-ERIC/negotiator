@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.config;
 
-import eu.bbmri_eric.negotiator.common.configuration.security.auth.NegotiatorJwtAuthenticationToken;
+import eu.bbmri_eric.negotiator.common.configuration.security.oauth2.NegotiatorJwtAuthenticationToken;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.time.Instant;
@@ -50,8 +50,7 @@ public class WithMockCustomUserSecurityContextFactory
         new Jwt(
             "testToken", Instant.now(), Instant.now().plus(3L, ChronoUnit.HOURS), headers, claims);
 
-    Authentication auth =
-        new NegotiatorJwtAuthenticationToken(principal, jwt, authorities, customUser.authSubject());
+    Authentication auth = new NegotiatorJwtAuthenticationToken(principal, jwt, authorities);
 
     context.setAuthentication(auth);
     return context;

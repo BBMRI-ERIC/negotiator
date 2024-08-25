@@ -1,18 +1,20 @@
-package eu.bbmri_eric.negotiator.user;
+package eu.bbmri_eric.negotiator.config;
 
+import eu.bbmri_eric.negotiator.common.NegotiatorPrincipal;
+import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Collection;
 import java.util.HashSet;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails {
+public class MockUserPrincipal implements UserDetails, NegotiatorPrincipal {
 
   private final Person person;
 
   private final HashSet<GrantedAuthority> authorities;
 
-  public HttpBasicUserDetails(Person person) {
+  public MockUserPrincipal(Person person) {
     this.person = person;
     authorities = new HashSet<>();
     person
@@ -58,5 +60,10 @@ public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails 
 
   public Person getPerson() {
     return person;
+  }
+
+  @Override
+  public String getName() {
+    return person.getName();
   }
 }

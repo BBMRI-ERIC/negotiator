@@ -32,6 +32,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -193,16 +194,14 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testGetAll_Ok_whenNoNegotiationIsAssigned() throws Exception {
     requestService.create(TestUtils.createRequest(false));
     String unassignedRequestSelector = "$[?(@.id == '%s')]".formatted(UNASSIGNED_REQUEST_ID);
     long previousCount = repository.count();
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
-                .accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath(unassignedRequestSelector).exists())
@@ -212,14 +211,12 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithMockUser
   public void testGetAll_Ok_whenNegotiationIsAssigned() throws Exception {
     long previousCount = repository.count();
 
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
-                .accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get(ENDPOINT))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is((int) previousCount)))
         .andExpect(jsonPath("$[0].id").isString())
@@ -231,6 +228,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testGetById_Ok_whenNoNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
     long previousCount = repository.count();
@@ -238,7 +236,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
-                .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
@@ -250,6 +247,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
     NegotiationDTO n =
@@ -261,7 +259,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
-                .with(httpBasic("directory", "directory"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isString())
@@ -309,6 +306,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testUpdate_NotFound() throws Exception {
     RequestCreateDTO updateRequest = TestUtils.createRequest(true);
     String requestBody = TestUtils.jsonFromRequest(updateRequest);
@@ -316,7 +314,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("%s/-1".formatted(ENDPOINT))
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -324,6 +321,7 @@ public class RequestControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testUpdate_Ok() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
 
@@ -334,7 +332,6 @@ public class RequestControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("%s/%s".formatted(ENDPOINT, r.getId()))
-                .with(httpBasic("directory", "directory"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(requestBody))

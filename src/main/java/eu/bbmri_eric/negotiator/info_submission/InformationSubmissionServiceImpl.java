@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.info_submission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
@@ -12,7 +13,6 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
@@ -90,7 +90,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
 
   private void verifyReadAuthorization(InformationSubmission submission) {
     if (!isAuthorizedToRead(
-        submission, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())) {
+        submission, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
       throw new ForbiddenRequestException("You are not authorized to perform this action");
     }
   }
@@ -107,14 +107,14 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   @Override
   public MultipartFile createSummary(Long requirementId, String negotiationId) {
     if (negotiationRepository.existsByIdAndCreatedBy_Id(
-            negotiationId, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
-        || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+            negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       InformationRequirement requirement =
           informationRequirementRepository
               .findById(requirementId)
               .orElseThrow(() -> new EntityNotFoundException(requirementId));
       if (requirement.isViewableOnlyByAdmin()
-          && !NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+          && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
         throw new ForbiddenRequestException("You are not authorized to perform this action");
       }
       List<InformationSubmission> allSubmissions =
@@ -235,7 +235,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
 
   private void verifyAuthorization(InformationSubmissionDTO informationSubmissionDTO) {
     if (!isAuthorizedToWrite(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(),
         informationSubmissionDTO.getResourceId())) {
       throw new ForbiddenRequestException("You are not authorized to perform this action");
     }
@@ -254,7 +254,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   private boolean isAuthorizedToRead(InformationSubmission submission, Long personId) {
     boolean isRepresentative = isAuthorizedToWrite(personId, submission.getResource().getId());
     if (isOnlyForAdmin(submission)
-        && (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin() || isRepresentative)) {
+        && (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin() || isRepresentative)) {
       return true;
     }
     return isRepresentative

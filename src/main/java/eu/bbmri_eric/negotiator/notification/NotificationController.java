@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -26,6 +26,6 @@ public class NotificationController {
   @ResponseStatus(HttpStatus.OK)
   public List<NotificationDTO> getNotificationsForUser() {
     return userNotificationService.getNotificationsForUser(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 }

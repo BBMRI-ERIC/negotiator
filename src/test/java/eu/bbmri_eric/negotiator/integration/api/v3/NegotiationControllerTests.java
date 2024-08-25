@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
@@ -26,7 +27,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
@@ -308,7 +308,7 @@ public class NegotiationControllerTests {
   public void testGetAllForResearcher_whenNoFilters() throws Exception {
     String endpoint =
         "/v3/users/%s/negotiations"
-            .formatted(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+            .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
 
     String link =
         "http://localhost%s?sortBy=creationDate&sortOrder=DESC&page=0&size=50".formatted(endpoint);
@@ -336,8 +336,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=UNK"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isBadRequest());
   }
 
@@ -349,8 +348,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?unkParam=something"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isBadRequest());
   }
 
@@ -370,7 +368,7 @@ public class NegotiationControllerTests {
     int pageSize = 2;
     String endpoint =
         "/v3/users/%s/negotiations"
-            .formatted(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+            .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
     String firstLink =
         "http://localhost%s?sortBy=creationDate&sortOrder=DESC&page=0&size=%s"
             .formatted(endpoint, pageSize);
@@ -401,8 +399,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=currentState"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -422,8 +419,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=currentState&sortOrder=ASC"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -442,8 +438,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=currentState&sortOrder=DESC"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -462,8 +457,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=title"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -483,8 +477,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=title&sortOrder=ASC"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -503,8 +496,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=title&sortOrder=DESC"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -523,8 +515,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortOrder=UNKNOWN"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isBadRequest());
   }
 
@@ -536,8 +527,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?sortBy=currentState"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -559,8 +549,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=AUTHOR"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -582,8 +571,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=REPRESENTATIVE"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(0)));
@@ -600,8 +588,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?status=IN_PROGRESS"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(1)))
@@ -620,8 +607,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?createdAfter=2023-04-13" // day after negotiation-1
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(3)))
@@ -641,8 +627,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?createdBefore=2023-04-13" // day after negotiation-1
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(1)))
@@ -661,8 +646,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?createdAfter=2023-04-13&createdBefore=2024-04-13"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(2)))
@@ -681,8 +665,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -704,8 +687,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=AUTHOR"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(0)));
@@ -722,8 +704,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -747,8 +728,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(4)))
@@ -783,8 +763,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=AUTHOR"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(2)))
@@ -818,8 +797,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=REPRESENTATIVE"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(3)))
@@ -850,8 +828,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=AUTHOR&status=ABANDONED&createdAfter=2024-01-09&createdBefore=2024-01-11"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(1)))
@@ -1101,8 +1078,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk());
   }
 
@@ -1113,8 +1089,7 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.get(
                 "/v3/users/%s/negotiations?role=AUTHOR"
-                    .formatted(
-                        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())))
+                    .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)));
   }

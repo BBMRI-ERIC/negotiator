@@ -150,18 +150,6 @@ public class QueryV2ControllerTests {
   }
 
   @Test
-  public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    QueryCreateV2DTO request = TestUtils.createQueryV2Request();
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isUnauthorized(),
-        httpBasic("admin", "wrong_pass"),
-        ENDPOINT);
-  }
-
-  @Test
   public void testUpdate_CreateWhenRequestIsNotFound() throws Exception {
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();
     updateRequest.setToken("-1__search__-1");

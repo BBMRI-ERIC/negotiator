@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.attachment;
 
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -11,7 +12,6 @@ import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +58,7 @@ public class DBAttachmentService implements AttachmentService {
           "The organization specified is not involved in the negotiation");
     }
 
-    Long userId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId();
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     checkAuthorization(userId, negotiationId, organizationExternalId);
 
     Negotiation negotiation = fetchNegotiation(negotiationId);
@@ -171,17 +171,16 @@ public class DBAttachmentService implements AttachmentService {
 
   private boolean isRepresentativeOfOrganization(Long organizationId) {
     return personService.isRepresentativeOfAnyResourceOfOrganization(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), organizationId);
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), organizationId);
   }
 
   private boolean isRepresentativeOfOrganization(String organizationExternalId) {
     return personService.isRepresentativeOfAnyResourceOfOrganization(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        organizationExternalId);
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), organizationExternalId);
   }
 
   private boolean isAdmin() {
-    return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+    return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private boolean isAuthorizedForAttachment(MetadataAttachmentViewDTO attachment) {
@@ -204,7 +203,7 @@ public class DBAttachmentService implements AttachmentService {
   boolean isCurrentAuthenticatedUserAttachmentCreator(MetadataAttachmentViewDTO attachment) {
     return attachment
         .getCreatedById()
-        .equals(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+        .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 
   boolean isAttachmentPublic(MetadataAttachmentViewDTO attachment) {

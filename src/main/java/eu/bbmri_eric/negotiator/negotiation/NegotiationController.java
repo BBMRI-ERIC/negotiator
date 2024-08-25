@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
@@ -13,7 +14,6 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -102,7 +102,7 @@ public class NegotiationController {
   @ResponseStatus(HttpStatus.CREATED)
   NegotiationDTO add(@Valid @RequestBody NegotiationCreateDTO request) {
     return negotiationService.create(
-        request, NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+        request, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 
   /**
@@ -223,8 +223,7 @@ public class NegotiationController {
   }
 
   private static void checkAuthorization(Long id) {
-    if (!Objects.equals(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), id)) {
+    if (!Objects.equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
   }
@@ -238,7 +237,7 @@ public class NegotiationController {
   @GetMapping("/negotiations/{id}")
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
-    boolean isAdmin = NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+    boolean isAdmin = AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
     if (isAuthorizedForNegotiation(negotiationDTO)) {
       if (negotiationService.isNegotiationCreator(id) || isAdmin) {
         return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
@@ -259,7 +258,7 @@ public class NegotiationController {
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   ResponseEntity<?> sendEvent(
       @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
-    if (!NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()
+    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
@@ -283,8 +282,7 @@ public class NegotiationController {
       @Valid @PathVariable String resourceId,
       @Valid @PathVariable("event") NegotiationResourceEvent event) {
     if (!personService.isRepresentativeOfAnyResource(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-            List.of(resourceId))
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), List.of(resourceId))
         && !isCreator(negotiationService.findById(negotiationId, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
@@ -333,7 +331,7 @@ public class NegotiationController {
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
       @PathVariable String id) {
-    if (NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+    if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       return resourceWithStatusAssembler.toCollectionModelWithAdminLinks(
           resourceService.findAllInNegotiation(id), id);
     }
@@ -364,15 +362,15 @@ public class NegotiationController {
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
     return isCreator(negotiationDTO)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(),
             negotiationDTO.getId())
-        || NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private String getUserId() {
     String userId = null;
     try {
-      userId = NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId().toString();
+      userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId().toString();
     } catch (ClassCastException e) {
       log.warn("Could not find user in db");
     }
