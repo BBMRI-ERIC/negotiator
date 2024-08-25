@@ -67,16 +67,14 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
         personRepository
             .findBySubjectId(subjectIdentifier)
             .orElseGet(() -> saveNewUserAsPerson(userInfo));
-    return new NegotiatorJwtAuthenticationToken(
-        person, jwt, parseUserAuthorities(userInfo), subjectIdentifier);
+    return new NegotiatorJwtAuthenticationToken(person, jwt, parseUserAuthorities(userInfo));
   }
 
   private NegotiatorJwtAuthenticationToken parseJWTAsMachineToken(Jwt jwt) {
     String clientId = jwt.getClaimAsString("client_id");
     Person person =
         personRepository.findBySubjectId(clientId).orElseGet(() -> saveNewClientAsPerson(jwt));
-    return new NegotiatorJwtAuthenticationToken(
-        person, jwt, getAuthoritiesFromScope(jwt), person.getSubjectId());
+    return new NegotiatorJwtAuthenticationToken(person, jwt, getAuthoritiesFromScope(jwt));
   }
 
   private Person saveNewClientAsPerson(Jwt jwt) {

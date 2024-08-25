@@ -18,8 +18,8 @@ public class NegotiatorJwtAuthenticationToken extends JwtAuthenticationToken {
   private final JwtUserDetails userDetails;
 
   public NegotiatorJwtAuthenticationToken(
-      Person person, Jwt jwt, Collection<? extends GrantedAuthority> authorities, String name) {
-    super(jwt, authorities, name);
+      Person person, Jwt jwt, Collection<? extends GrantedAuthority> authorities) {
+    super(jwt, authorities);
     this.userDetails = new JwtUserDetails(person, authorities);
   }
 

@@ -50,8 +50,7 @@ public class WithMockCustomUserSecurityContextFactory
         new Jwt(
             "testToken", Instant.now(), Instant.now().plus(3L, ChronoUnit.HOURS), headers, claims);
 
-    Authentication auth =
-        new NegotiatorJwtAuthenticationToken(principal, jwt, authorities, customUser.authSubject());
+    Authentication auth = new NegotiatorJwtAuthenticationToken(principal, jwt, authorities);
 
     context.setAuthentication(auth);
     return context;
