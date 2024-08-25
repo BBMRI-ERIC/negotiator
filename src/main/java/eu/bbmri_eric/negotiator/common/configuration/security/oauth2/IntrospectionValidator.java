@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.common.configuration.security.auth;
+package eu.bbmri_eric.negotiator.common.configuration.security.oauth2;
 
 import java.io.IOException;
 import java.net.URI;

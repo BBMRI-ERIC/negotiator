@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.common.configuration.security.auth;
+package eu.bbmri_eric.negotiator.common.configuration.security.oauth2;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;

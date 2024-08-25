@@ -4,7 +4,6 @@ import static org.springframework.security.oauth2.core.OAuth2TokenIntrospectionC
 
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import eu.bbmri_eric.negotiator.common.configuration.security.auth.IntrospectionValidator;
 import java.util.List;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.common.configuration.security.auth;
+package eu.bbmri_eric.negotiator.common.configuration.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

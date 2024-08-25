@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.common.configuration.security.oauth2;
 
-import eu.bbmri_eric.negotiator.common.configuration.security.auth.CustomJWTAuthConverter;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
