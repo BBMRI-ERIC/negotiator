@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.governance.organization;
 
 import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -46,7 +45,7 @@ public class Organization extends AuditEntity {
 
   private String name;
 
-  @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "organization")
   private Set<Resource> resources = new HashSet<>();
 
   public Organization(String externalId, String name) {

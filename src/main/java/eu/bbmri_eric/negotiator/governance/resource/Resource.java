@@ -66,7 +66,7 @@ public class Resource {
   @NotNull
   private DiscoveryService discoveryService;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
   @JoinColumn(name = "organization_id")
   @Exclude
   @NotNull
