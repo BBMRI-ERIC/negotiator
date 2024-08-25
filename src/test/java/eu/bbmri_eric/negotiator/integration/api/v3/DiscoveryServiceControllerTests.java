@@ -23,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,29 +47,31 @@ public class DiscoveryServiceControllerTests {
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   public void testCreate_BadRequest_whenName_IsMissing() throws Exception {
     DiscoveryServiceCreateDTO request = TestUtils.createDiscoveryServiceRequest(false);
     request.setName(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-services")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   public void testCreate_BadRequest_whenUrl_IsMissing() throws Exception {
     DiscoveryServiceCreateDTO request = TestUtils.createDiscoveryServiceRequest(false);
     request.setUrl(null);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isBadRequest(),
-        httpBasic("admin", "admin"),
-        ENDPOINT);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/v3/discovery-services")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -119,18 +122,16 @@ public class DiscoveryServiceControllerTests {
   }
 
   @Test
+  @WithMockUser
   public void testCreate_Forbidden_whenNoPermission() throws Exception {
     DiscoveryServiceCreateDTO request = TestUtils.createDiscoveryServiceRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.POST,
-        request,
-        status().isForbidden(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
+    mockMvc
+        .perform(MockMvcRequestBuilders.post("/v3/discovery-services"))
+        .andExpect(status().isForbidden());
   }
 
   @Test
+  @WithMockUser(roles = "ADMIN")
   public void testUpdate_whenIsCorrect() throws Exception {
     // The data source to be updated
     DiscoveryService discoveryServiceEntity =
@@ -145,7 +146,6 @@ public class DiscoveryServiceControllerTests {
         .perform(
             MockMvcRequestBuilders.put(
                     "/v3/discovery-services/%s".formatted(discoveryServiceEntity.getId()))
-                .with(httpBasic("admin", "admin"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isNoContent())
@@ -179,15 +179,11 @@ public class DiscoveryServiceControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void testUpdate_Forbidden_whenNoPermission() throws Exception {
-    DiscoveryServiceCreateDTO request = TestUtils.createDiscoveryServiceRequest(false);
-    TestUtils.checkErrorResponse(
-        mockMvc,
-        HttpMethod.PUT,
-        request,
-        status().isForbidden(),
-        httpBasic("researcher", "researcher"),
-        ENDPOINT);
+    mockMvc
+        .perform(MockMvcRequestBuilders.put("/v3/discovery-services"))
+        .andExpect(status().isForbidden());
   }
 
   @Test
