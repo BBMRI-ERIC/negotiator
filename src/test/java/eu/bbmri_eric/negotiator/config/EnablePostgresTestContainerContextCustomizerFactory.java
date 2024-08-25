@@ -13,6 +13,7 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -93,6 +94,12 @@ public class EnablePostgresTestContainerContextCustomizerFactory
       }
       var propertySource = new MapPropertySource("PostgresContainer Test Properties", properties);
       context.getEnvironment().getPropertySources().addFirst(propertySource);
+      context.addApplicationListener(
+          event -> {
+            if (event instanceof ContextClosedEvent) {
+              postgresContainer.stop();
+            }
+          });
     }
   }
 }
