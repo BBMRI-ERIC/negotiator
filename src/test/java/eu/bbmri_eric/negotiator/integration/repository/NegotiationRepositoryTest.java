@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -108,7 +107,6 @@ public class NegotiationRepositoryTest {
   }
 
   @Test
-  @Disabled
   void save_10000differentResources_ok() {
     // Batch insert for organizations and resources
     List<Organization> organizations = new ArrayList<>(10000);
@@ -123,7 +121,6 @@ public class NegotiationRepositoryTest {
       organizations.add(organization);
     }
     organizationRepository.saveAll(organizations);
-
     for (int i = 0; i < 10000; i++) {
       Resource resource =
           Resource.builder()
@@ -143,7 +140,13 @@ public class NegotiationRepositoryTest {
     for (int i = 0; i < 10000; i++) {
       Resource resource = resources.get(i);
       for (int j = 0; j < 20; j++) {
-        Person person = savePerson("test-%s-%s".formatted(i, j));
+        Person person =
+            Person.builder()
+                .subjectId("test-id-%s-%s".formatted(i, j))
+                .name("John")
+                .email("test@test.com")
+                .resources(new HashSet<>())
+                .build();
         person.addResource(resource);
         persons.add(person);
       }
