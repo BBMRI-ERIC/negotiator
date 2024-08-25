@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,6 +33,7 @@ public class LifecycleInfoTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   void getAllNegotiationStates_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NEGOTIATION_STATES_ENDPOINT))
@@ -44,6 +46,7 @@ public class LifecycleInfoTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   void getAllNegotiationEvents_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NEGOTIATION_EVENTS_ENDPOINT))
@@ -56,6 +59,7 @@ public class LifecycleInfoTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   void getAllResourceStates_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCE_STATES_ENDPOINT))
@@ -68,6 +72,7 @@ public class LifecycleInfoTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   void getAllResourceEvents_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCE_EVENTS_ENDPOINT))

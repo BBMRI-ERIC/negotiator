@@ -75,6 +75,7 @@ public class SecurityTest {
   }
 
   @Test
+  @WithMockUser("researcher")
   void testAuthenticatedButMethodNotAllowed() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.put("/v3/resources"))

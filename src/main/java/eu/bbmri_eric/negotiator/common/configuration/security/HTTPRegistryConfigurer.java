@@ -10,14 +10,14 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 
 /** Configuration class for securing available HTTP endpoints. */
 @Configuration
-public class HTTPEndpointsConfiguration {
+public class HTTPRegistryConfigurer {
 
   private final MvcRequestMatcher.Builder mvc;
 
   @Value("${management.endpoint.prometheus.ip}")
   private String prometheusWhitelistedIp;
 
-  public HTTPEndpointsConfiguration(MvcRequestMatcher.Builder mvcRequestMatcherBuilder) {
+  public HTTPRegistryConfigurer(MvcRequestMatcher.Builder mvcRequestMatcherBuilder) {
     mvc = mvcRequestMatcherBuilder;
   }
 
@@ -103,7 +103,9 @@ public class HTTPEndpointsConfiguration {
         .access(
             new WebExpressionAuthorizationManager(
                 "hasIpAddress('%s')".formatted(prometheusWhitelistedIp)))
+        .requestMatchers(mvc.pattern("/actuator/info"))
+        .permitAll()
         .anyRequest()
-        .permitAll();
+        .authenticated();
   }
 }

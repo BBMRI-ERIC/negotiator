@@ -20,15 +20,15 @@ public class SecurityConfig {
 
   private final OAuth2Configuration oauthConfigurer;
 
-  private final HTTPEndpointsConfiguration httpEndpointsConfiguration;
+  private final HTTPRegistryConfigurer httpRegistryConfigurer;
 
   public SecurityConfig(
       ExceptionHandlerFilter exceptionHandlerFilter,
       OAuth2Configuration oauthConfigurer,
-      HTTPEndpointsConfiguration httpEndpointsConfiguration) {
+      HTTPRegistryConfigurer httpRegistryConfigurer) {
     this.exceptionHandlerFilter = exceptionHandlerFilter;
     this.oauthConfigurer = oauthConfigurer;
-    this.httpEndpointsConfiguration = httpEndpointsConfiguration;
+    this.httpRegistryConfigurer = httpRegistryConfigurer;
   }
 
   @Bean
@@ -39,7 +39,7 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(httpEndpointsConfiguration::configure)
+        .authorizeHttpRequests(httpRegistryConfigurer::configure)
         .oauth2ResourceServer(oauthConfigurer::configure);
     return http.build();
   }

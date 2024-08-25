@@ -191,6 +191,7 @@ public class DiscoveryServiceControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void test_getAllDiscoveryServices() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(ENDPOINT).contentType(MediaType.APPLICATION_JSON))
@@ -200,6 +201,7 @@ public class DiscoveryServiceControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void retrieveDiscoveryService_success() throws Exception {
     long discoveryServiceId = 1L;
     mockMvc
@@ -212,6 +214,7 @@ public class DiscoveryServiceControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
   public void retrieveDiscoveryService_notFound() throws Exception {
     long nonexistentId = 999L;
     mockMvc

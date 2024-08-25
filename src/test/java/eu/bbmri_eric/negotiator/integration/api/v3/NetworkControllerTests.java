@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,6 +47,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   public void getNetworks_validURL_allNetworks() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL))
@@ -59,6 +61,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   public void getNetwork_validNetworkId_Network() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1"))
@@ -68,6 +71,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   public void getNetworkResources_validNetworkId_returnsResources() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/resources"))
@@ -81,6 +85,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   public void getNetworkManagers_validNetworkId_returnsManagers() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/managers"))
@@ -93,6 +98,7 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   public void getNetworkNegotiations_validNetworkId_returnsNegotiations() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations"))

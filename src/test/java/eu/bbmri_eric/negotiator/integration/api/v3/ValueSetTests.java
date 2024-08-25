@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -26,6 +27,7 @@ public class ValueSetTests {
   }
 
   @Test
+  @WithMockUser("researcher")
   void getAllValueSets_empty_ok() throws Exception {
     mockMvc.perform(get(ENDPOINT)).andExpect(status().isOk());
   }
