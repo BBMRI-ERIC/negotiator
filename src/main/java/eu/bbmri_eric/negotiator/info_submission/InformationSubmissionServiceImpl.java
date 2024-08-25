@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.info_submission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;

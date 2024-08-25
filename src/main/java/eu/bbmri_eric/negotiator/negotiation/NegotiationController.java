@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;

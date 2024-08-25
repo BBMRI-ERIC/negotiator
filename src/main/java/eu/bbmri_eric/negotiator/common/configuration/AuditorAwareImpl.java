@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.common.configuration;
 
-import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorPrincipal;
+import eu.bbmri_eric.negotiator.common.NegotiatorPrincipal;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;

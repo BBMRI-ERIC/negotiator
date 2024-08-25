@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.common.configuration.security.oauth2;
 
-import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorPrincipal;
-import eu.bbmri_eric.negotiator.common.configuration.security.UserPrincipal;
+import eu.bbmri_eric.negotiator.common.NegotiatorPrincipal;
+import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.common.configuration.security;
+package eu.bbmri_eric.negotiator.common;
 
 import java.util.List;
 import java.util.stream.Collectors;
