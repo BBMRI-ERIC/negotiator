@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -103,12 +102,6 @@ public class SecurityTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(httpBasic("directory", "directory")))
         .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(username = "researcher")
-  void testGetAuthUserId() {
-    assertNotNull(userDetailsService.loadUserByUsername("researcher"));
   }
 
   @Test

@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
-public interface NegotiatorUserDetails {
+public interface NegotiatorPrincipal {
 
   Person getPerson();
 }

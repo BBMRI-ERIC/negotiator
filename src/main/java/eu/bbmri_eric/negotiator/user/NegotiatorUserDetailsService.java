@@ -19,7 +19,7 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
 
   public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorUserDetails) auth.getPrincipal()).getPerson().getId();
+    return ((NegotiatorPrincipal) auth.getPrincipal()).getPerson().getId();
   }
 
   public static boolean isCurrentlyAuthenticatedUserAdmin() {
@@ -40,6 +40,6 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
         personRepository
             .findByName(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new HttpBasicUserDetails(person);
+    return new MockPrincipal(person);
   }
 }

@@ -6,13 +6,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class HttpBasicUserDetails implements UserDetails, NegotiatorUserDetails {
+public class MockPrincipal implements UserDetails, NegotiatorPrincipal {
 
   private final Person person;
 
   private final HashSet<GrantedAuthority> authorities;
 
-  public HttpBasicUserDetails(Person person) {
+  public MockPrincipal(Person person) {
     this.person = person;
     authorities = new HashSet<>();
     person

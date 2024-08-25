@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
-
-public class JwtUserDetails implements NegotiatorUserDetails {
+public class JwtUserDetails implements NegotiatorPrincipal {
 
   private final Person person;
 
