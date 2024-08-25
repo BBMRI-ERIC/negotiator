@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
+import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;

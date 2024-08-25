@@ -1,5 +1,7 @@
-package eu.bbmri_eric.negotiator.user;
+package eu.bbmri_eric.negotiator.config;
 
+import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorPrincipal;
+import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Collection;
 import java.util.HashSet;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,21 +1,14 @@
-package eu.bbmri_eric.negotiator.user;
+package eu.bbmri_eric.negotiator.common.configuration.security;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NegotiatorUserDetailsService implements UserDetailsService {
-
-  @Autowired private PersonRepository personRepository;
+public class NegotiatorUserDetailsService {
 
   public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -31,15 +24,5 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
-  }
-
-  @Override
-  @Transactional
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Person person =
-        personRepository
-            .findByName(username)
-            .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new MockUserPrincipal(person);
   }
 }

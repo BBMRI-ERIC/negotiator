@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.attachment;
 
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.common.configuration.security.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -11,7 +12,6 @@ import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.user.NegotiatorUserDetailsService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import java.io.IOException;
 import java.util.List;

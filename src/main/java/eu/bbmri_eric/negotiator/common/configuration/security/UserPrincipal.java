@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.common.configuration.security;
 
-import eu.bbmri_eric.negotiator.user.NegotiatorPrincipal;
 import eu.bbmri_eric.negotiator.user.Person;
 import lombok.Getter;
 
