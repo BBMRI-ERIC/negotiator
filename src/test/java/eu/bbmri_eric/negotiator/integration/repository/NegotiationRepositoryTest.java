@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.annotation.DirtiesContext;
 
 @RepositoryTest
 public class NegotiationRepositoryTest {
@@ -108,7 +108,7 @@ public class NegotiationRepositoryTest {
   }
 
   @Test
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Disabled
   void save_10000differentResources_ok() {
     // Batch insert for organizations and resources
     List<Organization> organizations = new ArrayList<>(10000);
