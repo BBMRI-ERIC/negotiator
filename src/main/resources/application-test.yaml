@@ -2,6 +2,11 @@ spring:
   flyway:
     clean-disabled: false
     locations: classpath:db/migration/, classpath:db/test/migration
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 1000
   servlet:
     multipart:
       max-file-size: 2MB

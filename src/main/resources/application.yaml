@@ -40,6 +40,10 @@ spring:
     date-format: "yyyy-MM-dd"
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
   security:
     cors:
       allowed-origins: "*"
