@@ -66,7 +66,7 @@ public class Resource {
   @NotNull
   private DiscoveryService discoveryService;
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne
   @JoinColumn(name = "organization_id")
   @Exclude
   @NotNull
@@ -80,7 +80,26 @@ public class Resource {
   @ManyToMany(mappedBy = "resources")
   @Builder.Default
   @Setter(AccessLevel.NONE)
+  @Exclude
   private Set<Network> networks = new HashSet<>();
+
+  public Resource(
+      String name,
+      String description,
+      String sourceId,
+      DiscoveryService discoveryService,
+      Organization organization) {
+    this.name = name;
+    this.description = description;
+    this.sourceId = sourceId;
+    this.discoveryService = discoveryService;
+    this.organization = organization;
+    this.organization.getResources().add(this);
+  }
+
+  public void setNetworks(Set<Network> networks) {
+    this.networks = networks;
+  }
 
   @Override
   public boolean equals(Object o) {

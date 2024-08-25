@@ -22,7 +22,6 @@ the [GBA SampleLocator](https://samplelocator.bbmri.de/) researchers
 can browse and locate collections of bio specimens, and then request access
 via [BBMRI-ERIC Negotiator](https://negotiator.bbmri-eric.eu/)
 by filling out a request form and then following individual steps of the Negotiation lifecycle.
-This is a new implementation of the Negotiator, version 3.0.0 and is still under active development.
 Reference UI implementation for BBMRI can be found in
 this [repository](https://github.com/BBMRI-ERIC/negotiator-v3-frontend).
 Documentation for
@@ -83,18 +82,15 @@ For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md
 - Spring
 - Docker engine
 
-### Running the backend in dev mode
-
+### Running the backend in development mode
 ```shell
 mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev 
 ```
 
-The dev mode requires a relational database, details can be found below.
-
 ### Connection URL for the Postgres test container database
 
-Using the springboot test containers, the application spins up a postgres database.
-Default credentials are: negotiator:negotiator
+IN the development mode the application spins up a Docker container with a PostgreSQL relational database.
+The Default credentials are: negotiator:negotiator
 ``
 jdbc:postgresql://localhost:5432/negotiator
 ``

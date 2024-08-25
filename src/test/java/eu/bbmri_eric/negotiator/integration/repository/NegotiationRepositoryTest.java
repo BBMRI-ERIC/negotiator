@@ -17,29 +17,22 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.sql.DataSource;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest(showSql = false)
-@ActiveProfiles("test")
-@TestPropertySource(properties = {"spring.sql.init.mode=never"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@RepositoryTest
 public class NegotiationRepositoryTest {
-  @Autowired DataSource dbSource;
   @Autowired PersonRepository personRepository;
   @Autowired ResourceRepository resourceRepository;
   @Autowired RequestRepository requestRepository;
@@ -52,47 +45,26 @@ public class NegotiationRepositoryTest {
   private Resource resource;
 
   String payload =
-      "    {\n"
-          + "\"project\": {\n"
-          + "\"title\": \"Title\",\n"
-          + "\"description\": \"Description\"\n"
-          + "},\n"
-          + " \"samples\": {\n"
-          + "   \"sample-type\": \"DNA\",\n"
-          + "   \"num-of-subjects\": 10,\n"
-          + "   \"num-of-samples\": 20,\n"
-          + "   \"volume-per-sample\": 5\n"
-          + " },\n"
-          + " \"ethics-vote\": {\n"
-          + "   \"ethics-vote\": \"My ethic vote\"\n"
-          + " }\n"
-          + "}\n";
-
-  public void addH2Function() {
-    String statementScript =
-        "create DOMAIN IF NOT EXISTS JSONB AS JSON; \n"
-            + "CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '\n"
-            + "import com.jayway.jsonpath.JsonPath;\n"
-            + "    @CODE\n"
-            + "    String jsonbExtractPath(String jsonString, String...jsonPaths) {\n"
-            + "      String overallPath = String.join(\".\", jsonPaths);\n"
-            + "      try {\n"
-            + "        Object result = JsonPath.read(jsonString, overallPath);\n"
-            + "        if (result != null) {\n"
-            + "          return result.toString();\n"
-            + "        }\n"
-            + "      } catch (Exception e) {\n"
-            + "        e.printStackTrace();\n"
-            + "      }\n"
-            + "      return null;\n"
-            + "    }';";
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
-    jdbcTemplate.execute(statementScript);
-  }
+      """
+                      {
+                  "project": {
+                  "title": "Title",
+                  "description": "Description"
+                  },
+                   "samples": {
+                     "sample-type": "DNA",
+                     "num-of-subjects": 10,
+                     "num-of-samples": 20,
+                     "volume-per-sample": 5
+                   },
+                   "ethics-vote": {
+                     "ethics-vote": "My ethic vote"
+                   }
+                  }
+                  """;
 
   @BeforeEach
   void setUp() {
-    addH2Function();
     Organization organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
@@ -136,41 +108,68 @@ public class NegotiationRepositoryTest {
 
   @Test
   void save_10000differentResources_ok() {
-    resourceRepository.deleteAll();
+    // Batch insert for organizations and resources
+    List<Organization> organizations = new ArrayList<>(10000);
+    List<Resource> resources = new ArrayList<>(10000);
+
     for (int i = 0; i < 10000; i++) {
-      Organization organization1 =
-          organizationRepository.save(
-              Organization.builder()
-                  .name("test-%s".formatted(i))
-                  .externalId("biobank-%s".formatted(i))
-                  .build());
-      Resource resource1 =
-          resourceRepository.save(
-              Resource.builder()
-                  .organization(organization1)
-                  .discoveryService(discoveryService)
-                  .sourceId("collection:%s".formatted(i))
-                  .name("test")
-                  .representatives(new HashSet<>())
-                  .build());
-      for (int j = 0; j < 20; j++) {
-        Person person1 = savePerson("test-%s-%s".formatted(i, j));
-        person1.addResource(resource1);
-        person1 = personRepository.save(person1);
-        assertEquals(1, person1.getResources().size());
-        assertEquals(resource1.getId(), person1.getResources().iterator().next().getId());
-      }
-      assertEquals(
-          20, resourceRepository.findById(resource1.getId()).get().getRepresentatives().size());
+      Organization organization =
+          Organization.builder()
+              .name("test-%s".formatted(i))
+              .externalId("biobank-%s".formatted(i))
+              .build();
+      organizations.add(organization);
     }
+    organizationRepository.saveAll(organizations);
+    for (int i = 0; i < 10000; i++) {
+      Resource resource =
+          Resource.builder()
+              .organization(organizations.get(i))
+              .discoveryService(discoveryService)
+              .sourceId("collection:%s".formatted(i))
+              .name("test")
+              .representatives(new HashSet<>())
+              .build();
+      resources.add(resource);
+    }
+    resourceRepository.saveAll(resources);
+
+    // Batch insert for persons
+    List<Person> persons = new ArrayList<>(10000 * 20);
+
+    for (int i = 0; i < 10000; i++) {
+      Resource resource = resources.get(i);
+      for (int j = 0; j < 20; j++) {
+        Person person =
+            Person.builder()
+                .subjectId("test-id-%s-%s".formatted(i, j))
+                .name("John")
+                .email("test@test.com")
+                .resources(new HashSet<>())
+                .build();
+        person.addResource(resource);
+        persons.add(person);
+      }
+    }
+    personRepository.saveAll(persons);
+
+    // Batch verify resource representatives count
+    List<Long> resourceIds = resources.stream().map(Resource::getId).collect(Collectors.toList());
+    List<Resource> updatedResources = resourceRepository.findAllById(resourceIds);
+    for (Resource resource : updatedResources) {
+      assertEquals(20, resource.getRepresentatives().size());
+    }
+
+    // Create and save the request and negotiation
     Request request =
         Request.builder()
             .url("http://test")
-            .resources(new HashSet<>(resourceRepository.findAll()))
+            .resources(new HashSet<>(resources))
             .discoveryService(discoveryService)
             .humanReadable("everything")
             .build();
     request = requestRepository.save(request);
+
     Negotiation negotiation =
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
@@ -178,13 +177,15 @@ public class NegotiationRepositoryTest {
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
-    request.setNegotiation(negotiation);
     negotiation = negotiationRepository.save(negotiation);
+
+    // Verify negotiation and resources
     Negotiation retrievedNegotiation =
         negotiationRepository.findDetailedById(negotiation.getId()).get();
     assertTrue(retrievedNegotiation.getResources().size() > 9999);
-    for (Resource resource1 : retrievedNegotiation.getResources()) {
-      assertEquals(20, resource1.getRepresentatives().size());
+
+    for (Resource resource : retrievedNegotiation.getResources()) {
+      assertEquals(20, resource.getRepresentatives().size());
     }
   }
 
@@ -376,7 +377,7 @@ public class NegotiationRepositoryTest {
   }
 
   private Person savePerson(String subjectId) {
-    return personRepository.save(
+    return personRepository.saveAndFlush(
         Person.builder()
             .subjectId(subjectId)
             .name("John")

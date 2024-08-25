@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.integration.plugins.resourcessync.listeners;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.bbmri_eric.negotiator.NegotiatorApplication;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSynchronizationJob;
@@ -10,15 +9,11 @@ import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSynchr
 import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSyncronizationJobStatus;
 import eu.bbmri_eric.negotiator.discovery.synchronization.JobEventManager;
 import eu.bbmri_eric.negotiator.discovery.synchronization.JobEventPublisher;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = NegotiatorApplication.class)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@IntegrationTest(loadTestData = true)
 public class JobEventManagerTest {
 
   @Autowired private JobEventPublisher testJobEventPublisher;

@@ -14,8 +14,4 @@ public class TestEventListener {
   void onEvent(FirstRepresentativeEvent event) {
     events.add(event);
   }
-
-  void reset() {
-    events.clear();
-  }
 }

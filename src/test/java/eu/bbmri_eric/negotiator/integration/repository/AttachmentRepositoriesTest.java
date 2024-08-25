@@ -20,24 +20,15 @@ import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-/** Tests for both AttachmentRepository (JPA) and AttachmentViewRepository (EntityView) */
-@DataJpaTest(showSql = false)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@TestPropertySource(properties = {"spring.sql.init.mode=never"})
+@RepositoryTest
 public class AttachmentRepositoriesTest {
   private static final String ORG_1 = "org_1";
   private static final String ORG_2 = "org_2";
@@ -48,7 +39,6 @@ public class AttachmentRepositoriesTest {
   private static final String REQUEST_1 = "request_1";
   private static final String REQUEST_2 = "request_2";
 
-  @Autowired private DataSource dbSource;
   @Autowired private PersonRepository personRepository;
   @Autowired private ResourceRepository resourceRepository;
   @Autowired private RequestRepository requestRepository;
@@ -69,31 +59,8 @@ public class AttachmentRepositoriesTest {
   private Organization organization1;
   private Organization organization2;
 
-  public void addH2Function() {
-    String statementScript =
-        "create DOMAIN IF NOT EXISTS JSONB AS JSON; \n"
-            + "CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '\n"
-            + "import com.jayway.jsonpath.JsonPath;\n"
-            + "    @CODE\n"
-            + "    String jsonbExtractPath(String jsonString, String...jsonPaths) {\n"
-            + "      String overallPath = String.join(\".\", jsonPaths);\n"
-            + "      try {\n"
-            + "        Object result = JsonPath.read(jsonString, overallPath);\n"
-            + "        if (result != null) {\n"
-            + "          return result.toString();\n"
-            + "        }\n"
-            + "      } catch (Exception e) {\n"
-            + "        e.printStackTrace();\n"
-            + "      }\n"
-            + "      return null;\n"
-            + "    }';";
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
-    jdbcTemplate.execute(statementScript);
-  }
-
   @BeforeEach
   void setUp() {
-    addH2Function();
     this.discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     this.person = createPerson("person1");

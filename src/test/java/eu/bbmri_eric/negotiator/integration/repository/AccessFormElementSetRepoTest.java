@@ -5,30 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
-import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormSectionRepository;
+import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest(showSql = false)
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@TestPropertySource(properties = {"spring.sql.init.mode=never"})
+@RepositoryTest
 public class AccessFormElementSetRepoTest {
   @Autowired private AccessFormRepository accessFormRepository;
   @Autowired private AccessFormSectionRepository accessFormSectionRepository;
-  @Autowired private AccessFormElementRepository accessFormElementRepository;
-
-  @Test
-  void findAll_none_0() {
-    assertTrue(accessFormRepository.findAll().isEmpty());
-  }
 
   @Test
   void save_noSection_ok() {

@@ -14,18 +14,14 @@ import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
-import eu.bbmri_eric.negotiator.unit.context.WithMockNegotiatorUser;
 import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.util.List;
 import javax.sql.DataSource;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Tests creation and retrieval of attachments using the DBAttachments service The scenario for
@@ -36,9 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
  * is specified) - 2 private for biobank:1, one from TheResearcher, one from TheBiobanker - 1
  * private for biobank:2 from TheResearcer
  */
-@SpringBootTest
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@IntegrationTest(loadTestData = true)
 public class AttachmentServiceTest {
 
   // Negotiation creted by 109 with one resource and one organization biobank:1 represented by 108
@@ -52,33 +46,6 @@ public class AttachmentServiceTest {
   @Autowired private AttachmentService attachmentService;
   @Autowired private DataSource dbSource;
   @Autowired private AttachmentRepository attachmentRepository;
-
-  public void addH2Function() {
-    String statementScript =
-        "create DOMAIN IF NOT EXISTS JSONB AS JSON; \n"
-            + "CREATE ALIAS IF NOT EXISTS JSONB_EXTRACT_PATH AS '\n"
-            + "import com.jayway.jsonpath.JsonPath;\n"
-            + "    @CODE\n"
-            + "    String jsonbExtractPath(String jsonString, String...jsonPaths) {\n"
-            + "      String overallPath = String.join(\".\", jsonPaths);\n"
-            + "      try {\n"
-            + "        Object result = JsonPath.read(jsonString, overallPath);\n"
-            + "        if (result != null) {\n"
-            + "          return result.toString();\n"
-            + "        }\n"
-            + "      } catch (Exception e) {\n"
-            + "        e.printStackTrace();\n"
-            + "      }\n"
-            + "      return null;\n"
-            + "    }';";
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dbSource);
-    jdbcTemplate.execute(statementScript);
-  }
-
-  @BeforeEach
-  void setUp() {
-    addH2Function();
-  }
 
   private Attachment createAttachment(
       Organization organization, Negotiation negotiation, Person creator) {

@@ -24,7 +24,7 @@ spring:
     schemas:
     url:
     baseline-on-migrate: true
-    locations: classpath:db/migration/{vendor},filesystem:/app/data
+    locations: classpath:db/migration/,filesystem:/app/data
 notification:
   cron-schedule-expression: "0 0 * * * *"
 logging:
