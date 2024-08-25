@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.post;
 
-import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -39,7 +39,7 @@ public class PostServiceImpl implements PostService {
   private PersonService personService;
   private NegotiationService negotiationService;
   private UserNotificationService userNotificationService;
-  private NegotiatorUserDetailsService userDetailsService;
+  private AuthenticatedUserContext userDetailsService;
 
   public PostServiceImpl(
       OrganizationRepository organizationRepository,
@@ -50,7 +50,7 @@ public class PostServiceImpl implements PostService {
       PersonService personService,
       NegotiationService negotiationService,
       UserNotificationService userNotificationService,
-      NegotiatorUserDetailsService userDetailsService) {
+      AuthenticatedUserContext userDetailsService) {
     this.organizationRepository = organizationRepository;
     this.postRepository = postRepository;
     this.negotiationRepository = negotiationRepository;
@@ -78,7 +78,7 @@ public class PostServiceImpl implements PostService {
     Negotiation negotiation = getNegotiation(negotiationId);
 
     if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
-        && !NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin()) {
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException(
           "You're not authorized to send messages to this negotiation");
     }
@@ -104,7 +104,7 @@ public class PostServiceImpl implements PostService {
     postEntity.setNegotiation(negotiation);
     Person author =
         personRepository
-            .findById(NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+            .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
             .orElseThrow(() -> new EntityNotFoundException("User with not found."));
     postEntity.setCreatedBy(author);
     postEntity.setStatus(PostStatus.CREATED);
@@ -197,12 +197,11 @@ public class PostServiceImpl implements PostService {
 
   private boolean isRepresentative(Organization organization) {
     return personService.isRepresentativeOfAnyResourceOfOrganization(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(),
-        organization.getId());
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), organization.getId());
   }
 
   private boolean isAdmin() {
-    return NegotiatorUserDetailsService.isCurrentlyAuthenticatedUserAdmin();
+    return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private boolean isAuthorized(Post post) {
@@ -210,8 +209,7 @@ public class PostServiceImpl implements PostService {
     if (isAdmin() || negotiationService.isNegotiationCreator(negotiation.getId())) return true;
     return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
         && (post.isPublic()
-            || post.isCreator(
-                NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+            || post.isCreator(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
             || (post.getOrganization() != null && isRepresentative(post.getOrganization())));
   }
 }

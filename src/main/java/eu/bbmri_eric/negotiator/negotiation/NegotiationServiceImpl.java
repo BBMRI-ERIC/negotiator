@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.negotiation;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
-import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
@@ -47,7 +47,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public boolean isNegotiationCreator(String negotiationId) {
     return personRepository.isNegotiationCreator(
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }
 
   /**
@@ -61,7 +61,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   public boolean isAuthorizedForNegotiation(String negotiationId) {
     return isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
   }
 
   public boolean isOrganizationPartOfNegotiation(

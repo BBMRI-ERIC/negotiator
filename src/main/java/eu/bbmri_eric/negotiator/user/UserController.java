@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
-import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
@@ -56,7 +56,7 @@ public class UserController {
       @RequestParam(required = false) Map<String, String> filterProperty,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    if (NegotiatorUserDetailsService.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")) {
+    if (AuthenticatedUserContext.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")) {
       if (Objects.nonNull(filterProperty) && !filterProperty.isEmpty()) {
         return filteredPageModel(filterProperty, page, size);
       }
@@ -64,7 +64,7 @@ public class UserController {
     } else {
       return assembler.toPagedModel(
           personService.findById(
-              NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()));
+              AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()));
     }
   }
 
@@ -72,9 +72,8 @@ public class UserController {
   @Operation(summary = "Get information about the user based on the provided bearer token")
   public EntityModel<UserInfoModel> userInfo() {
     return assembler.toModel(
-        personService.findById(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId()),
-        NegotiatorUserDetailsService.getRoles());
+        personService.findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()),
+        AuthenticatedUserContext.getRoles());
   }
 
   private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(
@@ -157,7 +156,7 @@ public class UserController {
   List<String> getRepresentedResources() {
     return personService
         .getResourcesRepresentedByUserId(
-            NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId())
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
         .stream()
         .map(ResourceResponseModel::getExternalId)
         .collect(Collectors.toList());

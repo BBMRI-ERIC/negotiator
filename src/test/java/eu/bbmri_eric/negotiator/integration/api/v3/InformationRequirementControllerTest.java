@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
@@ -335,7 +335,7 @@ public class InformationRequirementControllerTest {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
         negotiation.getCreatedBy().getId(),
-        NegotiatorUserDetailsService.getCurrentlyAuthenticatedUserInternalId());
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
     InformationSubmission informationSubmission =
         informationSubmissionRepository.saveAndFlush(
             new InformationSubmission(

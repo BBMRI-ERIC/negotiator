@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
-import eu.bbmri_eric.negotiator.common.NegotiatorUserDetailsService;
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
@@ -64,7 +64,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
-    List<String> roles = NegotiatorUserDetailsService.getRoles();
+    List<String> roles = AuthenticatedUserContext.getRoles();
     return stateMachine.getTransitions().stream()
         .filter(
             transition ->
