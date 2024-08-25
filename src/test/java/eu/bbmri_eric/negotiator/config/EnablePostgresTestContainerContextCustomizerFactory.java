@@ -24,8 +24,10 @@ import org.springframework.test.context.TestContextAnnotationUtils;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+/** Class containing configuration for the Postgres testcontainers. */
 public class EnablePostgresTestContainerContextCustomizerFactory
     implements ContextCustomizerFactory {
+
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Documented

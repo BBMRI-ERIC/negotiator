@@ -12,13 +12,6 @@ spring:
         jwt:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
-logging:
-  level:
-    eu.bbmri_eric.negotiator: debug
-    org:
-      springframework:
-        context: debug
-
 negotiator:
   molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"
