@@ -13,7 +13,7 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,8 +22,6 @@ import org.springframework.test.context.ContextCustomizer;
 import org.springframework.test.context.ContextCustomizerFactory;
 import org.springframework.test.context.MergedContextConfiguration;
 import org.springframework.test.context.TestContextAnnotationUtils;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
 
 /** Class containing configuration for the Postgres testcontainers. */
 public class EnablePostgresTestContainerContextCustomizerFactory
@@ -35,6 +33,7 @@ public class EnablePostgresTestContainerContextCustomizerFactory
   @Inherited
   @ActiveProfiles("test")
   @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+  @Import(FlywayConfig.class)
   public @interface EnabledPostgresTestContainer {}
 
   @Override
@@ -71,8 +70,6 @@ public class EnablePostgresTestContainerContextCustomizerFactory
   @EqualsAndHashCode
   private static class PostgresTestContainerContextCustomizer implements ContextCustomizer {
     private final boolean loadTestData;
-    private static final DockerImageName image =
-        DockerImageName.parse("postgres").withTag("16-alpine");
 
     public PostgresTestContainerContextCustomizer(boolean loadTestData) {
       this.loadTestData = loadTestData;
@@ -82,8 +79,7 @@ public class EnablePostgresTestContainerContextCustomizerFactory
     public void customizeContext(
         @NonNull ConfigurableApplicationContext context,
         @NonNull MergedContextConfiguration mergedConfig) {
-      var postgresContainer = new PostgreSQLContainer<>(image);
-      postgresContainer.start();
+      var postgresContainer = PostgresContainerManager.getContainer();
       var properties = new HashMap<String, Object>();
       properties.put("spring.datasource.url", postgresContainer.getJdbcUrl());
       properties.put("spring.datasource.username", postgresContainer.getUsername());
@@ -94,12 +90,6 @@ public class EnablePostgresTestContainerContextCustomizerFactory
       }
       var propertySource = new MapPropertySource("PostgresContainer Test Properties", properties);
       context.getEnvironment().getPropertySources().addFirst(propertySource);
-      context.addApplicationListener(
-          event -> {
-            if (event instanceof ContextClosedEvent) {
-              postgresContainer.stop();
-            }
-          });
     }
   }
 }
