@@ -105,8 +105,8 @@ public class HTTPRegistryConfigurer {
                 "hasIpAddress('%s')".formatted(prometheusWhitelistedIp)))
         .requestMatchers(mvc.pattern("/actuator/info"))
         .permitAll()
-            .requestMatchers(mvc.pattern("/actuator/health"))
-            .permitAll()
+        .requestMatchers(mvc.pattern("/actuator/health"))
+        .permitAll()
         .anyRequest()
         .authenticated();
   }
