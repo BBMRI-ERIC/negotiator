@@ -40,6 +40,6 @@ public class NegotiatorUserDetailsService implements UserDetailsService {
         personRepository
             .findByName(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new MockPrincipal(person);
+    return new MockUserPrincipal(person);
   }
 }

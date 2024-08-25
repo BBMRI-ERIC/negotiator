@@ -6,13 +6,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class MockPrincipal implements UserDetails, NegotiatorPrincipal {
+public class MockUserPrincipal implements UserDetails, NegotiatorPrincipal {
 
   private final Person person;
 
   private final HashSet<GrantedAuthority> authorities;
 
-  public MockPrincipal(Person person) {
+  public MockUserPrincipal(Person person) {
     this.person = person;
     authorities = new HashSet<>();
     person
@@ -58,5 +58,10 @@ public class MockPrincipal implements UserDetails, NegotiatorPrincipal {
 
   public Person getPerson() {
     return person;
+  }
+
+  @Override
+  public String getName() {
+    return person.getName();
   }
 }

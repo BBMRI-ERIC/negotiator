@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.user;
 
-public interface NegotiatorPrincipal {
+import java.security.Principal;
+
+public interface NegotiatorPrincipal extends Principal {
 
   Person getPerson();
 }
