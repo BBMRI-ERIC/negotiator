@@ -5,10 +5,12 @@ import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +40,10 @@ public class ResourceController {
   @GetMapping
   @Operation(summary = "List all resources")
   public PagedModel<EntityModel<ResourceResponseModel>> list(@Nullable ResourceFilterDTO filters) {
-    log.info("Listing resources with filters: " + filters);
-    return null;
+    assert filters != null;
+    log.info(filters);
+    return resourceModelAssembler.toPagedModel(
+        (Page<ResourceResponseModel>)
+            resourceService.findAll(PageRequest.of(filters.getPage(), filters.getSize())));
   }
 }
