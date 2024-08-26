@@ -1386,4 +1386,32 @@ public class NegotiationControllerTests {
           NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
     }
   }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void addResources_presentResourcesWithStatusUpdate_statusChanged() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    NegotiationResourceState expectedState = NegotiationResourceState.RESOURCE_MADE_AVAILABLE;
+    List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
+    UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds, expectedState);
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+            .andExpect(status().isOk())
+            .andExpect(
+                jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))
+            .andReturn();
+    JsonNode response = new ObjectMapper().readTree(result.getResponse().getContentAsString());
+    JsonNode resourcesAsJson = response.get("_embedded").get("resources");
+    for (JsonNode resourceAsJson : resourcesAsJson) {
+      assertEquals(
+          expectedState,
+          NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
+    }
+  }
 }
