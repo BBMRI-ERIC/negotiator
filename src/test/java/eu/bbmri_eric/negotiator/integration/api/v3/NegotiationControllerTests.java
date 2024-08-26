@@ -24,6 +24,7 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
@@ -1296,7 +1297,8 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.patch("%s/%s/resources".formatted(NEGOTIATIONS_URL, "UNKNOWN"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(List.of(1L))))
+                .content(
+                    new ObjectMapper().writeValueAsString(new UpdateResourcesDTO(List.of(1L)))))
         .andExpect(status().isNotFound());
   }
 
@@ -1317,7 +1319,9 @@ public class NegotiationControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     new ObjectMapper()
-                        .writeValueAsString(resources.stream().map(Resource::getId).toList())))
+                        .writeValueAsString(
+                            new UpdateResourcesDTO(
+                                resources.stream().map(Resource::getId).toList()))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size() + count)));
   }
@@ -1336,7 +1340,9 @@ public class NegotiationControllerTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         new ObjectMapper()
-                            .writeValueAsString(resources.stream().map(Resource::getId).toList())))
+                            .writeValueAsString(
+                                new UpdateResourcesDTO(
+                                    resources.stream().map(Resource::getId).toList()))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.resources.length()", is(resources.size())))
             .andReturn();
@@ -1364,7 +1370,10 @@ public class NegotiationControllerTests {
                     .content(
                         new ObjectMapper()
                             .writeValueAsString(
-                                negotiation.getResources().stream().map(Resource::getId).toList())))
+                                new UpdateResourcesDTO(
+                                    negotiation.getResources().stream()
+                                        .map(Resource::getId)
+                                        .toList()))))
             .andExpect(status().isOk())
             .andExpect(
                 jsonPath("$._embedded.resources.length()", is(negotiation.getResources().size())))

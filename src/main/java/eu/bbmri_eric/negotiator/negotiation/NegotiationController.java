@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -334,9 +333,9 @@ public class NegotiationController {
   @Operation(summary = "Edit Resources linked to a Negotiation")
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
-      @PathVariable String id, @RequestBody @NotEmpty List<Long> resourceIds) {
+      @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
     return resourceWithStatusAssembler.toCollectionModel(
-        resourceService.addResourcesToNegotiation(id, new UpdateResourcesDTO(resourceIds)));
+        resourceService.addResourcesToNegotiation(id, updateResourcesDTO));
   }
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
