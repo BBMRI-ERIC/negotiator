@@ -195,7 +195,7 @@
         <dependency>
             <artifactId>postgresql</artifactId>
             <groupId>org.postgresql</groupId>
-            <version>42.7.3</version>
+            <version>42.7.4</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
