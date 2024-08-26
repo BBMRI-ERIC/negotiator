@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.integration.governance;
+package eu.bbmri_eric.negotiator.unit.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

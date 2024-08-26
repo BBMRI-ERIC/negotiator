@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.common.exceptions;
 
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.statemachine.StateMachineException;
@@ -271,5 +273,19 @@ public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
     detail.setTitle("Could not advance the state machine");
     detail.setDetail(ex.getMessage());
     return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
+  }
+
+  // This is mainly for Swagger documentation.
+  // The actual exception is handled by the CustomBearerTokenAuthenticationEntryPoint
+  @ExceptionHandler({AuthenticationException.class})
+  @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+  public final ProblemDetail handleAuthenticationException(AuthenticationException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+    problemDetail.setTitle("Unauthorized");
+    problemDetail.setDetail("Authentication is required to access this resource.");
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"));
+    problemDetail.setProperties(Map.of());
+    return problemDetail;
   }
 }

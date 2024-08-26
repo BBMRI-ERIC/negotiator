@@ -324,7 +324,6 @@ public class NegotiationController {
     if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       return resourceWithStatusAssembler.toCollectionModelWithAdminLinks(
           resourceService.findAllInNegotiation(id), id);
-
     }
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
   }
