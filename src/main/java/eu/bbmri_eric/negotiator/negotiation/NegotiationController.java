@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
@@ -335,7 +336,7 @@ public class NegotiationController {
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
       @PathVariable String id, @RequestBody @NotEmpty List<Long> resourceIds) {
     return resourceWithStatusAssembler.toCollectionModel(
-        resourceService.addResourcesToNegotiation(id, resourceIds));
+        resourceService.addResourcesToNegotiation(id, new UpdateResourcesDTO(resourceIds)));
   }
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {

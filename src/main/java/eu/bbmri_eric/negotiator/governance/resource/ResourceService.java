@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -43,9 +44,9 @@ public interface ResourceService {
    * Add resources to a Negotiation.
    *
    * @param negotiationId a specific Negotiation
-   * @param resourceIds a list of resource IDs
+   * @param updateResourcesDTO a list of resource IDs
    * @return an updated list of resources
    */
   List<ResourceWithStatusDTO> addResourcesToNegotiation(
-      String negotiationId, List<Long> resourceIds);
+      String negotiationId, UpdateResourcesDTO updateResourcesDTO);
 }

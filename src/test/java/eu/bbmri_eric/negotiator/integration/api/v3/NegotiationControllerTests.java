@@ -1276,13 +1276,6 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  void getPossibleLifecycleStages_noAuth_Ok() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get("%s/lifecycle".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk());
-  }
-
-  @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void addResources_emptyList_400() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);

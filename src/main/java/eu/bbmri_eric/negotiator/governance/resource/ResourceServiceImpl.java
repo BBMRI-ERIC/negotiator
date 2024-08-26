@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
@@ -102,8 +103,8 @@ public class ResourceServiceImpl implements ResourceService {
   @Override
   @Transactional
   public List<ResourceWithStatusDTO> addResourcesToNegotiation(
-      String negotiationId, List<Long> resourceIds) {
-    assignNewResources(negotiationId, resourceIds);
+      String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
+    assignNewResources(negotiationId, updateResourcesDTO.getResourceIds());
     return getResourceWithStatusDTOS(negotiationId);
   }
 
