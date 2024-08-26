@@ -247,4 +247,20 @@ public class ResourceControllerTests {
         .andExpect(
             jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
   }
+
+  @Test
+  @WithMockUser
+  void getResources_filterByName_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=resource"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockUser
+  void getResources_filterByNonExistentFilter_400() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=resource"))
+        .andExpect(status().isBadRequest());
+  }
 }

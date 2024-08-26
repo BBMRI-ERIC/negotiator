@@ -107,7 +107,13 @@ public class HTTPRegistryConfigurer {
         .permitAll()
         .requestMatchers(mvc.pattern("/actuator/health"))
         .permitAll()
+        .requestMatchers(mvc.pattern("/swagger-ui/**"))
+        .permitAll()
+        .requestMatchers(mvc.pattern("/v3/api-docs/**"))
+        .permitAll()
+        .requestMatchers(mvc.pattern("/v3/resources/**"))
+        .authenticated()
         .anyRequest()
-        .authenticated();
+        .denyAll();
   }
 }
