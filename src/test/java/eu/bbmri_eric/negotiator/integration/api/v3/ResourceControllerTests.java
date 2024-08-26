@@ -255,12 +255,4 @@ public class ResourceControllerTests {
         .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=resource"))
         .andExpect(status().isOk());
   }
-
-  @Test
-  @WithMockUser
-  void getResources_filterByNonExistentFilter_400() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=resource"))
-        .andExpect(status().isBadRequest());
-  }
 }
