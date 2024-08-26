@@ -335,7 +335,7 @@ public class NegotiationController {
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
       @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
     return resourceWithStatusAssembler.toCollectionModel(
-        resourceService.addResourcesToNegotiation(id, updateResourcesDTO));
+        resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
   }
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {

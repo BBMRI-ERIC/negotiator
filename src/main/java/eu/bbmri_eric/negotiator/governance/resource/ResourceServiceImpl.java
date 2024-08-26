@@ -102,16 +102,16 @@ public class ResourceServiceImpl implements ResourceService {
 
   @Override
   @Transactional
-  public List<ResourceWithStatusDTO> addResourcesToNegotiation(
+  public List<ResourceWithStatusDTO> updateResourcesInANegotiation(
       String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
-    assignNewResources(negotiationId, updateResourcesDTO.getResourceIds());
+    updateResources(negotiationId, updateResourcesDTO);
     return getResourceWithStatusDTOS(negotiationId);
   }
 
-  private void assignNewResources(String negotiationId, List<Long> resourceIds) {
+  private void updateResources(String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
     Negotiation negotiation = getNegotiation(negotiationId);
-    Set<Resource> resources = getResources(negotiationId, resourceIds, negotiation);
-    initializeStateForNewResources(negotiation, resources);
+    Set<Resource> resources = getResources(negotiationId, updateResourcesDTO, negotiation);
+    initializeStateForNewResources(negotiation, resources, updateResourcesDTO.getState());
     persistChanges(negotiation, resources);
   }
 
@@ -137,22 +137,24 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private static void initializeStateForNewResources(
-      Negotiation negotiation, Set<Resource> resources) {
+      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       for (Resource resource : resources) {
-        negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
+        negotiation.setStateForResource(resource.getSourceId(), state);
       }
     }
   }
 
   private @NonNull Set<Resource> getResources(
-      String negotiationId, List<Long> resourceIds, Negotiation negotiation) {
+      String negotiationId, UpdateResourcesDTO updateResourcesDTO, Negotiation negotiation) {
     log.debug(
         "Negotiation %s has %s resources before modification"
             .formatted(negotiationId, negotiation.getResources().size()));
-    Set<Resource> resources = new HashSet<>(repository.findAllById(resourceIds));
-    log.debug(resources.size());
-    resources.removeAll(negotiation.getResources());
+    Set<Resource> resources =
+        new HashSet<>(repository.findAllById(updateResourcesDTO.getResourceIds()));
+    if (updateResourcesDTO.getState().equals(NegotiationResourceState.SUBMITTED)) {
+      resources.removeAll(negotiation.getResources());
+    }
     log.debug(
         "Request is to add %s new resources to negotiation %s"
             .formatted(resources.size(), negotiationId));

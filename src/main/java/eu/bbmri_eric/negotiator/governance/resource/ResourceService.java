@@ -41,12 +41,14 @@ public interface ResourceService {
   List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
 
   /**
-   * Add resources to a Negotiation.
+   * Edit resources to a Negotiation. Any Resources in the list that are not already a part of the
+   * Negotiation will be added. Warning: If you supply a state, all resources will be updated to
+   * that state.
    *
    * @param negotiationId a specific Negotiation
-   * @param updateResourcesDTO a list of resource IDs
+   * @param updateResourcesDTO a list of resource IDs to be added or updated
    * @return an updated list of resources
    */
-  List<ResourceWithStatusDTO> addResourcesToNegotiation(
+  List<ResourceWithStatusDTO> updateResourcesInANegotiation(
       String negotiationId, UpdateResourcesDTO updateResourcesDTO);
 }
