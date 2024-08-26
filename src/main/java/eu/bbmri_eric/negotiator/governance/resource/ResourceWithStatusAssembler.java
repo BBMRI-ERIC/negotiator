@@ -82,7 +82,7 @@ public class ResourceWithStatusAssembler
         .add(
             linkTo(
                     WebMvcLinkBuilder.methodOn(NegotiationController.class)
-                        .addResourcesForNegotiation(negotiationId, List.of()))
+                        .updateResources(negotiationId, List.of()))
                 .withRel("add_resources"));
   }
 

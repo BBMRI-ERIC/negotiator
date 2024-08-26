@@ -46,12 +46,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -326,8 +326,8 @@ public class NegotiationController {
     return Arrays.stream(NegotiationState.values()).toList();
   }
 
-  @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.GET)
-  @Operation(summary = "List all resources in negotiation")
+  @GetMapping(value = "/negotiations/{id}/resources")
+  @Operation(summary = "List all Resources in negotiation")
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
       @PathVariable String id) {
@@ -338,10 +338,10 @@ public class NegotiationController {
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
   }
 
-  @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.PATCH)
-  @Operation(summary = "Add resources to a negotiation")
+  @PatchMapping(value = "/negotiations/{id}/resources")
+  @Operation(summary = "Edit Resources linked to a Negotiation")
   @SecurityRequirement(name = "security_auth")
-  public CollectionModel<EntityModel<ResourceWithStatusDTO>> addResourcesForNegotiation(
+  public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
       @PathVariable String id, @RequestBody @NotEmpty List<Long> resourceIds) {
     return resourceWithStatusAssembler.toCollectionModel(
         resourceService.addResourcesToNegotiation(id, resourceIds));
