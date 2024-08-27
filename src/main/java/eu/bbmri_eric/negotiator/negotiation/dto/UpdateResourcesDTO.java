@@ -15,6 +15,7 @@ import lombok.ToString;
 public class UpdateResourcesDTO {
   @NotNull(message = "You must provide at least one resource to update.")
   private List<Long> resourceIds;
+
   private NegotiationResourceState state = NegotiationResourceState.SUBMITTED;
 
   public UpdateResourcesDTO(List<Long> resourceIds) {

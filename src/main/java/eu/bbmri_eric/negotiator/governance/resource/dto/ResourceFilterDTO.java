@@ -23,5 +23,4 @@ public class ResourceFilterDTO implements FilterDTO {
 
   private String name;
   private String sourceId;
-
 }

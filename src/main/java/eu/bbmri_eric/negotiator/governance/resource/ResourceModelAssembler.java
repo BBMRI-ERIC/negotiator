@@ -54,7 +54,6 @@ public class ResourceModelAssembler
         links);
   }
 
-
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
       Page<ResourceResponseModel> page, long networkId) {
     List<Link> links = new ArrayList<>();
