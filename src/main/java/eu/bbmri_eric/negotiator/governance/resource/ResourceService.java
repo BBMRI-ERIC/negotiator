@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
+import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
@@ -22,7 +22,7 @@ public interface ResourceService {
    *
    * @return All resources.
    */
-  Iterable<ResourceResponseModel> findAll(ResourceFilterDTO filters);
+  Iterable<ResourceResponseModel> findAll(FilterDTO filters);
 
   /**
    * Retrieve all resources linked to a Network.

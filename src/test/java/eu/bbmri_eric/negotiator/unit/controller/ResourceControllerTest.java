@@ -39,13 +39,31 @@ public class ResourceControllerTest {
 
   @Test
   @WithMockUser
-  void getResources_noParameters_ok() throws Exception {
+  void getResources_withParameters_containsAllCorrectLinks() throws Exception {
+
     Page<ResourceResponseModel> pageable =
         new PageImpl<>(
-            List.of(new ResourceResponseModel(1L, "test", "test-name")), PageRequest.of(0, 50), 1);
+            List.of(new ResourceResponseModel(1L, "test", "test-name")), PageRequest.of(1, 1), 3);
     when(resourceService.findAll(any())).thenReturn(pageable);
-    mvc.perform(MockMvcRequestBuilders.get("/v3/resources"))
+    mvc.perform(MockMvcRequestBuilders.get("/v3/resources?page=1&name=tes"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.page.totalElements", is(1)));
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(
+            jsonPath(
+                "$._links.current.href",
+                is("http://localhost/v3/resources?page=1&size=50&name=tes")))
+        .andExpect(
+            jsonPath(
+                "$._links.last.href", is("http://localhost/v3/resources?page=2&size=50&name=tes")))
+        .andExpect(
+            jsonPath(
+                "$._links.first.href", is("http://localhost/v3/resources?page=0&size=50&name=tes")))
+        .andExpect(
+            jsonPath(
+                "$._links.previous.href",
+                is("http://localhost/v3/resources?page=0&size=50&name=tes")))
+        .andExpect(
+            jsonPath(
+                "$._links.next.href", is("http://localhost/v3/resources?page=2&size=50&name=tes")));
   }
 }

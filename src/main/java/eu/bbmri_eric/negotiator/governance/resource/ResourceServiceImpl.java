@@ -1,11 +1,11 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
-import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -69,7 +69,7 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public Iterable<ResourceResponseModel> findAll(ResourceFilterDTO filters) {
+  public Iterable<ResourceResponseModel> findAll(FilterDTO filters) {
     Specification<Resource> spec = ResourceSpecificationBuilder.build(filters);
     Pageable pageable = PageRequest.of(filters.getPage(), filters.getSize());
     return repository
