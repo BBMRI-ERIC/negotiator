@@ -6,8 +6,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
@@ -30,11 +28,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 @CommonsLog
-public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
+public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
@@ -72,21 +69,7 @@ public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
-
-  private static @NonNull String getErrorDetails(MethodArgumentNotValidException ex) {
-    Map<String, String> errors = new HashMap<>();
-    ex.getBindingResult()
-        .getAllErrors()
-        .forEach(
-            (error) -> {
-              String fieldName = ((FieldError) error).getField();
-              String errorMessage = error.getDefaultMessage();
-              errors.put(fieldName, errorMessage);
-            });
-    return errors.entrySet().stream()
-        .map(entry -> entry.getKey() + " " + entry.getValue())
-        .collect(Collectors.joining(" and "));
-  }
+  
 
   @ExceptionHandler(EntityNotFoundException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleEntityNotFoundException(
@@ -287,5 +270,23 @@ public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"));
     problemDetail.setProperties(Map.of());
     return problemDetail;
+  }
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public final ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+    Map<String, String> errors = new HashMap<>();
+    extractDetails(e, errors);
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    problemDetail.setTitle("Wrong request parameters");
+    problemDetail.setDetail(errors.toString());
+    return problemDetail;
+  }
+
+  private static void extractDetails(MethodArgumentNotValidException e, Map<String, String> errors) {
+    e.getBindingResult().getAllErrors().forEach((error) -> {
+      String fieldName = ((FieldError) error).getField();
+      String errorMessage = error.getDefaultMessage();
+      errors.put(fieldName, errorMessage);
+    });
   }
 }
