@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
@@ -280,6 +281,16 @@ public class NegotiatorExceptionHandler {
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     problemDetail.setTitle("Wrong request parameters");
     problemDetail.setDetail(errors.toString());
+    return problemDetail;
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public final ProblemDetail handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException e) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    problemDetail.setTitle("Wrong request");
+    problemDetail.setDetail("Could not read the request body. Please check the request format.");
     return problemDetail;
   }
 

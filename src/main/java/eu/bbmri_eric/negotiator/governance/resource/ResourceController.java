@@ -40,7 +40,6 @@ public class ResourceController {
   @Operation(summary = "List all resources")
   public PagedModel<EntityModel<ResourceResponseModel>> list(@Nullable ResourceFilterDTO filters) {
     assert filters != null;
-    log.info(filters);
     return resourceModelAssembler.toPagedModel(
         (Page<ResourceResponseModel>) resourceService.findAll(filters), filters);
   }
