@@ -271,9 +271,11 @@ public class NegotiatorExceptionHandler {
     problemDetail.setProperties(Map.of());
     return problemDetail;
   }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public final ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+  public final ProblemDetail handleMethodArgumentNotValidException(
+      MethodArgumentNotValidException e) {
     Map<String, String> errors = new HashMap<>();
     extractDetails(e, errors);
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -282,11 +284,15 @@ public class NegotiatorExceptionHandler {
     return problemDetail;
   }
 
-  private static void extractDetails(MethodArgumentNotValidException e, Map<String, String> errors) {
-    e.getBindingResult().getAllErrors().forEach((error) -> {
-      String fieldName = ((FieldError) error).getField();
-      String errorMessage = error.getDefaultMessage();
-      errors.put(fieldName, errorMessage);
-    });
+  private static void extractDetails(
+      MethodArgumentNotValidException e, Map<String, String> errors) {
+    e.getBindingResult()
+        .getAllErrors()
+        .forEach(
+            (error) -> {
+              String fieldName = ((FieldError) error).getField();
+              String errorMessage = error.getDefaultMessage();
+              errors.put(fieldName, errorMessage);
+            });
   }
 }
