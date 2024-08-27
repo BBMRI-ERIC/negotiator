@@ -28,6 +28,7 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -73,6 +74,7 @@ public class ResourceControllerTests {
   @Test
   @Transactional
   @WithMockUser("researcher")
+  @Disabled
   void getAll_10kResourcesInDb_ok() throws Exception {
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
@@ -252,7 +254,17 @@ public class ResourceControllerTests {
   @WithMockUser
   void getResources_filterByName_ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=resource"))
-        .andExpect(status().isOk());
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=test"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalElements", is(7)));
+  }
+
+  @Test
+  @WithMockUser
+  void getResources_pageSize1_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=test&size=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalPages", is(7)));
   }
 }

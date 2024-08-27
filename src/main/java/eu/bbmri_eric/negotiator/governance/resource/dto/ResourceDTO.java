@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.lang.Nullable;
 
+/** A DTO depicting an abstract resource coming in a request from a Discovery Service */
 @Getter
 @Setter
 @Builder
@@ -18,6 +19,7 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Deprecated
 public class ResourceDTO {
 
   @NotNull private String id;
