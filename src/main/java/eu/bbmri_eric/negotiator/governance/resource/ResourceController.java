@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

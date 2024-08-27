@@ -9,25 +9,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri_eric.negotiator.governance.resource.ResourceController;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(ResourceController.class)
+@Import(ResourceModelAssembler.class)
 public class ResourceControllerTest {
 
   @Autowired private MockMvc mvc;
 
   @MockBean private ResourceService resourceService;
-
-  @MockBean private ResourceModelAssembler resourceModelAssembler;
+  @Autowired private ResourceModelAssembler resourceModelAssembler;
 
   @Test
   void getResources_noAuth_401() throws Exception {
@@ -37,10 +40,12 @@ public class ResourceControllerTest {
   @Test
   @WithMockUser
   void getResources_noParameters_ok() throws Exception {
-    when(resourceService.findAll(any()))
-        .thenReturn(new PageImpl<>(List.of(new ResourceResponseModel("idk", "test", "test-name"))));
+    Page<ResourceResponseModel> pageable =
+        new PageImpl<>(
+            List.of(new ResourceResponseModel(1L, "test", "test-name")), PageRequest.of(0, 50), 1);
+    when(resourceService.findAll(any())).thenReturn(pageable);
     mvc.perform(MockMvcRequestBuilders.get("/v3/resources"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.page.totalPages", is(1)));
+        .andExpect(jsonPath("$.page.totalElements", is(1)));
   }
 }

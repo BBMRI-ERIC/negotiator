@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -158,7 +159,7 @@ public class UserController {
         .getResourcesRepresentedByUserId(
             AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
         .stream()
-        .map(ResourceResponseModel::getExternalId)
+        .map(ResourceResponseModel::getSourceId)
         .collect(Collectors.toList());
   }
 

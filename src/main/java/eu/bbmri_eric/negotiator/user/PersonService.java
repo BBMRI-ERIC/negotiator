@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.user;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.UnsupportedFilterException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongSortingPropertyException;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;

@@ -5,7 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.governance.network.NetworkController;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.organization;
 
-import eu.bbmri_eric.negotiator.governance.OrganizationDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;

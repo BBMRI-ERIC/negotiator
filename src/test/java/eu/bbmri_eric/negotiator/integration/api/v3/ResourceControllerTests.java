@@ -66,9 +66,9 @@ public class ResourceControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCE_ENDPOINT.formatted(4)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(resource.getId().toString())))
+        .andExpect(jsonPath("$.id", is(resource.getId().intValue())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.externalId", is(resource.getSourceId())));
+        .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())));
   }
 
   @Test

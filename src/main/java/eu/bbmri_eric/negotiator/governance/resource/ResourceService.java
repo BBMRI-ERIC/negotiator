@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 

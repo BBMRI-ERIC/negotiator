@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import eu.bbmri_eric.negotiator.governance.OrganizationDTO;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
