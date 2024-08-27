@@ -6,9 +6,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,11 +39,11 @@ public class ResourceController {
 
   @GetMapping
   @Operation(summary = "List all resources")
-  public PagedModel<EntityModel<ResourceResponseModel>> list(@Nullable ResourceFilterDTO filters) {
+  public PagedModel<EntityModel<ResourceResponseModel>> list(
+      @Nullable @Valid ResourceFilterDTO filters) {
     assert filters != null;
     log.info(filters);
     return resourceModelAssembler.toPagedModel(
-        (Page<ResourceResponseModel>)
-            resourceService.findAll(PageRequest.of(filters.getPage(), filters.getSize())));
+        (Page<ResourceResponseModel>) resourceService.findAll(filters), filters);
   }
 }

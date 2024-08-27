@@ -4,7 +4,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.governance.network.NetworkController;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
 import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,10 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class ResourceModelAssembler
@@ -39,12 +45,19 @@ public class ResourceModelAssembler
   }
 
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
-      Page<ResourceResponseModel> page) {
+      Page<ResourceResponseModel> page, ResourceFilterDTO filterDTO) {
+    List<Link> links = new ArrayList<>();
+    UriComponents uriComponents =
+        UriComponentsBuilder.fromUri(
+                linkTo(methodOn(ResourceController.class).list(filterDTO)).toUri())
+            .queryParams(getQueryParams(filterDTO))
+            .build();
+    links.add(Link.of(uriComponents.toUriString()).withRel("current"));
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
         new PagedModel.PageMetadata(
             page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
-        new ArrayList<>());
+        links);
   }
 
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
@@ -109,5 +122,24 @@ public class ResourceModelAssembler
             .withRel(IanaLinkRelations.LAST)
             .expand(parameters));
     return links;
+  }
+
+  private static MultiValueMap<String, String> getQueryParams(Object filterDTO) {
+    MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+    Field[] fields = filterDTO.getClass().getDeclaredFields();
+
+    for (Field field : fields) {
+      try {
+        field.setAccessible(true);
+        Object value = field.get(filterDTO);
+        if (value != null) {
+          queryParams.add(field.getName(), String.valueOf(value));
+        }
+      } catch (IllegalAccessException e) {
+        // Handle exception or log error
+      }
+    }
+
+    return queryParams;
   }
 }

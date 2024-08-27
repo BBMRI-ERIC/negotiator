@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
@@ -25,7 +26,9 @@ import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,9 +69,11 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public Iterable<ResourceResponseModel> findAll(Pageable pageable) {
+  public Iterable<ResourceResponseModel> findAll(ResourceFilterDTO filters) {
+    Specification<Resource> spec = ResourceSpecificationBuilder.build(filters);
+    Pageable pageable = PageRequest.of(filters.getPage(), filters.getSize());
     return repository
-        .findAll(pageable)
+        .findAll(spec, pageable)
         .map(resource -> modelMapper.map(resource, ResourceResponseModel.class));
   }
 
