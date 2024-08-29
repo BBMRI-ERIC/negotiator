@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
+import eu.bbmri_eric.negotiator.common.FilterDTO;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 public class ResourceSpecificationBuilder {
 
-  public static Specification<Resource> build(ResourceFilterDTO filterDTO) {
+  public static Specification<Resource> build(FilterDTO filterDTO) {
     return (Root<Resource> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
       List<Predicate> predicates = new ArrayList<>();
 
