@@ -47,7 +47,7 @@ public class ResourceSpecificationBuilder {
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     };
   }
-  
+
   private static boolean isPagingField(String fieldName) {
     return "page".equals(fieldName) || "size".equals(fieldName);
   }
