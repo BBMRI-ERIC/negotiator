@@ -67,6 +67,9 @@ public class NegotiationModelAssembler
         WebMvcLinkBuilder.linkTo(
                 methodOn(AttachmentController.class).listByNegotiation(entity.getId()))
             .withRel("attachments"));
+    links.add(
+        linkTo(methodOn(NegotiationController.class).findResourcesForNegotiation(entity.getId()))
+            .withRel("resources"));
     return EntityModel.of(entity, links);
   }
 

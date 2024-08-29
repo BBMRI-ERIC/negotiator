@@ -5,13 +5,17 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.NonNull;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Component
+@CommonsLog
 public class LinkBuilder {
   /**
    * Get page links for HATEOAS response models
@@ -63,8 +67,8 @@ public class LinkBuilder {
         if (value != null) {
           queryParams.add(field.getName(), String.valueOf(value));
         }
-      } catch (IllegalAccessException e) {
-        // Handle exception or log error
+      } catch (Exception e) {
+        log.error("Error while getting query params", e);
       }
     }
 
