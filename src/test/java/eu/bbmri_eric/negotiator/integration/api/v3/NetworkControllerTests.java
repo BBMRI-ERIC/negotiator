@@ -79,9 +79,9 @@ public class NetworkControllerTests {
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.page.totalElements", is(3)))
         .andExpect(jsonPath("$._embedded.resources.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.resources.[0].id", is("4")))
-        .andExpect(jsonPath("$._embedded.resources.[1].id", is("5")))
-        .andExpect(jsonPath("$._embedded.resources.[2].id", is("6")));
+        .andExpect(jsonPath("$._embedded.resources.[0].id", is(4)))
+        .andExpect(jsonPath("$._embedded.resources.[1].id", is(5)))
+        .andExpect(jsonPath("$._embedded.resources.[2].id", is(6)));
   }
 
   @Test

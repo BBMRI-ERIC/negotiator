@@ -1,7 +1,9 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
+import eu.bbmri_eric.negotiator.common.FilterDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -20,7 +22,7 @@ public interface ResourceService {
    *
    * @return All resources.
    */
-  Iterable<ResourceResponseModel> findAll(Pageable pageable);
+  Iterable<ResourceResponseModel> findAll(FilterDTO filters);
 
   /**
    * Retrieve all resources linked to a Network.
@@ -40,12 +42,14 @@ public interface ResourceService {
   List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId);
 
   /**
-   * Add resources to a Negotiation.
+   * Edit resources to a Negotiation. Any Resources in the list that are not already a part of the
+   * Negotiation will be added. Warning: If you supply a state, all resources will be updated to
+   * that state.
    *
    * @param negotiationId a specific Negotiation
-   * @param resourceIds a list of resource IDs
+   * @param updateResourcesDTO a list of resource IDs to be added or updated
    * @return an updated list of resources
    */
-  List<ResourceWithStatusDTO> addResourcesToNegotiation(
-      String negotiationId, List<Long> resourceIds);
+  List<ResourceWithStatusDTO> updateResourcesInANegotiation(
+      String negotiationId, UpdateResourcesDTO updateResourcesDTO);
 }

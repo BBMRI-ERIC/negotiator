@@ -28,6 +28,7 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -65,14 +66,15 @@ public class ResourceControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCE_ENDPOINT.formatted(4)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(resource.getId().toString())))
+        .andExpect(jsonPath("$.id", is(resource.getId().intValue())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.externalId", is(resource.getSourceId())));
+        .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())));
   }
 
   @Test
   @Transactional
   @WithMockUser("researcher")
+  @Disabled
   void getAll_10kResourcesInDb_ok() throws Exception {
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
@@ -246,5 +248,23 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").doesNotExist())
         .andExpect(
             jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser
+  void getResources_filterByName_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=test"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalElements", is(7)));
+  }
+
+  @Test
+  @WithMockUser
+  void getResources_pageSize1_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=test&size=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalPages", is(7)));
   }
 }

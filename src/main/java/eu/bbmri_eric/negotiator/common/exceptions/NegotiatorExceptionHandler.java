@@ -2,11 +2,10 @@ package eu.bbmri_eric.negotiator.common.exceptions;
 
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
@@ -15,7 +14,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.statemachine.StateMachineException;
@@ -28,11 +29,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 @CommonsLog
-public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
+public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
@@ -69,21 +69,6 @@ public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  private static @NonNull String getErrorDetails(MethodArgumentNotValidException ex) {
-    Map<String, String> errors = new HashMap<>();
-    ex.getBindingResult()
-        .getAllErrors()
-        .forEach(
-            (error) -> {
-              String fieldName = ((FieldError) error).getField();
-              String errorMessage = error.getDefaultMessage();
-              errors.put(fieldName, errorMessage);
-            });
-    return errors.entrySet().stream()
-        .map(entry -> entry.getKey() + " " + entry.getValue())
-        .collect(Collectors.joining(" and "));
   }
 
   @ExceptionHandler(EntityNotFoundException.class)
@@ -271,5 +256,53 @@ public class NegotiatorExceptionHandler extends ResponseEntityExceptionHandler {
     detail.setTitle("Could not advance the state machine");
     detail.setDetail(ex.getMessage());
     return new ErrorResponseException(HttpStatus.BAD_REQUEST, detail, ex);
+  }
+
+  // This is mainly for Swagger documentation.
+  // The actual exception is handled by the CustomBearerTokenAuthenticationEntryPoint
+  @ExceptionHandler({AuthenticationException.class})
+  @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+  public final ProblemDetail handleAuthenticationException(AuthenticationException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+    problemDetail.setTitle("Unauthorized");
+    problemDetail.setDetail("Authentication is required to access this resource.");
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"));
+    problemDetail.setProperties(Map.of());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public final ProblemDetail handleMethodArgumentNotValidException(
+      MethodArgumentNotValidException e) {
+    Map<String, String> errors = new HashMap<>();
+    extractDetails(e, errors);
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    problemDetail.setTitle("Wrong request parameters");
+    problemDetail.setDetail(errors.toString());
+    return problemDetail;
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public final ProblemDetail handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException e) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    problemDetail.setTitle("Wrong request");
+    problemDetail.setDetail("Could not read the request body. Please check the request format.");
+    return problemDetail;
+  }
+
+  private static void extractDetails(
+      MethodArgumentNotValidException e, Map<String, String> errors) {
+    e.getBindingResult()
+        .getAllErrors()
+        .forEach(
+            (error) -> {
+              String fieldName = ((FieldError) error).getField();
+              String errorMessage = error.getDefaultMessage();
+              errors.put(fieldName, errorMessage);
+            });
   }
 }

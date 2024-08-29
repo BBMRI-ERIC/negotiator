@@ -39,21 +39,23 @@ public class ResourceRepositoryTest {
   @Autowired OrganizationRepository organizationRepository;
 
   String payload =
-      "    {\n"
-          + "\"project\": {\n"
-          + "\"title\": \"Title\",\n"
-          + "\"description\": \"Description\"\n"
-          + "},\n"
-          + " \"samples\": {\n"
-          + "   \"sample-type\": \"DNA\",\n"
-          + "   \"num-of-subjects\": 10,\n"
-          + "   \"num-of-samples\": 20,\n"
-          + "   \"volume-per-sample\": 5\n"
-          + " },\n"
-          + " \"ethics-vote\": {\n"
-          + "   \"ethics-vote\": \"My ethic vote\"\n"
-          + " }\n"
-          + "}\n";
+      """
+                      {
+                  "project": {
+                  "title": "Title",
+                  "description": "Description"
+                  },
+                   "samples": {
+                     "sample-type": "DNA",
+                     "num-of-subjects": 10,
+                     "num-of-samples": 20,
+                     "volume-per-sample": 5
+                   },
+                   "ethics-vote": {
+                     "ethics-vote": "My ethic vote"
+                   }
+                  }
+                  """;
   private DiscoveryService discoveryService;
 
   @BeforeEach

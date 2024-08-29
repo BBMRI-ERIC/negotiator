@@ -64,7 +64,7 @@ public class InformationRequirementControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.title", is("Bad Request")));
+        .andExpect(jsonPath("$.title", is("Wrong request parameters")));
   }
 
   @Test
@@ -159,7 +159,7 @@ public class InformationRequirementControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.title", is("Bad Request")));
+        .andExpect(jsonPath("$.title", is("Wrong request parameters")));
   }
 
   @Test

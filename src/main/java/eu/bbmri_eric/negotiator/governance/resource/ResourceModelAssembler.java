@@ -1,10 +1,12 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
+import static eu.bbmri_eric.negotiator.common.LinkBuilder.getPageLinks;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkController;
-import eu.bbmri_eric.negotiator.user.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,12 +41,17 @@ public class ResourceModelAssembler
   }
 
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
-      Page<ResourceResponseModel> page) {
+      Page<ResourceResponseModel> page, FilterDTO filterDTO) {
+    PagedModel.PageMetadata pageMetadata =
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages());
+    List<Link> links =
+        getPageLinks(
+            linkTo(methodOn(ResourceController.class).list(null)).toUri(), filterDTO, pageMetadata);
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
-        new PagedModel.PageMetadata(
-            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
-        new ArrayList<>());
+        pageMetadata,
+        links);
   }
 
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(

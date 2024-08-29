@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
@@ -21,11 +22,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -43,15 +41,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,13 +60,13 @@ import org.springframework.web.server.ResponseStatusException;
 @SecurityRequirement(name = "security_auth")
 public class NegotiationController {
 
-  private NegotiationService negotiationService;
+  private final NegotiationService negotiationService;
 
-  private NegotiationLifecycleService negotiationLifecycleService;
+  private final NegotiationLifecycleService negotiationLifecycleService;
 
-  private ResourceLifecycleService resourceLifecycleService;
+  private final ResourceLifecycleService resourceLifecycleService;
 
-  private PersonService personService;
+  private final PersonService personService;
 
   private final ResourceService resourceService;
 
@@ -320,14 +316,8 @@ public class NegotiationController {
         .collect(Collectors.toList());
   }
 
-  @GetMapping("/negotiations/lifecycle")
-  @Operation(deprecated = true, description = "Replaced by /v3/negotiation-lifecycle/states")
-  List<NegotiationState> getPossibleEventsForNegotiationResource() {
-    return Arrays.stream(NegotiationState.values()).toList();
-  }
-
-  @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.GET)
-  @Operation(summary = "List all resources in negotiation")
+  @GetMapping(value = "/negotiations/{id}/resources")
+  @Operation(summary = "List all Resources in negotiation")
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> findResourcesForNegotiation(
       @PathVariable String id) {
@@ -338,25 +328,14 @@ public class NegotiationController {
     return resourceWithStatusAssembler.toCollectionModel(resourceService.findAllInNegotiation(id));
   }
 
-  @RequestMapping(value = "/negotiations/{id}/resources", method = RequestMethod.PATCH)
-  @Operation(summary = "Add resources to a negotiation")
+  @PatchMapping(value = "/negotiations/{id}/resources")
+  @Operation(summary = "Edit Resources linked to a Negotiation")
   @SecurityRequirement(name = "security_auth")
-  public CollectionModel<EntityModel<ResourceWithStatusDTO>> addResourcesForNegotiation(
-      @PathVariable String id, @RequestBody @NotEmpty List<Long> resourceIds) {
+  public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
+      @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
+    log.info(updateResourcesDTO.toString());
     return resourceWithStatusAssembler.toCollectionModel(
-        resourceService.addResourcesToNegotiation(id, resourceIds));
-  }
-
-  private List<String> getResourceIdsFromUserAuthorities() {
-    List<String> resourceIds = new ArrayList<>();
-    for (GrantedAuthority grantedAuthority :
-        SecurityContextHolder.getContext().getAuthentication().getAuthorities()) {
-      // Edit for different groups/resource types
-      if (grantedAuthority.getAuthority().contains("collection")) {
-        resourceIds.add(grantedAuthority.getAuthority().replace("ROLE_REPRESENTATIVE_", ""));
-      }
-    }
-    return Collections.unmodifiableList(resourceIds);
+        resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
   }
 
   private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {

@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.governance;
+package eu.bbmri_eric.negotiator.governance.organization;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;

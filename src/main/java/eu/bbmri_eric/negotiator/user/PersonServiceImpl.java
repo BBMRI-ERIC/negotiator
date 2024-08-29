@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import jakarta.transaction.Transactional;
 import java.lang.reflect.Field;
 import java.util.Arrays;
