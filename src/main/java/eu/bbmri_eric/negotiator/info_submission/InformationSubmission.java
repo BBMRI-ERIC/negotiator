@@ -11,8 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /** Represents a submission of additional information by the resource representative. */
 @Setter
@@ -61,7 +59,6 @@ public class InformationSubmission {
   @ManyToOne
   @JoinColumn(name = "negotiation_id")
   private Negotiation negotiation;
-
-  @JdbcTypeCode(SqlTypes.JSON)
+  
   private String payload;
 }
