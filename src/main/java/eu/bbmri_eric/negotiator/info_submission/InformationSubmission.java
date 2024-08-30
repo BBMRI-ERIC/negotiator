@@ -59,6 +59,6 @@ public class InformationSubmission {
   @ManyToOne
   @JoinColumn(name = "negotiation_id")
   private Negotiation negotiation;
-  
+
   private String payload;
 }
