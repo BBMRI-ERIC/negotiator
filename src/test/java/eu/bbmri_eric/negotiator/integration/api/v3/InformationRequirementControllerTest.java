@@ -518,7 +518,7 @@ public class InformationRequirementControllerTest {
     String expectedResponse =
         """
 resourceId,sample-type,num-of-subjects,num-of-samples,volume-per-sample
-biobank:1:collection:1,20,10,DNA,5
+biobank:1:collection:1,DNA,10,20,5
 """;
     mockMvc
         .perform(
