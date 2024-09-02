@@ -88,7 +88,7 @@ public class JobEventManagerTest {
     DiscoveryServiceSynchronizationJob retrievedJob =
         testJobRepository.findDetailedById(job.getId()).get();
     assertEquals(
-        retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+        retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.FAILED);
   }
 
   @Test
@@ -119,7 +119,7 @@ public class JobEventManagerTest {
     DiscoveryServiceSynchronizationJob retrievedJob =
         testJobRepository.findDetailedById(job.getId()).get();
     assertEquals(
-        retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+        retrievedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.FAILED);
   }
 
   @Test

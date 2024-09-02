@@ -35,10 +35,10 @@ public class JobEventManager implements ApplicationListener<DiscoveryServiceSync
       savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED);
       discoveryServiceSynchronizationJobRepository.save(savedJob);
     } catch (EntityNotStorableException e) {
-      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);
       discoveryServiceSynchronizationJobRepository.save(savedJob);
     } catch (WebClientResponseException e) {
-      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED_WITH_ERRORS);
+      savedJob.setStatus(DiscoveryServiceSyncronizationJobStatus.FAILED);
       discoveryServiceSynchronizationJobRepository.save(savedJob);
     }
   }
