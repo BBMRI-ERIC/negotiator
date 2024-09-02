@@ -96,6 +96,7 @@ public class BBMRIDiscoveryServiceClientTest {
     MolgenisBiobank bb3 = new MolgenisBiobank("test_bb3", "test_bb3", "/assembler/v2/test_bb3");
     MolgenisBiobank bb4 = new MolgenisBiobank("test_bb4", "test_bb4", "/assembler/v2/test_bb4");
   }
+
   public void createBiobanksCollectionsAndNetworks() {
     MolgenisBiobank bb1 = new MolgenisBiobank("test_bb1", "test_bb1", "/api/v2/test_bb1");
     MolgenisBiobank bb2 = new MolgenisBiobank("test_bb2", "test_bb2", "/api/v2/test_bb2");
