@@ -1,4 +1,5 @@
-package eu.bbmri_eric.negotiator.dto.discoveryservice;
+package eu.bbmri_eric.negotiator.governance.resource.dto;
+
 
 public interface GenericResource {
 

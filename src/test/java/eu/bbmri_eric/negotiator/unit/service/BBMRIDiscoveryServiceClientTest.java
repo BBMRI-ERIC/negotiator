@@ -24,7 +24,7 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
-import eu.bbmri_eric.negotiator.dto.discoveryservice.MolgenisNetwork;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisNetwork;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
