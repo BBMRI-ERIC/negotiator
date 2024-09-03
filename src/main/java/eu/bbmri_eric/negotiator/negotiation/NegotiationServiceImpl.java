@@ -43,7 +43,14 @@ public class NegotiationServiceImpl implements NegotiationService {
   private UserNotificationService userNotificationService;
   private PersonService personService;
 
-  public NegotiationServiceImpl(NegotiationRepository negotiationRepository, PersonRepository personRepository, RequestRepository requestRepository, AttachmentRepository attachmentRepository, ModelMapper modelMapper, UserNotificationService userNotificationService, PersonService personService) {
+  public NegotiationServiceImpl(
+      NegotiationRepository negotiationRepository,
+      PersonRepository personRepository,
+      RequestRepository requestRepository,
+      AttachmentRepository attachmentRepository,
+      ModelMapper modelMapper,
+      UserNotificationService userNotificationService,
+      PersonService personService) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
