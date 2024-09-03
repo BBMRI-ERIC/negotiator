@@ -35,22 +35,15 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class NegotiationServiceImpl implements NegotiationService {
 
-  private final NegotiationRepository negotiationRepository;
-  private final PersonRepository personRepository;
-  private final RequestRepository requestRepository;
-  private final AttachmentRepository attachmentRepository;
-  private final ModelMapper modelMapper;
-  private final UserNotificationService userNotificationService;
-  private final PersonService personService;
+  private NegotiationRepository negotiationRepository;
+  private PersonRepository personRepository;
+  private RequestRepository requestRepository;
+  private AttachmentRepository attachmentRepository;
+  private ModelMapper modelMapper;
+  private UserNotificationService userNotificationService;
+  private PersonService personService;
 
-  public NegotiationServiceImpl(
-      NegotiationRepository negotiationRepository,
-      PersonRepository personRepository,
-      RequestRepository requestRepository,
-      AttachmentRepository attachmentRepository,
-      ModelMapper modelMapper,
-      UserNotificationService userNotificationService,
-      PersonService personService) {
+  public NegotiationServiceImpl(NegotiationRepository negotiationRepository, PersonRepository personRepository, RequestRepository requestRepository, AttachmentRepository attachmentRepository, ModelMapper modelMapper, UserNotificationService userNotificationService, PersonService personService) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
