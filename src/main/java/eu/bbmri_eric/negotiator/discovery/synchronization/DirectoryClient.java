@@ -229,11 +229,15 @@ public class DirectoryClient implements DiscoveryServiceClient {
 
       for (JsonElement e : items) {
         JsonObject jsonCollection = e.getAsJsonObject();
+        String description = "";
+        if (jsonCollection.has("description")) {
+          description = jsonCollection.get("description").getAsString();
+        }
         MolgenisCollection collection =
             new MolgenisCollection(
                 jsonCollection.get("id").getAsString(),
                 jsonCollection.get("name").getAsString(),
-                jsonCollection.get("description").getAsString(),
+                description,
                 new MolgenisBiobank(
                     jsonCollection.get("biobank").getAsJsonObject().get("id").getAsString(),
                     jsonCollection.get("biobank").getAsJsonObject().get("name").getAsString(),
