@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,7 +42,6 @@ public class UserController {
   @Autowired UserModelAssembler assembler;
 
   @Autowired PersonService personService;
-  @Autowired ModelMapper modelMapper;
 
   @Autowired NetworkService networkService;
   @Autowired NetworkModelAssembler networkModelAssembler;
