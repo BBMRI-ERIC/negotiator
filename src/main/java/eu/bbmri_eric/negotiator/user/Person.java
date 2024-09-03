@@ -70,7 +70,7 @@ public class Person {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
   private Set<Authority> authorities;
 
-  @ManyToMany(mappedBy = "managers")
+  @ManyToMany(mappedBy = "managers", fetch = FetchType.EAGER)
   @Exclude
   @Setter(AccessLevel.NONE)
   private Set<Network> networks;
