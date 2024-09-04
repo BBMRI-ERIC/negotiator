@@ -2,13 +2,18 @@ package eu.bbmri_eric.negotiator.governance.resource.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-public class MolgenisBiobank implements GenericOrganization {
+public class MolgenisNetwork implements GenericNetwork {
+
   String id;
+
   String name;
-  String _href;
+
+  String contactEmail;
+
+  String uri;
 }
