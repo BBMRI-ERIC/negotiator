@@ -180,4 +180,13 @@ public class UserControllerTest {
                 RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()) + "/4"))
         .andExpect(status().isNoContent());
   }
+
+  @Test
+  @WithUserDetails("admin")
+  void userInfo_networkManager_linkForNetworks() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/userinfo"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.networks").isNotEmpty());
+  }
 }

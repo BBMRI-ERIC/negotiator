@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.common.exceptions;
 
-import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.Arrays;
@@ -41,18 +40,6 @@ public class NegotiatorExceptionHandler {
         HttpErrorResponseModel.builder()
             .title("Authentication Failure")
             .detail("We could not decode the JWT token. Please try again later.")
-            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .build();
-    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @ExceptionHandler(ServletException.class)
-  public final ResponseEntity<HttpErrorResponseModel> handleServletError(
-      RuntimeException ex, WebRequest request) {
-    HttpErrorResponseModel errorResponse =
-        HttpErrorResponseModel.builder()
-            .title("Internal server error")
-            .detail("An unspecified error occurred.")
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
