@@ -275,6 +275,7 @@ public class NetworkControllerTests {
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/statistics"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.networkId", is(1)))
-        .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)));
+        .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)))
+        .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
   }
 }
