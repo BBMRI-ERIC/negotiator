@@ -24,9 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "security_auth")
 public class PostController {
 
-   private final PostService postService;
+  private final PostService postService;
 
-   private final NegotiationService negotiationService;
+  private final NegotiationService negotiationService;
 
   public PostController(PostService postService, NegotiationService negotiationService) {
     this.postService = postService;
