@@ -2,10 +2,13 @@ package eu.bbmri_eric.negotiator.post;
 
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +31,15 @@ public class PostController {
 
   private final NegotiationService negotiationService;
 
-  public PostController(PostService postService, NegotiationService negotiationService) {
+  private final PostModelAssembler postModelAssembler;
+
+  public PostController(
+      PostService postService,
+      NegotiationService negotiationService,
+      PostModelAssembler postModelAssembler) {
     this.postService = postService;
     this.negotiationService = negotiationService;
+    this.postModelAssembler = postModelAssembler;
   }
 
   @PostMapping(
@@ -65,5 +74,11 @@ public class PostController {
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String postId) {
     return postService.update(createDTO, negotiationId, postId);
+  }
+
+  @GetMapping(value = "/posts/{postId}", produces = MediaTypes.HAL_JSON_VALUE)
+  @Operation(summary = "Find a post by an id")
+  EntityModel<PostDTO> getById(@PathVariable @Valid String postId) {
+    return postModelAssembler.toModel(postService.findById(postId));
   }
 }

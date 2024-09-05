@@ -97,6 +97,11 @@ public class PostServiceImpl implements PostService {
     return modelMapper.map(postEntity, PostDTO.class);
   }
 
+  @Override
+  public PostDTO findById(String id) {
+    return null;
+  }
+
   @NonNull
   private Post setUpPostEntity(PostCreateDTO postRequest, Negotiation negotiation) {
     Post postEntity = getPostEntity(postRequest);
