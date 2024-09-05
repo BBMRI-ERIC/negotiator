@@ -28,7 +28,9 @@ import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -308,7 +310,14 @@ public class PostServiceTest {
             .type(PostType.PRIVATE)
             .build();
     PostDTO postDTO =
-        PostDTO.builder().text(privateResToOrg1.getText()).type(PostType.PRIVATE).build();
+        PostDTO.builder()
+            .id("test-id")
+            .creationDate(LocalDateTime.now())
+            .createdBy(new UserResponseModel())
+            .status(PostStatus.CREATED)
+            .text(privateResToOrg1.getText())
+            .type(PostType.PRIVATE)
+            .build();
     when(modelMapper.map(privateResToOrg1, PostDTO.class)).thenReturn(postDTO);
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), privateResToOrg1.getText());
@@ -356,7 +365,7 @@ public class PostServiceTest {
             .text(publicPost1.getText())
             .type(PostType.PUBLIC)
             .build();
-    PostDTO postDTO = PostDTO.builder().text(publicPost1.getText()).type(PostType.PUBLIC).build();
+    PostDTO postDTO = PostDTO.builder().id("test-id").createdBy(new UserResponseModel()).creationDate(LocalDateTime.now()).status(PostStatus.CREATED).text(publicPost1.getText()).type(PostType.PUBLIC).build();
     when(modelMapper.map(publicPost1, PostDTO.class)).thenReturn(postDTO);
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), publicPost1.getText());

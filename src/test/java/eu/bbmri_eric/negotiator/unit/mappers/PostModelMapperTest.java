@@ -6,6 +6,10 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostDTO;
 import eu.bbmri_eric.negotiator.post.PostModelMapper;
+import eu.bbmri_eric.negotiator.post.PostStatus;
+import eu.bbmri_eric.negotiator.post.PostType;
+import eu.bbmri_eric.negotiator.user.Person;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,7 +30,16 @@ public class PostModelMapperTest {
 
   @Test
   public void map_PostToDTO_ok() {
-    Post post = Post.builder().negotiation(new Negotiation()).text("This is important").build();
+    Post post =
+        Post.builder()
+            .id("test-id")
+            .type(PostType.PUBLIC)
+            .status(PostStatus.CREATED)
+            .negotiation(new Negotiation())
+            .text("This is important")
+            .build();
+    post.setCreationDate(LocalDateTime.now());
+    post.setCreatedBy(new Person());
     PostDTO postDTO = mapper.map(post, PostDTO.class);
     assertEquals(post.getText(), postDTO.getText());
   }
