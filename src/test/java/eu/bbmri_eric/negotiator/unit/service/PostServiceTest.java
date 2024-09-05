@@ -365,7 +365,15 @@ public class PostServiceTest {
             .text(publicPost1.getText())
             .type(PostType.PUBLIC)
             .build();
-    PostDTO postDTO = PostDTO.builder().id("test-id").createdBy(new UserResponseModel()).creationDate(LocalDateTime.now()).status(PostStatus.CREATED).text(publicPost1.getText()).type(PostType.PUBLIC).build();
+    PostDTO postDTO =
+        PostDTO.builder()
+            .id("test-id")
+            .createdBy(new UserResponseModel())
+            .creationDate(LocalDateTime.now())
+            .status(PostStatus.CREATED)
+            .text(publicPost1.getText())
+            .type(PostType.PUBLIC)
+            .build();
     when(modelMapper.map(publicPost1, PostDTO.class)).thenReturn(postDTO);
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), publicPost1.getText());
