@@ -68,12 +68,15 @@ public class PostController {
     return postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource);
   }
 
-  @PutMapping("/negotiations/{negotiationId}/posts/{postId}")
-  PostDTO update(
+  @PutMapping(
+      value = "/negotiations/{negotiationId}/posts/{postId}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
+  EntityModel<PostDTO> update(
       @Valid @RequestBody PostCreateDTO createDTO,
       @Valid @PathVariable String negotiationId,
       @Valid @PathVariable String postId) {
-    return postService.update(createDTO, negotiationId, postId);
+    return postModelAssembler.toModel(postService.update(createDTO, negotiationId, postId));
   }
 
   @GetMapping(value = "/posts/{postId}", produces = MediaTypes.HAL_JSON_VALUE)
