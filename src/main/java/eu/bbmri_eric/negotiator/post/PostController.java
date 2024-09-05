@@ -45,11 +45,11 @@ public class PostController {
   @PostMapping(
       value = "/negotiations/{negotiationId}/posts",
       consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+      produces = MediaTypes.HAL_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  PostDTO add(
+  EntityModel<PostDTO> add(
       @Valid @RequestBody PostCreateDTO request, @Valid @PathVariable String negotiationId) {
-    return postService.create(request, negotiationId);
+    return postModelAssembler.toModel(postService.create(request, negotiationId));
   }
 
   @GetMapping("/negotiations/{negotiationId}/posts")

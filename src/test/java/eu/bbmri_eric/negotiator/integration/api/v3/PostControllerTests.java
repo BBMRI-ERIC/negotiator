@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -63,7 +64,7 @@ public class PostControllerTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
             .andExpect(status().isCreated())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
             .andExpect(jsonPath("$.text", is("message")))
             .andExpect(jsonPath("$.status", is("CREATED")))
             .andReturn();
@@ -192,7 +193,7 @@ public class PostControllerTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
             .andExpect(status().isCreated())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
             .andExpect(jsonPath("$.text", is("message")))
             .andExpect(jsonPath("$.status", is("CREATED")))
             .andReturn();
