@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(itemRelation = "post", collectionRelation = "posts")
 public class PostDTO {
   @NonNull private String id;
   @NonNull private PostStatus status;

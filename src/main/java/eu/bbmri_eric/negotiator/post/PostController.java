@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
@@ -52,20 +53,22 @@ public class PostController {
     return postModelAssembler.toModel(postService.create(request, negotiationId));
   }
 
-  @GetMapping("/negotiations/{negotiationId}/posts")
-  List<PostDTO> getAllMessagesByNegotiation(
+  @GetMapping(value = "/negotiations/{negotiationId}/posts", produces = MediaTypes.HAL_JSON_VALUE)
+  CollectionModel<EntityModel<PostDTO>> getAllMessagesByNegotiation(
       @Valid @PathVariable String negotiationId,
       @RequestParam(value = "role", required = false) String roleName,
       @RequestParam(value = "type", required = false) PostType type,
       @RequestParam(value = "resource", required = false) String resource) {
     if (roleName == null || roleName.isEmpty()) {
-      return postService.findByNegotiationId(negotiationId, type, resource);
+      return postModelAssembler.toCollectionModel(
+          postService.findByNegotiationId(negotiationId, type, resource));
     }
     NegotiationDTO negotiationDTO = negotiationService.findById(negotiationId, true);
 
     List<String> posters = List.of(negotiationDTO.getAuthor().getName());
 
-    return postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource);
+    return postModelAssembler.toCollectionModel(
+        postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource));
   }
 
   @PutMapping(

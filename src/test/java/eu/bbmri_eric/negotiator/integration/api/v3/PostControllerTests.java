@@ -114,15 +114,14 @@ public class PostControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(numberOfPosts)))
-        .andExpect(jsonPath("$[0].id", is("post-1-researcher")))
-        .andExpect(jsonPath("$[1].id", is("post-2-researcher")))
-        .andExpect(jsonPath("$[2].id", is("post-3-researcher")))
-        .andExpect(jsonPath("$[3].id", is("post-1-representative")))
-        .andExpect(jsonPath("$[4].id", is("post-2-representative")))
-        .andExpect(jsonPath("$[5].id", is("post-3-representative")))
-        .andExpect(jsonPath("$[6].id", is("post-4-representative")));
+        .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPosts)))
+        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-1-researcher")))
+        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-2-researcher")))
+        .andExpect(jsonPath("$._embedded.posts[2].id", is("post-3-researcher")))
+        .andExpect(jsonPath("$._embedded.posts[3].id", is("post-1-representative")))
+        .andExpect(jsonPath("$._embedded.posts[4].id", is("post-2-representative")))
+        .andExpect(jsonPath("$._embedded.posts[5].id", is("post-3-representative")))
+        .andExpect(jsonPath("$._embedded.posts[6].id", is("post-4-representative")));
   }
 
   @Test
@@ -134,10 +133,10 @@ public class PostControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)))
-        .andExpect(jsonPath("$[0].id", is("post-1-researcher")))
-        .andExpect(jsonPath("$[1].id", is("post-2-researcher")));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(jsonPath("$._embedded.posts.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-1-researcher")))
+        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-2-researcher")));
   }
 
   @Test
@@ -150,8 +149,8 @@ public class PostControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)));
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(jsonPath("$._embedded.posts.length()", is(3)));
   }
 
   @Test
@@ -247,11 +246,10 @@ public class PostControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(numberOfPrivatePosts)))
-        .andExpect(jsonPath("$[0].id", is("post-3-researcher")))
-        .andExpect(jsonPath("$[1].id", is("post-3-representative")))
-        .andExpect(jsonPath("$[2].id", is("post-4-representative")));
+        .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPrivatePosts)))
+        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-3-researcher")))
+        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-3-representative")))
+        .andExpect(jsonPath("$._embedded.posts[2].id", is("post-4-representative")));
   }
 
   @Test
@@ -265,9 +263,8 @@ public class PostControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(numberOfPrivatePosts)))
-        .andExpect(jsonPath("$[0].id", is("post-3-researcher")))
-        .andExpect(jsonPath("$[1].id", is("post-3-representative")));
+        .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPrivatePosts)))
+        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-3-researcher")))
+        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-3-representative")));
   }
 }
