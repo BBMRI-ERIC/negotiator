@@ -4,8 +4,16 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -18,8 +26,10 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -41,6 +51,9 @@ public class ResourceServiceImpl implements ResourceService {
   private final ModelMapper modelMapper;
   private final RequestRepository requestRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
+  private final AccessFormRepository accessFormRepository;
+  private final DiscoveryServiceRepository discoveryServiceRepository;
+  private final OrganizationRepository organizationRepository;
 
   public ResourceServiceImpl(
       NetworkRepository networkRepository,
@@ -50,7 +63,10 @@ public class ResourceServiceImpl implements ResourceService {
       ModelMapper modelMapper,
       RequestRepository requestRepository,
       UserNotificationService userNotificationService,
-      ApplicationEventPublisher applicationEventPublisher) {
+      ApplicationEventPublisher applicationEventPublisher,
+      AccessFormRepository accessFormRepository,
+      DiscoveryServiceRepository discoveryServiceRepository,
+      OrganizationRepository organizationRepository) {
     this.networkRepository = networkRepository;
     this.repository = repository;
     this.personRepository = personRepository;
@@ -58,6 +74,9 @@ public class ResourceServiceImpl implements ResourceService {
     this.modelMapper = modelMapper;
     this.requestRepository = requestRepository;
     this.applicationEventPublisher = applicationEventPublisher;
+    this.accessFormRepository = accessFormRepository;
+    this.discoveryServiceRepository = discoveryServiceRepository;
+    this.organizationRepository = organizationRepository;
   }
 
   @Override
@@ -110,6 +129,37 @@ public class ResourceServiceImpl implements ResourceService {
       String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
     updateResources(negotiationId, updateResourcesDTO);
     return getResourceWithStatusDTOS(negotiationId);
+  }
+
+  @Override
+  @Transactional
+  public List<ResourceDTO> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
+    ArrayList<Resource> resources = new ArrayList<Resource>();
+    DiscoveryService discoveryService =
+        discoveryServiceRepository
+            .findById(Long.valueOf("1"))
+            .orElseThrow(() -> new EntityNotFoundException("1"));
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(Long.valueOf("1"))
+            .orElseThrow(() -> new EntityNotFoundException("1"));
+
+    for (ResourceCreateDTO resDTO : resourcesCreateDTO) {
+      Optional<Organization> organization =
+          organizationRepository.findByExternalId(resDTO.getOrganizationId());
+      Resource res =
+          Resource.builder()
+              .name(resDTO.getName())
+              .description(resDTO.getDescription())
+              .sourceId(resDTO.getSourceId())
+              .organization(organization.get())
+              .discoveryService(discoveryService)
+              .accessForm(accessForm)
+              .build();
+      resources.add(res);
+    }
+    List<Resource> savedResources = repository.saveAll(resources);
+    return ResourceModelMapper.toDtoList(savedResources);
   }
 
   private void updateResources(String negotiationId, UpdateResourcesDTO updateResourcesDTO) {

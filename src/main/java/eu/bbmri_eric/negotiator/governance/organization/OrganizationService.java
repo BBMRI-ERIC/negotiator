@@ -8,4 +8,6 @@ public interface OrganizationService {
   OrganizationDTO findOrganizationByExternalId(String externalId);
 
   Iterable<OrganizationDTO> findAllOrganizations(Pageable pageable);
+
+  Iterable<OrganizationDTO> addOrganizations(Iterable<OrganizationCreateDTO> organizations);
 }
