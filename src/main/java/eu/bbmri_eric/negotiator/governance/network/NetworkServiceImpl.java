@@ -10,6 +10,7 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -104,7 +105,9 @@ public class NetworkServiceImpl implements NetworkService {
       networks.add(network);
     }
     List<Network> savedNetworks = networkRepository.saveAll(networks);
-    return NetworkMapper.toDtoList(savedNetworks);
+    return savedNetworks.stream()
+        .map(network -> modelMapper.map(network, NetworkDTO.class))
+        .collect(Collectors.toList());
   }
 
   @Override

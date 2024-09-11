@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -159,7 +160,9 @@ public class ResourceServiceImpl implements ResourceService {
       resources.add(res);
     }
     List<Resource> savedResources = repository.saveAll(resources);
-    return ResourceModelMapper.toDtoList(savedResources);
+    return savedResources.stream()
+        .map(resource -> modelMapper.map(resource, ResourceDTO.class))
+        .collect(Collectors.toList());
   }
 
   private void updateResources(String negotiationId, UpdateResourcesDTO updateResourcesDTO) {

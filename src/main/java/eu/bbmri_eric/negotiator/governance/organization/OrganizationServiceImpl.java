@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +49,8 @@ public class OrganizationServiceImpl implements OrganizationService {
       organizations.add(organization);
     }
     List<Organization> savedOrganizations = organizationRepository.saveAll(organizations);
-    return OrganizationMapper.toDtoList(savedOrganizations);
+    return savedOrganizations.stream()
+        .map(organization -> modelMapper.map(organization, OrganizationDTO.class))
+        .collect(Collectors.toList());
   }
 }

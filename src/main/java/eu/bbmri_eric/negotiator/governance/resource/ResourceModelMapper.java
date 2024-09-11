@@ -3,8 +3,6 @@ package eu.bbmri_eric.negotiator.governance.resource;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import jakarta.annotation.PostConstruct;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,19 +37,5 @@ public class ResourceModelMapper {
     molgenisCollectionResourceTypeMap.addMappings(
         mapper -> mapper.map(MolgenisCollection::getId, Resource::setSourceId));
     molgenisCollectionResourceTypeMap.addMappings(mapper -> mapper.skip(Resource::setId));
-  }
-
-  public static ResourceDTO toDto(Resource resource) {
-    ResourceDTO resDTO =
-        ResourceDTO.builder()
-            .id(resource.getId().toString())
-            .name(resource.getName())
-            .sourceId(resource.getSourceId())
-            .build();
-    return resDTO;
-  }
-
-  public static List<ResourceDTO> toDtoList(List<Resource> resources) {
-    return resources.stream().map(ResourceModelMapper::toDto).collect(Collectors.toList());
   }
 }
