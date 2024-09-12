@@ -56,6 +56,12 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${reminder.trigger-duration-days:P7D}")
   private String triggerDuration;
 
+  @Value("${negotiator.emailYoursSincerelyText}")
+  private String emailYoursSincerelyText;
+
+  @Value("${negotiator.emailHelpdeskHref}")
+  private String emailHelpdeskHref;
+
   private static LocalDateTime thresholdTime;
 
   private static Collection<NegotiationResourceState> nonactiveNegotiationResourceStates =
@@ -410,6 +416,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     context.setVariable("roleForNegotiation", roleForNegotiation);
     context.setVariable("titleForNegotiation", titleForNegotiation);
     context.setVariable("notificationsForNegotiation", notificationsForNegotiation);
+    context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
+    context.setVariable("emailHelpdeskHref", emailHelpdeskHref);
 
     String emailContent = templateEngine.process(emailTemplate, context);
 

@@ -59,6 +59,8 @@ springdoc:
 negotiator:
   molgenis-url: "https://bbmritestnn.gcc.rug.nl"
   frontend-url: "http://localhost:8080"
+  emailYoursSincerelyText: "The BBMRI-ERIC Team"
+  emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
   authorization:
     claim: "eduperson_entitlement"
     admin-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu"

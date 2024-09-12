@@ -69,6 +69,8 @@ spring:
 negotiator:
   molgenis-url: ""
   frontend-url: ""
+  emailYoursSincerelyText: ""
+  emailHelpdeskHref: ""
   authorization:
     claim: ""
     admin-claim-value: ""
