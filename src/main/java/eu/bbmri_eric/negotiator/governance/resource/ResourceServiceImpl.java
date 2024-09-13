@@ -133,6 +133,15 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
+  public ResourceDTO updateResourceById(Long id, ResourceCreateDTO resource) {
+    Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    res.setName(resource.getName());
+    res.setDescription(resource.getDescription());
+    Resource updatedResource = repository.save(res);
+    return modelMapper.map(updatedResource, ResourceDTO.class);
+  }
+
+  @Override
   @Transactional
   public List<ResourceDTO> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
     ArrayList<Resource> resources = new ArrayList<Resource>();

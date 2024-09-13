@@ -63,4 +63,13 @@ public interface ResourceService {
    * @return the output DTO list of all the added resources
    */
   List<ResourceDTO> addResources(List<ResourceCreateDTO> resources);
+
+  /**
+   * Update some attributes of a resource by its id.
+   *
+   * @param id the identifier of the resource to update
+   * @param resource the DTO containing the new values of the attribute(s)
+   * @return the output DTO of the updated resource
+   */
+  ResourceDTO updateResourceById(Long id, ResourceCreateDTO resource);
 }

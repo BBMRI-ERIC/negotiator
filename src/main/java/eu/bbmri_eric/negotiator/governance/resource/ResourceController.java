@@ -17,6 +17,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,5 +55,12 @@ public class ResourceController {
   @Operation(summary = "Add a list of resources")
   public Iterable<ResourceDTO> addResources(@Valid @RequestBody List<ResourceCreateDTO> resources) {
     return resourceService.addResources(resources);
+  }
+
+  @PutMapping(value = "{id}")
+  @Operation(summary = "Update a resource by id")
+  public ResourceDTO updateResourceById(
+      @PathVariable Long id, @Valid @RequestBody ResourceCreateDTO resource) {
+    return resourceService.updateResourceById(id, resource);
   }
 }

@@ -10,4 +10,6 @@ public interface OrganizationService {
   Iterable<OrganizationDTO> findAllOrganizations(Pageable pageable);
 
   Iterable<OrganizationDTO> addOrganizations(Iterable<OrganizationCreateDTO> organizations);
+
+  OrganizationDTO updateOrganizationById(Long id, OrganizationCreateDTO organization);
 }

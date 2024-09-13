@@ -53,4 +53,13 @@ public class OrganizationServiceImpl implements OrganizationService {
         .map(organization -> modelMapper.map(organization, OrganizationDTO.class))
         .collect(Collectors.toList());
   }
+
+  @Override
+  public OrganizationDTO updateOrganizationById(Long id, OrganizationCreateDTO organization) {
+    Organization org =
+        organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    org.setName(organization.getName());
+    Organization updatedOrganization = organizationRepository.save(org);
+    return modelMapper.map(updatedOrganization, OrganizationDTO.class);
+  }
 }
