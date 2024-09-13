@@ -124,6 +124,8 @@ public class HTTPRegistryConfigurer {
         .hasRole("ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/organizations/**"))
         .hasRole("ADMIN")
+        .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/organizations/**"))
+        .hasRole("ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/resources"))
         .hasRole("ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/resources/**"))

@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +29,5 @@ public class ResourceDTO {
 
   @NotNull private String sourceId;
 
-  @NotNull private String organizationId;
+  @NotNull private OrganizationDTO organization;
 }
