@@ -20,7 +20,6 @@ import org.springframework.hateoas.server.core.Relation;
 @Relation(itemRelation = "post", collectionRelation = "posts")
 public class PostDTO {
   @NonNull private String id;
-  @NonNull private PostStatus status;
   @NonNull private String text;
   @NonNull private LocalDateTime creationDate;
   @NonNull private UserResponseModel createdBy;

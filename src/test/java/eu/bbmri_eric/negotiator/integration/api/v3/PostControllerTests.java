@@ -11,7 +11,6 @@ import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostRepository;
-import eu.bbmri_eric.negotiator.post.PostStatus;
 import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
@@ -66,7 +65,6 @@ public class PostControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
             .andExpect(jsonPath("$.text", is("message")))
-            .andExpect(jsonPath("$.status", is("CREATED")))
             .andReturn();
 
     String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
@@ -125,29 +123,6 @@ public class PostControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheBiobanker")
-  @Transactional
-  public void testMarkPublicPostAsRead() throws Exception {
-    PostCreateDTO request =
-        TestUtils.createPostDTO(null, "message", PostStatus.READ, PostType.PUBLIC);
-    String requestBody = TestUtils.jsonFromRequest(request);
-    String uri =
-        String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
-        .andExpect(jsonPath("$.status", is("READ")));
-
-    Optional<Post> post = postRepository.findById(POST_ID);
-    assert post.isPresent();
-    assertEquals(post.get().getModifiedBy().getName(), "TheBiobanker");
-  }
-
-  @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   public void testCreatePrivatePostOK() throws Exception {
@@ -165,7 +140,6 @@ public class PostControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
             .andExpect(jsonPath("$.text", is("message")))
-            .andExpect(jsonPath("$.status", is("CREATED")))
             .andReturn();
 
     String postId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
@@ -189,24 +163,6 @@ public class PostControllerTests {
         .andExpect(status().isUnauthorized());
   }
 
-  @Test
-  @WithUserDetails("TheBiobanker")
-  public void testMarkPrivatePostAsRead() throws Exception {
-    PostCreateDTO request =
-        TestUtils.createPostDTO(
-            NEGOTIATION_1_ORGANIZATION_ID, "message", PostStatus.READ, PostType.PRIVATE);
-    String requestBody = TestUtils.jsonFromRequest(request);
-    String uri =
-        String.format("%s/%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, POST_ID);
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
-        .andExpect(jsonPath("$.status", is("READ")));
-  }
 
   @Test
   @WithUserDetails("TheResearcher")

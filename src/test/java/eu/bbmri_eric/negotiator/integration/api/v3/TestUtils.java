@@ -197,7 +197,6 @@ public class TestUtils {
     return PostCreateDTO.builder()
         .organizationId(organizationId)
         .text(text)
-        .status(status)
         .type(type)
         .build();
   }

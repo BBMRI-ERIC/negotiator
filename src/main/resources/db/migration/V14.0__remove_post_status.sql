@@ -1,0 +1,1 @@
+--- ALTER TABLE post drop column type;

@@ -304,7 +304,6 @@ public class PostServiceTest {
 
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
-            .status(PostStatus.CREATED)
             .text(privateResToOrg1.getText())
             .organizationId(ORG_1)
             .type(PostType.PRIVATE)
@@ -314,7 +313,6 @@ public class PostServiceTest {
             .id("test-id")
             .creationDate(LocalDateTime.now())
             .createdBy(new UserResponseModel())
-            .status(PostStatus.CREATED)
             .text(privateResToOrg1.getText())
             .type(PostType.PRIVATE)
             .build();
@@ -337,7 +335,6 @@ public class PostServiceTest {
 
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
-            .status(PostStatus.CREATED)
             .text(privateResToOrg1.getText())
             .organizationId(ORG_1)
             .type(PostType.PRIVATE)
@@ -361,7 +358,6 @@ public class PostServiceTest {
 
     PostCreateDTO postCreateDTO =
         PostCreateDTO.builder()
-            .status(PostStatus.CREATED)
             .text(publicPost1.getText())
             .type(PostType.PUBLIC)
             .build();
@@ -370,7 +366,6 @@ public class PostServiceTest {
             .id("test-id")
             .createdBy(new UserResponseModel())
             .creationDate(LocalDateTime.now())
-            .status(PostStatus.CREATED)
             .text(publicPost1.getText())
             .type(PostType.PUBLIC)
             .build();

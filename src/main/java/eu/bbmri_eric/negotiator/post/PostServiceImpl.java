@@ -194,7 +194,7 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
     Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
-    post.setStatus(request.getStatus());
+    post.setStatus(PostStatus.CREATED);
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);
     return modelMapper.map(updatedPost, PostDTO.class);

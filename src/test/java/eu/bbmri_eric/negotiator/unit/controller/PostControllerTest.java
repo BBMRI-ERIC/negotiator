@@ -11,7 +11,6 @@ import eu.bbmri_eric.negotiator.post.PostController;
 import eu.bbmri_eric.negotiator.post.PostDTO;
 import eu.bbmri_eric.negotiator.post.PostModelAssembler;
 import eu.bbmri_eric.negotiator.post.PostService;
-import eu.bbmri_eric.negotiator.post.PostStatus;
 import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import java.time.LocalDateTime;
@@ -42,7 +41,6 @@ public class PostControllerTest {
             .type(PostType.PUBLIC)
             .text("test comment")
             .creationDate(LocalDateTime.now())
-            .status(PostStatus.CREATED)
             .createdBy(new UserResponseModel())
             .build();
     when(postService.findById(any())).thenReturn(postDTO);
