@@ -68,9 +68,6 @@ public class Post extends AuditEntity {
   private String text;
 
   @Enumerated(EnumType.STRING)
-  private PostStatus status;
-
-  @Enumerated(EnumType.STRING)
   private PostType type;
 
   public boolean isPublic() {

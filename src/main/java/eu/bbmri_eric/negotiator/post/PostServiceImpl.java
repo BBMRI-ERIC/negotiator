@@ -112,7 +112,6 @@ public class PostServiceImpl implements PostService {
             .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
             .orElseThrow(() -> new EntityNotFoundException("User with not found."));
     postEntity.setCreatedBy(author);
-    postEntity.setStatus(PostStatus.CREATED);
     return postEntity;
   }
 
@@ -160,41 +159,10 @@ public class PostServiceImpl implements PostService {
         .collect(Collectors.toList());
   }
 
-  @Transactional
-  public List<PostDTO> findNewByNegotiationIdAndAuthors(
-      String negotiationId,
-      List<String> authors,
-      @Nullable PostType type,
-      @Nullable String organizationId) {
-    List<Post> posts;
-    if (type == null && organizationId == null) {
-      posts =
-          postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameIn(
-              negotiationId, PostStatus.CREATED, authors);
-    } else if (organizationId == null || organizationId.isEmpty()) {
-      posts =
-          postRepository.findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameIn(
-              negotiationId, PostStatus.CREATED, type, authors);
-    } else if (type == null) {
-      posts =
-          postRepository.findByNegotiationIdAndStatusAndCreatedBy_NameInAndOrganization_ExternalId(
-              negotiationId, PostStatus.CREATED, authors, organizationId);
-    } else {
-      posts =
-          postRepository
-              .findByNegotiationIdAndStatusAndTypeAndCreatedBy_NameInAndOrganization_ExternalId(
-                  negotiationId, PostStatus.CREATED, type, authors, organizationId);
-    }
-    return posts.stream()
-        .filter(this::isAuthorized)
-        .map(post -> modelMapper.map(post, PostDTO.class))
-        .collect(Collectors.toList());
-  }
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
     Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
-    post.setStatus(PostStatus.CREATED);
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);
     return modelMapper.map(updatedPost, PostDTO.class);

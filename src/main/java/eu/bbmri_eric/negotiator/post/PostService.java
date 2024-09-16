@@ -29,15 +29,6 @@ public interface PostService {
    */
   List<PostDTO> findByNegotiationId(String negotiationId, PostType type, String resourceId);
 
-  /**
-   * Finds all the posts related to a negotiation and a list of specific persons (posters)
-   *
-   * @param negotiationId the ID of the negotiation
-   * @param posters a list of all the persons that created the posts to be found
-   * @return the list of all the posts related to the input negotiation ID and persons
-   */
-  List<PostDTO> findNewByNegotiationIdAndAuthors(
-      String negotiationId, List<String> posters, PostType type, String resourceId);
 
   /**
    * Updates a specific post

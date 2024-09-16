@@ -1,1 +1,2 @@
---- ALTER TABLE post drop column type;
+ALTER TABLE post
+    DROP COLUMN status;
