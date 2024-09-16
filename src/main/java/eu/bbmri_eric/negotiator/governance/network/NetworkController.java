@@ -98,6 +98,7 @@ public class NetworkController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Create a batch of networks")
+  @ResponseStatus(HttpStatus.CREATED)
   public Iterable<NetworkDTO> createBatch(@Valid @RequestBody List<NetworkCreateDTO> networks) {
     return networkService.createNetworks(networks);
   }
@@ -120,6 +121,7 @@ public class NetworkController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Update a network by its id")
+  @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<NetworkDTO> update(
       @PathVariable Long id,
       @Validated(ValidationGroups.Update.class) @RequestBody NetworkCreateDTO networkDTO) {
