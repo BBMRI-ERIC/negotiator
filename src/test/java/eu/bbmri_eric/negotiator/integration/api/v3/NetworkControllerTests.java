@@ -274,7 +274,7 @@ public class NetworkControllerTests {
                 MockMvcRequestBuilders.put(NETWORKS_URL + "/" + id1)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(updateRequestBody))
-            .andExpect(status().isCreated())
+            .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$.name", is(networkUpdateDTO1.getName())))
             .andExpect(jsonPath("$.externalId", is(networkUpdateDTO1.getExternalId())))
