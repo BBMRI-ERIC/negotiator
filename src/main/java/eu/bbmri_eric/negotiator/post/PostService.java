@@ -27,8 +27,7 @@ public interface PostService {
    * @param negotiationId the ID of the negotiation
    * @return the list of all the posts related to the input negotiation ID
    */
-  List<PostDTO> findByNegotiationId(String negotiationId, PostType type, String resourceId);
-
+  List<PostDTO> findByNegotiationId(String negotiationId);
 
   /**
    * Updates a specific post

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,11 +52,8 @@ public class PostController {
 
   @GetMapping(value = "/negotiations/{negotiationId}/posts", produces = MediaTypes.HAL_JSON_VALUE)
   CollectionModel<EntityModel<PostDTO>> getAllMessagesByNegotiation(
-      @Valid @PathVariable String negotiationId,
-      @RequestParam(value = "type", required = false) PostType type,
-      @RequestParam(value = "resource", required = false) String resource) {
-      return postModelAssembler.toCollectionModel(
-          postService.findByNegotiationId(negotiationId, type, resource));
+      @Valid @PathVariable String negotiationId) {
+    return postModelAssembler.toCollectionModel(postService.findByNegotiationId(negotiationId));
     }
 
   @PutMapping(

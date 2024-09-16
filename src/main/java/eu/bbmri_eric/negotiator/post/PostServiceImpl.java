@@ -21,7 +21,6 @@ import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -77,6 +76,19 @@ public class PostServiceImpl implements PostService {
   public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
     Negotiation negotiation = getNegotiation(negotiationId);
 
+    checkAuthorization(postRequest, negotiationId, negotiation);
+    Post postEntity = setUpPostEntity(postRequest, negotiation);
+    try {
+      postEntity = postRepository.save(postEntity);
+    } catch (DataIntegrityViolationException ex) {
+      throw new EntityNotStorableException();
+    }
+    userNotificationService.notifyUsersAboutNewPost(postEntity);
+    return modelMapper.map(postEntity, PostDTO.class);
+  }
+
+  private void checkAuthorization(
+      PostCreateDTO postRequest, String negotiationId, Negotiation negotiation) {
     if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
         && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException(
@@ -87,14 +99,6 @@ public class PostServiceImpl implements PostService {
           "%s posts are not currently allowed for this negotiation"
               .formatted(postRequest.getType()));
     }
-    Post postEntity = setUpPostEntity(postRequest, negotiation);
-    try {
-      postEntity = postRepository.save(postEntity);
-    } catch (DataIntegrityViolationException ex) {
-      throw new EntityNotStorableException();
-    }
-    userNotificationService.notifyUsersAboutNewPost(postEntity);
-    return modelMapper.map(postEntity, PostDTO.class);
   }
 
   @Override
@@ -137,22 +141,9 @@ public class PostServiceImpl implements PostService {
   }
 
   @Transactional
-  public List<PostDTO> findByNegotiationId(
-      String negotiationId, @Nullable PostType type, @Nullable String organizationId) {
+  public List<PostDTO> findByNegotiationId(String negotiationId) {
     List<Post> posts;
-    if (type == null && organizationId == null) {
       posts = postRepository.findByNegotiationId(negotiationId);
-    } else if (organizationId == null || organizationId.isEmpty()) {
-      posts = postRepository.findByNegotiationIdAndType(negotiationId, type);
-    } else if (type == null) {
-      posts =
-          postRepository.findByNegotiationIdAndOrganizationId(
-              negotiationId, Long.valueOf(organizationId));
-    } else {
-      posts =
-          postRepository.findByNegotiationIdAndTypeAndOrganization_ExternalId(
-              negotiationId, type, organizationId);
-    }
     return posts.stream()
         .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))

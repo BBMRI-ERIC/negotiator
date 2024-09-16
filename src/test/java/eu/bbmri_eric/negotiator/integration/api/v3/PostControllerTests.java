@@ -162,36 +162,4 @@ public class PostControllerTests {
                 .content(requestBody))
         .andExpect(status().isUnauthorized());
   }
-
-
-  @Test
-  @WithUserDetails("TheResearcher")
-  public void testGetPrivatePostsOnly() throws Exception {
-    int numberOfPrivatePosts = 3;
-    String uri =
-        String.format("%s/%s/%s?type=PRIVATE", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(uri))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPrivatePosts)))
-        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-3-researcher")))
-        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-3-representative")))
-        .andExpect(jsonPath("$._embedded.posts[2].id", is("post-4-representative")));
-  }
-
-  @Test
-  @WithUserDetails("TheResearcher")
-  public void testGetPrivatePostsForSpecificOrganization() throws Exception {
-    int numberOfPrivatePosts = 2;
-    String uri =
-        String.format(
-            "%s/%s/%s?type=PRIVATE&resource=%s",
-            NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, NEGOTIATION_1_ORGANIZATION_ID);
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(uri))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPrivatePosts)))
-        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-3-researcher")))
-        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-3-representative")));
-  }
 }
