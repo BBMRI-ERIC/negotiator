@@ -125,35 +125,6 @@ public class PostControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
-  public void testGetResearcherPostsOnly() throws Exception {
-    String uri =
-        String.format(
-            "%s/%s/%s?role=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, RESEARCHER_ROLE);
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(uri))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
-        .andExpect(jsonPath("$._embedded.posts.length()", is(3)))
-        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-1-researcher")))
-        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-2-researcher")));
-  }
-
-  @Test
-  @WithUserDetails("TheBiobanker")
-  public void testGetRepresentativePostsOnly() throws Exception {
-    String uri =
-        String.format(
-            "%s/%s/%s?role=%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI, REPRESENTATIVE_ROLE);
-
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(uri))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_VALUE))
-        .andExpect(jsonPath("$._embedded.posts.length()", is(3)));
-  }
-
-  @Test
   @WithUserDetails("TheBiobanker")
   @Transactional
   public void testMarkPublicPostAsRead() throws Exception {

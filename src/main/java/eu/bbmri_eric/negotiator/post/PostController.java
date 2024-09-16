@@ -1,12 +1,10 @@
 package eu.bbmri_eric.negotiator.post;
 
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
@@ -56,20 +54,11 @@ public class PostController {
   @GetMapping(value = "/negotiations/{negotiationId}/posts", produces = MediaTypes.HAL_JSON_VALUE)
   CollectionModel<EntityModel<PostDTO>> getAllMessagesByNegotiation(
       @Valid @PathVariable String negotiationId,
-      @RequestParam(value = "role", required = false) String roleName,
       @RequestParam(value = "type", required = false) PostType type,
       @RequestParam(value = "resource", required = false) String resource) {
-    if (roleName == null || roleName.isEmpty()) {
       return postModelAssembler.toCollectionModel(
           postService.findByNegotiationId(negotiationId, type, resource));
     }
-    NegotiationDTO negotiationDTO = negotiationService.findById(negotiationId, true);
-
-    List<String> posters = List.of(negotiationDTO.getAuthor().getName());
-
-    return postModelAssembler.toCollectionModel(
-        postService.findNewByNegotiationIdAndAuthors(negotiationId, posters, type, resource));
-  }
 
   @PutMapping(
       value = "/negotiations/{negotiationId}/posts/{postId}",
