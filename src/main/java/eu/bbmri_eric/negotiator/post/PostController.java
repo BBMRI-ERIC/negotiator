@@ -54,7 +54,7 @@ public class PostController {
   CollectionModel<EntityModel<PostDTO>> getAllMessagesByNegotiation(
       @Valid @PathVariable String negotiationId) {
     return postModelAssembler.toCollectionModel(postService.findByNegotiationId(negotiationId));
-    }
+  }
 
   @PutMapping(
       value = "/negotiations/{negotiationId}/posts/{postId}",

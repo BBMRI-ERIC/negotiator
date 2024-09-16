@@ -356,10 +356,7 @@ public class PostServiceTest {
     when(negotiationService.isAuthorizedForNegotiation(negotiation.getId())).thenReturn(true);
 
     PostCreateDTO postCreateDTO =
-        PostCreateDTO.builder()
-            .text(publicPost1.getText())
-            .type(PostType.PUBLIC)
-            .build();
+        PostCreateDTO.builder().text(publicPost1.getText()).type(PostType.PUBLIC).build();
     PostDTO postDTO =
         PostDTO.builder()
             .id("test-id")

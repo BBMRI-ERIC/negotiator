@@ -206,11 +206,7 @@ public class UserNotificationServiceTest {
   void notifyUsersForNewPost_publicPost_authorIsNotNotified() {
     assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
     postService.create(
-        PostCreateDTO.builder()
-            .type(PostType.PUBLIC)
-            .text("I know")
-            .build(),
-        "negotiation-1");
+        PostCreateDTO.builder().type(PostType.PUBLIC).text("I know").build(), "negotiation-1");
     assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
   }
 
@@ -227,11 +223,7 @@ public class UserNotificationServiceTest {
             .get();
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
     postService.create(
-        PostCreateDTO.builder()
-            .type(PostType.PUBLIC)
-            .text("I know")
-            .build(),
-        "negotiation-1");
+        PostCreateDTO.builder().type(PostType.PUBLIC).text("I know").build(), "negotiation-1");
     assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
   }
 

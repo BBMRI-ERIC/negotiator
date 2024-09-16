@@ -143,13 +143,12 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
     List<Post> posts;
-      posts = postRepository.findByNegotiationId(negotiationId);
+    posts = postRepository.findByNegotiationId(negotiationId);
     return posts.stream()
         .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
   }
-
 
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
