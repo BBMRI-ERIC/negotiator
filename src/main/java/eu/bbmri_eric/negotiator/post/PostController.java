@@ -27,8 +27,6 @@ public class PostController {
 
   private final PostService postService;
 
-  private final NegotiationService negotiationService;
-
   private final PostModelAssembler postModelAssembler;
 
   public PostController(
@@ -36,7 +34,6 @@ public class PostController {
       NegotiationService negotiationService,
       PostModelAssembler postModelAssembler) {
     this.postService = postService;
-    this.negotiationService = negotiationService;
     this.postModelAssembler = postModelAssembler;
   }
 

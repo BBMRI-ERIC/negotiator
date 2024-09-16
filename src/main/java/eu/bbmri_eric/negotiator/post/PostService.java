@@ -8,7 +8,7 @@ public interface PostService {
    * Creates a new post for the specified Negotiation
    *
    * @param postRequest the Post DTO containing request information
-   * @param negotiationId thr ID of the negotiation to which the post refers
+   * @param negotiationId the ID of the negotiation to which the post refers
    * @return the response PostDTO object
    */
   PostDTO create(PostCreateDTO postRequest, String negotiationId);

@@ -16,7 +16,6 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -75,7 +74,6 @@ public class PostServiceImpl implements PostService {
   @Transactional
   public PostDTO create(PostCreateDTO postRequest, String negotiationId) {
     Negotiation negotiation = getNegotiation(negotiationId);
-
     checkAuthorization(postRequest, negotiationId, negotiation);
     Post postEntity = setUpPostEntity(postRequest, negotiation);
     try {
@@ -142,12 +140,11 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
-    List<Post> posts;
-    posts = postRepository.findByNegotiationId(negotiationId);
+    List<Post> posts = postRepository.findByNegotiationId(negotiationId);
     return posts.stream()
         .filter(this::isAuthorized)
         .map(post -> modelMapper.map(post, PostDTO.class))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Transactional
