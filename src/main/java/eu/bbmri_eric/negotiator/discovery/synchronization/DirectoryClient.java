@@ -10,14 +10,16 @@ import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisBiobank;
 import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
+import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisNetwork;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -36,6 +38,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @CommonsLog
 @Service(value = "DefaultDiscoveryServiceClient")
 public class DirectoryClient implements DiscoveryServiceClient {
+
   private DirectoryClient bbmriService = null;
 
   @Autowired private OrganizationRepository organizationRepository;
@@ -43,7 +46,10 @@ public class DirectoryClient implements DiscoveryServiceClient {
   @Autowired private AccessFormRepository accessFormRepository;
 
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
+
   @Autowired private ResourceRepository resourceRepository;
+
+  @Autowired private NetworkRepository networkRepository;
 
   private DiscoveryServiceSynchronizationJob jobRecord;
 
@@ -69,7 +75,10 @@ public class DirectoryClient implements DiscoveryServiceClient {
     addMissingResources(collections);
   }
 
-  public void syncAllNetworks() {}
+  public void syncAllNetworks() {
+    List<MolgenisNetwork> networks = findAllNetworks();
+    addMissingNetworks(networks);
+  }
 
   private void addMissingOrganizations(List<MolgenisBiobank> directoryBiobanks) {
     for (MolgenisBiobank bb : directoryBiobanks) {
@@ -201,7 +210,7 @@ public class DirectoryClient implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
     }
   }
 
@@ -220,11 +229,15 @@ public class DirectoryClient implements DiscoveryServiceClient {
 
       for (JsonElement e : items) {
         JsonObject jsonCollection = e.getAsJsonObject();
+        String description = "";
+        if (jsonCollection.has("description")) {
+          description = jsonCollection.get("description").getAsString();
+        }
         MolgenisCollection collection =
             new MolgenisCollection(
                 jsonCollection.get("id").getAsString(),
                 jsonCollection.get("name").getAsString(),
-                jsonCollection.get("description").getAsString(),
+                description,
                 new MolgenisBiobank(
                     jsonCollection.get("biobank").getAsJsonObject().get("id").getAsString(),
                     jsonCollection.get("biobank").getAsJsonObject().get("name").getAsString(),
@@ -235,7 +248,91 @@ public class DirectoryClient implements DiscoveryServiceClient {
     } catch (WebClientResponseException | WebClientRequestException e) {
       log.warn(e.getMessage());
       log.warn("Molgenis is not reachable!");
-      return Collections.emptyList();
+      throw e;
+    }
+  }
+
+  private List<MolgenisNetwork> findAllNetworks() {
+    try {
+      String response =
+          webClient
+              .get()
+              .uri("api/v2/eu_bbmri_eric_networks?num=10000&attrs=id,name,url,contact")
+              .retrieve()
+              .bodyToMono(String.class)
+              .block();
+      JsonObject jsonResponse = JsonParser.parseString(response).getAsJsonObject();
+      JsonArray items = jsonResponse.getAsJsonArray("items");
+      List<MolgenisNetwork> networks = new ArrayList();
+      for (JsonElement e : items) {
+        JsonObject jsonCollection = e.getAsJsonObject();
+        String url = "";
+        if (jsonCollection.has("url")) {
+          url = jsonCollection.get("url").getAsString();
+        }
+        MolgenisNetwork network =
+            new MolgenisNetwork(
+                jsonCollection.get("id").getAsString(),
+                jsonCollection.get("name").getAsString(),
+                jsonCollection.get("contact").getAsJsonObject().get("email").getAsString(),
+                url);
+        networks.add(network);
+      }
+      return networks;
+    } catch (WebClientResponseException | WebClientRequestException e) {
+      log.warn(e.getMessage());
+      log.warn("Molgenis is not reachable!");
+      throw e;
+    }
+  }
+
+  private Network addMissingNetwork(MolgenisNetwork network) {
+    log.debug("Adding network:" + network.getId());
+    Network newNetwork =
+        Network.builder()
+            .externalId(network.getId())
+            .uri(network.getUri())
+            .contactEmail(network.getContactEmail())
+            .name(network.getName())
+            .build();
+    try {
+      networkRepository.save(newNetwork);
+      return newNetwork;
+    } catch (DataException | DataIntegrityViolationException e) {
+      log.error("Error while adding missing network");
+      log.error(e.getMessage());
+      throw new EntityNotStorableException();
+    }
+  }
+
+  private void addMissingNetworks(List<MolgenisNetwork> networks) {
+    for (MolgenisNetwork network : networks) {
+      String networkId = network.getId();
+      Optional<Network> nw = networkRepository.findByExternalId(networkId);
+      if (nw.isEmpty()) {
+        addMissingNetwork(network);
+      } else {
+        log.debug(String.format("Network %s already present, check for updates...", networkId));
+        Network existingNetwork = nw.get();
+        if (!existingNetwork.getName().equals(network.getName())
+            || !existingNetwork.getUri().equals(network.getUri())
+            || !existingNetwork.getContactEmail().equals(network.getContactEmail())) {
+          updateNetworkNameUriAndEmail(existingNetwork, network);
+        }
+      }
+    }
+  }
+
+  private void updateNetworkNameUriAndEmail(Network network, MolgenisNetwork molgenisNetwork) {
+    network.setUri(molgenisNetwork.getUri());
+    network.setName(molgenisNetwork.getName());
+    network.setContactEmail(molgenisNetwork.getContactEmail());
+    try {
+      networkRepository.save(network);
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while updating Network information");
+      log.error(ex);
+      throw new EntityNotStorableException();
     }
   }
 }

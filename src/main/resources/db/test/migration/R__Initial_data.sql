@@ -26,35 +26,6 @@ values (101, 'ADMIN'),  -- still needed for data sources tests
        (109, 'ROLE_REPRESENTATIVE_biobank:1:collection:2'),
        (109, 'ROLE_REPRESENTATIVE_biobank:2:collection:1');
 
--- insert into access_form (id, name)
--- values (1, 'BBMRI Template');
--- insert into access_form_section (id, name, label, description)
--- values (1, 'project', 'Project', 'Provide information about your project');
--- insert into access_form_section (id, name, label, description)
--- values (2, 'request', 'Request', 'Provide information the resources you are requesting');
--- insert into access_form_section (id, name, label, description)
-
--- values (3, 'ethics-vote', 'Ethics vote', 'Is ethics vote present in your project?');
---
--- insert into access_form_element (id, name, label, description, type, access_form_section_id)
--- values (1, 'title', 'Title', 'Give a title', 'TEXT', 1),
---        (2, 'description', 'Description', 'Give a description', 'TEXT', 1),
---        (3, 'description', 'Description', 'Provide a request description', 'TEXT', 2),
---        (4, 'ethics-vote', 'Ethics vote', 'Write the etchics vote', 'TEXT', 3),
---        (5, 'ethics-vote-attachment', 'Attachment', 'Upload Ethics Vote', 'FILE', 3);
---
--- insert into ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
--- values (1, 1, 1, 0),
---        (2, 1, 2, 1),
---        (3, 1, 3, 2);
--- insert into ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
---                                               ELEMENT_ORDER)
--- values (1, 1, 1, true, 1),
---        (2, 1, 2, true, 2),
---        (3, 2, 3, true, 1),
---        (4, 3, 4, true, 1),
---        (5, 3, 5, false, 2);
-
 insert into organization (id, name, external_id)
 values (4, 'Biobank #1', 'biobank:1'),
        (5, 'Biobank #2', 'biobank:2'),

@@ -47,6 +47,7 @@ public class NetworkController {
   private final NegotiationModelAssembler negotiationModelAssembler;
   private final UserModelAssembler userModelAssembler;
   private final NetworkRepository networkRepository;
+  private final NetworkStatisticsService networkStatisticsService;
 
   public NetworkController(
       NetworkService networkService,
@@ -57,7 +58,8 @@ public class NetworkController {
       NegotiationService negotiationService,
       NegotiationModelAssembler negotiationModelAssembler,
       UserModelAssembler userModelAssembler,
-      NetworkRepository networkRepository) {
+      NetworkRepository networkRepository,
+      NetworkStatisticsService networkStatisticsService) {
     this.networkService = networkService;
     this.networkModelAssembler = networkModelAssembler;
     this.resourceService = resourceService;
@@ -67,6 +69,7 @@ public class NetworkController {
     this.negotiationModelAssembler = negotiationModelAssembler;
     this.userModelAssembler = userModelAssembler;
     this.networkRepository = networkRepository;
+    this.networkStatisticsService = networkStatisticsService;
   }
 
   @GetMapping("/networks")
@@ -187,5 +190,13 @@ public class NetworkController {
         sortBy,
         sortOrder,
         id);
+  }
+
+  @GetMapping("/networks/{id}/statistics")
+  @Operation(
+      summary = "Basic statistics about the network",
+      description = "Provides basic statistics about requests linked to a Network.")
+  public EntityModel<NetworkStatistics> getNetworkStatistics(@PathVariable Long id) {
+    return EntityModel.of(networkStatisticsService.getBasicNetworkStats(id));
   }
 }

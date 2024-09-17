@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
+import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,25 +25,40 @@ import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service(value = "DefaultNegotiationService")
 @CommonsLog
 @Transactional
 public class NegotiationServiceImpl implements NegotiationService {
 
-  @Autowired NegotiationRepository negotiationRepository;
-  @Autowired PersonRepository personRepository;
-  @Autowired RequestRepository requestRepository;
-  @Autowired AttachmentRepository attachmentRepository;
-  @Autowired ModelMapper modelMapper;
-  @Autowired UserNotificationService userNotificationService;
-  @Autowired PersonService personService;
+  private NegotiationRepository negotiationRepository;
+  private PersonRepository personRepository;
+  private RequestRepository requestRepository;
+  private AttachmentRepository attachmentRepository;
+  private ModelMapper modelMapper;
+  private UserNotificationService userNotificationService;
+  private PersonService personService;
+
+  public NegotiationServiceImpl(
+      NegotiationRepository negotiationRepository,
+      PersonRepository personRepository,
+      RequestRepository requestRepository,
+      AttachmentRepository attachmentRepository,
+      ModelMapper modelMapper,
+      UserNotificationService userNotificationService,
+      PersonService personService) {
+    this.negotiationRepository = negotiationRepository;
+    this.personRepository = personRepository;
+    this.requestRepository = requestRepository;
+    this.attachmentRepository = attachmentRepository;
+    this.modelMapper = modelMapper;
+    this.userNotificationService = userNotificationService;
+    this.personService = personService;
+  }
 
   @Override
   public boolean isNegotiationCreator(String negotiationId) {
@@ -293,7 +309,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 
-  @Transactional
   public void setPrivatePostsEnabled(String negotiationId, boolean enabled) {
     Negotiation negotiation =
         negotiationRepository
@@ -302,7 +317,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     negotiation.setPrivatePostsEnabled(enabled);
   }
 
-  @Transactional
   public void setPublicPostsEnabled(String negotiationId, boolean enabled) {
     Negotiation negotiation =
         negotiationRepository

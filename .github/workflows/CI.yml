@@ -182,7 +182,7 @@ jobs:
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.7
         with:
           name: negotiator
           path: /tmp
@@ -216,7 +216,7 @@ jobs:
     steps:
 
       - name: Download artifact
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.7
         with:
           name: negotiator
           path: /tmp
@@ -256,7 +256,7 @@ jobs:
     steps:
 
       - name: Download artifact
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.7
         with:
           name: negotiator
           path: /tmp
@@ -290,7 +290,7 @@ jobs:
     steps:
 
       - name: Download artifact
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.7
         with:
           name: negotiator
           path: /tmp
