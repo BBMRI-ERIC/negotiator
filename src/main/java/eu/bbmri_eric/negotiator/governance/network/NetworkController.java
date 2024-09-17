@@ -193,7 +193,9 @@ public class NetworkController {
   }
 
   @GetMapping("/networks/{id}/statistics")
-  @Operation(summary = "List all negotiations associated with a network")
+  @Operation(
+      summary = "Basic statistics about the network",
+      description = "Provides basic statistics about requests linked to a Network.")
   public EntityModel<NetworkStatistics> getNetworkStatistics(@PathVariable Long id) {
     return EntityModel.of(networkStatisticsService.getBasicNetworkStats(id));
   }
