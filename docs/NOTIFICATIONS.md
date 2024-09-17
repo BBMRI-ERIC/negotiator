@@ -41,6 +41,8 @@ The email template uses variables to include dynamic content. These variables ar
  - `roleForNegotiation`: List of roles for each negotiation.
  - `titleForNegotiation`: List of titles for each negotiation.
  - `notificationsForNegotiation`: List of notifications for each negotiation.
+ - `emailYoursSincerelyText`: The text for the "Yours sincerely" section.
+ - `emailHelpdeskHref`: The URL for the helpdesk.
 
 #### Updating Templates at Runtime
 Thymeleaf supports runtime updates to email templates. This allows you to make changes without restarting the application, which is useful for quick updates or tweaks:
