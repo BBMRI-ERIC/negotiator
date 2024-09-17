@@ -308,7 +308,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
-  
+
   public void setPrivatePostsEnabled(String negotiationId, boolean enabled) {
     Negotiation negotiation =
         negotiationRepository
@@ -316,7 +316,7 @@ public class NegotiationServiceImpl implements NegotiationService {
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
     negotiation.setPrivatePostsEnabled(enabled);
   }
-  
+
   public void setPublicPostsEnabled(String negotiationId, boolean enabled) {
     Negotiation negotiation =
         negotiationRepository
