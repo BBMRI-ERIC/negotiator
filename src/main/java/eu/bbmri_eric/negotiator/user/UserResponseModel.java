@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
