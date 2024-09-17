@@ -22,7 +22,7 @@ public class UserResponseModel {
   private String email;
   private boolean isRepresentativeOfAnyResource;
   private boolean isAdmin;
-  private boolean isNetworkManager = false;
+  private boolean isNetworkManager;
 
   public void setId(Long id) {
     this.id = String.valueOf(id);
