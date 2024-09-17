@@ -9,7 +9,8 @@ public class UserInfoModel extends UserResponseModel {
         userResponseModel.getSubjectId(),
         userResponseModel.getName(),
         userResponseModel.getEmail(),
-        userResponseModel.isRepresentativeOfAnyResource());
+        userResponseModel.isRepresentativeOfAnyResource(),
+        userResponseModel.isNetworkManager());
     this.roles = roles;
   }
 

@@ -84,7 +84,6 @@ public class UserModelAssembler
                   methodOn(UserController.class)
                       .findRepresentedResources(Long.valueOf(entity.getId())))
               .withRel("represented_resources"));
-
       links.add(
           linkTo(
                   methodOn(NegotiationController.class)
@@ -101,6 +100,13 @@ public class UserModelAssembler
                           10))
               .withRel("negotiations_representative")
               .expand());
+    }
+    if (entity.isNetworkManager()) {
+      links.add(
+          linkTo(
+                  methodOn(UserController.class)
+                      .getRepresentedNetworks(Long.valueOf(entity.getId()), 0, 50))
+              .withRel("networks"));
     }
     return links;
   }

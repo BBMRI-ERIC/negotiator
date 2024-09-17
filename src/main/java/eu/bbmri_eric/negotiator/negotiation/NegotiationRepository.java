@@ -58,4 +58,24 @@ public interface NegotiationRepository
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId")
   Page<Negotiation> findAllForNetwork(Long networkId, Pageable pageable);
+
+  @Query(
+      value =
+          "select count (n.id) "
+              + "FROM Negotiation n "
+              + "JOIN n.requests rq "
+              + "JOIN rq.resources rs "
+              + "JOIN rs.networks net "
+              + "WHERE net.id = :networkId")
+  Integer countAllForNetwork(Long networkId);
+
+  @Query(
+      value =
+          "select n.currentState, COUNT (n)"
+              + "FROM Negotiation n "
+              + "JOIN n.requests rq "
+              + "JOIN rq.resources rs "
+              + "JOIN rs.networks net "
+              + "WHERE net.id = :networkId group by n.currentState")
+  List<Object[]> countStatusDistribution(Long networkId);
 }

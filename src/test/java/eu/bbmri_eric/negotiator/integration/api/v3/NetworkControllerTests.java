@@ -266,4 +266,16 @@ public class NetworkControllerTests {
     assert network.isPresent();
     assertTrue(network.get().getManagers().stream().noneMatch(manager -> manager.getId() == 101));
   }
+
+  @Test
+  @Transactional
+  @WithUserDetails("admin")
+  void getStatistics_validNetwork_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/statistics"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.networkId", is(1)))
+        .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)))
+        .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
+  }
 }
