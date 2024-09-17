@@ -21,6 +21,7 @@ public class UserResponseModel {
   private String name;
   private String email;
   private boolean isRepresentativeOfAnyResource;
+  private boolean isAdmin;
 
   public void setId(Long id) {
     this.id = String.valueOf(id);
