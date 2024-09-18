@@ -47,6 +47,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
+      - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
       - NEGOTIATOR_FRONTENDURL=https://${HOST}
       - NEGOTIATOR_AUTHORIZATION_CLAIM=eduperson_entitlement
       - "NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE=urn:geant:bbmri-eric.eu:res:role_admin#perun.bbmri-eric.eu"
@@ -64,7 +66,7 @@ services:
       - oauth-test
   postgres:
     container_name: negotiator-db
-    image: postgres:16-alpine
+    image: postgres:15
     environment:
       - POSTGRES_USER=negotiator
       - POSTGRES_PASSWORD=negotiator
