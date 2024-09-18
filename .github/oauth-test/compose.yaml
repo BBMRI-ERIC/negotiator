@@ -26,15 +26,15 @@ services:
           "AutomaticRedirectAfterSignOut": true
         }
       API_SCOPES_INLINE: |
-        - Name: negotiator_api
-        - Name: negotiator_authz_management
+        - Name: some-app-scope-1
+        - Name: some-app-scope-2
       API_RESOURCES_INLINE: |
         - Name: https://negotiator.bbmri-eric.eu
           Scopes:
-            - negotiator_api
-            - negotiator_authz_management
+            - some-app-scope-1
+            - some-app-scope-2
           ApiSecrets:
-          - negotiator-secret
+            - negotiator-secret
       IDENTITY_RESOURCES_PATH: /config/identity-resources.json
       USERS_CONFIGURATION_INLINE: |
         [
