@@ -33,6 +33,18 @@ The email template is stored in the `src/main/resources/templates/` directory. I
  - Save the changes to the file.
  - The template is now ready to be used in the email service.
 
+##### Upload new template to a docker container
+To upload a new template to a docker container, you can use the following command:
+```bash
+docker cp src/main/resources/templates/email-notification.html negotiator:/app/src/main/resources/templates/email-notification.html
+```
+Or when using docker-compose mount the volume to the container:
+```yaml 
+volumes:
+  - ./src/main/resources/templates/email-notification.html:/app/src/main/resources/templates/email-notification.html
+```
+  
+
 #### Template variables
 The email template uses variables to include dynamic content. These variables are replaced with actual values when the email is sent. The following variables are available in the template:
  - `recipient`: The name of the recipient.
