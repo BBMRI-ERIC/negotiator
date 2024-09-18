@@ -1,7 +1,7 @@
 services:
   oidc-server-mock:
     container_name: oidc-server-mock
-    image: ghcr.io/soluto/oidc-server-mock:0.9.2
+    image: ghcr.io/soluto/oidc-server-mock:0.8.6
     ports:
       - '4011:80'
     environment:
@@ -42,7 +42,7 @@ services:
       - oauth-test
   negotiator:
     container_name: negotiator
-    image: bbmrieric/negotiator:latest
+    image: bbmrieric/negotiator
     depends_on:
       postgres:
         condition: service_healthy
