@@ -1,8 +1,7 @@
-version: '3.9'
 services:
   oidc-server-mock:
     container_name: oidc-server-mock
-    image: ghcr.io/soluto/oidc-server-mock:0.8.6
+    image: ghcr.io/soluto/oidc-server-mock:0.9.2
     ports:
       - '4011:80'
     environment:
@@ -48,16 +47,6 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - PROFILE=prod
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
-      - SPRING_DATASOURCE_USERNAME=negotiator
-      - SPRING_DATASOURCE_PASSWORD=negotiator
-      - SPRING_DATASOURCE_INITIALIZE=false
-      - SPRING_FLYWAY_ENABLED=true
-      - SPRING_FLYWAY_USER=negotiator
-      - SPRING_FLYWAY_PASSWORD=negotiator
-      - SPRING_FLYWAY_URL=jdbc:postgresql://postgres:5432/negotiator
-      - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
       - NEGOTIATOR_FRONTENDURL=https://${HOST}
       - NEGOTIATOR_AUTHORIZATION_CLAIM=eduperson_entitlement
       - "NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE=urn:geant:bbmri-eric.eu:res:role_admin#perun.bbmri-eric.eu"
@@ -75,7 +64,7 @@ services:
       - oauth-test
   postgres:
     container_name: negotiator-db
-    image: postgres:14
+    image: postgres:16-alpine
     environment:
       - POSTGRES_USER=negotiator
       - POSTGRES_PASSWORD=negotiator
