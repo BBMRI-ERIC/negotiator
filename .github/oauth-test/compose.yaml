@@ -42,7 +42,7 @@ services:
       - oauth-test
   negotiator:
     container_name: negotiator
-    image: bbmrieric/negotiator
+    image: bbmrieric/negotiator:fix-property_files
     depends_on:
       postgres:
         condition: service_healthy
