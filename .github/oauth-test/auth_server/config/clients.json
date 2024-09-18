@@ -35,7 +35,7 @@
       "profile",
       "email",
       "permissions",
-      "some-app-scope-1"
+      "negotiator_api"
     ],
     "PostLogoutRedirectUris": [
       "http://localhost:8080"
