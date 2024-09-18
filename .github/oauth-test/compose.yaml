@@ -28,11 +28,13 @@ services:
       API_SCOPES_INLINE: |
         - Name: some-app-scope-1
         - Name: some-app-scope-2
+        - Name: negotiator_authz_management
       API_RESOURCES_INLINE: |
         - Name: https://negotiator.bbmri-eric.eu
           Scopes:
             - some-app-scope-1
             - some-app-scope-2
+            - negotiator_authz_management
           ApiSecrets:
             - negotiator-secret
       IDENTITY_RESOURCES_PATH: /config/identity-resources.json

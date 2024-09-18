@@ -9,7 +9,7 @@
       "client_credentials"
     ],
     "AllowedScopes": [
-      "negotiator_api",
+      "some-app-scope-1",
       "negotiator_authz_management"
     ],
     "ClientClaimsPrefix": "",
