@@ -29,7 +29,7 @@ services:
         - Name: negotiator_api
         - Name: negotiator_authz_management
       API_RESOURCES_INLINE: |
-        - Name: negotiator-api
+        - Name: https://negotiator.bbmri-eric.eu
           Scopes:
             - negotiator_api
             - negotiator_authz_management
