@@ -2,15 +2,14 @@ package eu.bbmri_eric.negotiator.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
@@ -18,19 +17,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Relation(itemRelation = "post", collectionRelation = "posts")
 public class PostDTO {
+  @NonNull private String id;
+  @NonNull private String text;
+  @NonNull private LocalDateTime creationDate;
+  @NonNull private UserResponseModel createdBy;
 
-  @NotNull private String id;
+  private String organizationId;
 
-  @Valid @NotEmpty private PostStatus status;
-
-  @Valid @NotEmpty private String text;
-
-  @Valid @NotEmpty private LocalDateTime creationDate;
-
-  @Valid @NotEmpty private UserResponseModel createdBy;
-
-  @Valid private String organizationId;
-
-  @Valid @NotEmpty private PostType type;
+  private PostType type = PostType.PUBLIC;
 }

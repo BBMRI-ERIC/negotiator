@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,8 +20,9 @@ public class UserResponseModel {
   private String subjectId;
   private String name;
   private String email;
-  @JsonIgnore private boolean isRepresentativeOfAnyResource;
-  @JsonIgnore private boolean isNetworkManager = false;
+  private boolean isRepresentativeOfAnyResource;
+  private boolean isAdmin;
+  private boolean isNetworkManager;
 
   public void setId(Long id) {
     this.id = String.valueOf(id);

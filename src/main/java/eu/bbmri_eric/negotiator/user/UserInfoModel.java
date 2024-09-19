@@ -10,6 +10,7 @@ public class UserInfoModel extends UserResponseModel {
         userResponseModel.getName(),
         userResponseModel.getEmail(),
         userResponseModel.isRepresentativeOfAnyResource(),
+        userResponseModel.isAdmin(),
         userResponseModel.isNetworkManager());
     this.roles = roles;
   }

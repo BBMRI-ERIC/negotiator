@@ -24,7 +24,6 @@ import eu.bbmri_eric.negotiator.notification.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostService;
-import eu.bbmri_eric.negotiator.post.PostStatus;
 import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
@@ -207,12 +206,7 @@ public class UserNotificationServiceTest {
   void notifyUsersForNewPost_publicPost_authorIsNotNotified() {
     assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
     postService.create(
-        PostCreateDTO.builder()
-            .type(PostType.PUBLIC)
-            .text("I know")
-            .status(PostStatus.CREATED)
-            .build(),
-        "negotiation-1");
+        PostCreateDTO.builder().type(PostType.PUBLIC).text("I know").build(), "negotiation-1");
     assertTrue(notificationRepository.findByRecipientId(109L).isEmpty());
   }
 
@@ -229,12 +223,7 @@ public class UserNotificationServiceTest {
             .get();
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
     postService.create(
-        PostCreateDTO.builder()
-            .type(PostType.PUBLIC)
-            .text("I know")
-            .status(PostStatus.CREATED)
-            .build(),
-        "negotiation-1");
+        PostCreateDTO.builder().type(PostType.PUBLIC).text("I know").build(), "negotiation-1");
     assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
   }
 
@@ -252,7 +241,6 @@ public class UserNotificationServiceTest {
             .type(PostType.PRIVATE)
             .organizationId(resource1.getOrganization().getExternalId())
             .text("I know")
-            .status(PostStatus.CREATED)
             .build(),
         negotiation.getId());
     assertFalse(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
@@ -272,7 +260,6 @@ public class UserNotificationServiceTest {
             .organizationId(
                 postAuthor.getResources().iterator().next().getOrganization().getExternalId())
             .text("I know")
-            .status(PostStatus.CREATED)
             .build(),
         negotiation.getId());
     assertFalse(
