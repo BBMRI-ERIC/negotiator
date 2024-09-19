@@ -61,7 +61,7 @@ public interface NegotiationRepository
 
   @Query(
       value =
-          "select count (n.id) "
+          "select count (distinct n.id) "
               + "FROM Negotiation n "
               + "JOIN n.requests rq "
               + "JOIN rq.resources rs "
@@ -71,7 +71,7 @@ public interface NegotiationRepository
 
   @Query(
       value =
-          "select n.currentState, COUNT (n)"
+          "select n.currentState, COUNT ( distinct n.id)"
               + "FROM Negotiation n "
               + "JOIN n.requests rq "
               + "JOIN rq.resources rs "
