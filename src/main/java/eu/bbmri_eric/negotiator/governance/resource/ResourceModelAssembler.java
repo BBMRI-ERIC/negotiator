@@ -40,6 +40,11 @@ public class ResourceModelAssembler
             linkTo(ResourceController.class).withRel("resources"));
   }
 
+  public @NonNull List<EntityModel<ResourceResponseModel>> toCollectionModel(
+      List<ResourceResponseModel> entities) {
+    return entities.stream().map(this::toModel).collect(Collectors.toList());
+  }
+
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
       Page<ResourceResponseModel> page, FilterDTO filterDTO) {
     PagedModel.PageMetadata pageMetadata =

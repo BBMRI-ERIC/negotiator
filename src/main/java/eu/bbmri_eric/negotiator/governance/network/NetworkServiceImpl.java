@@ -92,7 +92,7 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public Iterable<NetworkDTO> createNetworks(Iterable<NetworkCreateDTO> request) {
+  public List<NetworkDTO> createNetworks(Iterable<NetworkCreateDTO> request) {
     ArrayList<Network> networks = new ArrayList();
     for (NetworkCreateDTO networkDTO : request) {
       Network network =
@@ -104,8 +104,7 @@ public class NetworkServiceImpl implements NetworkService {
               .build();
       networks.add(network);
     }
-    List<Network> savedNetworks = networkRepository.saveAll(networks);
-    return savedNetworks.stream()
+    return networkRepository.saveAll(networks).stream()
         .map(network -> modelMapper.map(network, NetworkDTO.class))
         .collect(Collectors.toList());
   }

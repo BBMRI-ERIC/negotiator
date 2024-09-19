@@ -13,7 +13,7 @@ import eu.bbmri_eric.negotiator.user.UserModelAssembler;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,21 +86,13 @@ public class NetworkController {
       value = "/networks",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(summary = "Create a new network")
-  @ResponseStatus(HttpStatus.CREATED)
-  public EntityModel<NetworkDTO> create(
-      @Validated(ValidationGroups.Create.class) @RequestBody NetworkCreateDTO networkDTO) {
-    return networkModelAssembler.toModel(networkService.createNetwork(networkDTO));
-  }
-
-  @PostMapping(
-      value = "/networks/networks-collection",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Create a batch of networks")
   @ResponseStatus(HttpStatus.CREATED)
-  public Iterable<NetworkDTO> createBatch(@Valid @RequestBody List<NetworkCreateDTO> networks) {
-    return networkService.createNetworks(networks);
+  public Collection<EntityModel<NetworkDTO>> create(
+      @Validated(ValidationGroups.Create.class) @RequestBody List<NetworkCreateDTO> networks) {
+    return networkModelAssembler
+        .toCollectionModel(networkService.createNetworks(networks))
+        .getContent();
   }
 
   @GetMapping("/networks/{id}")

@@ -344,8 +344,9 @@ public class ResourceControllerTests {
     Optional<Resource> resource1 = repository.findBySourceId(id1);
     assert resource1.isPresent();
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
-    String id2 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id");
-    Optional<Resource> resource2 = repository.findBySourceId(id2);
+    Long id2 =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+    Optional<Resource> resource2 = repository.findById(id2);
     assert resource2.isPresent();
     assertEquals(resourceDTO2.getName(), resource2.get().getName());
   }
@@ -411,12 +412,14 @@ public class ResourceControllerTests {
             .andExpect(jsonPath("$[1].organization.externalId", is(org2.getExternalId())))
             .andReturn();
 
-    String id1 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].sourceId");
-    Optional<Resource> resource1 = repository.findBySourceId(id1);
+    Long id1 =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+    Optional<Resource> resource1 = repository.findById(id1);
     assert resource1.isPresent();
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
-    String id2 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id");
-    Optional<Resource> resource2 = repository.findBySourceId(id2);
+    Long id2 =
+        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+    Optional<Resource> resource2 = repository.findById(id2);
     assert resource2.isPresent();
     assertEquals(resourceDTO2.getName(), resource2.get().getName());
 
@@ -435,7 +438,7 @@ public class ResourceControllerTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(updatedRequestBody))
             .andExpect(status().isCreated())
-            .andExpect(content().contentType("application/json"))
+            .andExpect(content().contentType("application/hal+json"))
             .andExpect(jsonPath("$.name", is(updatedResourceDTO.getName())))
             .andExpect(jsonPath("$.sourceId", is(updatedResourceDTO.getSourceId())))
             .andExpect(jsonPath("$.description", is(updatedResourceDTO.getDescription())))

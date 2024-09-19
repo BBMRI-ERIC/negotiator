@@ -13,7 +13,6 @@ import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
-import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -133,17 +132,17 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public ResourceDTO updateResourceById(Long id, ResourceCreateDTO resource) {
+  public ResourceResponseModel updateResourceById(Long id, ResourceCreateDTO resource) {
     Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     res.setName(resource.getName());
     res.setDescription(resource.getDescription());
     Resource updatedResource = repository.save(res);
-    return modelMapper.map(updatedResource, ResourceDTO.class);
+    return modelMapper.map(updatedResource, ResourceResponseModel.class);
   }
 
   @Override
   @Transactional
-  public List<ResourceDTO> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
+  public List<ResourceResponseModel> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
     ArrayList<Resource> resources = new ArrayList<Resource>();
     DiscoveryService discoveryService =
         discoveryServiceRepository
@@ -170,7 +169,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
     List<Resource> savedResources = repository.saveAll(resources);
     return savedResources.stream()
-        .map(resource -> modelMapper.map(resource, ResourceDTO.class))
+        .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
         .collect(Collectors.toList());
   }
 

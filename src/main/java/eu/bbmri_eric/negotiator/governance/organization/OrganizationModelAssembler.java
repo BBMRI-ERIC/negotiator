@@ -4,6 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,11 @@ public class OrganizationModelAssembler
                     methodOn(OrganizationController.class).findById(entity.getId()))
                 .withSelfRel(),
             linkTo(OrganizationController.class).withRel("organizations"));
+  }
+
+  public @NonNull List<EntityModel<OrganizationDTO>> toCollectionModel(
+      List<OrganizationDTO> entities) {
+    return entities.stream().map(this::toModel).collect(Collectors.toList());
   }
 
   public PagedModel<EntityModel<OrganizationDTO>> toPagedModel(Page<OrganizationDTO> page) {

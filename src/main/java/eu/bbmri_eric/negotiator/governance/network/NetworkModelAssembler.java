@@ -43,6 +43,11 @@ public class NetworkModelAssembler
     return networkModel;
   }
 
+  public @NonNull List<EntityModel<NetworkDTO>> toCollectionModel(
+      @NonNull List<NetworkDTO> entities) {
+    return entities.stream().map(this::toModel).collect(Collectors.toList());
+  }
+
   public PagedModel<EntityModel<NetworkDTO>> toPagedModel(@NonNull Page<NetworkDTO> page) {
     List<Link> links = getLinks(page);
     return PagedModel.of(

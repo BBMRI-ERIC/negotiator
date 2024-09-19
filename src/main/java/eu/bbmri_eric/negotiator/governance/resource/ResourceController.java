@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
-import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.data.domain.Page;
@@ -56,15 +56,16 @@ public class ResourceController {
   @PostMapping
   @Operation(summary = "Add a list of resources")
   @ResponseStatus(HttpStatus.CREATED)
-  public Iterable<ResourceDTO> addResources(@Valid @RequestBody List<ResourceCreateDTO> resources) {
-    return resourceService.addResources(resources);
+  public Collection<EntityModel<ResourceResponseModel>> addResources(
+      @Valid @RequestBody List<ResourceCreateDTO> resources) {
+    return resourceModelAssembler.toCollectionModel(resourceService.addResources(resources));
   }
 
   @PutMapping(value = "{id}")
   @Operation(summary = "Update a resource by id")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResourceDTO updateResourceById(
+  public EntityModel<ResourceResponseModel> updateResourceById(
       @PathVariable Long id, @Valid @RequestBody ResourceCreateDTO resource) {
-    return resourceService.updateResourceById(id, resource);
+    return resourceModelAssembler.toModel(resourceService.updateResourceById(id, resource));
   }
 }

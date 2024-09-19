@@ -28,7 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class OrganizationControllrTest {
+public class OrganizationControllerTest {
 
   private static final String ORGANIZATIONS_ENDPOINT = "/v3/organizations";
 

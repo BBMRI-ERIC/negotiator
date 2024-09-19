@@ -36,7 +36,6 @@ import org.springframework.web.context.WebApplicationContext;
 public class NetworkControllerTests {
 
   private static final String NETWORKS_URL = "/v3/networks";
-  private static final String NETWORKS_URL_BATCH = "/v3/networks/networks-collection";
 
   @Autowired private WebApplicationContext context;
 
@@ -143,7 +142,7 @@ public class NetworkControllerTests {
             .name("newNetwork")
             .uri("http://newuri.org")
             .build();
-    String requestBody = TestUtils.jsonFromRequest(networkDTO);
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO));
     MvcResult result =
         mockMvc
             .perform(
@@ -152,13 +151,13 @@ public class NetworkControllerTests {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/json"))
-            .andExpect(jsonPath("$.name", is(networkDTO.getName())))
-            .andExpect(jsonPath("$.externalId", is(networkDTO.getExternalId())))
-            .andExpect(jsonPath("$.uri", is(networkDTO.getUri())))
-            .andExpect(jsonPath("$.contactEmail", is(networkDTO.getContactEmail())))
+            .andExpect(jsonPath("$[0].name", is(networkDTO.getName())))
+            .andExpect(jsonPath("$[0].externalId", is(networkDTO.getExternalId())))
+            .andExpect(jsonPath("$[0].uri", is(networkDTO.getUri())))
+            .andExpect(jsonPath("$[0].contactEmail", is(networkDTO.getContactEmail())))
             .andReturn();
 
-    long id = JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Long.class);
+    long id = JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
     Optional<Network> network = networkRepository.findById(id);
     assert network.isPresent();
     assertEquals(networkDTO.getName(), network.get().getName());
@@ -185,7 +184,7 @@ public class NetworkControllerTests {
     MvcResult result =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(NETWORKS_URL_BATCH)
+                MockMvcRequestBuilders.post(NETWORKS_URL)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
             .andExpect(status().isCreated())
@@ -234,7 +233,7 @@ public class NetworkControllerTests {
     MvcResult result =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(NETWORKS_URL_BATCH)
+                MockMvcRequestBuilders.post(NETWORKS_URL)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
             .andExpect(status().isCreated())
