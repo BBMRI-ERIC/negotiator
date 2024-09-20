@@ -69,8 +69,8 @@ spring:
 negotiator:
   molgenis-url: ""
   frontend-url: ""
-  emailYoursSincerelyText: ""
-  emailHelpdeskHref: ""
+  emailYoursSincerelyText: "The BBMRI-ERIC Team"
+  emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
   authorization:
     claim: ""
     admin-claim-value: ""
