@@ -7,7 +7,7 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
@@ -21,9 +21,21 @@ import org.springframework.stereotype.Service;
 public class PersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
-  @Autowired NegotiationRepository negotiationRepository;
-  @Autowired PersonRepository personRepository;
-  @Autowired NotificationRepository notificationRepository;
+  NegotiationRepository negotiationRepository;
+  PersonRepository personRepository;
+  NotificationRepository notificationRepository;
+  ApplicationEventPublisher eventPublisher;
+
+  public PersistStateChangeListener(
+      NegotiationRepository negotiationRepository,
+      PersonRepository personRepository,
+      NotificationRepository notificationRepository,
+      ApplicationEventPublisher eventPublisher) {
+    this.negotiationRepository = negotiationRepository;
+    this.personRepository = personRepository;
+    this.notificationRepository = notificationRepository;
+    this.eventPublisher = eventPublisher;
+  }
 
   @Override
   @Transactional
@@ -41,5 +53,11 @@ public class PersistStateChangeListener
       negotiation.setCurrentState(NegotiationState.valueOf(state.getId()));
       negotiationRepository.save(negotiation);
     }
+    eventPublisher.publishEvent(
+        new NegotiationStateChangeEvent(
+            this,
+            negotiationId,
+            NegotiationState.valueOf(state.getId()),
+            NegotiationEvent.valueOf(transition.getTrigger().getEvent())));
   }
 }

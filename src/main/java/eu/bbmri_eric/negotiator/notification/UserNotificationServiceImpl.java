@@ -216,7 +216,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private void createNotificationsForPrivatePost(Post post) {
     Set<Person> representatives = getRepresentativesOfOrganization(post);
-    log.info(representatives.size());
     for (Person representative : representatives) {
       if (!representative.getId().equals(post.getCreatedBy().getId())) {
         notificationRepository.save(

@@ -53,4 +53,15 @@ public class Notification extends AuditEntity {
 
   @Enumerated(EnumType.STRING)
   private NotificationEmailStatus emailStatus;
+
+  public Notification(
+      @Nonnull Person recipient,
+      @Nonnull Negotiation negotiation,
+      String message,
+      NotificationEmailStatus emailStatus) {
+    this.recipient = recipient;
+    this.negotiation = negotiation;
+    this.message = message;
+    this.emailStatus = emailStatus;
+  }
 }
