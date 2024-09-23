@@ -180,7 +180,7 @@
         <dependency>
             <artifactId>spring-context-support</artifactId>
             <groupId>org.springframework</groupId>
-            <version>6.1.12</version>
+            <version>6.1.13</version>
         </dependency>
         <dependency>
             <artifactId>jakarta.activation-api</artifactId>
