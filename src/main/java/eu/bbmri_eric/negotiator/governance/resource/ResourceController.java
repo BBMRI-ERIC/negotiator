@@ -13,8 +13,10 @@ import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +55,7 @@ public class ResourceController {
         (Page<ResourceResponseModel>) resourceService.findAll(filters), filters);
   }
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Add a list of resources")
   @ResponseStatus(HttpStatus.CREATED)
   public Collection<EntityModel<ResourceResponseModel>> addResources(
@@ -61,7 +63,10 @@ public class ResourceController {
     return resourceModelAssembler.toCollectionModel(resourceService.addResources(resources));
   }
 
-  @PutMapping(value = "{id}")
+  @PutMapping(
+      value = "{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Update a resource by id")
   @ResponseStatus(HttpStatus.CREATED)
   public EntityModel<ResourceResponseModel> updateResourceById(
