@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
@@ -23,17 +22,14 @@ public class PersistStateChangeListener
 
   NegotiationRepository negotiationRepository;
   PersonRepository personRepository;
-  NotificationRepository notificationRepository;
   ApplicationEventPublisher eventPublisher;
 
   public PersistStateChangeListener(
       NegotiationRepository negotiationRepository,
       PersonRepository personRepository,
-      NotificationRepository notificationRepository,
       ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
-    this.notificationRepository = notificationRepository;
     this.eventPublisher = eventPublisher;
   }
 
@@ -53,11 +49,15 @@ public class PersistStateChangeListener
       negotiation.setCurrentState(NegotiationState.valueOf(state.getId()));
       negotiationRepository.save(negotiation);
     }
+    NegotiationEvent event;
+    try {
+      event = NegotiationEvent.valueOf(transition.getTrigger().getEvent());
+    } catch (IllegalArgumentException e) {
+      log.error("Error publishing event about Negotiation status change", e);
+      return;
+    }
     eventPublisher.publishEvent(
         new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.valueOf(state.getId()),
-            NegotiationEvent.valueOf(transition.getTrigger().getEvent())));
+            this, negotiationId, NegotiationState.valueOf(state.getId()), event));
   }
 }
