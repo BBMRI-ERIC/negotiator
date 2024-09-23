@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.network;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.governance.resource.ResourceController;
 import eu.bbmri_eric.negotiator.user.UserController;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -43,9 +45,15 @@ public class NetworkModelAssembler
     return networkModel;
   }
 
-  public @NonNull List<EntityModel<NetworkDTO>> toCollectionModel(
-      @NonNull List<NetworkDTO> entities) {
-    return entities.stream().map(this::toModel).collect(Collectors.toList());
+  @Override
+  public CollectionModel<EntityModel<NetworkDTO>> toCollectionModel(
+      Iterable<? extends NetworkDTO> entities) {
+    List<EntityModel<NetworkDTO>> entityModels = new ArrayList<>();
+    for (NetworkDTO networkDTO : entities) {
+      entityModels.add(toModel(networkDTO));
+    }
+    return CollectionModel.of(entityModels)
+        .add(linkTo(ResourceController.class).withRel("networks"));
   }
 
   public PagedModel<EntityModel<NetworkDTO>> toPagedModel(@NonNull Page<NetworkDTO> page) {

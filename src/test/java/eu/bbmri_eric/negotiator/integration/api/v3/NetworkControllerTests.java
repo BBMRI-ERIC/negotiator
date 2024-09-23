@@ -189,24 +189,29 @@ public class NetworkControllerTests {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(networkDTO1.getName())))
-            .andExpect(jsonPath("$[0].externalId", is(networkDTO1.getExternalId())))
-            .andExpect(jsonPath("$[0].uri", is(networkDTO1.getUri())))
-            .andExpect(jsonPath("$[0].contactEmail", is(networkDTO1.getContactEmail())))
-            .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[1].name", is(networkDTO2.getName())))
-            .andExpect(jsonPath("$[1].externalId", is(networkDTO2.getExternalId())))
-            .andExpect(jsonPath("$[1].uri", is(networkDTO2.getUri())))
-            .andExpect(jsonPath("$[1].contactEmail", is(networkDTO2.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO1.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[1].name", is(networkDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].externalId", is(networkDTO2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[1].uri", is(networkDTO2.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].contactEmail", is(networkDTO2.getContactEmail())))
             .andReturn();
 
     long id1 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
     Optional<Network> network1 = networkRepository.findById(id1);
     assert network1.isPresent();
     assertEquals(networkDTO1.getName(), network1.get().getName());
     long id2 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[1].id", Long.class);
     Optional<Network> network2 = networkRepository.findById(id2);
     assert network2.isPresent();
     assertEquals(networkDTO2.getName(), network2.get().getName());
@@ -238,24 +243,29 @@ public class NetworkControllerTests {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(networkDTO1.getName())))
-            .andExpect(jsonPath("$[0].externalId", is(networkDTO1.getExternalId())))
-            .andExpect(jsonPath("$[0].uri", is(networkDTO1.getUri())))
-            .andExpect(jsonPath("$[0].contactEmail", is(networkDTO1.getContactEmail())))
-            .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[1].name", is(networkDTO2.getName())))
-            .andExpect(jsonPath("$[1].externalId", is(networkDTO2.getExternalId())))
-            .andExpect(jsonPath("$[1].uri", is(networkDTO2.getUri())))
-            .andExpect(jsonPath("$[1].contactEmail", is(networkDTO2.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO1.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[1].name", is(networkDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].externalId", is(networkDTO2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[1].uri", is(networkDTO2.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].contactEmail", is(networkDTO2.getContactEmail())))
             .andReturn();
 
     long id1 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
     Optional<Network> network1 = networkRepository.findById(id1);
     assert network1.isPresent();
     assertEquals(networkDTO1.getName(), network1.get().getName());
     long id2 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[1].id", Long.class);
     Optional<Network> network2 = networkRepository.findById(id2);
     assert network2.isPresent();
     assertEquals(networkDTO2.getName(), network2.get().getName());

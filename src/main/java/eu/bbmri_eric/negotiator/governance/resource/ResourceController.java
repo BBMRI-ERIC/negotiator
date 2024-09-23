@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
@@ -58,7 +58,7 @@ public class ResourceController {
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Add a list of resources")
   @ResponseStatus(HttpStatus.CREATED)
-  public Collection<EntityModel<ResourceResponseModel>> addResources(
+  public CollectionModel<EntityModel<ResourceResponseModel>> addResources(
       @Valid @RequestBody List<ResourceCreateDTO> resources) {
     return resourceModelAssembler.toCollectionModel(resourceService.addResources(resources));
   }

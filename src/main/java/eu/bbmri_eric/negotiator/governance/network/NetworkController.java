@@ -13,11 +13,11 @@ import eu.bbmri_eric.negotiator.user.UserModelAssembler;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Collection;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
@@ -89,11 +89,9 @@ public class NetworkController {
       produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Create a batch of networks")
   @ResponseStatus(HttpStatus.CREATED)
-  public Collection<EntityModel<NetworkDTO>> create(
+  public CollectionModel<EntityModel<NetworkDTO>> create(
       @Validated(ValidationGroups.Create.class) @RequestBody List<NetworkCreateDTO> networks) {
-    return networkModelAssembler
-        .toCollectionModel(networkService.createNetworks(networks))
-        .getContent();
+    return networkModelAssembler.toCollectionModel(networkService.createNetworks(networks));
   }
 
   @GetMapping("/networks/{id}")

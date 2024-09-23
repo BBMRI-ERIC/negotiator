@@ -329,22 +329,33 @@ public class ResourceControllerTests {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(resourceDTO1.getName())))
-            .andExpect(jsonPath("$[0].sourceId", is(resourceDTO1.getSourceId())))
-            .andExpect(jsonPath("$[0].description", is(resourceDTO1.getDescription())))
-            .andExpect(jsonPath("$[0].organization.externalId", is(org1.getExternalId())))
-            .andExpect(jsonPath("$[1].name", is(resourceDTO2.getName())))
-            .andExpect(jsonPath("$[1].sourceId", is(resourceDTO2.getSourceId())))
-            .andExpect(jsonPath("$[1].description", is(resourceDTO2.getDescription())))
-            .andExpect(jsonPath("$[1].organization.externalId", is(org2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.resources[0].name", is(resourceDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO1.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].description", is(resourceDTO1.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[0].organization.externalId", is(org1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.resources[1].name", is(resourceDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[1].sourceId", is(resourceDTO2.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[1].description", is(resourceDTO2.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[1].organization.externalId", is(org2.getExternalId())))
             .andReturn();
 
-    String id1 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].sourceId");
+    String id1 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.resources[0].sourceId");
     Optional<Resource> resource1 = repository.findBySourceId(id1);
     assert resource1.isPresent();
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
     Long id2 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.resources[1].id", Long.class);
     Optional<Resource> resource2 = repository.findById(id2);
     assert resource2.isPresent();
     assertEquals(resourceDTO2.getName(), resource2.get().getName());
@@ -400,23 +411,33 @@ public class ResourceControllerTests {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(resourceDTO1.getName())))
-            .andExpect(jsonPath("$[0].sourceId", is(resourceDTO1.getSourceId())))
-            .andExpect(jsonPath("$[0].description", is(resourceDTO1.getDescription())))
-            .andExpect(jsonPath("$[0].organization.externalId", is(org1.getExternalId())))
-            .andExpect(jsonPath("$[1].name", is(resourceDTO2.getName())))
-            .andExpect(jsonPath("$[1].sourceId", is(resourceDTO2.getSourceId())))
-            .andExpect(jsonPath("$[1].description", is(resourceDTO2.getDescription())))
-            .andExpect(jsonPath("$[1].organization.externalId", is(org2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.resources[0].name", is(resourceDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO1.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[0].description", is(resourceDTO1.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[0].organization.externalId", is(org1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.resources[1].name", is(resourceDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.resources[1].sourceId", is(resourceDTO2.getSourceId())))
+            .andExpect(
+                jsonPath("$._embedded.resources[1].description", is(resourceDTO2.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.resources[1].organization.externalId", is(org2.getExternalId())))
             .andReturn();
 
     Long id1 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.resources[0].id", Long.class);
     Optional<Resource> resource1 = repository.findById(id1);
     assert resource1.isPresent();
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
     Long id2 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.resources[1].id", Long.class);
     Optional<Resource> resource2 = repository.findById(id2);
     assert resource2.isPresent();
     assertEquals(resourceDTO2.getName(), resource2.get().getName());

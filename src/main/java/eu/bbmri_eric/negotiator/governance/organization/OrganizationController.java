@@ -3,10 +3,10 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
@@ -56,11 +56,10 @@ public class OrganizationController {
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Add a list of Organizations")
   @ResponseStatus(HttpStatus.CREATED)
-  public Collection<EntityModel<OrganizationDTO>> addOrganizations(
+  public CollectionModel<EntityModel<OrganizationDTO>> addOrganizations(
       @Valid @RequestBody List<OrganizationCreateDTO> organizations) {
-    return organizationModelAssembler
-        .toCollectionModel(organizationService.addOrganizations(organizations))
-        .getContent();
+    return organizationModelAssembler.toCollectionModel(
+        organizationService.addOrganizations(organizations));
   }
 
   @PutMapping(

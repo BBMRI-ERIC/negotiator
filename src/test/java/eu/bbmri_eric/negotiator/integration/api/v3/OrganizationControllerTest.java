@@ -65,19 +65,29 @@ public class OrganizationControllerTest {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(organizationDTO1.getName())))
-            .andExpect(jsonPath("$[0].externalId", is(organizationDTO1.getExternalId())))
+            .andExpect(
+                jsonPath("$._embedded.organizations[0].name", is(organizationDTO1.getName())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].externalId",
+                    is(organizationDTO1.getExternalId())))
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[1].name", is(organizationDTO2.getName())))
-            .andExpect(jsonPath("$[1].externalId", is(organizationDTO2.getExternalId())))
+            .andExpect(
+                jsonPath("$._embedded.organizations[1].name", is(organizationDTO2.getName())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[1].externalId",
+                    is(organizationDTO2.getExternalId())))
             .andReturn();
     long id1 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.organizations[0].id", Long.class);
     Optional<Organization> organization1 = organizationRepository.findById(id1);
     assert organization1.isPresent();
     assertEquals(organizationDTO1.getName(), organization1.get().getName());
     long id2 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.organizations[1].id", Long.class);
     Optional<Organization> organization2 = organizationRepository.findById(id2);
     assert organization2.isPresent();
     assertEquals(organizationDTO2.getName(), organization2.get().getName());
@@ -106,19 +116,29 @@ public class OrganizationControllerTest {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(organizationDTO3.getName())))
-            .andExpect(jsonPath("$[0].externalId", is(organizationDTO3.getExternalId())))
+            .andExpect(
+                jsonPath("$._embedded.organizations[0].name", is(organizationDTO3.getName())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].externalId",
+                    is(organizationDTO3.getExternalId())))
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[1].name", is(organizationDTO4.getName())))
-            .andExpect(jsonPath("$[1].externalId", is(organizationDTO4.getExternalId())))
+            .andExpect(
+                jsonPath("$._embedded.organizations[1].name", is(organizationDTO4.getName())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[1].externalId",
+                    is(organizationDTO4.getExternalId())))
             .andReturn();
     long id1 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.organizations[0].id", Long.class);
     Optional<Organization> organization3 = organizationRepository.findById(id1);
     assert organization3.isPresent();
     assertEquals(organizationDTO3.getName(), organization3.get().getName());
     long id2 =
-        JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].id", Long.class);
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.organizations[1].id", Long.class);
     Optional<Organization> organization4 = organizationRepository.findById(id2);
     assert organization4.isPresent();
     assertEquals(organizationDTO4.getName(), organization4.get().getName());
