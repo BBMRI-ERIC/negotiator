@@ -6,7 +6,9 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceNotFoundException;
 import eu.bbmri_eric.negotiator.form.AccessForm;
+import eu.bbmri_eric.negotiator.form.AccessFormNotFoundException;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
@@ -147,11 +149,11 @@ public class ResourceServiceImpl implements ResourceService {
     DiscoveryService discoveryService =
         discoveryServiceRepository
             .findById(Long.valueOf("1"))
-            .orElseThrow(() -> new EntityNotFoundException("1"));
+            .orElseThrow(() -> new DiscoveryServiceNotFoundException("1"));
     AccessForm accessForm =
         accessFormRepository
             .findById(Long.valueOf("1"))
-            .orElseThrow(() -> new EntityNotFoundException("1"));
+            .orElseThrow(() -> new AccessFormNotFoundException("1"));
 
     for (ResourceCreateDTO resDTO : resourcesCreateDTO) {
       Optional<Organization> organization =
