@@ -64,9 +64,11 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     String subjectIdentifier = jwt.getClaimAsString("sub");
     Map<String, Object> userInfo = getClaims(jwt);
     Person person =
-        personRepository
-            .findBySubjectId(subjectIdentifier)
-            .orElseGet(() -> saveNewUserAsPerson(userInfo));
+            personRepository
+                    .findBySubjectId(subjectIdentifier)
+                    .map(existingPerson -> updatePersonIfNecessary(existingPerson, userInfo))
+                    .orElseGet(() -> saveNewUserAsPerson(userInfo));
+
     return new NegotiatorJwtAuthenticationToken(person, jwt, parseUserAuthorities(userInfo));
   }
 
@@ -190,6 +192,26 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
       return person;
     }
     log.info(String.format("User with sub: %s added to the database", person.getSubjectId()));
+    return person;
+  }
+
+  private Person updatePersonIfNecessary(Person person, Map<String, Object> userInfo) {
+    boolean isUpdated = false;
+
+    if (!person.getName().equals(userInfo.get("name").toString())) {
+      person.setName(userInfo.get("name").toString());
+      isUpdated = true;
+    }
+    if (!person.getEmail().equals(userInfo.get("email").toString())) {
+      person.setEmail(userInfo.get("email").toString());
+      isUpdated = true;
+    }
+
+    if (isUpdated) {
+      personRepository.save(person);
+      log.info(String.format("User with sub: %s updated in the database", person.getSubjectId()));
+    }
+
     return person;
   }
 
