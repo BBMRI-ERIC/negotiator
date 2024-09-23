@@ -151,13 +151,17 @@ public class NetworkControllerTests {
                     .content(requestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            .andExpect(jsonPath("$[0].name", is(networkDTO.getName())))
-            .andExpect(jsonPath("$[0].externalId", is(networkDTO.getExternalId())))
-            .andExpect(jsonPath("$[0].uri", is(networkDTO.getUri())))
-            .andExpect(jsonPath("$[0].contactEmail", is(networkDTO.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO.getContactEmail())))
             .andReturn();
 
-    long id = JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].id", Long.class);
+    long id =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
     Optional<Network> network = networkRepository.findById(id);
     assert network.isPresent();
     assertEquals(networkDTO.getName(), network.get().getName());
