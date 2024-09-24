@@ -54,7 +54,6 @@ public class Notification extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String message;
 
-
   @Enumerated(EnumType.STRING)
   private NotificationEmailStatus emailStatus;
 
