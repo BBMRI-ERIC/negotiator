@@ -19,6 +19,7 @@ import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
@@ -334,17 +335,11 @@ public class ResourceControllerTests {
                 jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO1.getSourceId())))
             .andExpect(
                 jsonPath("$._embedded.resources[0].description", is(resourceDTO1.getDescription())))
-            .andExpect(
-                jsonPath(
-                    "$._embedded.resources[0].organization.externalId", is(org1.getExternalId())))
             .andExpect(jsonPath("$._embedded.resources[1].name", is(resourceDTO2.getName())))
             .andExpect(
                 jsonPath("$._embedded.resources[1].sourceId", is(resourceDTO2.getSourceId())))
             .andExpect(
                 jsonPath("$._embedded.resources[1].description", is(resourceDTO2.getDescription())))
-            .andExpect(
-                jsonPath(
-                    "$._embedded.resources[1].organization.externalId", is(org2.getExternalId())))
             .andReturn();
 
     String id1 =
@@ -416,17 +411,11 @@ public class ResourceControllerTests {
                 jsonPath("$._embedded.resources[0].sourceId", is(resourceDTO1.getSourceId())))
             .andExpect(
                 jsonPath("$._embedded.resources[0].description", is(resourceDTO1.getDescription())))
-            .andExpect(
-                jsonPath(
-                    "$._embedded.resources[0].organization.externalId", is(org1.getExternalId())))
             .andExpect(jsonPath("$._embedded.resources[1].name", is(resourceDTO2.getName())))
             .andExpect(
                 jsonPath("$._embedded.resources[1].sourceId", is(resourceDTO2.getSourceId())))
             .andExpect(
                 jsonPath("$._embedded.resources[1].description", is(resourceDTO2.getDescription())))
-            .andExpect(
-                jsonPath(
-                    "$._embedded.resources[1].organization.externalId", is(org2.getExternalId())))
             .andReturn();
 
     Long id1 =
@@ -442,26 +431,19 @@ public class ResourceControllerTests {
     assert resource2.isPresent();
     assertEquals(resourceDTO2.getName(), resource2.get().getName());
 
-    ResourceCreateDTO updatedResourceDTO =
-        ResourceCreateDTO.builder()
-            .name("New Resource 3")
-            .description("New Resource 3")
-            .sourceId("resource_3")
-            .organizationId("test_organization_3")
-            .build();
+    ResourceUpdateDTO updatedResourceDTO =
+        ResourceUpdateDTO.builder().name("New Resource 3").description("New Resource 3").build();
     String updatedRequestBody = TestUtils.jsonFromRequest(updatedResourceDTO);
     MvcResult updatedResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.put(RESOURCES_ENDPOINT + "/" + resource1.get().getId())
+                MockMvcRequestBuilders.patch(RESOURCES_ENDPOINT + "/" + resource1.get().getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(updatedRequestBody))
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(jsonPath("$.name", is(updatedResourceDTO.getName())))
-            .andExpect(jsonPath("$.sourceId", is(updatedResourceDTO.getSourceId())))
             .andExpect(jsonPath("$.description", is(updatedResourceDTO.getDescription())))
-            .andExpect(jsonPath("$.organization.externalId", is(org1.getExternalId())))
             .andReturn();
     Optional<Resource> updatedResource = repository.findById(resource1.get().getId());
     assertEquals(updatedResourceDTO.getName(), updatedResource.get().getName());

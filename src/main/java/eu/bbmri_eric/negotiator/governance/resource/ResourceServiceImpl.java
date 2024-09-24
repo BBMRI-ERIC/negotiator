@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
@@ -134,7 +135,7 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public ResourceResponseModel updateResourceById(Long id, ResourceCreateDTO resource) {
+  public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource) {
     Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     res.setName(resource.getName());
     res.setDescription(resource.getDescription());

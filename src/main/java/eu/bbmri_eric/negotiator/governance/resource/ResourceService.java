@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.resource;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import java.util.List;
@@ -70,5 +71,5 @@ public interface ResourceService {
    * @param resource the DTO containing the new values of the attribute(s)
    * @return the output DTO of the updated resource
    */
-  ResourceResponseModel updateResourceById(Long id, ResourceCreateDTO resource);
+  ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource);
 }
