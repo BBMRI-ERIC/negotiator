@@ -127,6 +127,7 @@ public class NegotiationServiceTest {
   @Test
   void testCreateNegotiation_ok() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
+
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
@@ -156,7 +157,7 @@ public class NegotiationServiceTest {
     Attachment attachment = Attachment.builder().id("attachment-1").name("Attachment-1").build();
 
     when(attachmentRepository.findAllById(List.of("attachment-1"))).thenReturn(List.of(attachment));
-    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(new Request()));
+    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
 
     NegotiationDTO savedDTO = new NegotiationDTO();
@@ -175,7 +176,7 @@ public class NegotiationServiceTest {
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
-    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(new Request()));
+    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     when(negotiationRepository.save(any())).thenThrow(DataException.class);
     assertThrows(

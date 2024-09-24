@@ -119,24 +119,25 @@ public class UserNotificationServiceTest {
       id = 109L,
       authorities = {"ROLE_ADMIN"})
   void notifyRepresentatives_sameRepFor2Resources_oneNotification() {
-    Negotiation negotiation =
-        negotiationRepository.findById("negotiation-1").orElseThrow(TestAbortedException::new);
-
     Resource resource1 =
-        resourceRepository
-            .findBySourceId("biobank:1:collection:1")
-            .orElseThrow(TestAbortedException::new);
-
-    Person representative =
-        resource1.getRepresentatives().stream().findFirst().orElseThrow(TestAbortedException::new);
-
-    Resource resource2 =
         resourceRepository
             .findBySourceId("biobank:1:collection:2")
             .orElseThrow(TestAbortedException::new);
+    Person representative =
+        resource1.getRepresentatives().stream().findFirst().orElseThrow(TestAbortedException::new);
+    Resource resource2 =
+        resourceRepository
+            .findBySourceId("biobank:2:collection:1")
+            .orElseThrow(TestAbortedException::new);
     resource2.setRepresentatives(Set.of(representative));
 
-    negotiation.setResources(Set.of(resource1, resource2));
+    Negotiation negotiation =
+        Negotiation.builder()
+            .humanReadable("query")
+            .resources(Set.of(resource1, resource2))
+            .payload(
+                "{\"project\":{\"title\":\"A Project 3\",\"description\":\"Project 3 desc\"}}")
+            .build();
     negotiation.setStateForResource(resource2.getSourceId(), NegotiationResourceState.SUBMITTED);
     negotiation = negotiationRepository.save(negotiation);
 

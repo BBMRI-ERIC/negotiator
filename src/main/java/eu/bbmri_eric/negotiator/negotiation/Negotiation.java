@@ -4,7 +4,6 @@ import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
@@ -28,14 +27,12 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,18 +53,6 @@ import org.hibernate.type.SqlTypes;
 @Builder
 @Table(name = "negotiation")
 @Convert(converter = JsonType.class, attributeName = "json")
-@NamedEntityGraph(
-    name = "negotiation-with-detailed-children",
-    attributeNodes = {
-      @NamedAttributeNode(value = "requests", subgraph = "requests-detailed"),
-      @NamedAttributeNode(value = "attachments"),
-      @NamedAttributeNode(value = "currentStatePerResource")
-    },
-    subgraphs = {
-      @NamedSubgraph(
-          name = "requests-detailed",
-          attributeNodes = {@NamedAttributeNode(value = "resources")})
-    })
 public class Negotiation extends AuditEntity {
 
   @Id
@@ -81,23 +66,18 @@ public class Negotiation extends AuditEntity {
       cascade = {CascadeType.MERGE})
   private Set<Attachment> attachments;
 
-  @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE)
-  @Exclude
-  private Set<Request> requests;
-
   @NotNull
   @Column(columnDefinition = "TEXT")
   private String humanReadable;
 
   @ManyToMany
   @JoinTable(
-          name = "negotiation_resources_link",
-          joinColumns = @JoinColumn(name = "negotiation_id"),
-          inverseJoinColumns = @JoinColumn(name = "resource_id"))
+      name = "negotiation_resources_link",
+      joinColumns = @JoinColumn(name = "negotiation_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Exclude
   @NotNull
   private Set<Resource> resources;
-
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;

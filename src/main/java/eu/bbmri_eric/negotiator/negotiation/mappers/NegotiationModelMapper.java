@@ -8,7 +8,6 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import jakarta.annotation.PostConstruct;
@@ -16,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -41,8 +41,8 @@ public class NegotiationModelMapper {
     Converter<NegotiationState, String> negotiationStatusConverter =
         status -> negotiationStatusConverter(status.getSource());
 
-    //    Converter<Negotiation, Set<ResourceWithStatusDTO>> resourcesConverter =
-    //        negotiation -> resourceConverter(negotiation.getSource());
+    Converter<Negotiation, Set<ResourceWithStatusDTO>> resourcesConverter =
+        negotiation -> resourceConverter(negotiation.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -69,21 +69,14 @@ public class NegotiationModelMapper {
                 .map(Negotiation::getCurrentState, NegotiationDTO::setStatus));
   }
 
-//  private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {
-//    Set<Request> requests = negotiation.getRequests();
-//    final Map<String, NegotiationResourceState> statePerResource =
-//        negotiation.getCurrentStatePerResource();
-//
-//    return requests.stream()
-//        .flatMap(
-//            request ->
-//                request.getResources().stream()
-//                    .map(
-//                        resource ->
-//                            buildResourceWithStatus(
-//                                resource, statePerResource, negotiation.getId())))
-//        .collect(Collectors.toSet());
-//  }
+  private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {
+    final Map<String, NegotiationResourceState> statePerResource =
+        negotiation.getCurrentStatePerResource();
+
+    return negotiation.getResources().stream()
+        .map(resource -> buildResourceWithStatus(resource, statePerResource, negotiation.getId()))
+        .collect(Collectors.toSet());
+  }
 
   private ResourceWithStatusDTO buildResourceWithStatus(
       Resource resource,

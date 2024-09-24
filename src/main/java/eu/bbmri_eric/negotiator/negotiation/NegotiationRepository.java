@@ -41,7 +41,7 @@ public interface NegotiationRepository
           "SELECT EXISTS ("
               + "SELECT distinct(n.id) "
               + "FROM negotiation n "
-              + "    JOIN negotiation_resources_link rrl ON rrl.negotiation_id = m.id "
+              + "    JOIN negotiation_resources_link rrl ON rrl.negotiation_id = n.id "
               + "    JOIN resource rs ON rrl.resource_id = rs.id "
               + "    JOIN organization o ON rs.organization_id = o.id "
               + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",

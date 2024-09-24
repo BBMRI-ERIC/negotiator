@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
@@ -23,10 +24,10 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +49,11 @@ public class RequestControllerTests {
   private static final String NEGOTIATION_1 = "negotiation-1";
   private static final String UNASSIGNED_REQUEST_ID = "request-unassigned";
 
-  @Autowired public RequestServiceImpl service;
-  @Autowired public RequestRepository repository;
-  @Autowired private WebApplicationContext context;
-  @Autowired private RequestController controller;
-  @Autowired private RequestServiceImpl requestService;
-  @Autowired private NegotiationService negotiationService;
-  @Autowired private NegotiationLifecycleService negotiationLifecycleService;
-  @Autowired private ModelMapper modelMapper;
+  @Autowired RequestServiceImpl service;
+  @Autowired RequestRepository repository;
+  @Autowired WebApplicationContext context;
+  @Autowired RequestServiceImpl requestService;
+  @Autowired NegotiationService negotiationService;
 
   private MockMvc mockMvc;
 
@@ -246,13 +244,14 @@ public class RequestControllerTests {
     assertEquals(repository.count(), previousCount);
   }
 
+  // This is no longer possible since when the negotiation is assigned the request is removed
+  @Disabled
   @Test
   @WithUserDetails("researcher")
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
-    NegotiationDTO n =
-        negotiationService.create(
-            TestUtils.createNegotiation(Collections.singleton(r.getId())), CREATOR_ID);
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of(r.getId()));
+    NegotiationDTO n = negotiationService.create(negotiationCreateDTO, CREATOR_ID);
 
     long previousCount = repository.count();
 

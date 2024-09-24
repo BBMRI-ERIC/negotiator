@@ -126,7 +126,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     // Gets the Entities for the requests
     log.debug("Getting request entities");
     List<Request> requests = findRequests(negotiationBody.getRequests());
-    negotiationEntity.setResources(requests.stream().findFirst().get().getResources());
+
+    negotiationEntity.setResources(new HashSet<>(requests.stream().findFirst().get().getResources()));
     negotiationEntity.setHumanReadable(requests.stream().findFirst().get().getHumanReadable());
 
     Negotiation savedNegotiation;
@@ -143,11 +144,15 @@ public class NegotiationServiceImpl implements NegotiationService {
       List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
       negotiationEntity.setAttachments(new HashSet<>(attachments));
       attachments.forEach(
-          attachment -> {
-            attachment.setNegotiation(negotiationEntity);
-          });
+          attachment -> attachment.setNegotiation(negotiationEntity));
     }
     eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiationEntity.getId()));
+
+//    for (Request request : requests) {
+//      requestRepository.delete(request);
+//    }
+
+    // TODO: Add call to send email.
     userNotificationService.notifyAdmins(negotiationEntity);
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }

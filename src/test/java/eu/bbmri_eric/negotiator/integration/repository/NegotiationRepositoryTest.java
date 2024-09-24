@@ -13,7 +13,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
-import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
@@ -35,7 +34,6 @@ import org.springframework.data.domain.Sort;
 public class NegotiationRepositoryTest {
   @Autowired PersonRepository personRepository;
   @Autowired ResourceRepository resourceRepository;
-  @Autowired RequestRepository requestRepository;
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;

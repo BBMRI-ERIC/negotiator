@@ -38,6 +38,7 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -139,7 +140,8 @@ public class NegotiationLifecycleServiceImplTest {
     Request request = requestRepository.findById("request-2").get();
     Negotiation negotiation =
         Negotiation.builder()
-            .resources(request.getResources())
+            .resources(new HashSet<>(request.getResources()))
+            .humanReadable("#1 MaterialType: DNA")
             .payload(negotiationCreateDTO.getPayload().toString())
             .build();
     negotiation.setCreatedBy(Person.builder().id(101L).name("TheBuilder").build());

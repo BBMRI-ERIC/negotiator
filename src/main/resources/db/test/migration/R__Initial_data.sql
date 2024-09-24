@@ -111,8 +111,7 @@ values ('negotiation-1', 4),
        ('negotiation-4', 5),
        ('negotiation-4', 7),
        ('negotiation-5', 5),
-       ('negotiation-5', 7),
-       ('request-unassigned', 7);
+       ('negotiation-5', 7);
 
 insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),

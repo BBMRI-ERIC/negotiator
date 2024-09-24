@@ -40,14 +40,14 @@ public interface PersonRepository
 
   @Query(
       value =
-          "SELECT EXISTS (SELECT rs.id "
-              + "FROM request rq JOIN request_resources_link rrl on rq.id = rrl.request_id "
-              + "                JOIN resource rs on rs.id = rrl.resource_id "
-              + "WHERE rq.negotiation_id = :negotiationId AND "
-              + "      rs.id in ("
-              + "         select rrl.resource_id "
-              + "         from person p join resource_representative_link rrl ON p.id = rrl.person_id "
-              + "         where p.id = :personId"
+          "select exists ( "
+              + "select nrl.resource_id "
+              + "from negotiation_resources_link nrl "
+              + "where nrl.negotiation_id = :negotiationId and "
+              + "   nrl.resource_id in ( "
+              + "       select rrl.resource_id "
+              + "       from person p join resource_representative_link rrl ON p.id = rrl.person_id "
+              + "       where p.id = :personId"
               + "))",
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfNegotiation(Long personId, String negotiationId);
