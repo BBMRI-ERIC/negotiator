@@ -19,7 +19,7 @@ public class ResearcherNotificationListener {
   @EventListener(value = NegotiationStateChangeEvent.class)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Transactional(Transactional.TxType.REQUIRES_NEW)
-  protected void handleStatusChangeEvent(NegotiationStateChangeEvent event) {
+  public void handleStatusChangeEvent(NegotiationStateChangeEvent event) {
     if (event.getEvent().equals(NegotiationEvent.APPROVE)
         || event.getEvent().equals(NegotiationEvent.DECLINE)) {
       notificationService.statusChangeNotification(event.getNegotiationId(), event.getEvent());
