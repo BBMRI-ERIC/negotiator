@@ -54,14 +54,15 @@ public class EmailRequestListener {
       log.error("Failed to send email for notification %s".formatted(event.getNotificationId()));
       return;
     }
-    log.info("get here");
-    sendOutEmail(notification);
+    sendOutEmail(notification, event.getEmailTemplateName());
   }
 
-  private void sendOutEmail(Notification notification) {
+  private void sendOutEmail(Notification notification, String emailTemplateName) {
     Context context = getContext(notification);
-    String emailContent = templateEngine.process("negotiation-status-change", context);
-    emailService.sendEmail(notification.getRecipient(), "Request Status Update", emailContent);
+    String emailContent = templateEngine.process(emailTemplateName, context);
+    emailService.sendEmail(notification.getRecipient(), notification.getTitle(), emailContent);
+    notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
+    notificationRepository.save(notification);
   }
 
   private @NonNull Context getContext(Notification notification) {

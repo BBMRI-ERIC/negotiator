@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.notification.researcher;
 
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import jakarta.transaction.Transactional;
@@ -24,5 +25,12 @@ public class ResearcherNotificationListener {
         || event.getEvent().equals(NegotiationEvent.DECLINE)) {
       notificationService.statusChangeNotification(event.getNegotiationId(), event.getEvent());
     }
+  }
+
+  @EventListener(value = NewNegotiationEvent.class)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional(Transactional.TxType.REQUIRES_NEW)
+  public void handleNewNegotiationEvent(NewNegotiationEvent event) {
+    notificationService.createConfirmationNotification(event.getNegotiationId());
   }
 }

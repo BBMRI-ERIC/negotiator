@@ -30,7 +30,30 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   }
 
   @Override
-  public void createConfirmationNotification(String negotiationId) {}
+  public void createConfirmationNotification(String negotiationId) {
+    Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
+    if (negotiation == null) {
+      log.error(
+          "Error creating confirmation notification. Negotiation %s not found"
+              .formatted(negotiationId));
+      return;
+    }
+    Notification notification =
+        new Notification(
+            negotiation.getCreatedBy(),
+            negotiation,
+            "Request Confirmation",
+            "Request %s was successfully submitted".formatted(negotiationId),
+            NotificationEmailStatus.EMAIL_NOT_SENT);
+    try {
+      notification = notificationRepository.save(notification);
+    } catch (PersistenceException e) {
+      log.error("Error while saving notification %s".formatted(notification.getMessage()), e);
+      return;
+    }
+    eventPublisher.publishEvent(
+        new NewNotificationEvent(this, notification.getId(), "negotiation-confirmation"));
+  }
 
   @Override
   @Transactional
@@ -46,6 +69,7 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
         new Notification(
             negotiation.getCreatedBy(),
             negotiation,
+            "Request status update",
             "The request was %sd by an Administrator and the representatives of respective organizations were contacted."
                 .formatted(action.getLabel().toLowerCase()),
             NotificationEmailStatus.EMAIL_NOT_SENT);
@@ -55,6 +79,7 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
       log.error("Error while saving notification %s".formatted(notification.getMessage()), e);
       return;
     }
-    eventPublisher.publishEvent(new NewNotificationEvent(this, notification.getId()));
+    eventPublisher.publishEvent(
+        new NewNotificationEvent(this, notification.getId(), "negotiation-status-change"));
   }
 }

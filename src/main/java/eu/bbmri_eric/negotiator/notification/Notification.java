@@ -49,7 +49,11 @@ public class Notification extends AuditEntity {
   private Negotiation negotiation;
 
   @Column(columnDefinition = "TEXT")
+  private String title;
+
+  @Column(columnDefinition = "TEXT")
   private String message;
+
 
   @Enumerated(EnumType.STRING)
   private NotificationEmailStatus emailStatus;
@@ -61,6 +65,19 @@ public class Notification extends AuditEntity {
       NotificationEmailStatus emailStatus) {
     this.recipient = recipient;
     this.negotiation = negotiation;
+    this.message = message;
+    this.emailStatus = emailStatus;
+  }
+
+  public Notification(
+      @Nonnull Person recipient,
+      @Nonnull Negotiation negotiation,
+      String title,
+      String message,
+      NotificationEmailStatus emailStatus) {
+    this.recipient = recipient;
+    this.negotiation = negotiation;
+    this.title = title;
     this.message = message;
     this.emailStatus = emailStatus;
   }

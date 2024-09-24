@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <style>
         .email-notifications {
@@ -72,6 +72,7 @@
             padding: 20px;
         }
     </style>
+    <title>Request confirmation</title>
 </head>
 <body>
 <div class="email-notifications">
@@ -79,15 +80,15 @@
         <div th:insert="~{logo}"></div>
     </div>
     <div class="email-content">
-        <h2 style="color: #e95713;">Request Status Update</h2>
+        <h2 style="color: #e95713;">Request confirmation</h2>
         <p>
             Dear <span th:utext="${recipient.getName()}"></span>,
             <br/><br/>
-        <p>Your request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong> has been updated.
+        <p>Your request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong> has been
+            successfully submitted.
             Below are the details:</p>
         <p><strong>Request Title:</strong> <span th:text="${titleForNegotiation}">[Request Title]</span></p>
         <p><strong>Request Date:</strong> <span th:text="${date}">[Request Date]</span></p>
-        <span th:utext="${message}" class="message"></span>
         <p>If you want to track the progress of your request, click the button below:</p>
 
         <div style="text-align: center; margin: 20px;">

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,6 +43,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private ModelMapper modelMapper;
   private UserNotificationService userNotificationService;
   private PersonService personService;
+  private ApplicationEventPublisher eventPublisher;
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -50,7 +52,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       AttachmentRepository attachmentRepository,
       ModelMapper modelMapper,
       UserNotificationService userNotificationService,
-      PersonService personService) {
+      PersonService personService,
+      ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
@@ -58,6 +61,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.modelMapper = modelMapper;
     this.userNotificationService = userNotificationService;
     this.personService = personService;
+    this.eventPublisher = eventPublisher;
   }
 
   @Override
@@ -155,7 +159,7 @@ public class NegotiationServiceImpl implements NegotiationService {
             attachment.setNegotiation(negotiationEntity);
           });
     }
-    // TODO: Add call to send email.
+    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiationEntity.getId()));
     userNotificationService.notifyAdmins(negotiationEntity);
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
