@@ -19,15 +19,12 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Deprecated
 public class ResourceDTO {
 
   @NotNull private String id;
 
   @Nullable private String name;
-
-  @Nullable private String description;
-
-  @NotNull private String sourceId;
 
   @NotNull private OrganizationDTO organization;
 }
