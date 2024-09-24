@@ -67,13 +67,17 @@
             margin-top: 20px;
             margin-bottom: 20px;
         }
+
+        .email-header {
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
 <div class="email-notifications">
     <div class="email-header">
+        <img class="logo-bbmri" src="negotiator_logo.png" th:src="@{${logoUrl}}" alt="BBMRI-ERIC Logo"/>
     </div>
-    <hr/>
     <div class="email-content">
         <h2 style="color: #e95713;">Request Status Update</h2>
         <p>

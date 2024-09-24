@@ -47,14 +47,17 @@
                 border: none;
                 padding: 10px;
             }
+
+            .email-header {
+                padding: 20px;
+            }
         </style>
     </head>
     <body>
         <div class="email-notifications">
             <div class="email-header">
-                <img class="logo-bbmri" th:src="@{images/negotiator_logo.png}" alt="BBMRI-ERIC Logo"/>
+                <img class="logo-bbmri" th:src="@{${logoUrl}}" alt="BBMRI-ERIC Logo"/>
             </div>
-            <hr />
             <div class="email-content">
                 <p>
                     Dear <span th:utext="${recipient.getName()}"></span>,

@@ -32,6 +32,9 @@ public class EmailRequestListener {
   @Value("${negotiator.emailHelpdeskHref}")
   private String emailHelpdeskHref;
 
+  @Value("${negotiator.emailLogo}")
+  private String logoURL;
+
   public EmailRequestListener(
       EmailService emailService,
       TemplateEngine templateEngine,
@@ -73,6 +76,7 @@ public class EmailRequestListener {
     context.setVariable("message", notification.getMessage());
     context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
     context.setVariable("emailHelpdeskHref", emailHelpdeskHref);
+    context.setVariable("logoUrl", logoURL);
     return context;
   }
 }

@@ -71,6 +71,7 @@ negotiator:
   frontend-url: ""
   emailYoursSincerelyText: "The BBMRI-ERIC Team"
   emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
+  emailLogo: "http://localhost:8081/api/images/negotiator_logo.png"
   authorization:
     claim: ""
     admin-claim-value: ""

@@ -62,6 +62,9 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${negotiator.emailHelpdeskHref}")
   private String emailHelpdeskHref;
 
+  @Value("${negotiator.emailLogo}")
+  private String logoURL;
+
   private static LocalDateTime thresholdTime;
 
   private static Collection<NegotiationResourceState> nonactiveNegotiationResourceStates =
@@ -417,6 +420,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     context.setVariable("notificationsForNegotiation", notificationsForNegotiation);
     context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
     context.setVariable("emailHelpdeskHref", emailHelpdeskHref);
+    context.setVariable("logoUrl", logoURL);
 
     String emailContent = templateEngine.process(emailTemplate, context);
 
