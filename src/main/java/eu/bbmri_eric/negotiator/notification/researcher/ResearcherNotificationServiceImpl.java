@@ -7,7 +7,6 @@ import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
@@ -20,17 +19,14 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   private final NegotiationRepository negotiationRepository;
   private final NotificationRepository notificationRepository;
   private final ApplicationEventPublisher eventPublisher;
-  private EntityManager entityManager;
 
   public ResearcherNotificationServiceImpl(
       NegotiationRepository negotiationRepository,
       NotificationRepository notificationRepository,
-      ApplicationEventPublisher eventPublisher,
-      EntityManager entityManager) {
+      ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
     this.notificationRepository = notificationRepository;
     this.eventPublisher = eventPublisher;
-    this.entityManager = entityManager;
   }
 
   @Override
@@ -58,7 +54,6 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
       log.error("Error while saving notification %s".formatted(notification.getMessage()), e);
       return;
     }
-    entityManager.flush();
     eventPublisher.publishEvent(new NewNotificationEvent(this, notification.getId()));
   }
 }
