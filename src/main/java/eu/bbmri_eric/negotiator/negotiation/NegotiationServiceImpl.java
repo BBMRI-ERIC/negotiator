@@ -126,31 +126,19 @@ public class NegotiationServiceImpl implements NegotiationService {
     // Gets the Entities for the requests
     log.debug("Getting request entities");
     List<Request> requests = findRequests(negotiationBody.getRequests());
-
-    // Check if any negotiationBody is already associated to a negotiation
-    if (requests.stream().anyMatch(request -> request.getNegotiation() != null)) {
-      log.error("One or more negotiationBody object is already assigned to another negotiation");
-      throw new WrongRequestException(
-          "One or more negotiationBody object is already assigned to another negotiation");
-    }
-
-    // Updates the bidirectional relationship between negotiation and requests
-    negotiationEntity.setRequests(new HashSet<>(requests));
-    requests.forEach(
-        request -> {
-          request.setNegotiation(negotiationEntity);
-        });
+    negotiationEntity.setResources(requests.stream().findFirst().get().getResources());
+    negotiationEntity.setHumanReadable(requests.stream().findFirst().get().getHumanReadable());
 
     Negotiation savedNegotiation;
     try {
       // Finally, save the negotiation. NB: it also cascades operations for other Requests
       savedNegotiation = negotiationRepository.save(negotiationEntity);
-
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
       log.error(ex);
       throw new EntityNotStorableException();
     }
+
     if (negotiationBody.getAttachments() != null) {
       List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
       negotiationEntity.setAttachments(new HashSet<>(attachments));
@@ -164,24 +152,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 
-  private NegotiationDTO update(Negotiation negotiationEntity, NegotiationCreateDTO request) {
-    List<Request> requests = findRequests(request.getRequests());
-
-    if (requests.stream()
-        .anyMatch(
-            query ->
-                query.getNegotiation() != null && query.getNegotiation() != negotiationEntity)) {
-      throw new WrongRequestException(
-          "One or more request object is already assigned to another negotiation");
-    }
-
-    requests.forEach(
-        query -> {
-          query.setNegotiation(negotiationEntity);
-        });
-
-    negotiationEntity.setRequests(new HashSet<>(requests));
-
+  private NegotiationDTO update(
+      Negotiation negotiationEntity, NegotiationCreateDTO negotiationCreateDTO) {
     try {
       Negotiation negotiation = negotiationRepository.save(negotiationEntity);
       return modelMapper.map(negotiation, NegotiationDTO.class);
@@ -200,22 +172,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO update(String negotiationId, NegotiationCreateDTO negotiationBody) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     return update(negotiationEntity, negotiationBody);
-  }
-
-  public NegotiationDTO addRequestToNegotiation(String negotiationId, String requestId) {
-    Negotiation negotiationEntity = findEntityById(negotiationId, false);
-    Request requestEntity =
-        requestRepository
-            .findById(requestId)
-            .orElseThrow(() -> new EntityNotFoundException(requestId));
-    negotiationEntity.getRequests().add(requestEntity);
-    requestEntity.setNegotiation(negotiationEntity);
-    try {
-      negotiationEntity = negotiationRepository.save(negotiationEntity);
-      return modelMapper.map(negotiationEntity, NegotiationDTO.class);
-    } catch (DataIntegrityViolationException ex) {
-      throw new EntityNotStorableException();
-    }
   }
 
   /**

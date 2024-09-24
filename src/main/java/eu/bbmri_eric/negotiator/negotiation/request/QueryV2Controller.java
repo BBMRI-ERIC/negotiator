@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation.request;
 
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.QueryCreateV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.QueryV2DTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
@@ -37,34 +36,8 @@ public class QueryV2Controller {
   ResponseEntity<QueryV2DTO> add(@Valid @RequestBody QueryCreateV2DTO queryRequest) {
     RequestCreateDTO v3Request = modelMapper.map(queryRequest, RequestCreateDTO.class);
     RequestDTO requestResponse;
-    boolean created;
-    if (queryRequest.getToken() != null && !queryRequest.getToken().isEmpty()) {
-      // Update an old request or add a new one to a negotiation
-      String[] tokens = queryRequest.getToken().split("__search__");
-      // If the negotiation was not found in V2, a new request was created
-      if (negotiationService.exists(tokens[0])) {
-        created = false;
-        if (tokens.length == 1) {
-          requestResponse = requestService.create(v3Request);
-          NegotiationDTO negotiationDTO =
-              negotiationService.addRequestToNegotiation(tokens[0], requestResponse.getId());
-          requestResponse.setNegotiationId(negotiationDTO.getId());
-        } else { // Updating an old request: the requestToken can be ignored
-          requestResponse = requestService.update(tokens[1], v3Request);
-        }
-      } else {
-        requestResponse = requestService.create(v3Request);
-        created = true;
-      }
-    } else {
-      requestResponse = requestService.create(v3Request);
-      created = true;
-    }
+    requestResponse = requestService.create(v3Request);
     QueryV2DTO response = modelMapper.map(requestResponse, QueryV2DTO.class);
-    if (created) {
-      return ResponseEntity.created(URI.create(response.getRedirectUri())).body(response);
-    } else {
-      return ResponseEntity.accepted().header("Location", response.getRedirectUri()).body(response);
-    }
+    return ResponseEntity.created(URI.create(response.getRedirectUri())).body(response);
   }
 }

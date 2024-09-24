@@ -105,8 +105,7 @@ public class NegotiationSpecification {
         query.distinct(true);
         Predicate authorPredicate = criteriaBuilder.equal(root.get("createdBy"), person);
         if (!person.getResources().isEmpty()) {
-          Predicate involvedInResources =
-              root.joinSet("requests").joinSet("resources").in(person.getResources());
+          Predicate involvedInResources = root.joinSet("resources").in(person.getResources());
           return criteriaBuilder.or(authorPredicate, involvedInResources);
         }
         return authorPredicate;
@@ -148,7 +147,7 @@ public class NegotiationSpecification {
           @Nonnull CriteriaQuery<?> query,
           @Nonnull CriteriaBuilder criteriaBuilder) {
         query.distinct(true);
-        return root.joinSet("requests").joinSet("resources").in(resources);
+        return root.joinSet("resources").in(resources);
       }
     };
   }

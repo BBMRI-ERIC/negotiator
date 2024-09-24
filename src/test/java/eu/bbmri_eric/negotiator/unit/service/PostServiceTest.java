@@ -152,9 +152,12 @@ public class PostServiceTest {
     organization1.setResources(Set.of(resource1));
     organization2.setResources(Set.of(resource2));
 
-    Request request = Request.builder().resources(Set.of(resource1, resource2)).build();
-
-    negotiation = Negotiation.builder().id(NEG_1).requests(Set.of(request)).build();
+    negotiation =
+        Negotiation.builder()
+            .id(NEG_1)
+            .resources(Set.of(resource1, resource2))
+            .humanReadable("#1 Material Type: DNA")
+            .build();
     negotiation.setCreatedBy(researcher);
 
     publicPost1 =

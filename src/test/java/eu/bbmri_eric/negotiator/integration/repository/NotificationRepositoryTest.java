@@ -100,7 +100,8 @@ public class NotificationRepositoryTest {
     Negotiation negotiation =
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
-            .requests(requests)
+            .resources(resources)
+            .humanReadable("#1 Material Type: DNA")
             .publicPostsEnabled(false)
             .payload(payload)
             .build();

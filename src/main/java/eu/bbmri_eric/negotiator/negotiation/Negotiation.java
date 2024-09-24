@@ -20,6 +20,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
@@ -32,6 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -80,6 +84,20 @@ public class Negotiation extends AuditEntity {
   @OneToMany(mappedBy = "negotiation", cascade = CascadeType.MERGE)
   @Exclude
   private Set<Request> requests;
+
+  @NotNull
+  @Column(columnDefinition = "TEXT")
+  private String humanReadable;
+
+  @ManyToMany
+  @JoinTable(
+          name = "negotiation_resources_link",
+          joinColumns = @JoinColumn(name = "negotiation_id"),
+          inverseJoinColumns = @JoinColumn(name = "resource_id"))
+  @Exclude
+  @NotNull
+  private Set<Resource> resources;
+
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;
@@ -158,17 +176,6 @@ public class Negotiation extends AuditEntity {
   @Override
   public int hashCode() {
     return Objects.hash(getId());
-  }
-
-  /**
-   * Returns all resources involved in the negotiation.
-   *
-   * @return an UnmodifiableSet of resources
-   */
-  public Set<Resource> getResources() {
-    return requests.stream()
-        .flatMap(request -> request.getResources().stream())
-        .collect(Collectors.toUnmodifiableSet());
   }
 
   private Resource lookupResource(Set<Resource> resources, String resourceId) {

@@ -68,10 +68,8 @@ public class AttachmentRepositoriesTest {
     this.organization2 = createOrganization(ORG_2);
     this.resource1 = createResource(this.organization1, RESOURCE_1);
     this.resource2 = createResource(this.organization2, RESOURCE_2);
-    this.request1 = createRequest(resource1, REQUEST_1);
-    this.request2 = createRequest(resource2, REQUEST_2);
-    this.negotiation1 = createNegotiation(NEGOTIATION_1_ID, request1);
-    this.negotiation2 = createNegotiation(NEGOTIATION_2_ID, request2);
+    this.negotiation1 = createNegotiation(NEGOTIATION_1_ID, resource1);
+    this.negotiation2 = createNegotiation(NEGOTIATION_2_ID, resource2);
   }
 
   private Organization createOrganization(String organizationID) {
@@ -93,22 +91,12 @@ public class AttachmentRepositoriesTest {
             .build());
   }
 
-  private Request createRequest(Resource resource, String requestId) {
-    return requestRepository.save(
-        Request.builder()
-            .id(requestId)
-            .url("http://test")
-            .resources(Set.of(resource))
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build());
-  }
-
-  private Negotiation createNegotiation(String negotiationId, Request request) {
+  private Negotiation createNegotiation(String negotiationId, Resource resource) {
     return negotiationRepository.save(
         Negotiation.builder()
             .id(negotiationId)
-            .requests(Set.of(request))
+            .resources(Set.of(resource))
+            .humanReadable("#1 Material Type: DNA")
             .payload("{\"project\":{\"title\":\"negtitle\"} }")
             .build());
   }

@@ -62,23 +62,19 @@ public class NegotiationServiceTest {
   private AutoCloseable closeable;
 
   private static Negotiation buildNegotiation() {
-    Request request =
-        Request.builder()
-            .resources(
-                Set.of(
-                    Resource.builder()
-                        .sourceId("collection:1")
-                        .discoveryService(new DiscoveryService())
-                        .organization(
-                            Organization.builder()
-                                .externalId("biobank:1")
-                                .name("TestBiobank")
-                                .build())
-                        .build()))
-            .build();
+    Set<Resource> resources =
+        Set.of(
+            Resource.builder()
+                .sourceId("collection:1")
+                .discoveryService(new DiscoveryService())
+                .organization(
+                    Organization.builder().externalId("biobank:1").name("TestBiobank").build())
+                .build());
+
     return Negotiation.builder()
-        .requests(Set.of(request))
+        .resources(resources)
         .currentState(NegotiationState.SUBMITTED)
+        .humanReadable("#1 Material Type: DNA")
         .build();
   }
 
@@ -134,7 +130,7 @@ public class NegotiationServiceTest {
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
-    negotiation.setRequests(Set.of(request));
+    negotiation.setResources(request.getResources());
     when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     NegotiationDTO savedDTO = new NegotiationDTO();
@@ -156,7 +152,7 @@ public class NegotiationServiceTest {
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
-    negotiation.setRequests(Set.of(request));
+    negotiation.setResources(request.getResources());
     Attachment attachment = Attachment.builder().id("attachment-1").name("Attachment-1").build();
 
     when(attachmentRepository.findAllById(List.of("attachment-1"))).thenReturn(List.of(attachment));
@@ -178,7 +174,7 @@ public class NegotiationServiceTest {
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
-    negotiation.setRequests(Set.of(request));
+    negotiation.setResources(request.getResources());
     when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(new Request()));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     when(negotiationRepository.save(any())).thenThrow(DataException.class);
@@ -194,7 +190,7 @@ public class NegotiationServiceTest {
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
-    negotiation.setRequests(Set.of(request));
+    negotiation.setResources(request.getResources());
     when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     when(negotiationRepository.save(negotiation)).thenThrow(DataIntegrityViolationException.class);

@@ -25,22 +25,11 @@ public class NegotiationTest {
   }
 
   @Test
-  void getNegotiationRequests_Ok() {
-    Negotiation negotiation = new Negotiation();
-    Request request = new Request();
-    negotiation.setRequests(new HashSet<>(List.of(request)));
-    assertEquals(1, negotiation.getRequests().size());
-    assertEquals(request, negotiation.getRequests().iterator().next());
-  }
-
-  @Test
   void getNegotiationResources_Ok() {
     Negotiation negotiation = new Negotiation();
-    Request request = new Request();
     Resource resource = new Resource();
     resource.setSourceId("fancyId");
-    request.setResources(new HashSet<>(List.of(resource)));
-    negotiation.setRequests(new HashSet<>(List.of(request)));
+    negotiation.setResources(new HashSet<>(List.of(resource)));
     assertEquals(Set.of(resource), negotiation.getResources());
   }
 

@@ -46,22 +46,22 @@ public class NegotiationRepositoryTest {
 
   String payload =
       """
-                      {
-                  "project": {
-                  "title": "Title",
-                  "description": "Description"
-                  },
-                   "samples": {
-                     "sample-type": "DNA",
-                     "num-of-subjects": 10,
-                     "num-of-samples": 20,
-                     "volume-per-sample": 5
-                   },
-                   "ethics-vote": {
-                     "ethics-vote": "My ethic vote"
-                   }
-                  }
-                  """;
+         {
+          "project": {
+          "title": "Title",
+          "description": "Description"
+          },
+           "samples": {
+             "sample-type": "DNA",
+             "num-of-subjects": 10,
+             "num-of-samples": 20,
+             "volume-per-sample": 5
+           },
+           "ethics-vote": {
+             "ethics-vote": "My ethic vote"
+           }
+          }
+          """;
 
   @BeforeEach
   void setUp() {
@@ -160,21 +160,12 @@ public class NegotiationRepositoryTest {
       assertEquals(20, resource.getRepresentatives().size());
     }
 
-    // Create and save the request and negotiation
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(new HashSet<>(resources))
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-
     Negotiation negotiation =
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
-            .requests(Set.of(request))
+            .resources(new HashSet<>(resources))
             .publicPostsEnabled(false)
+            .humanReadable("#1 Material Type: DNA")
             .payload(payload)
             .build();
     negotiation = negotiationRepository.save(negotiation);
@@ -326,28 +317,18 @@ public class NegotiationRepositoryTest {
   }
 
   private void saveNegotiation() {
-    Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
     resources.add(resource);
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(resources)
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-    requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
-            .requests(requests)
+            .resources(resources)
+            .humanReadable("#1 Material Type: DNA")
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreationDate(LocalDateTime.now());
     negotiation.setCreatedBy(person);
-    request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
 
@@ -355,24 +336,15 @@ public class NegotiationRepositoryTest {
     Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
     resources.add(resource);
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(resources)
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-    requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
             .currentState(NegotiationState.SUBMITTED)
-            .requests(requests)
+            .resources(resources)
+            .humanReadable("everything")
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
 

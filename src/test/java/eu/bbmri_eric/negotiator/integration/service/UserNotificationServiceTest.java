@@ -12,7 +12,6 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
@@ -34,6 +33,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest(loadTestData = true)
@@ -45,7 +45,6 @@ public class UserNotificationServiceTest {
   @Autowired NotificationRepository notificationRepository;
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired ResourceRepository resourceRepository;
-  @Autowired NegotiationLifecycleService negotiationLifecycleService;
   @Autowired ResourceLifecycleService resourceLifecycleService;
   @Autowired NotificationEmailRepository notificationEmailRepository;
   @Autowired PostService postService;
@@ -119,18 +118,28 @@ public class UserNotificationServiceTest {
   @WithMockNegotiatorUser(
       id = 109L,
       authorities = {"ROLE_ADMIN"})
-  void notifyRepresentatives_sameRepFor2Resources_oneNotification() throws InterruptedException {
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
+  void notifyRepresentatives_sameRepFor2Resources_oneNotification() {
+    Negotiation negotiation =
+        negotiationRepository.findById("negotiation-1").orElseThrow(TestAbortedException::new);
+
     Resource resource1 =
-        negotiation.getRequests().iterator().next().getResources().iterator().next();
-    Person representative = resource1.getRepresentatives().iterator().next();
-    Resource resource2 = resourceRepository.findBySourceId("biobank:1:collection:2").get();
+        resourceRepository
+            .findBySourceId("biobank:1:collection:1")
+            .orElseThrow(TestAbortedException::new);
+
+    Person representative =
+        resource1.getRepresentatives().stream().findFirst().orElseThrow(TestAbortedException::new);
+
+    Resource resource2 =
+        resourceRepository
+            .findBySourceId("biobank:1:collection:2")
+            .orElseThrow(TestAbortedException::new);
     resource2.setRepresentatives(Set.of(representative));
-    Set<Resource> resources = negotiation.getRequests().iterator().next().getResources();
-    resources.add(resource2);
-    negotiation.getRequests().iterator().next().setResources(resources);
+
+    negotiation.setResources(Set.of(resource1, resource2));
     negotiation.setStateForResource(resource2.getSourceId(), NegotiationResourceState.SUBMITTED);
     negotiation = negotiationRepository.save(negotiation);
+
     assertEquals(2, negotiation.getResources().size());
     assertTrue(resource2.getRepresentatives().contains(representative));
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
@@ -213,9 +222,12 @@ public class UserNotificationServiceTest {
   @Test
   @WithMockNegotiatorUser(id = 109L)
   void notifyUsersForNewPost_publicPost_repsAreNotified() {
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    Negotiation negotiation =
+        negotiationRepository.findById("negotiation-1").orElseThrow(TestAbortedException::new);
+
     Resource resource1 =
-        negotiation.getRequests().iterator().next().getResources().iterator().next();
+        negotiation.getResources().stream().findFirst().orElseThrow(TestAbortedException::new);
+
     Person representative =
         resource1.getRepresentatives().stream()
             .filter(person -> !person.getId().equals(109L))
@@ -230,9 +242,9 @@ public class UserNotificationServiceTest {
   @Test
   @WithMockNegotiatorUser(id = 109L)
   void notifyUsersForNewPost_privatePost_onlyRepsOfOrgAreNotified() {
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
-    Resource resource1 =
-        negotiation.getRequests().iterator().next().getResources().iterator().next();
+    Negotiation negotiation =
+        negotiationRepository.findById("negotiation-1").orElseThrow(TestAbortedException::new);
+    Resource resource1 = negotiation.getResources().iterator().next();
     Person representative = resource1.getRepresentatives().stream().findFirst().get();
     assertTrue(Objects.nonNull(representative.getId()));
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());

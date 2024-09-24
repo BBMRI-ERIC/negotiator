@@ -45,15 +45,6 @@ public interface NegotiationService {
       throws EntityNotFoundException;
 
   /**
-   * Adds the request with :requestId to the negotiation with identified by :negotiationId
-   *
-   * @param negotiationId the id of the negotiation
-   * @param requestId the id of the request to add to the negotiation
-   * @return a NegotiationID with the data of the negotiation
-   */
-  NegotiationDTO addRequestToNegotiation(String negotiationId, String requestId);
-
-  /**
    * Returns a list of all negotiation in the negotiator
    *
    * @return a List of NegotiationDTO with the data of all negotiation in the negotiator

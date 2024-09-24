@@ -131,11 +131,9 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private void persistChanges(Negotiation negotiation, Set<Resource> resources) {
-    Request request = negotiation.getRequests().iterator().next();
-    negotiationRepository.saveAndFlush(negotiation);
     resources.addAll(negotiation.getResources());
-    request.setResources(resources);
-    requestRepository.saveAndFlush(request);
+    negotiation.setResources(resources);
+    negotiationRepository.saveAndFlush(negotiation);
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
     }

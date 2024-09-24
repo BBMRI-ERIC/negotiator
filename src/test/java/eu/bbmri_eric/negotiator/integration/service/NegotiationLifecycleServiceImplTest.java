@@ -139,7 +139,7 @@ public class NegotiationLifecycleServiceImplTest {
     Request request = requestRepository.findById("request-2").get();
     Negotiation negotiation =
         Negotiation.builder()
-            .requests(Set.of(request))
+            .resources(request.getResources())
             .payload(negotiationCreateDTO.getPayload().toString())
             .build();
     negotiation.setCreatedBy(Person.builder().id(101L).name("TheBuilder").build());

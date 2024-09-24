@@ -41,8 +41,8 @@ public class NegotiationModelMapper {
     Converter<NegotiationState, String> negotiationStatusConverter =
         status -> negotiationStatusConverter(status.getSource());
 
-    Converter<Negotiation, Set<ResourceWithStatusDTO>> resourcesConverter =
-        negotiation -> resourceConverter(negotiation.getSource());
+    //    Converter<Negotiation, Set<ResourceWithStatusDTO>> resourcesConverter =
+    //        negotiation -> resourceConverter(negotiation.getSource());
 
     Converter<String, JsonNode> payloadConverter =
         p -> {
@@ -69,21 +69,21 @@ public class NegotiationModelMapper {
                 .map(Negotiation::getCurrentState, NegotiationDTO::setStatus));
   }
 
-  private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {
-    Set<Request> requests = negotiation.getRequests();
-    final Map<String, NegotiationResourceState> statePerResource =
-        negotiation.getCurrentStatePerResource();
-
-    return requests.stream()
-        .flatMap(
-            request ->
-                request.getResources().stream()
-                    .map(
-                        resource ->
-                            buildResourceWithStatus(
-                                resource, statePerResource, negotiation.getId())))
-        .collect(Collectors.toSet());
-  }
+//  private Set<ResourceWithStatusDTO> resourceConverter(Negotiation negotiation) {
+//    Set<Request> requests = negotiation.getRequests();
+//    final Map<String, NegotiationResourceState> statePerResource =
+//        negotiation.getCurrentStatePerResource();
+//
+//    return requests.stream()
+//        .flatMap(
+//            request ->
+//                request.getResources().stream()
+//                    .map(
+//                        resource ->
+//                            buildResourceWithStatus(
+//                                resource, statePerResource, negotiation.getId())))
+//        .collect(Collectors.toSet());
+//  }
 
   private ResourceWithStatusDTO buildResourceWithStatus(
       Resource resource,
