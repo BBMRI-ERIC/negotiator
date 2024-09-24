@@ -25,6 +25,12 @@ public class EmailRequestListener {
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
 
+  @Value("${negotiator.emailYoursSincerelyText}")
+  private String emailYoursSincerelyText;
+
+  @Value("${negotiator.emailHelpdeskHref}")
+  private String emailHelpdeskHref;
+
   public EmailRequestListener(
       EmailService emailService,
       TemplateEngine templateEngine,
@@ -62,6 +68,8 @@ public class EmailRequestListener {
     context.setVariable("frontendUrl", frontendUrl);
     context.setVariable("titleForNegotiation", negotiation.getTitle());
     context.setVariable("message", notification.getMessage());
+    context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
+    context.setVariable("emailHelpdeskHref", emailHelpdeskHref);
     return context;
   }
 }

@@ -46,7 +46,8 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
         new Notification(
             negotiation.getCreatedBy(),
             negotiation,
-            "Your request was %sd by an Administrator.".formatted(action.getLabel().toLowerCase()),
+            "The request was %sd by an Administrator and the representatives of respective organizations were contacted."
+                .formatted(action.getLabel().toLowerCase()),
             NotificationEmailStatus.EMAIL_NOT_SENT);
     try {
       notification = notificationRepository.save(notification);
