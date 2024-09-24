@@ -46,6 +46,8 @@ spring:
           client-id: "https%3A//negotiator.bbmri-eric.eu"
           client-secret: "negotiator-secret"
           introspection-uri: "http://localhost:4011/connect/introspect"
+  thymeleaf:
+    cache: false
 springdoc:
   oAuthFlow:
     authorizationUrl: "http://localhost:4011/connect/authorize"
