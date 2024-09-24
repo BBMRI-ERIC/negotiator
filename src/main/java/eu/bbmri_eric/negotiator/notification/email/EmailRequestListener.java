@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import jakarta.transaction.Transactional;
+import java.time.format.DateTimeFormatter;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,12 +62,14 @@ public class EmailRequestListener {
   }
 
   private @NonNull Context getContext(Notification notification) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy, HH:mm");
     Negotiation negotiation = notification.getNegotiation();
     Context context = new Context();
     context.setVariable("recipient", notification.getRecipient());
     context.setVariable("negotiation", negotiation.getId());
     context.setVariable("frontendUrl", frontendUrl);
     context.setVariable("titleForNegotiation", negotiation.getTitle());
+    context.setVariable("date", negotiation.getCreationDate().format(formatter));
     context.setVariable("message", notification.getMessage());
     context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
     context.setVariable("emailHelpdeskHref", emailHelpdeskHref);

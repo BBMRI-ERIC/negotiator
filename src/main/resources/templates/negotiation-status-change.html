@@ -81,6 +81,8 @@
             <br/><br/>
         <p>Your request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong> has been updated.
             Below are the details:</p>
+        <p><strong>Request Title:</strong> <span th:text="${titleForNegotiation}">[Request Title]</span></p>
+        <p><strong>Request Date:</strong> <span th:text="${date}">[Request Date]</span></p>
         <span th:utext="${message}" class="message"></span>
         <p>If you want to track the progress of your request, click the button below:</p>
 
