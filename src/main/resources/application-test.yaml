@@ -20,8 +20,6 @@ spring:
 negotiator:
   molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"
-  emailYoursSincerelyText: "The BBMRI-ERIC Team"
-  emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
   authorization:
     claim: "authz"
     admin-claim-value: "admin_group"
