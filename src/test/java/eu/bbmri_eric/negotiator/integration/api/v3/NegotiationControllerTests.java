@@ -1131,8 +1131,7 @@ public class NegotiationControllerTests {
     }
     negotiationRepository.save(negotiation);
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(NEGOTIATIONS_URL + "/" + negotiation.getId()))
+        .perform(MockMvcRequestBuilders.get(NEGOTIATIONS_URL + "/" + negotiation.getId()))
         .andExpect(status().isOk());
   }
 

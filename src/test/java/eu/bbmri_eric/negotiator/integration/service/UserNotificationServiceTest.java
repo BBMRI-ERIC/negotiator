@@ -135,8 +135,7 @@ public class UserNotificationServiceTest {
         Negotiation.builder()
             .humanReadable("query")
             .resources(Set.of(resource1, resource2))
-            .payload(
-                "{\"project\":{\"title\":\"A Project 3\",\"description\":\"Project 3 desc\"}}")
+            .payload("{\"project\":{\"title\":\"A Project 3\",\"description\":\"Project 3 desc\"}}")
             .build();
     negotiation.setStateForResource(resource2.getSourceId(), NegotiationResourceState.SUBMITTED);
     negotiation = negotiationRepository.save(negotiation);

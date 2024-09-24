@@ -127,7 +127,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     log.debug("Getting request entities");
     List<Request> requests = findRequests(negotiationBody.getRequests());
 
-    negotiationEntity.setResources(new HashSet<>(requests.stream().findFirst().get().getResources()));
+    negotiationEntity.setResources(
+        new HashSet<>(requests.stream().findFirst().get().getResources()));
     negotiationEntity.setHumanReadable(requests.stream().findFirst().get().getHumanReadable());
 
     Negotiation savedNegotiation;
@@ -143,14 +144,13 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (negotiationBody.getAttachments() != null) {
       List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
       negotiationEntity.setAttachments(new HashSet<>(attachments));
-      attachments.forEach(
-          attachment -> attachment.setNegotiation(negotiationEntity));
+      attachments.forEach(attachment -> attachment.setNegotiation(negotiationEntity));
     }
     eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiationEntity.getId()));
 
-//    for (Request request : requests) {
-//      requestRepository.delete(request);
-//    }
+    //    for (Request request : requests) {
+    //      requestRepository.delete(request);
+    //    }
 
     // TODO: Add call to send email.
     userNotificationService.notifyAdmins(negotiationEntity);
