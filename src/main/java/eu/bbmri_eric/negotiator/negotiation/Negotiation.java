@@ -70,10 +70,10 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
 
-  @OneToMany(mappedBy = "id.negotiation",
-          fetch = FetchType.EAGER,
-          cascade = CascadeType.ALL)
-  @Exclude @NotNull @Builder.Default
+  @OneToMany(mappedBy = "id.negotiation", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @Exclude
+  @NotNull
+  @Builder.Default
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
@@ -174,9 +174,7 @@ public class Negotiation extends AuditEntity {
 
   @Override
   public String toString() {
-    return "Negotiation{" +
-            "id='" + id + '\'' +
-            '}';
+    return "Negotiation{" + "id='" + id + '\'' + '}';
   }
 
   private Resource lookupResource(Set<Resource> resources, String resourceId) {

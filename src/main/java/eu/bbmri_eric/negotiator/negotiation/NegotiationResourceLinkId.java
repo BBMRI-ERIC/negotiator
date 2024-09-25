@@ -24,7 +24,8 @@ public class NegotiationResourceLinkId implements Serializable {
   private Negotiation negotiation;
 
   @JoinColumn
-  @ManyToOne(optional = false) private Resource resource;
+  @ManyToOne(optional = false)
+  private Resource resource;
 
   @Override
   public boolean equals(Object o) {
