@@ -44,3 +44,5 @@ logging:
 reminder:
   trigger-duration-days: "P7D"
   cron-schedule-expression: "0 0 0 * * TUE"
+negotiator:
+  emailLogo: "https://web.bbmri-eric.eu/Negotiator/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png"

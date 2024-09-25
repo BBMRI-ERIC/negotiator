@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -27,6 +28,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
@@ -45,9 +47,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.statemachine.StateMachineException;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 
 @IntegrationTest(loadTestData = true)
 @Transactional
+@RecordApplicationEvents
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationLifecycleService;
@@ -59,6 +64,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired AccessFormRepository accessFormRepository;
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private ResourceRepository resourceRepository;
+  @Autowired ApplicationEvents events;
 
   private void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
@@ -112,6 +118,8 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.IN_PROGRESS,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
+    long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
+    assertThat(numEvents).isEqualTo(1);
   }
 
   @Test

@@ -41,6 +41,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,6 +53,7 @@ public class NegotiationServiceTest {
   @Mock AttachmentRepository attachmentRepository;
   @Mock NegotiationRepository negotiationRepository;
   @Mock PersonRepository personRepository;
+  @Mock ApplicationEventPublisher eventPublisher;
 
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;

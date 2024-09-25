@@ -135,6 +135,8 @@ public class HTTPRegistryConfigurer {
         .permitAll()
         .requestMatchers(mvc.pattern("/v3/api-docs/**"))
         .permitAll()
+        .requestMatchers(mvc.pattern(HttpMethod.GET, "/images/**"))
+        .permitAll()
         .anyRequest()
         .denyAll();
   }
