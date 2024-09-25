@@ -47,6 +47,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.swing.text.html.Option;
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class NegotiationServiceTest {
@@ -126,13 +128,13 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_ok() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
 
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
-    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
+    when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     NegotiationDTO savedDTO = new NegotiationDTO();
     savedDTO.setId("saved");
@@ -145,7 +147,7 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_ok_with_attachments() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
     AttachmentMetadataDTO attachmentMetadataDTO =
         AttachmentMetadataDTO.builder().id("attachment-1").build();
     negotiationCreateDTO.setAttachments(Set.of(attachmentMetadataDTO));
@@ -157,7 +159,7 @@ public class NegotiationServiceTest {
     Attachment attachment = Attachment.builder().id("attachment-1").name("Attachment-1").build();
 
     when(attachmentRepository.findAllById(List.of("attachment-1"))).thenReturn(List.of(attachment));
-    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
+    when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
 
     NegotiationDTO savedDTO = new NegotiationDTO();
@@ -171,12 +173,12 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_fails_when_DataException() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
-    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
+    when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     when(negotiationRepository.save(any())).thenThrow(DataException.class);
     assertThrows(
@@ -187,12 +189,12 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_fails_when_DataIntegrityViolationException() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("requestID"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
-    when(requestRepository.findAllById(Set.of("requestID"))).thenReturn(List.of(request));
+    when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     when(negotiationRepository.save(negotiation)).thenThrow(DataIntegrityViolationException.class);
     assertThrows(

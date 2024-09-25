@@ -90,12 +90,11 @@ public class NegotiationServiceImpl implements NegotiationService {
         negotiationId, organizationExternalId);
   }
 
-  private List<Request> findRequests(Set<String> requestsId) {
-    List<Request> entities = requestRepository.findAllById(requestsId);
-    if (entities.size() < requestsId.size()) {
-      throw new WrongRequestException("One or more of the specified requests do not exist");
-    }
-    return entities;
+  private Request findRequests(String requestsId) {
+    return requestRepository
+        .findById(requestsId)
+        .orElseThrow(
+            () -> new WrongRequestException("One or more of the specified requests do not exist"));
   }
 
   private List<Attachment> findAttachments(Set<AttachmentMetadataDTO> attachmentDTOs) {
@@ -122,19 +121,17 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @return the created Negotiation entity
    */
   public NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) {
-    Negotiation negotiationEntity = modelMapper.map(negotiationBody, Negotiation.class);
-    // Gets the Entities for the requests
     log.debug("Getting request entities");
-    List<Request> requests = findRequests(negotiationBody.getRequests());
+    Request request = findRequests(negotiationBody.getRequest());
 
-    negotiationEntity.setResources(
-        new HashSet<>(requests.stream().findFirst().get().getResources()));
-    negotiationEntity.setHumanReadable(requests.stream().findFirst().get().getHumanReadable());
+    Negotiation negotiation = modelMapper.map(negotiationBody, Negotiation.class);
+    negotiation.setResources(new HashSet<>(request.getResources()));
+    negotiation.setHumanReadable(request.getHumanReadable());
 
     Negotiation savedNegotiation;
     try {
       // Finally, save the negotiation. NB: it also cascades operations for other Requests
-      savedNegotiation = negotiationRepository.save(negotiationEntity);
+      savedNegotiation = negotiationRepository.save(negotiation);
     } catch (DataException | DataIntegrityViolationException ex) {
       log.error("Error while saving the Negotiation into db. Some db constraint violated");
       log.error(ex);
@@ -143,17 +140,15 @@ public class NegotiationServiceImpl implements NegotiationService {
 
     if (negotiationBody.getAttachments() != null) {
       List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
-      negotiationEntity.setAttachments(new HashSet<>(attachments));
-      attachments.forEach(attachment -> attachment.setNegotiation(negotiationEntity));
+      negotiation.setAttachments(new HashSet<>(attachments));
+      attachments.forEach(attachment -> attachment.setNegotiation(negotiation));
     }
-    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiationEntity.getId()));
+    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
 
-    for (Request request : requests) {
-      requestRepository.delete(request);
-    }
+    requestRepository.delete(request);
 
     // TODO: Add call to send email.
-    userNotificationService.notifyAdmins(negotiationEntity);
+    userNotificationService.notifyAdmins(negotiation);
     return modelMapper.map(savedNegotiation, NegotiationDTO.class);
   }
 

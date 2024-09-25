@@ -44,6 +44,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -136,8 +137,8 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   private NegotiationDTO saveNegotiation() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    Request request = requestRepository.findById("request-2").get();
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
+    Request request = requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
     Negotiation negotiation =
         Negotiation.builder()
             .resources(new HashSet<>(request.getResources()))

@@ -283,7 +283,7 @@ public class UserNotificationServiceTest {
     userNotificationService.createRemindersOldNegotiations();
     long initialNotificationsCount = countNegotiationNotifications("is awaiting review.");
 
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
     negotiationService.create(negotiationCreateDTO, 101L);
     userNotificationService.createRemindersOldNegotiations();
     assertEquals(
@@ -295,7 +295,7 @@ public class UserNotificationServiceTest {
     userNotificationService.createRemindersOldNegotiations();
     long initialNotificationsCount = countNegotiationNotifications("is awaiting review.");
 
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
     negotiationRepository
         .findById(negotiationDTO.getId())
@@ -313,7 +313,7 @@ public class UserNotificationServiceTest {
         countNegotiationNotifications("is stale and had no status change in a while.");
     long initialNegotiationsCount = countInProgressNegotiations();
 
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
@@ -337,7 +337,7 @@ public class UserNotificationServiceTest {
         countNegotiationNotifications("is stale and had no status change in a while.");
     long initialNegotiationsCount = countInProgressNegotiations();
 
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     negotiation.setCurrentState(NegotiationState.IN_PROGRESS);

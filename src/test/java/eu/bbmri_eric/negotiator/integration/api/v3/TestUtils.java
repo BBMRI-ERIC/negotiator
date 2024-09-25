@@ -102,7 +102,7 @@ public class TestUtils {
         .build();
   }
 
-  public static NegotiationCreateDTO createNegotiation(Set<String> requestsId) throws IOException {
+  public static NegotiationCreateDTO createNegotiation(String requestsId) throws IOException {
     String payload =
         "    {\n"
             + "\"project\": {\n"
@@ -122,7 +122,7 @@ public class TestUtils {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 
-    return NegotiationCreateDTO.builder().payload(jsonPayload).requests(requestsId).build();
+    return NegotiationCreateDTO.builder().payload(jsonPayload).request(requestsId).build();
   }
 
   public static String jsonFromRequest(Object request) throws JsonProcessingException {
