@@ -282,7 +282,7 @@ public class ResourceControllerTests {
 
   @Test
   @WithUserDetails("admin")
-  void addResourcesBatch() throws Exception {
+  void addResource_batchOfResources_ok() throws Exception {
     Organization org1 =
         Organization.builder().name("Organization 3").externalId("test_organization_3").build();
     Organization org2 =
@@ -298,6 +298,8 @@ public class ResourceControllerTests {
             .description("Resource 1")
             .sourceId("resource_1")
             .organizationId(org1Id)
+            .accessFormId(1L)
+            .discoveryServiceId(1L)
             .build();
     ResourceCreateDTO resourceDTO2 =
         ResourceCreateDTO.builder()
@@ -305,12 +307,14 @@ public class ResourceControllerTests {
             .description("Resource 2")
             .sourceId("test_resource_2")
             .organizationId(org2Id)
+            .accessFormId(1L)
+            .discoveryServiceId(1L)
             .build();
 
     DiscoveryService discoveryService =
         DiscoveryService.builder()
             .name("test_discovery_service")
-            .id(Long.valueOf("1"))
+            .id(1L)
             .url("http://discoveryservice.net")
             .build();
     AccessForm accessForm = new AccessForm("test");
@@ -354,7 +358,7 @@ public class ResourceControllerTests {
 
   @Test
   @WithUserDetails("admin")
-  void updateResource() throws Exception {
+  void updateResource_singleResource_ok() throws Exception {
     Organization org1 =
         Organization.builder()
             .id(Long.valueOf("1"))
@@ -378,6 +382,8 @@ public class ResourceControllerTests {
             .description("Resource 3")
             .sourceId("resource_3")
             .organizationId(org1Id)
+            .accessFormId(1L)
+            .discoveryServiceId(1L)
             .build();
     ResourceCreateDTO resourceDTO2 =
         ResourceCreateDTO.builder()
@@ -385,12 +391,14 @@ public class ResourceControllerTests {
             .description("Resource 4")
             .sourceId("resource_4")
             .organizationId(org2Id)
+            .accessFormId(1L)
+            .discoveryServiceId(1L)
             .build();
 
     DiscoveryService discoveryService =
         DiscoveryService.builder()
             .name("test_discovery_service")
-            .id(Long.valueOf("1"))
+            .id(1L)
             .url("http://discoveryservice.net")
             .build();
     AccessForm accessForm = new AccessForm("test");

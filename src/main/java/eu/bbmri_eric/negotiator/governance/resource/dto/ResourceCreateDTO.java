@@ -18,4 +18,6 @@ public class ResourceCreateDTO {
   private String description;
   @NotNull private String sourceId;
   @NotNull private Long organizationId;
+  @NotNull private Long accessFormId;
+  @NotNull private Long discoveryServiceId;
 }

@@ -147,16 +147,16 @@ public class ResourceServiceImpl implements ResourceService {
   @Transactional
   public List<ResourceResponseModel> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
     ArrayList<Resource> resources = new ArrayList<Resource>();
-    DiscoveryService discoveryService =
-        discoveryServiceRepository
-            .findById(Long.valueOf("1"))
-            .orElseThrow(() -> new DiscoveryServiceNotFoundException("1"));
-    AccessForm accessForm =
-        accessFormRepository
-            .findById(Long.valueOf("1"))
-            .orElseThrow(() -> new AccessFormNotFoundException("1"));
-
     for (ResourceCreateDTO resDTO : resourcesCreateDTO) {
+      DiscoveryService discoveryService =
+          discoveryServiceRepository
+              .findById(resDTO.getDiscoveryServiceId())
+              .orElseThrow(
+                  () -> new DiscoveryServiceNotFoundException(resDTO.getDiscoveryServiceId()));
+      AccessForm accessForm =
+          accessFormRepository
+              .findById(resDTO.getAccessFormId())
+              .orElseThrow(() -> new AccessFormNotFoundException(resDTO.getAccessFormId()));
       Optional<Organization> organization =
           organizationRepository.findById(resDTO.getOrganizationId());
       Resource res =

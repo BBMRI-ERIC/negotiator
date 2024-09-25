@@ -65,7 +65,7 @@ public class ResourceController {
   }
 
   @PatchMapping(
-      value = "{id}",
+      value = "/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Update a resource by id")
