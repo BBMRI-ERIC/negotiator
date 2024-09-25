@@ -138,7 +138,8 @@ public class NegotiationLifecycleServiceImplTest {
 
   private NegotiationDTO saveNegotiation() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
-    Request request = requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
+    Request request =
+        requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
     Negotiation negotiation =
         Negotiation.builder()
             .resources(new HashSet<>(request.getResources()))

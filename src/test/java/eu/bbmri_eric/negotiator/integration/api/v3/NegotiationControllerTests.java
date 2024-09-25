@@ -33,7 +33,6 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -1039,8 +1038,7 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   public void testUpdate_BadRequest_whenRequestIsAlreadyAssignedToAnotherNegotiation()
-      throws Exception {
-  }
+      throws Exception {}
 
   @Test
   @WithUserDetails("TheResearcher")

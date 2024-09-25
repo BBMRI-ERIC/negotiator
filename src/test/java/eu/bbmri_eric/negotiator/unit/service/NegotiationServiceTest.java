@@ -47,8 +47,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.swing.text.html.Option;
-
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class NegotiationServiceTest {
