@@ -84,14 +84,14 @@ values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negot
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
        (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
 
-insert into request (id, url, human_readable, discovery_service_id, negotiation_id)
-values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'negotiation-1'),
-       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1, null),
-       ('request-5', 'http://discoveryservice.dev', '#1: DNA Samples', 1, 'negotiation-5'),
-       ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-v2'),
-       ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-3'),
-       ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-4'),
-       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1, null);
+insert into request (id, url, human_readable, discovery_service_id)
+values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
+       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1),
+       ('request-5', 'http://discoveryservice.dev', '#1: DNA Samples', 1),
+       ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1);
 
 insert into request_resources_link (request_id, resource_id)
 values ('request-1', 4),

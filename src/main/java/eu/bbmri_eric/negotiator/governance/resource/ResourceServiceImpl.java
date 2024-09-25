@@ -12,7 +12,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
@@ -165,19 +164,9 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private Negotiation getNegotiation(String negotiationId) {
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    return negotiation;
-  }
-
-  private Request getRequest(String negotiationId) {
-    Request request =
-        requestRepository
-            .findByNegotiation_Id(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    return request;
+    return negotiationRepository
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private boolean userIsntAuthorized(String negotiationId, Long userId) {

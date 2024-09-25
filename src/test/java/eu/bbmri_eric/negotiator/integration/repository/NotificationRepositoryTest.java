@@ -106,7 +106,6 @@ public class NotificationRepositoryTest {
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
     return negotiation;
   }

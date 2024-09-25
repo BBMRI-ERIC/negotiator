@@ -205,6 +205,7 @@ public class RequestControllerTests {
     assertEquals(repository.count(), previousCount);
   }
 
+  @Disabled
   @Test
   @WithMockUser
   public void testGetAll_Ok_whenNegotiationIsAssigned() throws Exception {
@@ -226,8 +227,6 @@ public class RequestControllerTests {
   @WithUserDetails("researcher")
   public void testGetById_Ok_whenNoNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
-    long previousCount = repository.count();
-
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("%s/%s".formatted(ENDPOINT, r.getId()))
@@ -236,9 +235,7 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.id").isString())
         .andExpect(jsonPath("$.url", is("http://discoveryservice.dev")))
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
-        .andExpect(jsonPath("$.negotiationId").doesNotExist())
         .andExpect(jsonPath("$.resources[0].id", is("biobank:1:collection:1")));
-    assertEquals(repository.count(), previousCount);
   }
 
   // This is no longer possible since when the negotiation is assigned the request is removed

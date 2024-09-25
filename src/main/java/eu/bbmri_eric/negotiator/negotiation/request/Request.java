@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.negotiation.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -63,11 +62,6 @@ public class Request {
   @Exclude
   @NotNull
   private Set<Resource> resources;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "negotiation_id")
-  @Exclude
-  private Negotiation negotiation;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "discovery_service_id")
