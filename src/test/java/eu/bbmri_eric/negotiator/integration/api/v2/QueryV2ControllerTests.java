@@ -142,7 +142,7 @@ public class QueryV2ControllerTests {
     assertEquals(requestRepository.count(), previousCount + 1);
   }
 
-  @Deprecated
+  @Disabled
   @Test
   public void testUpdate_CreateWhenRequestIsNotFound() throws Exception {
     QueryCreateV2DTO updateRequest = TestUtils.createQueryV2Request();

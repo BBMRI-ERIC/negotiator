@@ -16,3 +16,5 @@ set human_readable = (
 
 insert into negotiation_resources_link (negotiation_id, resource_id)
 select r.negotiation_id, rrl.resource_id from request_resources_link rrl join request r on rrl.request_id = r.id;
+
+delete from request where negotiation_id is null;

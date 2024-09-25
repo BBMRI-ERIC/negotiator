@@ -300,8 +300,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   private List<Notification> createNotificationsForAdmins(
       Negotiation negotiation, NotificationEmailStatus status, String notificationMessage) {
     List<Notification> newNotifications = new ArrayList<>();
-    List<Person> admins = personRepository.findAllByAdminIsTrue();
-    for (Person admin : admins) {
+    for (Person admin : personRepository.findAllByAdminIsTrue()) {
       Notification newNotification =
           buildNewNotification(negotiation, status, admin, notificationMessage);
       newNotifications.add(newNotification);
