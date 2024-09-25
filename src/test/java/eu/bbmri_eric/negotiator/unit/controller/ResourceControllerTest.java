@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceController;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
@@ -44,11 +43,7 @@ public class ResourceControllerTest {
 
     Page<ResourceResponseModel> pageable =
         new PageImpl<>(
-            List.of(
-                new ResourceResponseModel(
-                    1L, "test", "test-name", OrganizationDTO.builder().name("test").build())),
-            PageRequest.of(1, 1),
-            3);
+            List.of(new ResourceResponseModel(1L, "test", "test-name")), PageRequest.of(1, 1), 3);
     when(resourceService.findAll(any())).thenReturn(pageable);
     mvc.perform(MockMvcRequestBuilders.get("/v3/resources?page=1&name=tes"))
         .andExpect(status().isOk())

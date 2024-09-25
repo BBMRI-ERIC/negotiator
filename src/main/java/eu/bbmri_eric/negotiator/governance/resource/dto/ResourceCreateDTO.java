@@ -17,5 +17,5 @@ public class ResourceCreateDTO {
   @NotNull private String name;
   private String description;
   @NotNull private String sourceId;
-  @NotNull private String organizationId;
+  @NotNull private Long organizationId;
 }

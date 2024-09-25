@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,8 +16,7 @@ public class ResourceResponseModel {
   String name;
   String description = "";
 
-  public ResourceResponseModel(
-      Long id, String sourceId, String name, OrganizationDTO organization) {
+  public ResourceResponseModel(Long id, String sourceId, String name) {
     this.id = id;
     this.sourceId = sourceId;
     this.name = name;

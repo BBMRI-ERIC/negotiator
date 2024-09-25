@@ -283,32 +283,30 @@ public class ResourceControllerTests {
   @Test
   @WithUserDetails("admin")
   void addResourcesBatch() throws Exception {
+    Organization org1 =
+        Organization.builder().name("Organization 3").externalId("test_organization_3").build();
+    Organization org2 =
+        Organization.builder().name("Organization 4").externalId("test_organization_4").build();
+    organizationRepository.save(org1);
+    organizationRepository.save(org2);
+    Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
+    Long org2Id = organizationRepository.findByExternalId("test_organization_4").get().getId();
+
     ResourceCreateDTO resourceDTO1 =
         ResourceCreateDTO.builder()
             .name("Resource 1")
             .description("Resource 1")
             .sourceId("resource_1")
-            .organizationId("test_organization_3")
+            .organizationId(org1Id)
             .build();
     ResourceCreateDTO resourceDTO2 =
         ResourceCreateDTO.builder()
             .name("Resource 2")
             .description("Resource 2")
             .sourceId("test_resource_2")
-            .organizationId("test_organization_4")
+            .organizationId(org2Id)
             .build();
-    Organization org1 =
-        Organization.builder()
-            .id(Long.valueOf("3"))
-            .name("Organization 3")
-            .externalId("test_organization_3")
-            .build();
-    Organization org2 =
-        Organization.builder()
-            .id(Long.valueOf("4"))
-            .name("Organization 4")
-            .externalId("test_organization_4")
-            .build();
+
     DiscoveryService discoveryService =
         DiscoveryService.builder()
             .name("test_discovery_service")
@@ -316,8 +314,6 @@ public class ResourceControllerTests {
             .url("http://discoveryservice.net")
             .build();
     AccessForm accessForm = new AccessForm("test");
-    organizationRepository.save(org1);
-    organizationRepository.save(org2);
     discoveryServiceRepository.save(discoveryService);
     accessFormRepository.save(accessForm);
 
@@ -359,20 +355,6 @@ public class ResourceControllerTests {
   @Test
   @WithUserDetails("admin")
   void updateResource() throws Exception {
-    ResourceCreateDTO resourceDTO1 =
-        ResourceCreateDTO.builder()
-            .name("Resource 3")
-            .description("Resource 3")
-            .sourceId("resource_3")
-            .organizationId("test_organization_1")
-            .build();
-    ResourceCreateDTO resourceDTO2 =
-        ResourceCreateDTO.builder()
-            .name("Resource 4")
-            .description("Resource 4")
-            .sourceId("resource_4")
-            .organizationId("test_organization_2")
-            .build();
     Organization org1 =
         Organization.builder()
             .id(Long.valueOf("1"))
@@ -385,6 +367,26 @@ public class ResourceControllerTests {
             .name("Organization 2")
             .externalId("test_organization_2")
             .build();
+    organizationRepository.save(org1);
+    organizationRepository.save(org2);
+    Long org1Id = organizationRepository.findByExternalId("test_organization_1").get().getId();
+    Long org2Id = organizationRepository.findByExternalId("test_organization_2").get().getId();
+
+    ResourceCreateDTO resourceDTO1 =
+        ResourceCreateDTO.builder()
+            .name("Resource 3")
+            .description("Resource 3")
+            .sourceId("resource_3")
+            .organizationId(org1Id)
+            .build();
+    ResourceCreateDTO resourceDTO2 =
+        ResourceCreateDTO.builder()
+            .name("Resource 4")
+            .description("Resource 4")
+            .sourceId("resource_4")
+            .organizationId(org2Id)
+            .build();
+
     DiscoveryService discoveryService =
         DiscoveryService.builder()
             .name("test_discovery_service")
@@ -392,8 +394,7 @@ public class ResourceControllerTests {
             .url("http://discoveryservice.net")
             .build();
     AccessForm accessForm = new AccessForm("test");
-    organizationRepository.save(org1);
-    organizationRepository.save(org2);
+
     discoveryServiceRepository.save(discoveryService);
     accessFormRepository.save(accessForm);
 

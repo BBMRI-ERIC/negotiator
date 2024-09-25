@@ -158,7 +158,7 @@ public class ResourceServiceImpl implements ResourceService {
 
     for (ResourceCreateDTO resDTO : resourcesCreateDTO) {
       Optional<Organization> organization =
-          organizationRepository.findByExternalId(resDTO.getOrganizationId());
+          organizationRepository.findById(resDTO.getOrganizationId());
       Resource res =
           Resource.builder()
               .name(resDTO.getName())
