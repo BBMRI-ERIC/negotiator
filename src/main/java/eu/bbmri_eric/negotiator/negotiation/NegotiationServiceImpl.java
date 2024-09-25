@@ -148,9 +148,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     }
     eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiationEntity.getId()));
 
-    //    for (Request request : requests) {
-    //      requestRepository.delete(request);
-    //    }
+    for (Request request : requests) {
+      requestRepository.delete(request);
+    }
 
     // TODO: Add call to send email.
     userNotificationService.notifyAdmins(negotiationEntity);
