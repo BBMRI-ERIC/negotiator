@@ -70,7 +70,10 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
 
-  @OneToMany @Exclude @NotNull @Builder.Default
+  @OneToMany(mappedBy = "id.negotiation",
+          fetch = FetchType.EAGER,
+          cascade = CascadeType.ALL)
+  @Exclude @NotNull @Builder.Default
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
@@ -169,6 +172,13 @@ public class Negotiation extends AuditEntity {
     return Objects.hash(getId());
   }
 
+  @Override
+  public String toString() {
+    return "Negotiation{" +
+            "id='" + id + '\'' +
+            '}';
+  }
+
   private Resource lookupResource(Set<Resource> resources, String resourceId) {
     return resources.stream()
         .filter(r -> r.getSourceId().equals(resourceId))
@@ -177,6 +187,7 @@ public class Negotiation extends AuditEntity {
   }
 
   public void setResources(Set<Resource> resources) {
+    this.resourcesLink.clear();
     resources.forEach(
         resource -> this.resourcesLink.add(new NegotiationResourceLink(this, resource, null)));
   }

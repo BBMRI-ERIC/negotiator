@@ -86,7 +86,6 @@ public class AttachmentRepositoriesTest {
     Negotiation negotiation =
         Negotiation.builder()
             .resources(Set.of(resource))
-            .id(negotiationId)
             .humanReadable("#1 Material Type: DNA")
             .payload("{\"project\":{\"title\":\"title\"}}")
             .discoveryService(discoveryService)

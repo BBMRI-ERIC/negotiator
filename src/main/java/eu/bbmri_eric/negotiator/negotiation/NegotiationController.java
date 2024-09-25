@@ -333,7 +333,6 @@ public class NegotiationController {
   @SecurityRequirement(name = "security_auth")
   public CollectionModel<EntityModel<ResourceWithStatusDTO>> updateResources(
       @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
-    log.info(updateResourcesDTO.toString());
     return resourceWithStatusAssembler.toCollectionModel(
         resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
   }
