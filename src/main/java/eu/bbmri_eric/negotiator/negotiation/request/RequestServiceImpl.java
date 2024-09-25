@@ -158,7 +158,10 @@ public class RequestServiceImpl implements RequestService {
         .findByUrl(
             String.format(
                 "%s://%s", discoveryServiceURL.getProtocol(), discoveryServiceURL.getHost()))
-        .orElseThrow(() -> new WrongRequestException("Data source not found"));
+        .orElseThrow(
+            () ->
+                new WrongRequestException(
+                    "The Discovery Service from which this HTTP request originated is not registered in the Negotiator. Please contact Negotiator Administrators"));
   }
 
   @Transactional(readOnly = true)
