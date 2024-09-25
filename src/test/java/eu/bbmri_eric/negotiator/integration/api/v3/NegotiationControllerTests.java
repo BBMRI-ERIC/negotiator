@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -1007,6 +1008,7 @@ public class NegotiationControllerTests {
     Optional<Negotiation> negotiation = negotiationRepository.findById(negotiationId);
     assert negotiation.isPresent();
     assertEquals(negotiation.get().getCreatedBy().getName(), "researcher");
+    assertFalse(requestRepository.existsById(REQUEST_UNASSIGNED));
   }
 
   @Test

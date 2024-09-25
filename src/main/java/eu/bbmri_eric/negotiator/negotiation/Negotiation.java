@@ -65,7 +65,7 @@ public class Negotiation extends AuditEntity {
 
   @NotNull
   @Column(columnDefinition = "TEXT")
-  private String humanReadable;
+  private String humanReadable = "";
 
   @ManyToMany
   @JoinTable(
@@ -74,7 +74,7 @@ public class Negotiation extends AuditEntity {
       inverseJoinColumns = @JoinColumn(name = "resource_id"))
   @Exclude
   @NotNull
-  private Set<Resource> resources;
+  private Set<Resource> resources = new HashSet<>();
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;

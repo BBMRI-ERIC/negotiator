@@ -16,7 +16,6 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
@@ -87,10 +86,8 @@ public class AttachmentRepositoriesTest {
     Negotiation negotiation =
         Negotiation.builder()
             .id(negotiationId)
-            .currentState(NegotiationState.SUBMITTED)
-            .publicPostsEnabled(false)
             .humanReadable("#1 Material Type: DNA")
-            .payload("{\"project\":{\"title\":\"negtitle\"} }")
+            .payload("{\"project\":{\"title\":\"title\"} }")
             .resources(Set.of(resource))
             .build();
     return negotiationRepository.save(negotiation);
