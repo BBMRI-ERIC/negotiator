@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -67,6 +69,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private ResourceRepository resourceRepository;
   @Autowired ApplicationEvents events;
+  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
 
   private void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
@@ -138,11 +141,15 @@ public class NegotiationLifecycleServiceImplTest {
 
   private NegotiationDTO saveNegotiation() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.findById(1L).orElseThrow(TestAbortedException::new);
+
     Request request =
         requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
     Negotiation negotiation =
         Negotiation.builder()
             .resources(new HashSet<>(request.getResources()))
+            .discoveryService(discoveryService)
             .humanReadable("#1 MaterialType: DNA")
             .payload(negotiationCreateDTO.getPayload().toString())
             .build();

@@ -119,6 +119,7 @@ public class ResourceRepositoryTest {
             .currentState(NegotiationState.SUBMITTED)
             .resources(Set.of(res1, res2))
             .humanReadable("#1 MaterialType: DNA")
+            .discoveryService(discoveryService)
             .publicPostsEnabled(false)
             .payload(payload)
             .build();

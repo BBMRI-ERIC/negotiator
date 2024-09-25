@@ -103,6 +103,7 @@ public class NotificationRepositoryTest {
             .resources(resources)
             .humanReadable("#1 Material Type: DNA")
             .publicPostsEnabled(false)
+            .discoveryService(discoveryService)
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);

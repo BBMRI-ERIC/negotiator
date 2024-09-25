@@ -1,5 +1,7 @@
 alter table negotiation
-add column human_readable text not null;
+add column human_readable text not null default '',
+add column discovery_service_id bigint not null default 1,
+add constraint fkey_discovery_service_id FOREIGN KEY (discovery_service_id) REFERENCES discovery_service(id);
 
 create table negotiation_resources_link (
     negotiation_id character varying(255) not null references negotiation(id),
@@ -8,8 +10,8 @@ create table negotiation_resources_link (
 );
 
 update negotiation
-set human_readable = (
-	select human_readable
+set (human_readable, discovery_service_id) = (
+	select human_readable, discovery_service_id
 	from request
 	where negotiation.id = request.negotiation_id
 );

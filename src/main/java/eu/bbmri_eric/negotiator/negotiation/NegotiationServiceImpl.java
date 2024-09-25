@@ -127,6 +127,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiation = modelMapper.map(negotiationBody, Negotiation.class);
     negotiation.setResources(new HashSet<>(request.getResources()));
     negotiation.setHumanReadable(request.getHumanReadable());
+    negotiation.setDiscoveryService(request.getDiscoveryService());
 
     Negotiation savedNegotiation;
     try {

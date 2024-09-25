@@ -58,26 +58,25 @@ values (4, 103),
        (8, 105),
        (9, 105);
 
-insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, human_readable, payload, private_posts_enabled, public_posts_enabled)
+insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, human_readable, payload, private_posts_enabled, public_posts_enabled, discovery_service_id)
 values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#1 Material Type: DNA',
         '{"project":{"title":"Biobanking project","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        true, true),
+        true, true, 1),
        ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-02', 108, 108, '#1 Material Type: DNA; #2 Diagnosis: C18.2',
         '{"project":{"title":"Interesting project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, true),
+        false, true, 1),
        ('negotiation-v2', '2023-04-12', 'ABANDONED', '2024-10-12', 108, 108, '#1 Diagnosis: C18.2',
         '{"project":{"title":"A Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, false),
+        false, false, 1),
        ('negotiation-3', '2024-02-24', 'IN_PROGRESS', '2024-02-24', 105, 105, '#1 Type: RD',
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        true, true),
+        true, true, 1),
        ('negotiation-4', '2024-01-10', 'ABANDONED', '2024-01-10', 105, 105, '#1 Type: Cohort',
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, false),
+        false, false, 1),
        ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108, '#1 Quality: ISO',
         '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, true);
-
+        false, true, 1);
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
 values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
