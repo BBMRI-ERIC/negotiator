@@ -59,6 +59,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     Organization org =
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     org.setName(organization.getName());
+    org.setExternalId(organization.getExternalId());
     Organization updatedOrganization = organizationRepository.save(org);
     return modelMapper.map(updatedOrganization, OrganizationDTO.class);
   }
