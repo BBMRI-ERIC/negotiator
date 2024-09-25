@@ -116,8 +116,8 @@ public class ResourceRepositoryTest {
 
     Negotiation negotiation =
         Negotiation.builder()
-            .currentState(NegotiationState.SUBMITTED)
             .resources(Set.of(res1, res2))
+            .currentState(NegotiationState.SUBMITTED)
             .humanReadable("#1 MaterialType: DNA")
             .discoveryService(discoveryService)
             .publicPostsEnabled(false)

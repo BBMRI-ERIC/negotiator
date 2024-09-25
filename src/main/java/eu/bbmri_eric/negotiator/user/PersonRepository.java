@@ -42,7 +42,7 @@ public interface PersonRepository
       value =
           "select exists ( "
               + "select nrl.resource_id "
-              + "from negotiation_resources_link nrl "
+              + "from negotiation_resource_link nrl "
               + "where nrl.negotiation_id = :negotiationId and "
               + "   nrl.resource_id in ( "
               + "       select rrl.resource_id "

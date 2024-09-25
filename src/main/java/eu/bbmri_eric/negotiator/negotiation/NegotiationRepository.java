@@ -41,7 +41,7 @@ public interface NegotiationRepository
           "SELECT EXISTS ("
               + "SELECT distinct(n.id) "
               + "FROM negotiation n "
-              + "    JOIN negotiation_resources_link rrl ON rrl.negotiation_id = n.id "
+              + "    JOIN negotiation_resource_link rrl ON rrl.negotiation_id = n.id "
               + "    JOIN resource rs ON rrl.resource_id = rs.id "
               + "    JOIN organization o ON rs.organization_id = o.id "
               + "WHERE n.id = :negotiationId and o.external_id = :organizationExternalId)",
@@ -52,7 +52,8 @@ public interface NegotiationRepository
       value =
           "SELECT distinct (n) "
               + "FROM Negotiation n "
-              + "JOIN n.resources rs "
+              + "JOIN n.resourcesLink rl "
+              + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId")
   Page<Negotiation> findAllForNetwork(Long networkId, Pageable pageable);
@@ -61,7 +62,8 @@ public interface NegotiationRepository
       value =
           "select count (distinct n.id) "
               + "FROM Negotiation n "
-              + "JOIN n.resources rs "
+              + "JOIN n.resourcesLink rl "
+              + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId")
   Integer countAllForNetwork(Long networkId);
@@ -70,7 +72,8 @@ public interface NegotiationRepository
       value =
           "select n.currentState, COUNT ( distinct n.id)"
               + "FROM Negotiation n "
-              + "JOIN n.resources rs "
+              + "JOIN n.resourcesLink rl "
+              + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId group by n.currentState")
   List<Object[]> countStatusDistribution(Long networkId);

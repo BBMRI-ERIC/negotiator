@@ -28,7 +28,7 @@ select
     o.external_id      as organizationExternalId,
     o.id               as organizationId
 from resource rs
-    join public.negotiation_resources_link nrl on rs.id = nrl.resource_id
+    join public.negotiation_resource_link nrl on rs.id = nrl.resource_id
     join public.organization o on o.id = rs.organization_id
     left join public.resource_state_per_negotiation rspn on rs.source_id = rspn.resource_id and nrl.negotiation_id = rspn.negotiation_id
 where

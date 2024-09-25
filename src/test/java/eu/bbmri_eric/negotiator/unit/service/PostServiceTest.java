@@ -153,8 +153,8 @@ public class PostServiceTest {
 
     negotiation =
         Negotiation.builder()
-            .id(NEG_1)
             .resources(Set.of(resource1, resource2))
+            .id(NEG_1)
             .humanReadable("#1 Material Type: DNA")
             .build();
     negotiation.setCreatedBy(researcher);

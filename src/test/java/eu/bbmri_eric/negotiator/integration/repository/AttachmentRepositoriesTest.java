@@ -85,11 +85,11 @@ public class AttachmentRepositoriesTest {
   private Negotiation createNegotiation(String negotiationId, Resource resource) {
     Negotiation negotiation =
         Negotiation.builder()
+            .resources(Set.of(resource))
             .id(negotiationId)
             .humanReadable("#1 Material Type: DNA")
             .payload("{\"project\":{\"title\":\"title\"}}")
             .discoveryService(discoveryService)
-            .resources(Set.of(resource))
             .build();
     return negotiationRepository.save(negotiation);
   }

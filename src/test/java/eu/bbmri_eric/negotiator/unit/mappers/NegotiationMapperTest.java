@@ -38,8 +38,8 @@ public class NegotiationMapperTest {
                 .build());
     Negotiation negotiation =
         Negotiation.builder()
-            .resources(resources)
             .humanReadable("#1 Material Type: DNA")
+            .resources(resources)
             .currentState(NegotiationState.SUBMITTED)
             .build();
     negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));

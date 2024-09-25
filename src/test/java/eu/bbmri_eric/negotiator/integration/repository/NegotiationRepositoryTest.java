@@ -159,8 +159,8 @@ public class NegotiationRepositoryTest {
 
     Negotiation negotiation =
         Negotiation.builder()
-            .currentState(NegotiationState.SUBMITTED)
             .resources(new HashSet<>(resources))
+            .currentState(NegotiationState.SUBMITTED)
             .publicPostsEnabled(false)
             .humanReadable("#1 Material Type: DNA")
             .discoveryService(discoveryService)
@@ -319,8 +319,8 @@ public class NegotiationRepositoryTest {
     resources.add(resource);
     Negotiation negotiation =
         Negotiation.builder()
-            .currentState(NegotiationState.SUBMITTED)
             .resources(resources)
+            .currentState(NegotiationState.SUBMITTED)
             .humanReadable("#1 Material Type: DNA")
             .discoveryService(discoveryService)
             .publicPostsEnabled(false)
@@ -336,8 +336,8 @@ public class NegotiationRepositoryTest {
     resources.add(resource);
     Negotiation negotiation =
         Negotiation.builder()
-            .currentState(NegotiationState.SUBMITTED)
             .resources(resources)
+            .currentState(NegotiationState.SUBMITTED)
             .humanReadable("everything")
             .discoveryService(discoveryService)
             .publicPostsEnabled(false)

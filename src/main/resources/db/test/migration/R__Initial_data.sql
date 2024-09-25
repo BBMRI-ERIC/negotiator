@@ -103,7 +103,7 @@ values ('request-1', 4),
        ('request-5', 5),
        ('request-5', 7);
 
-insert into negotiation_resources_link (negotiation_id, resource_id)
+insert into negotiation_resource_link (negotiation_id, resource_id)
 values ('negotiation-1', 4),
        ('negotiation-v2', 7),
        ('negotiation-3', 5),

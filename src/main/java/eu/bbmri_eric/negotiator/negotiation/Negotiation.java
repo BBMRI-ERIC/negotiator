@@ -22,8 +22,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
@@ -34,6 +32,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -71,14 +70,8 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
 
-  @ManyToMany
-  @JoinTable(
-      name = "negotiation_resources_link",
-      joinColumns = @JoinColumn(name = "negotiation_id"),
-      inverseJoinColumns = @JoinColumn(name = "resource_id"))
-  @Exclude
-  @NotNull
-  private Set<Resource> resources = new HashSet<>();
+  @OneToMany @Exclude @NotNull @Builder.Default
+  private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;
@@ -149,6 +142,16 @@ public class Negotiation extends AuditEntity {
     }
   }
 
+  public static CustomNegotiationBuilder builder() {
+    return new CustomNegotiationBuilder();
+  }
+
+  public Set<Resource> getResources() {
+    return getResourcesLink().stream()
+        .map(NegotiationResourceLink::getResource)
+        .collect(Collectors.toSet());
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -171,5 +174,35 @@ public class Negotiation extends AuditEntity {
         .filter(r -> r.getSourceId().equals(resourceId))
         .findFirst()
         .orElse(null);
+  }
+
+  public void setResources(Set<Resource> resources) {
+    resources.forEach(
+        resource -> this.resourcesLink.add(new NegotiationResourceLink(this, resource, null)));
+  }
+
+  public static class NegotiationBuilder {
+    public NegotiationBuilder resources(Set<Resource> resources) {
+      return this;
+    }
+  }
+
+  public static class CustomNegotiationBuilder extends NegotiationBuilder {
+    private Set<Resource> resources;
+
+    @Override
+    public CustomNegotiationBuilder resources(Set<Resource> resources) {
+      this.resources = resources;
+      return this;
+    }
+
+    @Override
+    public Negotiation build() {
+      Negotiation negotiation = super.build();
+      if (this.resources != null) {
+        negotiation.setResources(this.resources);
+      }
+      return negotiation;
+    }
   }
 }
