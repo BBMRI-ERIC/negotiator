@@ -114,6 +114,11 @@ public class Negotiation extends AuditEntity {
     this.lifecycleHistory.add(NegotiationLifecycleRecord.builder().changedTo(currentState).build());
   }
 
+  /**
+   * Gets the current state for a liked Resource.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   */
   public NegotiationResourceState getCurrentStateForResource(String resourceId) {
     return this.resourcesLink.stream()
         .filter(link -> link.getResource().getSourceId().equals(resourceId))
@@ -122,6 +127,12 @@ public class Negotiation extends AuditEntity {
         .getCurrentState();
   }
 
+  /**
+   * Sets the current state for a liked Resource.
+   *
+   * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @param state to be set.
+   */
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     NegotiationResourceLink link =
         this.resourcesLink.stream()
@@ -199,5 +210,4 @@ public class Negotiation extends AuditEntity {
       return this;
     }
   }
-
 }
