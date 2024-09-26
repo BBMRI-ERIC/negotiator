@@ -149,7 +149,7 @@ public class UserNotificationServiceTest {
     Negotiation updatedNegotiation = negotiationRepository.findById(negotiation.getId()).get();
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        updatedNegotiation.getCurrentStatePerResource().get("biobank:1:collection:2"));
+        updatedNegotiation.getCurrentStateForResource("biobank:1:collection:2"));
   }
 
   @Test
@@ -174,8 +174,7 @@ public class UserNotificationServiceTest {
         negotiationRepository
             .findById(negotiation.getId())
             .get()
-            .getCurrentStatePerResource()
-            .get(resourceWithoutReps.getSourceId()));
+            .getCurrentStateForResource(resourceWithoutReps.getSourceId()));
   }
 
   @Test

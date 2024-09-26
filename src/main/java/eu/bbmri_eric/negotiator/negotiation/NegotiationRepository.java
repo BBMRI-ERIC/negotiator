@@ -24,10 +24,12 @@ public interface NegotiationRepository
   List<Negotiation> findAllByCurrentState(NegotiationState state);
 
   @Query(
-      "SELECT n.currentStatePerResource "
-          + "FROM Negotiation n "
-          + "JOIN n.currentStatePerResource currentState "
-          + "WHERE n.id = :negotiationId AND KEY(currentState) = :resourceId")
+      """
+                  SELECT rl.currentState
+                  FROM Negotiation n
+                  JOIN n.resourcesLink rl
+                  JOIN rl.id.resource
+                  WHERE n.id = :negotiationId AND rl.id.resource.sourceId = :resourceId""")
   Optional<NegotiationResourceState> findNegotiationResourceStateById(
       String negotiationId, String resourceId);
 

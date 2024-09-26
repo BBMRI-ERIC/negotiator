@@ -10,10 +10,8 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,12 +20,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -87,17 +82,6 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
-  @ElementCollection
-  @CollectionTable(
-      name = "resource_state_per_negotiation",
-      joinColumns = {@JoinColumn(name = "negotiation_id", referencedColumnName = "id")})
-  @MapKeyColumn(name = "resource_id")
-  @Enumerated(EnumType.STRING)
-  @Column(name = "current_state")
-  @Setter(AccessLevel.NONE)
-  @Builder.Default
-  private Map<String, NegotiationResourceState> currentStatePerResource = new HashMap<>();
-
   @OneToMany(cascade = {CascadeType.ALL})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
@@ -127,8 +111,15 @@ public class Negotiation extends AuditEntity {
     this.lifecycleHistory.add(NegotiationLifecycleRecord.builder().changedTo(currentState).build());
   }
 
+  public NegotiationResourceState getCurrentStateForResource(String resourceId) {
+    return this.resourcesLink.stream()
+        .filter(link -> link.getResource().getSourceId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(IllegalArgumentException::new)
+        .getCurrentState();
+  }
+
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
-    currentStatePerResource.put(resourceId, state);
     this.resourcesLink.stream()
         .filter(link -> link.getResource().getSourceId().equals(resourceId))
         .findFirst()

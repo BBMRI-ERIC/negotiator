@@ -103,19 +103,14 @@ values ('request-1', 4),
        ('request-5', 5),
        ('request-5', 7);
 
-insert into negotiation_resource_link (negotiation_id, resource_id)
-values ('negotiation-1', 4),
-       ('negotiation-v2', 7),
-       ('negotiation-3', 5),
-       ('negotiation-4', 5),
-       ('negotiation-4', 7),
-       ('negotiation-5', 5),
-       ('negotiation-5', 7);
-
-insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
-values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
-       ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED'),
-       ('negotiation-3', 'biobank:1:collection:2', 'RESOURCE_UNAVAILABLE');
+insert into negotiation_resource_link (negotiation_id, resource_id, current_state)
+values ('negotiation-1', 4, 'SUBMITTED'),
+       ('negotiation-v2', 7, 'SUBMITTED'),
+       ('negotiation-3', 5, 'RESOURCE_UNAVAILABLE'),
+       ('negotiation-4', 5, null),
+       ('negotiation-4', 7, null),
+       ('negotiation-5', 5, null),
+       ('negotiation-5', 7, null);
 
 insert into post (id, creation_date, modified_date, text, created_by, modified_by, negotiation_id, organization_id,
                   type)

@@ -1372,7 +1372,7 @@ public class NegotiationControllerTests {
     JsonNode resourcesAsJson = response.get("_embedded").get("resources");
     for (JsonNode resourceAsJson : resourcesAsJson) {
       assertEquals(
-          negotiation.getCurrentStatePerResource().get(resourceAsJson.get("sourceId").asText()),
+          negotiation.getCurrentStateForResource(resourceAsJson.get("sourceId").asText()),
           NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
     }
   }

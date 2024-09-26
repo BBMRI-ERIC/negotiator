@@ -100,11 +100,9 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     return negotiation.getResources().stream()
         .filter(
             resource ->
-                negotiation
-                    .getCurrentStatePerResource()
-                    .getOrDefault(
-                        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED)
-                    .equals(NegotiationResourceState.SUBMITTED))
+                Objects.equals(
+                    negotiation.getCurrentStateForResource(resource.getSourceId()),
+                    NegotiationResourceState.SUBMITTED))
         .map(Resource::getRepresentatives)
         .flatMap(Set::stream)
         .collect(Collectors.toSet());
@@ -198,7 +196,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                     .formatted(
                         negotiation.getId(),
                         resource.getSourceId(),
-                        negotiation.getCurrentStatePerResource().get(resource.getSourceId())))
+                        negotiation.getCurrentStateForResource(resource.getSourceId())))
             .build());
   }
 

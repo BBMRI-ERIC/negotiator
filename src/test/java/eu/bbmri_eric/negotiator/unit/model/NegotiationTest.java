@@ -10,7 +10,6 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -57,11 +56,6 @@ public class NegotiationTest {
   }
 
   @Test
-  void getCurrentStatesPerResource_defaultConstructor_isNull() {
-    assertEquals(Map.of(), new Negotiation().getCurrentStatePerResource());
-  }
-
-  @Test
   void setResourceState_resourceNotLinked_throwsIllegalArg() {
     Negotiation negotiation = Negotiation.builder().build();
     assertThrows(
@@ -77,8 +71,7 @@ public class NegotiationTest {
     negotiation.addResource(resource);
     negotiation.setStateForResource("fancyId", NegotiationResourceState.SUBMITTED);
     assertEquals(
-        NegotiationResourceState.SUBMITTED,
-        negotiation.getCurrentStatePerResource().get("fancyId"));
+        NegotiationResourceState.SUBMITTED, negotiation.getCurrentStateForResource(("fancyId")));
   }
 
   @Test

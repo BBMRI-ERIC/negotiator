@@ -41,7 +41,6 @@ import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -211,22 +210,17 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void createNegotiation_statePerResource_isEmpty() throws IOException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    Map<String, NegotiationResourceState> statePerResource =
-        negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
-    assertTrue(statePerResource.isEmpty());
-  }
-
-  @Test
   @WithMockUser(roles = "ADMIN")
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    Map<String, NegotiationResourceState> states =
-        negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
-    assertTrue(states.containsKey("biobank:1:collection:2"));
-    assertNotEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
+    NegotiationResourceState state =
+        negotiationRepository
+            .findById(negotiationDTO.getId())
+            .get()
+            .getCurrentStateForResource("biobank:1:collection:2");
+    Assertions.assertNotNull(state);
+    assertNotEquals(NegotiationResourceState.SUBMITTED, state);
   }
 
   @Test
@@ -301,7 +295,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_notAuthorized_noChange() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
-        negotiation.getCurrentStatePerResource().get("biobank:1:collection:1"),
+        negotiation.getCurrentStateForResource("biobank:1:collection:1"),
         resourceLifecycleService.sendEvent(
             negotiation.getId(),
             "biobank:1:collection:1",
