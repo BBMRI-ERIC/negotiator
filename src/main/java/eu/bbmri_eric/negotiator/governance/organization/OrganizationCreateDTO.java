@@ -16,4 +16,5 @@ public class OrganizationCreateDTO {
 
   @NotNull private String name;
   @NotNull private String externalId;
+  private Boolean withdrawn;
 }

@@ -46,7 +46,8 @@ public class OrganizationRepositoryTest {
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
 
     Organization savedOrganization =
-        organizationRepository.saveAndFlush(new Organization(1L, "testorg", "testname", Set.of()));
+        organizationRepository.saveAndFlush(
+            new Organization(1L, "testorg", "testname", Set.of(), false));
 
     Resource resource =
         resourceRepository.saveAndFlush(

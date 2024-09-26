@@ -164,4 +164,38 @@ public class OrganizationControllerTest {
     Optional<Organization> updatedOrganization3 = organizationRepository.findById(id1);
     assertEquals(updatedOrganizationDTO3.getName(), updatedOrganization3.get().getName());
   }
+
+  @Test
+  @WithUserDetails("admin")
+  void addOrganization_isWithdrawn() throws Exception {
+    OrganizationCreateDTO organizationDTO =
+        OrganizationCreateDTO.builder()
+            .externalId("test_organization_1")
+            .name("Test Organization 1")
+            .withdrawn(true)
+            .build();
+
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(organizationDTO));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(ORGANIZATIONS_ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.organizations[0].name", is(organizationDTO.getName())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].externalId", is(organizationDTO.getExternalId())))
+            .andExpect(content().contentType("application/hal+json"))
+            .andReturn();
+    long id1 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.organizations[0].id", Long.class);
+    Optional<Organization> organization = organizationRepository.findById(id1);
+    assert organization.isPresent();
+    assertEquals(organizationDTO.getName(), organization.get().getName());
+    assertEquals(organizationDTO.getWithdrawn(), organization.get().getWithdrawn());
+  }
 }

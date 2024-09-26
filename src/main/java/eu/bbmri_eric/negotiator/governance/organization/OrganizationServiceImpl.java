@@ -45,7 +45,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     ArrayList<Organization> organizations = new ArrayList<Organization>();
     for (OrganizationCreateDTO org : request) {
       Organization organization =
-          Organization.builder().name(org.getName()).externalId(org.getExternalId()).build();
+          Organization.builder()
+              .name(org.getName())
+              .externalId(org.getExternalId())
+              .withdrawn(org.getWithdrawn())
+              .build();
       organizations.add(organization);
     }
     List<Organization> savedOrganizations = organizationRepository.saveAll(organizations);

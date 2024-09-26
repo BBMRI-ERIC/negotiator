@@ -48,6 +48,8 @@ public class Organization extends AuditEntity {
   @OneToMany(mappedBy = "organization")
   private Set<Resource> resources = new HashSet<>();
 
+  private Boolean withdrawn;
+
   public Organization(String externalId, String name) {
     this.externalId = externalId;
     this.name = name;
