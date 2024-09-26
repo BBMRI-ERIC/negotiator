@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -61,12 +62,23 @@ public class NegotiationTest {
   }
 
   @Test
-  void setResourcesStates_oneResource_Ok() {
+  void setResourceState_resourceNotLinked_throwsIllegalArg() {
     Negotiation negotiation = Negotiation.builder().build();
-    negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED));
+  }
+
+  @Test
+  void setResourceState_resourceLinked_ok() {
+    Negotiation negotiation = Negotiation.builder().build();
+    Resource resource = new Resource();
+    resource.setSourceId("fancyId");
+    negotiation.addResource(resource);
+    negotiation.setStateForResource("fancyId", NegotiationResourceState.SUBMITTED);
     assertEquals(
         NegotiationResourceState.SUBMITTED,
-        negotiation.getCurrentStatePerResource().get("collection:1"));
+        negotiation.getCurrentStatePerResource().get("fancyId"));
   }
 
   @Test

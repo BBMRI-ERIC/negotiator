@@ -115,8 +115,8 @@ public class ResourceServiceImpl implements ResourceService {
   private void updateResources(String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
     Negotiation negotiation = getNegotiation(negotiationId);
     Set<Resource> resources = getResources(negotiationId, updateResourcesDTO, negotiation);
-    initializeStateForNewResources(negotiation, resources, updateResourcesDTO.getState());
-    persistChanges(negotiation, resources);
+    // initializeStateForNewResources(negotiation, resources, updateResourcesDTO.getState());
+    persistChanges(negotiation, resources, updateResourcesDTO.getState());
   }
 
   private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
@@ -129,9 +129,11 @@ public class ResourceServiceImpl implements ResourceService {
         .toList();
   }
 
-  private void persistChanges(Negotiation negotiation, Set<Resource> resources) {
+  private void persistChanges(
+      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {
     resources.addAll(negotiation.getResources());
     negotiation.setResources(resources);
+    initializeStateForNewResources(negotiation, resources, state);
     negotiationRepository.saveAndFlush(negotiation);
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));

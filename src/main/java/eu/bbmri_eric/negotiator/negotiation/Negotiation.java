@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.common.AuditEntity;
@@ -25,7 +24,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,19 +37,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString.Exclude;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+/** A Core Entity representing a Negotiation between multiple parties about access to resources. */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-@Table(name = "negotiation")
 @Convert(converter = JsonType.class, attributeName = "json")
 public class Negotiation extends AuditEntity {
 
@@ -71,7 +68,6 @@ public class Negotiation extends AuditEntity {
   private String humanReadable = "";
 
   @OneToMany(mappedBy = "id.negotiation", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-  @Exclude
   @NotNull
   @Builder.Default
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
@@ -117,9 +113,7 @@ public class Negotiation extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "discovery_service_id")
-  @JsonIgnore
   @NotNull
-  @Exclude
   private DiscoveryService discoveryService;
 
   private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
@@ -135,6 +129,11 @@ public class Negotiation extends AuditEntity {
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
     currentStatePerResource.put(resourceId, state);
+    this.resourcesLink.stream()
+        .filter(link -> link.getResource().getSourceId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(IllegalArgumentException::new)
+        .setCurrentState(state);
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder()
@@ -155,6 +154,23 @@ public class Negotiation extends AuditEntity {
         .collect(Collectors.toSet());
   }
 
+  private Resource lookupResource(Set<Resource> resources, String resourceId) {
+    return resources.stream()
+        .filter(r -> r.getSourceId().equals(resourceId))
+        .findFirst()
+        .orElse(null);
+  }
+
+  public void setResources(Set<Resource> resources) {
+    this.resourcesLink.clear();
+    resources.forEach(
+        resource -> this.resourcesLink.add(new NegotiationResourceLink(this, resource, null)));
+  }
+
+  public void addResource(Resource resource) {
+    this.resourcesLink.add(new NegotiationResourceLink(this, resource, null));
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -170,24 +186,6 @@ public class Negotiation extends AuditEntity {
   @Override
   public int hashCode() {
     return Objects.hash(getId());
-  }
-
-  @Override
-  public String toString() {
-    return "Negotiation{" + "id='" + id + '\'' + '}';
-  }
-
-  private Resource lookupResource(Set<Resource> resources, String resourceId) {
-    return resources.stream()
-        .filter(r -> r.getSourceId().equals(resourceId))
-        .findFirst()
-        .orElse(null);
-  }
-
-  public void setResources(Set<Resource> resources) {
-    this.resourcesLink.clear();
-    resources.forEach(
-        resource -> this.resourcesLink.add(new NegotiationResourceLink(this, resource, null)));
   }
 
   public static class NegotiationBuilder {
