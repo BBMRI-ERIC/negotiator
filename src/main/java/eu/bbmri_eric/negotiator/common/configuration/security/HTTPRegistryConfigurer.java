@@ -54,6 +54,8 @@ public class HTTPRegistryConfigurer {
         .hasRole("ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/discovery-services/**"))
         .hasRole("ADMIN")
+        .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/v3/discovery-services/**"))
+        .hasRole("ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/discovery-services/**"))
         .authenticated()
         .requestMatchers(mvc.pattern("/v3/notifications"))

@@ -13,8 +13,13 @@ import eu.bbmri_eric.negotiator.discovery.DiscoverServiceController;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.discovery.dto.DiscoveryServiceCreateDTO;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSynchronizationJob;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSynchronizationJobRepository;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoveryServiceSyncronizationJobStatus;
+import eu.bbmri_eric.negotiator.discovery.synchronization.DiscoverySyncJobServiceUpdateDTO;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +45,7 @@ public class DiscoveryServiceControllerTests {
   @Autowired private DiscoverServiceController controller;
   @Autowired private DiscoveryServiceRepository repository;
   @Autowired private ModelMapper modelMapper;
+  @Autowired DiscoveryServiceSynchronizationJobRepository jobRepository;
 
   @BeforeEach
   public void before() {
@@ -222,31 +228,60 @@ public class DiscoveryServiceControllerTests {
 
   @Test
   @WithUserDetails("admin")
-  public void testCreateDiscoveryServiceSynchronizationJJob() throws Exception {
+  public void test_CreateDiscoveryServiceSynchronizationJJob_ok() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-job")
+            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-jobs")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated());
   }
 
   @Test
   @WithUserDetails("researcher")
-  public void testCreateDiscoveryServiceSynchronizationJobUnauthorized() throws Exception {
+  public void test_CreateDiscoveryServiceSynchronizationJob_Unauthorized() throws Exception {
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-job")
+            MockMvcRequestBuilders.post("/v3/discovery-services/1/sync-jobs")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden());
   }
 
   @Test
   @WithUserDetails("admin")
-  public void testCreateDiscoveryServiceSynchronizationJJobUnknownService() throws Exception {
+  public void test_CreateDiscoveryServiceSynchronizationJJob_UnknownService() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/v3/discovery-services/999/sync-job")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void test_UpdateSynchronizationJob_ok() throws Exception {
+    DiscoveryServiceSynchronizationJob job =
+        DiscoveryServiceSynchronizationJob.builder()
+            .status(DiscoveryServiceSyncronizationJobStatus.SUBMITTED)
+            .creationDate(LocalDateTime.now())
+            .modifiedDate(LocalDateTime.now())
+            .service(repository.findById(1L).get())
+            .build();
+    jobRepository.save(job);
+    String jobId = jobRepository.findAll().get(0).getId();
+    DiscoverySyncJobServiceUpdateDTO jobUpdateDTO =
+        DiscoverySyncJobServiceUpdateDTO.builder()
+            .jobStatus(DiscoveryServiceSyncronizationJobStatus.COMPLETED)
+            .build();
+    String requestBody = TestUtils.jsonFromRequest(jobUpdateDTO);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/discovery-services/1/sync-jobs/" + jobId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk());
+
+    DiscoveryServiceSynchronizationJob updatedJob = jobRepository.findById(jobId).get();
+    assertEquals(updatedJob.getStatus(), DiscoveryServiceSyncronizationJobStatus.COMPLETED);
   }
 }
