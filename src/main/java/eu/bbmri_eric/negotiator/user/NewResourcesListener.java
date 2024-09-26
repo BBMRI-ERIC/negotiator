@@ -2,22 +2,24 @@ package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
-import lombok.NonNull;
-import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.annotation.Async;
+import jakarta.transaction.Transactional;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
-public class NewResourcesListener implements ApplicationListener<NewResourcesAddedEvent> {
+public class NewResourcesListener {
   private final UserNotificationService notificationService;
 
   public NewResourcesListener(UserNotificationService notificationService) {
     this.notificationService = notificationService;
   }
 
-  @Override
-  @Async
-  public void onApplicationEvent(@NonNull NewResourcesAddedEvent event) {
+  @EventListener(value = NewResourcesAddedEvent.class)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional(Transactional.TxType.REQUIRES_NEW)
+  public void onApplicationEvent(NewResourcesAddedEvent event) {
     notificationService.notifyRepresentativesAboutNewNegotiation(event.getNegotiationId());
   }
 }
