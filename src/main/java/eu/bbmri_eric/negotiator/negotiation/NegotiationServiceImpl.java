@@ -90,9 +90,9 @@ public class NegotiationServiceImpl implements NegotiationService {
         negotiationId, organizationExternalId);
   }
 
-  private Request findRequests(String requestsId) {
+  private Request getRequest(String requestId) {
     return requestRepository
-        .findById(requestsId)
+        .findById(requestId)
         .orElseThrow(
             () -> new WrongRequestException("One or more of the specified requests do not exist"));
   }
@@ -113,7 +113,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   /**
-   * Creates a Negotiation into the repository.
+   * Creates a Negotiation.
    *
    * @param negotiationBody the NegotiationCreateDTO DTO sent from to the endpoint
    * @param creatorId the ID of the Person that creates the Negotiation (i.e., the authenticated
@@ -121,36 +121,39 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @return the created Negotiation entity
    */
   public NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) {
-    log.debug("Getting request entities");
-    Request request = findRequests(negotiationBody.getRequest());
+    Request request = getRequest(negotiationBody.getRequest());
+    Negotiation negotiation = buildNegotiation(negotiationBody, request);
+    negotiation = persistNegotiation(negotiationBody, negotiation);
+    requestRepository.delete(request);
+    userNotificationService.notifyAdmins(negotiation);
+    return modelMapper.map(negotiation, NegotiationDTO.class);
+  }
 
+  private Negotiation persistNegotiation(NegotiationCreateDTO negotiationBody, Negotiation negotiation) {
+    try {
+      negotiation = negotiationRepository.save(negotiation);
+    } catch (DataException | DataIntegrityViolationException ex) {
+      log.error("Error while saving the Negotiation into db. Some db constraint violated", ex);
+      throw new EntityNotStorableException();
+    }
+    if (negotiationBody.getAttachments() != null) {
+      linkAttachments(negotiationBody, negotiation);
+    }
+    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
+    return negotiation;
+  }
+
+  private void linkAttachments(NegotiationCreateDTO negotiationBody, Negotiation negotiation) {
+    List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
+    negotiation.setAttachments(new HashSet<>(attachments));
+  }
+
+  private Negotiation buildNegotiation(NegotiationCreateDTO negotiationBody, Request request) {
     Negotiation negotiation = modelMapper.map(negotiationBody, Negotiation.class);
     negotiation.setResources(new HashSet<>(request.getResources()));
     negotiation.setHumanReadable(request.getHumanReadable());
     negotiation.setDiscoveryService(request.getDiscoveryService());
-
-    Negotiation savedNegotiation;
-    try {
-      // Finally, save the negotiation. NB: it also cascades operations for other Requests
-      savedNegotiation = negotiationRepository.save(negotiation);
-    } catch (DataException | DataIntegrityViolationException ex) {
-      log.error("Error while saving the Negotiation into db. Some db constraint violated");
-      log.error(ex);
-      throw new EntityNotStorableException();
-    }
-
-    if (negotiationBody.getAttachments() != null) {
-      List<Attachment> attachments = findAttachments(negotiationBody.getAttachments());
-      negotiation.setAttachments(new HashSet<>(attachments));
-      attachments.forEach(attachment -> attachment.setNegotiation(negotiation));
-    }
-    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
-
-    requestRepository.delete(request);
-
-    // TODO: Add call to send email.
-    userNotificationService.notifyAdmins(negotiation);
-    return modelMapper.map(savedNegotiation, NegotiationDTO.class);
+    return negotiation;
   }
 
   private NegotiationDTO update(

@@ -56,7 +56,8 @@ public class Negotiation extends AuditEntity {
   @OneToMany(
       mappedBy = "negotiation",
       cascade = {CascadeType.MERGE})
-  private Set<Attachment> attachments;
+  @Builder.Default
+  private Set<Attachment> attachments = new HashSet<>();
 
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
@@ -82,6 +83,13 @@ public class Negotiation extends AuditEntity {
   @Setter(AccessLevel.NONE)
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
+
+  public void setAttachments(Set<Attachment> attachments) {
+    if (attachments != null) {
+      attachments.forEach(attachment -> attachment.setNegotiation(this));
+      this.attachments = attachments;
+    }
+  }
 
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
