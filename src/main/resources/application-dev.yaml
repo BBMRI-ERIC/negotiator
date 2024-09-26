@@ -5,7 +5,6 @@ spring:
     username: "user"
     password: "pass"
   datasource:
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     url: jdbc:tc:postgres:///negotiator
     username: negotiator
     password: negotiator
@@ -14,22 +13,7 @@ spring:
     multipart:
       max-file-size: 2MB
       max-request-size: 2MB
-  sql:
-    init:
-      mode: always
-      platform: postgres
-      continue-on-error: true
-  jpa:
-    hibernate:
-      ddl-auto: none
-    defer-datasource-initialization: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   flyway:
-    user: negotiator
-    password: negotiator
-    url: jdbc:tc:postgresql:///negotiator
     locations: classpath:db/migration/,db/dev/migration
   jackson:
     date-format: "yyyy-MM-dd"
