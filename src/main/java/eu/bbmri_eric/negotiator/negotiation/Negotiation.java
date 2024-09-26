@@ -62,7 +62,9 @@ public class Negotiation extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
 
-  @OneToMany(mappedBy = "id.negotiation", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @OneToMany(
+      mappedBy = "id.negotiation",
+      cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @NotNull
   @Builder.Default
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
@@ -82,13 +84,13 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState = NegotiationState.SUBMITTED;
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
   @Builder.Default
   private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
   @Builder.Default
@@ -99,12 +101,6 @@ public class Negotiation extends AuditEntity {
   @JoinColumn(name = "discovery_service_id")
   @NotNull
   private DiscoveryService discoveryService;
-
-  private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
-    Set<NegotiationLifecycleRecord> history = new HashSet<>();
-    history.add(NegotiationLifecycleRecord.builder().changedTo(NegotiationState.SUBMITTED).build());
-    return history;
-  }
 
   public void setCurrentState(NegotiationState negotiationState) {
     this.currentState = negotiationState;
@@ -120,23 +116,13 @@ public class Negotiation extends AuditEntity {
   }
 
   public void setStateForResource(String resourceId, NegotiationResourceState state) {
-    this.resourcesLink.stream()
-        .filter(link -> link.getResource().getSourceId().equals(resourceId))
-        .findFirst()
-        .orElseThrow(IllegalArgumentException::new)
-        .setCurrentState(state);
-    if (!state.equals(NegotiationResourceState.SUBMITTED)) {
-      NegotiationResourceLifecycleRecord record =
-          NegotiationResourceLifecycleRecord.builder()
-              .changedTo(state)
-              .resource(lookupResource(getResources(), resourceId))
-              .build();
-      this.negotiationResourceLifecycleRecords.add(record);
-    }
-  }
-
-  public static CustomNegotiationBuilder builder() {
-    return new CustomNegotiationBuilder();
+    NegotiationResourceLink link =
+        this.resourcesLink.stream()
+            .filter(resourceLink -> resourceLink.getResource().getSourceId().equals(resourceId))
+            .findFirst()
+            .orElseThrow(IllegalArgumentException::new);
+    link.setCurrentState(state);
+    buildResourceStateChangeRecord(link.getResource(), state);
   }
 
   public Set<Resource> getResources() {
@@ -145,20 +131,43 @@ public class Negotiation extends AuditEntity {
         .collect(Collectors.toSet());
   }
 
-  private Resource lookupResource(Set<Resource> resources, String resourceId) {
-    return resources.stream()
-        .filter(r -> r.getSourceId().equals(resourceId))
-        .findFirst()
-        .orElse(null);
-  }
-
+  /**
+   * Set all the resources linked to the Negotiation. This operation will also clear their
+   * state.Consider using {@link
+   * #addResource(eu.bbmri_eric.negotiator.governance.resource.Resource)}
+   *
+   * @param resources to be linked.
+   */
   public void setResources(Set<Resource> resources) {
     this.resourcesLink.clear();
     resources.forEach(this::addResource);
   }
 
+  /**
+   * Link a resource to the Negotiation with null state.
+   *
+   * @param resource to be linked.
+   */
   public void addResource(Resource resource) {
     this.resourcesLink.add(new NegotiationResourceLink(this, resource, null));
+  }
+
+  private void buildResourceStateChangeRecord(Resource resource, NegotiationResourceState state) {
+    if (!state.equals(NegotiationResourceState.SUBMITTED)) {
+      NegotiationResourceLifecycleRecord record =
+          NegotiationResourceLifecycleRecord.builder().changedTo(state).resource(resource).build();
+      this.negotiationResourceLifecycleRecords.add(record);
+    }
+  }
+
+  private static Set<NegotiationLifecycleRecord> creteInitialHistory() {
+    Set<NegotiationLifecycleRecord> history = new HashSet<>();
+    history.add(NegotiationLifecycleRecord.builder().changedTo(NegotiationState.SUBMITTED).build());
+    return history;
+  }
+
+  public static CustomNegotiationBuilder builder() {
+    return new CustomNegotiationBuilder();
   }
 
   @Override
