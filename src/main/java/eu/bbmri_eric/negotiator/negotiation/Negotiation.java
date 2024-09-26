@@ -200,22 +200,4 @@ public class Negotiation extends AuditEntity {
     }
   }
 
-  public static class CustomNegotiationBuilder extends NegotiationBuilder {
-    private Set<Resource> resources;
-
-    @Override
-    public CustomNegotiationBuilder resources(Set<Resource> resources) {
-      this.resources = resources;
-      return this;
-    }
-
-    @Override
-    public Negotiation build() {
-      Negotiation negotiation = super.build();
-      if (this.resources != null) {
-        negotiation.setResources(this.resources);
-      }
-      return negotiation;
-    }
-  }
 }
