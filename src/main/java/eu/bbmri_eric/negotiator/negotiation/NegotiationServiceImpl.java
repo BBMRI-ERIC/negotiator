@@ -129,7 +129,8 @@ public class NegotiationServiceImpl implements NegotiationService {
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 
-  private Negotiation persistNegotiation(NegotiationCreateDTO negotiationBody, Negotiation negotiation) {
+  private Negotiation persistNegotiation(
+      NegotiationCreateDTO negotiationBody, Negotiation negotiation) {
     try {
       negotiation = negotiationRepository.save(negotiation);
     } catch (DataException | DataIntegrityViolationException ex) {
