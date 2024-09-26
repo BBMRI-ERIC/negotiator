@@ -154,8 +154,7 @@ public class Negotiation extends AuditEntity {
 
   public void setResources(Set<Resource> resources) {
     this.resourcesLink.clear();
-    resources.forEach(
-        resource -> this.resourcesLink.add(new NegotiationResourceLink(this, resource, null)));
+    resources.forEach(this::addResource);
   }
 
   public void addResource(Resource resource) {

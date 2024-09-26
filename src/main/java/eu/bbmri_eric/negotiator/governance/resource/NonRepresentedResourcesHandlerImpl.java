@@ -30,7 +30,7 @@ public class NonRepresentedResourcesHandlerImpl implements NonRepresentedResourc
   public void updateResourceInOngoingNegotiations(Long resourceId, String sourceId) {
     for (Negotiation negotiation :
         negotiationRepository.findAllByCurrentState(NegotiationState.IN_PROGRESS)) {
-      NegotiationResourceState state = null;
+      NegotiationResourceState state;
       try {
         state = negotiation.getCurrentStateForResource(sourceId);
       } catch (IllegalArgumentException e) {
