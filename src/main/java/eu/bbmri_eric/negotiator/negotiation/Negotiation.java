@@ -58,7 +58,6 @@ public class Negotiation extends AuditEntity {
       cascade = {CascadeType.MERGE})
   private Set<Attachment> attachments;
 
-  @NotNull
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
 

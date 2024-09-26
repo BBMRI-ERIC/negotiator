@@ -16,10 +16,7 @@ set (human_readable, discovery_service_id) = (select human_readable, discovery_s
                                               from request
                                               where negotiation.id = request.negotiation_id);
 
-alter table negotiation
-    alter column human_readable set not null;
-alter table negotiation
-    alter column discovery_service_id set not null;
+alter table negotiation alter column discovery_service_id set not null;
 
 insert into negotiation_resource_link (negotiation_id, resource_id, current_state)
 select r.negotiation_id, rrl.resource_id, rspn.current_state
