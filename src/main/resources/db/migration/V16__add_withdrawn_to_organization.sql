@@ -1,0 +1,1 @@
+  ALTER TABLE organization ADD withdrawn boolean default false;
