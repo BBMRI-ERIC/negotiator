@@ -42,14 +42,6 @@ public class RequestModelsMapper {
         mapper ->
             mapper.using(requestToRedirectUrl).map(Request::getId, RequestDTO::setRedirectUrl));
 
-    Converter<Negotiation, String> negotiationToNegotiationId =
-        q -> convertNegotiationToNegotiationId(q.getSource());
-    typeMap.addMappings(
-        mapper ->
-            mapper
-                .using(negotiationToNegotiationId)
-                .map(Request::getNegotiation, RequestDTO::setNegotiationId));
-
     ///////////////////////////////////////////
     // Mapper from v2 Request to V3 Request
     TypeMap<QueryCreateV2DTO, RequestCreateDTO> v2ToV3Map =

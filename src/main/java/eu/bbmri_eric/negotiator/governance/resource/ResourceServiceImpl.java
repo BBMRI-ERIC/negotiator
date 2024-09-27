@@ -12,7 +12,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
@@ -116,8 +115,7 @@ public class ResourceServiceImpl implements ResourceService {
   private void updateResources(String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
     Negotiation negotiation = getNegotiation(negotiationId);
     Set<Resource> resources = getResources(negotiationId, updateResourcesDTO, negotiation);
-    initializeStateForNewResources(negotiation, resources, updateResourcesDTO.getState());
-    persistChanges(negotiation, resources);
+    persistChanges(negotiation, resources, updateResourcesDTO.getState());
   }
 
   private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
@@ -130,12 +128,12 @@ public class ResourceServiceImpl implements ResourceService {
         .toList();
   }
 
-  private void persistChanges(Negotiation negotiation, Set<Resource> resources) {
-    Request request = negotiation.getRequests().iterator().next();
-    negotiationRepository.saveAndFlush(negotiation);
+  private void persistChanges(
+      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {
     resources.addAll(negotiation.getResources());
-    request.setResources(resources);
-    requestRepository.saveAndFlush(request);
+    negotiation.setResources(resources);
+    initializeStateForNewResources(negotiation, resources, state);
+    negotiationRepository.saveAndFlush(negotiation);
     if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
     }
@@ -167,19 +165,9 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private Negotiation getNegotiation(String negotiationId) {
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    return negotiation;
-  }
-
-  private Request getRequest(String negotiationId) {
-    Request request =
-        requestRepository
-            .findByNegotiation_Id(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    return request;
+    return negotiationRepository
+        .findById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private boolean userIsntAuthorized(String negotiationId, Long userId) {

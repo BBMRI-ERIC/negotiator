@@ -16,7 +16,6 @@ import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.notification.UserNotificationServiceImpl;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
@@ -152,9 +151,12 @@ public class PostServiceTest {
     organization1.setResources(Set.of(resource1));
     organization2.setResources(Set.of(resource2));
 
-    Request request = Request.builder().resources(Set.of(resource1, resource2)).build();
-
-    negotiation = Negotiation.builder().id(NEG_1).requests(Set.of(request)).build();
+    negotiation =
+        Negotiation.builder()
+            .resources(Set.of(resource1, resource2))
+            .id(NEG_1)
+            .humanReadable("#1 Material Type: DNA")
+            .build();
     negotiation.setCreatedBy(researcher);
 
     publicPost1 =

@@ -12,11 +12,9 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceViewDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.util.List;
 import java.util.Set;
@@ -26,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @RepositoryTest
 public class ResourceRepositoryTest {
-
-  @Autowired PersonRepository personRepository;
 
   @Autowired RequestRepository requestRepository;
   @Autowired NegotiationRepository negotiationRepository;
@@ -40,22 +36,22 @@ public class ResourceRepositoryTest {
 
   String payload =
       """
-                      {
-                  "project": {
-                  "title": "Title",
-                  "description": "Description"
-                  },
-                   "samples": {
-                     "sample-type": "DNA",
-                     "num-of-subjects": 10,
-                     "num-of-samples": 20,
-                     "volume-per-sample": 5
-                   },
-                   "ethics-vote": {
-                     "ethics-vote": "My ethic vote"
-                   }
-                  }
-                  """;
+        {
+        "project": {
+        "title": "Title",
+        "description": "Description"
+        },
+         "samples": {
+           "sample-type": "DNA",
+           "num-of-subjects": 10,
+           "num-of-samples": 20,
+           "volume-per-sample": 5
+         },
+         "ethics-vote": {
+           "ethics-vote": "My ethic vote"
+         }
+        }
+        """;
   private DiscoveryService discoveryService;
 
   @BeforeEach
@@ -118,23 +114,15 @@ public class ResourceRepositoryTest {
                 .name("test")
                 .build());
 
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(Set.of(res1, res2))
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-
     Negotiation negotiation =
         Negotiation.builder()
+            .resources(Set.of(res1, res2))
             .currentState(NegotiationState.SUBMITTED)
-            .requests(Set.of(request))
+            .humanReadable("#1 MaterialType: DNA")
+            .discoveryService(discoveryService)
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
-    request.setNegotiation(negotiation);
     negotiation.setStateForResource(res1.getSourceId(), NegotiationResourceState.SUBMITTED);
     negotiation.setStateForResource(
         res2.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);

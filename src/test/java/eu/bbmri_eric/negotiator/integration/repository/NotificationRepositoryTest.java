@@ -99,13 +99,14 @@ public class NotificationRepositoryTest {
     requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
+            .resources(resources)
             .currentState(NegotiationState.SUBMITTED)
-            .requests(requests)
+            .humanReadable("#1 Material Type: DNA")
             .publicPostsEnabled(false)
+            .discoveryService(discoveryService)
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
     return negotiation;
   }

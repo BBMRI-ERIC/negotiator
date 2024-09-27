@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,9 +24,9 @@ public class NegotiationDTO {
 
   @NotNull private String id;
   private UserResponseModel author;
-  private Set<RequestMinimalDTO> requests;
   @NotNull private JsonNode payload;
   @NotNull private String status;
+  @NotNull private String humanReadable;
   @NotNull private boolean publicPostsEnabled;
   @NotNull private boolean privatePostsEnabled;
   @NotNull private LocalDateTime creationDate;

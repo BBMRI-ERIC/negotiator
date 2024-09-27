@@ -58,40 +58,39 @@ values (4, 103),
        (8, 105),
        (9, 105);
 
-insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, payload, private_posts_enabled, public_posts_enabled)
-values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108,
+insert into negotiation (id, creation_date, current_state, modified_date, created_by, modified_by, human_readable, payload, private_posts_enabled, public_posts_enabled, discovery_service_id)
+values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#1 Material Type: DNA',
         '{"project":{"title":"Biobanking project","description":"desc"},"samples":{"sample-type":"DNA","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        true, true),
-       ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-02', 108, 108,
+        true, true, 1),
+       ('negotiation-2', '2024-03-12', 'SUBMITTED', '2024-04-02', 108, 108, '#1 Material Type: DNA; #2 Diagnosis: C18.2',
         '{"project":{"title":"Interesting project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, true),
-       ('negotiation-v2', '2023-04-12', 'ABANDONED', '2024-10-12', 108, 108,
+        false, true, 1),
+       ('negotiation-v2', '2023-04-12', 'ABANDONED', '2024-10-12', 108, 108, '#1 Diagnosis: C18.2',
         '{"project":{"title":"A Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, false),
-       ('negotiation-3', '2024-02-24', 'IN_PROGRESS', '2024-02-24', 105, 105,
+        false, false, 1),
+       ('negotiation-3', '2024-02-24', 'IN_PROGRESS', '2024-02-24', 105, 105, '#1 Type: RD',
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        true, true),
-       ('negotiation-4', '2024-01-10', 'ABANDONED', '2024-01-10', 105, 105,
+        true, true, 1),
+       ('negotiation-4', '2024-01-10', 'ABANDONED', '2024-01-10', 105, 105, '#1 Type: Cohort',
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, false),
-       ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108,
+        false, false, 1),
+       ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108, '#1 Quality: ISO',
         '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
-        false, true);
-
+        false, true, 1);
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
 values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
        (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
 
-insert into request (id, url, human_readable, discovery_service_id, negotiation_id)
-values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1, 'negotiation-1'),
-       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1, null),
-       ('request-5', 'http://discoveryservice.dev', '#1: DNA Samples', 1, 'negotiation-5'),
-       ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-v2'),
-       ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-3'),
-       ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1, 'negotiation-4'),
-       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1, null);
+insert into request (id, url, human_readable, discovery_service_id)
+values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
+       ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1),
+       ('request-5', 'http://discoveryservice.dev', '#1: DNA Samples', 1),
+       ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1);
 
 insert into request_resources_link (request_id, resource_id)
 values ('request-1', 4),
@@ -102,13 +101,16 @@ values ('request-1', 4),
        ('request-4', 5),
        ('request-4', 7),
        ('request-5', 5),
-       ('request-5', 7),
-       ('request-unassigned', 7);
+       ('request-5', 7);
 
-insert into resource_state_per_negotiation (negotiation_id, resource_id, current_state)
-values ('negotiation-1', 'biobank:1:collection:1', 'SUBMITTED'),
-       ('negotiation-v2', 'biobank:3:collection:1', 'SUBMITTED'),
-       ('negotiation-3', 'biobank:1:collection:2', 'RESOURCE_UNAVAILABLE');
+insert into negotiation_resource_link (negotiation_id, resource_id, current_state)
+values ('negotiation-1', 4, 'SUBMITTED'),
+       ('negotiation-v2', 7, 'SUBMITTED'),
+       ('negotiation-3', 5, 'RESOURCE_UNAVAILABLE'),
+       ('negotiation-4', 5, null),
+       ('negotiation-4', 7, null),
+       ('negotiation-5', 5, null),
+       ('negotiation-5', 7, null);
 
 insert into post (id, creation_date, modified_date, text, created_by, modified_by, negotiation_id, organization_id,
                   type)

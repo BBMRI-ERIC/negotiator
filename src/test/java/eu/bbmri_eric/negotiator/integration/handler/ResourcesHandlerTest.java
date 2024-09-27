@@ -25,6 +25,7 @@ public class ResourcesHandlerTest {
   @Transactional
   void updateState_1negotiation1Resource_updated() {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    assertEquals("negotiation-1", negotiation.getId());
     assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
     Resource resource = negotiation.getResources().iterator().next();
     negotiation.setStateForResource(
@@ -32,7 +33,7 @@ public class ResourcesHandlerTest {
     handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        negotiation.getCurrentStatePerResource().get(resource.getSourceId()));
+        negotiation.getCurrentStateForResource(resource.getSourceId()));
   }
 
   @Test
@@ -47,7 +48,7 @@ public class ResourcesHandlerTest {
     handler.updateResourceInOngoingNegotiations(resource.getId(), resource.getSourceId());
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
-        negotiation.getCurrentStatePerResource().get(resource.getSourceId()));
+        negotiation.getCurrentStateForResource(resource.getSourceId()));
   }
 
   @Test

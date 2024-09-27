@@ -16,8 +16,6 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
-import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
@@ -36,24 +34,17 @@ public class AttachmentRepositoriesTest {
   private static final String NEGOTIATION_2_ID = "negotiation_2";
   private static final String RESOURCE_1 = "resource_1";
   private static final String RESOURCE_2 = "resource_2";
-  private static final String REQUEST_1 = "request_1";
-  private static final String REQUEST_2 = "request_2";
 
-  @Autowired private PersonRepository personRepository;
-  @Autowired private ResourceRepository resourceRepository;
-  @Autowired private RequestRepository requestRepository;
-  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
-  @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private NegotiationRepository negotiationRepository;
-  @Autowired private AttachmentRepository attachmentRepository;
+  @Autowired PersonRepository personRepository;
+  @Autowired ResourceRepository resourceRepository;
+  @Autowired DiscoveryServiceRepository discoveryServiceRepository;
+  @Autowired OrganizationRepository organizationRepository;
+  @Autowired NegotiationRepository negotiationRepository;
+  @Autowired AttachmentRepository attachmentRepository;
 
   private DiscoveryService discoveryService;
   private Person person;
 
-  private Resource resource1;
-  private Resource resource2;
-  private Request request1;
-  private Request request2;
   private Negotiation negotiation1;
   private Negotiation negotiation2;
   private Organization organization1;
@@ -66,12 +57,10 @@ public class AttachmentRepositoriesTest {
     this.person = createPerson("person1");
     this.organization1 = createOrganization(ORG_1);
     this.organization2 = createOrganization(ORG_2);
-    this.resource1 = createResource(this.organization1, RESOURCE_1);
-    this.resource2 = createResource(this.organization2, RESOURCE_2);
-    this.request1 = createRequest(resource1, REQUEST_1);
-    this.request2 = createRequest(resource2, REQUEST_2);
-    this.negotiation1 = createNegotiation(NEGOTIATION_1_ID, request1);
-    this.negotiation2 = createNegotiation(NEGOTIATION_2_ID, request2);
+    Resource resource1 = createResource(this.organization1, RESOURCE_1);
+    Resource resource2 = createResource(this.organization2, RESOURCE_2);
+    this.negotiation1 = createNegotiation(NEGOTIATION_1_ID, resource1);
+    this.negotiation2 = createNegotiation(NEGOTIATION_2_ID, resource2);
   }
 
   private Organization createOrganization(String organizationID) {
@@ -93,24 +82,15 @@ public class AttachmentRepositoriesTest {
             .build());
   }
 
-  private Request createRequest(Resource resource, String requestId) {
-    return requestRepository.save(
-        Request.builder()
-            .id(requestId)
-            .url("http://test")
-            .resources(Set.of(resource))
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build());
-  }
-
-  private Negotiation createNegotiation(String negotiationId, Request request) {
-    return negotiationRepository.save(
+  private Negotiation createNegotiation(String negotiationId, Resource resource) {
+    Negotiation negotiation =
         Negotiation.builder()
-            .id(negotiationId)
-            .requests(Set.of(request))
-            .payload("{\"project\":{\"title\":\"negtitle\"} }")
-            .build());
+            .resources(Set.of(resource))
+            .humanReadable("#1 Material Type: DNA")
+            .payload("{\"project\":{\"title\":\"title\"}}")
+            .discoveryService(discoveryService)
+            .build();
+    return negotiationRepository.save(negotiation);
   }
 
   private Person createPerson(String subjectId) {

@@ -19,6 +19,4 @@ public interface RequestRepository extends JpaRepository<Request, String> {
 
   @EntityGraph(value = "request-with-detailed-resources")
   Optional<Request> findDetailedById(String id);
-
-  Optional<Request> findByNegotiation_Id(String negotiationId);
 }

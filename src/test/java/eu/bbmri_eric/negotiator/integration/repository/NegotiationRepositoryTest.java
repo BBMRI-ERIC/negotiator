@@ -12,8 +12,6 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSpecification;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
-import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
@@ -35,7 +33,6 @@ import org.springframework.data.domain.Sort;
 public class NegotiationRepositoryTest {
   @Autowired PersonRepository personRepository;
   @Autowired ResourceRepository resourceRepository;
-  @Autowired RequestRepository requestRepository;
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
@@ -46,22 +43,22 @@ public class NegotiationRepositoryTest {
 
   String payload =
       """
-                      {
-                  "project": {
-                  "title": "Title",
-                  "description": "Description"
-                  },
-                   "samples": {
-                     "sample-type": "DNA",
-                     "num-of-subjects": 10,
-                     "num-of-samples": 20,
-                     "volume-per-sample": 5
-                   },
-                   "ethics-vote": {
-                     "ethics-vote": "My ethic vote"
-                   }
-                  }
-                  """;
+         {
+          "project": {
+          "title": "Title",
+          "description": "Description"
+          },
+           "samples": {
+             "sample-type": "DNA",
+             "num-of-subjects": 10,
+             "num-of-samples": 20,
+             "volume-per-sample": 5
+           },
+           "ethics-vote": {
+             "ethics-vote": "My ethic vote"
+           }
+          }
+          """;
 
   @BeforeEach
   void setUp() {
@@ -160,21 +157,13 @@ public class NegotiationRepositoryTest {
       assertEquals(20, resource.getRepresentatives().size());
     }
 
-    // Create and save the request and negotiation
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(new HashSet<>(resources))
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-
     Negotiation negotiation =
         Negotiation.builder()
+            .resources(new HashSet<>(resources))
             .currentState(NegotiationState.SUBMITTED)
-            .requests(Set.of(request))
             .publicPostsEnabled(false)
+            .humanReadable("#1 Material Type: DNA")
+            .discoveryService(discoveryService)
             .payload(payload)
             .build();
     negotiation = negotiationRepository.save(negotiation);
@@ -326,53 +315,35 @@ public class NegotiationRepositoryTest {
   }
 
   private void saveNegotiation() {
-    Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
     resources.add(resource);
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(resources)
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-    requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
+            .resources(resources)
             .currentState(NegotiationState.SUBMITTED)
-            .requests(requests)
+            .humanReadable("#1 Material Type: DNA")
+            .discoveryService(discoveryService)
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreationDate(LocalDateTime.now());
     negotiation.setCreatedBy(person);
-    request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
 
   private void saveNegotiation(Person author) {
-    Set<Request> requests = new HashSet<>();
     Set<Resource> resources = new HashSet<>();
     resources.add(resource);
-    Request request =
-        Request.builder()
-            .url("http://test")
-            .resources(resources)
-            .discoveryService(discoveryService)
-            .humanReadable("everything")
-            .build();
-    request = requestRepository.save(request);
-    requests.add(request);
     Negotiation negotiation =
         Negotiation.builder()
+            .resources(resources)
             .currentState(NegotiationState.SUBMITTED)
-            .requests(requests)
+            .humanReadable("everything")
+            .discoveryService(discoveryService)
             .publicPostsEnabled(false)
             .payload(payload)
             .build();
     negotiation.setCreatedBy(author);
-    request.setNegotiation(negotiation);
     negotiationRepository.save(negotiation);
   }
 

@@ -9,7 +9,6 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelMapper;
-import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import java.time.LocalDateTime;
@@ -29,24 +28,18 @@ public class NegotiationMapperTest {
   public NegotiationModelMapper negotiationModelMapper = new NegotiationModelMapper(mapper);
 
   private static Negotiation buildNegotiation() {
-    Request request =
-        Request.builder()
-            .resources(
-                Set.of(
-                    Resource.builder()
-                        .sourceId("collection:1")
-                        .organization(
-                            Organization.builder()
-                                .name("Test Biobank")
-                                .externalId("biobank:1")
-                                .build())
-                        .discoveryService(DiscoveryService.builder().build())
-                        .build()))
-            .build();
-
+    Set<Resource> resources =
+        Set.of(
+            Resource.builder()
+                .sourceId("collection:1")
+                .organization(
+                    Organization.builder().name("Test Biobank").externalId("biobank:1").build())
+                .discoveryService(DiscoveryService.builder().build())
+                .build());
     Negotiation negotiation =
         Negotiation.builder()
-            .requests(Set.of(request))
+            .humanReadable("#1 Material Type: DNA")
+            .resources(resources)
             .currentState(NegotiationState.SUBMITTED)
             .build();
     negotiation.setCreationDate(LocalDateTime.of(2023, Month.SEPTEMBER, 19, 00, 00));

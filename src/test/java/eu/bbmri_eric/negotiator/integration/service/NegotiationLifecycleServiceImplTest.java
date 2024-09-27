@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -38,11 +40,12 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -65,6 +68,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private ResourceRepository resourceRepository;
   @Autowired ApplicationEvents events;
+  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
 
   private void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
@@ -135,11 +139,17 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   private NegotiationDTO saveNegotiation() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(Set.of("request-2"));
-    Request request = requestRepository.findById("request-2").get();
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
+    DiscoveryService discoveryService =
+        discoveryServiceRepository.findById(1L).orElseThrow(TestAbortedException::new);
+
+    Request request =
+        requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
     Negotiation negotiation =
         Negotiation.builder()
-            .requests(Set.of(request))
+            .resources(new HashSet<>(request.getResources()))
+            .discoveryService(discoveryService)
+            .humanReadable("#1 MaterialType: DNA")
             .payload(negotiationCreateDTO.getPayload().toString())
             .build();
     negotiation.setCreatedBy(Person.builder().id(101L).name("TheBuilder").build());
@@ -200,22 +210,17 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void createNegotiation_statePerResource_isEmpty() throws IOException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    Map<String, NegotiationResourceState> statePerResource =
-        negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
-    assertTrue(statePerResource.isEmpty());
-  }
-
-  @Test
   @WithMockUser(roles = "ADMIN")
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    Map<String, NegotiationResourceState> states =
-        negotiationRepository.findById(negotiationDTO.getId()).get().getCurrentStatePerResource();
-    assertTrue(states.containsKey("biobank:1:collection:2"));
-    assertNotEquals(NegotiationResourceState.SUBMITTED, states.get("biobank:1:collection:2"));
+    NegotiationResourceState state =
+        negotiationRepository
+            .findById(negotiationDTO.getId())
+            .get()
+            .getCurrentStateForResource("biobank:1:collection:2");
+    Assertions.assertNotNull(state);
+    assertNotEquals(NegotiationResourceState.SUBMITTED, state);
   }
 
   @Test
@@ -290,7 +295,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_notAuthorized_noChange() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(
-        negotiation.getCurrentStatePerResource().get("biobank:1:collection:1"),
+        negotiation.getCurrentStateForResource("biobank:1:collection:1"),
         resourceLifecycleService.sendEvent(
             negotiation.getId(),
             "biobank:1:collection:1",
