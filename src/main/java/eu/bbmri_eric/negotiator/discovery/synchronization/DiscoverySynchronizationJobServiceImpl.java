@@ -45,4 +45,22 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
 
     return modelMapper.map(job, DiscoverySyncJobServiceDTO.class);
   }
+
+  @Override
+  public DiscoverySyncJobServiceDTO updateSyncJob(
+      Long discoveryServiceId, String jobId, DiscoverySyncJobServiceUpdateDTO request) {
+    DiscoveryService discoveryService =
+        discoveryServiceRepository
+            .findById(discoveryServiceId)
+            .orElseThrow(() -> new EntityNotFoundException(discoveryServiceId));
+
+    DiscoveryServiceSynchronizationJob job =
+        discoveryServiceSynchronizationJobRepository
+            .findById(jobId)
+            .orElseThrow(() -> new EntityNotFoundException(jobId));
+    job.setStatus(request.getJobStatus());
+    job.setModifiedDate(LocalDateTime.now());
+    discoveryServiceSynchronizationJobRepository.save(job);
+    return modelMapper.map(job, DiscoverySyncJobServiceDTO.class);
+  }
 }

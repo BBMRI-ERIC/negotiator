@@ -37,6 +37,14 @@ public interface NetworkService {
   NetworkDTO createNetwork(NetworkCreateDTO networkDTO);
 
   /**
+   * Creates a batch of new networks.
+   *
+   * @param networksDTO The data of the networks to create.
+   * @return A batch containing the newly created networks.
+   */
+  Iterable<NetworkDTO> createNetworks(Iterable<NetworkCreateDTO> networksDTO);
+
+  /**
    * Updates a network with the specified ID.
    *
    * @param id The ID of the network to update.

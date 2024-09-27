@@ -1,7 +1,9 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.common.FilterDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import java.util.List;
@@ -52,4 +54,22 @@ public interface ResourceService {
    */
   List<ResourceWithStatusDTO> updateResourcesInANegotiation(
       String negotiationId, UpdateResourcesDTO updateResourcesDTO);
+
+  /**
+   * Add a batch of resources. This method is uses from a specific synchronization servvice that
+   * checks if one or more resources are already present, and eventually add them.
+   *
+   * @param List<ResourceCreateDTO> a list of all the resources to add
+   * @return the output DTO list of all the added resources
+   */
+  List<ResourceResponseModel> addResources(List<ResourceCreateDTO> resources);
+
+  /**
+   * Update some attributes of a resource by its id.
+   *
+   * @param id the identifier of the resource to update
+   * @param resource the DTO containing the new values of the attribute(s)
+   * @return the output DTO of the updated resource
+   */
+  ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource);
 }

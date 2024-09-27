@@ -17,7 +17,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -84,12 +86,12 @@ public class NetworkController {
   @PostMapping(
       value = "/networks",
       consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(summary = "Create a new network")
+      produces = MediaTypes.HAL_JSON_VALUE)
+  @Operation(summary = "Create a batch of networks")
   @ResponseStatus(HttpStatus.CREATED)
-  public EntityModel<NetworkDTO> create(
-      @Validated(ValidationGroups.Create.class) @RequestBody NetworkCreateDTO networkDTO) {
-    return networkModelAssembler.toModel(networkService.createNetwork(networkDTO));
+  public CollectionModel<EntityModel<NetworkDTO>> create(
+      @Validated(ValidationGroups.Create.class) @RequestBody List<NetworkCreateDTO> networks) {
+    return networkModelAssembler.toCollectionModel(networkService.createNetworks(networks));
   }
 
   @GetMapping("/networks/{id}")
@@ -108,7 +110,7 @@ public class NetworkController {
   @PutMapping(
       value = "/networks/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+      produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Update a network by its id")
   public EntityModel<NetworkDTO> update(
       @PathVariable Long id,

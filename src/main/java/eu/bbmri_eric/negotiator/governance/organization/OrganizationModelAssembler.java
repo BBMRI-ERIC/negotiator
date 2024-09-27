@@ -3,10 +3,13 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.governance.resource.ResourceController;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -25,6 +28,17 @@ public class OrganizationModelAssembler
                     methodOn(OrganizationController.class).findById(entity.getId()))
                 .withSelfRel(),
             linkTo(OrganizationController.class).withRel("organizations"));
+  }
+
+  @Override
+  public CollectionModel<EntityModel<OrganizationDTO>> toCollectionModel(
+      Iterable<? extends OrganizationDTO> entities) {
+    List<EntityModel<OrganizationDTO>> entityModels = new ArrayList<>();
+    for (OrganizationDTO organizationDTO : entities) {
+      entityModels.add(toModel(organizationDTO));
+    }
+    return CollectionModel.of(entityModels)
+        .add(linkTo(ResourceController.class).withRel("organizations"));
   }
 
   public PagedModel<EntityModel<OrganizationDTO>> toPagedModel(Page<OrganizationDTO> page) {

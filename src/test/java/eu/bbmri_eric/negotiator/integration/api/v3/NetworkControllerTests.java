@@ -16,6 +16,7 @@ import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
+import java.util.Arrays;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,7 +142,7 @@ public class NetworkControllerTests {
             .name("newNetwork")
             .uri("http://newuri.org")
             .build();
-    String requestBody = TestUtils.jsonFromRequest(networkDTO);
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO));
     MvcResult result =
         mockMvc
             .perform(
@@ -149,17 +150,153 @@ public class NetworkControllerTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
             .andExpect(status().isCreated())
-            .andExpect(content().contentType("application/json"))
-            .andExpect(jsonPath("$.name", is(networkDTO.getName())))
-            .andExpect(jsonPath("$.externalId", is(networkDTO.getExternalId())))
-            .andExpect(jsonPath("$.uri", is(networkDTO.getUri())))
-            .andExpect(jsonPath("$.contactEmail", is(networkDTO.getContactEmail())))
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO.getContactEmail())))
             .andReturn();
 
-    long id = JsonPath.parse(result.getResponse().getContentAsString()).read("$.id", Long.class);
+    long id =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
     Optional<Network> network = networkRepository.findById(id);
     assert network.isPresent();
     assertEquals(networkDTO.getName(), network.get().getName());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void postNetwork_batch() throws Exception {
+    NetworkCreateDTO networkDTO1 =
+        NetworkCreateDTO.builder()
+            .externalId("network1")
+            .contactEmail("network1@negotiator.com")
+            .name("network1")
+            .uri("http://network1.org")
+            .build();
+    NetworkCreateDTO networkDTO2 =
+        NetworkCreateDTO.builder()
+            .externalId("network2")
+            .contactEmail("network2@negotiator.com")
+            .name("network2")
+            .uri("http://network2.org")
+            .build();
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO1, networkDTO2));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(NETWORKS_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO1.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[1].name", is(networkDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].externalId", is(networkDTO2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[1].uri", is(networkDTO2.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].contactEmail", is(networkDTO2.getContactEmail())))
+            .andReturn();
+
+    long id1 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
+    Optional<Network> network1 = networkRepository.findById(id1);
+    assert network1.isPresent();
+    assertEquals(networkDTO1.getName(), network1.get().getName());
+    long id2 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[1].id", Long.class);
+    Optional<Network> network2 = networkRepository.findById(id2);
+    assert network2.isPresent();
+    assertEquals(networkDTO2.getName(), network2.get().getName());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void putNetwork() throws Exception {
+    NetworkCreateDTO networkDTO1 =
+        NetworkCreateDTO.builder()
+            .externalId("network1")
+            .contactEmail("network1@negotiator.com")
+            .name("network1")
+            .uri("http://network1.org")
+            .build();
+    NetworkCreateDTO networkDTO2 =
+        NetworkCreateDTO.builder()
+            .externalId("network2")
+            .contactEmail("network2@negotiator.com")
+            .name("network2")
+            .uri("http://network2.org")
+            .build();
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO1, networkDTO2));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(NETWORKS_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO1.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[1].name", is(networkDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].externalId", is(networkDTO2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[1].uri", is(networkDTO2.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].contactEmail", is(networkDTO2.getContactEmail())))
+            .andReturn();
+
+    long id1 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
+    Optional<Network> network1 = networkRepository.findById(id1);
+    assert network1.isPresent();
+    assertEquals(networkDTO1.getName(), network1.get().getName());
+    long id2 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[1].id", Long.class);
+    Optional<Network> network2 = networkRepository.findById(id2);
+    assert network2.isPresent();
+    assertEquals(networkDTO2.getName(), network2.get().getName());
+    NetworkCreateDTO networkUpdateDTO1 =
+        NetworkCreateDTO.builder()
+            .externalId("network1")
+            .contactEmail("newnetwork1@negotiator.com")
+            .name("newnetwork1")
+            .uri("http://network1.org")
+            .build();
+    String updateRequestBody = TestUtils.jsonFromRequest(networkUpdateDTO1);
+    MvcResult updateResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.put(NETWORKS_URL + "/" + id1)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(updateRequestBody))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$.name", is(networkUpdateDTO1.getName())))
+            .andExpect(jsonPath("$.externalId", is(networkUpdateDTO1.getExternalId())))
+            .andExpect(jsonPath("$.uri", is(networkUpdateDTO1.getUri())))
+            .andExpect(jsonPath("$.contactEmail", is(networkUpdateDTO1.getContactEmail())))
+            .andReturn();
+    Optional<Network> updatedNetwork1 = networkRepository.findById(id1);
+    assertEquals(networkUpdateDTO1.getName(), updatedNetwork1.get().getName());
+    assertEquals(networkUpdateDTO1.getContactEmail(), updatedNetwork1.get().getContactEmail());
   }
 
   @Test
@@ -199,7 +336,7 @@ public class NetworkControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isOk())
-        .andExpect(content().contentType("application/json"))
+        .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$.id", is(1)));
 
     Optional<Network> network = networkRepository.findById(1L);

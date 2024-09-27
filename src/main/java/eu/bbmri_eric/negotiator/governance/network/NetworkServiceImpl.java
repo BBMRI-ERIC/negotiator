@@ -8,7 +8,9 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -87,6 +89,24 @@ public class NetworkServiceImpl implements NetworkService {
     Network network = modelMapper.map(networkCreateDTO, Network.class);
     Network savedNetwork = networkRepository.saveAndFlush(network);
     return modelMapper.map(savedNetwork, NetworkDTO.class);
+  }
+
+  @Override
+  public List<NetworkDTO> createNetworks(Iterable<NetworkCreateDTO> request) {
+    ArrayList<Network> networks = new ArrayList();
+    for (NetworkCreateDTO networkDTO : request) {
+      Network network =
+          Network.builder()
+              .name(networkDTO.getName())
+              .externalId(networkDTO.getExternalId())
+              .uri(networkDTO.getUri())
+              .contactEmail(networkDTO.getContactEmail())
+              .build();
+      networks.add(network);
+    }
+    return networkRepository.saveAll(networks).stream()
+        .map(network -> modelMapper.map(network, NetworkDTO.class))
+        .collect(Collectors.toList());
   }
 
   @Override
