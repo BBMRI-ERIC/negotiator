@@ -29,7 +29,7 @@ services:
       API_SCOPES_INLINE: |
         - Name: negotiator_api
         - Name: negotiator_authz_management
-        - name: negotiator_resource_management
+        - Name: negotiator_resource_management
       API_RESOURCES_INLINE: |
         - Name: negotiator-api
           Scopes:
