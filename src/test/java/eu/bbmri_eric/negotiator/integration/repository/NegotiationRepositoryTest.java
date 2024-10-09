@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
@@ -312,6 +313,17 @@ public class NegotiationRepositoryTest {
                     .or(NegotiationSpecification.hasResourcesIn(person.getResources())),
                 PageRequest.of(0, 50))
             .getNumberOfElements());
+  }
+
+  @Test
+  void findAllCreatedOn_ok() {
+    saveNegotiation();
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
+    negotiationRepository.save(negotiation);
+    assertFalse(
+        negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(10)).isEmpty());
+    assertTrue(negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(5)).isEmpty());
   }
 
   private void saveNegotiation() {
