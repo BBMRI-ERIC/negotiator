@@ -13,6 +13,8 @@
       "negotiator_authz_management"
     ],
     "ClientClaimsPrefix": "",
-    "Claims": []
+    "Claims": [],
+    "IdentityTokenLifetime": 1,
+    "AccessTokenLifetime": 1
   }
 ]
