@@ -67,6 +67,8 @@ public class Negotiation extends AuditEntity {
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @NotNull
   @Builder.Default
+  @Getter(AccessLevel.PRIVATE)
+  @Setter(AccessLevel.PRIVATE)
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
 
   @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
