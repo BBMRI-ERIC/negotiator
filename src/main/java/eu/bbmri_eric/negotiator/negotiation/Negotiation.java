@@ -4,11 +4,13 @@ import com.vladmihalcea.hibernate.type.json.JsonType;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
+import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.post.Post;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -58,6 +60,14 @@ public class Negotiation extends AuditEntity {
       cascade = {CascadeType.MERGE})
   @Builder.Default
   private Set<Attachment> attachments = new HashSet<>();
+
+  @OneToMany(
+      mappedBy = "negotiation",
+      cascade = {CascadeType.REMOVE})
+  @Setter(AccessLevel.NONE)
+  @Getter(AccessLevel.PUBLIC)
+  @Builder.Default
+  private Set<Post> posts = new HashSet<>();
 
   @Column(columnDefinition = "TEXT")
   private String humanReadable = "";
@@ -148,6 +158,20 @@ public class Negotiation extends AuditEntity {
   public Set<Resource> getResources() {
     return getResourcesLink().stream()
         .map(NegotiationResourceLink::getResource)
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Get all organizations involved in the Negotiation.
+   *
+   * @return a set of involved Organizations
+   */
+  public Set<Organization> getOrganizations() {
+    return getResourcesLink().stream()
+        .map(NegotiationResourceLink::getResource)
+        .collect(Collectors.toSet())
+        .stream()
+        .map(Resource::getOrganization)
         .collect(Collectors.toSet());
   }
 
