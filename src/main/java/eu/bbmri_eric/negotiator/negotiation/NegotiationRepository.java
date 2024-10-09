@@ -81,4 +81,14 @@ public interface NegotiationRepository
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId group by n.currentState")
   List<Object[]> countStatusDistribution(Long networkId);
+
+  @Query(
+      value =
+          """
+SELECT distinct n from Negotiation n join n.resourcesLink rl
+join rl.id.resource rs
+join rs.representatives reps
+where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState = 'REPRESENTATIVE_CONTACTED'
+""")
+  List<Negotiation> findNegotiationsWithNoStatusUpdateFor(Long personId);
 }
