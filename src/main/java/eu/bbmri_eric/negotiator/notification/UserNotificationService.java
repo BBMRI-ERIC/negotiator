@@ -52,7 +52,4 @@ public interface UserNotificationService {
 
   /** Send out emails for all pending notifications. */
   void sendEmailsForNewNotifications();
-
-  /** Send out reminder emails for pending and stale negotiations. */
-  void createRemindersOldNegotiations();
 }

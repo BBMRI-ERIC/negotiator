@@ -13,7 +13,6 @@ import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -500,17 +499,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             "The negotiation %s is stale and had no status change in a while."
                 .formatted(negotiation.getId()));
     notificationRepository.saveAll(reminderNotifications);
-  }
-
-  @Scheduled(cron = "${reminder.cron-schedule-expression:0 0 0 * * MON-FRI}")
-  @Async
-  public void createRemindersOldNegotiations() {
-    log.info("Creating reminder email notifications.");
-    Duration durationThreshold = Duration.parse(triggerDuration);
-    thresholdTime = LocalDateTime.now().minus(durationThreshold);
-
-    createReminderForPendingNegotiations(thresholdTime);
-    createReminderForStaleNegotiations(thresholdTime);
   }
 
   private void createReminderForPendingNegotiations(LocalDateTime thresholdTime) {
