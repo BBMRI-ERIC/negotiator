@@ -71,7 +71,7 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
             negotiation.getCreatedBy(),
             negotiation,
             "Request status update",
-                getMessage(action),
+            getMessage(action),
             NotificationEmailStatus.EMAIL_NOT_SENT);
     try {
       notification = notificationRepository.save(notification);
@@ -84,12 +84,12 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   }
 
   private static @NonNull String getMessage(NegotiationEvent action) {
-    if (action.equals(NegotiationEvent.DECLINE)){
-      return  "The request was %sd by an Administrator because it did not meet our criteria. If you think it was unjustified please reach out to us using the mail address bellow".formatted(action.getLabel().toLowerCase());
-    }
-    else {
-     return  "The request was %sd by an Administrator and the representatives of respective organizations were also notified."
-              .formatted(action.getLabel().toLowerCase());
+    if (action.equals(NegotiationEvent.DECLINE)) {
+      return "The request was %sd by an Administrator because it did not meet our criteria. If you think it was unjustified please reach out to us using the mail address bellow"
+          .formatted(action.getLabel().toLowerCase());
+    } else {
+      return "The request was %sd by an Administrator and the representatives of respective organizations were also notified."
+          .formatted(action.getLabel().toLowerCase());
     }
   }
 }
