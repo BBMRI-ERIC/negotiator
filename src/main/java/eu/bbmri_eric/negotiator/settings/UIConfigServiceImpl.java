@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.settings;
 
-import eu.bbmri_eric.negotiator.settings.dto.UISettingsDTO;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ public class UIConfigServiceImpl implements UIConfigService {
   @Override
   public Map<String, List<Map<String, Object>>> getAllParameters() {
     List<UIParameter> parameters = uiParameterRepository.findAll();
-    UISettingsDTO uiSettingsDTO = new UISettingsDTO();
 
     Map<String, List<Map<String, Object>>> settings = new HashMap<>();
 
