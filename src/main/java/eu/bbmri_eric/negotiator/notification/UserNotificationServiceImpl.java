@@ -52,9 +52,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
 
-  @Value("${reminder.trigger-duration-days:P7D}")
-  private String triggerDuration;
-
   @Value("${negotiator.emailYoursSincerelyText}")
   private String emailYoursSincerelyText;
 
@@ -360,7 +357,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   }
 
   @Override
-  @Scheduled(cron = "${notification.cron-schedule-expression:0 0 * * * *}")
+  @Scheduled(cron = "${negotiator.email.frequency-cron-expression:0 0 * * * *}")
   @Async
   public void sendEmailsForNewNotifications() {
     log.info("Sending new email notifications.");

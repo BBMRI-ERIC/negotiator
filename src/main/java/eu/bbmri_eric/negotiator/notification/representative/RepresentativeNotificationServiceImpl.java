@@ -43,7 +43,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
   }
 
   @Override
-  @Scheduled(cron = "0 */1 * * * *")
+  @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
   @Transactional
   public void notifyAboutPendingNegotiations() {
     Set<Negotiation> negotiations =

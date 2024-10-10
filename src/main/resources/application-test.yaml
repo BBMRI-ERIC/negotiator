@@ -25,7 +25,3 @@ negotiator:
     admin-claim-value: "admin_group"
     researcher-claim-value: "researcher_group"
     biobanker-claim-value: "biobanker_group"
-    subject-claim: "subject_id"
-    resource-claim-prefix: "resource_id"
-reminder:
-  trigger-duration-days: "PT0S"
