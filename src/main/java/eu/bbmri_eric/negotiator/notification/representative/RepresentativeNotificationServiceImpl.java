@@ -90,7 +90,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
                   representative,
                   negotiation,
                   "Pending Request",
-                  "%s is waiting for you response".formatted(negotiation.getCreatedBy().getName()),
+                  "%s is waiting for your response".formatted(negotiation.getCreatedBy().getName()),
                   NotificationEmailStatus.EMAIL_NOT_SENT));
       eventPublisher.publishEvent(
           new NewNotificationEvent(this, notification.getId(), "negotiation-reminder"));

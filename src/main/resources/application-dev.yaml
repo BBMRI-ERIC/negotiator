@@ -67,9 +67,9 @@ negotiator:
     researcher-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu"
     biobanker-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu"
   notification:
-    reminder-cron-expression: "0 */5 * * * *"
+    reminder-cron-expression: "0 */2 * * * *"
   email:
-    frequency-cron-expression: "0 */5 * * * *"
+    frequency-cron-expression: "0 */1 * * * *"
 logging:
   level:
     org:
