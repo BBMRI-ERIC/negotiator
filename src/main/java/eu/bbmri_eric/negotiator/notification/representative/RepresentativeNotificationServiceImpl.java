@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,17 +44,21 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
 
   @Override
   @Scheduled(cron = "0 */1 * * * *")
-  @Transactional(Transactional.TxType.REQUIRES_NEW)
+  @Transactional
   public void notifyAboutPendingNegotiations() {
     Set<Negotiation> negotiations =
-        negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(5));
+        new HashSet<>(negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(5)));
+    log.info("Looking for pending negotiations");
     for (Negotiation negotiation : negotiations) {
-      notifyUnresponsiveOrganizations(negotiation);
+      log.info("Found pending negotiation: " + negotiation.getId());
+      Set<Person> reps = getRepresentativesToNotify(negotiation);
+      notifyRepresentatives(negotiation, reps);
     }
   }
 
-  private void notifyUnresponsiveOrganizations(Negotiation negotiation) {
+  private Set<Person> getRepresentativesToNotify(Negotiation negotiation) {
     Set<Organization> involvedOrganizations = negotiation.getOrganizations();
+    Set<Person> representativesToNotify = new HashSet<>();
     for (Organization organization : involvedOrganizations) {
       Set<Resource> involvedResourcesOfOrganization =
           negotiation.getResources().stream()
@@ -65,12 +70,13 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
               .collect(Collectors.toSet());
       if (isOrganizationUnresponsive(
           negotiation, representatives, involvedResourcesOfOrganization)) {
-        log.debug(
-            "No response from %s for negotiation %s"
+        log.info(
+            "No response from %s for negotiation %s. Sending reminder notifications to its representatives"
                 .formatted(organization.getName(), negotiation.getId()));
-        notifyRepresentatives(negotiation, representatives);
+        representativesToNotify.addAll(representatives);
       }
     }
+    return representativesToNotify;
   }
 
   private boolean isOrganizationUnresponsive(
