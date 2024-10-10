@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,7 +64,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
           negotiation.getResources().stream()
               .flatMap(resource -> resource.getRepresentatives().stream())
               .collect(Collectors.toSet());
-      if (isOrganizationUnresponsive(
+      if (!hasOrganizationResponded(
           negotiation, representatives, involvedResourcesOfOrganization)) {
         log.info(
             "No response from %s for negotiation %s. Sending reminder notifications to its representatives"
@@ -74,27 +75,33 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
     return representativesToNotify;
   }
 
-  private boolean isOrganizationUnresponsive(
+  private boolean hasOrganizationResponded(
       Negotiation negotiation,
       Set<Person> representatives,
       Set<Resource> involvedResourcesOfOrganization) {
-    return !organizationRepsPostedComments(negotiation, representatives)
-        && !organizationResourcesHadStatusUpdate(negotiation, involvedResourcesOfOrganization);
+    return organizationRepsPostedComments(negotiation, representatives)
+        || organizationResourcesHadStatusUpdate(negotiation, involvedResourcesOfOrganization);
   }
 
   private void notifyRepresentatives(Negotiation negotiation, Set<Person> representatives) {
-    for (Person representative : representatives) {
-      Notification notification =
-          notificationRepository.save(
-              new Notification(
-                  representative,
-                  negotiation,
-                  "Pending Request",
-                  "%s is waiting for your response".formatted(negotiation.getCreatedBy().getName()),
-                  NotificationEmailStatus.EMAIL_NOT_SENT));
-      eventPublisher.publishEvent(
-          new NewNotificationEvent(this, notification.getId(), "negotiation-reminder"));
-    }
+    List<Notification> notifications =
+        representatives.stream()
+            .map(
+                rep ->
+                    new Notification(
+                        rep,
+                        negotiation,
+                        "Pending Request",
+                        String.format(
+                            "%s is waiting for your response",
+                            negotiation.getCreatedBy().getName()),
+                        NotificationEmailStatus.EMAIL_NOT_SENT))
+            .collect(Collectors.toList());
+    notificationRepository.saveAll(notifications);
+    notifications.forEach(
+        notification ->
+            eventPublisher.publishEvent(
+                new NewNotificationEvent(this, notification.getId(), "negotiation-reminder")));
   }
 
   private boolean organizationResourcesHadStatusUpdate(
