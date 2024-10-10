@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.csv.CSVFormat;
@@ -198,9 +198,9 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
 
   private static @NonNull Set<String> generatedHeadersFromResponses(
       List<InformationSubmission> submissions, ObjectMapper objectMapper) {
-    Set<String> jsonKeys = new TreeSet<>();
+    Set<String> jsonKeys = new LinkedHashSet<>();
     for (InformationSubmission submission : submissions) {
-      JsonNode payload = null;
+      JsonNode payload;
       try {
         payload = objectMapper.readTree(submission.getPayload());
       } catch (JsonProcessingException e) {
