@@ -11,7 +11,6 @@ import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -27,17 +26,14 @@ import org.springframework.stereotype.Service;
 @CommonsLog
 public class RepresentativeNotificationServiceImpl implements RepresentativeNotificationService {
   private final NegotiationRepository negotiationRepository;
-  private final PersonRepository personRepository;
   private final NotificationRepository notificationRepository;
   private final ApplicationEventPublisher eventPublisher;
 
   public RepresentativeNotificationServiceImpl(
       NegotiationRepository negotiationRepository,
-      PersonRepository personRepository,
       NotificationRepository notificationRepository,
       ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
-    this.personRepository = personRepository;
     this.notificationRepository = notificationRepository;
     this.eventPublisher = eventPublisher;
   }
@@ -46,11 +42,10 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
   @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
   @Transactional
   public void notifyAboutPendingNegotiations() {
+    log.info("Looking for pending negotiations");
     Set<Negotiation> negotiations =
         new HashSet<>(negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(5)));
-    log.info("Looking for pending negotiations");
     for (Negotiation negotiation : negotiations) {
-      log.info("Found pending negotiation: " + negotiation.getId());
       Set<Person> reps = getRepresentativesToNotify(negotiation);
       notifyRepresentatives(negotiation, reps);
     }
