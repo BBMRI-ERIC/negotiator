@@ -142,7 +142,6 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
     DiscoveryService discoveryService =
         discoveryServiceRepository.findById(1L).orElseThrow(TestAbortedException::new);
-
     Request request =
         requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
     Negotiation negotiation =

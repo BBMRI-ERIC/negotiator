@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -81,4 +82,17 @@ public interface NegotiationRepository
               + "JOIN rs.networks net "
               + "WHERE net.id = :networkId group by n.currentState")
   List<Object[]> countStatusDistribution(Long networkId);
+
+  @Query(
+      value =
+          """
+SELECT distinct n from Negotiation n join n.resourcesLink rl
+join rl.id.resource rs
+join rs.representatives reps
+where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState = 'REPRESENTATIVE_CONTACTED'
+""")
+  List<Negotiation> findNegotiationsWithNoStatusUpdateFor(Long personId);
+
+  @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
+  Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
 }

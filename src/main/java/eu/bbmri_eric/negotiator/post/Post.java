@@ -12,10 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.NamedSubgraph;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +21,7 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.UuidGenerator;
 
+/** An entity representing a comment/post to a Negotiation. */
 @ToString
 @Entity
 @NoArgsConstructor
@@ -32,20 +29,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Getter
 @Setter
 @Builder
-@Table(name = "post")
-@NamedEntityGraph(
-    name = "post-with-details",
-    attributeNodes = {
-      @NamedAttributeNode(value = "text"),
-      @NamedAttributeNode(value = "type"),
-      @NamedAttributeNode(value = "createdBy"),
-      @NamedAttributeNode(value = "organization", subgraph = "organization_details")
-    },
-    subgraphs = {
-      @NamedSubgraph(
-          name = "organization_details",
-          attributeNodes = {@NamedAttributeNode(value = "externalId")})
-    })
 public class Post extends AuditEntity {
 
   @Id
@@ -59,7 +42,7 @@ public class Post extends AuditEntity {
   @Exclude
   private Negotiation negotiation;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "organization_id")
   @Exclude
   private Organization organization;
