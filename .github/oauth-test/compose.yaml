@@ -29,11 +29,13 @@ services:
       API_SCOPES_INLINE: |
         - Name: negotiator_api
         - Name: negotiator_authz_management
+        - Name: negotiator_resource_management
       API_RESOURCES_INLINE: |
         - Name: negotiator-api
           Scopes:
             - negotiator_api
             - negotiator_authz_management
+            - negotiator_resource_management
           ApiSecrets:
           - negotiator-secret
       CLIENTS_CONFIGURATION_PATH: /config/clients.json

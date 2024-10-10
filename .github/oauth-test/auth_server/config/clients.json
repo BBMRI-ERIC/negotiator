@@ -10,9 +10,12 @@
     ],
     "AllowedScopes": [
       "negotiator_api",
-      "negotiator_authz_management"
+      "negotiator_authz_management",
+      "negotiator_resource_management"
     ],
     "ClientClaimsPrefix": "",
-    "Claims": []
+    "Claims": [],
+    "IdentityTokenLifetime": 1,
+    "AccessTokenLifetime": 1
   }
 ]
