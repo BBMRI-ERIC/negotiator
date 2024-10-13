@@ -2,6 +2,7 @@
 
 ![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/CI.yml/badge.svg?)
 [![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/BBMRI-ERIC/negotiator/badge)](https://scorecard.dev/viewer/?uri=github.com/BBMRI-ERIC/negotiator)
 ![Static Badge](https://img.shields.io/badge/Java%20Code%20Style-Google-orange)
 ![Static Badge](https://img.shields.io/badge/Docker-bbmrieric%2Fnegotiator-blue)
 
