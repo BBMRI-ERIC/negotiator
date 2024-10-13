@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   oidc-server-mock:
     container_name: oidc-server-mock
@@ -50,41 +49,30 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - PROFILE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/negotiator
-      - SPRING_DATASOURCE_USERNAME=negotiator
-      - SPRING_DATASOURCE_PASSWORD=negotiator
-      - SPRING_DATASOURCE_INITIALIZE=false
-      - SPRING_FLYWAY_ENABLED=true
-      - SPRING_FLYWAY_USER=negotiator
-      - SPRING_FLYWAY_PASSWORD=negotiator
-      - SPRING_FLYWAY_URL=jdbc:postgresql://postgres:5432/negotiator
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
       - NEGOTIATOR_FRONTENDURL=https://${HOST}
-      - NEGOTIATOR_AUTHORIZATION_CLAIM=eduperson_entitlement
       - "NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE=urn:geant:bbmri-eric.eu:res:role_admin#perun.bbmri-eric.eu"
       - "NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE=urn:geant:bbmri-eric.eu:res:role_researcher#perun.bbmri-eric.eu"
       - "NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE=urn:geant:bbmri-eric.eu:res:role_representative#perun.bbmri-eric.eu"
       - "NEGOTIATOR_AUTHORIZATION_RESOURCECLAIMPREFIX=urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:"
-      - NEGOTIATOR_AUTHORIZATION_SUBJECTCLAIM=sub
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_USERINFOURI=http://oidc-server-mock/connect/userinfo
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=http://localhost:4011
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=http://oidc-server-mock/.well-known/openid-configuration/jwks
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_TYPE=jwt
     ports:
       - '8081:8081'
     networks:
       - oauth-test
   postgres:
     container_name: negotiator-db
-    image: postgres:14
+    image: postgres:16-alpine
     environment:
       - POSTGRES_USER=negotiator
       - POSTGRES_PASSWORD=negotiator
       - POSTGRES_DB=negotiator
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-d", "negotiator" ]
-      interval: 15s
+      interval: 5s
       timeout: 60s
       retries: 5
     volumes:

@@ -36,6 +36,10 @@ spring:
     protocol: "smtp"
   application:
     name: "Negotiator"
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   jackson:
     date-format: "yyyy-MM-dd"
   jpa:
@@ -63,6 +67,7 @@ spring:
           user-info-uri: ""
           issuer-uri: ""
           jwks-url: ""
+          type: "JWT"
           audiences: negotiator-api
   profiles:
     default: prod
@@ -73,7 +78,7 @@ negotiator:
   emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
   emailLogo: "http://localhost:8081/api/images/negotiator_logo.png"
   authorization:
-    claim: ""
+    claim: "eduperson_entitlement"
     admin-claim-value: ""
     researcher-claim-value: ""
     biobanker-claim-value: ""
