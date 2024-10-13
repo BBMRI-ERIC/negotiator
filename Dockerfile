@@ -9,7 +9,7 @@ RUN mvn --quiet -B clean package -Dmaven.test.skip=true
 
 
 # Runtime image
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:17-jre-focal@sha256:9a2120bf709b8ed0eef46e13bbdf6ab63fb18b529710c275b68190457728f246
 RUN mkdir /var/log/negotiator && chown 1001 /var/log/negotiator
 USER 1001
 WORKDIR /app
