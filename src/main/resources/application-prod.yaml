@@ -1,6 +1,5 @@
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/negotiator
     username: negotiator
     password: negotiator
@@ -11,19 +10,9 @@ spring:
   sql:
     init:
       mode: never
-  jpa:
-    hibernate:
-      ddl-auto: none
-    defer-datasource-initialization: false
   jackson:
     date-format: "yyyy-MM-dd"
   flyway:
-    enabled: true
-    user:
-    password:
-    schemas:
-    url:
-    baseline-on-migrate: true
     locations: classpath:db/migration/,filesystem:/app/data
 logging:
   file:
