@@ -391,6 +391,8 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     name: Publish JAR file
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     needs:
       - system-test
       - oauth-test
