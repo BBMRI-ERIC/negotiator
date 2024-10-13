@@ -80,4 +80,6 @@ public interface PersonRepository
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 
   Page<Person> findAllByNetworksContains(Network network, Pageable pageable);
+
+  List<Person> findAllByResourcesNotEmpty();
 }

@@ -77,10 +77,10 @@ negotiator:
     admin-claim-value: ""
     researcher-claim-value: ""
     biobanker-claim-value: ""
-    subject-claim: ""
-    resource-claim-prefix: ""
-notification:
-  cron-schedule-expression: "0 0 * * * *"
+  notification:
+    reminder-cron-expression: "0 0 6 * * *"
+  email:
+    frequency-cron-expression: "0 0 * * * *"
 logging:
   level:
     root: info

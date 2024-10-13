@@ -11,6 +11,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
   List<Notification> findByEmailStatus(NotificationEmailStatus status);
 
+  List<Notification> findAllByRecipient_id(Long personId);
+
   @Query(
       "SELECT new eu.bbmri_eric.negotiator.notification.NotificationViewDTO("
           + "nt.id, nt.message, nt.emailStatus, ng.id, ng.title, p) "

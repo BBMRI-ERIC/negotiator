@@ -6,13 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
-import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
@@ -29,8 +25,6 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
@@ -276,93 +270,5 @@ public class UserNotificationServiceTest {
         negotiation.getId());
     assertFalse(
         notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
-  }
-
-  @Test
-  public void notifyPendingNegotiation() throws IOException {
-    userNotificationService.createRemindersOldNegotiations();
-    long initialNotificationsCount = countNegotiationNotifications("is awaiting review.");
-
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
-    negotiationService.create(negotiationCreateDTO, 101L);
-    userNotificationService.createRemindersOldNegotiations();
-    assertEquals(
-        initialNotificationsCount * 2 + 1, countNegotiationNotifications("is awaiting review."));
-  }
-
-  @Test
-  public void doNotNotifyApprovedNegotiation() throws IOException {
-    userNotificationService.createRemindersOldNegotiations();
-    long initialNotificationsCount = countNegotiationNotifications("is awaiting review.");
-
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
-    negotiationRepository
-        .findById(negotiationDTO.getId())
-        .get()
-        .setCurrentState(NegotiationState.APPROVED);
-    userNotificationService.createRemindersOldNegotiations();
-    assertEquals(
-        initialNotificationsCount * 2, countNegotiationNotifications("is awaiting review."));
-  }
-
-  @Test
-  public void notifyStaleNegotiation() throws IOException {
-    userNotificationService.createRemindersOldNegotiations();
-    long initialNotificationsCount =
-        countNegotiationNotifications("is stale and had no status change in a while.");
-    long initialNegotiationsCount = countInProgressNegotiations();
-
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
-    Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        "biobank:1:collection:2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    negotiationRepository.saveAndFlush(negotiation);
-
-    assertEquals(initialNegotiationsCount + 1, countInProgressNegotiations());
-
-    userNotificationService.createRemindersOldNegotiations();
-
-    assertEquals(
-        initialNotificationsCount * 2 + 1,
-        countNegotiationNotifications("is stale and had no status change in a while."));
-  }
-
-  @Test
-  public void doNotNotifyUnreachableNegotiation() throws IOException {
-    userNotificationService.createRemindersOldNegotiations();
-    long initialNotificationsCount =
-        countNegotiationNotifications("is stale and had no status change in a while.");
-    long initialNegotiationsCount = countInProgressNegotiations();
-
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
-    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 101L);
-    Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
-    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
-    negotiation.setStateForResource(
-        "biobank:1:collection:2", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    negotiationRepository.saveAndFlush(negotiation);
-
-    assertEquals(initialNegotiationsCount + 1, countInProgressNegotiations());
-
-    userNotificationService.createRemindersOldNegotiations();
-
-    assertEquals(
-        initialNotificationsCount * 2,
-        countNegotiationNotifications("is stale and had no status change in a while."));
-  }
-
-  private long countNegotiationNotifications(String suffix) {
-    return notificationRepository.findAll().stream()
-        .filter(notification -> notification.getMessage().endsWith(suffix))
-        .count();
-  }
-
-  private long countInProgressNegotiations() {
-    return negotiationRepository
-        .findByModifiedDateBeforeAndCurrentState(LocalDateTime.now(), NegotiationState.IN_PROGRESS)
-        .size();
   }
 }
