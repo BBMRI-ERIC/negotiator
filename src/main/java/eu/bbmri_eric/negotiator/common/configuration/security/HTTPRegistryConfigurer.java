@@ -136,6 +136,8 @@ public class HTTPRegistryConfigurer {
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/ui-config/**"))
         .permitAll()
+        .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/ui-config/**"))
+        .hasRole("ADMIN")
         .requestMatchers(mvc.pattern("/actuator/prometheus"))
         // Needs to be IPv6 address
         .access(
