@@ -5,6 +5,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,15 +17,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "ui_parameter")
+@ValidUIParameter
 public class UIParameter {
   @Id Long id;
 
-  String category;
+  @NotNull String category;
 
-  String name;
+  @NotNull String name;
 
   @Enumerated(EnumType.STRING)
+  @NotNull
   UIParameterType type;
 
-  String value;
+  @NotNull String value;
 }
