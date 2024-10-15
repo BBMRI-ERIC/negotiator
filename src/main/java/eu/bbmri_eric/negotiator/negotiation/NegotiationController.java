@@ -252,7 +252,7 @@ public class NegotiationController {
    * @return NegotiationDTO with updated state if valid
    */
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
-  ResponseEntity<?> sendEvent(
+  public ResponseEntity<?> sendEvent(
       @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
