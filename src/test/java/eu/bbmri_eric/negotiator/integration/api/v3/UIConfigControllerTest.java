@@ -44,7 +44,7 @@ public class UIConfigControllerTest {
   }
 
   @Test
-  void testUpdate_UnauthorizedWhenAuth() throws Exception {
+  void testUpdate_UnauthorizedWhenNoAuth() throws Exception {
     String json =
         """
         {
@@ -57,7 +57,7 @@ public class UIConfigControllerTest {
             MockMvcRequestBuilders.put("/v3/ui-config")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
