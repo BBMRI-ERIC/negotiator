@@ -15,8 +15,6 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
 
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
-  @Autowired JobEventPublisher publisher;
-
   @Autowired
   DiscoveryServiceSynchronizationJobRepository discoveryServiceSynchronizationJobRepository;
 
@@ -39,10 +37,6 @@ public class DiscoverySynchronizationJobServiceImpl implements DiscoverySynchron
             DiscoveryServiceSyncronizationJobStatus.SUBMITTED);
     log.debug("Saving new job entity....");
     discoveryServiceSynchronizationJobRepository.save(job);
-    publisher.publishDiscoveryServiceSynchronizationEvent(job.getId(), serviceId);
-    log.debug(
-        String.format("Sync job event for discovery service %s properly published", serviceId));
-
     return modelMapper.map(job, DiscoverySyncJobServiceDTO.class);
   }
 
