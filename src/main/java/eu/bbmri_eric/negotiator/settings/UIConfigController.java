@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3")
-@Tag(name = "Settings", description = "Get setting")
+@Tag(name = "Settings", description = "Get settings")
 public class UIConfigController {
 
   UIConfigService uiConfigService;
@@ -26,6 +26,7 @@ public class UIConfigController {
   }
 
   @GetMapping(value = "/ui-config", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Returns configuration parameters for the UI")
   @ResponseStatus(HttpStatus.OK)
   public Map<String, Map<String, Object>> getUIConfiguration() {
     return uiConfigService.getAllParameters();

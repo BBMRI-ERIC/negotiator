@@ -69,8 +69,12 @@ public class UIConfigServiceImpl implements UIConfigService {
 
                 if (!validationErrors.isEmpty()) {
                   throw new WrongRequestException(
-                      "The value %s cannot be applied to type %s"
-                          .formatted(uiParameter.getValue(), uiParameter.getType()));
+                      "The value '%s' for parameter '%s' of category '%s' cannot be applied to type %s"
+                          .formatted(
+                              uiParameter.getValue(),
+                              uiParameter.getName(),
+                              uiParameter.getCategory(),
+                              uiParameter.getType()));
                 }
 
                 uiParameterRepository.save(uiParameter);
