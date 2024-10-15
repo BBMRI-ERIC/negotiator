@@ -1,9 +1,14 @@
 package eu.bbmri_eric.negotiator.settings;
 
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service(value = "DefaultUIConfigService")
@@ -18,9 +23,7 @@ public class UIConfigServiceImpl implements UIConfigService {
   @Override
   public Map<String, Map<String, Object>> getAllParameters() {
     List<UIParameter> parameters = uiParameterRepository.findAll();
-
     Map<String, Map<String, Object>> settings = new HashMap<>();
-
     parameters.forEach(
         uiParameter -> {
           switch (uiParameter.getType()) {
@@ -46,33 +49,30 @@ public class UIConfigServiceImpl implements UIConfigService {
 
   @Override
   public void updateParameters(Map<String, Map<String, Object>> categories) {
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    Validator validator = factory.getValidator();
     categories.forEach(
         (category, parameters) -> {
           parameters.forEach(
               (name, value) -> {
                 UIParameter uiParameter =
                     uiParameterRepository.findByCategoryAndName(category, name);
+
                 String stringValue = String.valueOf(value);
-                switch (uiParameter.getType()) {
-                  case INT:
-                    try {
-                      Integer.valueOf(stringValue);
-                    } catch (NumberFormatException ex) {
-                      throw new WrongRequestException(
-                          "Value %s cannot be saved as INT".formatted(uiParameter.getValue()));
-                    }
-                    break;
-                  case BOOL:
-                    String lower = stringValue.toLowerCase();
-                    if (!lower.equals("false") && !lower.equals("true")) {
-                      throw new WrongRequestException(
-                          "Value %s cannot be saved as BOOL".formatted(uiParameter.getValue()));
-                    }
-                    break;
-                  default:
-                    break;
+                if (uiParameter.getType().equals(UIParameterType.BOOL)) {
+                  stringValue = stringValue.toLowerCase();
                 }
                 uiParameter.setValue(stringValue);
+
+                Set<ConstraintViolation<UIParameter>> validationErrors =
+                    validator.validate(uiParameter);
+
+                if (!validationErrors.isEmpty()) {
+                  throw new WrongRequestException(
+                      "The value %s cannot be applied to type %s"
+                          .formatted(uiParameter.getValue(), uiParameter.getType()));
+                }
+
                 uiParameterRepository.save(uiParameter);
               });
         });
