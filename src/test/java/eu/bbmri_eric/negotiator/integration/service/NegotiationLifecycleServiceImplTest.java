@@ -196,7 +196,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
   void sendEvent_approveCorrectly_historyIsUpdated() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
