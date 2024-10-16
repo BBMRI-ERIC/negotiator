@@ -171,4 +171,20 @@ public class UserController {
     return networkModelAssembler.toPagedModel(
         (Page<NetworkDTO>) networkService.findAllForManager(id, PageRequest.of(page, size)), id);
   }
+
+  @PatchMapping(value = "/users/{id}/networks", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Add a network to a user to manage")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void addNetworkToManage(
+      @PathVariable Long id, @RequestBody @Valid AssignResourceDTO resourceRequest) {
+    personService.assignAsManagerForNetwork(id, resourceRequest.getId());
+  }
+
+  @DeleteMapping(value = "/users/{id}/networks/{networkId}")
+  @Operation(summary = "Remove the user as a manager for a network")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void removeAPersonAsAManagerForNetwork(
+      @PathVariable Long id, @PathVariable Long networkId) {
+    personService.removeAsManagerForNetwork(id, networkId);
+  }
 }

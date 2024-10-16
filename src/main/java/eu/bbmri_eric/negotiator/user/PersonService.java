@@ -117,4 +117,20 @@ public interface PersonService {
    * @return a List of UserResponseModel objects representing the managers of the network.
    */
   Iterable<UserResponseModel> findAllForNetwork(Pageable pageable, Long networkId);
+
+  /**
+   * Assigns a person as a manager for a network.
+   *
+   * @param managerId the ID of the person to assign as a manager
+   * @param networkId the ID of the network to assign the person as a manager for
+   */
+  void assignAsManagerForNetwork(Long managerId, Long networkId);
+
+  /**
+   * Removes the specified representative's association with a resource.
+   *
+   * @param managerId the ID of the representative
+   * @param networkId the ID of the resource
+   */
+  void removeAsManagerForNetwork(Long managerId, Long networkId);
 }
