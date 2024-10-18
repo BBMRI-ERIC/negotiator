@@ -46,6 +46,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -1034,12 +1035,6 @@ public class NegotiationControllerTests {
         "%s/1".formatted(NEGOTIATIONS_URL));
   }
 
-  @Disabled
-  @Test
-  @WithUserDetails("TheResearcher")
-  public void testUpdate_BadRequest_whenRequestIsAlreadyAssignedToAnotherNegotiation()
-      throws Exception {}
-
   @Test
   @WithUserDetails("TheResearcher")
   @Transactional
@@ -1212,22 +1207,25 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_ValidInput_ReturnNegotiationState() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk());
+                "%s/negotiation-5/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status", is("IN_PROGRESS")));
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_ValidLowerCaseInput_ReturnNegotiationState() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/Approve".formatted(NEGOTIATIONS_URL)))
+                "%s/negotiation-1/lifecycle/Abandon".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
 

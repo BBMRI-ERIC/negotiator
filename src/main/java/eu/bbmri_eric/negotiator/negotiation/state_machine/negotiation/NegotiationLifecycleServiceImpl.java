@@ -49,7 +49,9 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private void changeStateMachine(String negotiationId, NegotiationEvent negotiationEvent) {
     if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
-      throw new StateMachineException("Operation not allowed");
+      throw new StateMachineException(
+          "You are not allowed to %s the Negotiation"
+              .formatted(negotiationEvent.getLabel().toLowerCase()));
     }
     persistStateMachineHandler
         .handleEventWithStateReactively(
@@ -68,7 +70,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
     List<String> roles = AuthenticatedUserContext.getRoles();
-    if (!roles.contains("ADMIN")
+    if (!roles.contains("ROLE_ADMIN")
         && !negotiationRepository.existsByIdAndCreatedBy_Id(
             negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
       return Set.of();

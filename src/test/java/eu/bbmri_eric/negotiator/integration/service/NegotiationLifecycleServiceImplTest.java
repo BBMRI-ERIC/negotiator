@@ -157,11 +157,14 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
   void sendEvent_wrongEvent_noChangeInState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertEquals(
-        NegotiationState.SUBMITTED,
-        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.ABANDON));
+    assertThrows(
+        StateMachineException.class,
+        () ->
+            negotiationLifecycleService.sendEvent(
+                negotiationDTO.getId(), NegotiationEvent.ABANDON));
     assertEquals(
         NegotiationState.SUBMITTED,
         NegotiationState.valueOf(
@@ -302,11 +305,18 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 105L)
   void sendEventForNegotiation_notAuthorized_noChange() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
+    assertThrows(
+        StateMachineException.class,
+        () ->
+            negotiationLifecycleService.sendEvent(
+                negotiationDTO.getId(), NegotiationEvent.ABANDON));
     assertEquals(
         NegotiationState.SUBMITTED,
-        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
+        NegotiationState.valueOf(
+            negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
   }
 
   @Test
@@ -334,7 +344,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockNegotiatorUser(id = 105L)
   void getPossibleStatesForNegotiation_notAuthorized_isEmpty() {
     Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
     assertEquals(Set.of(), negotiationLifecycleService.getPossibleEvents(negotiation.getId()));
