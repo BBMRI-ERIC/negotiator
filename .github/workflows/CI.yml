@@ -387,6 +387,48 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: ARTIFACT_VERSION=${{  github.ref_name }}
 
+  build-pages:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4
+        with:
+          node-version: 21
+          cache: npm
+          cache-dependency-path: 'docs/package-lock.json'
+
+      - name: Build
+        working-directory: docs
+        env:
+          DOCS_BASE: "/${{ github.event.repository.name }}/"
+        run: make build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy-pages:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    needs: [ build-pages ]
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
   publish-jar:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     name: Publish JAR file
