@@ -263,7 +263,7 @@
         <dependency>
             <artifactId>reactor-core</artifactId>
             <groupId>io.projectreactor</groupId>
-            <version>3.6.10</version>
+            <version>3.6.11</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
