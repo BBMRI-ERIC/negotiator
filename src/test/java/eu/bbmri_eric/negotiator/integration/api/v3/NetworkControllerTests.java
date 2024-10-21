@@ -301,6 +301,60 @@ public class NetworkControllerTests {
 
   @Test
   @WithUserDetails("admin")
+  public void postNetwork_batch_same_network_name() throws Exception {
+    NetworkCreateDTO networkDTO1 =
+        NetworkCreateDTO.builder()
+            .externalId("network3")
+            .contactEmail("network3@negotiator.com")
+            .name("network")
+            .uri("http://network3.org")
+            .build();
+    NetworkCreateDTO networkDTO2 =
+        NetworkCreateDTO.builder()
+            .externalId("network4")
+            .contactEmail("network4@negotiator.com")
+            .name("network")
+            .uri("http://network4.org")
+            .build();
+    String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO1, networkDTO2));
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(NETWORKS_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType("application/hal+json"))
+            .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO1.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].externalId", is(networkDTO1.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO1.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.networks[1].name", is(networkDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].externalId", is(networkDTO2.getExternalId())))
+            .andExpect(jsonPath("$._embedded.networks[1].uri", is(networkDTO2.getUri())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].contactEmail", is(networkDTO2.getContactEmail())))
+            .andReturn();
+
+    long id1 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[0].id", Long.class);
+    Optional<Network> network1 = networkRepository.findById(id1);
+    assert network1.isPresent();
+    assertEquals(networkDTO1.getName(), network1.get().getName());
+    long id2 =
+        JsonPath.parse(result.getResponse().getContentAsString())
+            .read("$._embedded.networks[1].id", Long.class);
+    Optional<Network> network2 = networkRepository.findById(id2);
+    assert network2.isPresent();
+    assertEquals(networkDTO2.getName(), network2.get().getName());
+  }
+
+  @Test
+  @WithUserDetails("admin")
   public void postNetwork_alreadyExists_throws400() throws Exception {
     NetworkCreateDTO networkDTO =
         NetworkCreateDTO.builder()

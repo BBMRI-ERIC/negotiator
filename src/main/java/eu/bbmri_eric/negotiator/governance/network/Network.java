@@ -47,8 +47,7 @@ public class Network {
   @NotNull private String uri;
 
   /** The name of the network */
-  @Column(unique = true)
-  private String name;
+  @Column private String name;
 
   /** A unique and persistent identifier issued by an appropriate institution */
   @NotNull
