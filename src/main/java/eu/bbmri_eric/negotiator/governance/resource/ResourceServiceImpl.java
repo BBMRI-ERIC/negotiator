@@ -26,11 +26,13 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -130,8 +132,54 @@ public class ResourceServiceImpl implements ResourceService {
   @Transactional
   public List<ResourceWithStatusDTO> updateResourcesInANegotiation(
       String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
-    updateResources(negotiationId, updateResourcesDTO);
+    Negotiation negotiation = fetchNegotiationFromDB(negotiationId);
+    Set<Resource> resourcesToUpdate = fetchResourcesFromDB(updateResourcesDTO.getResourceIds());
+    addAnyNewResourcesToNegotiation(resourcesToUpdate, negotiation);
+    setStatusForUpdatedResources(negotiation, resourcesToUpdate, updateResourcesDTO.getState());
+    negotiationRepository.saveAndFlush(negotiation);
+    if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+      applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
+    }
     return getResourceWithStatusDTOS(negotiationId);
+  }
+
+  private void setStatusForUpdatedResources(
+      Negotiation negotiation, Set<Resource> resourcesToUpdate, NegotiationResourceState state) {
+    Person representative =
+        personRepository
+            .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(
+                        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()));
+    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !representative.getResources().containsAll(resourcesToUpdate)) {
+      throw new ForbiddenRequestException("You do not have permission to update these resources");
+    }
+    if (Objects.equals(NegotiationResourceState.SUBMITTED, state)) {
+      for (Resource resource : resourcesToUpdate) {
+        if (Objects.isNull(negotiation.getCurrentStateForResource(resource.getSourceId()))) {
+          negotiation.setStateForResource(resource.getSourceId(), state);
+        }
+      }
+    } else {
+      for (Resource resource : resourcesToUpdate) {
+        negotiation.setStateForResource(resource.getSourceId(), state);
+      }
+    }
+  }
+
+  private static void addAnyNewResourcesToNegotiation(
+      Set<Resource> resourcesToUpdate, Negotiation negotiation) {
+    if (!Objects.equals(resourcesToUpdate, negotiation.getResources())) {
+      if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        throw new ForbiddenRequestException(
+            "You do not have permission to add resources to this negotiation");
+      }
+      Set<Resource> newNegotiationResources = new HashSet<>(negotiation.getResources());
+      newNegotiationResources.addAll(resourcesToUpdate);
+      negotiation.setResources(newNegotiationResources);
+    }
   }
 
   @Override
@@ -146,7 +194,7 @@ public class ResourceServiceImpl implements ResourceService {
   @Override
   @Transactional
   public List<ResourceResponseModel> addResources(List<ResourceCreateDTO> resourcesCreateDTO) {
-    ArrayList<Resource> resources = new ArrayList<Resource>();
+    ArrayList<Resource> resources = new ArrayList<>();
     for (ResourceCreateDTO resDTO : resourcesCreateDTO) {
       DiscoveryService discoveryService =
           discoveryServiceRepository
@@ -176,12 +224,6 @@ public class ResourceServiceImpl implements ResourceService {
         .collect(Collectors.toList());
   }
 
-  private void updateResources(String negotiationId, UpdateResourcesDTO updateResourcesDTO) {
-    Negotiation negotiation = getNegotiation(negotiationId);
-    Set<Resource> resources = getResources(negotiationId, updateResourcesDTO, negotiation);
-    persistChanges(negotiation, resources, updateResourcesDTO.getState());
-  }
-
   private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
     List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);
     log.debug(
@@ -193,15 +235,7 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private void persistChanges(
-      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {
-    resources.addAll(negotiation.getResources());
-    negotiation.setResources(resources);
-    initializeStateForNewResources(negotiation, resources, state);
-    negotiationRepository.saveAndFlush(negotiation);
-    if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
-      applicationEventPublisher.publishEvent(new NewResourcesAddedEvent(this, negotiation.getId()));
-    }
-  }
+      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {}
 
   private static void initializeStateForNewResources(
       Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {
@@ -212,23 +246,11 @@ public class ResourceServiceImpl implements ResourceService {
     }
   }
 
-  private @NonNull Set<Resource> getResources(
-      String negotiationId, UpdateResourcesDTO updateResourcesDTO, Negotiation negotiation) {
-    log.debug(
-        "Negotiation %s has %s resources before modification"
-            .formatted(negotiationId, negotiation.getResources().size()));
-    Set<Resource> resources =
-        new HashSet<>(repository.findAllById(updateResourcesDTO.getResourceIds()));
-    if (updateResourcesDTO.getState().equals(NegotiationResourceState.SUBMITTED)) {
-      resources.removeAll(negotiation.getResources());
-    }
-    log.debug(
-        "Request is to add %s new resources to negotiation %s"
-            .formatted(resources.size(), negotiationId));
-    return resources;
+  private @NonNull Set<Resource> fetchResourcesFromDB(List<Long> resourceIds) {
+    return new HashSet<>(repository.findAllById(resourceIds));
   }
 
-  private Negotiation getNegotiation(String negotiationId) {
+  private Negotiation fetchNegotiationFromDB(String negotiationId) {
     return negotiationRepository
         .findById(negotiationId)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
