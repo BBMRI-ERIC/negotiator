@@ -80,6 +80,11 @@ public class Person {
     resource.getRepresentatives().add(this);
   }
 
+  /**
+   * Get Resources Represented by the user.
+   *
+   * @return an Unmodifiable set of Resources.
+   */
   public Set<Resource> getResources() {
     if (Objects.isNull(this.resources)) {
       return Set.of();

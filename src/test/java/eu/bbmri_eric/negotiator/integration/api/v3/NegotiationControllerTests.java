@@ -28,6 +28,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
@@ -1401,5 +1402,43 @@ public class NegotiationControllerTests {
           expectedState,
           NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
     }
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  @Transactional
+  void updateResources_asRepresentative_cannotAddNew() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    List<Resource> resources = resourceRepository.findAll();
+    List<Long> resourceIds = resources.stream().map(Resource::getId).toList();
+    UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  @Transactional
+  void updateResources_asRepresentative_cannotUpdateOtherResources() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
+    List<Resource> resources = resourceRepository.findAll();
+    resources.remove(negotiation.getResources().iterator().next());
+    resources.forEach(negotiation::addResource);
+    Person person = personRepository.findById(109L).get();
+    assertFalse(person.getResources().containsAll(negotiation.getResources()));
+    UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isForbidden());
   }
 }
