@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -1426,13 +1427,15 @@ public class NegotiationControllerTests {
   @Transactional
   void updateResources_asRepresentative_cannotUpdateOtherResources() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    List<Long> resourceIds = negotiation.getResources().stream().map(Resource::getId).toList();
     List<Resource> resources = resourceRepository.findAll();
     resources.remove(negotiation.getResources().iterator().next());
     resources.forEach(negotiation::addResource);
     Person person = personRepository.findById(109L).get();
     assertFalse(person.getResources().containsAll(negotiation.getResources()));
-    UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds);
+    UpdateResourcesDTO updateResourcesDTO =
+        new UpdateResourcesDTO(
+            resources.stream().map(Resource::getId).collect(Collectors.toList()),
+            NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch(

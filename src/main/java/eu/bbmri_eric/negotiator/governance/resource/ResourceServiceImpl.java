@@ -163,6 +163,7 @@ public class ResourceServiceImpl implements ResourceService {
         }
       }
     } else {
+      log.error("here");
       for (Resource resource : resourcesToUpdate) {
         negotiation.setStateForResource(resource.getSourceId(), state);
         log.error(negotiation.getCurrentStateForResource(resource.getSourceId()));
