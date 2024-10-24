@@ -5,7 +5,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
-import org.springframework.statemachine.security.SecurityRule;
 import org.springframework.stereotype.Service;
 
 /** Spring State Machine implementation of the NegotiationLifecycleService. */
@@ -48,6 +48,11 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   private void changeStateMachine(String negotiationId, NegotiationEvent negotiationEvent) {
+    if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
+      throw new StateMachineException(
+          "You are not allowed to %s the Negotiation"
+              .formatted(negotiationEvent.getLabel().toLowerCase()));
+    }
     persistStateMachineHandler
         .handleEventWithStateReactively(
             MessageBuilder.withPayload(negotiationEvent.name())
@@ -65,6 +70,11 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
     List<String> roles = AuthenticatedUserContext.getRoles();
+    if (!roles.contains("ROLE_ADMIN")
+        && !negotiationRepository.existsByIdAndCreatedBy_Id(
+            negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
+      return Set.of();
+    }
     return stateMachine.getTransitions().stream()
         .filter(
             transition ->
@@ -73,13 +83,13 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
                     .getId()
                     .equals(getCurrentStateForNegotiation(negotiationId).toString()))
         .filter(
-            transition ->
-                Optional.ofNullable(transition.getSecurityRule())
-                    .map(SecurityRule::getAttributes)
-                    .isPresent())
-        .filter(
-            transition ->
-                transition.getSecurityRule().getAttributes().stream().anyMatch(roles::contains))
+            transition -> {
+              if (Objects.nonNull(transition.getSecurityRule())) {
+                return transition.getSecurityRule().getAttributes().stream()
+                    .anyMatch(roles::contains);
+              }
+              return true;
+            })
         .map(transition -> transition.getTrigger().getEvent())
         .map(NegotiationEvent::valueOf)
         .collect(Collectors.toSet());

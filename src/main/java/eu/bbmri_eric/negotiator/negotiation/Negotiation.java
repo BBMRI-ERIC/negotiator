@@ -187,6 +187,7 @@ public class Negotiation extends AuditEntity {
     resources.forEach(this::addResource);
   }
 
+  // TODO: fix if resource is already present
   /**
    * Link a resource to the Negotiation with null state.
    *

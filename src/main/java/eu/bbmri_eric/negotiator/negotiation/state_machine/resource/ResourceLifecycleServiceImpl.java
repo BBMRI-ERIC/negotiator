@@ -5,7 +5,9 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +131,13 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
 
   private Set<NegotiationResourceEvent> getPossibleEventsForCurrentStateMachine(
       String negotiationId, String resourceId, NegotiationResourceState resourceState) {
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
+      return Set.of();
+    }
     return stateMachine.getTransitions().stream()
         .filter(transition -> transition.getSource().getId().equals(resourceState.toString()))
         .filter(
