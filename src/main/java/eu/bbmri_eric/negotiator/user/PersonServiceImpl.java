@@ -183,6 +183,28 @@ public class PersonServiceImpl implements PersonService {
         .map(person -> modelMapper.map(person, UserResponseModel.class));
   }
 
+  @Override
+  public void assignAsManagerForNetwork(Long managerId, Long networkId) {
+    Person manager = getRepresentative(managerId);
+    Network network = getNetwork(networkId);
+    log.warn(
+        "AUTH_CHANGE: %s added as a manager for network: %s"
+            .formatted(manager.getName(), network.getName()));
+    network.addManager(manager);
+    networkRepository.save(network);
+  }
+
+  @Override
+  public void removeAsManagerForNetwork(Long managerId, Long networkId) {
+    Person manager = getRepresentative(managerId);
+    Network network = getNetwork(networkId);
+    log.warn(
+        "AUTH_CHANGE: %s removed as a manager for network: %s"
+            .formatted(manager.getName(), network.getName()));
+    network.removeManager(manager);
+    networkRepository.save(network);
+  }
+
   private Resource getResource(Long resourceId) {
     return resourceRepository
         .findById(resourceId)
@@ -193,5 +215,11 @@ public class PersonServiceImpl implements PersonService {
     return personRepository
         .findById(representativeId)
         .orElseThrow(() -> new UserNotFoundException(representativeId));
+  }
+
+  private Network getNetwork(Long networkId) {
+    return networkRepository
+        .findById(networkId)
+        .orElseThrow(() -> new EntityNotFoundException(networkId));
   }
 }

@@ -189,4 +189,42 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links.networks").isNotEmpty());
   }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void assignNetwork_validResource_ok() throws Exception {
+    Person person = personRepository.findAll().get(2);
+    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalElements").value(0));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId()))
+                .content(mapper.writeValueAsString(new AssignResourceDTO(1L)))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.networks").isNotEmpty());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  void removeNetworkFromManager_validResource_ok() throws Exception {
+    Person person = personRepository.findAll().iterator().next();
+    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.networks").isNotEmpty());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId()) + "/1"))
+        .andExpect(status().isNoContent());
+  }
 }
