@@ -165,13 +165,14 @@ public class ResourceServiceImpl implements ResourceService {
     } else {
       for (Resource resource : resourcesToUpdate) {
         negotiation.setStateForResource(resource.getSourceId(), state);
+        log.error(negotiation.getCurrentStateForResource(resource.getSourceId()));
       }
     }
   }
 
   private static void addAnyNewResourcesToNegotiation(
       Set<Resource> resourcesToUpdate, Negotiation negotiation) {
-    if (!Objects.equals(resourcesToUpdate, negotiation.getResources())) {
+    if (!negotiation.getResources().containsAll(resourcesToUpdate)) {
       if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
         throw new ForbiddenRequestException(
             "You do not have permission to add resources to this negotiation");
