@@ -57,7 +57,6 @@ public class NegotiationModelAssembler
               .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
     }
     for (NegotiationEvent event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
-      System.out.println(event.getLabel());
       entityModel.add(
           WebMvcLinkBuilder.linkTo(
                   methodOn(NegotiationController.class).sendEvent(entity.getId(), event))
