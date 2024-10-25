@@ -187,14 +187,14 @@ public class Negotiation extends AuditEntity {
     resources.forEach(this::addResource);
   }
 
-  // TODO: fix if resource is already present
   /**
-   * Link a resource to the Negotiation with null state.
+   * Link a resource to the Negotiation with null state. If resource is already linked, the
+   * Resources remain unchanged.
    *
    * @param resource to be linked.
    */
-  public void addResource(Resource resource) {
-    this.resourcesLink.add(new NegotiationResourceLink(this, resource, null));
+  public boolean addResource(Resource resource) {
+    return this.resourcesLink.add(new NegotiationResourceLink(this, resource, null));
   }
 
   private void buildResourceStateChangeRecord(Resource resource, NegotiationResourceState state) {
