@@ -26,23 +26,9 @@ public class UIConfigServiceImpl implements UIConfigService {
     Map<String, Map<String, Object>> settings = new HashMap<>();
     parameters.forEach(
         uiParameter -> {
-          switch (uiParameter.getType()) {
-            case INT:
-              settings
-                  .computeIfAbsent(uiParameter.getCategory(), k -> new HashMap<>())
-                  .put(uiParameter.getName(), Integer.valueOf(uiParameter.getValue()));
-              break;
-            case BOOL:
-              settings
-                  .computeIfAbsent(uiParameter.getCategory(), k -> new HashMap<>())
-                  .put(uiParameter.getName(), Boolean.valueOf(uiParameter.getValue()));
-              break;
-            default:
-              settings
-                  .computeIfAbsent(uiParameter.getCategory(), k -> new HashMap<>())
-                  .put(uiParameter.getName(), uiParameter.getValue());
-              break;
-          }
+          settings
+              .computeIfAbsent(uiParameter.getCategory(), k -> new HashMap<>())
+              .put(uiParameter.getName(), uiParameter.getTypedValue());
         });
     return settings;
   }

@@ -38,4 +38,12 @@ public class UIParameter {
 
   /** The value of the parameter as string */
   @NotNull String value;
+
+  public Object getTypedValue() {
+    return switch (getType()) {
+      case INT -> Integer.valueOf(getValue());
+      case BOOL -> Boolean.valueOf(getValue());
+      default -> getValue();
+    };
+  }
 }

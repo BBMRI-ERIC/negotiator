@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.settings.UIParameter;
@@ -59,5 +60,23 @@ public class UIParameterTest {
     assertTrue(validations.isEmpty());
     validations = validator.validate(uiParameterStr);
     assertTrue(validations.isEmpty());
+  }
+
+  @Test
+  void test_getTypedValue() {
+    assertInstanceOf(
+        Boolean.class,
+        (new UIParameter(1L, "testCategory", "testNamee", UIParameterType.BOOL, "true"))
+            .getTypedValue());
+
+    assertInstanceOf(
+        Integer.class,
+        (new UIParameter(1L, "testCategory", "testNamee", UIParameterType.INT, "11"))
+            .getTypedValue());
+
+    assertInstanceOf(
+        String.class,
+        (new UIParameter(1L, "testCategory", "testNamee", UIParameterType.STRING, "anystring"))
+            .getTypedValue());
   }
 }
