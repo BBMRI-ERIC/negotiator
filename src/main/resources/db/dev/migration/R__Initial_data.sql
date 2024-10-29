@@ -1,5 +1,5 @@
-insert into discovery_service (url, name)
-values ('https://bbmritestnn.gcc.rug.nl', 'Biobank Directory');
+insert into discovery_service (id, url, name)
+values (1, 'https://bbmritestnn.gcc.rug.nl', 'Biobank Directory');
 
 insert into person (id, email, name, subject_id, password, organization, admin)
 values (1, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
@@ -61,3 +61,27 @@ insert into public.access_form_section_element_link (id, access_form_section_lin
 values (100, 7, 100, true, 10),
        (101, 7, 101, true, 11),
        (102, 7, 102, true, 12);
+
+insert into public.ui_parameter (id, category, name, type, value) values
+  (1, 'theme', 'activeThemeFile', 'STRING', 'bbmri'),
+  (2, 'theme', 'activeLogosFiles', 'STRING', 'bbmri'),
+  (3, 'footer', 'isFooterStatusPageVisible', 'BOOL', true),
+  (4, 'footer', 'footerStatusPageLink', 'STRING', 'https://status.bbmri-eric.eu/'),
+  (5, 'footer', 'footerStatusPageText', 'STRING', 'BBMRI-ERIC Status Page'),
+  (6, 'footer', 'isFooterFollowUsVisible', 'BOOL', true),
+  (7, 'footer', 'footerFollowUsLinkedin', 'STRING', 'https://www.linkedin.com/company/bbmri-eric'),
+  (8, 'footer', 'footerFollowUsX', 'STRING', 'https://twitter.com/BBMRIERIC'),
+  (9, 'footer', 'footerFollowUsPodcast', 'STRING', 'https://www.bbmri-eric.eu/bbmri-eric/bbmri-eric-podcast/'),
+  (10, 'footer', 'isFooterWorkProgrammeVisible', 'BOOL', true),
+  (11, 'footer', 'footerWorkProgrammeLink', 'STRING', 'https://www.bbmri-eric.eu/wp-content/uploads/BBMRI-ERIC_work-program_2022-2024_DIGITAL.pdf'),
+  (12, 'footer', 'isFooterPrivacyPolicyVisible', 'BOOL', true),
+  (13, 'footer', 'footerPrivacyPolicy', 'STRING', 'https://www.bbmri-eric.eu/wp-content/uploads/AoM_10_8_Access-Policy_FINAL_EU.pdf'),
+  (14, 'footer', 'isFooterHelpLinkVisible', 'BOOL', true),
+  (15, 'footer', 'footerHelpLink', 'STRING', 'mailto:negotiator@helpdesk.bbmri-eric.eu'),
+  (16, 'footer', 'isFooterCopyRightVisible', 'BOOL', true),
+  (17, 'footer', 'footerCopyRight', 'STRING', '© 2024 BBMRI-ERIC'),
+  (18, 'footer', 'isFooterLeftSideIconVisible', 'BOOL', true),
+  (19, 'footer', 'footerLeftSideIcon',  'STRING', '@/assets/images/bbmri/home-bbmri-png'),
+  (20, 'footer', 'footerLeftSideIconLink', 'STRING', 'https://www.bbmri-eric.eu/'),
+  (21, 'footer', 'isFooterNewsletterVisible', 'BOOL', true),
+  (22, 'footer', 'footerNewsletter', 'STRING', 'https://www.bbmri-eric.eu/news-event/');

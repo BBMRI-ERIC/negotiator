@@ -156,3 +156,9 @@ values (1, 4),
 insert into network_person_link (network_id, person_id)
 values (1, 101),
        (1, 102);
+
+INSERT INTO ui_parameter (id,category,"name","type",value) VALUES
+	 (1,'theme','activeThemeFile','STRING','default'),
+	 (2,'theme','activeLogosFiles','STRING','default'),
+	 (3,'footer','isFooterStatusPageVisible','BOOL','true'),
+	 (4,'footer','footerHeight','INT','50');
