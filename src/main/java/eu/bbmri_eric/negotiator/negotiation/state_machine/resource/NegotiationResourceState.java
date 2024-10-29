@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import lombok.Getter;
-
 @Getter
 public enum NegotiationResourceState {
+  // Note that the order of the individual values is important. The most advanced state (final state) is at the bottom.
   SUBMITTED("Submitted", "Initial state"),
   REPRESENTATIVE_UNREACHABLE(
       "Representative Unreachable",
