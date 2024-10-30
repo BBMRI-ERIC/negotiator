@@ -1482,19 +1482,15 @@ public class NegotiationControllerTests {
   @WithMockNegotiatorUser(id = 109L)
   void findAllForNetwork_notAuthorized_throws403() throws Exception {
     mockMvc
-            .perform(
-                    MockMvcRequestBuilders.get(
-                                    "/v3/networks/1/negotiations"))
-            .andExpect(status().isForbidden());
+        .perform(MockMvcRequestBuilders.get("/v3/networks/1/negotiations"))
+        .andExpect(status().isForbidden());
   }
 
   @Test
   @WithMockNegotiatorUser(id = 102L)
   void findAllForNetwork_isAuthorized_ok() throws Exception {
     mockMvc
-            .perform(
-                    MockMvcRequestBuilders.get(
-                            "/v3/networks/1/negotiations"))
-            .andExpect(status().isOk());
+        .perform(MockMvcRequestBuilders.get("/v3/networks/1/negotiations"))
+        .andExpect(status().isOk());
   }
 }
