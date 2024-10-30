@@ -28,6 +28,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -1034,12 +1037,6 @@ public class NegotiationControllerTests {
         "%s/1".formatted(NEGOTIATIONS_URL));
   }
 
-  @Disabled
-  @Test
-  @WithUserDetails("TheResearcher")
-  public void testUpdate_BadRequest_whenRequestIsAlreadyAssignedToAnotherNegotiation()
-      throws Exception {}
-
   @Test
   @WithUserDetails("TheResearcher")
   @Transactional
@@ -1212,22 +1209,25 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_ValidInput_ReturnNegotiationState() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk());
+                "%s/negotiation-5/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status", is("IN_PROGRESS")));
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_ValidLowerCaseInput_ReturnNegotiationState() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/Approve".formatted(NEGOTIATIONS_URL)))
+                "%s/negotiation-1/lifecycle/Abandon".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
   }
 
@@ -1403,5 +1403,45 @@ public class NegotiationControllerTests {
           expectedState,
           NegotiationResourceState.valueOf(resourceAsJson.get("currentState").asText()));
     }
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  @Transactional
+  void updateResources_asRepresentative_cannotAddNew() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    List<Resource> resources = resourceRepository.findAll();
+    List<Long> resourceIds = resources.stream().map(Resource::getId).toList();
+    UpdateResourcesDTO updateResourcesDTO = new UpdateResourcesDTO(resourceIds);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  @Transactional
+  void updateResources_asRepresentative_cannotUpdateOtherResources() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    List<Resource> resources = resourceRepository.findAll();
+    resources.remove(negotiation.getResources().iterator().next());
+    resources.forEach(negotiation::addResource);
+    Person person = personRepository.findById(109L).get();
+    assertFalse(person.getResources().containsAll(negotiation.getResources()));
+    UpdateResourcesDTO updateResourcesDTO =
+        new UpdateResourcesDTO(
+            resources.stream().map(Resource::getId).collect(Collectors.toList()),
+            NegotiationResourceState.RESOURCE_MADE_AVAILABLE);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isForbidden());
   }
 }

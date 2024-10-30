@@ -13,6 +13,12 @@ import org.springframework.hateoas.server.core.Relation;
 @Relation(collectionRelation = "states", itemRelation = "state")
 public class ResourceStateMetadataDto implements Serializable {
   private NegotiationResourceState value;
+  private int ordinal;
   private String label;
   private String description;
+
+  public void setValue(NegotiationResourceState value) {
+    this.value = value;
+    this.ordinal = value.ordinal();
+  }
 }

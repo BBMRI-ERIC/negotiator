@@ -142,7 +142,6 @@ public class NotificationRepositoryTest {
     assertEquals(person.getId(), notificationViewDTO.getRecipient().getId());
     assertEquals(NotificationEmailStatus.EMAIL_NOT_SENT, notificationViewDTO.getEmailStatus());
     assertEquals(this.negotiation.getId(), notificationViewDTO.getNegotiationId());
-    System.out.println(notificationViewDTO.getNegotiationTitle());
     assertEquals(parseTitleFromNegotiation(negotiation), notificationViewDTO.getNegotiationTitle());
   }
 

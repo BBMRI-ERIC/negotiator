@@ -12,6 +12,8 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,9 +32,13 @@ import org.springframework.stereotype.Component;
 public class NegotiationModelAssembler
     implements RepresentationModelAssembler<NegotiationDTO, EntityModel<NegotiationDTO>> {
   private final InformationRequirementService requirementService;
+  private final NegotiationLifecycleService negotiationLifecycleService;
 
-  public NegotiationModelAssembler(InformationRequirementService requirementService) {
+  public NegotiationModelAssembler(
+      InformationRequirementService requirementService,
+      NegotiationLifecycleService negotiationLifecycleService) {
     this.requirementService = requirementService;
+    this.negotiationLifecycleService = negotiationLifecycleService;
   }
 
   public @NonNull EntityModel<NegotiationDTO> toModelWithRequirementLink(
@@ -49,6 +55,14 @@ public class NegotiationModelAssembler
                       .getSummaryInformation(entity.getId(), requirement.getId()))
               .withRel("Requirement summary %s".formatted(requirement.getId()))
               .withTitle(requirement.getRequiredAccessForm().getName() + " summary"));
+    }
+    for (NegotiationEvent event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
+      entityModel.add(
+          WebMvcLinkBuilder.linkTo(
+                  methodOn(NegotiationController.class).sendEvent(entity.getId(), event))
+              .withRel(event.toString())
+              .withTitle("Next Lifecycle event")
+              .withName(event.getLabel()));
     }
     return entityModel;
   }
