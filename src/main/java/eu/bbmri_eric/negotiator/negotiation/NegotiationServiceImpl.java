@@ -301,6 +301,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @param includeDetails whether the negotiation returned include details
    * @return the Negotiation with specified negotiationId
    */
+  @Override
   public NegotiationDTO findById(String negotiationId, boolean includeDetails)
       throws EntityNotFoundException {
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);

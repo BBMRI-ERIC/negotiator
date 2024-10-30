@@ -1477,4 +1477,24 @@ public class NegotiationControllerTests {
                 .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  void findAllForNetwork_notAuthorized_throws403() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get(
+                                    "/v3/networks/1/negotiations"))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void findAllForNetwork_isAuthorized_ok() throws Exception {
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.get(
+                            "/v3/networks/1/negotiations"))
+            .andExpect(status().isOk());
+  }
 }

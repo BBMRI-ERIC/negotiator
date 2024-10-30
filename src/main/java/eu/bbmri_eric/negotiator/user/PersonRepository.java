@@ -79,6 +79,16 @@ public interface PersonRepository
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 
+  @Query(
+      value =
+          """
+        SELECT COUNT(n) > 0
+        FROM Person p
+        JOIN p.networks n
+        WHERE p.id = :managerId AND n.id = :networkId
+    """)
+  boolean isNetworkManager(Long managerId, Long networkId);
+
   Page<Person> findAllByNetworksContains(Network network, Pageable pageable);
 
   List<Person> findAllByResourcesNotEmpty();
