@@ -32,7 +32,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -145,28 +144,27 @@ public class ResourceServiceImpl implements ResourceService {
 
   private void setStatusForUpdatedResources(
       Negotiation negotiation, Set<Resource> resourcesToUpdate, NegotiationResourceState state) {
+
+    Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     Person representative =
-        personRepository
-            .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(
-                        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()));
+        personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+
+    // Check permissions if the user is not an admin
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !representative.getResources().containsAll(resourcesToUpdate)) {
       throw new ForbiddenRequestException("You do not have permission to update these resources");
     }
-    if (Objects.equals(NegotiationResourceState.SUBMITTED, state)) {
-      for (Resource resource : resourcesToUpdate) {
-        if (Objects.isNull(negotiation.getCurrentStateForResource(resource.getSourceId()))) {
-          negotiation.setStateForResource(resource.getSourceId(), state);
-        }
-      }
-    } else {
-      for (Resource resource : resourcesToUpdate) {
-        negotiation.setStateForResource(resource.getSourceId(), state);
-      }
-    }
+
+    // Update state for each resource, conditionally handling 'SUBMITTED' state
+    resourcesToUpdate.forEach(
+        resource -> {
+          if (state == NegotiationResourceState.SUBMITTED
+              && negotiation.getCurrentStateForResource(resource.getSourceId()) == null) {
+            negotiation.setStateForResource(resource.getSourceId(), state);
+          } else if (state != NegotiationResourceState.SUBMITTED) {
+            negotiation.setStateForResource(resource.getSourceId(), state);
+          }
+        });
   }
 
   private static void addAnyNewResourcesToNegotiation(
