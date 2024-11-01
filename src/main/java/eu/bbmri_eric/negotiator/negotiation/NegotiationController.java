@@ -147,14 +147,10 @@ public class NegotiationController {
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
     boolean isAdmin = AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
-    if (isAuthorizedForNegotiation(negotiationDTO)) {
       if (negotiationService.isNegotiationCreator(id) || isAdmin) {
         return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
       }
       return assembler.toModel(negotiationDTO);
-    } else {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
   }
 
   /**
@@ -167,11 +163,6 @@ public class NegotiationController {
   @PutMapping("/negotiations/{id}/lifecycle/{event}")
   public ResponseEntity<?> sendEvent(
       @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
-    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
-        && !isCreator(negotiationService.findById(id, false))) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    // Process the request
     negotiationLifecycleService.sendEvent(id, event);
     NegotiationDTO result = negotiationService.findById(id, true);
     return ResponseEntity.ok(result);

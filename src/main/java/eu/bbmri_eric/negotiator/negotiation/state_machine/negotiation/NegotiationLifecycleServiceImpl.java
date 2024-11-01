@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import java.util.List;
@@ -69,10 +70,15 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
+    Long userId;
+    try {
+      userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    } catch (ClassCastException e) {
+      throw new ForbiddenRequestException("You are not allowed to perform this action");
+    }
     List<String> roles = AuthenticatedUserContext.getRoles();
     if (!roles.contains("ROLE_ADMIN")
-        && !negotiationRepository.existsByIdAndCreatedBy_Id(
-            negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
+        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userId)) {
       return Set.of();
     }
     return stateMachine.getTransitions().stream()

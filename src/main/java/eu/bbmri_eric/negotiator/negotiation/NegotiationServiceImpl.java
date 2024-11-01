@@ -304,8 +304,22 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public NegotiationDTO findById(String negotiationId, boolean includeDetails)
       throws EntityNotFoundException {
+    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
+    verifyReadAccessForNegotiation(negotiationId, userID);
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
     return modelMapper.map(negotiation, NegotiationDTO.class);
+  }
+
+  private void verifyReadAccessForNegotiation(String negotiationId, Long userID) {
+    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)
+        && !personRepository.isRepresentativeOfAnyResourceOfNegotiation(userID, negotiationId)
+        && !personRepository.isManagerOfAnyResourceOfNegotiation(userID, negotiationId)) {
+      throw new ForbiddenRequestException("You are not allowed to perform this action");
+    }
   }
 
   public void setPrivatePostsEnabled(String negotiationId, boolean enabled) {

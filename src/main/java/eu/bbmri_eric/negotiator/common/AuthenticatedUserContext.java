@@ -1,7 +1,9 @@
 package eu.bbmri_eric.negotiator.common;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,9 +17,14 @@ public class AuthenticatedUserContext {
    *
    * @return the internal identifier
    */
-  public static Long getCurrentlyAuthenticatedUserInternalId() throws ClassCastException {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    return ((NegotiatorPrincipal) auth.getPrincipal()).getPerson().getId();
+  public static Long getCurrentlyAuthenticatedUserInternalId()
+      throws AuthenticationCredentialsNotFoundException {
+    try {
+      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+      return ((NegotiatorPrincipal) auth.getPrincipal()).getPerson().getId();
+    } catch (Exception e) {
+      throw new AuthenticationCredentialsNotFoundException("No authenticated user found");
+    }
   }
 
   /**
@@ -26,6 +33,9 @@ public class AuthenticatedUserContext {
    * @return true or false
    */
   public static boolean isCurrentlyAuthenticatedUserAdmin() {
+    if (Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
+      return false;
+    }
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }
