@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
@@ -160,7 +161,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEvent_wrongEvent_noChangeInState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-        StateMachineException.class,
+        ForbiddenRequestException.class,
         () ->
             negotiationLifecycleService.sendEvent(
                 negotiationDTO.getId(), NegotiationEvent.ABANDON));
@@ -309,7 +310,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForNegotiation_notAuthorized_noChange() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertThrows(
-        StateMachineException.class,
+        ForbiddenRequestException.class,
         () ->
             negotiationLifecycleService.sendEvent(
                 negotiationDTO.getId(), NegotiationEvent.ABANDON));
