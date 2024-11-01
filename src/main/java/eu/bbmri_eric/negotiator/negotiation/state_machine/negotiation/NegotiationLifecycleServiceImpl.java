@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +49,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   private void changeStateMachine(String negotiationId, NegotiationEvent negotiationEvent) {
     if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
-      throw new StateMachineException(
+      throw new ForbiddenRequestException(
           "You are not allowed to %s the Negotiation"
               .formatted(negotiationEvent.getLabel().toLowerCase()));
     }

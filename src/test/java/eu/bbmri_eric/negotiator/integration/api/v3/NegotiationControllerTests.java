@@ -1212,22 +1212,13 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "biobank:1:collection:1")
-  void updateLifecycle_doesNotHaveRoleAdmin_Forbidden() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithMockUser(authorities = "ROLE_USER") // Assuming a non-admin user
+  @WithMockNegotiatorUser(id = 102L) // Assuming a non-admin user
   void sendEvent_NonAdmin_Forbidden() throws Exception {
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
                 "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
+        .andDo(print())
         .andExpect(status().isForbidden());
   }
 
