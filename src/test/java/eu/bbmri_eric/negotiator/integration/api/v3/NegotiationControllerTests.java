@@ -1484,4 +1484,18 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("/v3/networks/1/negotiations"))
         .andExpect(status().isOk());
   }
+
+  @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void accessNegotiation_asNetworkManager_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1"))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/resources"))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/posts"))
+        .andExpect(status().isOk());
+  }
 }

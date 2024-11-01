@@ -7,7 +7,9 @@ import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
@@ -15,7 +17,11 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -37,7 +43,7 @@ public class PostServiceImpl implements PostService {
   private PersonService personService;
   private NegotiationService negotiationService;
   private UserNotificationService userNotificationService;
-  private AuthenticatedUserContext userDetailsService;
+  private NegotiationAccessManager negotiationAccessManager;
 
   public PostServiceImpl(
       OrganizationRepository organizationRepository,
@@ -48,7 +54,8 @@ public class PostServiceImpl implements PostService {
       PersonService personService,
       NegotiationService negotiationService,
       UserNotificationService userNotificationService,
-      AuthenticatedUserContext userDetailsService) {
+      AuthenticatedUserContext userDetailsService,
+      NegotiationAccessManager negotiationAccessManager) {
     this.organizationRepository = organizationRepository;
     this.postRepository = postRepository;
     this.negotiationRepository = negotiationRepository;
@@ -57,7 +64,7 @@ public class PostServiceImpl implements PostService {
     this.personService = personService;
     this.negotiationService = negotiationService;
     this.userNotificationService = userNotificationService;
-    this.userDetailsService = userDetailsService;
+    this.negotiationAccessManager = negotiationAccessManager;
   }
 
   /**
@@ -88,7 +95,9 @@ public class PostServiceImpl implements PostService {
   private void checkAuthorization(
       PostCreateDTO postRequest, String negotiationId, Negotiation negotiation) {
     if (!negotiationService.isAuthorizedForNegotiation(negotiationId)
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !personRepository.isManagerOfAnyResourceOfNegotiation(
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)) {
       throw new ForbiddenRequestException(
           "You're not authorized to send messages to this negotiation");
     }
@@ -140,11 +149,37 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
-    List<Post> posts = postRepository.findByNegotiationId(negotiationId);
-    return posts.stream()
-        .filter(this::isAuthorized)
-        .map(post -> modelMapper.map(post, PostDTO.class))
-        .toList();
+    negotiationAccessManager.verifyReadAccessForNegotiation(
+        negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
+    List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
+    List<Post> readablePosts =
+        new ArrayList<>(allNegotiationPosts.stream().filter(Post::isPublic).toList());
+    if (negotiationService.isNegotiationCreator(negotiationId) || isAdmin()) {
+      readablePosts.addAll(allNegotiationPosts.stream().filter(post -> !post.isPublic()).toList());
+    } else {
+      Person user =
+          personRepository
+              .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+              .orElseThrow(() -> new EntityNotFoundException("User not found."));
+      Set<Organization> organizations =
+          user.getResources().stream().map(Resource::getOrganization).collect(Collectors.toSet());
+      organizations.addAll(
+          user.getNetworks().stream()
+              .map(
+                  network ->
+                      network.getResources().stream()
+                          .map(Resource::getOrganization)
+                          .collect(Collectors.toSet()))
+              .flatMap(Set::stream)
+              .collect(Collectors.toSet()));
+      for (Post post : allNegotiationPosts.stream().filter(post -> !post.isPublic()).toList()) {
+        if (organizations.contains(post.getOrganization())) {
+          readablePosts.add(post);
+        }
+      }
+    }
+    readablePosts.sort(Comparator.comparing(Post::getCreationDate));
+    return readablePosts.stream().map(post -> modelMapper.map(post, PostDTO.class)).toList();
   }
 
   @Transactional

@@ -19,6 +19,7 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
@@ -58,6 +59,7 @@ public class ResourceServiceImpl implements ResourceService {
   private final AccessFormRepository accessFormRepository;
   private final DiscoveryServiceRepository discoveryServiceRepository;
   private final OrganizationRepository organizationRepository;
+  private final NegotiationAccessManager negotiationAccessManager;
 
   public ResourceServiceImpl(
       NetworkRepository networkRepository,
@@ -70,7 +72,8 @@ public class ResourceServiceImpl implements ResourceService {
       ApplicationEventPublisher applicationEventPublisher,
       AccessFormRepository accessFormRepository,
       DiscoveryServiceRepository discoveryServiceRepository,
-      OrganizationRepository organizationRepository) {
+      OrganizationRepository organizationRepository,
+      NegotiationAccessManager negotiationAccessManager) {
     this.networkRepository = networkRepository;
     this.repository = repository;
     this.personRepository = personRepository;
@@ -81,6 +84,7 @@ public class ResourceServiceImpl implements ResourceService {
     this.accessFormRepository = accessFormRepository;
     this.discoveryServiceRepository = discoveryServiceRepository;
     this.organizationRepository = organizationRepository;
+    this.negotiationAccessManager = negotiationAccessManager;
   }
 
   @Override
@@ -117,10 +121,7 @@ public class ResourceServiceImpl implements ResourceService {
       throw new EntityNotFoundException(negotiationId);
     }
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
-    if (userIsntAuthorized(negotiationId, userId)
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
-      throw new ForbiddenRequestException("You do not have permission to access this resource");
-    }
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userId);
     List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);
     return resourceViewDTOS.stream()
         .map(resourceViewDTO -> modelMapper.map(resourceViewDTO, ResourceWithStatusDTO.class))

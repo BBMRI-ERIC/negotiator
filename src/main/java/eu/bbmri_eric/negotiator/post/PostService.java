@@ -22,10 +22,10 @@ public interface PostService {
   PostDTO findById(String id);
 
   /**
-   * Finds all the posts related to a negotiation
+   * Finds all the posts related to a Negotiation
    *
    * @param negotiationId the ID of the negotiation
-   * @return the list of all the posts related to the input negotiation ID
+   * @return a list of Posts the user is allowed to see
    */
   List<PostDTO> findByNegotiationId(String negotiationId);
 
