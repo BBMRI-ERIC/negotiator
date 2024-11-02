@@ -1,7 +1,7 @@
 import {defineConfig} from "vitepress"
 import {execSync} from 'child_process';
 
-// Function to get the latest Git tag
+
 function getLatestGitTag(): string {
     try {
         return execSync('git describe --tags --abbrev=0').toString().trim();
@@ -20,6 +20,7 @@ export default defineConfig({
     lastUpdated: true,
 
     themeConfig: {
+      logo: {src: '/handshake.svg', width: 24, height: 24},
         nav: [
             {text: 'Docs', link: '/what-is-negotiator'},
             {
