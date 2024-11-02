@@ -19,7 +19,8 @@ research infrastructures.
 
 ## Current Status
 
-The Negotiator is actively used to mediate access to health data and biological samples within BBMRI-ERIC and other
+The Negotiator is actively used to mediate access to health data and biological samples
+within [BBMRI-ERIC](bbmri-eric.eu) and other
 European research projects. For more detailed information, refer to our
 official [Documentation](https://bbmri-eric.github.io/negotiator).
 
@@ -56,7 +57,7 @@ For contributing, please read our [contribution guidelines](docs/CONTRIBUTING.md
 
 ## Documentation
 
-Official documentation
+Official documentation available at https://bbmri-eric.github.io/negotiator.
 
 ## License
 
