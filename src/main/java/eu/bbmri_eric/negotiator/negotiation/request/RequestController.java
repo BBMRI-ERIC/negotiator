@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.request;
 
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v3")
-@Tag(name = "Requests", description = "Submit requests for relevant resources")
+@Tag(name = "Requests", description = "Handover of Resources to the Negotiator to apply for access")
 public class RequestController {
 
   @Autowired private RequestService requestService;
@@ -39,6 +40,10 @@ public class RequestController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+      summary = "Create a request to apply for access",
+      description =
+          "This is the handover endpoint for Discovery Services that wish to use the Negotiator for access applications. No need to provide any form of authentication for this request as the user will be asked to authenticate upon redirect.")
   RequestDTO add(@Valid @RequestBody RequestCreateDTO queryRequest) {
     return requestService.create(queryRequest);
   }

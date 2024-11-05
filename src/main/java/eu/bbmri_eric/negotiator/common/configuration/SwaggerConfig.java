@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.common.configuration;
 
 import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -29,6 +30,10 @@ public class SwaggerConfig {
       oauthScopes.addString(scope, "no description");
     }
     return new OpenAPI()
+        .externalDocs(
+            new ExternalDocumentation()
+                .url("https://bbmri-eric.github.io/negotiator")
+                .description("Negotiator Documentation"))
         .info(
             new Info()
                 .license(

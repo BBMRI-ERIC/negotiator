@@ -1,5 +1,8 @@
 package eu.bbmri_eric.negotiator.common.exceptions;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.util.Arrays;
@@ -95,6 +98,24 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(UnsupportedFilterException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Bad request due to invalid input",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                          {
+                            "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400",
+                            "title": "Wrong request",
+                            "status": 400,
+                            "detail": "Specific error message goes here",
+                            "instance": "/api/your-endpoint"
+                          }
+                          """)))
   public final ResponseEntity<HttpErrorResponseModel> handleUnsupportedFilterException(
       RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
@@ -136,17 +157,33 @@ public class NegotiatorExceptionHandler {
   @ExceptionHandler({
     EntityNotStorableException.class,
     WrongRequestException.class,
-    ConstraintViolationException.class
+    ConstraintViolationException.class,
   })
-  public final ResponseEntity<HttpErrorResponseModel> handleBadRequestExceptions(
-      RuntimeException ex, WebRequest request) {
-    HttpErrorResponseModel errorResponse =
-        HttpErrorResponseModel.builder()
-            .title("Bad request.")
-            .detail(ex.getMessage())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .build();
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  @ApiResponse(
+      responseCode = "400",
+      description = "Bad request due to invalid input",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                        {
+                          "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400",
+                          "title": "Wrong request",
+                          "status": 400,
+                          "detail": "Specific error message goes here",
+                          "instance": "/api/your-endpoint"
+                        }
+                        """)))
+  public final ProblemDetail handleBadRequestExceptions(RuntimeException ex, WebRequest request) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400"));
+    problemDetail.setTitle("Wrong request");
+    problemDetail.setDetail(ex.getMessage());
+    return problemDetail;
   }
 
   @ExceptionHandler({ForbiddenRequestException.class})
@@ -199,15 +236,31 @@ public class NegotiatorExceptionHandler {
 
   @ExceptionHandler(DataAccessException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public final ResponseEntity<HttpErrorResponseModel> handleDataAccessException(
-      DataAccessException ex) {
-    HttpErrorResponseModel errorResponse =
-        HttpErrorResponseModel.builder()
-            .title("Database error")
-            .detail(ex.getMessage())
-            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .build();
-    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal Server Error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                        {
+                          "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+                          "title": "Internal Server Error",
+                          "status": 500,
+                          "detail": "Specific error message goes here",
+                          "instance": "/api/your-endpoint"
+                        }
+                        """)))
+  public final ProblemDetail handleDataAccessException(DataAccessException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
+    problemDetail.setTitle("Internal Server Error");
+    problemDetail.setDetail(ex.getMessage());
+    return problemDetail;
   }
 
   @ExceptionHandler(TransactionException.class)
@@ -248,7 +301,24 @@ public class NegotiatorExceptionHandler {
   // This is mainly for Swagger documentation.
   // The actual exception is handled by the CustomBearerTokenAuthenticationEntryPoint
   @ExceptionHandler({AuthenticationException.class})
-  @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized: Authentication is required to access this resource",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                            {
+                              "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401",
+                              "title": "Unauthorized",
+                              "status": 401,
+                              "detail": "Authentication is required to access this resource.",
+                              "instance": "/api/your-endpoint"
+                            }
+                            """)))
   public final ProblemDetail handleAuthenticationException(AuthenticationException ex) {
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
     problemDetail.setTitle("Unauthorized");
