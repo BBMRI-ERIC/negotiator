@@ -32,3 +32,10 @@ Our **Dynamic Request Lifecycle** feature enhances how requests are handled with
 tracking and management of requests from submission to completion. Users can view the status of their requests in
 real-time, receive notifications for updates, and gain insights into the entire process, making it easier to manage
 workflows and improve response times.
+
+## Notifications
+
+The **Notifications** feature keeps users informed about important updates regarding their requests and system
+activities. Users receive real-time alerts for various events, such as request approvals, status changes, and upcoming
+deadlines. This proactive communication helps users stay engaged and informed, allowing for timely responses and actions
+in their workflows.
