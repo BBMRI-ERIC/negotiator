@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
@@ -62,16 +61,14 @@ public class JwtDecoderConfig {
   private void addTokenValidators(NimbusJwtDecoder decoder) {
     decoder.setJwtValidator(
         new DelegatingOAuth2TokenValidator<>(
-            introspectionValidator(),
-            new JwtIssuerValidator(jwtIssuer),
             audienceValidator(),
             new JwtTimestampValidator()));
   }
 
-  @Bean
-  public OAuth2TokenValidator<Jwt> introspectionValidator() {
-    return new IntrospectionValidator(introspectionEndpoint, clientId, clientSecret);
-  }
+  //  @Bean
+  //  public OAuth2TokenValidator<Jwt> introspectionValidator() {
+  //    return new IntrospectionValidator(introspectionEndpoint, clientId, clientSecret);
+  //  }
 
   private OAuth2TokenValidator<Jwt> audienceValidator() {
     return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(audience));
