@@ -121,4 +121,11 @@ insert into public.ui_parameter (id, category, name, type, value) values
   (56, 'negotiationList', 'searchResultsTextColor', 'STRING', '#3c3c3d'),
   (57, 'negotiationList', 'displayViewButtonColor', 'STRING', '#f37125'),
   (58, 'negotiationList', 'cardTextColor', 'STRING', '#3c3c3d'),
-  (59, 'negotiationList', 'tableTextColor', 'STRING', '#3c3c3d');
+  (59, 'negotiationList', 'tableTextColor', 'STRING', '#3c3c3d'),
+  (60, 'newRequestButton', 'isButtonVisible', 'BOOL', true),
+  (61, 'newRequestButton', 'buttonText', 'STRING', 'New Request'),
+  (63, 'newRequestButton', 'buttonColor', 'STRING', '#e95713'),
+  (64, 'newRequestButton', 'buttonTextColor', 'STRING', '#ffffff'),
+  (65, 'newRequestButton', 'buttonUrl', 'STRING', 'https://directory.bbmri-eric.eu'),
+  (66, 'newRequestButton', 'modalTittle', 'STRING', 'New Request'),
+  (67, 'newRequestButton', 'modalText', 'STRING', 'You will be redirected to our Metadata catalogue where you can select which collections you want to contact.');
