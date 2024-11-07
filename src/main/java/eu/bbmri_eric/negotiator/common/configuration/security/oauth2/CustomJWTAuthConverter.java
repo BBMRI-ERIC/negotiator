@@ -166,7 +166,6 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   }
 
   private Object requestClaimsFromUserInfoEndpoint(Jwt jwt) {
-    System.setProperty("java.net.preferIPv4Stack", "true");
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
@@ -178,6 +177,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     } catch (RestClientException e) {
       log.error("Could not connect to user info endpoint");
       log.error(e.getMessage());
+      return new Object();
     }
     return response.getBody();
   }

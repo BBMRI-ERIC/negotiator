@@ -1,0 +1,97 @@
+name: Negotiator
+services:
+  traefik:
+    image: traefik:v3.2.0
+    container_name: traefik
+    network_mode: host  # Use host network
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:8080"  # Make Traefik listen on 8080 for all traffic
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  negotiator:
+    container_name: negotiator
+    image: bbmrieric/negotiator:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      # Route /api requests specifically to negotiator
+      - "traefik.enable=true"
+      - "traefik.http.routers.negotiator-api.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.negotiator-api.entrypoints=web"
+      - "traefik.http.routers.negotiator-api.priority=2"  # Higher priority for /api route
+      - "traefik.http.services.negotiator.loadbalancer.server.port=8081"  # negotiator's internal port
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/negotiator
+      - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
+    network_mode: host
+  postgres:
+    container_name: negotiator-db
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=negotiator
+      - POSTGRES_PASSWORD=negotiator
+      - POSTGRES_DB=negotiator
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "negotiator" ]
+      interval: 5s
+      timeout: 60s
+      retries: 5
+    volumes:
+      - negotiator-db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
+  negotiator-frontend:
+    container_name: negotiator-frontend
+    image: bbmrieric/negotiator-frontend:${FRONTEND_TAG:-latest}
+    restart: always
+    environment:
+      - AUTH_URL=http://localhost:4011
+      - CLIENT_ID=client-credentials-mock-client
+      - REDIRECT_URI=http://localhost:8080/logged-in
+      - LOGOUT_URI=http://localhost:8080
+      - API_RESOURCES=https://negotiator.bbmri-eric.eu
+      - SCOPES="openid profile email permissions some-app-scope-1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.priority=1"  # Lower priority than /api route
+      - "traefik.http.services.frontend.loadbalancer.server.port=8080"  # Internal port for frontend service
+  oidc-server-mock:
+    container_name: oidc-server-mock
+    image: ghcr.io/soluto/oidc-server-mock:0.9.2
+    ports:
+      - '4011:8080'
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+      LOGIN_OPTIONS_INLINE: |
+        {
+          "AllowRememberLogin": false
+        }
+      LOGOUT_OPTIONS_INLINE: |
+        {
+          "AutomaticRedirectAfterSignOut": true
+        }
+      API_SCOPES_INLINE: |
+        - Name: some-app-scope-1
+        - Name: some-app-scope-2
+      API_RESOURCES_INLINE: |
+        - Name: https://negotiator.bbmri-eric.eu
+          Scopes:
+            - some-app-scope-1
+            - some-app-scope-2
+          ApiSecrets:
+            - negotiator-secret
+      SERVER_OPTIONS_PATH: /config/server-options.json
+      IDENTITY_RESOURCES_PATH: /config/identity-resources.json
+      USERS_CONFIGURATION_PATH: /config/users.yaml
+      CLIENTS_CONFIGURATION_PATH: /config/clients.json
+    volumes:
+      - ./config:/config:ro
+volumes:
+  negotiator-db-data:
