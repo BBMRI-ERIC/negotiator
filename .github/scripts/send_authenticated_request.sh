@@ -9,7 +9,7 @@ fi
 
 BASE="http://localhost:8081/api/v3/requests"
 
-if [ "201" = "$(curl -s --oauth2-bearer "$ACCESS_TOKEN" -o /dev/null -w '%{response_code}' -H "Content-Type: application/json" -d @../oauth-test/request.json "$BASE")" ]; then
+if [ "201" = "$(curl -s --oauth2-bearer "$ACCESS_TOKEN" -o /dev/null -w '%{response_code}' -H "Content-Type: application/json" -d @.github/oauth-test/request.json "$BASE")" ]; then
   echo "OK 👍: successful authenticated system search request"
 else
   echo "Fail 😞: failed authenticated system search request"
