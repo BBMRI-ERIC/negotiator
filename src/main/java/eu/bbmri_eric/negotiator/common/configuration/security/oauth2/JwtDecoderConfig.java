@@ -32,8 +32,8 @@ public class JwtDecoderConfig {
   @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
   private String clientSecret;
 
-  @Value("${spring.security.oauth2.resourceserver.jwt.audiences}")
-  private String audience;
+  @Value("#{'${spring.security.oauth2.resourceserver.jwt.audiences}'.split(',')}")
+  private List<String> audiences;
 
   @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
   private String jwksUrl;
@@ -74,6 +74,7 @@ public class JwtDecoderConfig {
   }
 
   private OAuth2TokenValidator<Jwt> audienceValidator() {
-    return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(audience));
+    return new JwtClaimValidator<List<String>>(
+        AUD, aud -> audiences.stream().anyMatch(aud::contains));
   }
 }

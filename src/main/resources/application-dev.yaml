@@ -18,7 +18,6 @@ spring:
           user-info-uri: "http://localhost:4011/connect/userinfo"
           issuer-uri: "http://localhost:4011"
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
-          audiences: [ https://negotiator.bbmri-eric.eu, negotiator-api ]
         opaquetoken:
           client-id: "123"
           client-secret: "123"
@@ -32,9 +31,13 @@ springdoc:
   swagger-ui:
     oauth:
       use-pkce-with-authorization-code-grant: true
-      client-id: "client-credentials-mock-client"
-      client-secret: "authorization-code-with-pkce-client-secret"
+      client-id: "auth-code-client"
       scopes: "openid profile email permissions some-app-scope-1"
+      app-name: "Swagger UI"
+      additional-query-string-params:
+        {
+          "resource": "https://negotiator.bbmri-eric.eu"
+        }
 negotiator:
   molgenis-url: "https://bbmritestnn.gcc.rug.nl"
   frontend-url: "http://localhost:8080"

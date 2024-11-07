@@ -68,7 +68,7 @@ spring:
           issuer-uri: ""
           jwks-url: ""
           type: "JWT"
-          audiences: negotiator-api
+          audiences: "https://negotiator.bbmri-eric.eu,negotiator-api"
   profiles:
     default: prod
 negotiator:
@@ -100,10 +100,6 @@ springdoc:
       client-id: ""
       client-secret: ""
       scopes: ""
-      additional-query-string-params:
-        {
-          "resource": "${spring.security.oauth2.resourceserver.jwt.audiences}"
-        }
     tags-sorter: "alpha"
     operations-sorter: "alpha"
 info:

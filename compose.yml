@@ -26,6 +26,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/negotiator
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_INTROSPECTIONURI=
     network_mode: host
   postgres:
     container_name: negotiator-db

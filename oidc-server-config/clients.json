@@ -1,10 +1,7 @@
 [
   {
-    "ClientId": "client-credentials-mock-client",
+    "ClientId": "auth-code-client",
     "Description": "Client for authorization code flow",
-    "ClientSecrets": [
-      "authorization-code-with-pkce-client-secret"
-    ],
     "AllowedGrantTypes": [
       "authorization_code"
     ],
