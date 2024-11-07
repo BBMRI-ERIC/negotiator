@@ -18,10 +18,10 @@ spring:
           user-info-uri: "http://localhost:4011/connect/userinfo"
           issuer-uri: "http://localhost:4011"
           jwk-set-uri: "http://localhost:4011/.well-known/openid-configuration/jwks"
-          audiences: https://negotiator.bbmri-eric.eu
+          audiences: [ https://negotiator.bbmri-eric.eu, negotiator-api ]
         opaquetoken:
-          client-id: "https%3A//negotiator.bbmri-eric.eu"
-          client-secret: "negotiator-secret"
+          client-id: "123"
+          client-secret: "123"
           introspection-uri: "http://localhost:4011/connect/introspect"
   thymeleaf:
     cache: false

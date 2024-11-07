@@ -28,5 +28,24 @@
     "AccessTokenLifetime": 3600,
     "ClientClaimsPrefix": "",
     "RequireClientSecret": false
+  },
+  {
+    "ClientId": "123",
+    "ClientSecrets": [
+      "123"
+    ],
+    "Description": "Client for client credentials flow",
+    "AllowedGrantTypes": [
+      "client_credentials"
+    ],
+    "AllowedScopes": [
+      "negotiator_api",
+      "negotiator_authz_management",
+      "negotiator_resource_management"
+    ],
+    "ClientClaimsPrefix": "",
+    "Claims": [],
+    "IdentityTokenLifetime": 1,
+    "AccessTokenLifetime": 1
   }
 ]

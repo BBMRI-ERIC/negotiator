@@ -80,6 +80,9 @@ services:
       API_SCOPES_INLINE: |
         - Name: some-app-scope-1
         - Name: some-app-scope-2
+        - Name: negotiator_api
+        - Name: negotiator_authz_management
+        - Name: negotiator_resource_management
       API_RESOURCES_INLINE: |
         - Name: https://negotiator.bbmri-eric.eu
           Scopes:
@@ -87,6 +90,13 @@ services:
             - some-app-scope-2
           ApiSecrets:
             - negotiator-secret
+        - Name: negotiator-api
+          Scopes:
+            - negotiator_api
+            - negotiator_authz_management
+            - negotiator_resource_management
+          ApiSecrets:
+          - negotiator-secret
       SERVER_OPTIONS_PATH: /config/server-options.json
       IDENTITY_RESOURCES_PATH: /config/identity-resources.json
       USERS_CONFIGURATION_PATH: /config/users.yaml
