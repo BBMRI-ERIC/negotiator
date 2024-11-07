@@ -26,7 +26,6 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/negotiator
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_INTROSPECTIONURI=
     network_mode: host
   postgres:
     container_name: negotiator-db
@@ -89,15 +88,11 @@ services:
           Scopes:
             - some-app-scope-1
             - some-app-scope-2
-          ApiSecrets:
-            - negotiator-secret
-        - Name: negotiator-api
-          Scopes:
             - negotiator_api
             - negotiator_authz_management
             - negotiator_resource_management
           ApiSecrets:
-          - negotiator-secret
+            - negotiator-secret
       SERVER_OPTIONS_PATH: /config/server-options.json
       IDENTITY_RESOURCES_PATH: /config/identity-resources.json
       USERS_CONFIGURATION_PATH: /config/users.yaml
