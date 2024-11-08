@@ -1,3 +1,4 @@
+# Do not use it for production!
 name: negotiator
 services:
   traefik:
