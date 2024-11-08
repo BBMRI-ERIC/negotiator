@@ -1,3 +1,3 @@
 ::: danger
-Sorry, Site under construction! 🚧
+Site under construction! 🚧
 :::

@@ -79,6 +79,14 @@ export default defineConfig({
                 collapsed: false,
                 items: [
                     {text: 'Connecting to a Negotiator', link: 'connecting-to-negotiator'},
+                    {text: 'Contributing', link: '/contributing'},
+                    {text: 'Deployment', link: '/deployment'},
+                    {text: 'Notifications', link: '/notifications'},
+                    {text: 'REST API', link: '/REST'},
+                    {text: 'Logging', link: '/logging'},
+                    {text: 'Lifecycle', link: '/lifecycle'},
+                    {text: 'Database Migration', link: '/database_migration'},
+                    {text: 'External Services', link: '/external_services'}
                 ]
             }
         ],

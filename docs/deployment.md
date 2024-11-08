@@ -1,5 +1,3 @@
-### Running the backend in development mode
+# Deployment
 
-```shell
-mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev 
-```
+<FileContent path="https://raw.githubusercontent.com/BBMRI-ERIC/negotiator/refs/heads/master/Dockerfile" language="docker"></FileContent>
