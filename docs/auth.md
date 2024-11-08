@@ -15,7 +15,9 @@ as [Keycloak](https://www.keycloak.org/), [Google](https://developers.google.com
 or [GitHub](https://docs.github.com/en/free-pro-team@latest/developers/apps/building-oauth-apps/creating-an-oauth-app)).
 In this flow, the frontend application requests the user to authenticate with an authorization server, typically a
 trusted identity provider. The flow works as follows:
-
+![Diagram](/auth-code.png)
+Credit for this diagram goes
+to [Auth0](https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-pkce)
 1. The frontend redirects the user to the OIDC provider (the authorization server) for authentication.
 2. After the user successfully logs in, the OIDC provider redirects the user back to the frontend with an *
    *authorization code**.
