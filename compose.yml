@@ -1,4 +1,4 @@
-name: Negotiator
+name: negotiator
 services:
   traefik:
     image: traefik:v3.2.0

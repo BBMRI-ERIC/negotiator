@@ -62,7 +62,8 @@ export default defineConfig({
                 collapsed: false,
                 items: [
                     {text: 'What is Negotiator?', link: '/what-is-negotiator'},
-                    {text: 'Key features', link: '/key-features'}
+                    {text: 'Key features', link: '/key-features'},
+                    {text: 'Quickstart', link: '/getting-started'}
                 ]
             },
             {
