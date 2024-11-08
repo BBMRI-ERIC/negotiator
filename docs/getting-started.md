@@ -27,3 +27,7 @@ For instructions on how to setup a development environment, see [Contributing](/
 - PostgreSQL database
 - Negotiator frontend
 - [OIDC Server Mock](https://github.com/Soluto/oidc-server-mock)
+
+> [!TIP]
+> The Database is available at the URL visible bellow with default credentials negotiator:negotiator:
+> `jdbc:postgresql://localhost:5432/negotiator`
