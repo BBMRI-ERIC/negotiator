@@ -83,6 +83,7 @@ export default defineConfig({
                     {text: 'Deployment', link: '/deployment'},
                     {text: 'Notifications', link: '/notifications'},
                     {text: 'REST API', link: '/REST'},
+                    {text: 'Authentication and Authorization', link: '/auth'},
                     {text: 'Logging', link: '/logging'},
                     {text: 'Lifecycle', link: '/lifecycle'},
                     {text: 'Database Migration', link: '/database_migration'},

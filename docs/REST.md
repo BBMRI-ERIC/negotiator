@@ -6,7 +6,7 @@ Some aspects of it also follow additional specifications and guidelines availabl
 at [REST standards](https://standards.rest/).
 The Current implementation is done using the [Spring framework](https://spring.io/projects/spring-framework)
 in combination with the [Spring HATEOAS project](https://spring.io/projects/spring-hateoas).
-Authentication and authorization documentation can be found [here](AUTH.md).
+Authentication and authorization documentation can be found [here](auth).
 
 **Notice**
 
