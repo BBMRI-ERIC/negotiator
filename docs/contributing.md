@@ -28,6 +28,9 @@ their [documentation](https://docs.spring.io/spring-boot/reference/using/devtool
 mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev 
 ```
 
+> [!TIP]
+> The Database is available at the URL visible bellow with default credentials negotiator:negotiator:
+> `jdbc:postgresql://localhost:5432/negotiator`
 ### Known problems
 
 #### WSL
