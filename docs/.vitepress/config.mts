@@ -18,6 +18,7 @@ export default defineConfig({
     head: [['link', {rel: 'icon', href: '/handshake.svg'}]],
     cleanUrls: true,
     lastUpdated: true,
+    ignoreDeadLinks: true,
 
     themeConfig: {
       logo: {src: '/handshake.svg', width: 24, height: 24},
