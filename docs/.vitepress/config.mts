@@ -2,12 +2,16 @@ import {defineConfig} from "vitepress"
 import {execSync} from 'child_process';
 
 
-function getLatestGitTag(): string {
+function getLatestGitTag() {
     try {
-        return execSync('git describe --tags --abbrev=0').toString().trim();
+        const tag = execSync('git describe --tags --abbrev=0', {stdio: 'pipe'}).toString().trim();
+        if (!tag) {
+            throw new Error("No Git tags found.");
+        }
+        return tag;
     } catch (error) {
-        console.error("Error fetching Git tag:", error);
-        return '0.0.0'; // Fallback version if no tags are found
+        console.error("Error fetching Git tag:", error.message || error);
+        return 'latest'; // Fallback version if no tags are found
     }
 }
 
