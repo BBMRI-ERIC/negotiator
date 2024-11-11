@@ -41,11 +41,15 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
   }
 
   private OAuth2TokenValidatorResult introspect(Jwt token) {
-    if (jwtCache.containsKey(token.getSubject()) || isRequestSuccessful(sendHttpRequest(token))) {
-      log.debug("Introspection for subject %s was successful!".formatted(token.getSubject()));
+    String subject = token.getSubject();
+    if (Objects.isNull(subject)) {
+      subject = token.getClaimAsString("client_id");
+    }
+    if (jwtCache.containsKey(subject) || isRequestSuccessful(sendHttpRequest(token))) {
+      log.debug("Introspection for subject %s was successful!".formatted(subject));
       return OAuth2TokenValidatorResult.success();
     } else {
-      log.warn("Introspection for subject %s failed!".formatted(token.getSubject()));
+      log.warn("Introspection for subject %s failed!".formatted(subject));
       return OAuth2TokenValidatorResult.failure(error);
     }
   }

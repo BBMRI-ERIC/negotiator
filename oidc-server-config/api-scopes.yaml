@@ -1,0 +1,5 @@
+- Name: some-app-scope-1
+- Name: some-app-scope-2
+- Name: negotiator_api
+- Name: negotiator_authz_management
+- Name: negotiator_resource_management

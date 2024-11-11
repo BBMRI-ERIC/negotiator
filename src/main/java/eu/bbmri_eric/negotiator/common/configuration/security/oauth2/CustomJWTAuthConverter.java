@@ -22,6 +22,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -169,9 +170,15 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.add("Authorization", String.format("Bearer %s", jwt.getTokenValue()));
     HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
-
-    ResponseEntity<Object> response =
-        restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET, httpEntity, Object.class);
+    ResponseEntity<Object> response = null;
+    try {
+      response =
+          restTemplate.exchange(this.userInfoEndpoint, HttpMethod.GET, httpEntity, Object.class);
+    } catch (RestClientException e) {
+      log.error("Could not connect to user info endpoint");
+      log.error(e.getMessage());
+      return new Object();
+    }
     return response.getBody();
   }
 

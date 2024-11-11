@@ -1,11 +1,14 @@
 {
   "type": "module",
   "devDependencies": {
-    "vitepress": "^1.4.1"
+    "vitepress": "^1.4.3"
   },
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
+  },
+  "dependencies": {
+    "swagger-ui": "^5.18.0"
   }
 }

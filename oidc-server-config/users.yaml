@@ -1,0 +1,150 @@
+[
+  {
+    "SubjectId": "1000@bbmri.eu",
+    "Username": "Researcher",
+    "Password": "researcher",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "Adam Researcher",
+        "ValueType": "string"
+      },
+      {
+        "Type": "given_name",
+        "Value": "Adam",
+        "ValueType": "string"
+      },
+      {
+        "Type": "family_name",
+        "Value": "Researcher",
+        "ValueType": "string"
+      },
+      {
+        "Type": "preferred_username",
+        "Value": "TheResearcher",
+        "ValueType": "string"
+      },
+      {
+        "Type": "email",
+        "Value": "adam.researcher@gmail.com",
+        "ValueType": "string"
+      },
+      {
+        "Type": "eduperson_entitlement",
+        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\"]",
+        "ValueType": "json"
+      }
+    ]
+  },
+  {
+    "SubjectId": "1001@bbmri.eu",
+    "Username": "Biobanker",
+    "Password": "biobanker",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "Taylor Biobanker",
+        "ValueType": "string"
+      },
+      {
+        "Type": "given_name",
+        "Value": "Taylor",
+        "ValueType": "string"
+      },
+      {
+        "Type": "family_name",
+        "Value": "Biobanker",
+        "ValueType": "string"
+      },
+      {
+        "Type": "preferred_username",
+        "Value": "TheBiobanker",
+        "ValueType": "string"
+      },
+      {
+        "Type": "email",
+        "Value": "taylor.biobanker@gmail.com",
+        "ValueType": "string"
+      },
+      {
+        "Type": "eduperson_entitlement",
+        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection#perun.bbmri-eric.eu\",\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection_2#perun.bbmri-eric.eu\",\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection_3#perun.bbmri-eric.eu\",\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection_4#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.2#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.1#perun.bbmri-eric.eu\"]",
+        "ValueType": "json"
+      }
+    ]
+  },
+  {
+    "SubjectId": "1003@bbmri.eu",
+    "Username": "Repr",
+    "Password": "repr",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "Sarah Representative",
+        "ValueType": "string"
+      },
+      {
+        "Type": "given_name",
+        "Value": "Sarah",
+        "ValueType": "string"
+      },
+      {
+        "Type": "family_name",
+        "Value": "Representative",
+        "ValueType": "string"
+      },
+      {
+        "Type": "preferred_username",
+        "Value": "SarahRepr",
+        "ValueType": "string"
+      },
+      {
+        "Type": "email",
+        "Value": "sarah.repr@biobank.eu",
+        "ValueType": "string"
+      },
+      {
+        "Type": "eduperson_entitlement",
+        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric:ID:CZ_MMCI:collection:LTS#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.2#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.1#perun.bbmri-eric.eu\"]",
+        "ValueType": "json"
+      }
+    ]
+  },
+  {
+    "SubjectId": "1002@bbmri.eu",
+    "Username": "admin",
+    "Password": "admin",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "Alice Administrator",
+        "ValueType": "string"
+      },
+      {
+        "Type": "given_name",
+        "Value": "Alice",
+        "ValueType": "string"
+      },
+      {
+        "Type": "family_name",
+        "Value": "Administrator",
+        "ValueType": "string"
+      },
+      {
+        "Type": "preferred_username",
+        "Value": "TheAdministrator",
+        "ValueType": "string"
+      },
+      {
+        "Type": "email",
+        "Value": "alice.administrator@gmail.com",
+        "ValueType": "string"
+      },
+      {
+        "Type": "eduperson_entitlement",
+        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric:ID:CZ_MMCI:collection:LTS#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\"]",
+        "ValueType": "json"
+      }
+    ]
+  }
+]

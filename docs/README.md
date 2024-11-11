@@ -1,3 +1,3 @@
 # Documentation
 
-* [Development](CONTRIBUTING.md)
+* [Development](contributing)

@@ -152,7 +152,7 @@ public class RequestServiceImpl implements RequestService {
     try {
       discoveryServiceURL = new URL(url);
     } catch (MalformedURLException e) {
-      throw new WrongRequestException("URL not valid");
+      throw new WrongRequestException("URL is not valid");
     }
     return discoveryServiceRepository
         .findByUrl(

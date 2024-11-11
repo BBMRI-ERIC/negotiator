@@ -1,0 +1,9 @@
+- Name: https://negotiator.bbmri-eric.eu
+  Scopes:
+    - some-app-scope-1
+    - some-app-scope-2
+    - negotiator_api
+    - negotiator_authz_management
+    - negotiator_resource_management
+  ApiSecrets:
+    - negotiator-secret
