@@ -204,16 +204,20 @@ public class NegotiationServiceImpl implements NegotiationService {
    * Method to filter negotiations. It dynamically creates query conditions depending on the
    * NegotiationFilterDTI in input and returns the filtered negotiations
    *
-   * @param pageable a Pageable object to contstruct Pagination
-   * @param requestParameters a NegotiationFilterDTO object containing the filter parameters
+   * @param filtersDTO a NegotiationFilterDTO object containing the filter parameters
    * @return an Iterable of NegotiationDTO with the filtered Negotiations
    */
   @Override
-  public Iterable<NegotiationDTO> findAllByFilters(
-      Pageable pageable, NegotiationFilterDTO requestParameters) {
+  public Iterable<NegotiationDTO> findAllByFilters(NegotiationFilterDTO filtersDTO) {
 
     Specification<Negotiation> filtersSpec =
-        NegotiationSpecification.fromNegotiationFilters(requestParameters, null);
+        NegotiationSpecification.fromNegotiationFilters(filtersDTO, null);
+
+    Pageable pageable =
+        PageRequest.of(
+            filtersDTO.getPage(),
+            filtersDTO.getSize(),
+            Sort.by(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name()));
 
     return negotiationRepository
         .findAll(filtersSpec, pageable)

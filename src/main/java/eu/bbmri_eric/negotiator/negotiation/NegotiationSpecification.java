@@ -19,7 +19,7 @@ import org.springframework.lang.Nullable;
 public class NegotiationSpecification {
 
   public static Specification<Negotiation> fromNegotiationFilters(
-          NegotiationFilterDTO requestParameters, Person user) {
+      NegotiationFilterDTO requestParameters, Person user) {
 
     Specification<Negotiation> specs = null;
     if (user != null) {

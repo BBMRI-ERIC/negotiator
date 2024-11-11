@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -12,34 +11,24 @@ import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +36,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -118,55 +106,10 @@ public class NegotiationController {
     return negotiationService.update(id, request);
   }
 
-  private void checkNoUnknownParameters(
-      Enumeration<String> parameterNames, Set<String> allowedParams) {
-    while (parameterNames.hasMoreElements()) {
-      String paramName = parameterNames.nextElement();
-      if (!allowedParams.contains(paramName)) {
-        throw new WrongRequestException("Parameter %s is not allowed".formatted(paramName));
-      }
-    }
-  }
-
   @GetMapping("/negotiations")
-  public PagedModel<EntityModel<NegotiationDTO>> list(
-      @Nullable HttpServletRequest request,
-      @RequestParam(required = false) List<NegotiationState> status,
-      @RequestParam(required = false) LocalDate createdAfter,
-      @RequestParam(required = false) LocalDate createdBefore,
-      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
-      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
-      @RequestParam(required = false, defaultValue = "0") int page,
-      @RequestParam(required = false, defaultValue = "50") int size) {
-    if (request != null) {
-      Set<String> allowedParams =
-          new HashSet<>(
-              Arrays.asList(
-                  "role",
-                  "status",
-                  "createdAfter",
-                  "createdBefore",
-                  "sortBy",
-                  "sortOrder",
-                  "page",
-                  "size"));
-      Enumeration<String> parameterNames = request.getParameterNames();
-      checkNoUnknownParameters(parameterNames, allowedParams);
-    }
-    NegotiationFilterDTO filters =
-        NegotiationFilterDTO.builder()
-            .status(status)
-            .createdAfter(createdAfter)
-            .createdBefore(createdBefore)
-            .build();
-
+  public PagedModel<EntityModel<NegotiationDTO>> list(NegotiationFilterDTO filters) {
     return assembler.toPagedModel(
-        (Page<NegotiationDTO>)
-            negotiationService.findAllByFilters(
-                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), filters),
-        filters,
-        sortBy,
-        sortOrder);
+        (Page<NegotiationDTO>) negotiationService.findAllByFilters(filters), filters, null);
   }
 
   @GetMapping("/users/{id}/negotiations")
@@ -177,7 +120,6 @@ public class NegotiationController {
     return assembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findByFiltersForUser(filters, id), filters, id);
   }
-
 
   private static void checkAuthorization(Long id) {
     if (!Objects.equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), id)) {

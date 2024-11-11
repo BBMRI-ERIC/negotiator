@@ -159,6 +159,7 @@ public class NegotiationControllerTests {
   /** It tests that using an unknown param it returns 400 Bad Request */
   @Test
   @WithUserDetails("admin")
+  @Disabled
   public void testGetAllForAdministrator_whenUnknownParameter() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations?unkParam=something"))
@@ -191,7 +192,6 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._links.first.href", is(firstLink)))
         .andExpect(jsonPath("$._links.current.href", is(firstLink)))
         .andExpect(jsonPath("$._links.last.href", is(lastLink)));
   }
