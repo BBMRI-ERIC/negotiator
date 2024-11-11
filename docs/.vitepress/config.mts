@@ -23,7 +23,7 @@ export default defineConfig({
     cleanUrls: true,
     lastUpdated: true,
     ignoreDeadLinks: true,
-
+    base: process.env.DOCS_BASE || "",
     themeConfig: {
       logo: {src: '/handshake.svg', width: 24, height: 24},
         nav: [
