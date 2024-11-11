@@ -404,6 +404,8 @@ jobs:
 
       - name: Build
         working-directory: docs
+        env:
+          DOCS_BASE: "/${{ github.event.repository.name }}/"
         run: make build
 
       - name: Setup Pages
