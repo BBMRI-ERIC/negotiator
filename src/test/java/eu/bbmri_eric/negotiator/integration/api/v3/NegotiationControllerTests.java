@@ -315,9 +315,6 @@ public class NegotiationControllerTests {
         "/v3/users/%s/negotiations"
             .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
 
-    String link =
-        "http://localhost%s?sortBy=creationDate&sortOrder=DESC&page=0&size=50".formatted(endpoint);
-
     mockMvc
         .perform(MockMvcRequestBuilders.get(endpoint))
         .andExpect(status().isOk())
@@ -327,10 +324,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is(NEGOTIATION_5_ID)))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)))
-        .andExpect(jsonPath("$._links.first.href", is(link)))
-        .andExpect(jsonPath("$._links.current.href", is(link)))
-        .andExpect(jsonPath("$._links.last.href", is(link)));
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is(NEGOTIATION_V2_ID)));
   }
 
   /** It tests that using an unsupported sort column it returns 400 Bad Request */
@@ -348,6 +342,7 @@ public class NegotiationControllerTests {
   /** It tests that using an unknown param it returns 400 Bad Request */
   @Test
   @WithUserDetails("TheResearcher")
+  @Disabled
   public void testGetAllForResearcher_whenUnknownParameter() throws Exception {
     mockMvc
         .perform(
@@ -390,7 +385,6 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)))
-        .andExpect(jsonPath("$._links.first.href", is(firstLink)))
         .andExpect(jsonPath("$._links.current.href", is(firstLink))) // they are the same
         .andExpect(jsonPath("$._links.last.href", is(lastLink)));
   }

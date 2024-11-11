@@ -4,7 +4,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -64,23 +64,21 @@ public interface NegotiationService {
    * Retrieves all the Negotiations, using pagination, filtered by provided filters and
    *
    * @param pageable A Pageable object desribing the required pagination
-   * @param filters A NegotiationFilters with filters to apply
+   * @param filters A NegotiationFilterDTO with filters to apply
    * @return A paged list of NegotiationDTOs filtered using specific filters
    */
-  Iterable<NegotiationDTO> findAllByFilters(Pageable pageable, NegotiationFilters filters);
+  Iterable<NegotiationDTO> findAllByFilters(Pageable pageable, NegotiationFilterDTO filters);
 
   /**
    * Retrieves the negotiations, using pagination, filtered by provided filters and related (i.e.,
    * he or she is the AUTHOR or the REPRESENTATIVE) to a user
    *
-   * @param pageable A Pageable object desribing the required pagination
-   * @param filters A NegotiationFilters with filters to apply
+   * @param filters A NegotiationFilterDTO with filters to apply
    * @param userId The userId of the user that is involved (AUTHOR or REPR) in the Negotiations
    * @return A paged list of NegotiationDTOs where the user is involved, filtered using specific
    *     filters
    */
-  Iterable<NegotiationDTO> findByFiltersForUser(
-      Pageable pageable, NegotiationFilters filters, Long userId);
+  Iterable<NegotiationDTO> findByFiltersForUser(NegotiationFilterDTO filters, Long userId);
 
   /**
    * Retrieves the negotiation identified by :id. If includeDetails is true, also details of the

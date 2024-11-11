@@ -5,7 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRole;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
@@ -49,33 +48,18 @@ public class UserModelAssembler
     links.add(
         WebMvcLinkBuilder.linkTo(
                 methodOn(NegotiationController.class)
-                    .listRelated(
-                        null,
-                        Long.valueOf(entity.getId()),
-                        null,
-                        null,
-                        null,
-                        null,
-                        NegotiationSortField.creationDate,
-                        Sort.DEFAULT_DIRECTION,
-                        0,
-                        10))
+                    .listRelated(Long.valueOf(entity.getId()), null))
             .withRel("negotiations")
             .expand());
     links.add(
         linkTo(
                 methodOn(NegotiationController.class)
                     .listRelated(
-                        null,
                         Long.valueOf(entity.getId()),
-                        NegotiationRole.AUTHOR,
-                        null,
-                        null,
-                        null,
-                        NegotiationSortField.creationDate,
-                        Sort.DEFAULT_DIRECTION,
-                        0,
-                        10))
+                        NegotiationFilterDTO.builder()
+                            .role(NegotiationRole.AUTHOR)
+                            .size(10)
+                            .build()))
             .withRel("authored_negotiations")
             .expand());
     if (entity.isRepresentativeOfAnyResource()) {
@@ -88,16 +72,11 @@ public class UserModelAssembler
           linkTo(
                   methodOn(NegotiationController.class)
                       .listRelated(
-                          null,
                           Long.valueOf(entity.getId()),
-                          NegotiationRole.REPRESENTATIVE,
-                          null,
-                          null,
-                          null,
-                          NegotiationSortField.creationDate,
-                          Sort.DEFAULT_DIRECTION,
-                          0,
-                          10))
+                          NegotiationFilterDTO.builder()
+                              .role(NegotiationRole.REPRESENTATIVE)
+                              .size(10)
+                              .build()))
               .withRel("negotiations_representative")
               .expand());
     }

@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.annotation.Nonnull;
@@ -18,8 +18,8 @@ import org.springframework.lang.Nullable;
 /** Class to create query condition for NegotiationRepository. The conditions can be */
 public class NegotiationSpecification {
 
-  public static Specification<Negotiation> fromNegatiationFilters(
-      NegotiationFilters requestParameters, Person user) {
+  public static Specification<Negotiation> fromNegotiationFilters(
+          NegotiationFilterDTO requestParameters, Person user) {
 
     Specification<Negotiation> specs = null;
     if (user != null) {

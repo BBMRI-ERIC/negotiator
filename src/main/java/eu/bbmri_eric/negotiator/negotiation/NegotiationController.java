@@ -7,7 +7,7 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -154,8 +153,8 @@ public class NegotiationController {
       Enumeration<String> parameterNames = request.getParameterNames();
       checkNoUnknownParameters(parameterNames, allowedParams);
     }
-    NegotiationFilters filters =
-        NegotiationFilters.builder()
+    NegotiationFilterDTO filters =
+        NegotiationFilterDTO.builder()
             .status(status)
             .createdAfter(createdAfter)
             .createdBefore(createdBefore)
@@ -172,51 +171,13 @@ public class NegotiationController {
 
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Nullable HttpServletRequest request,
-      @Valid @PathVariable Long id,
-      @RequestParam(required = false) NegotiationRole role,
-      @RequestParam(required = false) List<NegotiationState> status,
-      @RequestParam(required = false) LocalDate createdAfter,
-      @RequestParam(required = false) LocalDate createdBefore,
-      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
-      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
-      @RequestParam(defaultValue = "0") @Min(0) int page,
-      @RequestParam(defaultValue = "50") @Min(1) int size) {
+      @Valid @PathVariable Long id, NegotiationFilterDTO filters) {
     checkAuthorization(id);
 
-    if (request != null) {
-      Set<String> allowedParams =
-          new HashSet<>(
-              Arrays.asList(
-                  "role",
-                  "status",
-                  "createdAfter",
-                  "createdBefore",
-                  "sortBy",
-                  "sortOrder",
-                  "page",
-                  "size"));
-      Enumeration<String> parameterNames = request.getParameterNames();
-      checkNoUnknownParameters(parameterNames, allowedParams);
-    }
-
-    NegotiationFilters filters =
-        NegotiationFilters.builder()
-            .role(role)
-            .status(status)
-            .createdAfter(createdAfter)
-            .createdBefore(createdBefore)
-            .build();
-
     return assembler.toPagedModel(
-        (Page<NegotiationDTO>)
-            negotiationService.findByFiltersForUser(
-                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), filters, id),
-        filters,
-        sortBy,
-        sortOrder,
-        id);
+        (Page<NegotiationDTO>) negotiationService.findByFiltersForUser(filters, id), filters, id);
   }
+
 
   private static void checkAuthorization(Long id) {
     if (!Objects.equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), id)) {

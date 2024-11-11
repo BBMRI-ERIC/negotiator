@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -53,9 +53,7 @@ public class NegotiationModelAssemblerTest {
         negotiationModelAssembler
             .toPagedModel(
                 new PageImpl<>(List.of(new NegotiationDTO())),
-                NegotiationFilters.builder().build(),
-                null,
-                null,
+                NegotiationFilterDTO.builder().build(),
                 1L)
             .getContent()
             .size());
@@ -68,8 +66,7 @@ public class NegotiationModelAssemblerTest {
         negotiationModelAssembler
             .toPagedModel(
                 new PageImpl<>(List.of(new NegotiationDTO())),
-                NegotiationFilters.builder().build(),
-                null,
+                NegotiationFilterDTO.builder().build(),
                 null)
             .getContent()
             .size());
