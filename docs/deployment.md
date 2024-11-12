@@ -76,3 +76,19 @@ Can be passed to a docker container as:
 To customize a Docker deployment, you can provide variables in the format mentioned above. For a comprehensive list of
 properties you may want to modify, refer to
 the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/src/main/resources/application-prod.yaml).
+
+### Custom properties
+
+| Environment Variable                             | Description                                       | Default Value                                                                |
+|--------------------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------|
+| `NEGOTIATOR_MOLGENISURL`                         | URL for the Molgenis service.                     | `""`                                                                         |
+| `NEGOTIATOR_FRONTENDURL`                         | URL for the Negotiator frontend.                  | `""`                                                                         |
+| `NEGOTIATOR_EMAIL_YOURSSINCERELYTEXT`            | Closing text for emails sent from the Negotiator. | `"The BBMRI-ERIC Team"`                                                      |
+| `NEGOTIATOR_EMAIL_HELPDESKHREF`                  | Helpdesk email link.                              | `"mailto:negotiator@helpdesk.bbmri-eric.eu"`                                 |
+| `NEGOTIATOR_EMAIL_LOGO`                          | URL for the Negotiator logo image.                | `"https://web.bbmri-eric.eu/Negotiator/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png"` |
+| `NEGOTIATOR_AUTHORIZATION_CLAIM`                 | Claim used for authorization.                     | `"eduperson_entitlement"`                                                    |
+| `NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE`       | Claim value for admin users.                      | `""`                                                                         |
+| `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE`  | Claim value for researcher users.                 | `""`                                                                         |
+| `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE`   | Claim value for biobanker users.                  | `""`                                                                         |
+| `NEGOTIATOR_NOTIFICATION_REMINDERCRONEXPRESSION` | Cron expression for reminder notifications.       | `"0 0 6 * * *"`                                                              |
+| `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`       | Cron expression for email frequency.              | `"0 0 * * * *"`                                                              |
