@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
@@ -53,6 +54,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       PersonRepository personRepository,
       RequestRepository requestRepository,
       AttachmentRepository attachmentRepository,
+      NetworkRepository networkRepository,
       ModelMapper modelMapper,
       UserNotificationService userNotificationService,
       PersonService personService,
@@ -247,7 +249,14 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   @Override
-  public Iterable<NegotiationDTO> findAllForNetwork(Pageable pageable, Long networkId) {
+  public Iterable<NegotiationDTO> findAllForNetwork(
+      Long networkId, NegotiationFilterDTO filtersDTO) {
+    Pageable pageable =
+        PageRequest.of(
+            filtersDTO.getPage(),
+            filtersDTO.getSize(),
+            Sort.by(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name()));
+
     return negotiationRepository
         .findAllForNetwork(networkId, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));

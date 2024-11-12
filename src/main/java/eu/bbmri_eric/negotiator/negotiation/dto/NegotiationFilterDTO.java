@@ -37,5 +37,5 @@ public class NegotiationFilterDTO implements FilterDTO {
   int page = 0;
 
   @Min(value = 1, message = "Page size must be greater than or equal to 1")
-  int size = 10;
+  int size = 50;
 }
