@@ -1158,10 +1158,10 @@ public class NegotiationControllerTests {
 
   @Test
   @WithMockUser(authorities = "ROLE_ADMIN")
-  void getNegotiationsForAdmin_hasRoleAdmin_Ok() throws Exception {
+  void getNegotiationsForAdmin_hasUnknownRole_BadRequest() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("%s?role=ROLE_ADMIN".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isOk());
+        .perform(MockMvcRequestBuilders.get("%s?role=UNKN".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
