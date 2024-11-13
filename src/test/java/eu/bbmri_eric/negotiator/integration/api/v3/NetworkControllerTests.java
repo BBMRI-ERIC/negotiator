@@ -114,6 +114,65 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockUser("researcher")
+  public void getNetworkNegotiations_sortAsc_Ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortOrder=ASC"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-4")))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-3")))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-5")))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-1")));
+  }
+
+  @Test
+  @WithMockUser("researcher")
+  public void getNetworkNegotiations_sortByTitle_Ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortBy=title"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-5")))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-4")))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-3")))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-1")));
+  }
+
+  @Test
+  @WithMockUser("researcher")
+  public void getNetworkNegotiations_filterByStatus_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?status=IN_PROGRESS"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(2)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-1")))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-3")));
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  public void testNetworkNegotiations_filterByCreationDate() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                NETWORKS_URL + "/1/negotiations?createdAfter=2024-01-09&createdBefore=2024-09-01"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-5")))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-3")))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-4")));
+  }
+
+  @Test
   @WithUserDetails("admin")
   public void deleteNetwork_NetworkExists_returns204() throws Exception {
     mockMvc
