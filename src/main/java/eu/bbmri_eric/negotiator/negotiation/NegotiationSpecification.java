@@ -20,7 +20,7 @@ import org.springframework.lang.Nullable;
 public class NegotiationSpecification {
 
   public static Specification<Negotiation> fromNegotiationFilters(
-      NegotiationFilterDTO filtersDTO, Person user) {
+      NegotiationFilterDTO filtersDTO, Person user, Network network) {
 
     Specification<Negotiation> specs = null;
     if (user != null) {
@@ -41,6 +41,10 @@ public class NegotiationSpecification {
       specs =
           initOrAnd(
               specs, createdBetween(filtersDTO.getCreatedAfter(), filtersDTO.getCreatedBefore()));
+    }
+
+    if (network != null) {
+      specs = initOrAnd(specs, byNetwork(network));
     }
 
     return specs;

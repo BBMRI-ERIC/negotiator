@@ -23,7 +23,7 @@ public interface NetworkService {
   /**
    * Retrieves all networks for a manager.
    *
-   * @param networkId the ID of the network to retrieve the managers for.
+   * @param managerId the ID of the manager to search the network for
    * @return a Set of managers.
    */
   Iterable<NetworkDTO> findAllForManager(Long managerId, Pageable pageable);

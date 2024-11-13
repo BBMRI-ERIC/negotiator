@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
@@ -44,6 +45,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private PersonRepository personRepository;
   private RequestRepository requestRepository;
   private AttachmentRepository attachmentRepository;
+  private NetworkRepository networkRepository;
   private ModelMapper modelMapper;
   private UserNotificationService userNotificationService;
   private PersonService personService;
@@ -63,6 +65,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
     this.attachmentRepository = attachmentRepository;
+    this.networkRepository = networkRepository;
     this.modelMapper = modelMapper;
     this.userNotificationService = userNotificationService;
     this.personService = personService;
@@ -206,7 +209,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private Iterable<NegotiationDTO> performQueryByFilters(
       NegotiationFilterDTO filtersDTO, @Nullable Person user) {
     Specification<Negotiation> filtersSpec =
-        NegotiationSpecification.fromNegotiationFilters(filtersDTO, user);
+        NegotiationSpecification.fromNegotiationFilters(filtersDTO, user, null);
 
     Pageable pageable =
         PageRequest.of(
@@ -251,6 +254,14 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public Iterable<NegotiationDTO> findAllForNetwork(
       Long networkId, NegotiationFilterDTO filtersDTO) {
+    Network network =
+        networkRepository
+            .findById(networkId)
+            .orElseThrow(() -> new EntityNotFoundException(networkId));
+
+    Specification<Negotiation> filtersSpec =
+        NegotiationSpecification.fromNegotiationFilters(filtersDTO, null, network);
+
     Pageable pageable =
         PageRequest.of(
             filtersDTO.getPage(),
@@ -258,7 +269,7 @@ public class NegotiationServiceImpl implements NegotiationService {
             Sort.by(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name()));
 
     return negotiationRepository
-        .findAllForNetwork(networkId, pageable)
+        .findAll(filtersSpec, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
