@@ -12,9 +12,12 @@ import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormSectionRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import jakarta.transaction.Transactional;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -26,36 +29,76 @@ import org.springframework.stereotype.Service;
 public class AccessFormServiceImpl implements AccessFormService {
   private final AccessFormSectionRepository accessFormSectionRepository;
   private final AccessFormElementRepository accessFormElementRepository;
-  RequestRepository requestRepository;
-  AccessFormRepository accessFormRepository;
-  ModelMapper modelMapper;
+  private final RequestRepository requestRepository;
+  private final NegotiationRepository negotiationRepository;
+  private final AccessFormRepository accessFormRepository;
+  private final ModelMapper modelMapper;
 
   public AccessFormServiceImpl(
       RequestRepository requestRepository,
       AccessFormRepository accessFormRepository,
       ModelMapper modelMapper,
       AccessFormSectionRepository accessFormSectionRepository,
-      AccessFormElementRepository accessFormElementRepository) {
+      AccessFormElementRepository accessFormElementRepository,
+      NegotiationRepository negotiationRepository) {
     this.requestRepository = requestRepository;
     this.accessFormRepository = accessFormRepository;
     this.modelMapper = modelMapper;
     this.accessFormSectionRepository = accessFormSectionRepository;
     this.accessFormElementRepository = accessFormElementRepository;
+    this.negotiationRepository = negotiationRepository;
   }
 
   @Override
   @Transactional
   public AccessFormDTO getAccessFormForRequest(String requestId) throws EntityNotFoundException {
-    verifyArguments(requestId);
     Request request = findRequest(requestId);
     AccessForm accessForm = request.getResources().iterator().next().getAccessForm();
     AccessForm finalAccessForm = accessForm;
-    if (allResourcesHaveTheSameForm(request, finalAccessForm)) {
+    if (allResourcesHaveTheSameForm(request.getResources(), finalAccessForm)) {
       return modelMapper.map(accessForm, AccessFormDTO.class);
     }
     accessForm = new AccessForm("Combined access form");
     int counter = 0;
     for (Resource resource : request.getResources()) {
+      for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
+        if (formDoesntContainSection(accessFormSection, accessForm)) {
+          accessForm.linkSection(accessFormSection, counter);
+          counter++;
+        }
+        log.debug(resource.getAccessForm().getLinkedSections().size());
+        for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
+          AccessFormSection matchedSection =
+              accessForm.getLinkedSections().stream()
+                  .filter(sec -> sec.equals(accessFormSection))
+                  .findFirst()
+                  .get();
+          accessForm.linkElementToSection(
+              matchedSection,
+              accessFormElement,
+              matchedSection.getAccessFormElements().size(),
+              accessFormElement.isRequired());
+        }
+      }
+    }
+    return modelMapper.map(accessForm, AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public AccessFormDTO getAccessFormForNegotiation(String negotiationId) {
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    AccessForm accessForm = negotiation.getResources().iterator().next().getAccessForm();
+    AccessForm finalAccessForm = accessForm;
+    if (allResourcesHaveTheSameForm(negotiation.getResources(), finalAccessForm)) {
+      return modelMapper.map(accessForm, AccessFormDTO.class);
+    }
+    accessForm = new AccessForm("Combined access form");
+    int counter = 0;
+    for (Resource resource : negotiation.getResources()) {
       for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
         if (formDoesntContainSection(accessFormSection, accessForm)) {
           accessForm.linkSection(accessFormSection, counter);
@@ -172,8 +215,9 @@ public class AccessFormServiceImpl implements AccessFormService {
     return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
   }
 
-  private static boolean allResourcesHaveTheSameForm(Request request, AccessForm finalAccessForm) {
-    return request.getResources().stream()
+  private static boolean allResourcesHaveTheSameForm(
+      Set<Resource> resources, AccessForm finalAccessForm) {
+    return resources.stream()
         .allMatch(resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()));
   }
 
@@ -204,6 +248,7 @@ public class AccessFormServiceImpl implements AccessFormService {
   }
 
   private Request findRequest(String requestId) {
+    verifyArguments(requestId);
     return requestRepository
         .findById(requestId)
         .orElseThrow(() -> new EntityNotFoundException(requestId));
