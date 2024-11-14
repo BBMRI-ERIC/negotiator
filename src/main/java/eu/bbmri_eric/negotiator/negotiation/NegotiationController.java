@@ -112,7 +112,7 @@ public class NegotiationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  EntityModel<NegotiationDTO> update(
+  public EntityModel<NegotiationDTO> update(
       @Valid @PathVariable String id, @Valid @RequestBody NegotiationUpdateDTO request) {
     return assembler.toModel(negotiationService.update(id, request));
   }
