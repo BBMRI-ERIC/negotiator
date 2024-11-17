@@ -53,69 +53,35 @@ public class AccessFormServiceImpl implements AccessFormService {
   @Transactional
   public AccessFormDTO getAccessFormForRequest(String requestId) throws EntityNotFoundException {
     Request request = findRequest(requestId);
-    return buildAccessForm(request.getResources());
-  }
-
-  private AccessFormDTO buildAccessForm(Set<Resource> resources) {
-    AccessForm initialAccessForm = getInitialAccessForm(resources);
-
-    if (allResourcesHaveTheSameForm(resources, initialAccessForm)) {
-      return mapToDTO(initialAccessForm);
+    AccessForm accessForm = request.getResources().iterator().next().getAccessForm();
+    AccessForm finalAccessForm = accessForm;
+    if (allResourcesHaveTheSameForm(request.getResources(), finalAccessForm)) {
+      return modelMapper.map(accessForm, AccessFormDTO.class);
     }
-
-    AccessForm combinedAccessForm = createCombinedAccessForm(resources);
-    return mapToDTO(combinedAccessForm);
-  }
-
-  private AccessForm getInitialAccessForm(Set<Resource> resources) {
-    return resources.iterator().next().getAccessForm();
-  }
-
-  private AccessFormDTO mapToDTO(AccessForm accessForm) {
-    return modelMapper.map(accessForm, AccessFormDTO.class);
-  }
-
-  private AccessForm createCombinedAccessForm(Set<Resource> resources) {
-    AccessForm combinedAccessForm = new AccessForm("Combined access form");
+    accessForm = new AccessForm("Combined access form");
     int counter = 0;
-
-    for (Resource resource : resources) {
-      for (AccessFormSection section : resource.getAccessForm().getLinkedSections()) {
-        counter = addSectionIfAbsent(combinedAccessForm, section, counter);
-        linkElementsToMatchedSection(combinedAccessForm, section);
+    for (Resource resource : request.getResources()) {
+      for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
+        if (formDoesntContainSection(accessFormSection, accessForm)) {
+          accessForm.linkSection(accessFormSection, counter);
+          counter++;
+        }
+        log.debug(resource.getAccessForm().getLinkedSections().size());
+        for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
+          AccessFormSection matchedSection =
+              accessForm.getLinkedSections().stream()
+                  .filter(sec -> sec.equals(accessFormSection))
+                  .findFirst()
+                  .get();
+          accessForm.linkElementToSection(
+              matchedSection,
+              accessFormElement,
+              matchedSection.getAccessFormElements().size(),
+              accessFormElement.isRequired());
+        }
       }
     }
-    return combinedAccessForm;
-  }
-
-  private int addSectionIfAbsent(
-      AccessForm combinedAccessForm, AccessFormSection section, int counter) {
-    if (formDoesntContainSection(section, combinedAccessForm)) {
-      combinedAccessForm.linkSection(section, counter);
-      counter++;
-    }
-    return counter;
-  }
-
-  private void linkElementsToMatchedSection(
-      AccessForm combinedAccessForm, AccessFormSection section) {
-    AccessFormSection matchedSection = findMatchingSection(combinedAccessForm, section);
-
-    for (AccessFormElement element : section.getAccessFormElements()) {
-      combinedAccessForm.linkElementToSection(
-          matchedSection,
-          element,
-          matchedSection.getAccessFormElements().size(),
-          element.isRequired());
-    }
-  }
-
-  private AccessFormSection findMatchingSection(
-      AccessForm combinedAccessForm, AccessFormSection section) {
-    return combinedAccessForm.getLinkedSections().stream()
-        .filter(existingSection -> existingSection.equals(section))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Matching section not found"));
+    return modelMapper.map(accessForm, AccessFormDTO.class);
   }
 
   @Override
@@ -125,7 +91,35 @@ public class AccessFormServiceImpl implements AccessFormService {
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    return buildAccessForm(negotiation.getResources());
+    AccessForm accessForm = negotiation.getResources().iterator().next().getAccessForm();
+    AccessForm finalAccessForm = accessForm;
+    if (allResourcesHaveTheSameForm(negotiation.getResources(), finalAccessForm)) {
+      return modelMapper.map(accessForm, AccessFormDTO.class);
+    }
+    accessForm = new AccessForm("Combined access form");
+    int counter = 0;
+    for (Resource resource : negotiation.getResources()) {
+      for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
+        if (formDoesntContainSection(accessFormSection, accessForm)) {
+          accessForm.linkSection(accessFormSection, counter);
+          counter++;
+        }
+        log.debug(resource.getAccessForm().getLinkedSections().size());
+        for (AccessFormElement accessFormElement : accessFormSection.getAccessFormElements()) {
+          AccessFormSection matchedSection =
+              accessForm.getLinkedSections().stream()
+                  .filter(sec -> sec.equals(accessFormSection))
+                  .findFirst()
+                  .get();
+          accessForm.linkElementToSection(
+              matchedSection,
+              accessFormElement,
+              matchedSection.getAccessFormElements().size(),
+              accessFormElement.isRequired());
+        }
+      }
+    }
+    return modelMapper.map(accessForm, AccessFormDTO.class);
   }
 
   @Override
