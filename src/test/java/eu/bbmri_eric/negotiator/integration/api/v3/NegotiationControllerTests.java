@@ -25,6 +25,7 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
@@ -1014,6 +1015,44 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 108L)
+  @Transactional
+  public void testUpdate_Ok() throws Exception {
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setPayload(
+        new ObjectMapper()
+            .readTree(
+                """
+                        {
+                    "project": {
+                    "title": "Updated",
+                    "description": "Description"
+                    },
+                     "samples": {
+                       "sample-type": "DNA",
+                       "num-of-subjects": 20,
+                       "num-of-samples": 20,
+                       "volume-per-sample": 5
+                     },
+                     "ethics-vote": {
+                       "ethics-vote": "No"
+                     }
+                    }
+                    """));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("/v3/negotiations/negotiation-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.jsonFromRequest(updateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").isString())
+        .andExpect(jsonPath("$.payload.project.title", is("Updated")))
+        .andExpect(jsonPath("$.payload.samples.num-of-subjects", is(20)))
+        .andExpect(jsonPath("$.payload.ethics-vote.ethics-vote", is("No")));
+  }
+
+  @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
     NegotiationCreateDTO negotiationBody = TestUtils.createNegotiation(REQUEST_2_ID);
     TestUtils.checkErrorResponse(
@@ -1053,7 +1092,7 @@ public class NegotiationControllerTests {
                 MockMvcRequestBuilders.put("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
-            .andExpect(status().isNoContent())
+            .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
