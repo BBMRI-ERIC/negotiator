@@ -45,9 +45,11 @@ public class ResourceModelAssembler
     PagedModel.PageMetadata pageMetadata =
         new PagedModel.PageMetadata(
             page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages());
+
     List<Link> links =
         getPageLinks(
             linkTo(methodOn(ResourceController.class).list(null)).toUri(), filterDTO, pageMetadata);
+
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
         pageMetadata,

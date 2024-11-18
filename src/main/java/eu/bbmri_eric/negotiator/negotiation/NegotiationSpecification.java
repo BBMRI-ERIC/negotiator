@@ -1,7 +1,8 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.annotation.Nonnull;
@@ -18,31 +19,32 @@ import org.springframework.lang.Nullable;
 /** Class to create query condition for NegotiationRepository. The conditions can be */
 public class NegotiationSpecification {
 
-  public static Specification<Negotiation> fromNegatiationFilters(
-      NegotiationFilters requestParameters, Person user) {
+  public static Specification<Negotiation> fromNegotiationFilters(
+      NegotiationFilterDTO filtersDTO, Person user, Network network) {
 
     Specification<Negotiation> specs = null;
     if (user != null) {
-      if (requestParameters.getRole() == null) {
+      if (filtersDTO.getRole() == null) {
         specs = initOrAnd(specs, byAuthorOrRepresentative(user));
-      } else if (requestParameters.getRole() == NegotiationRole.AUTHOR) {
+      } else if (filtersDTO.getRole() == NegotiationRole.AUTHOR) {
         specs = initOrAnd(specs, hasAuthor(user));
       } else {
         specs = initOrAnd(specs, hasResourcesIn(user.getResources()));
       }
     }
 
-    if (requestParameters.getStatus() != null && !requestParameters.getStatus().isEmpty()) {
-      specs = initOrAnd(specs, hasState(requestParameters.getStatus()));
+    if (filtersDTO.getStatus() != null && !filtersDTO.getStatus().isEmpty()) {
+      specs = initOrAnd(specs, hasState(filtersDTO.getStatus()));
     }
 
-    if (requestParameters.getCreatedAfter() != null
-        || requestParameters.getCreatedBefore() != null) {
+    if (filtersDTO.getCreatedAfter() != null || filtersDTO.getCreatedBefore() != null) {
       specs =
           initOrAnd(
-              specs,
-              createdBetween(
-                  requestParameters.getCreatedAfter(), requestParameters.getCreatedBefore()));
+              specs, createdBetween(filtersDTO.getCreatedAfter(), filtersDTO.getCreatedBefore()));
+    }
+
+    if (network != null) {
+      specs = initOrAnd(specs, byNetwork(network));
     }
 
     return specs;
@@ -110,6 +112,27 @@ public class NegotiationSpecification {
           return criteriaBuilder.or(authorPredicate, involvedInResources);
         }
         return authorPredicate;
+      }
+    };
+  }
+
+  /**
+   * Condition to filter Negotiation by the Network
+   *
+   * @param network the Person that created the negotiation
+   * @return a Specification to add as part of a query to filter Negotiations
+   */
+  public static Specification<Negotiation> byNetwork(Network network) {
+    return new Specification<>() {
+      @Nullable
+      @Override
+      public Predicate toPredicate(
+          @Nonnull Root<Negotiation> root,
+          @Nonnull CriteriaQuery<?> query,
+          @Nonnull CriteriaBuilder criteriaBuilder) {
+        query.distinct(true);
+        return criteriaBuilder.equal(
+            root.joinSet("resourcesLink").join("id").join("resource").join("networks"), network);
       }
     };
   }

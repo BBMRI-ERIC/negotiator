@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,14 +15,30 @@ import org.springframework.hateoas.server.core.Relation;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Response model representing a user in the system")
 @Relation(collectionRelation = "users", itemRelation = "user")
 public class UserResponseModel {
+  @Schema(description = "Unique identifier of the user", example = "123")
   private String id;
+
+  @Schema(
+      description = "Subject ID of the user, typically an external identifier",
+      example = "user-123@oidc-provider.com")
   private String subjectId;
+
+  @Schema(description = "Full name of the user", example = "John Doe")
   private String name;
+
+  @Schema(description = "Email address of the user", example = "john.doe@example.com")
   private String email;
+
+  @Schema(description = "Indicates whether the user represents any resource", example = "true")
   private boolean isRepresentativeOfAnyResource;
+
+  @Schema(description = "Indicates whether the user is an admin", example = "false")
   private boolean isAdmin;
+
+  @Schema(description = "Indicates whether the user is a network manager", example = "true")
   private boolean isNetworkManager;
 
   public void setId(Long id) {

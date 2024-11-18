@@ -72,7 +72,7 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#
         '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
         true, true, 1),
        ('negotiation-4', '2024-01-10', 'ABANDONED', '2024-01-10', 105, 105, '#1 Type: Cohort',
-        '{"project":{"title":"Project 3","description":"Project 3 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
+        '{"project":{"title":"Project 4","description":"Project 4 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
         false, false, 1),
        ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108, '#1 Quality: ISO',
         '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
