@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRole;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSortField;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,22 +21,33 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "Parameters to filter the negotiations")
 public class NegotiationFilterDTO implements FilterDTO {
+  @Schema(
+      description =
+          "The role that the user has in the negotiations. It should be one of AUTHOR or REPRESENTATIVE")
   NegotiationRole role;
 
+  @Schema(description = "List of required statuses")
   List<NegotiationState> status;
 
+  @Schema(description = "The date after which the negotiations were created")
   LocalDate createdAfter;
 
+  @Schema(description = "The date before which the negotiations were created")
   LocalDate createdBefore;
 
+  @Schema(description = "The field to use to sort the results", defaultValue = "creationDate")
   NegotiationSortField sortBy = NegotiationSortField.creationDate;
 
+  @Schema(description = "The direction of the sorting", defaultValue = "DESC")
   Sort.Direction sortOrder = Sort.Direction.DESC;
 
+  @Schema(description = "The page number required")
   @Min(value = 0, message = "Page number must be greater than or equal to 0")
   int page = 0;
 
+  @Schema(description = "The size of the pages required")
   @Min(value = 1, message = "Page size must be greater than or equal to 1")
   int size = 50;
 }

@@ -108,7 +108,8 @@ public class NegotiationController {
   }
 
   @GetMapping("/negotiations")
-  public PagedModel<EntityModel<NegotiationDTO>> list(@Valid @Nullable NegotiationFilterDTO filters) {
+  public PagedModel<EntityModel<NegotiationDTO>> list(
+      @Valid @Nullable NegotiationFilterDTO filters) {
     return assembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findAllByFilters(filters), filters, null);
   }

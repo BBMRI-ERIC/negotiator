@@ -13,6 +13,7 @@ import eu.bbmri_eric.negotiator.user.UserModelAssembler;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -179,7 +180,7 @@ public class NetworkController {
   @GetMapping("/networks/{id}/negotiations")
   @Operation(summary = "List all negotiations associated with a network")
   public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
-      @PathVariable Long id, @Validated @Nullable NegotiationFilterDTO filterDTO) {
+      @PathVariable Long id, @Valid @Nullable NegotiationFilterDTO filterDTO) {
 
     return negotiationModelAssembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findAllForNetwork(id, filterDTO),
