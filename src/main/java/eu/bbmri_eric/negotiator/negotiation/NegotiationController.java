@@ -29,6 +29,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,14 +108,14 @@ public class NegotiationController {
   }
 
   @GetMapping("/negotiations")
-  public PagedModel<EntityModel<NegotiationDTO>> list(NegotiationFilterDTO filters) {
+  public PagedModel<EntityModel<NegotiationDTO>> list(@Valid @Nullable NegotiationFilterDTO filters) {
     return assembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findAllByFilters(filters), filters, null);
   }
 
   @GetMapping("/users/{id}/negotiations")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Valid @PathVariable Long id, NegotiationFilterDTO filters) {
+      @Valid @PathVariable Long id, @Valid @Nullable NegotiationFilterDTO filters) {
     checkAuthorization(id);
 
     return assembler.toPagedModel(

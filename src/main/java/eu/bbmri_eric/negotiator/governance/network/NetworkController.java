@@ -22,6 +22,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -178,7 +179,7 @@ public class NetworkController {
   @GetMapping("/networks/{id}/negotiations")
   @Operation(summary = "List all negotiations associated with a network")
   public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
-      @PathVariable Long id, NegotiationFilterDTO filterDTO) {
+      @PathVariable Long id, @Validated @Nullable NegotiationFilterDTO filterDTO) {
 
     return negotiationModelAssembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findAllForNetwork(id, filterDTO),
