@@ -296,7 +296,7 @@
             <artifactId>netty-resolver-dns-native-macos</artifactId>
             <scope>test</scope>
             <classifier>osx-aarch_64</classifier>
-            <version>4.1.114.Final</version>
+            <version>4.1.115.Final</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
