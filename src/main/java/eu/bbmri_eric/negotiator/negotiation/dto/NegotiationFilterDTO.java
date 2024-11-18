@@ -31,23 +31,27 @@ public class NegotiationFilterDTO implements FilterDTO {
   @Schema(description = "List of required statuses")
   List<NegotiationState> status;
 
-  @Schema(description = "The date after which the negotiations were created")
+  @Schema(
+      description = "The date after which the negotiations were created",
+      example = "2024-11-18")
   LocalDate createdAfter;
 
-  @Schema(description = "The date before which the negotiations were created")
+  @Schema(
+      description = "The date before which the negotiations were created",
+      example = "2024-11-18")
   LocalDate createdBefore;
 
-  @Schema(description = "The field to use to sort the results", defaultValue = "creationDate")
+  @Schema(description = "The field to use to sort the results", example = "creationDate")
   NegotiationSortField sortBy = NegotiationSortField.creationDate;
 
-  @Schema(description = "The direction of the sorting", defaultValue = "DESC")
+  @Schema(description = "The direction of the sorting", example = "DESC")
   Sort.Direction sortOrder = Sort.Direction.DESC;
 
-  @Schema(description = "The page number required")
+  @Schema(description = "The page number required", example = "0")
   @Min(value = 0, message = "Page number must be greater than or equal to 0")
   int page = 0;
 
-  @Schema(description = "The size of the pages required")
+  @Schema(description = "The size of the pages required", example = "50")
   @Min(value = 1, message = "Page size must be greater than or equal to 1")
   int size = 50;
 }

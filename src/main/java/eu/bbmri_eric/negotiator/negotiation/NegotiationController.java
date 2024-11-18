@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -108,15 +109,24 @@ public class NegotiationController {
   }
 
   @GetMapping("/negotiations")
+  @Operation(
+      summary = "Retrieve all negotiations",
+      description =
+          "Endpoint for fetching all negotiations stored in the database. Bellow is a list of supported filters")
   public PagedModel<EntityModel<NegotiationDTO>> list(
-      @Valid @Nullable NegotiationFilterDTO filters) {
+      @Valid @Nullable @ParameterObject NegotiationFilterDTO filters) {
     return assembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findAllByFilters(filters), filters, null);
   }
 
   @GetMapping("/users/{id}/negotiations")
+  @Operation(
+      summary = "Retrieve negotiations user is allowed to access",
+      description =
+          "Endpoint for fetching Negotiations user is allowed to see. Bellow is a list of supported filters")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Valid @PathVariable Long id, @Valid @Nullable NegotiationFilterDTO filters) {
+      @Valid @PathVariable Long id,
+      @Valid @Nullable @ParameterObject NegotiationFilterDTO filters) {
     checkAuthorization(id);
 
     return assembler.toPagedModel(
