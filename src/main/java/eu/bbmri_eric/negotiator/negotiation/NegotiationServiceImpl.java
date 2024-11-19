@@ -187,7 +187,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
     if (!AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()
-        .equals(negotiationEntity.getCreatedBy().getId())) {
+            .equals(negotiationEntity.getCreatedBy().getId())
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You are not allowed to update this entity");
     }
     negotiationEntity.setPayload(updateDTO.getPayload().toString());
