@@ -155,7 +155,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.13.6</version>
+            <version>1.14.1</version>
         </dependency>
         <dependency>
             <artifactId>spring-statemachine-core</artifactId>
@@ -217,7 +217,7 @@
         <dependency>
             <artifactId>spring-security-test</artifactId>
             <groupId>org.springframework.security</groupId>
-            <version>6.3.4</version>
+            <version>6.4.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -278,7 +278,7 @@
         <dependency>
             <groupId>org.springframework.hateoas</groupId>
             <artifactId>spring-hateoas</artifactId>
-            <version>2.3.3</version>
+            <version>2.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -296,7 +296,7 @@
             <artifactId>netty-resolver-dns-native-macos</artifactId>
             <scope>test</scope>
             <classifier>osx-aarch_64</classifier>
-            <version>4.1.114.Final</version>
+            <version>4.1.115.Final</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

@@ -76,3 +76,58 @@ Can be passed to a docker container as:
 To customize a Docker deployment, you can provide variables in the format mentioned above. For a comprehensive list of
 properties you may want to modify, refer to
 the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/src/main/resources/application-prod.yaml).
+
+### Custom properties
+
+| Environment Variable                             | Description                                       | Default Value                                                                |
+|--------------------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------|
+| `NEGOTIATOR_MOLGENISURL`                         | URL for the Molgenis service.                     | `""`                                                                         |
+| `NEGOTIATOR_FRONTENDURL`                         | URL for the Negotiator frontend.                  | `""`                                                                         |
+| `NEGOTIATOR_EMAIL_YOURSSINCERELYTEXT`            | Closing text for emails sent from the Negotiator. | `"The BBMRI-ERIC Team"`                                                      |
+| `NEGOTIATOR_EMAIL_HELPDESKHREF`                  | Helpdesk email link.                              | `"mailto:negotiator@helpdesk.bbmri-eric.eu"`                                 |
+| `NEGOTIATOR_EMAIL_LOGO`                          | URL for the Negotiator logo image.                | `"https://web.bbmri-eric.eu/Negotiator/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png"` |
+| `NEGOTIATOR_AUTHORIZATION_CLAIM`                 | Claim used for authorization.                     | `"eduperson_entitlement"`                                                    |
+| `NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE`       | Claim value for admin users.                      | `""`                                                                         |
+| `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE`  | Claim value for researcher users.                 | `""`                                                                         |
+| `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE`   | Claim value for biobanker users.                  | `""`                                                                         |
+| `NEGOTIATOR_NOTIFICATION_REMINDERCRONEXPRESSION` | Cron expression for reminder notifications.       | `"0 0 6 * * *"`                                                              |
+| `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`       | Cron expression for email frequency.              | `"0 0 * * * *"`                                                              |
+
+## Life science Login Integration
+
+To
+setup [LS Login](https://lifescience-ri.eu/ls-login/documentation/service-provider-documentation/service-provider-documentation.html)
+as the OIDC provider you need to register a client that uses the **authorization_code flow with PKCE**.
+If you also want to take advantage of Token introspection,
+you will need to setup a second client for the backend that uses the **client_credentials flow** with similar settings
+as the UI client except the flow.
+To correctly parse User roles from the userinfo response you will need to setup respective groups
+in [LS-Login IAM system](https://perun.aai.lifescience-ri.eu/home). Please refer to their documentation or support on
+how to do that.
+Below you can find examples configuration used by BBMRI-ERIC for the UI client:
+
+**Redirect URLs**:
+
+```
+https://negotiator.bbmri-eric.eu/logged-in
+https://negotiator.bbmri-eric.eu/api/swagger-ui/oauth2-redirect.html
+```
+
+**Scopes:**
+
+```
+openid
+profile
+email
+offline_access
+eduperson_entitlement
+negotiator_api
+eduperson_orcid
+```
+
+**Resource Indicators:**
+
+```
+https://negotiator.bbmri-eric.eu
+```
+

@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -9,32 +8,24 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilters;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -49,7 +40,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -117,103 +107,29 @@ public class NegotiationController {
     return assembler.toModel(negotiationService.update(id, request));
   }
 
-  private void checkNoUnknownParameters(
-      Enumeration<String> parameterNames, Set<String> allowedParams) {
-    while (parameterNames.hasMoreElements()) {
-      String paramName = parameterNames.nextElement();
-      if (!allowedParams.contains(paramName)) {
-        throw new WrongRequestException("Parameter %s is not allowed".formatted(paramName));
-      }
-    }
-  }
-
   @GetMapping("/negotiations")
+  @Operation(
+      summary = "Retrieve all negotiations",
+      description =
+          "Endpoint for fetching all negotiations stored in the database. Bellow is a list of supported filters")
   public PagedModel<EntityModel<NegotiationDTO>> list(
-      @Nullable HttpServletRequest request,
-      @RequestParam(required = false) List<NegotiationState> status,
-      @RequestParam(required = false) LocalDate createdAfter,
-      @RequestParam(required = false) LocalDate createdBefore,
-      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
-      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
-      @RequestParam(required = false, defaultValue = "0") int page,
-      @RequestParam(required = false, defaultValue = "50") int size) {
-    if (request != null) {
-      Set<String> allowedParams =
-          new HashSet<>(
-              Arrays.asList(
-                  "role",
-                  "status",
-                  "createdAfter",
-                  "createdBefore",
-                  "sortBy",
-                  "sortOrder",
-                  "page",
-                  "size"));
-      Enumeration<String> parameterNames = request.getParameterNames();
-      checkNoUnknownParameters(parameterNames, allowedParams);
-    }
-    NegotiationFilters filters =
-        NegotiationFilters.builder()
-            .status(status)
-            .createdAfter(createdAfter)
-            .createdBefore(createdBefore)
-            .build();
-
+      @Valid @Nullable @ParameterObject NegotiationFilterDTO filters) {
     return assembler.toPagedModel(
-        (Page<NegotiationDTO>)
-            negotiationService.findAllByFilters(
-                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), filters),
-        filters,
-        sortBy,
-        sortOrder);
+        (Page<NegotiationDTO>) negotiationService.findAllByFilters(filters), filters, null);
   }
 
   @GetMapping("/users/{id}/negotiations")
+  @Operation(
+      summary = "Retrieve negotiations user is allowed to access",
+      description =
+          "Endpoint for fetching Negotiations user is allowed to see. Bellow is a list of supported filters")
   public PagedModel<EntityModel<NegotiationDTO>> listRelated(
-      @Nullable HttpServletRequest request,
       @Valid @PathVariable Long id,
-      @RequestParam(required = false) NegotiationRole role,
-      @RequestParam(required = false) List<NegotiationState> status,
-      @RequestParam(required = false) LocalDate createdAfter,
-      @RequestParam(required = false) LocalDate createdBefore,
-      @RequestParam(defaultValue = "creationDate") NegotiationSortField sortBy,
-      @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
-      @RequestParam(defaultValue = "0") @Min(0) int page,
-      @RequestParam(defaultValue = "50") @Min(1) int size) {
+      @Valid @Nullable @ParameterObject NegotiationFilterDTO filters) {
     checkAuthorization(id);
 
-    if (request != null) {
-      Set<String> allowedParams =
-          new HashSet<>(
-              Arrays.asList(
-                  "role",
-                  "status",
-                  "createdAfter",
-                  "createdBefore",
-                  "sortBy",
-                  "sortOrder",
-                  "page",
-                  "size"));
-      Enumeration<String> parameterNames = request.getParameterNames();
-      checkNoUnknownParameters(parameterNames, allowedParams);
-    }
-
-    NegotiationFilters filters =
-        NegotiationFilters.builder()
-            .role(role)
-            .status(status)
-            .createdAfter(createdAfter)
-            .createdBefore(createdBefore)
-            .build();
-
     return assembler.toPagedModel(
-        (Page<NegotiationDTO>)
-            negotiationService.findByFiltersForUser(
-                PageRequest.of(page, size, Sort.by(sortOrder, sortBy.name())), filters, id),
-        filters,
-        sortBy,
-        sortOrder,
-        id);
+        (Page<NegotiationDTO>) negotiationService.findByFiltersForUser(filters, id), filters, id);
   }
 
   private static void checkAuthorization(Long id) {
