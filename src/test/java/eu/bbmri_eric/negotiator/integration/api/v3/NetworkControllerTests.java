@@ -115,7 +115,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_sortAsc_Ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortOrder=ASC"))
@@ -130,7 +130,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_sortByTitle_Ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortBy=title"))
@@ -145,7 +145,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_filterByStatus_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?status=IN_PROGRESS"))
@@ -158,7 +158,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithUserDetails("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void testNetworkNegotiations_filterByCreationDate() throws Exception {
     mockMvc
         .perform(

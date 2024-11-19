@@ -262,6 +262,10 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public Iterable<NegotiationDTO> findAllForNetwork(
       Long networkId, NegotiationFilterDTO filtersDTO) {
+    if (!personRepository.isNetworkManager(
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), networkId)) {
+      throw new ForbiddenRequestException("You are not allowed to perform this operation");
+    }
     Network network =
         networkRepository
             .findById(networkId)

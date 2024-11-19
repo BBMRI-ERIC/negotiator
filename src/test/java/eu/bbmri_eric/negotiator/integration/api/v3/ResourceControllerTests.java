@@ -151,7 +151,7 @@ public class ResourceControllerTests {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 102L)
+  @WithMockNegotiatorUser(id = 105L)
   void getAllResourcesForNegotiation_notInvolved_403() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().stream().findFirst().get();
     mockMvc

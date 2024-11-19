@@ -182,7 +182,6 @@ public class NetworkController {
   @Operation(summary = "List all negotiations associated with a network")
   public PagedModel<EntityModel<NegotiationDTO>> getNegotiations(
       @PathVariable Long id, @Valid @Nullable @ParameterObject NegotiationFilterDTO filterDTO) {
-
     return negotiationModelAssembler.toPagedModel(
         (Page<NegotiationDTO>) negotiationService.findAllForNetwork(id, filterDTO),
         filterDTO,
