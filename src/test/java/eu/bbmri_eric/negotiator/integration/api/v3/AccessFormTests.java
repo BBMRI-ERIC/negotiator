@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,6 +17,7 @@ import eu.bbmri_eric.negotiator.form.dto.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSetCreateDTO;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +32,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@IntegrationTest
+@IntegrationTest(loadTestData = true)
 public class AccessFormTests {
 
   private static final String ACCESS_FORMS_ENDPOINT = "/v3/access-forms";
@@ -218,6 +220,24 @@ public class AccessFormTests {
         .andExpect(jsonPath("$._embedded.access-forms[0].sections").isArray())
         .andExpect(jsonPath("$._embedded.access-forms[0].sections[0].elements").isArray())
         .andExpect(jsonPath("$._embedded.access-forms[0].sections[0].elements[0].name").isString());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 101L)
+  void getAccessFormForNegotiation_exists_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/access-form"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.name").value("BBMRI Template"))
+        .andExpect(jsonPath("$.sections[0].name").value("project"))
+        .andExpect(jsonPath("$.sections[0].elements[0].label").value("Title"))
+        .andExpect(jsonPath("$.sections[0].elements[0].required").value(true))
+        .andExpect(jsonPath("$.sections[1].name").value("request"))
+        .andExpect(jsonPath("$.sections[2].elements[1].type").value("FILE"))
+        .andExpect(jsonPath("$.sections[2].elements[1].required").value(false))
+        .andExpect(jsonPath("$._links.self.href").value("http://localhost/v3/access-forms/1"));
   }
 
   @Test
