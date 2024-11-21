@@ -152,6 +152,17 @@ public class AccessFormController {
     return accessFormModelAssembler.toModel(accessFormService.getAccessFormForRequest(id));
   }
 
+  @GetMapping(value = "/negotiations/{id}/access-form")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+      summary = "Get an access form for a negotiation",
+      description =
+          "Returns an access form with sections and"
+              + " elements that are relevant for the given resources being requested.")
+  public EntityModel<AccessFormDTO> combineForNegotiation(@PathVariable String id) {
+    return accessFormModelAssembler.toModel(accessFormService.getAccessFormForNegotiation(id));
+  }
+
   @GetMapping(value = "/elements")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "List all available elements")

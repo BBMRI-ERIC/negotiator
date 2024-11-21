@@ -16,6 +16,13 @@ public interface AccessFormService {
   AccessFormDTO getAccessFormForRequest(String requestId);
 
   /**
+   * Get an access form combining the access criteria of the resources in the request.
+   *
+   * @return The access form.
+   */
+  AccessFormDTO getAccessFormForNegotiation(String negotiationId);
+
+  /**
    * Get an access form by id.
    *
    * @param id The access form id.

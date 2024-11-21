@@ -7,6 +7,7 @@ import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -99,13 +100,10 @@ public class NegotiationController {
       value = "/negotiations/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  NegotiationDTO update(
-      @Valid @PathVariable String id, @Valid @RequestBody NegotiationCreateDTO request) {
-    if (!isCreator(negotiationService.findById(id, false))) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    return negotiationService.update(id, request);
+  @ResponseStatus(HttpStatus.OK)
+  public EntityModel<NegotiationDTO> update(
+      @Valid @PathVariable String id, @Valid @RequestBody NegotiationUpdateDTO request) {
+    return assembler.toModel(negotiationService.update(id, request));
   }
 
   @GetMapping("/negotiations")

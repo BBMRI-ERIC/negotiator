@@ -61,6 +61,12 @@ public class NegotiationModelAssembler
               .withTitle("Next Lifecycle event")
               .withName(event.getLabel()));
     }
+    if (entity.isPayloadUpdatable()) {
+      entityModel.add(
+          WebMvcLinkBuilder.linkTo(
+                  methodOn(NegotiationController.class).update(entity.getId(), null))
+              .withRel("Update"));
+    }
     return entityModel;
   }
 

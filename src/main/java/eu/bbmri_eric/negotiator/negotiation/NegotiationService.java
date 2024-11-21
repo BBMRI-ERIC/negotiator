@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -34,14 +35,14 @@ public interface NegotiationService {
   /**
    * Updates the negotiation with the provided id
    *
-   * @param negotiationBody a NegotiationCreateDTO with the new data of the negotiation to update
    * @param negotiationId the id of the negotiation to update
+   * @param updateDTO a NegotiationCreateDTO with the new data of the negotiation to update
    * @return a NegotiationDTO with the updated data of the negotiation
    * @throws EntityNotStorableException if some error occurs when crating the negotiation
    * @throws eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException if the negotiation
    *     to update is not found
    */
-  NegotiationDTO update(String negotiationId, NegotiationCreateDTO negotiationBody)
+  NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO)
       throws EntityNotFoundException;
 
   /**

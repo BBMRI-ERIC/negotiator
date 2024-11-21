@@ -3,10 +3,12 @@ package eu.bbmri_eric.negotiator.negotiation.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -76,5 +78,10 @@ public class NegotiationDTO {
   @JsonIgnore
   public String getStatusForResource(String resourceId) {
     return "";
+  }
+
+  public boolean isPayloadUpdatable() {
+    return Objects.equals(status, NegotiationState.SUBMITTED.getValue())
+        || Objects.equals(status, NegotiationState.IN_PROGRESS.getValue());
   }
 }

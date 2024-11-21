@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.common.exceptions;
 
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
@@ -11,6 +12,7 @@ import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -31,10 +33,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @ControllerAdvice
 @CommonsLog
 public class NegotiatorExceptionHandler {
+
+  @Value("${spring.servlet.multipart.max-file-size}")
+  private String maxFileSize;
 
   @ExceptionHandler(JwtDecoderInitializationException.class)
   public final ResponseEntity<HttpErrorResponseModel> handleJwtDecoderError(
@@ -46,6 +52,35 @@ public class NegotiatorExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .build();
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  @ApiResponse(
+      responseCode = "413",
+      description = "Payload Too Large - Max file size exceeded",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ProblemDetail.class),
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                {
+                  "status": 413,
+                  "title": "Max upload size exceeded",
+                  "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/413",
+                  "detail": "The maximum allowable file size is 1MB"
+                }
+                """)))
+  public ProblemDetail handleMaxSizeException(MaxUploadSizeExceededException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.PAYLOAD_TOO_LARGE);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/413"));
+    problemDetail.setTitle("Max upload size exceeded");
+    problemDetail.setDetail(
+        ex.getMessage() + ". %s is the maximum supported file size.".formatted(maxFileSize));
+    return problemDetail;
   }
 
   @ExceptionHandler(AuthenticationServiceException.class)

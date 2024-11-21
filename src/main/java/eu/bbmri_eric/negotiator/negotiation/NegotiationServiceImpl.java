@@ -6,12 +6,14 @@ import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
@@ -179,12 +181,18 @@ public class NegotiationServiceImpl implements NegotiationService {
    * Updates the negotiation with the specified ID.
    *
    * @param negotiationId the negotiationId of the negotiation tu update
-   * @param negotiationBody the NegotiationCreateDTO DTO with the new Negotiation data
+   * @param updateDTO the NegotiationCreateDTO DTO with the new Negotiation data
    * @return The updated Negotiation entity
    */
-  public NegotiationDTO update(String negotiationId, NegotiationCreateDTO negotiationBody) {
+  public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
-    return update(negotiationEntity, negotiationBody);
+    if (!AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()
+            .equals(negotiationEntity.getCreatedBy().getId())
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      throw new ForbiddenRequestException("You are not allowed to update this entity");
+    }
+    negotiationEntity.setPayload(updateDTO.getPayload().toString());
+    return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
   /**
