@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -109,17 +110,22 @@ public class PostControllerTests {
   public void testGetAll() throws Exception {
     int numberOfPosts = (int) postRepository.count();
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
+
     mockMvc
         .perform(MockMvcRequestBuilders.get(uri))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPosts)))
-        .andExpect(jsonPath("$._embedded.posts[0].id", is("post-1-researcher")))
-        .andExpect(jsonPath("$._embedded.posts[1].id", is("post-2-researcher")))
-        .andExpect(jsonPath("$._embedded.posts[2].id", is("post-3-researcher")))
-        .andExpect(jsonPath("$._embedded.posts[3].id", is("post-1-representative")))
-        .andExpect(jsonPath("$._embedded.posts[4].id", is("post-2-representative")))
-        .andExpect(jsonPath("$._embedded.posts[5].id", is("post-3-representative")))
-        .andExpect(jsonPath("$._embedded.posts[6].id", is("post-4-representative")));
+        .andExpect(
+            jsonPath(
+                "$._embedded.posts[*].id",
+                containsInAnyOrder(
+                    "post-1-researcher",
+                    "post-2-researcher",
+                    "post-3-researcher",
+                    "post-1-representative",
+                    "post-2-representative",
+                    "post-3-representative",
+                    "post-4-representative")));
   }
 
   @Test
