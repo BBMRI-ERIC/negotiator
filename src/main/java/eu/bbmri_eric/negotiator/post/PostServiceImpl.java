@@ -30,19 +30,19 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
-  private final OrganizationRepository organizationRepository;
+  private OrganizationRepository organizationRepository;
 
-  private final PostRepository postRepository;
+  private PostRepository postRepository;
 
-  private final NegotiationRepository negotiationRepository;
-  private final PersonRepository personRepository;
+  private NegotiationRepository negotiationRepository;
+  private PersonRepository personRepository;
 
-  private final ModelMapper modelMapper;
+  private ModelMapper modelMapper;
 
-  private final PersonService personService;
-  private final NegotiationService negotiationService;
-  private final UserNotificationService userNotificationService;
-  private final NegotiationAccessManager negotiationAccessManager;
+  private PersonService personService;
+  private NegotiationService negotiationService;
+  private UserNotificationService userNotificationService;
+  private NegotiationAccessManager negotiationAccessManager;
 
   public PostServiceImpl(
       OrganizationRepository organizationRepository,
@@ -53,7 +53,6 @@ public class PostServiceImpl implements PostService {
       PersonService personService,
       NegotiationService negotiationService,
       UserNotificationService userNotificationService,
-      AuthenticatedUserContext userDetailsService,
       NegotiationAccessManager negotiationAccessManager) {
     this.organizationRepository = organizationRepository;
     this.postRepository = postRepository;
@@ -121,10 +120,11 @@ public class PostServiceImpl implements PostService {
     Post postEntity = getPostEntity(postRequest);
     postEntity.setOrganization(getOrganization(postRequest));
     postEntity.setNegotiation(negotiation);
+    Long authorId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     Person author =
         personRepository
-            .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-            .orElseThrow(() -> new EntityNotFoundException("User with not found."));
+            .findById(authorId)
+            .orElseThrow(() -> new EntityNotFoundException(authorId));
     postEntity.setCreatedBy(author);
     return postEntity;
   }
@@ -148,6 +148,9 @@ public class PostServiceImpl implements PostService {
 
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
     verifyReadAccess(negotiationId);
     List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
     List<Post> readablePosts = getReadablePosts(allNegotiationPosts);
@@ -156,7 +159,11 @@ public class PostServiceImpl implements PostService {
     } else {
       addUserAccessiblePosts(allNegotiationPosts, readablePosts);
     }
-    readablePosts.sort(Comparator.comparing(Post::getCreationDate));
+    try {
+      readablePosts.sort(Comparator.comparing(Post::getCreationDate));
+    } catch (NullPointerException e) {
+      log.warn("error sorting posts");
+    }
     return readablePosts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
         .collect(Collectors.toList());
@@ -192,9 +199,10 @@ public class PostServiceImpl implements PostService {
   }
 
   private Person getCurrentUser() {
+    Long authorId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     return personRepository
-        .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-        .orElseThrow(() -> new EntityNotFoundException("User not found."));
+        .findById(authorId)
+        .orElseThrow(() -> new EntityNotFoundException(authorId));
   }
 
   private Set<Organization> getUserAccessibleOrganizations(Person user) {

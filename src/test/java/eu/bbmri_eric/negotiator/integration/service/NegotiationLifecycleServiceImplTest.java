@@ -409,14 +409,12 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  void getPossibleEventsForResource_nonApprovedNegotiation_throwsEntityNotFound()
-      throws IOException {
+  void getPossibleEventsForResource_nonApprovedNegotiation_returnsEmptySet() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    assertThrows(
-        EntityNotFoundException.class,
-        () ->
-            resourceLifecycleService.getPossibleEvents(
-                negotiationDTO.getId(), "biobank:1:collection:2"));
+    assertEquals(
+        Set.of(),
+        resourceLifecycleService.getPossibleEvents(
+            negotiationDTO.getId(), "biobank:1:collection:2"));
   }
 
   @Test
