@@ -52,6 +52,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private UserNotificationService userNotificationService;
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
+  private NegotiationAccessManager negotiationAccessManager;
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -62,7 +63,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       ModelMapper modelMapper,
       UserNotificationService userNotificationService,
       PersonService personService,
-      ApplicationEventPublisher eventPublisher) {
+      ApplicationEventPublisher eventPublisher,
+      NegotiationAccessManager negotiationAccessManager) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
@@ -72,6 +74,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.userNotificationService = userNotificationService;
     this.personService = personService;
     this.eventPublisher = eventPublisher;
+    this.negotiationAccessManager = negotiationAccessManager;
   }
 
   @Override
@@ -312,18 +315,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
     }
-    verifyReadAccessForNegotiation(negotiationId, userID);
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userID);
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
     return modelMapper.map(negotiation, NegotiationDTO.class);
-  }
-
-  private void verifyReadAccessForNegotiation(String negotiationId, Long userID) {
-    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
-        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)
-        && !personRepository.isRepresentativeOfAnyResourceOfNegotiation(userID, negotiationId)
-        && !personRepository.isManagerOfAnyResourceOfNegotiation(userID, negotiationId)) {
-      throw new ForbiddenRequestException("You are not allowed to perform this action");
-    }
   }
 
   public void setPrivatePostsEnabled(String negotiationId, boolean enabled) {

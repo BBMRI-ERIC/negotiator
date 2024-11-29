@@ -17,7 +17,6 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -31,19 +30,19 @@ import org.springframework.stereotype.Service;
 @Service
 @CommonsLog
 public class PostServiceImpl implements PostService {
-  private OrganizationRepository organizationRepository;
+  private final OrganizationRepository organizationRepository;
 
-  private PostRepository postRepository;
+  private final PostRepository postRepository;
 
-  private NegotiationRepository negotiationRepository;
-  private PersonRepository personRepository;
+  private final NegotiationRepository negotiationRepository;
+  private final PersonRepository personRepository;
 
-  private ModelMapper modelMapper;
+  private final ModelMapper modelMapper;
 
-  private PersonService personService;
-  private NegotiationService negotiationService;
-  private UserNotificationService userNotificationService;
-  private NegotiationAccessManager negotiationAccessManager;
+  private final PersonService personService;
+  private final NegotiationService negotiationService;
+  private final UserNotificationService userNotificationService;
+  private final NegotiationAccessManager negotiationAccessManager;
 
   public PostServiceImpl(
       OrganizationRepository organizationRepository,
@@ -65,6 +64,10 @@ public class PostServiceImpl implements PostService {
     this.negotiationService = negotiationService;
     this.userNotificationService = userNotificationService;
     this.negotiationAccessManager = negotiationAccessManager;
+  }
+
+  private static Post getPostEntity(PostCreateDTO postRequest) {
+    return Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
   }
 
   /**
@@ -143,43 +146,68 @@ public class PostServiceImpl implements PostService {
     return null;
   }
 
-  private static Post getPostEntity(PostCreateDTO postRequest) {
-    return Post.builder().text(postRequest.getText()).type(postRequest.getType()).build();
-  }
-
   @Transactional
   public List<PostDTO> findByNegotiationId(String negotiationId) {
-    negotiationAccessManager.verifyReadAccessForNegotiation(
-        negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
+    verifyReadAccess(negotiationId);
     List<Post> allNegotiationPosts = postRepository.findByNegotiationId(negotiationId);
-    List<Post> readablePosts =
-        new ArrayList<>(allNegotiationPosts.stream().filter(Post::isPublic).toList());
-    if (negotiationService.isNegotiationCreator(negotiationId) || isAdmin()) {
-      readablePosts.addAll(allNegotiationPosts.stream().filter(post -> !post.isPublic()).toList());
+    List<Post> readablePosts = getReadablePosts(allNegotiationPosts);
+    if (isNegotiationCreatorOrAdmin(negotiationId)) {
+      readablePosts.addAll(getAllUnreadablePosts(allNegotiationPosts));
     } else {
-      Person user =
-          personRepository
-              .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-              .orElseThrow(() -> new EntityNotFoundException("User not found."));
-      Set<Organization> organizations =
-          user.getResources().stream().map(Resource::getOrganization).collect(Collectors.toSet());
-      organizations.addAll(
-          user.getNetworks().stream()
-              .map(
-                  network ->
-                      network.getResources().stream()
-                          .map(Resource::getOrganization)
-                          .collect(Collectors.toSet()))
-              .flatMap(Set::stream)
-              .collect(Collectors.toSet()));
-      for (Post post : allNegotiationPosts.stream().filter(post -> !post.isPublic()).toList()) {
-        if (organizations.contains(post.getOrganization())) {
-          readablePosts.add(post);
-        }
-      }
+      addUserAccessiblePosts(allNegotiationPosts, readablePosts);
     }
     readablePosts.sort(Comparator.comparing(Post::getCreationDate));
-    return readablePosts.stream().map(post -> modelMapper.map(post, PostDTO.class)).toList();
+    return readablePosts.stream()
+        .map(post -> modelMapper.map(post, PostDTO.class))
+        .collect(Collectors.toList());
+  }
+
+  private void verifyReadAccess(String negotiationId) {
+    negotiationAccessManager.verifyReadAccessForNegotiation(
+        negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
+  }
+
+  private List<Post> getReadablePosts(List<Post> allNegotiationPosts) {
+    return allNegotiationPosts.stream().filter(Post::isPublic).collect(Collectors.toList());
+  }
+
+  private boolean isNegotiationCreatorOrAdmin(String negotiationId) {
+    return negotiationService.isNegotiationCreator(negotiationId) || isAdmin();
+  }
+
+  private List<Post> getAllUnreadablePosts(List<Post> allNegotiationPosts) {
+    return allNegotiationPosts.stream()
+        .filter(post -> !post.isPublic())
+        .collect(Collectors.toList());
+  }
+
+  private void addUserAccessiblePosts(List<Post> allNegotiationPosts, List<Post> readablePosts) {
+    Person user = getCurrentUser();
+    Set<Organization> accessibleOrganizations = getUserAccessibleOrganizations(user);
+
+    allNegotiationPosts.stream()
+        .filter(
+            post -> !post.isPublic() && accessibleOrganizations.contains(post.getOrganization()))
+        .forEach(readablePosts::add);
+  }
+
+  private Person getCurrentUser() {
+    return personRepository
+        .findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
+        .orElseThrow(() -> new EntityNotFoundException("User not found."));
+  }
+
+  private Set<Organization> getUserAccessibleOrganizations(Person user) {
+    Set<Organization> organizations =
+        user.getResources().stream().map(Resource::getOrganization).collect(Collectors.toSet());
+
+    organizations.addAll(
+        user.getNetworks().stream()
+            .flatMap(network -> network.getResources().stream())
+            .map(Resource::getOrganization)
+            .collect(Collectors.toSet()));
+
+    return organizations;
   }
 
   @Transactional
