@@ -21,7 +21,7 @@
         <spring-security.version>6.2.0</spring-security.version>
         <spring-boot.version>${project.parent.version}</spring-boot.version>
         <spring.version>6.1.14</spring.version>
-        <flyway.version>10.21.0</flyway.version>
+        <flyway.version>11.0.0</flyway.version>
         <testcontainers.version>1.20.3</testcontainers.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
     </properties>
