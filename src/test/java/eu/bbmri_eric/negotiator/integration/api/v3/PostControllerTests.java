@@ -1,9 +1,10 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,12 +15,13 @@ import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -27,26 +29,63 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class PostControllerTests {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String NEGOTIATION_1_ORGANIZATION_ID = "biobank:1";
   private static final String NEGOTIATIONS_URI = "/v3/negotiations";
   private static final String POSTS_URI = "posts";
-  private static final String RESEARCHER_ROLE = "ROLE_RESEARCHER";
-  private static final String REPRESENTATIVE_ROLE = "REPRESENTATIVE";
-  private static final String POST_ID = "post-1-representative";
-  @Autowired private WebApplicationContext context;
+  public static final String NEGOTIATION_POSTS_URL = "/v3/negotiations/%s/posts";
   @Autowired private PostRepository postRepository;
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @BeforeEach
-  public void beforeEach() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  @Test
+  void getNegotiationPosts_notAuthenticated_401() throws Exception {
+    mockMvc.perform(get("/v3/negotiations/idk/posts")).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 104L)
+  void getNegotiationPosts_notAuthorized_getAll() throws Exception {
+    mockMvc
+        .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 108L)
+  void getNegotiationPosts_author_getAll() throws Exception {
+    int count = postRepository.findByNegotiationId(NEGOTIATION_1_ID).size();
+    mockMvc
+        .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$._embedded.posts.length()", is(count)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 104L, authorities = "ROLE_ADMIN")
+  void getNegotiationPosts_admin_getAll() throws Exception {
+    int count = postRepository.findByNegotiationId(NEGOTIATION_1_ID).size();
+    mockMvc
+        .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$._embedded.posts.length()", is(count)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 103L)
+  void getNegotiationPosts_representative_getSubset() throws Exception {
+    int count = postRepository.findByNegotiationId(NEGOTIATION_1_ID).size();
+    mockMvc
+        .perform(get(NEGOTIATION_POSTS_URL.formatted(NEGOTIATION_1_ID)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
+        .andExpect(jsonPath("$._embedded.posts.length()", lessThan(count)));
   }
 
   @Test
@@ -112,7 +151,7 @@ public class PostControllerTests {
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get(uri))
+        .perform(get(uri))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.posts.length()", is(numberOfPosts)))
         .andExpect(

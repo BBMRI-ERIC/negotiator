@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -70,8 +71,7 @@ public class PostServiceImpl implements PostService {
   }
 
   /**
-   * Checks whether the post is allowed. The choice is made according to the postsEnabled flags of
-   * the Negotiation and the post type
+   * Checks whether the post is allowed.
    *
    * @return true if the post's type is enabled for the Negotiation
    */
@@ -159,10 +159,14 @@ public class PostServiceImpl implements PostService {
     } else {
       addUserAccessiblePosts(allNegotiationPosts, readablePosts);
     }
+    return sortedPosts(readablePosts);
+  }
+
+  private @NotNull List<PostDTO> sortedPosts(List<Post> readablePosts) {
     try {
       readablePosts.sort(Comparator.comparing(Post::getCreationDate));
     } catch (NullPointerException e) {
-      log.warn("error sorting posts");
+      log.warn("Error sorting posts");
     }
     return readablePosts.stream()
         .map(post -> modelMapper.map(post, PostDTO.class))
@@ -218,29 +222,15 @@ public class PostServiceImpl implements PostService {
     return organizations;
   }
 
+  private boolean isAdmin() {
+    return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
   @Transactional
   public PostDTO update(PostCreateDTO request, String negotiationId, String messageId) {
     Post post = postRepository.findByIdAndNegotiationId(messageId, negotiationId);
     post.setText(request.getText());
     Post updatedPost = postRepository.save(post);
     return modelMapper.map(updatedPost, PostDTO.class);
-  }
-
-  private boolean isRepresentative(Organization organization) {
-    return personService.isRepresentativeOfAnyResourceOfOrganization(
-        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), organization.getId());
-  }
-
-  private boolean isAdmin() {
-    return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
-  }
-
-  private boolean isAuthorized(Post post) {
-    Negotiation negotiation = post.getNegotiation();
-    if (isAdmin() || negotiationService.isNegotiationCreator(negotiation.getId())) return true;
-    return negotiationService.isAuthorizedForNegotiation(negotiation.getId())
-        && (post.isPublic()
-            || post.isCreator(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
-            || (post.getOrganization() != null && isRepresentative(post.getOrganization())));
   }
 }
