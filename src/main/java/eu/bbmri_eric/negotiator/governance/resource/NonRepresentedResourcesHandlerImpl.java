@@ -43,5 +43,6 @@ public class NonRepresentedResourcesHandlerImpl implements NonRepresentedResourc
 
   private void updateResourceStatus(Negotiation negotiation, String sourceId) {
     negotiation.setStateForResource(sourceId, NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    // TODO: add call for notifying the representative
   }
 }
