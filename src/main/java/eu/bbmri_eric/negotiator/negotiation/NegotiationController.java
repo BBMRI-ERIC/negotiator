@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -162,11 +164,16 @@ public class NegotiationController {
    *
    * @param id of the negotiation
    * @param event from NegotiationEvents
+   * @param negotiationUpdateLifecycleDTO an optional body with details about the event
    * @return NegotiationDTO with updated state if valid
    */
-  @PutMapping("/negotiations/{id}/lifecycle/{event}")
+  @PutMapping(
+      value = "/negotiations/{id}/lifecycle/{event}",
+      consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> sendEvent(
-      @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
+      @Valid @PathVariable String id,
+      @Valid @PathVariable("event") NegotiationEvent event,
+      @RequestBody(required = false) NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
