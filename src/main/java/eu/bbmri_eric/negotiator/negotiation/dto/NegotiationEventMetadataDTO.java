@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation.dto;
 
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;

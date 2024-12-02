@@ -27,7 +27,9 @@ public class NegotiationEventAssembler
     links.add(
         linkTo(methodOn(NegotiationLifecycleController.class).getAllEvents()).withRel("events"));
     links.add(
-        linkTo(methodOn(NegotiationLifecycleController.class).getEvent(NegotiationEvent.valueOf(entity.getValue())))
+        linkTo(
+                methodOn(NegotiationLifecycleController.class)
+                    .getEvent(NegotiationEvent.valueOf(entity.getValue())))
             .withSelfRel());
     return EntityModel.of(entity, links);
   }
