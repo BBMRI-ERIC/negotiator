@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum NegotiationEvent {
-  APPROVE("Approve", "Approve the negotiation", true),
-  DECLINE("Decline", "Decline the negotiation", false),
+  APPROVE("Approve", "Approve the negotiation", false),
+  DECLINE("Decline", "Decline the negotiation", true),
   START("Start", "Start the negotiation", false),
   PAUSE("Pause", "Pause the negotiation", false),
   UNPAUSE("Unpause", "Unpause the negotiation", false),
@@ -14,12 +14,12 @@ public enum NegotiationEvent {
 
   private final String label;
   private final String description;
-  private final Boolean detailsRequired;
+  private final boolean messageRequired;
 
-  NegotiationEvent(String label, String description, Boolean detailsRequired) {
+  NegotiationEvent(String label, String description, boolean detailsRequired) {
     this.label = label;
     this.description = description;
-    this.detailsRequired = detailsRequired;
+    this.messageRequired = detailsRequired;
   }
 
   public String getValue() {

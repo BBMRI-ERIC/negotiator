@@ -1285,7 +1285,7 @@ public class NegotiationControllerTests {
         .andDo(print())
         .andExpect(status().isOk());
     posts = postRepository.findByNegotiationId("negotiation-5");
-    Assertions.assertEquals(posts.size(), numberOfPost + 1);
+    Assertions.assertEquals(numberOfPost + 1, posts.size());
   }
 
   @Test

@@ -15,9 +15,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
-import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostService;
-import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -186,17 +184,13 @@ public class NegotiationController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     // Process the request
-    negotiationLifecycleService.sendEvent(id, event);
-    NegotiationDTO result = negotiationService.findById(id, true);
+    String details = null;
     if (negotiationUpdateLifecycleDTO != null
         && negotiationUpdateLifecycleDTO.getDetails() != null) {
-      PostCreateDTO post =
-          PostCreateDTO.builder()
-              .type(PostType.PUBLIC)
-              .text(negotiationUpdateLifecycleDTO.getDetails())
-              .build();
-      postService.create(post, id);
+      details = negotiationUpdateLifecycleDTO.getDetails();
     }
+    negotiationLifecycleService.sendEvent(id, event, details);
+    NegotiationDTO result = negotiationService.findById(id, true);
     return ResponseEntity.ok(result);
   }
 

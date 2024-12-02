@@ -3,7 +3,11 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
+import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.post.PostRepository;
+import eu.bbmri_eric.negotiator.post.PostType;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +30,8 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   @Autowired NegotiationRepository negotiationRepository;
 
+  @Autowired PostRepository postRepository;
+
   @Autowired
   @Qualifier("persistHandler")
   private PersistStateMachineHandler persistStateMachineHandler;
@@ -41,18 +47,34 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   @Override
-  public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent)
+  public NegotiationState sendEvent(
+      String negotiationId, NegotiationEvent negotiationEvent, String message)
       throws WrongRequestException, EntityNotFoundException {
-    changeStateMachine(negotiationId, negotiationEvent);
+    changeStateMachine(negotiationId, negotiationEvent, message);
     return getCurrentStateForNegotiation(negotiationId);
   }
 
-  private void changeStateMachine(String negotiationId, NegotiationEvent negotiationEvent) {
+  private void changeStateMachine(
+      String negotiationId, NegotiationEvent negotiationEvent, String message) {
     if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
       throw new StateMachineException(
           "You are not allowed to %s the Negotiation"
               .formatted(negotiationEvent.getLabel().toLowerCase()));
     }
+    if (negotiationEvent.isMessageRequired()) {
+      if (message == null) {
+        throw new WrongRequestException("You need to specify a message for event this event");
+      } else {
+        Negotiation negotiation =
+            negotiationRepository
+                .findById(negotiationId)
+                .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+        Post post =
+            Post.builder().negotiation(negotiation).text(message).type(PostType.PUBLIC).build();
+        postRepository.save(post);
+      }
+    }
+
     persistStateMachineHandler
         .handleEventWithStateReactively(
             MessageBuilder.withPayload(negotiationEvent.name())
