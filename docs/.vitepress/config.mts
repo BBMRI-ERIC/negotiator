@@ -77,6 +77,7 @@ export default defineConfig({
                 items: [
                     {text: 'Administrator', link: '/administrator'},
                     {text: 'Representative', link: '/representative'},
+                    {text: 'Customize UI', link: '/customizable'},
                 ]
             },
             {

@@ -19,6 +19,9 @@ hero:
     - theme: alt
       text: User documentation
       link: /representative
+    - theme: alt
+      text: How to contribute
+      link: /contributing
 features:
   - title: Secure
     details: Negotiator provides a secure platform for negotiating access to sensitive data, ensuring confidentiality and integrity.
