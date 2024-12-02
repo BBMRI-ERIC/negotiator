@@ -16,7 +16,6 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
-import eu.bbmri_eric.negotiator.post.PostService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -63,8 +62,6 @@ public class NegotiationController {
 
   private final ResourceService resourceService;
 
-  private final PostService postService;
-
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
@@ -74,7 +71,6 @@ public class NegotiationController {
       ResourceLifecycleService resourceLifecycleService,
       PersonService personService,
       ResourceService resourceService,
-      PostService postService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler) {
     this.negotiationService = negotiationService;
@@ -82,7 +78,6 @@ public class NegotiationController {
     this.resourceLifecycleService = resourceLifecycleService;
     this.personService = personService;
     this.resourceService = resourceService;
-    this.postService = postService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
   }
