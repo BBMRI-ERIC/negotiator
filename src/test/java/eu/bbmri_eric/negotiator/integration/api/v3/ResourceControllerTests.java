@@ -360,15 +360,9 @@ public class ResourceControllerTests {
   @WithUserDetails("admin")
   void updateResource_singleResource_ok() throws Exception {
     Organization org1 =
-        Organization.builder()
-            .name("Organization 1")
-            .externalId("test_organization_1")
-            .build();
+        Organization.builder().name("Organization 1").externalId("test_organization_1").build();
     Organization org2 =
-        Organization.builder()
-            .name("Organization 2")
-            .externalId("test_organization_2")
-            .build();
+        Organization.builder().name("Organization 2").externalId("test_organization_2").build();
     organizationRepository.save(org1);
     organizationRepository.save(org2);
     Long org1Id = organizationRepository.findByExternalId("test_organization_1").get().getId();

@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
