@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
@@ -35,12 +36,15 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceLifecycleRecord;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -63,6 +67,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired NegotiationRepository negotiationRepository;
   @Autowired NegotiationService negotiationService;
   @Autowired RequestRepository requestRepository;
+  @Autowired PostRepository postRepository;
   @Autowired InformationRequirementRepository requirementRepository;
   @Autowired AccessFormRepository accessFormRepository;
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
@@ -125,6 +130,43 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
     long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
     assertThat(numEvents).isEqualTo(1);
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_declineNegotiation_createPost() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    List<Post> posts = postRepository.findByNegotiationId(negotiationDTO.getId());
+    int numberOfPosts = posts.size();
+    assertEquals(
+        NegotiationState.DECLINED,
+        negotiationLifecycleService.sendEvent(
+            negotiationDTO.getId(), NegotiationEvent.DECLINE, "not acceptable"));
+    long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
+    assertThat(numEvents).isEqualTo(1);
+    posts = postRepository.findByNegotiationId(negotiationDTO.getId());
+    assertThat(posts.size()).isEqualTo(numberOfPosts + 1);
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_declineNegotiation_failsIfMessageisNull() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    assertThrows(
+        WrongRequestException.class,
+        () ->
+            negotiationLifecycleService.sendEvent(
+                negotiationDTO.getId(), NegotiationEvent.DECLINE, null));
+  }
+
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  void sendEvent_declineNegotiation_failsIfNegotiationNotFound() throws IOException {
+    assertThrows(
+        EntityNotFoundException.class,
+        () ->
+            negotiationLifecycleService.sendEvent(
+                "unknownd", NegotiationEvent.DECLINE, "not acceptable"));
   }
 
   @Test
