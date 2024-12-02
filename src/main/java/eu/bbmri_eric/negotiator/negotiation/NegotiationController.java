@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
@@ -225,9 +226,15 @@ public class NegotiationController {
    * @return a list of possible events to send
    */
   @GetMapping("/negotiations/{id}/lifecycle")
-  List<String> getPossibleEvents(@Valid @PathVariable String id) {
+  List<NegotiationEventMetadataDTO> getPossibleEvents(@Valid @PathVariable String id) {
     return negotiationLifecycleService.getPossibleEvents(id).stream()
-        .map((obj) -> Objects.toString(obj, null))
+        .map(
+            (event) ->
+                new NegotiationEventMetadataDTO(
+                    event.getValue(),
+                    event.getLabel(),
+                    event.getDescription(),
+                    event.isMessageRequired()))
         .collect(Collectors.toList());
   }
 

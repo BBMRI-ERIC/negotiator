@@ -7,13 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.server.core.Relation;
 
-/** DTO for {@link eu.bbmri_eric.negotiator.database.model.NegotiationEventMetadata} */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Relation(collectionRelation = "events", itemRelation = "event")
-public class NegotiationEventMetadataDto implements Serializable {
-  private NegotiationEvent value;
+public class NegotiationEventMetadataDTO implements Serializable {
+  private String value;
   private String label;
   private String description;
+  private boolean messageRequired;
 }
