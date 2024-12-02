@@ -31,6 +31,19 @@ import org.hibernate.annotations.UuidGenerator;
 @Builder
 public class Post extends AuditEntity {
 
+  public Post(Negotiation negotiation, Organization organization, String text, PostType type) {
+    this.negotiation = negotiation;
+    this.organization = organization;
+    this.text = text;
+    this.type = type;
+  }
+
+  public Post(String text, Negotiation negotiation, PostType type) {
+    this.text = text;
+    this.negotiation = negotiation;
+    this.type = type;
+  }
+
   @Id
   @GeneratedValue(generator = "uuid")
   @UuidGenerator

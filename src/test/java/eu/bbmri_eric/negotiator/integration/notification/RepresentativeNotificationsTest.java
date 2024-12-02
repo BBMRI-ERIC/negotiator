@@ -121,7 +121,7 @@ public class RepresentativeNotificationsTest {
     negotiation.setCreatedBy(person);
     Person representative =
         negotiation.getResources().iterator().next().getRepresentatives().iterator().next();
-    Post post = new Post("test", negotiation, null, "", PostType.PUBLIC);
+    Post post = new Post(negotiation, null, "", PostType.PUBLIC);
     postRepository.save(post);
     representativeNotificationService.notifyAboutPendingNegotiations();
     int count = notificationRepository.findAllByRecipient_id(representative.getId()).size();

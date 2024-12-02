@@ -124,7 +124,6 @@ public class NotificationRepositoryTest {
   private Notification saveNotification() {
     Notification notification =
         Notification.builder()
-            .id(1L)
             .negotiation(this.negotiation)
             .recipient(this.person)
             .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
