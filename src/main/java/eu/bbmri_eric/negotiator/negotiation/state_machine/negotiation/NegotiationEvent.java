@@ -16,10 +16,10 @@ public enum NegotiationEvent {
   private final String description;
   private final boolean messageRequired;
 
-  NegotiationEvent(String label, String description, boolean detailsRequired) {
+  NegotiationEvent(String label, String description, boolean messageRequired) {
     this.label = label;
     this.description = description;
-    this.messageRequired = detailsRequired;
+    this.messageRequired = messageRequired;
   }
 
   public String getValue() {

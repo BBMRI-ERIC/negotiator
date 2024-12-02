@@ -11,5 +11,5 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NegotiationUpdateLifecycleDTO {
-  @Nullable private String details;
+  @Nullable private String message;
 }

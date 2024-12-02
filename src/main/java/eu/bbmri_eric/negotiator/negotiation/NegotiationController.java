@@ -186,8 +186,8 @@ public class NegotiationController {
     // Process the request
     String details = null;
     if (negotiationUpdateLifecycleDTO != null
-        && negotiationUpdateLifecycleDTO.getDetails() != null) {
-      details = negotiationUpdateLifecycleDTO.getDetails();
+        && negotiationUpdateLifecycleDTO.getMessage() != null) {
+      details = negotiationUpdateLifecycleDTO.getMessage();
     }
     negotiationLifecycleService.sendEvent(id, event, details);
     NegotiationDTO result = negotiationService.findById(id, true);

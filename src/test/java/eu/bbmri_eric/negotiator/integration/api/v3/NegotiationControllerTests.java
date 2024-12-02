@@ -1272,16 +1272,16 @@ public class NegotiationControllerTests {
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
-  void sendEvent_WithMandatoryDetails_Ok() throws Exception {
+  void sendEvent_WithMandatoryMessage_Ok() throws Exception {
     List<Post> posts = postRepository.findByNegotiationId("negotiation-5");
     int numberOfPost = posts.size();
-    String details = "{\"details\": \"Request not acceptable\"}";
+    String message = "{\"message\": \"Request not acceptable\"}";
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(
                     "%s/negotiation-5/lifecycle/DECLINE".formatted(NEGOTIATIONS_URL))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(details))
+                .content(message))
         .andDo(print())
         .andExpect(status().isOk());
     posts = postRepository.findByNegotiationId("negotiation-5");
