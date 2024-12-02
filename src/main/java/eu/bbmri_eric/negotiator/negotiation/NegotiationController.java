@@ -180,12 +180,12 @@ public class NegotiationController {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
     // Process the request
-    String details = null;
+    String message = null;
     if (negotiationUpdateLifecycleDTO != null
         && negotiationUpdateLifecycleDTO.getMessage() != null) {
-      details = negotiationUpdateLifecycleDTO.getMessage();
+      message = negotiationUpdateLifecycleDTO.getMessage();
     }
-    negotiationLifecycleService.sendEvent(id, event, details);
+    negotiationLifecycleService.sendEvent(id, event, message);
     NegotiationDTO result = negotiationService.findById(id, true);
     return ResponseEntity.ok(result);
   }
