@@ -55,6 +55,19 @@ public class Organization extends AuditEntity {
     this.name = name;
   }
 
+  public Organization(String externalId, String name, Set<Resource> resources) {
+    this.externalId = externalId;
+    this.name = name;
+    this.resources = resources;
+  }
+
+  public Organization(String externalId, String name, Set<Resource> resources, Boolean withdrawn) {
+    this.externalId = externalId;
+    this.name = name;
+    this.resources = resources;
+    this.withdrawn = withdrawn;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

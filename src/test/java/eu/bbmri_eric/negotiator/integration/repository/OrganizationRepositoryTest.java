@@ -11,7 +11,7 @@ import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
-import java.util.Set;
+import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -47,7 +47,7 @@ public class OrganizationRepositoryTest {
 
     Organization savedOrganization =
         organizationRepository.saveAndFlush(
-            new Organization(1L, "testorg", "testname", Set.of(), false));
+            new Organization("testorg", "testname", new HashSet<>(), false));
 
     Resource resource =
         resourceRepository.saveAndFlush(

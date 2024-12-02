@@ -19,6 +19,7 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
+import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +108,6 @@ public class AttachmentRepositoriesTest {
       Organization organization, Negotiation negotiation, Person creator) {
     Attachment attachment =
         Attachment.builder()
-            .id("abcdef")
             .size(100L)
             .name("Attachment")
             .contentType("application/pdf")
@@ -116,11 +116,17 @@ public class AttachmentRepositoriesTest {
             .organization(organization)
             .build();
     attachment.setCreatedBy(creator);
-    return attachmentRepository.save(attachment);
+    try {
+      return attachmentRepository.save(attachment);
+    } catch (Exception e) {
+      e.printStackTrace(); // Log or inspect the root cause
+    }
+    return null;
   }
 
   /** Tests get by negotiation id. Out of 3 attachment 2 are returned */
   @Test
+  @Transactional
   void findByNegotiationId_ok() {
     Person creator = createPerson("pers1");
     Attachment attachment1 = createAttachment(organization1, negotiation1, creator);

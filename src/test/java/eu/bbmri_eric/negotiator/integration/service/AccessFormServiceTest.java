@@ -105,7 +105,6 @@ public class AccessFormServiceTest {
             .anyMatch(res -> res.getId().equals(resource.getSourceId())));
     AccessFormSection accessFormSection =
         new AccessFormSection("different_section", "test", "test");
-    accessFormSection.setId(100L);
     accessFormSection = accessFormSectionRepository.save(accessFormSection);
     AccessForm accessForm = new AccessForm("different_form");
     accessForm.linkSection(accessFormSection, 0);

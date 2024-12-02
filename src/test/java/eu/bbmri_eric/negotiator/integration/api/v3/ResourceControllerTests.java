@@ -361,13 +361,11 @@ public class ResourceControllerTests {
   void updateResource_singleResource_ok() throws Exception {
     Organization org1 =
         Organization.builder()
-            .id(Long.valueOf("1"))
             .name("Organization 1")
             .externalId("test_organization_1")
             .build();
     Organization org2 =
         Organization.builder()
-            .id(Long.valueOf("2"))
             .name("Organization 2")
             .externalId("test_organization_2")
             .build();
