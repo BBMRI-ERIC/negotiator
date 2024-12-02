@@ -29,6 +29,8 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -87,6 +90,8 @@ public class NegotiationControllerTests {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
+
+  @Autowired PostRepository postRepository;
 
   private MockMvc mockMvc;
 
@@ -1262,6 +1267,25 @@ public class NegotiationControllerTests {
             MockMvcRequestBuilders.put(
                 "%s/negotiation-1/lifecycle/Abandon".formatted(NEGOTIATIONS_URL)))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+  void sendEvent_WithMandatoryDetails_Ok() throws Exception {
+    List<Post> posts = postRepository.findByNegotiationId("negotiation-5");
+    int numberOfPost = posts.size();
+    String details = "{\"details\": \"Request not acceptable\"}";
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                    "%s/negotiation-5/lifecycle/DECLINE".formatted(NEGOTIATIONS_URL))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(details))
+        .andDo(print())
+        .andExpect(status().isOk());
+    posts = postRepository.findByNegotiationId("negotiation-5");
+    Assertions.assertEquals(posts.size(), numberOfPost + 1);
   }
 
   @Test

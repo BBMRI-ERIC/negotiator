@@ -15,6 +15,9 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.post.PostCreateDTO;
+import eu.bbmri_eric.negotiator.post.PostService;
+import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -40,7 +43,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -62,6 +64,8 @@ public class NegotiationController {
 
   private final ResourceService resourceService;
 
+  private final PostService postService;
+
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
@@ -71,6 +75,7 @@ public class NegotiationController {
       ResourceLifecycleService resourceLifecycleService,
       PersonService personService,
       ResourceService resourceService,
+      PostService postService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler) {
     this.negotiationService = negotiationService;
@@ -78,6 +83,7 @@ public class NegotiationController {
     this.resourceLifecycleService = resourceLifecycleService;
     this.personService = personService;
     this.resourceService = resourceService;
+    this.postService = postService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
   }
@@ -173,7 +179,8 @@ public class NegotiationController {
   public ResponseEntity<?> sendEvent(
       @Valid @PathVariable String id,
       @Valid @PathVariable("event") NegotiationEvent event,
-      @RequestBody(required = false) NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
+      @RequestBody(required = false) @Nullable
+          NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !isCreator(negotiationService.findById(id, false))) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -181,6 +188,15 @@ public class NegotiationController {
     // Process the request
     negotiationLifecycleService.sendEvent(id, event);
     NegotiationDTO result = negotiationService.findById(id, true);
+    if (negotiationUpdateLifecycleDTO != null
+        && negotiationUpdateLifecycleDTO.getDetails() != null) {
+      PostCreateDTO post =
+          PostCreateDTO.builder()
+              .type(PostType.PUBLIC)
+              .text(negotiationUpdateLifecycleDTO.getDetails())
+              .build();
+      postService.create(post, id);
+    }
     return ResponseEntity.ok(result);
   }
 
