@@ -230,6 +230,7 @@ public class NegotiationController {
                     event.getLabel(),
                     event.getDescription(),
                     event.isMessageRequired()))
+        .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
         .collect(Collectors.toList());
   }
 
