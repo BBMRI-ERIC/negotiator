@@ -48,6 +48,14 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
 
   @Override
   public NegotiationState sendEvent(
+          String negotiationId, NegotiationEvent negotiationEvent)
+          throws WrongRequestException, EntityNotFoundException {
+    changeStateMachine(negotiationId, negotiationEvent, null);
+    return getCurrentStateForNegotiation(negotiationId);
+  }
+
+  @Override
+  public NegotiationState sendEvent(
       String negotiationId, NegotiationEvent negotiationEvent, String message)
       throws WrongRequestException, EntityNotFoundException {
     changeStateMachine(negotiationId, negotiationEvent, message);

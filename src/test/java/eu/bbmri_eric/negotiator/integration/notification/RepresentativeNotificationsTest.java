@@ -65,7 +65,7 @@ public class RepresentativeNotificationsTest {
   void notifyForPendingNegotiations_noPostOrUpdate_repNotifiedOnce() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     negotiation.setCreationDate(LocalDateTime.now().minusDays(5));
     negotiation.setCreatedBy(person);
@@ -89,7 +89,7 @@ public class RepresentativeNotificationsTest {
   void notifyForPendingNegotiations_statusUpdate_noNotification() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     negotiation.setCreationDate(LocalDateTime.now().minusDays(5));
     negotiation.setCreatedBy(person);
@@ -115,7 +115,7 @@ public class RepresentativeNotificationsTest {
   void notifyForPendingNegotiation_newPostByARep_noNotification() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     negotiation.setCreationDate(LocalDateTime.now().minusDays(5));
     negotiation.setCreatedBy(person);

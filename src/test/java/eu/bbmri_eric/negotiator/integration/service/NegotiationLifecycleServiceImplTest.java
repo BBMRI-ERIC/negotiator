@@ -123,7 +123,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(
-            negotiationDTO.getId(), NegotiationEvent.APPROVE, null));
+            negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
         NegotiationState.IN_PROGRESS,
         NegotiationState.valueOf(
@@ -156,7 +156,7 @@ public class NegotiationLifecycleServiceImplTest {
         WrongRequestException.class,
         () ->
             negotiationLifecycleService.sendEvent(
-                negotiationDTO.getId(), NegotiationEvent.DECLINE, null));
+                negotiationDTO.getId(), NegotiationEvent.DECLINE));
   }
 
   @Test
@@ -176,7 +176,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(
-            negotiationDTO.getId(), NegotiationEvent.APPROVE, null));
+            negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(
@@ -237,7 +237,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationState.IN_PROGRESS,
         negotiationLifecycleService.sendEvent(
-            negotiationDTO.getId(), NegotiationEvent.APPROVE, null));
+            negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(
@@ -250,7 +250,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
   void sendEvent_approveCorrectly_historyIsUpdated() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     Set<NegotiationLifecycleRecord> history =
         negotiationRepository.findDetailedById(negotiationDTO.getId()).get().getLifecycleHistory();
     assertEquals(2, history.size());
@@ -263,7 +263,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockUser(roles = "ADMIN")
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     NegotiationResourceState state =
         negotiationRepository
             .findById(negotiationDTO.getId())
@@ -290,7 +290,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -304,7 +304,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void sendEventForResource_approvedNegotiationWrongEvent_noChange() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -318,7 +318,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Negotiation before = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -403,7 +403,7 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     requirementRepository.save(
         new InformationRequirement(accessForm, NegotiationResourceEvent.CONTACT));
@@ -422,7 +422,7 @@ public class NegotiationLifecycleServiceImplTest {
   @Transactional
   void sendEventForResource_fulfilledRequirement_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceRepository.findByNegotiation(negotiationDTO.getId()).stream()
@@ -469,7 +469,7 @@ public class NegotiationLifecycleServiceImplTest {
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
   void getPossibleEventsForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE, null);
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     assertEquals(
         Set.of(
             NegotiationResourceEvent.STEP_AWAY,
