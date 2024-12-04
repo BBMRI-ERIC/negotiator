@@ -1218,7 +1218,6 @@ public class NegotiationControllerTests {
         .perform(
             MockMvcRequestBuilders.put(
                 "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
-        .andDo(print())
         .andExpect(status().isForbidden());
   }
 

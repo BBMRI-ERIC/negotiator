@@ -36,13 +36,10 @@ public class NonRepresentedResourcesHandlerImpl implements NonRepresentedResourc
         continue;
       }
       if (Objects.equals(state, NegotiationResourceState.REPRESENTATIVE_UNREACHABLE)) {
-        updateResourceStatus(negotiation, sourceId);
+        negotiation.setStateForResource(
+            sourceId, NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        // TODO: add call for notifying the representative
       }
     }
-  }
-
-  private void updateResourceStatus(Negotiation negotiation, String sourceId) {
-    negotiation.setStateForResource(sourceId, NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    // TODO: add call for notifying the representative
   }
 }

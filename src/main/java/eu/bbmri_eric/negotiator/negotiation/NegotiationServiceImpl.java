@@ -311,10 +311,10 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public NegotiationDTO findById(String negotiationId, boolean includeDetails)
       throws EntityNotFoundException {
-    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
     }
+    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userID);
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
     return modelMapper.map(negotiation, NegotiationDTO.class);

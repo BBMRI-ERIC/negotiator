@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -146,7 +146,7 @@ public class PostControllerTests {
   @Test
   @WithUserDetails("TheResearcher")
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  public void testGetAll() throws Exception {
+  public void testGetAll_authOk_correctOrderByDate() throws Exception {
     int numberOfPosts = (int) postRepository.count();
     String uri = String.format("%s/%s/%s", NEGOTIATIONS_URI, NEGOTIATION_1_ID, POSTS_URI);
 
@@ -157,11 +157,11 @@ public class PostControllerTests {
         .andExpect(
             jsonPath(
                 "$._embedded.posts[*].id",
-                containsInAnyOrder(
+                contains(
+                    "post-1-representative",
                     "post-1-researcher",
                     "post-2-researcher",
                     "post-3-researcher",
-                    "post-1-representative",
                     "post-2-representative",
                     "post-3-representative",
                     "post-4-representative")));

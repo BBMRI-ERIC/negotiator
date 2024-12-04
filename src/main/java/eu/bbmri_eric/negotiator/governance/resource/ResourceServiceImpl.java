@@ -23,10 +23,8 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
-import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
@@ -54,7 +52,6 @@ public class ResourceServiceImpl implements ResourceService {
   private final PersonRepository personRepository;
   private final NegotiationRepository negotiationRepository;
   private final ModelMapper modelMapper;
-  private final RequestRepository requestRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final AccessFormRepository accessFormRepository;
   private final DiscoveryServiceRepository discoveryServiceRepository;
@@ -67,8 +64,6 @@ public class ResourceServiceImpl implements ResourceService {
       PersonRepository personRepository,
       NegotiationRepository negotiationRepository,
       ModelMapper modelMapper,
-      RequestRepository requestRepository,
-      UserNotificationService userNotificationService,
       ApplicationEventPublisher applicationEventPublisher,
       AccessFormRepository accessFormRepository,
       DiscoveryServiceRepository discoveryServiceRepository,
@@ -79,7 +74,6 @@ public class ResourceServiceImpl implements ResourceService {
     this.personRepository = personRepository;
     this.negotiationRepository = negotiationRepository;
     this.modelMapper = modelMapper;
-    this.requestRepository = requestRepository;
     this.applicationEventPublisher = applicationEventPublisher;
     this.accessFormRepository = accessFormRepository;
     this.discoveryServiceRepository = discoveryServiceRepository;
@@ -233,17 +227,6 @@ public class ResourceServiceImpl implements ResourceService {
         .toList();
   }
 
-  private void persistChanges(
-      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {}
-
-  private static void initializeStateForNewResources(
-      Negotiation negotiation, Set<Resource> resources, NegotiationResourceState state) {
-    if (negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
-      for (Resource resource : resources) {
-        negotiation.setStateForResource(resource.getSourceId(), state);
-      }
-    }
-  }
 
   private @NonNull Set<Resource> fetchResourcesFromDB(List<Long> resourceIds) {
     return new HashSet<>(repository.findAllById(resourceIds));
@@ -253,10 +236,5 @@ public class ResourceServiceImpl implements ResourceService {
     return negotiationRepository
         .findById(negotiationId)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-  }
-
-  private boolean userIsntAuthorized(String negotiationId, Long userId) {
-    return !personRepository.isRepresentativeOfAnyResourceOfNegotiation(userId, negotiationId)
-        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userId);
   }
 }
