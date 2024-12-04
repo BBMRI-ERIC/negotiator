@@ -3,11 +3,8 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
-import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
-import eu.bbmri_eric.negotiator.post.PostType;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -69,20 +66,14 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
               .formatted(negotiationEvent.getLabel().toLowerCase()));
     }
 
-    if (message != null) {
-      Negotiation negotiation =
-          negotiationRepository
-              .findById(negotiationId)
-              .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-      Post post =
-          Post.builder().negotiation(negotiation).text(message).type(PostType.PUBLIC).build();
-      postRepository.save(post);
-    }
-
     persistStateMachineHandler
         .handleEventWithStateReactively(
             MessageBuilder.withPayload(negotiationEvent.name())
                 .setHeader("negotiationId", negotiationId)
+                .setHeader("postBody", message)
+                .setHeader(
+                    "postSenderId",
+                    AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
                 .build(),
             getCurrentStateForNegotiation(negotiationId).name())
         .subscribe();

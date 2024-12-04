@@ -6,4 +6,6 @@ public interface ResearcherNotificationService {
   void createConfirmationNotification(String negotiationId);
 
   void statusChangeNotification(String negotiationId, NegotiationEvent action);
+
+  void statusChangeNotification(String negotiationId, NegotiationEvent action, String post);
 }

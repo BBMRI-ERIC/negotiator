@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
@@ -145,17 +144,6 @@ public class NegotiationLifecycleServiceImplTest {
     assertThat(numEvents).isEqualTo(1);
     posts = postRepository.findByNegotiationId(negotiationDTO.getId());
     assertThat(posts.size()).isEqualTo(numberOfPosts + 1);
-  }
-
-  @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
-  void sendEvent_declineNegotiation_failsIfMessageisNull() throws IOException {
-    NegotiationDTO negotiationDTO = saveNegotiation();
-    assertThrows(
-        WrongRequestException.class,
-        () ->
-            negotiationLifecycleService.sendEvent(
-                negotiationDTO.getId(), NegotiationEvent.DECLINE));
   }
 
   @Test

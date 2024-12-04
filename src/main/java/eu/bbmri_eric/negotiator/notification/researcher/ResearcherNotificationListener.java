@@ -23,7 +23,8 @@ public class ResearcherNotificationListener {
   public void handleStatusChangeEvent(NegotiationStateChangeEvent event) {
     if (event.getEvent().equals(NegotiationEvent.APPROVE)
         || event.getEvent().equals(NegotiationEvent.DECLINE)) {
-      notificationService.statusChangeNotification(event.getNegotiationId(), event.getEvent());
+      notificationService.statusChangeNotification(
+          event.getNegotiationId(), event.getEvent(), event.getPost());
     }
   }
 

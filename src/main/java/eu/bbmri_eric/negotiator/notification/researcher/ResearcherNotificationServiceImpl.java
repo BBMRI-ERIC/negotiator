@@ -9,6 +9,7 @@ import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
+import java.util.Objects;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEventPublisher;
@@ -56,9 +57,34 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
         new NewNotificationEvent(this, notification.getId(), "negotiation-confirmation"));
   }
 
+  private static @NonNull String getMessage(NegotiationEvent action, String post) {
+    if (action.equals(NegotiationEvent.DECLINE)) {
+      String motivation = "";
+      if (Objects.nonNull(post)) {
+        motivation = "The Administrator gave the following motivation: %s".formatted(post);
+      }
+      return "The request was %sd by an Administrator because it did not meet our criteria. %s. If you think it was unjustified please reach out to us using the mail address below"
+          .formatted(action.getLabel().toLowerCase(), motivation);
+    } else {
+      return "The request was %sd by an Administrator and the representatives of respective organizations were also notified."
+          .formatted(action.getLabel().toLowerCase());
+    }
+  }
+
   @Override
   @Transactional
   public void statusChangeNotification(String negotiationId, NegotiationEvent action) {
+    performStatusChangeNofitication(negotiationId, action, null);
+  }
+
+  @Override
+  @Transactional
+  public void statusChangeNotification(String negotiationId, NegotiationEvent action, String post) {
+    performStatusChangeNofitication(negotiationId, action, post);
+  }
+
+  private void performStatusChangeNofitication(
+      String negotiationId, NegotiationEvent action, String post) {
     Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
     if (negotiation == null) {
       log.error(
@@ -66,12 +92,13 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
               .formatted(negotiationId));
       return;
     }
+
     Notification notification =
         new Notification(
             negotiation.getCreatedBy(),
             negotiation,
             "Request status update",
-            getMessage(action),
+            getMessage(action, post),
             NotificationEmailStatus.EMAIL_NOT_SENT);
     try {
       notification = notificationRepository.save(notification);
@@ -81,15 +108,5 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
     }
     eventPublisher.publishEvent(
         new NewNotificationEvent(this, notification.getId(), "negotiation-status-change"));
-  }
-
-  private static @NonNull String getMessage(NegotiationEvent action) {
-    if (action.equals(NegotiationEvent.DECLINE)) {
-      return "The request was %sd by an Administrator because it did not meet our criteria. If you think it was unjustified please reach out to us using the mail address bellow"
-          .formatted(action.getLabel().toLowerCase());
-    } else {
-      return "The request was %sd by an Administrator and the representatives of respective organizations were also notified."
-          .formatted(action.getLabel().toLowerCase());
-    }
   }
 }
