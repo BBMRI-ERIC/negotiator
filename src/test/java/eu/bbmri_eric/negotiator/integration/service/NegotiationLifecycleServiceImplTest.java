@@ -122,8 +122,7 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         NegotiationState.IN_PROGRESS,
-        negotiationLifecycleService.sendEvent(
-            negotiationDTO.getId(), NegotiationEvent.APPROVE));
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
         NegotiationState.IN_PROGRESS,
         NegotiationState.valueOf(
@@ -175,8 +174,7 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         NegotiationState.IN_PROGRESS,
-        negotiationLifecycleService.sendEvent(
-            negotiationDTO.getId(), NegotiationEvent.APPROVE));
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(
@@ -236,8 +234,7 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
         NegotiationState.IN_PROGRESS,
-        negotiationLifecycleService.sendEvent(
-            negotiationDTO.getId(), NegotiationEvent.APPROVE));
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE));
     assertEquals(
         NegotiationState.ABANDONED,
         negotiationLifecycleService.sendEvent(
