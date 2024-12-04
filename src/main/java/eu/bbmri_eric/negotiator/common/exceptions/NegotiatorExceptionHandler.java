@@ -28,6 +28,7 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.ErrorResponseException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -80,6 +81,20 @@ public class NegotiatorExceptionHandler {
     problemDetail.setTitle("Max upload size exceeded");
     problemDetail.setDetail(
         ex.getMessage() + ". %s is the maximum supported file size.".formatted(maxFileSize));
+    return problemDetail;
+  }
+
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  public ProblemDetail handleUnsupportedMediaType(HttpMediaTypeNotSupportedException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    problemDetail.setTitle("Unsupported Media Type");
+    problemDetail.setDetail(
+        "Content-Type '"
+            + ex.getContentType()
+            + "' is not supported. Supported types are: "
+            + ex.getSupportedMediaTypes());
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/415"));
     return problemDetail;
   }
 
