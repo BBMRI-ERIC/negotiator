@@ -4,7 +4,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
@@ -15,13 +14,9 @@ import org.springframework.stereotype.Component;
 public class NonRepresentedResourcesHandlerImpl implements NonRepresentedResourcesHandler {
 
   private final NegotiationRepository negotiationRepository;
-  private final ResourceLifecycleService resourceLifecycleService;
 
-  public NonRepresentedResourcesHandlerImpl(
-      NegotiationRepository negotiationRepository,
-      ResourceLifecycleService resourceLifecycleService) {
+  public NonRepresentedResourcesHandlerImpl(NegotiationRepository negotiationRepository) {
     this.negotiationRepository = negotiationRepository;
-    this.resourceLifecycleService = resourceLifecycleService;
   }
 
   @Override
