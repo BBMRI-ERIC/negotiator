@@ -227,7 +227,6 @@ public class ResourceServiceImpl implements ResourceService {
         .toList();
   }
 
-
   private @NonNull Set<Resource> fetchResourcesFromDB(List<Long> resourceIds) {
     return new HashSet<>(repository.findAllById(resourceIds));
   }
