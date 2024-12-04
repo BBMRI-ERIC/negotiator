@@ -14,5 +14,4 @@ public class NegotiationEventMetadataDTO implements Serializable {
   private String value;
   private String label;
   private String description;
-  private boolean messageRequired;
 }

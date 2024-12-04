@@ -68,18 +68,15 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
           "You are not allowed to %s the Negotiation"
               .formatted(negotiationEvent.getLabel().toLowerCase()));
     }
-    if (negotiationEvent.isMessageRequired()) {
-      if (message == null) {
-        throw new WrongRequestException("You need to specify a message for event this event");
-      } else {
-        Negotiation negotiation =
-            negotiationRepository
-                .findById(negotiationId)
-                .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-        Post post =
-            Post.builder().negotiation(negotiation).text(message).type(PostType.PUBLIC).build();
-        postRepository.save(post);
-      }
+
+    if (message != null) {
+      Negotiation negotiation =
+          negotiationRepository
+              .findById(negotiationId)
+              .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+      Post post =
+          Post.builder().negotiation(negotiation).text(message).type(PostType.PUBLIC).build();
+      postRepository.save(post);
     }
 
     persistStateMachineHandler

@@ -1517,17 +1517,11 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$[0].value", is(NegotiationEvent.ABANDON.getValue())))
         .andExpect(jsonPath("$[0].label", is(NegotiationEvent.ABANDON.getLabel())))
         .andExpect(jsonPath("$[0].description", is(NegotiationEvent.ABANDON.getDescription())))
-        .andExpect(
-            jsonPath("$[0].messageRequired", is(NegotiationEvent.ABANDON.isMessageRequired())))
         .andExpect(jsonPath("$[1].value", is(NegotiationEvent.CONCLUDE.getValue())))
         .andExpect(jsonPath("$[1].label", is(NegotiationEvent.CONCLUDE.getLabel())))
         .andExpect(jsonPath("$[1].description", is(NegotiationEvent.CONCLUDE.getDescription())))
-        .andExpect(
-            jsonPath("$[1].messageRequired", is(NegotiationEvent.CONCLUDE.isMessageRequired())))
         .andExpect(jsonPath("$[2].value", is(NegotiationEvent.PAUSE.getValue())))
         .andExpect(jsonPath("$[2].label", is(NegotiationEvent.PAUSE.getLabel())))
-        .andExpect(jsonPath("$[2].description", is(NegotiationEvent.PAUSE.getDescription())))
-        .andExpect(
-            jsonPath("$[2].messageRequired", is(NegotiationEvent.PAUSE.isMessageRequired())));
+        .andExpect(jsonPath("$[2].description", is(NegotiationEvent.PAUSE.getDescription())));
   }
 }

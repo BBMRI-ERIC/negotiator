@@ -226,10 +226,7 @@ public class NegotiationController {
         .map(
             (event) ->
                 new NegotiationEventMetadataDTO(
-                    event.getValue(),
-                    event.getLabel(),
-                    event.getDescription(),
-                    event.isMessageRequired()))
+                    event.getValue(), event.getLabel(), event.getDescription()))
         .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
         .collect(Collectors.toList());
   }

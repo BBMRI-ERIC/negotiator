@@ -4,22 +4,20 @@ import lombok.Getter;
 
 @Getter
 public enum NegotiationEvent {
-  APPROVE("Approve", "Approve the negotiation", false),
-  DECLINE("Decline", "Decline the negotiation", true),
-  START("Start", "Start the negotiation", false),
-  PAUSE("Pause", "Pause the negotiation", false),
-  UNPAUSE("Unpause", "Unpause the negotiation", false),
-  ABANDON("Abandon", "Abandon the negotiation", false),
-  CONCLUDE("Conclude", "Conclude the negotiation", false);
+  APPROVE("Approve", "Approve the negotiation"),
+  DECLINE("Decline", "Decline the negotiation"),
+  START("Start", "Start the negotiation"),
+  PAUSE("Pause", "Pause the negotiation"),
+  UNPAUSE("Unpause", "Unpause the negotiation"),
+  ABANDON("Abandon", "Abandon the negotiation"),
+  CONCLUDE("Conclude", "Conclude the negotiation");
 
   private final String label;
   private final String description;
-  private final boolean messageRequired;
 
-  NegotiationEvent(String label, String description, boolean messageRequired) {
+  NegotiationEvent(String label, String description) {
     this.label = label;
     this.description = description;
-    this.messageRequired = messageRequired;
   }
 
   public String getValue() {
