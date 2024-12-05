@@ -38,13 +38,13 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
         "The request was %sd by an Administrator ".formatted(action.getLabel().toLowerCase());
     String comment = "";
     if (Objects.nonNull(post)) {
-      comment = "The Administrator added the following comment: %s".formatted(post);
+      comment = "<div>The Administrator added the following comment:</div><div>%s</div>".formatted(post);
     }
     if (action.equals(NegotiationEvent.DECLINE)) {
-      return "%s because it did not meet our criteria. %s. If you think it was unjustified please reach out to us using the mail address below"
+      return "<div>%s because it did not meet our criteria.</div>%s<div>If you think it was unjustified please reach out to us using the mail address below</div>"
           .formatted(commonBeginning, comment);
     } else {
-      return "%s and the representatives of respective organizations were also notified. %s"
+      return "<div>%s and the representatives of respective organizations were also notified.</div>%s"
           .formatted(commonBeginning, comment);
     }
   }
