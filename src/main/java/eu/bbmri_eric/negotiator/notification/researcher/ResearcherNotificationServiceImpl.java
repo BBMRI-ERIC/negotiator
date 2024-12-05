@@ -21,6 +21,8 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   private final NegotiationRepository negotiationRepository;
   private final NotificationRepository notificationRepository;
   private final ApplicationEventPublisher eventPublisher;
+  private static final String CREATE_CONFIRMATION_TEMPLATE = "negotiation-confirmation";
+  private static final String STATUS_CHANGE_TEMPLATE = "negotiation-status-change";
 
   public ResearcherNotificationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -31,65 +33,50 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
     this.eventPublisher = eventPublisher;
   }
 
+  private static @NonNull String getMessage(NegotiationEvent action, String post) {
+    String commonBeginning = "The request was %sd by an Administrator ".formatted(action.getLabel().toLowerCase());
+    String comment = "";
+    if (Objects.nonNull(post)) {
+      comment = "The Administrator added the following comment: %s".formatted(post);
+    }
+    if (action.equals(NegotiationEvent.DECLINE)) {
+      return "%s because it did not meet our criteria. %s. If you think it was unjustified please reach out to us using the mail address below"
+          .formatted(commonBeginning, comment);
+    } else {
+      return "%s and the representatives of respective organizations were also notified. %s"
+          .formatted(commonBeginning, comment);
+    }
+  }
+
   @Override
   public void createConfirmationNotification(String negotiationId) {
-    Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
-    if (negotiation == null) {
-      log.error(
-          "Error creating confirmation notification. Negotiation %s not found"
-              .formatted(negotiationId));
-      return;
-    }
-    Notification notification =
-        new Notification(
-            negotiation.getCreatedBy(),
-            negotiation,
-            "Request Confirmation",
-            "Request %s was successfully submitted".formatted(negotiationId),
-            NotificationEmailStatus.EMAIL_NOT_SENT);
-    try {
-      notification = notificationRepository.save(notification);
-    } catch (PersistenceException e) {
-      log.error("Error while saving notification %s".formatted(notification.getMessage()), e);
-      return;
-    }
-    eventPublisher.publishEvent(
-        new NewNotificationEvent(this, notification.getId(), "negotiation-confirmation"));
-  }
-
-  private static @NonNull String getMessage(NegotiationEvent action, String post) {
-    if (action.equals(NegotiationEvent.DECLINE)) {
-      String motivation = "";
-      if (Objects.nonNull(post)) {
-        motivation = "The Administrator gave the following motivation: %s".formatted(post);
-      }
-      return "The request was %sd by an Administrator because it did not meet our criteria. %s. If you think it was unjustified please reach out to us using the mail address below"
-          .formatted(action.getLabel().toLowerCase(), motivation);
-    } else {
-      return "The request was %sd by an Administrator and the representatives of respective organizations were also notified."
-          .formatted(action.getLabel().toLowerCase());
-    }
+    String title = "Request Confirmation";
+    String message = "Request %s was successfully submitted".formatted(negotiationId);
+    publishNotification(negotiationId, title, message, CREATE_CONFIRMATION_TEMPLATE);
   }
 
   @Override
-  @Transactional
   public void statusChangeNotification(String negotiationId, NegotiationEvent action) {
-    performStatusChangeNofitication(negotiationId, action, null);
+    publishStatusChangeNotification(negotiationId, action, null);
   }
 
   @Override
-  @Transactional
   public void statusChangeNotification(String negotiationId, NegotiationEvent action, String post) {
-    performStatusChangeNofitication(negotiationId, action, post);
+    publishStatusChangeNotification(negotiationId, action, post);
   }
 
-  private void performStatusChangeNofitication(
+  private void publishStatusChangeNotification(
       String negotiationId, NegotiationEvent action, String post) {
+    String title = "Request status update";
+    String message = getMessage(action, post);
+    publishNotification(negotiationId, title, message, STATUS_CHANGE_TEMPLATE);
+  }
+
+  @Transactional
+  private void publishNotification(String negotiationId, String title, String message, String emailTemplate) {
     Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
     if (negotiation == null) {
-      log.error(
-          "Error creating confirmation notification. Negotiation %s not found"
-              .formatted(negotiationId));
+      log.error("Error creating the notification. Negotiation %s not found".formatted(negotiationId));
       return;
     }
 
@@ -97,9 +84,10 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
         new Notification(
             negotiation.getCreatedBy(),
             negotiation,
-            "Request status update",
-            getMessage(action, post),
+            title,
+            message,
             NotificationEmailStatus.EMAIL_NOT_SENT);
+
     try {
       notification = notificationRepository.save(notification);
     } catch (PersistenceException e) {
@@ -107,6 +95,6 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
       return;
     }
     eventPublisher.publishEvent(
-        new NewNotificationEvent(this, notification.getId(), "negotiation-status-change"));
+        new NewNotificationEvent(this, notification.getId(), emailTemplate));
   }
 }
