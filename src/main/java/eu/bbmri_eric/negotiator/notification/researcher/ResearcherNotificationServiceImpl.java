@@ -37,15 +37,17 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
     String commonBeginning =
         "The request was %sd by an Administrator ".formatted(action.getLabel().toLowerCase());
     String comment = "";
-    if (Objects.nonNull(post)) {
+    if (Objects.nonNull(post) && !post.isBlank()) {
+      post = post.replace("\n", "<br>");
       comment =
-          "<div>The Administrator added the following comment:</div><div>%s</div>".formatted(post);
+          "<div class=\"message-comment\"><div class=\"message-line\">The Administrator added the following comment:</div><div class=\"message-line\">%s</div></div>"
+              .formatted(post);
     }
     if (action.equals(NegotiationEvent.DECLINE)) {
-      return "<div>%s because it did not meet our criteria.</div>%s<div>If you think it was unjustified please reach out to us using the mail address below</div>"
+      return "<div class=\"message-line\">%sbecause it did not meet our criteria.</div>%s<div class=\"message-line\">If you think it was unjustified please reach out to us using the mail address below</div>"
           .formatted(commonBeginning, comment);
     } else {
-      return "<div>%s and the representatives of respective organizations were also notified.</div>%s"
+      return "<div class=\"message-line\">%sand the representatives of respective organizations were also notified.</div>%s"
           .formatted(commonBeginning, comment);
     }
   }

@@ -75,7 +75,10 @@ public class ResearcherNotificationServiceTest {
     assertEquals(negotiation, notification.getNegotiation());
     assertEquals("Request status update", notification.getTitle());
     assertTrue(
-        notification.getMessage().startsWith("<div>The request was approved by an Administrator"));
+        notification
+            .getMessage()
+            .startsWith(
+                "<div class=\"message-line\">The request was approved by an Administrator"));
     assertEquals(NotificationEmailStatus.EMAIL_NOT_SENT, notification.getEmailStatus());
   }
 
@@ -102,7 +105,7 @@ public class ResearcherNotificationServiceTest {
         notification
             .getMessage()
             .contains(
-                "<div>The Administrator added the following comment:</div><div>not acceptable</div>"));
+                "<div class=\"message-comment\"><div class=\"message-line\">The Administrator added the following comment:</div><div class=\"message-line\">not acceptable</div>"));
     assertEquals(NotificationEmailStatus.EMAIL_NOT_SENT, notification.getEmailStatus());
   }
 
