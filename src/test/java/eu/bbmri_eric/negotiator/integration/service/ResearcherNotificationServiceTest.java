@@ -101,7 +101,8 @@ public class ResearcherNotificationServiceTest {
     assertTrue(
         notification
             .getMessage()
-            .contains("<div>The Administrator added the following comment:</div><div>not acceptable</div>"));
+            .contains(
+                "<div>The Administrator added the following comment:</div><div>not acceptable</div>"));
     assertEquals(NotificationEmailStatus.EMAIL_NOT_SENT, notification.getEmailStatus());
   }
 

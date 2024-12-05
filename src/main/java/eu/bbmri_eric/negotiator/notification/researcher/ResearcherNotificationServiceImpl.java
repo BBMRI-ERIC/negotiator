@@ -38,7 +38,8 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
         "The request was %sd by an Administrator ".formatted(action.getLabel().toLowerCase());
     String comment = "";
     if (Objects.nonNull(post)) {
-      comment = "<div>The Administrator added the following comment:</div><div>%s</div>".formatted(post);
+      comment =
+          "<div>The Administrator added the following comment:</div><div>%s</div>".formatted(post);
     }
     if (action.equals(NegotiationEvent.DECLINE)) {
       return "<div>%s because it did not meet our criteria.</div>%s<div>If you think it was unjustified please reach out to us using the mail address below</div>"
