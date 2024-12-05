@@ -116,7 +116,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void sendEvent_approveNewNegotiation_isOngoing() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
@@ -131,7 +131,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void sendEvent_declineNegotiation_createPost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     List<Post> posts = postRepository.findByNegotiationId(negotiationDTO.getId());
@@ -157,7 +157,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void sendEvent_abandonNegotiation_to_inProcess_Negotiation() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
@@ -203,7 +203,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_calledActionEnablePost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
@@ -217,7 +217,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void sendEvent_approveCorrectly_calledActionDisablePosts() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(
@@ -245,7 +245,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
+  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
@@ -384,7 +384,7 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
+  @WithMockNegotiatorUser(id = 101L, authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
