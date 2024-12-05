@@ -52,6 +52,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private UserNotificationService userNotificationService;
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
+  private NegotiationAccessManager negotiationAccessManager;
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -62,7 +63,8 @@ public class NegotiationServiceImpl implements NegotiationService {
       ModelMapper modelMapper,
       UserNotificationService userNotificationService,
       PersonService personService,
-      ApplicationEventPublisher eventPublisher) {
+      ApplicationEventPublisher eventPublisher,
+      NegotiationAccessManager negotiationAccessManager) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
@@ -72,6 +74,7 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.userNotificationService = userNotificationService;
     this.personService = personService;
     this.eventPublisher = eventPublisher;
+    this.negotiationAccessManager = negotiationAccessManager;
   }
 
   @Override
@@ -262,6 +265,10 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public Iterable<NegotiationDTO> findAllForNetwork(
       Long networkId, NegotiationFilterDTO filtersDTO) {
+    if (!personRepository.isNetworkManager(
+        AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), networkId)) {
+      throw new ForbiddenRequestException("You are not allowed to perform this operation");
+    }
     Network network =
         networkRepository
             .findById(networkId)
@@ -301,8 +308,14 @@ public class NegotiationServiceImpl implements NegotiationService {
    * @param includeDetails whether the negotiation returned include details
    * @return the Negotiation with specified negotiationId
    */
+  @Override
   public NegotiationDTO findById(String negotiationId, boolean includeDetails)
       throws EntityNotFoundException {
+    if (!negotiationRepository.existsById(negotiationId)) {
+      throw new EntityNotFoundException(negotiationId);
+    }
+    Long userID = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    negotiationAccessManager.verifyReadAccessForNegotiation(negotiationId, userID);
     Negotiation negotiation = findEntityById(negotiationId, includeDetails);
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }

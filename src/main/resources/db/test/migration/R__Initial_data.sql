@@ -114,20 +114,21 @@ values ('negotiation-1', 4, 'SUBMITTED'),
 
 insert into post (id, creation_date, modified_date, text, created_by, modified_by, negotiation_id, organization_id,
                   type)
-values ('post-1-researcher', '2023-06-19', '2023-06-19', 'post-1-researcher-message', 108, 108,
+values ('post-1-researcher', '2023-06-19 10:15:00', '2023-06-19 10:15:00', 'post-1-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
-       ('post-2-researcher', '2023-06-19', '2023-06-19', 'post-2-researcher-message', 108, 108,
+       ('post-2-researcher', '2023-06-19 11:30:00', '2023-06-19 11:30:00', 'post-2-researcher-message', 108, 108,
         'negotiation-1', null, 'PUBLIC'),
-       ('post-3-researcher', '2023-06-19', '2023-06-19', 'post-2-researcher-message', 108, 108,
+       ('post-3-researcher', '2023-06-19 13:45:00', '2023-06-19 13:45:00', 'post-3-researcher-message', 108, 108,
         'negotiation-1', 4, 'PRIVATE'),
-       ('post-1-representative', '2023-06-19', '2023-06-19', 'post-1-representative-message', 109, 109,
-        'negotiation-1', null, 'PUBLIC'),
-       ('post-2-representative', '2023-06-19', '2023-06-19', 'post-2-representative-message', 109, 109,
-        'negotiation-1', null, 'PUBLIC'),
-       ('post-3-representative', '2023-06-19', '2023-06-19', 'post-2-representative-message', 109, 109,
-        'negotiation-1', 4, 'PRIVATE'),
-       ('post-4-representative', '2023-06-19', '2023-06-19', 'post-2-representative-message', 109, 109,
-        'negotiation-1', 5, 'PRIVATE');
+       ('post-1-representative', '2023-06-19 09:00:00', '2023-06-19 09:00:00', 'post-1-representative-message', 109,
+        109, 'negotiation-1', null, 'PUBLIC'),
+       ('post-2-representative', '2023-06-19 14:20:00', '2023-06-19 14:20:00', 'post-2-representative-message', 109,
+        109, 'negotiation-1', null, 'PUBLIC'),
+       ('post-3-representative', '2023-06-19 15:10:00', '2023-06-19 15:10:00', 'post-3-representative-message', 109,
+        109, 'negotiation-1', 4, 'PRIVATE'),
+       ('post-4-representative', '2023-06-19 16:05:00', '2023-06-19 16:05:00', 'post-4-representative-message', 109,
+        109, 'negotiation-1', 5, 'PRIVATE');
+
 
 insert into attachment (id, creation_date, modified_date, content_type, name, payload, size, created_by, modified_by,
                         negotiation_id, organization_id)

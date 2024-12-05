@@ -28,6 +28,7 @@ import eu.bbmri_eric.negotiator.post.PostType;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -35,7 +36,6 @@ import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 
@@ -61,7 +61,7 @@ public class RepresentativeNotificationsTest {
   @Autowired private PersonRepository personRepository;
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void notifyForPendingNegotiations_noPostOrUpdate_repNotifiedOnce() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
@@ -85,7 +85,7 @@ public class RepresentativeNotificationsTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void notifyForPendingNegotiations_statusUpdate_noNotification() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
@@ -111,7 +111,7 @@ public class RepresentativeNotificationsTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void notifyForPendingNegotiation_newPostByARep_noNotification() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();

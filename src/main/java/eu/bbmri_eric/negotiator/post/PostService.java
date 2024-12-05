@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.post;
 
 import java.util.List;
 
+/** Interface for managing Posts. */
 public interface PostService {
 
   /**
@@ -22,17 +23,17 @@ public interface PostService {
   PostDTO findById(String id);
 
   /**
-   * Finds all the posts related to a negotiation
+   * Finds all the posts related to a Negotiation
    *
    * @param negotiationId the ID of the negotiation
-   * @return the list of all the posts related to the input negotiation ID
+   * @return a list of Posts the user is allowed to see
    */
   List<PostDTO> findByNegotiationId(String negotiationId);
 
   /**
    * Updates a specific post
    *
-   * @param updateRequest the Post DTO containing post information to be updates
+   * @param updateRequest the Post DTO containing information to be updated
    * @param negotiationId the ID of the negotiation
    * @param postId the ID of the post to update
    * @return the response PostDTO object

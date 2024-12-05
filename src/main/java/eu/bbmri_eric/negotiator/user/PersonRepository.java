@@ -79,6 +79,35 @@ public interface PersonRepository
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 
+  @Query(
+      value =
+          """
+        SELECT COUNT(n) > 0
+        FROM Person p
+        JOIN p.networks n
+        WHERE p.id = :managerId AND n.id = :networkId
+    """)
+  boolean isNetworkManager(Long managerId, Long networkId);
+
+  @Query(
+      value =
+          """
+        SELECT CASE WHEN EXISTS (
+            SELECT 1
+            FROM negotiation_resource_link nrl
+            WHERE nrl.negotiation_id = :negotiationId
+              AND nrl.resource_id IN (
+                  SELECT network_link.resource_id
+                  FROM person p
+                  JOIN public.network_person_link npl ON p.id = npl.person_id
+                  JOIN network_resources_link network_link ON network_link.resource_id = nrl.resource_id
+                  WHERE p.id = :personId
+              )
+        ) THEN TRUE ELSE FALSE END
+        """,
+      nativeQuery = true)
+  boolean isManagerOfAnyResourceOfNegotiation(Long personId, String negotiationId);
+
   Page<Person> findAllByNetworksContains(Network network, Pageable pageable);
 
   List<Person> findAllByResourcesNotEmpty();

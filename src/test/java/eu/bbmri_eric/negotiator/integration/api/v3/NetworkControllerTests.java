@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.governance.network.NetworkCreateDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
@@ -99,7 +100,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 101L)
   public void getNetworkNegotiations_validNetworkId_returnsNegotiations() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations"))
@@ -114,7 +115,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_sortAsc_Ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortOrder=ASC"))
@@ -129,7 +130,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_sortByTitle_Ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortBy=title"))
@@ -144,7 +145,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithMockUser("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_filterByStatus_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?status=IN_PROGRESS"))
@@ -157,7 +158,7 @@ public class NetworkControllerTests {
   }
 
   @Test
-  @WithUserDetails("researcher")
+  @WithMockNegotiatorUser(id = 102L)
   public void testNetworkNegotiations_filterByCreationDate() throws Exception {
     mockMvc
         .perform(

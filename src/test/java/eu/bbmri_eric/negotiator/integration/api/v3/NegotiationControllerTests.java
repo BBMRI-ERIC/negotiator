@@ -1212,17 +1212,7 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockUser(authorities = "biobank:1:collection:1")
-  void updateLifecycle_doesNotHaveRoleAdmin_Forbidden() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(
-                "%s/negotiation-1/lifecycle/APPROVE".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithMockUser(authorities = "ROLE_USER") // Assuming a non-admin user
+  @WithMockNegotiatorUser(id = 102L) // Assuming a non-admin user
   void sendEvent_NonAdmin_Forbidden() throws Exception {
     mockMvc
         .perform(
@@ -1476,5 +1466,35 @@ public class NegotiationControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L)
+  void findAllForNetwork_notAuthorized_throws403() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/networks/1/negotiations"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void findAllForNetwork_isAuthorized_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/networks/1/negotiations"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 102L)
+  void accessNegotiation_asNetworkManager_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1"))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/resources"))
+        .andExpect(status().isOk());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/posts"))
+        .andExpect(status().isOk());
   }
 }
