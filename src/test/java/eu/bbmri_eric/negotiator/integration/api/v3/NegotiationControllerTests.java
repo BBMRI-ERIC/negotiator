@@ -1513,6 +1513,7 @@ public class NegotiationControllerTests {
         .andExpect(jsonPath("$[2].value", is(NegotiationEvent.PAUSE.getValue())))
         .andExpect(jsonPath("$[2].label", is(NegotiationEvent.PAUSE.getLabel())))
         .andExpect(jsonPath("$[2].description", is(NegotiationEvent.PAUSE.getDescription())));
+  }
 
   @WithMockNegotiatorUser(id = 109L)
   void findAllForNetwork_notAuthorized_throws403() throws Exception {

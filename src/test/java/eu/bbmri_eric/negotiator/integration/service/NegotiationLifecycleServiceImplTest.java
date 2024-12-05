@@ -147,8 +147,8 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockUser(authorities = "ROLE_ADMIN")
-  void sendEvent_declineNegotiation_failsIfNegotiationNotFound() throws IOException {
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void sendEvent_declineNegotiation_failsIfNegotiationNotFound() {
     assertThrows(
         EntityNotFoundException.class,
         () ->
