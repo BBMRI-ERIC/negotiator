@@ -384,7 +384,9 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L, authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
+  @WithMockNegotiatorUser(
+      id = 101L,
+      authorities = {"ROLE_ADMIN", "ROLE_REPRESENTATIVE_biobank:1:collection:2"})
   void sendEventForResource_notFulfilledRequirement_throwsStateMachineException()
       throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
