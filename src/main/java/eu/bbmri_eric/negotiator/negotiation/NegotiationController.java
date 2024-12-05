@@ -149,14 +149,10 @@ public class NegotiationController {
   public EntityModel<NegotiationDTO> retrieve(@Valid @PathVariable String id) {
     NegotiationDTO negotiationDTO = negotiationService.findById(id, true);
     boolean isAdmin = AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
-    if (isAuthorizedForNegotiation(negotiationDTO)) {
-      if (negotiationService.isNegotiationCreator(id) || isAdmin) {
-        return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
-      }
-      return assembler.toModel(negotiationDTO);
-    } else {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    if (negotiationService.isNegotiationCreator(id) || isAdmin) {
+      return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
     }
+    return assembler.toModel(negotiationDTO);
   }
 
   /**

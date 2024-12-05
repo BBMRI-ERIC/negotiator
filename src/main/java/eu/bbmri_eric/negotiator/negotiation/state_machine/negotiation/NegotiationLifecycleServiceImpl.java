@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.post.PostRepository;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.StateMachineException;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +61,7 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   private void changeStateMachine(
       String negotiationId, NegotiationEvent negotiationEvent, String message) {
     if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
-      throw new StateMachineException(
+      throw new ForbiddenRequestException(
           "You are not allowed to %s the Negotiation"
               .formatted(negotiationEvent.getLabel().toLowerCase()));
     }
@@ -86,10 +86,15 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   }
 
   private Set<NegotiationEvent> getPossibleEventsForCurrentStateMachine(String negotiationId) {
+    Long userId;
+    try {
+      userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    } catch (ClassCastException e) {
+      throw new ForbiddenRequestException("You are not allowed to perform this action");
+    }
     List<String> roles = AuthenticatedUserContext.getRoles();
     if (!roles.contains("ROLE_ADMIN")
-        && !negotiationRepository.existsByIdAndCreatedBy_Id(
-            negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
+        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userId)) {
       return Set.of();
     }
     return stateMachine.getTransitions().stream()

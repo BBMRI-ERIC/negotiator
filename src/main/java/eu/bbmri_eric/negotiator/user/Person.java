@@ -73,7 +73,8 @@ public class Person {
   @ManyToMany(mappedBy = "managers", fetch = FetchType.EAGER)
   @Exclude
   @Setter(AccessLevel.NONE)
-  private Set<Network> networks;
+  @Builder.Default
+  private Set<Network> networks = new HashSet<>();
 
   public void addResource(Resource resource) {
     this.resources.add(resource);

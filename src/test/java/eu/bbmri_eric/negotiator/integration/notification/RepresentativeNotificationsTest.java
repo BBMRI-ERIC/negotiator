@@ -61,7 +61,7 @@ public class RepresentativeNotificationsTest {
   @Autowired private PersonRepository personRepository;
 
   @Test
-  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void notifyForPendingNegotiations_noPostOrUpdate_repNotifiedOnce() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
@@ -85,7 +85,7 @@ public class RepresentativeNotificationsTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void notifyForPendingNegotiations_statusUpdate_noNotification() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();
@@ -111,7 +111,7 @@ public class RepresentativeNotificationsTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L, authorities = "ROLE_ADMIN")
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
   void notifyForPendingNegotiation_newPostByARep_noNotification() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     Person person = personRepository.findAll().iterator().next();

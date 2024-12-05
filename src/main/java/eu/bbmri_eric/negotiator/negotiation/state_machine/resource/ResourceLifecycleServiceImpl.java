@@ -60,7 +60,12 @@ public class ResourceLifecycleServiceImpl implements ResourceLifecycleService {
   @Override
   public Set<NegotiationResourceEvent> getPossibleEvents(String negotiationId, String resourceId)
       throws EntityNotFoundException {
-    NegotiationResourceState currentState = getCurrentStateForResource(negotiationId, resourceId);
+    NegotiationResourceState currentState;
+    try {
+      currentState = getCurrentStateForResource(negotiationId, resourceId);
+    } catch (EntityNotFoundException e) {
+      return Set.of();
+    }
     if (Objects.isNull(currentState)) {
       throw new EntityNotFoundException(resourceId);
     }
