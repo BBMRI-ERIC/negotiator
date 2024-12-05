@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.common;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 /** Retrieving information about the currently authenticated User/Principal. */
 @Component
+@CommonsLog
 public class AuthenticatedUserContext {
   /**
    * Retrieve an internal identifier for the currently Authenticated user.
@@ -23,6 +25,7 @@ public class AuthenticatedUserContext {
       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
       return ((NegotiatorPrincipal) auth.getPrincipal()).getPerson().getId();
     } catch (Exception e) {
+      log.error(e.getMessage());
       throw new AuthenticationCredentialsNotFoundException("No authenticated user found");
     }
   }
@@ -33,11 +36,9 @@ public class AuthenticatedUserContext {
    * @return true or false
    */
   public static boolean isCurrentlyAuthenticatedUserAdmin() {
-    if (Objects.isNull(SecurityContextHolder.getContext().getAuthentication())) {
-      return false;
-    }
-    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    return !Objects.isNull(SecurityContextHolder.getContext().getAuthentication())
+        && SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }
 
   /**
