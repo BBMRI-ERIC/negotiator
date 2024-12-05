@@ -34,7 +34,8 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   }
 
   private static @NonNull String getMessage(NegotiationEvent action, String post) {
-    String commonBeginning = "The request was %sd by an Administrator ".formatted(action.getLabel().toLowerCase());
+    String commonBeginning =
+        "The request was %sd by an Administrator ".formatted(action.getLabel().toLowerCase());
     String comment = "";
     if (Objects.nonNull(post)) {
       comment = "The Administrator added the following comment: %s".formatted(post);
@@ -73,10 +74,12 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   }
 
   @Transactional
-  private void publishNotification(String negotiationId, String title, String message, String emailTemplate) {
+  private void publishNotification(
+      String negotiationId, String title, String message, String emailTemplate) {
     Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
     if (negotiation == null) {
-      log.error("Error creating the notification. Negotiation %s not found".formatted(negotiationId));
+      log.error(
+          "Error creating the notification. Negotiation %s not found".formatted(negotiationId));
       return;
     }
 
