@@ -5,7 +5,6 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.post.PostRepository;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -26,8 +25,7 @@ import org.springframework.stereotype.Service;
 public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleService {
 
   @Autowired NegotiationRepository negotiationRepository;
-
-  @Autowired PostRepository postRepository;
+  
 
   @Autowired
   @Qualifier("persistHandler")
