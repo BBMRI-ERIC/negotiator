@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleService {
 
   @Autowired NegotiationRepository negotiationRepository;
-  
 
   @Autowired
   @Qualifier("persistHandler")
