@@ -171,19 +171,21 @@ public class NegotiationController {
       @Valid @PathVariable("event") NegotiationEvent event,
       @RequestBody(required = false) @Nullable
           NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
-    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
-        && !isCreator(negotiationService.findById(id, false))) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    // Process the request
+    String message = getOptionalComment(negotiationUpdateLifecycleDTO);
+    negotiationLifecycleService.sendEvent(id, event, message);
+    NegotiationDTO result = negotiationService.findById(id, true);
+    return ResponseEntity.ok(result);
+  }
+
+  @Nullable
+  private static String getOptionalComment(
+      @Nullable NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
     String message = null;
     if (negotiationUpdateLifecycleDTO != null
         && negotiationUpdateLifecycleDTO.getMessage() != null) {
       message = negotiationUpdateLifecycleDTO.getMessage();
     }
-    negotiationLifecycleService.sendEvent(id, event, message);
-    NegotiationDTO result = negotiationService.findById(id, true);
-    return ResponseEntity.ok(result);
+    return message;
   }
 
   /**
