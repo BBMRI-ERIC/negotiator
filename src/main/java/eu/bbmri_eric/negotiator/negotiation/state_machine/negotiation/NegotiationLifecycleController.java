@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
-import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDto;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationStateMetadataDto;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationEventAssembler;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationStateAssembler;
@@ -59,20 +59,20 @@ public class NegotiationLifecycleController {
 
   @GetMapping(value = "/negotiation-lifecycle/events")
   @Operation(summary = "Retrieve metadata about all possible negotiation events")
-  public CollectionModel<EntityModel<NegotiationEventMetadataDto>> getAllEvents() {
+  public CollectionModel<EntityModel<NegotiationEventMetadataDTO>> getAllEvents() {
     return negotiationEventAssembler.toCollectionModel(
         Arrays.stream(NegotiationEvent.class.getEnumConstants())
             .map(
                 negotiationState ->
-                    modelMapper.map(negotiationState, NegotiationEventMetadataDto.class))
+                    modelMapper.map(negotiationState, NegotiationEventMetadataDTO.class))
             .collect(Collectors.toSet()));
   }
 
   @GetMapping(value = "/negotiation-lifecycle/events/{event}")
   @Operation(summary = "Retrieve metadata about all a specific negotiation event")
-  public EntityModel<NegotiationEventMetadataDto> getEvent(
+  public EntityModel<NegotiationEventMetadataDTO> getEvent(
       @Valid @PathVariable NegotiationEvent event) {
     return negotiationEventAssembler.toModel(
-        modelMapper.map(event, NegotiationEventMetadataDto.class));
+        modelMapper.map(event, NegotiationEventMetadataDTO.class));
   }
 }

@@ -9,12 +9,18 @@ public class NegotiationStateChangeEvent extends ApplicationEvent {
   private final String negotiationId;
   private final NegotiationState changedTo;
   private final NegotiationEvent event;
+  private final String post;
 
   public NegotiationStateChangeEvent(
-      Object source, String negotiationId, NegotiationState changedTo, NegotiationEvent event) {
+      Object source,
+      String negotiationId,
+      NegotiationState changedTo,
+      NegotiationEvent event,
+      String post) {
     super(source);
     this.negotiationId = negotiationId;
     this.changedTo = changedTo;
     this.event = event;
+    this.post = post;
   }
 }

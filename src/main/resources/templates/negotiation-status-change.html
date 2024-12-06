@@ -68,6 +68,16 @@
             margin-bottom: 20px;
         }
 
+        .message-line {
+          margin-top: 4px;
+          margin-bottom: 4px;
+        }
+
+        .message-comment {
+           margin-top: 16px;
+           margin-bottom: 16px;
+        }
+
         .email-header {
             padding: 20px;
         }
@@ -83,7 +93,8 @@
         <p>
             Dear <span th:utext="${recipient.getName()}"></span>,
             <br/><br/>
-        <p>Your request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong> has been updated.
+        <p>The Status of Your request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong> has
+            been changed.
             Below are the details:</p>
         <p><strong>Request Title:</strong> <span th:text="${titleForNegotiation}">[Request Title]</span></p>
         <p><strong>Request Date:</strong> <span th:text="${date}">[Request Date]</span></p>

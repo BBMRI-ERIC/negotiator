@@ -3,7 +3,9 @@ package eu.bbmri_eric.negotiator.negotiation;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class NegotiationAccessManagerImpl implements NegotiationAccessManager {
@@ -23,6 +25,15 @@ public class NegotiationAccessManagerImpl implements NegotiationAccessManager {
         && !personRepository.isRepresentativeOfAnyResourceOfNegotiation(userID, negotiationId)
         && !personRepository.isManagerOfAnyResourceOfNegotiation(userID, negotiationId)) {
       throw new ForbiddenRequestException("You are not allowed to perform this action");
+    }
+  }
+
+  @Override
+  public void verifyUpdateAccessForNegotiation(String negotiationId, Long userID)
+      throws ForbiddenRequestException {
+    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !negotiationRepository.existsByIdAndCreatedBy_Id(negotiationId, userID)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
   }
 }

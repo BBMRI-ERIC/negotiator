@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,7 +29,10 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.post.Post;
+import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
@@ -40,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -87,6 +92,8 @@ public class NegotiationControllerTests {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
+
+  @Autowired PostRepository postRepository;
 
   private MockMvc mockMvc;
 
@@ -1255,6 +1262,25 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+  void sendEvent_WithMandatoryMessage_Ok() throws Exception {
+    List<Post> posts = postRepository.findByNegotiationId("negotiation-5");
+    int numberOfPost = posts.size();
+    String message = "{\"message\": \"Request not acceptable\"}";
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put(
+                    "%s/negotiation-5/lifecycle/DECLINE".formatted(NEGOTIATIONS_URL))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(message))
+        .andDo(print())
+        .andExpect(status().isOk());
+    posts = postRepository.findByNegotiationId("negotiation-5");
+    Assertions.assertEquals(numberOfPost + 1, posts.size());
+  }
+
+  @Test
   @WithUserDetails("TheBiobanker")
   void sendEvent_InvalidResourceEvent_BadRequest() throws Exception {
     mockMvc
@@ -1469,6 +1495,26 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("admin")
+  void getLifecycleEvents() throws Exception {
+    // negotiation-1 status is IN_PROGRESS
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("%s/negotiation-1/lifecycle".formatted(NEGOTIATIONS_URL)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(3)))
+        .andDo(print())
+        .andExpect(jsonPath("$[0].value", is(NegotiationEvent.ABANDON.getValue())))
+        .andExpect(jsonPath("$[0].label", is(NegotiationEvent.ABANDON.getLabel())))
+        .andExpect(jsonPath("$[0].description", is(NegotiationEvent.ABANDON.getDescription())))
+        .andExpect(jsonPath("$[1].value", is(NegotiationEvent.CONCLUDE.getValue())))
+        .andExpect(jsonPath("$[1].label", is(NegotiationEvent.CONCLUDE.getLabel())))
+        .andExpect(jsonPath("$[1].description", is(NegotiationEvent.CONCLUDE.getDescription())))
+        .andExpect(jsonPath("$[2].value", is(NegotiationEvent.PAUSE.getValue())))
+        .andExpect(jsonPath("$[2].label", is(NegotiationEvent.PAUSE.getLabel())))
+        .andExpect(jsonPath("$[2].description", is(NegotiationEvent.PAUSE.getDescription())));
+  }
+
   @WithMockNegotiatorUser(id = 109L)
   void findAllForNetwork_notAuthorized_throws403() throws Exception {
     mockMvc
