@@ -44,8 +44,7 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
               .formatted(post);
     }
     if (action.equals(NegotiationEvent.DECLINE)) {
-      return "<div class=\"message-line\">%sbecause it did not meet our criteria.</div>%s<div class=\"message-line\">If you think it was unjustified please reach out to us using the mail address below</div>"
-          .formatted(commonBeginning, comment);
+      return "<div class=\"message-line\">%s</div>%s".formatted(commonBeginning, comment);
     } else {
       return "<div class=\"message-line\">%sand the representatives of respective organizations were also notified.</div>%s"
           .formatted(commonBeginning, comment);
@@ -53,6 +52,7 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   }
 
   @Override
+  @Transactional
   public void createConfirmationNotification(String negotiationId) {
     String title = "Request Confirmation";
     String message = "Request %s was successfully submitted".formatted(negotiationId);
@@ -60,11 +60,13 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   }
 
   @Override
+  @Transactional
   public void statusChangeNotification(String negotiationId, NegotiationEvent action) {
     publishStatusChangeNotification(negotiationId, action, null);
   }
 
   @Override
+  @Transactional
   public void statusChangeNotification(String negotiationId, NegotiationEvent action, String post) {
     publishStatusChangeNotification(negotiationId, action, post);
   }
@@ -76,7 +78,6 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
     publishNotification(negotiationId, title, message, STATUS_CHANGE_TEMPLATE);
   }
 
-  @Transactional
   private void publishNotification(
       String negotiationId, String title, String message, String emailTemplate) {
     Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
