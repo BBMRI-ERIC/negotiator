@@ -62,7 +62,11 @@ public class PersistStateChangeListener
     publishChangeEvent(state, transition, negotiationId, postBody);
   }
 
-  private void publishChangeEvent(State<String, String> state, Transition<String, String> transition, String negotiationId, String postBody) {
+  private void publishChangeEvent(
+      State<String, String> state,
+      Transition<String, String> transition,
+      String negotiationId,
+      String postBody) {
     NegotiationEvent event;
     try {
       event = NegotiationEvent.valueOf(transition.getTrigger().getEvent());
