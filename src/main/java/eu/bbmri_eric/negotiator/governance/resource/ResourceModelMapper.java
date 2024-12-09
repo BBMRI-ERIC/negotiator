@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -31,11 +30,5 @@ public class ResourceModelMapper {
         mapper -> mapper.map(Resource::getSourceId, ResourceDTO::setId));
 
     resourceToDTOTypeMap.addMappings(mapper -> mapper.map(Resource::getName, ResourceDTO::setName));
-
-    TypeMap<MolgenisCollection, Resource> molgenisCollectionResourceTypeMap =
-        modelMapper.createTypeMap(MolgenisCollection.class, Resource.class);
-    molgenisCollectionResourceTypeMap.addMappings(
-        mapper -> mapper.map(MolgenisCollection::getId, Resource::setSourceId));
-    molgenisCollectionResourceTypeMap.addMappings(mapper -> mapper.skip(Resource::setId));
   }
 }

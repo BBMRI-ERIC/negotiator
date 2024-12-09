@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -334,49 +333,5 @@ public class RequestControllerTests {
         .andExpect(jsonPath("$.redirectUrl", containsString("http://localhost/request")))
         .andExpect(jsonPath("$.resources[0].id", is("biobank:2:collection:1")));
     assertEquals(repository.count(), previousCount);
-  }
-
-  @Test
-  void createRequest_resourceNotInDB_fetchedFromMolgenis() throws Exception {
-    String collectionId = "bbmri:eric:collection:99";
-    ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "bbmri-eric:ID:BB");
-    stubFor(
-        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
-            .willReturn(
-                aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withJsonBody(actualObj)));
-    RequestCreateDTO request = TestUtils.createRequest(false);
-    request.getResources().stream().findFirst().get().setId(collectionId);
-    String requestBody = TestUtils.jsonFromRequest(request);
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isCreated());
-  }
-
-  @Test
-  void createRequest_resourceNotInDBOrganizationInDB_Ok() throws Exception {
-    String collectionId = "bbmri:eric:collection:99";
-    ObjectNode actualObj = getMockCollectionJsonBody(collectionId, "biobank:1");
-    stubFor(
-        get(urlEqualTo("/directory/api/v2/eu_bbmri_eric_collections/bbmri:eric:collection:99"))
-            .willReturn(
-                aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withJsonBody(actualObj)));
-    RequestCreateDTO request = TestUtils.createRequest(false);
-    request.getResources().stream().findFirst().get().setId(collectionId);
-    String requestBody = TestUtils.jsonFromRequest(request);
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(ENDPOINT)
-                .with(httpBasic("directory", "directory"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(status().isCreated());
   }
 }
