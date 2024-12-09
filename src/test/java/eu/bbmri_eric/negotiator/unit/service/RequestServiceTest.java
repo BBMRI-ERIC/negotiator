@@ -1,9 +1,11 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -119,5 +121,16 @@ public class RequestServiceTest {
     RequestDTO updatedRequest =
         requestService.update(savedRequest.getId(), updatedRequestCreateDTO);
     assertEquals("Now I want nothing!", updatedRequest.getHumanReadable());
+  }
+
+  @Test
+  void create_unknownExternaiId_ko() {
+    when(resourceRepository.findBySourceId("notexistingId")).thenReturn(null);
+    ResourceDTO resourceDTO =
+        ResourceDTO.builder().id("notexistingId").name("not existing").build();
+
+    RequestCreateDTO requestCreateDTO = buildRequestCreateDTO();
+    requestCreateDTO.setResources(Set.of(resourceDTO));
+    assertThrows(WrongRequestException.class, () -> requestService.create(requestCreateDTO));
   }
 }

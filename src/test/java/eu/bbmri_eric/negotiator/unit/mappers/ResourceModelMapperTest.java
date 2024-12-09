@@ -7,8 +7,6 @@ import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelMapper;
-import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisBiobank;
-import eu.bbmri_eric.negotiator.governance.resource.dto.MolgenisCollection;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,15 +40,5 @@ public class ResourceModelMapperTest {
     assertEquals(resource.getName(), resourceDTO.getName());
     assertNotNull(resourceDTO.getOrganization());
     assertEquals(resource.getOrganization().getName(), resourceDTO.getOrganization().getName());
-  }
-
-  @Test
-  void molgenisCollectionToResource_map_ok() {
-    MolgenisCollection molgenisCollection =
-        new MolgenisCollection(
-            "bbmri:eric:collection:1", "Collection 1", "Collection 1", new MolgenisBiobank());
-    Resource resource = mapper.map(molgenisCollection, Resource.class);
-    assertEquals(molgenisCollection.getId(), resource.getSourceId());
-    assertEquals(molgenisCollection.getName(), resource.getName());
   }
 }
