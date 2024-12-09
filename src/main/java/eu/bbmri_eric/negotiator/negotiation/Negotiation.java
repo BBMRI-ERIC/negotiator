@@ -35,9 +35,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
 
 /** A Core Entity representing a Negotiation between multiple parties about access to resources. */
 @Entity
@@ -81,10 +79,9 @@ public class Negotiation extends AuditEntity {
   @Setter(AccessLevel.PRIVATE)
   private Set<NegotiationResourceLink> resourcesLink = new HashSet<>();
 
-  @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
+  @Formula(value = "JSONB_EXTRACT_PATH_TEXT(payload::jsonb, 'project', 'title')")
   private String title;
 
-  @JdbcTypeCode(SqlTypes.JSON)
   private String payload;
 
   private boolean publicPostsEnabled = true;
