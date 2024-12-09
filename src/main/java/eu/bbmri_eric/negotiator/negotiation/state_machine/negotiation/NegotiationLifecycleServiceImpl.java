@@ -43,20 +43,34 @@ public class NegotiationLifecycleServiceImpl implements NegotiationLifecycleServ
   @Override
   public NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException {
-    changeStateMachine(negotiationId, negotiationEvent);
+    changeStateMachine(negotiationId, negotiationEvent, null);
     return getCurrentStateForNegotiation(negotiationId);
   }
 
-  private void changeStateMachine(String negotiationId, NegotiationEvent negotiationEvent) {
+  @Override
+  public NegotiationState sendEvent(
+      String negotiationId, NegotiationEvent negotiationEvent, String message)
+      throws WrongRequestException, EntityNotFoundException {
+    changeStateMachine(negotiationId, negotiationEvent, message);
+    return getCurrentStateForNegotiation(negotiationId);
+  }
+
+  private void changeStateMachine(
+      String negotiationId, NegotiationEvent negotiationEvent, String message) {
     if (!getPossibleEvents(negotiationId).contains(negotiationEvent)) {
       throw new ForbiddenRequestException(
           "You are not allowed to %s the Negotiation"
               .formatted(negotiationEvent.getLabel().toLowerCase()));
     }
+
     persistStateMachineHandler
         .handleEventWithStateReactively(
             MessageBuilder.withPayload(negotiationEvent.name())
                 .setHeader("negotiationId", negotiationId)
+                .setHeader("postBody", message)
+                .setHeader(
+                    "postSenderId",
+                    AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
                 .build(),
             getCurrentStateForNegotiation(negotiationId).name())
         .subscribe();

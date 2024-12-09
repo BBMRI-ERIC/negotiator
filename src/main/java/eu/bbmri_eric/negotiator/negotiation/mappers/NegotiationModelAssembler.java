@@ -56,7 +56,7 @@ public class NegotiationModelAssembler
     for (NegotiationEvent event : negotiationLifecycleService.getPossibleEvents(entity.getId())) {
       entityModel.add(
           WebMvcLinkBuilder.linkTo(
-                  methodOn(NegotiationController.class).sendEvent(entity.getId(), event))
+                  methodOn(NegotiationController.class).sendEvent(entity.getId(), event, null))
               .withRel(event.toString())
               .withTitle("Next Lifecycle event")
               .withName(event.getLabel()));

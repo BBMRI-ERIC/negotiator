@@ -27,4 +27,13 @@ public interface NegotiationLifecycleService {
    */
   NegotiationState sendEvent(String negotiationId, NegotiationEvent negotiationEvent)
       throws WrongRequestException, EntityNotFoundException;
+
+  /**
+   * Send an event to a particular Negotiation also specifying a message with reason why.
+   *
+   * @return the new status of the Negotiation
+   */
+  NegotiationState sendEvent(
+      String negotiationId, NegotiationEvent negotiationEvent, String message)
+      throws WrongRequestException, EntityNotFoundException;
 }

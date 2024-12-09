@@ -6,8 +6,10 @@ import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
@@ -158,14 +160,32 @@ public class NegotiationController {
    *
    * @param id of the negotiation
    * @param event from NegotiationEvents
+   * @param negotiationUpdateLifecycleDTO an optional body with details about the event
    * @return NegotiationDTO with updated state if valid
    */
-  @PutMapping("/negotiations/{id}/lifecycle/{event}")
+  @PutMapping(
+      value = "/negotiations/{id}/lifecycle/{event}",
+      consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> sendEvent(
-      @Valid @PathVariable String id, @Valid @PathVariable("event") NegotiationEvent event) {
-    negotiationLifecycleService.sendEvent(id, event);
+      @Valid @PathVariable String id,
+      @Valid @PathVariable("event") NegotiationEvent event,
+      @RequestBody(required = false) @Nullable
+          NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
+    String message = getOptionalComment(negotiationUpdateLifecycleDTO);
+    negotiationLifecycleService.sendEvent(id, event, message);
     NegotiationDTO result = negotiationService.findById(id, true);
     return ResponseEntity.ok(result);
+  }
+
+  @Nullable
+  private static String getOptionalComment(
+      @Nullable NegotiationUpdateLifecycleDTO negotiationUpdateLifecycleDTO) {
+    String message = null;
+    if (negotiationUpdateLifecycleDTO != null
+        && negotiationUpdateLifecycleDTO.getMessage() != null) {
+      message = negotiationUpdateLifecycleDTO.getMessage();
+    }
+    return message;
   }
 
   /**
@@ -199,9 +219,13 @@ public class NegotiationController {
    * @return a list of possible events to send
    */
   @GetMapping("/negotiations/{id}/lifecycle")
-  List<String> getPossibleEvents(@Valid @PathVariable String id) {
+  List<NegotiationEventMetadataDTO> getPossibleEvents(@Valid @PathVariable String id) {
     return negotiationLifecycleService.getPossibleEvents(id).stream()
-        .map((obj) -> Objects.toString(obj, null))
+        .map(
+            (event) ->
+                new NegotiationEventMetadataDTO(
+                    event.getValue(), event.getLabel(), event.getDescription()))
+        .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
         .collect(Collectors.toList());
   }
 
