@@ -73,7 +73,7 @@ public class RequestServiceImpl implements RequestService {
 
   private Optional<Resource> findResourceByExternalId(String id) {
     Optional<Resource> resource = resourceRepository.findBySourceId(id);
-    if (resource.isPresent()) {
+    if (resource != null && resource.isPresent()) {
       return resource;
     }
     log.warn("Resource with ID %s not found in database.".formatted(id));
