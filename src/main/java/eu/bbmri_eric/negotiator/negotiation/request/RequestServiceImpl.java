@@ -77,8 +77,7 @@ public class RequestServiceImpl implements RequestService {
       return resource;
     }
     log.warn("Resource with ID %s not found in database.".formatted(id));
-    throw new WrongRequestException(
-        String.format("The resource with ID {0} cannot be founnd in the Negotiator", id));
+    return Optional.ofNullable(null);
   }
 
   private DiscoveryService getValidDiscoveryService(String url) {
