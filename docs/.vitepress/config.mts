@@ -76,8 +76,8 @@ export default defineConfig({
                 collapsed: false,
                 items: [
                     {text: 'Administrator', link: '/administrator'},
-                    {text: 'Representative', link: '/representative'},
                     {text: 'Customize UI', link: '/customizable'},
+                    {text: 'Representative', link: '/representative'},
                 ]
             },
             {

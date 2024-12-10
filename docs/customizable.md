@@ -9,7 +9,7 @@ personalized user experience that aligns with individual or company aesthetics.
 Login as Admin and in dropdown menu click on Admin UI Configuration 
 or go to `/ui-configuration`
 
-image ulr input can contain the name of a local file or the address of an external file
+image url input can contain the name of a local file or the address of an external file
 
 Logging in as Admin and Accessing UI Configuration
 
