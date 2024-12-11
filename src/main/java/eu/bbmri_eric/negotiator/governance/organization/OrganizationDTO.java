@@ -21,5 +21,7 @@ import org.springframework.hateoas.server.core.Relation;
 public class OrganizationDTO {
   @NotNull private Long id;
   @NotNull private String externalId;
-  private String name;
+  @NotNull private String name;
+  private String description;
+  private String contactEmail;
 }

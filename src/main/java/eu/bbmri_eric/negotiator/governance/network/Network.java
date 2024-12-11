@@ -49,6 +49,10 @@ public class Network {
   /** The name of the network */
   @Column private String name;
 
+  /** The description of the network */
+  @Column(columnDefinition = "VARCHAR(5000)")
+  private String description;
+
   /** A unique and persistent identifier issued by an appropriate institution */
   @NotNull
   @Column(unique = true)

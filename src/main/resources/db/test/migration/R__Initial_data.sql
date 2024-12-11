@@ -26,26 +26,26 @@ values (101, 'ADMIN'),  -- still needed for data sources tests
        (109, 'ROLE_REPRESENTATIVE_biobank:1:collection:2'),
        (109, 'ROLE_REPRESENTATIVE_biobank:2:collection:1');
 
-insert into organization (id, name, external_id)
-values (4, 'Biobank #1', 'biobank:1'),
-       (5, 'Biobank #2', 'biobank:2'),
-       (6, 'Biobank #3', 'biobank:3');
+insert into organization (id, name, external_id, contact_email, description )
+values (4, 'Biobank #1', 'biobank:1', 'biobank1@test.org', 'Biobank #1'),
+       (5, 'Biobank #2', 'biobank:2', 'biobank2@test.org', 'Biobank #2'),
+       (6, 'Biobank #3', 'biobank:3', 'biobank3@test.org', 'Biobank #3');
 
-insert into resource (id, name, description, source_id, discovery_service_id, organization_id, access_form_id)
+insert into resource (id, name, description, source_id, discovery_service_id, organization_id, access_form_id, contact_email)
 values (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1',
-        'biobank:1:collection:1', 1, 4, 1),
+        'biobank:1:collection:1', 1, 4, 1, 'coll1bb1@test.org'),
        (5, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1',
-        'biobank:1:collection:2', 1, 4, 1),
+        'biobank:1:collection:2', 1, 4, 1, 'coll2bb1@test.org'),
        (6, 'Test collection #1 of biobank #2', 'This is the first test collection of biobank 2',
-        'biobank:2:collection:1', 1, 5, 1),
+        'biobank:2:collection:1', 1, 5, 1, 'coll1bb2@test.org'),
        (7, 'Test collection #1 of biobank #3', 'This is the first test collection of biobank 3',
-        'biobank:3:collection:1', 1, 6, 1),
+        'biobank:3:collection:1', 1, 6, 1,'coll1bb3@test.org'),
        (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3',
-        'biobank:3:collection:2', 1, 6, 1),
+        'biobank:3:collection:2', 1, 6, 1, 'coll2bb3@test.org'),
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:3', 1, 6, 1),
+        'biobank:3:collection:3', 1, 6, 1, 'coll3bb3@test.org'),
        (10, 'Test collection #10 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:4', 1, 6, 1);
+        'biobank:3:collection:4', 1, 6, 1,'coll10bb3@test.org');
 
 -- TheBiobanker (109) represents resources of biobank1 and biobank2.
 -- SareRepr (105) represents resources of biobank3
@@ -144,10 +144,10 @@ values ('attachment-1', '2024-04-12', '2024-04-12', 'application/pdf', 'Attachme
          'negotiation-5', 4);  -- sent by biobanker to his/her organization
 
 
-insert into network (id, external_id, name, uri, contact_email)
-values (1, 'bbmri-eric:ID:SE_890:network:bbmri-eric', 'network-1', 'https://network-1/', 'office@negotiator.org'),
-       (2, 'bbmri-eric:ID:SE_891:network:bbmri-eric', 'network-2', 'https://network-2/', 'office@negotiator.org'),
-       (3, 'bbmri-eric:ID:SE_892:network:bbmri-eric', 'network-3', 'https://network-3/', 'office@negotiator.org');
+insert into network (id, external_id, name, uri, contact_email, description)
+values (1, 'bbmri-eric:ID:SE_890:network:bbmri-eric', 'network-1', 'https://network-1/', 'office@negotiator.org', 'Network 1'),
+       (2, 'bbmri-eric:ID:SE_891:network:bbmri-eric', 'network-2', 'https://network-2/', 'office@negotiator.org', 'Network 2'),
+       (3, 'bbmri-eric:ID:SE_892:network:bbmri-eric', 'network-3', 'https://network-3/', 'office@negotiator.org', 'Network 3');
 
 insert into network_resources_link (network_id, resource_id)
 values (1, 4),

@@ -16,7 +16,9 @@ public class NetworkDTO {
 
   @NotNull private String externalId;
 
-  private String name;
+  @NotNull private String name;
+
+  private String description;
 
   private String contactEmail;
 

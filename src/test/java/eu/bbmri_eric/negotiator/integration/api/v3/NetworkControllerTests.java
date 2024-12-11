@@ -289,6 +289,7 @@ public class NetworkControllerTests {
             .externalId("network1")
             .contactEmail("network1@negotiator.com")
             .name("network1")
+            .description("Network 1")
             .uri("http://network1.org")
             .build();
     NetworkCreateDTO networkDTO2 =
@@ -296,6 +297,7 @@ public class NetworkControllerTests {
             .externalId("network2")
             .contactEmail("network2@negotiator.com")
             .name("network2")
+            .description("Network 2")
             .uri("http://network2.org")
             .build();
     String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO1, networkDTO2));
@@ -309,11 +311,15 @@ public class NetworkControllerTests {
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(jsonPath("$._embedded.networks[0].name", is(networkDTO1.getName())))
             .andExpect(
+                jsonPath("$._embedded.networks[0].description", is(networkDTO1.getDescription())))
+            .andExpect(
                 jsonPath("$._embedded.networks[0].externalId", is(networkDTO1.getExternalId())))
             .andExpect(jsonPath("$._embedded.networks[0].uri", is(networkDTO1.getUri())))
             .andExpect(
                 jsonPath("$._embedded.networks[0].contactEmail", is(networkDTO1.getContactEmail())))
             .andExpect(jsonPath("$._embedded.networks[1].name", is(networkDTO2.getName())))
+            .andExpect(
+                jsonPath("$._embedded.networks[1].description", is(networkDTO2.getDescription())))
             .andExpect(
                 jsonPath("$._embedded.networks[1].externalId", is(networkDTO2.getExternalId())))
             .andExpect(jsonPath("$._embedded.networks[1].uri", is(networkDTO2.getUri())))
@@ -338,6 +344,7 @@ public class NetworkControllerTests {
             .externalId("network1")
             .contactEmail("newnetwork1@negotiator.com")
             .name("newnetwork1")
+            .description("newdescnetwork1")
             .uri("http://network1.org")
             .build();
     String updateRequestBody = TestUtils.jsonFromRequest(networkUpdateDTO1);
@@ -350,6 +357,7 @@ public class NetworkControllerTests {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(jsonPath("$.name", is(networkUpdateDTO1.getName())))
+            .andExpect(jsonPath("$.description", is(networkUpdateDTO1.getDescription())))
             .andExpect(jsonPath("$.externalId", is(networkUpdateDTO1.getExternalId())))
             .andExpect(jsonPath("$.uri", is(networkUpdateDTO1.getUri())))
             .andExpect(jsonPath("$.contactEmail", is(networkUpdateDTO1.getContactEmail())))

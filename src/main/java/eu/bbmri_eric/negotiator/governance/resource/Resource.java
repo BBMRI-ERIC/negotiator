@@ -51,6 +51,9 @@ public class Resource {
 
   @NotNull private String sourceId;
 
+  /** The contact email of the resource. */
+  private String contactEmail;
+
   @ManyToMany(
       fetch = FetchType.LAZY,
       cascade = {CascadeType.PERSIST, CascadeType.MERGE},

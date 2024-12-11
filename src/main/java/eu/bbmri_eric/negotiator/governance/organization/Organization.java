@@ -45,8 +45,14 @@ public class Organization extends AuditEntity {
 
   private String name;
 
+  @Column(columnDefinition = "VARCHAR(5000)")
+  private String description;
+
   @OneToMany(mappedBy = "organization")
   private Set<Resource> resources = new HashSet<>();
+
+  /** The contact email of the organization. */
+  private String contactEmail;
 
   private Boolean withdrawn;
 

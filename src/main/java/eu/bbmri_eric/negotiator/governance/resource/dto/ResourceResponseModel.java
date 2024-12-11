@@ -15,6 +15,7 @@ public class ResourceResponseModel {
   String sourceId;
   String name;
   String description = "";
+  String contactEmail;
 
   public ResourceResponseModel(Long id, String sourceId, String name) {
     this.id = id;
@@ -22,10 +23,12 @@ public class ResourceResponseModel {
     this.name = name;
   }
 
-  public ResourceResponseModel(Long id, String sourceId, String name, String description) {
+  public ResourceResponseModel(
+      Long id, String sourceId, String name, String description, String contactEmail) {
     this.id = id;
     this.sourceId = sourceId;
     this.name = name;
     this.description = description;
+    this.contactEmail = contactEmail;
   }
 }

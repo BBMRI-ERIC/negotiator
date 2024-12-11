@@ -17,7 +17,9 @@ import lombok.ToString;
 public class NetworkCreateDTO {
   @NotNull private String externalId;
 
-  private String name;
+  @NotNull private String name;
+
+  private String description;
 
   private String contactEmail;
 
