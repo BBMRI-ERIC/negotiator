@@ -39,7 +39,6 @@ springdoc:
           "resource": "https://negotiator.bbmri-eric.eu"
         }
 negotiator:
-  molgenis-url: "https://bbmritestnn.gcc.rug.nl"
   frontend-url: "http://localhost:8080"
   authorization:
     admin-claim-value: "urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu"

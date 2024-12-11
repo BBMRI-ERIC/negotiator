@@ -81,7 +81,6 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/src/
 
 | Environment Variable                             | Description                                       | Default Value                                                                |
 |--------------------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------|
-| `NEGOTIATOR_MOLGENISURL`                         | URL for the Molgenis service.                     | `""`                                                                         |
 | `NEGOTIATOR_FRONTENDURL`                         | URL for the Negotiator frontend.                  | `""`                                                                         |
 | `NEGOTIATOR_EMAIL_YOURSSINCERELYTEXT`            | Closing text for emails sent from the Negotiator. | `"The BBMRI-ERIC Team"`                                                      |
 | `NEGOTIATOR_EMAIL_HELPDESKHREF`                  | Helpdesk email link.                              | `"mailto:negotiator@helpdesk.bbmri-eric.eu"`                                 |
