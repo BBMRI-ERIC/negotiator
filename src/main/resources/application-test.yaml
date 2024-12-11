@@ -18,7 +18,6 @@ spring:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
 negotiator:
-  molgenis-url: "http://localhost:8088/directory"
   frontend-url: "http://localhost"
   authorization:
     claim: "authz"

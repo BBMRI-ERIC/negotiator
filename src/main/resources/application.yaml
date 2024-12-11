@@ -72,7 +72,6 @@ spring:
   profiles:
     default: prod
 negotiator:
-  molgenis-url: ""
   frontend-url: ""
   emailYoursSincerelyText: "The BBMRI-ERIC Team"
   emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"

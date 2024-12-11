@@ -25,7 +25,7 @@ export default defineConfig({
     ignoreDeadLinks: true,
     base: process.env.DOCS_BASE || "",
     themeConfig: {
-      logo: {src: '/handshake.svg', width: 24, height: 24},
+        logo: {src: '/handshake.svg', width: 24, height: 24},
         nav: [
             {text: 'Docs', link: '/what-is-negotiator'},
             {
@@ -91,8 +91,7 @@ export default defineConfig({
                     {text: 'Authentication and Authorization', link: '/auth'},
                     {text: 'Logging', link: '/logging'},
                     {text: 'Lifecycle', link: '/lifecycle'},
-                    {text: 'Database Migration', link: '/database_migration'},
-                    {text: 'External Services', link: '/external_services'}
+                    {text: 'Database Migration', link: '/database_migration'}
                 ]
             }
         ],
