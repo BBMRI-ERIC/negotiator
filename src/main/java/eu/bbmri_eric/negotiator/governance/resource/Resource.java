@@ -30,6 +30,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 
+/** Class representing a Resource such as a Collection. */
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,11 +45,14 @@ public class Resource {
   @SequenceGenerator(name = "resource_id_seq", initialValue = 10000, allocationSize = 1)
   private Long id;
 
+  /** The name of the resource. */
   private String name;
 
+  /** The description of the resource. */
   @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 
+  /** A unique and persistent identifier issued by an appropriate institution. */
   @NotNull private String sourceId;
 
   /** The contact email of the resource. */
