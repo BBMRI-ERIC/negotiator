@@ -66,7 +66,7 @@ public class RequestServiceImpl implements RequestService {
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
-                                "Resource with source id: %s was not found and could not be fetched from the Discovery Service."
+                                "Resource with external ID: %s was not found. Make sure that the synchronization between Negotiator and you Discovery Service is running "
                                     .formatted(resourceDTO.getId()))))
         .collect(Collectors.toSet());
   }
