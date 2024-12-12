@@ -51,6 +51,7 @@ public class OrganizationServiceImpl implements OrganizationService {
               .contactEmail(org.getContactEmail())
               .externalId(org.getExternalId())
               .withdrawn(org.getWithdrawn())
+              .uri(org.getUri())
               .build();
       organizations.add(organization);
     }
@@ -68,6 +69,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     org.setExternalId(organization.getExternalId());
     org.setDescription(organization.getDescription());
     org.setContactEmail(organization.getContactEmail());
+    org.setUri(organization.getUri());
     Organization updatedOrganization = organizationRepository.save(org);
     return modelMapper.map(updatedOrganization, OrganizationDTO.class);
   }

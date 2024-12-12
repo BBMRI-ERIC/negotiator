@@ -24,4 +24,5 @@ public class OrganizationDTO {
   @NotNull private String name;
   private String description;
   private String contactEmail;
+  private String uri;
 }

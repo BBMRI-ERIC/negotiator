@@ -60,6 +60,9 @@ public class Organization extends AuditEntity {
   /** Flag indicating if the organization is withdrawn or not. */
   private Boolean withdrawn;
 
+  /** URI of the organization. */
+  private String uri;
+
   public Organization(String externalId, String name) {
     this.externalId = externalId;
     this.name = name;

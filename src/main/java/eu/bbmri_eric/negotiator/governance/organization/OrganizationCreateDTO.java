@@ -19,4 +19,5 @@ public class OrganizationCreateDTO {
   @NotNull private String externalId;
   private String contactEmail;
   private Boolean withdrawn;
+  private String uri;
 }
