@@ -20,4 +20,6 @@ public class ResourceCreateDTO {
   @NotNull private Long organizationId;
   @NotNull private Long accessFormId;
   @NotNull private Long discoveryServiceId;
+  private String contactEmail;
+  private String uri;
 }

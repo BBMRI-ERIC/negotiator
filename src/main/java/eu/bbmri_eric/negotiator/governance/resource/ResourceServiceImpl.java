@@ -180,6 +180,8 @@ public class ResourceServiceImpl implements ResourceService {
     Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     res.setName(resource.getName());
     res.setDescription(resource.getDescription());
+    res.setContactEmail(resource.getContactEmail());
+    res.setUri(resource.getUri());
     Resource updatedResource = repository.save(res);
     return modelMapper.map(updatedResource, ResourceResponseModel.class);
   }
@@ -204,6 +206,8 @@ public class ResourceServiceImpl implements ResourceService {
           Resource.builder()
               .name(resDTO.getName())
               .description(resDTO.getDescription())
+              .contactEmail(resDTO.getContactEmail())
+              .uri(resDTO.getUri())
               .sourceId(resDTO.getSourceId())
               .organization(organization.get())
               .discoveryService(discoveryService)

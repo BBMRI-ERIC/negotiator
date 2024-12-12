@@ -49,11 +49,17 @@ public class OrganizationControllerTest {
         OrganizationCreateDTO.builder()
             .externalId("test_organization_1")
             .name("Test Organization 1")
+            .description("Test Organization 1")
+            .contactEmail("testorg1@test.org")
+            .uri("http://test1.org")
             .build();
     OrganizationCreateDTO organizationDTO2 =
         OrganizationCreateDTO.builder()
             .externalId("test_organization_2")
             .name("Test Organization 2")
+            .description("Test Organization 2")
+            .contactEmail("testorg2@test.org")
+            .uri("http://test2.org")
             .build();
     String requestBody =
         TestUtils.jsonFromRequest(Arrays.asList(organizationDTO1, organizationDTO2));
@@ -71,6 +77,15 @@ public class OrganizationControllerTest {
                 jsonPath(
                     "$._embedded.organizations[0].externalId",
                     is(organizationDTO1.getExternalId())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].description",
+                    is(organizationDTO1.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].contactEmail",
+                    is(organizationDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.organizations[0].uri", is(organizationDTO1.getUri())))
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(
                 jsonPath("$._embedded.organizations[1].name", is(organizationDTO2.getName())))
@@ -78,6 +93,15 @@ public class OrganizationControllerTest {
                 jsonPath(
                     "$._embedded.organizations[1].externalId",
                     is(organizationDTO2.getExternalId())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[1].description",
+                    is(organizationDTO2.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[1].contactEmail",
+                    is(organizationDTO2.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.organizations[1].uri", is(organizationDTO2.getUri())))
             .andReturn();
     long id1 =
         JsonPath.parse(result.getResponse().getContentAsString())
@@ -100,11 +124,17 @@ public class OrganizationControllerTest {
         OrganizationCreateDTO.builder()
             .externalId("test_organization_3")
             .name("Test Organization 3")
+            .description("Test Organization 3")
+            .contactEmail("testorg3@test.org")
+            .uri("http://testorg3.org")
             .build();
     OrganizationCreateDTO organizationDTO4 =
         OrganizationCreateDTO.builder()
             .externalId("test_organization_4")
             .name("Test Organization 4")
+            .description("Test Organization 4")
+            .contactEmail("testorg4@test.org")
+            .uri("http://testorg4.org")
             .build();
     String requestBody =
         TestUtils.jsonFromRequest(Arrays.asList(organizationDTO3, organizationDTO4));
@@ -122,6 +152,15 @@ public class OrganizationControllerTest {
                 jsonPath(
                     "$._embedded.organizations[0].externalId",
                     is(organizationDTO3.getExternalId())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].description",
+                    is(organizationDTO3.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].contactEmail",
+                    is(organizationDTO3.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.organizations[0].uri", is(organizationDTO3.getUri())))
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(
                 jsonPath("$._embedded.organizations[1].name", is(organizationDTO4.getName())))
@@ -129,6 +168,15 @@ public class OrganizationControllerTest {
                 jsonPath(
                     "$._embedded.organizations[1].externalId",
                     is(organizationDTO4.getExternalId())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[1].description",
+                    is(organizationDTO4.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[1].contactEmail",
+                    is(organizationDTO4.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.organizations[1].uri", is(organizationDTO4.getUri())))
             .andReturn();
     long id1 =
         JsonPath.parse(result.getResponse().getContentAsString())
@@ -147,6 +195,9 @@ public class OrganizationControllerTest {
         OrganizationCreateDTO.builder()
             .externalId("test_organization_3")
             .name("Updated Test Organization 3")
+            .description("Updated Test Organization 3")
+            .contactEmail("updtestorg3@test.org")
+            .uri("http://updtestorg3.org")
             .build();
     String updatedRequestBody = TestUtils.jsonFromRequest(updatedOrganizationDTO3);
     MvcResult updatedResult =
@@ -160,6 +211,9 @@ public class OrganizationControllerTest {
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(jsonPath("$.name", is(updatedOrganizationDTO3.getName())))
             .andExpect(jsonPath("$.externalId", is(updatedOrganizationDTO3.getExternalId())))
+            .andExpect(jsonPath("$.description", is(updatedOrganizationDTO3.getDescription())))
+            .andExpect(jsonPath("$.contactEmail", is(updatedOrganizationDTO3.getContactEmail())))
+            .andExpect(jsonPath("$.uri", is(updatedOrganizationDTO3.getUri())))
             .andReturn();
     Optional<Organization> updatedOrganization3 = organizationRepository.findById(id1);
     assertEquals(updatedOrganizationDTO3.getName(), updatedOrganization3.get().getName());
@@ -172,6 +226,9 @@ public class OrganizationControllerTest {
         OrganizationCreateDTO.builder()
             .externalId("test_organization_1")
             .name("Test Organization 1")
+            .description("Test Organization 1")
+            .contactEmail("testorg1@test.org")
+            .uri("http://testorg1.org")
             .withdrawn(true)
             .build();
 
@@ -188,6 +245,15 @@ public class OrganizationControllerTest {
             .andExpect(
                 jsonPath(
                     "$._embedded.organizations[0].externalId", is(organizationDTO.getExternalId())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].description",
+                    is(organizationDTO.getDescription())))
+            .andExpect(
+                jsonPath(
+                    "$._embedded.organizations[0].contactEmail",
+                    is(organizationDTO.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.organizations[0].uri", is(organizationDTO.getUri())))
             .andExpect(content().contentType("application/hal+json"))
             .andReturn();
     long id1 =

@@ -76,6 +76,7 @@ public class NetworkServiceImpl implements NetworkService {
       throws EntityNotStorableException {
     Network network = getNetwork(id);
     network.setName(networkDTO.getName());
+    network.setDescription(networkDTO.getDescription());
     network.setUri(networkDTO.getUri());
     network.setExternalId(networkDTO.getExternalId());
     network.setContactEmail(networkDTO.getContactEmail());
@@ -98,6 +99,7 @@ public class NetworkServiceImpl implements NetworkService {
       Network network =
           Network.builder()
               .name(networkDTO.getName())
+              .description(networkDTO.getDescription())
               .externalId(networkDTO.getExternalId())
               .uri(networkDTO.getUri())
               .contactEmail(networkDTO.getContactEmail())

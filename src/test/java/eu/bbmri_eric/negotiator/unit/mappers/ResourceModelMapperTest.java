@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelMapper;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -40,5 +41,23 @@ public class ResourceModelMapperTest {
     assertEquals(resource.getName(), resourceDTO.getName());
     assertNotNull(resourceDTO.getOrganization());
     assertEquals(resource.getOrganization().getName(), resourceDTO.getOrganization().getName());
+  }
+
+  @Test
+  void resourceToResponseModel_map_Ok() {
+    Resource resource =
+        Resource.builder()
+            .sourceId("test:collection")
+            .name("My collection")
+            .discoveryService(new DiscoveryService())
+            .organization(Organization.builder().externalId("bb:1").name("BB").build())
+            .contactEmail("test@test.org")
+            .uri("http://test.org")
+            .build();
+    ResourceResponseModel resourceResponseModel = mapper.map(resource, ResourceResponseModel.class);
+    assertEquals(resource.getSourceId(), resourceResponseModel.getSourceId());
+    assertEquals(resource.getName(), resourceResponseModel.getName());
+    assertEquals(resource.getContactEmail(), resourceResponseModel.getContactEmail());
+    assertEquals(resource.getUri(), resourceResponseModel.getUri());
   }
 }

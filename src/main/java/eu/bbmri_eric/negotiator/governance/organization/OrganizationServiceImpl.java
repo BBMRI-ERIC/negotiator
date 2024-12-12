@@ -47,8 +47,11 @@ public class OrganizationServiceImpl implements OrganizationService {
       Organization organization =
           Organization.builder()
               .name(org.getName())
+              .description(org.getDescription())
+              .contactEmail(org.getContactEmail())
               .externalId(org.getExternalId())
               .withdrawn(org.getWithdrawn())
+              .uri(org.getUri())
               .build();
       organizations.add(organization);
     }
@@ -64,6 +67,9 @@ public class OrganizationServiceImpl implements OrganizationService {
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     org.setName(organization.getName());
     org.setExternalId(organization.getExternalId());
+    org.setDescription(organization.getDescription());
+    org.setContactEmail(organization.getContactEmail());
+    org.setUri(organization.getUri());
     Organization updatedOrganization = organizationRepository.save(org);
     return modelMapper.map(updatedOrganization, OrganizationDTO.class);
   }
