@@ -1,5 +1,8 @@
 package eu.bbmri_eric.negotiator.governance.organization;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -49,8 +52,10 @@ public class OrganizationController {
 
   @GetMapping("/{id}")
   @Operation(summary = "Get organization by id")
-  public EntityModel<OrganizationDTO> findById(@PathVariable("id") Long id) {
-    return organizationModelAssembler.toModel(organizationService.findOrganizationById(id));
+  public EntityModel<OrganizationDetailDTO> findById(@PathVariable("id") Long id) {
+    OrganizationDetailDTO organizationDetail = organizationService.findOrganizationDetailById(id);
+    return EntityModel.of(organizationDetail)
+            .add(linkTo(methodOn(OrganizationController.class).findById(id)).withSelfRel());
   }
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)

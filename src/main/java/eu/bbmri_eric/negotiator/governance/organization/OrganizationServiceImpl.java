@@ -4,6 +4,9 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +24,29 @@ public class OrganizationServiceImpl implements OrganizationService {
     return modelMapper.map(
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
         OrganizationDTO.class);
+  }
+
+  @Override
+  public OrganizationDetailDTO findOrganizationDetailById(Long id) {
+    Organization organization = organizationRepository.findDetailedById(id)
+            .orElseThrow(() -> new EntityNotFoundException(id));
+
+    List<ResourceResponseModel> resources = organization.getResources().stream()
+            .map(resource -> ResourceResponseModel.builder()
+                    .id(resource.getId())
+                    .name(resource.getName())
+                    .description(resource.getDescription())
+                    .sourceId(resource.getSourceId())
+                    .build())
+            .collect(Collectors.toList());
+
+    return OrganizationDetailDTO.builder()
+            .id(organization.getId())
+            .externalId(organization.getExternalId())
+            .name(organization.getName())
+            .resources(resources)
+            .build();
+
   }
 
   @Override

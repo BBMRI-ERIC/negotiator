@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import org.springframework.hateoas.server.core.Relation;
 /** A DTO for an abstract resource in the Negotiator. */
 @Getter
 @Setter
+@Builder
 @Relation(collectionRelation = "resources", itemRelation = "resource")
 @NoArgsConstructor
 public class ResourceResponseModel {

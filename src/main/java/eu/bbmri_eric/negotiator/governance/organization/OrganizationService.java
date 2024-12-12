@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 public interface OrganizationService {
   OrganizationDTO findOrganizationById(Long id);
 
+  OrganizationDetailDTO findOrganizationDetailById(Long id);
+
   OrganizationDTO findOrganizationByExternalId(String externalId);
 
   Iterable<OrganizationDTO> findAllOrganizations(Pageable pageable);
