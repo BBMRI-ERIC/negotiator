@@ -23,6 +23,21 @@ public class ResourceTest {
   }
 
   @Test
+  void testSetAndGetAllAttributes() {
+    Resource resource = new Resource();
+    resource.setName("Resource 1");
+    resource.setDescription("Resource 1");
+    resource.setContactEmail("resource1@test.org");
+    resource.setUri("https://resource1.test.org");
+    resource.setSourceId("resource_1");
+    assertEquals("resource_1", resource.getSourceId());
+    assertEquals("Resource 1", resource.getName());
+    assertEquals("Resource 1", resource.getDescription());
+    assertEquals("resource1@test.org", resource.getContactEmail());
+    assertEquals("https://resource1.test.org", resource.getUri());
+  }
+
+  @Test
   void equals_sameSourceId_equal() {
     assertEquals(
         Resource.builder()
