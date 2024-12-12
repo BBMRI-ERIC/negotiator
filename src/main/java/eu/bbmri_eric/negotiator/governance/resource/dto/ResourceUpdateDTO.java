@@ -16,4 +16,5 @@ public class ResourceUpdateDTO {
   private String name;
   private String description;
   private String contactEmail;
+  private String uri;
 }

@@ -21,4 +21,5 @@ public class ResourceCreateDTO {
   @NotNull private Long accessFormId;
   @NotNull private Long discoveryServiceId;
   private String contactEmail;
+  private String uri;
 }

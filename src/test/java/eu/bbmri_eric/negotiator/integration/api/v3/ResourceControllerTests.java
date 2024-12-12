@@ -297,6 +297,7 @@ public class ResourceControllerTests {
             .name("Resource 1")
             .description("Resource 1")
             .contactEmail("resource1@test.org")
+            .uri("https://resource1.test.org")
             .sourceId("resource_1")
             .organizationId(org1Id)
             .accessFormId(1L)
@@ -307,6 +308,7 @@ public class ResourceControllerTests {
             .name("Resource 2")
             .description("Resource 2")
             .contactEmail("resource2@test.org")
+            .uri("https://resource2.test.org")
             .sourceId("test_resource_2")
             .organizationId(org2Id)
             .accessFormId(1L)
@@ -340,6 +342,7 @@ public class ResourceControllerTests {
             .andExpect(
                 jsonPath(
                     "$._embedded.resources[0].contactEmail", is(resourceDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[0].uri", is(resourceDTO1.getUri())))
             .andExpect(jsonPath("$._embedded.resources[1].name", is(resourceDTO2.getName())))
             .andExpect(
                 jsonPath("$._embedded.resources[1].sourceId", is(resourceDTO2.getSourceId())))
@@ -348,6 +351,7 @@ public class ResourceControllerTests {
             .andExpect(
                 jsonPath(
                     "$._embedded.resources[1].contactEmail", is(resourceDTO2.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[1].uri", is(resourceDTO2.getUri())))
             .andReturn();
 
     String id1 =
@@ -358,6 +362,8 @@ public class ResourceControllerTests {
     assertEquals(resourceDTO1.getName(), resource1.get().getName());
     assertEquals(resourceDTO1.getDescription(), resource1.get().getDescription());
     assertEquals(resourceDTO1.getContactEmail(), resource1.get().getContactEmail());
+    assertEquals(resourceDTO1.getUri(), resource1.get().getUri());
+
     Long id2 =
         JsonPath.parse(result.getResponse().getContentAsString())
             .read("$._embedded.resources[1].id", Long.class);
@@ -366,6 +372,7 @@ public class ResourceControllerTests {
     assertEquals(resourceDTO2.getName(), resource2.get().getName());
     assertEquals(resourceDTO2.getDescription(), resource2.get().getDescription());
     assertEquals(resourceDTO2.getContactEmail(), resource2.get().getContactEmail());
+    assertEquals(resourceDTO2.getUri(), resource2.get().getUri());
   }
 
   @Test
@@ -385,6 +392,7 @@ public class ResourceControllerTests {
             .name("Resource 3")
             .description("Resource 3")
             .contactEmail("res3@test.org")
+            .uri("http://res3.test.org")
             .sourceId("resource_3")
             .organizationId(org1Id)
             .accessFormId(1L)
@@ -395,6 +403,7 @@ public class ResourceControllerTests {
             .name("Resource 4")
             .description("Resource 4")
             .contactEmail("res4@test.org")
+            .uri("http://res4.test.org")
             .sourceId("resource_4")
             .organizationId(org2Id)
             .accessFormId(1L)
@@ -429,6 +438,7 @@ public class ResourceControllerTests {
             .andExpect(
                 jsonPath(
                     "$._embedded.resources[0].contactEmail", is(resourceDTO1.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[0].uri", is(resourceDTO1.getUri())))
             .andExpect(jsonPath("$._embedded.resources[1].name", is(resourceDTO2.getName())))
             .andExpect(
                 jsonPath("$._embedded.resources[1].sourceId", is(resourceDTO2.getSourceId())))
@@ -437,6 +447,7 @@ public class ResourceControllerTests {
             .andExpect(
                 jsonPath(
                     "$._embedded.resources[1].contactEmail", is(resourceDTO2.getContactEmail())))
+            .andExpect(jsonPath("$._embedded.resources[1].uri", is(resourceDTO2.getUri())))
             .andReturn();
 
     Long id1 =
@@ -457,6 +468,7 @@ public class ResourceControllerTests {
             .name("New Resource 3")
             .description("New Resource 3")
             .contactEmail("newres3@test.org")
+            .uri("http://newres3.test.org")
             .build();
     String updatedRequestBody = TestUtils.jsonFromRequest(updatedResourceDTO);
     MvcResult updatedResult =
@@ -470,6 +482,7 @@ public class ResourceControllerTests {
             .andExpect(jsonPath("$.name", is(updatedResourceDTO.getName())))
             .andExpect(jsonPath("$.description", is(updatedResourceDTO.getDescription())))
             .andExpect(jsonPath("$.contactEmail", is(updatedResourceDTO.getContactEmail())))
+            .andExpect(jsonPath("$.uri", is(updatedResourceDTO.getUri())))
             .andReturn();
     Optional<Resource> updatedResource = repository.findById(resource1.get().getId());
     assertEquals(updatedResourceDTO.getName(), updatedResource.get().getName());
