@@ -19,6 +19,13 @@ public interface NetworkStatistics {
   Integer getTotalNumberOfNegotiations();
 
   /**
+   * Get the total number of Negotiations not responded to by a single Organization in the Network.
+   *
+   * @return a number of ignored Negotiations
+   */
+  Integer getNumberOfIgnoredNegotiations();
+
+  /**
    * Get a count of Negotiations associated with this network per their state.
    *
    * @return a map of states and their counts
