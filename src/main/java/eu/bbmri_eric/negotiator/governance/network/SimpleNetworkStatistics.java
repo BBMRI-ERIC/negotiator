@@ -15,5 +15,6 @@ import lombok.Setter;
 public class SimpleNetworkStatistics implements NetworkStatistics {
   private Long networkId;
   private Integer totalNumberOfNegotiations;
+  private Integer numberOfIgnoredNegotiations;
   private Map<NegotiationState, Integer> statusDistribution = new HashMap<>();
 }

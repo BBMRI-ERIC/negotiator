@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
+import eu.bbmri_eric.negotiator.governance.network.Network;
+import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -14,6 +16,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationSpecification;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
@@ -37,10 +40,13 @@ public class NegotiationRepositoryTest {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
   @Autowired OrganizationRepository organizationRepository;
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired NetworkRepository networkRepository;
 
   private DiscoveryService discoveryService;
   private Person person;
   private Resource resource;
+  private Network network;
+  private Organization organization;
 
   String payload =
       """
@@ -63,9 +69,11 @@ public class NegotiationRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    Organization organization =
+    this.organization =
         organizationRepository.save(
             Organization.builder().name("test").externalId("biobank:1").build());
+    this.network =
+        networkRepository.save(Network.builder().externalId("idk").uri("http://idk.org").build());
     this.discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     this.person = savePerson("test");
@@ -78,6 +86,7 @@ public class NegotiationRepositoryTest {
                 .name("test")
                 .representatives(new HashSet<>(List.of(person)))
                 .build());
+    this.network.addResource(resource);
   }
 
   @Test
@@ -324,6 +333,59 @@ public class NegotiationRepositoryTest {
     assertFalse(
         negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(10)).isEmpty());
     assertTrue(negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(5)).isEmpty());
+  }
+
+  @Test
+  void findIgnoredInNetwork_oneResource_ok() {
+    saveNegotiation();
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    assertEquals(1, negotiationRepository.count());
+    assertEquals(
+        1,
+        negotiationRepository
+            .findAll()
+            .get(0)
+            .getResources()
+            .iterator()
+            .next()
+            .getNetworks()
+            .size());
+    assertEquals(
+        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+        negotiationRepository.findAll().get(0).getCurrentStateForResource(resource.getSourceId()));
+    assertEquals(1, negotiationRepository.countIgnoredForNetwork(network.getId()));
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    assertEquals(1, negotiationRepository.countIgnoredForNetwork(network.getId()));
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    assertEquals(0, negotiationRepository.countIgnoredForNetwork(network.getId()));
+  }
+
+  @Test
+  void findIgnoredInNetwork_oneResourceUnresponsive_ok() {
+    saveNegotiation();
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
+    negotiation.setStateForResource(
+        resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    Resource resource2 =
+        resourceRepository.save(
+            Resource.builder()
+                .organization(organization)
+                .discoveryService(discoveryService)
+                .sourceId("collection:2")
+                .name("test")
+                .representatives(new HashSet<>(List.of(person)))
+                .build());
+    network.addResource(resource2);
+    negotiation.addResource(resource2);
+    negotiation.setStateForResource(
+        resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    assertEquals(1, negotiationRepository.countIgnoredForNetwork(network.getId()));
   }
 
   private void saveNegotiation() {

@@ -27,6 +27,18 @@ public interface NegotiationRepository
   @Query(
       value =
           """
+    SELECT count ( distinct n.id)
+    FROM Negotiation n
+    join n.resourcesLink rl
+    JOIN rl.id.resource r
+    JOIN r.networks networks
+    where networks.id = :networkId and rl.currentState = 'REPRESENTATIVE_CONTACTED' or rl.currentState = 'REPRESENTATIVE_UNREACHABLE'
+""")
+  int countIgnoredForNetwork(Long networkId);
+
+  @Query(
+      value =
+          """
           SELECT rl.currentState
           FROM Negotiation n
           JOIN n.resourcesLink rl

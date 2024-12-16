@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -533,8 +534,10 @@ public class NetworkControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/statistics"))
         .andExpect(status().isOk())
+        .andDo(print())
         .andExpect(jsonPath("$.networkId", is(1)))
         .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)))
+        .andExpect(jsonPath("$.numberOfIgnoredNegotiations", is(0)))
         .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
   }
 }

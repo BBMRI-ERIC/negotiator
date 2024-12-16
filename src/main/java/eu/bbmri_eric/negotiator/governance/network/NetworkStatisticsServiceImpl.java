@@ -27,6 +27,6 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
                 Collectors.toMap(
                     result -> (NegotiationState) result[0],
                     result -> ((Long) result[1]).intValue()));
-    return new SimpleNetworkStatistics(networkId, count, states);
+    return new SimpleNetworkStatistics(networkId, count, 0, states);
   }
 }
