@@ -24,6 +24,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -201,6 +202,8 @@ public class Negotiation extends AuditEntity {
     if (!state.equals(NegotiationResourceState.SUBMITTED)) {
       NegotiationResourceLifecycleRecord record =
           NegotiationResourceLifecycleRecord.builder().changedTo(state).resource(resource).build();
+      record.setCreationDate(LocalDateTime.now());
+      record.setModifiedDate(LocalDateTime.now());
       this.negotiationResourceLifecycleRecords.add(record);
     }
   }
