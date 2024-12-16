@@ -21,6 +21,8 @@ public class NetworkCreateModelMapper {
     typeMap.addMappings(
         mapper -> mapper.map(NetworkCreateDTO::getExternalId, Network::setExternalId));
     typeMap.addMappings(mapper -> mapper.map(NetworkCreateDTO::getName, Network::setName));
+    typeMap.addMappings(
+        mapper -> mapper.map(NetworkCreateDTO::getDescription, Network::setDescription));
     typeMap.addMappings(mapper -> mapper.map(NetworkCreateDTO::getUri, Network::setUri));
     typeMap.addMappings(
         mapper -> mapper.map(NetworkCreateDTO::getContactEmail, Network::setContactEmail));
