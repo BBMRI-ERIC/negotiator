@@ -26,10 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 
-/**
- * Represents a Network entity in the database. A Network has a unique identifier, a URI, a name, a
- * description, a contact email, a set of managers, and a set of resources.
- */
+/** Represents a Network entity in the database. */
 @Getter
 @Setter
 @Entity
