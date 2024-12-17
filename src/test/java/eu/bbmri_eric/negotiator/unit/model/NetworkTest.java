@@ -22,6 +22,14 @@ class NetworkTest {
   }
 
   @Test
+  void constructor_ok() {
+    Network network = new Network("idk", "http://example.com");
+    assertInstanceOf(Network.class, network);
+    assertEquals("idk", network.getExternalId());
+    assertEquals("http://example.com", network.getUri());
+  }
+
+  @Test
   void equals_differentId_notEqual() {
     assertNotEquals(
         Network.builder().externalId("validId").build(),
