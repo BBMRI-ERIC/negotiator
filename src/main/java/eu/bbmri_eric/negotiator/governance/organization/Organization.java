@@ -43,12 +43,25 @@ public class Organization extends AuditEntity {
   @Column(unique = true)
   private String externalId;
 
+  /** The name of the organization. */
   private String name;
 
+  /** The description of the organization. */
+  @Column(columnDefinition = "VARCHAR(5000)")
+  private String description;
+
+  /** The list of resources that are part of the organization. */
   @OneToMany(mappedBy = "organization")
   private Set<Resource> resources = new HashSet<>();
 
+  /** The contact email of the organization. */
+  private String contactEmail;
+
+  /** Flag indicating if the organization is withdrawn or not. */
   private Boolean withdrawn;
+
+  /** URI of the organization. */
+  private String uri;
 
   public Organization(String externalId, String name) {
     this.externalId = externalId;

@@ -5,16 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
-  @Autowired OrganizationRepository organizationRepository;
+  OrganizationRepository organizationRepository;
+  ModelMapper modelMapper;
 
-  ModelMapper modelMapper = new ModelMapper();
+  public OrganizationServiceImpl(
+      OrganizationRepository organizationRepository, ModelMapper modelMapper) {
+    this.organizationRepository = organizationRepository;
+    this.modelMapper = modelMapper;
+  }
 
   @Override
   public OrganizationDTO findOrganizationById(Long id) {
@@ -44,12 +48,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Iterable<OrganizationDTO> addOrganizations(Iterable<OrganizationCreateDTO> request) {
     ArrayList<Organization> organizations = new ArrayList<Organization>();
     for (OrganizationCreateDTO org : request) {
-      Organization organization =
-          Organization.builder()
-              .name(org.getName())
-              .externalId(org.getExternalId())
-              .withdrawn(org.getWithdrawn())
-              .build();
+      Organization organization = modelMapper.map(org, Organization.class);
       organizations.add(organization);
     }
     List<Organization> savedOrganizations = organizationRepository.saveAll(organizations);
@@ -62,8 +61,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public OrganizationDTO updateOrganizationById(Long id, OrganizationCreateDTO organization) {
     Organization org =
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    org.setName(organization.getName());
-    org.setExternalId(organization.getExternalId());
+    modelMapper.map(organization, org);
     Organization updatedOrganization = organizationRepository.save(org);
     return modelMapper.map(updatedOrganization, OrganizationDTO.class);
   }

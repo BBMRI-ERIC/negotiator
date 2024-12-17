@@ -26,10 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 
-/**
- * Represents a Network entity in the database. A Network has a unique identifier, a URI, a name, a
- * contact email, a set of managers, and a set of resources.
- */
+/** Represents a Network entity, which is groups together various resources. */
 @Getter
 @Setter
 @Entity
@@ -48,6 +45,10 @@ public class Network {
 
   /** The name of the network */
   @Column private String name;
+
+  /** The description of the network */
+  @Column(columnDefinition = "VARCHAR(5000)")
+  private String description;
 
   /** A unique and persistent identifier issued by an appropriate institution */
   @NotNull

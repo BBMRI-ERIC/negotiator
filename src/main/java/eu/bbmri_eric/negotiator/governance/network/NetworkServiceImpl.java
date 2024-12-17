@@ -75,10 +75,7 @@ public class NetworkServiceImpl implements NetworkService {
   public NetworkDTO updateNetwork(Long id, NetworkCreateDTO networkDTO)
       throws EntityNotStorableException {
     Network network = getNetwork(id);
-    network.setName(networkDTO.getName());
-    network.setUri(networkDTO.getUri());
-    network.setExternalId(networkDTO.getExternalId());
-    network.setContactEmail(networkDTO.getContactEmail());
+    modelMapper.map(networkDTO, network);
     networkRepository.save(network);
     return modelMapper.map(network, NetworkDTO.class);
   }
@@ -95,13 +92,7 @@ public class NetworkServiceImpl implements NetworkService {
   public List<NetworkDTO> createNetworks(Iterable<NetworkCreateDTO> request) {
     ArrayList<Network> networks = new ArrayList();
     for (NetworkCreateDTO networkDTO : request) {
-      Network network =
-          Network.builder()
-              .name(networkDTO.getName())
-              .externalId(networkDTO.getExternalId())
-              .uri(networkDTO.getUri())
-              .contactEmail(networkDTO.getContactEmail())
-              .build();
+      Network network = modelMapper.map(networkDTO, Network.class);
       networks.add(network);
     }
     return networkRepository.saveAll(networks).stream()

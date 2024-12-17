@@ -178,8 +178,7 @@ public class ResourceServiceImpl implements ResourceService {
   @Override
   public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource) {
     Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    res.setName(resource.getName());
-    res.setDescription(resource.getDescription());
+    modelMapper.map(resource, res);
     Resource updatedResource = repository.save(res);
     return modelMapper.map(updatedResource, ResourceResponseModel.class);
   }
@@ -200,15 +199,10 @@ public class ResourceServiceImpl implements ResourceService {
               .orElseThrow(() -> new AccessFormNotFoundException(resDTO.getAccessFormId()));
       Optional<Organization> organization =
           organizationRepository.findById(resDTO.getOrganizationId());
-      Resource res =
-          Resource.builder()
-              .name(resDTO.getName())
-              .description(resDTO.getDescription())
-              .sourceId(resDTO.getSourceId())
-              .organization(organization.get())
-              .discoveryService(discoveryService)
-              .accessForm(accessForm)
-              .build();
+      Resource res = modelMapper.map(resDTO, Resource.class);
+      res.setOrganization(organization.get());
+      res.setAccessForm(accessForm);
+      res.setDiscoveryService(discoveryService);
       resources.add(res);
     }
     List<Resource> savedResources = repository.saveAll(resources);
