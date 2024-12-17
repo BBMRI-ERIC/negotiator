@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 
-/** Represents a Network entity in the database. */
+/** Represents a Network entity, which is groups together various resources. */
 @Getter
 @Setter
 @Entity

@@ -5,15 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
-  @Autowired OrganizationRepository organizationRepository;
-  @Autowired ModelMapper modelMapper;
+  OrganizationRepository organizationRepository;
+  ModelMapper modelMapper;
+
+  public OrganizationServiceImpl(
+      OrganizationRepository organizationRepository, ModelMapper modelMapper) {
+    this.organizationRepository = organizationRepository;
+    this.modelMapper = modelMapper;
+  }
 
   @Override
   public OrganizationDTO findOrganizationById(Long id) {
