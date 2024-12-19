@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,7 +81,7 @@ public class NetworkControllerTest {
   @Test
   @WithMockUser
   void getNetworkStats_correctDateFormat_200() throws Exception {
-    when(networkStatisticsService.getBasicNetworkStats(1L))
+    when(networkStatisticsService.getBasicNetworkStats(any(), any()))
         .thenReturn(new SimpleNetworkStatistics());
     mockMvc
         .perform(

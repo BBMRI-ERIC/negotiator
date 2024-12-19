@@ -6,5 +6,5 @@ public interface NetworkStatisticsService {
    *
    * @return a DTO with the stats.
    */
-  NetworkStatistics getBasicNetworkStats(Long networkId);
+  NetworkStatistics getBasicNetworkStats(Long networkId, NetworkStatsFilter filter);
 }

@@ -4,7 +4,6 @@ import static org.apache.commons.math3.util.Precision.round;
 
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -19,16 +18,20 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
   }
 
   @Override
-  public NetworkStatistics getBasicNetworkStats(Long networkId) {
+  public NetworkStatistics getBasicNetworkStats(Long networkId, NetworkStatsFilter filter) {
     Integer count = negotiationRepository.countAllForNetwork(networkId);
-    Double median = negotiationRepository.getMedianResponseForNetwork(networkId);
+    Double median =
+        negotiationRepository.getMedianResponseForNetwork(
+            filter.getSince(), filter.getUntil(), networkId);
     try {
       median = round(median, 2);
     } catch (NullPointerException e) {
       median = null;
     }
     Map<NegotiationState, Integer> states =
-        negotiationRepository.countStatusDistribution(networkId).stream()
+        negotiationRepository
+            .countStatusDistribution(filter.getSince(), filter.getUntil(), networkId)
+            .stream()
             .collect(
                 Collectors.toMap(
                     result -> (NegotiationState) result[0],
@@ -37,14 +40,17 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
         .networkId(networkId)
         .numberOfNewRequesters(
             negotiationRepository.getNumberOfNewRequesters(
-                LocalDateTime.now().minusYears(50), networkId))
+                filter.getSince(), filter.getUntil(), networkId))
         .medianResponseTime(median)
-        .numberOfIgnoredNegotiations(negotiationRepository.countIgnoredForNetwork(networkId))
+        .numberOfIgnoredNegotiations(
+            negotiationRepository.countIgnoredForNetwork(
+                filter.getSince(), filter.getUntil(), networkId))
         .numberOfSuccessfulNegotiations(
-            negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(networkId))
+            negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(
+                filter.getSince(), filter.getUntil(), networkId))
         .numberOfActiveRepresentatives(
             negotiationRepository.getNumberOfActiveRepresentatives(
-                LocalDateTime.now().minusYears(50), LocalDateTime.now(), networkId))
+                filter.getSince(), filter.getUntil(), networkId))
         .totalNumberOfNegotiations(count)
         .statusDistribution(states)
         .build();

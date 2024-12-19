@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +34,9 @@ public interface NegotiationRepository
     JOIN rl.id.resource r
     JOIN r.networks networks
     where networks.id = :networkId and rl.currentState = 'REPRESENTATIVE_CONTACTED' or rl.currentState = 'REPRESENTATIVE_UNREACHABLE'
+    and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until
 """)
-  Integer countIgnoredForNetwork(Long networkId);
+  Integer countIgnoredForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   @Query(
       value =
@@ -48,9 +50,10 @@ public interface NegotiationRepository
                     left join public.network_resources_link nrl on r.id = nrl.resource_id
                     left join public.network n2 on n2.id = nrl.network_id
             where n2.id = :networkId and nrlr.changed_to = 'CHECKING_AVAILABILITY' or nrlr.changed_to = 'RESOURCE_UNAVAILABLE'
+                    and n.creation_date > :since and n.creation_date <= :until
         """,
       nativeQuery = true)
-  Double getMedianResponseForNetwork(Long networkId);
+  Double getMedianResponseForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   @Query(
       value =
@@ -61,8 +64,10 @@ public interface NegotiationRepository
             JOIN rl.id.resource r
             JOIN r.networks networks
             where networks.id = :networkId and rl.currentState = 'RESOURCE_MADE_AVAILABLE'
+                    and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until
         """)
-  Integer getNumberOfSuccessfulNegotiationsForNetwork(Long networkId);
+  Integer getNumberOfSuccessfulNegotiationsForNetwork(
+      LocalDate since, LocalDate until, Long networkId);
 
   @Query(
       value =
@@ -115,13 +120,15 @@ public interface NegotiationRepository
 
   @Query(
       value =
-          "select n.currentState, COUNT ( distinct n.id)"
-              + "FROM Negotiation n "
-              + "JOIN n.resourcesLink rl "
-              + "JOIN rl.id.resource rs "
-              + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId group by n.currentState")
-  List<Object[]> countStatusDistribution(Long networkId);
+          """
+                      select n.currentState, COUNT ( distinct n.id)\
+                      FROM Negotiation n
+                      JOIN n.resourcesLink rl
+                      JOIN rl.id.resource rs
+                      JOIN rs.networks net
+                      WHERE net.id = :networkId and n.creationDate > :since and n.creationDate <= :until group by n.currentState
+                                           """)
+  List<Object[]> countStatusDistribution(LocalDate since, LocalDate until, Long networkId);
 
   @Query(
       value =
@@ -147,11 +154,11 @@ where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState
                                          WHERE n.created_by NOT IN (
                                                                      SELECT DISTINCT created_by
                                                                      FROM Negotiation
-                                                                     WHERE creation_date < :since
-                                                                 ) and n2.id = :networkId
+                                                                     WHERE DATE(creation_date) < :since
+                                                                 ) and n2.id = :networkId and DATE(n.creation_date) > :since and DATE(n.creation_date) <= :until
 """,
       nativeQuery = true)
-  Integer getNumberOfNewRequesters(LocalDateTime since, Long networkId);
+  Integer getNumberOfNewRequesters(LocalDate since, LocalDate until, Long networkId);
 
   @Query(
       value =
@@ -166,7 +173,7 @@ where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState
             LEFT JOIN public.network_resources_link netrl ON r.id = netrl.resource_id
             LEFT JOIN public.network n2 ON n2.id = netrl.network_id
             WHERE nrlr.creation_date > :since
-              AND nrlr.creation_date < :until
+              AND nrlr.creation_date <= :until
               AND n2.id = :networkId
             UNION
             SELECT p.created_by
@@ -174,11 +181,10 @@ where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState
             LEFT JOIN public.resource_representative_link rrl ON p.created_by = rrl.person_id
             LEFT JOIN public.network_resources_link l ON rrl.resource_id = l.resource_id
             WHERE p.creation_date > :since
-              AND p.creation_date < :until
+              AND p.creation_date <= :until
               AND l.network_id = :networkId
         ) AS combined;
     """,
       nativeQuery = true)
-  Integer getNumberOfActiveRepresentatives(
-      LocalDateTime since, LocalDateTime until, Long networkId);
+  Integer getNumberOfActiveRepresentatives(LocalDate since, LocalDate until, Long networkId);
 }

@@ -18,9 +18,9 @@ import lombok.Setter;
 public class NetworkStatsFilter {
   @NotNull
   @Schema(description = "Start of period", example = "2023-01-01")
-  LocalDate since;
+  private LocalDate since;
 
   @NotNull
   @Schema(description = "End of period", example = "2024-11-18")
-  LocalDate until;
+  private LocalDate until;
 }
