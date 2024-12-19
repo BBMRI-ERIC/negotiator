@@ -33,7 +33,7 @@ public interface NegotiationRepository
     join n.resourcesLink rl
     JOIN rl.id.resource r
     JOIN r.networks networks
-    where networks.id = :networkId and rl.currentState = 'REPRESENTATIVE_CONTACTED' or rl.currentState = 'REPRESENTATIVE_UNREACHABLE'
+    where networks.id = :networkId and (rl.currentState = 'REPRESENTATIVE_CONTACTED' or rl.currentState = 'REPRESENTATIVE_UNREACHABLE')
     and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until
 """)
   Integer countIgnoredForNetwork(LocalDate since, LocalDate until, Long networkId);
@@ -46,11 +46,9 @@ public interface NegotiationRepository
            AS median_days
             FROM Negotiation n
             LEFT JOIN public.negotiation_resource_lifecycle_record nrlr on n.id = nrlr.negotiation_id
-            left join public.resource r on r.id = nrlr.resource_id
-                    left join public.network_resources_link nrl on r.id = nrl.resource_id
-                    left join public.network n2 on n2.id = nrl.network_id
-            where n2.id = :networkId and nrlr.changed_to = 'CHECKING_AVAILABILITY' or nrlr.changed_to = 'RESOURCE_UNAVAILABLE'
-                    and n.creation_date > :since and n.creation_date <= :until
+            left join public.network_resources_link nrl on nrlr.resource_id = nrl.resource_id
+            where nrl.network_id = :networkId and (nrlr.changed_to = 'CHECKING_AVAILABILITY' or nrlr.changed_to = 'RESOURCE_UNAVAILABLE')
+                    and Date(n.creation_date) > :since and Date(n.creation_date) <= :until
         """,
       nativeQuery = true)
   Double getMedianResponseForNetwork(LocalDate since, LocalDate until, Long networkId);
@@ -167,21 +165,19 @@ where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState
         FROM (
             SELECT nrlr.created_by
             FROM Negotiation n
-            LEFT JOIN public.negotiation_resource_link nrl ON n.id = nrl.negotiation_id
             LEFT JOIN public.negotiation_resource_lifecycle_record nrlr ON n.id = nrlr.negotiation_id
-            LEFT JOIN public.resource r ON r.id = nrl.resource_id
-            LEFT JOIN public.network_resources_link netrl ON r.id = netrl.resource_id
-            LEFT JOIN public.network n2 ON n2.id = netrl.network_id
-            WHERE nrlr.creation_date > :since
-              AND nrlr.creation_date <= :until
-              AND n2.id = :networkId
+            LEFT JOIN public.network_resources_link netrl ON nrlr.resource_id = netrl.resource_id
+            WHERE DATE(nrlr.creation_date) > :since
+              AND DATE(nrlr.creation_date) <= :until
+              AND netrl.network_id = :networkId
+                AND nrlr.changed_to != 'REPRESENTATIVE_CONTACTED' and nrlr.changed_to != 'REPRESENTATIVE_UNREACHABLE'
             UNION
             SELECT p.created_by
             FROM post p
             LEFT JOIN public.resource_representative_link rrl ON p.created_by = rrl.person_id
             LEFT JOIN public.network_resources_link l ON rrl.resource_id = l.resource_id
-            WHERE p.creation_date > :since
-              AND p.creation_date <= :until
+            WHERE DATE(p.creation_date) > :since
+              AND DATE(p.creation_date) <= :until
               AND l.network_id = :networkId
         ) AS combined;
     """,
