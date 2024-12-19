@@ -363,13 +363,22 @@ public class NegotiationRepositoryTest {
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         negotiationRepository.findAll().get(0).getCurrentStateForResource(resource.getSourceId()));
-    assertEquals(1, negotiationRepository.countIgnoredForNetwork(network.getId()));
+    assertEquals(
+        1,
+        negotiationRepository.countIgnoredForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
     negotiation.setStateForResource(
         resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    assertEquals(1, negotiationRepository.countIgnoredForNetwork(network.getId()));
+    assertEquals(
+        1,
+        negotiationRepository.countIgnoredForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
     negotiation.setStateForResource(
         resource.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
-    assertEquals(0, negotiationRepository.countIgnoredForNetwork(network.getId()));
+    assertEquals(
+        0,
+        negotiationRepository.countIgnoredForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
   }
 
   @Test
@@ -392,7 +401,10 @@ public class NegotiationRepositoryTest {
     negotiation.addResource(resource2);
     negotiation.setStateForResource(
         resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
-    assertEquals(1, negotiationRepository.countIgnoredForNetwork(network.getId()));
+    assertEquals(
+        1,
+        negotiationRepository.countIgnoredForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
   }
 
   @Test
@@ -405,7 +417,11 @@ public class NegotiationRepositoryTest {
         resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
     negotiation.setStateForResource(
         resource.getSourceId(), NegotiationResourceState.CHECKING_AVAILABILITY);
-    assertEquals(10, negotiationRepository.getMedianResponseForNetwork(network.getId()), 0.1);
+    assertEquals(
+        10,
+        negotiationRepository.getMedianResponseForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()),
+        0.1);
   }
 
   @Test
@@ -430,7 +446,9 @@ public class NegotiationRepositoryTest {
     negotiation.setStateForResource(
         resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
     assertEquals(
-        1, negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(network.getId()));
+        1,
+        negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
   }
 
   @Test
@@ -456,28 +474,35 @@ public class NegotiationRepositoryTest {
     negotiation.setStateForResource(
         resource2.getSourceId(), NegotiationResourceState.RESOURCE_UNAVAILABLE);
     assertEquals(
-        1, negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(network.getId()));
+        1,
+        negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
   }
 
   @Test
   void getNewRequesters_1new_returns1() {
     saveNegotiation();
+    Negotiation negotiation = negotiationRepository.findAll().get(0);
+    negotiation.setCreationDate(LocalDateTime.now());
     assertEquals(
         1,
         negotiationRepository.getNumberOfNewRequesters(
-            LocalDateTime.now().minusDays(10), network.getId()));
+            LocalDate.now().minusYears(1), LocalDate.now(), network.getId()));
   }
 
   @Test
   void getNewRequesters_requesterHasOldNegotiations_returns0() {
     saveNegotiation();
     saveNegotiation();
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
-    negotiation.setCreationDate(LocalDateTime.now().minusDays(10));
+    List<Negotiation> negotiations = negotiationRepository.findAll();
+    negotiations.get(0).setCreationDate(LocalDateTime.now().minusDays(10));
+    negotiations.get(0).setCreatedBy(person);
+    negotiations.get(1).setCreationDate(LocalDateTime.now().minusDays(1));
+    negotiations.get(1).setCreatedBy(person);
     assertEquals(
         0,
         negotiationRepository.getNumberOfNewRequesters(
-            LocalDateTime.now().minusDays(9), network.getId()));
+            LocalDate.now().minusDays(9), LocalDate.now(), network.getId()));
   }
 
   @Test
@@ -492,7 +517,7 @@ public class NegotiationRepositoryTest {
     assertEquals(
         1,
         negotiationRepository.getNumberOfActiveRepresentatives(
-            LocalDateTime.now().minusDays(10), LocalDateTime.now().plusDays(10), network.getId()));
+            LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), network.getId()));
   }
 
   @Test
@@ -508,7 +533,7 @@ public class NegotiationRepositoryTest {
     assertEquals(
         1,
         negotiationRepository.getNumberOfActiveRepresentatives(
-            LocalDateTime.now().minusDays(9), LocalDateTime.now().plusDays(10), network.getId()));
+            LocalDate.now().minusDays(9), LocalDate.now().plusDays(10), network.getId()));
   }
 
   @Test
@@ -531,7 +556,7 @@ public class NegotiationRepositoryTest {
     assertEquals(
         1,
         negotiationRepository.getNumberOfActiveRepresentatives(
-            LocalDateTime.now().minusDays(9), LocalDateTime.now().plusDays(10), network.getId()));
+            LocalDate.now().minusDays(9), LocalDate.now().plusDays(10), network.getId()));
   }
 
   private void saveNegotiation() {

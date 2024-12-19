@@ -193,6 +193,6 @@ public class NetworkController {
       description = "Provides basic statistics about requests linked to a Network.")
   public EntityModel<NetworkStatistics> getNetworkStatistics(
       @PathVariable Long id, @Valid @ParameterObject NetworkStatsFilter filterDTO) {
-    return EntityModel.of(networkStatisticsService.getBasicNetworkStats(id));
+    return EntityModel.of(networkStatisticsService.getBasicNetworkStats(id, filterDTO));
   }
 }
