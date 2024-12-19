@@ -532,7 +532,9 @@ public class NetworkControllerTests {
   @WithUserDetails("admin")
   void getStatistics_validNetwork_ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/statistics"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                NETWORKS_URL + "/1/statistics?since=2024-11-18&until=2024-12-18"))
         .andExpect(status().isOk())
         .andDo(print())
         .andExpect(jsonPath("$.networkId", is(1)))
