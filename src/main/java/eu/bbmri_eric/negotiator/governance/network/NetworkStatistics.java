@@ -76,4 +76,3 @@ public interface NetworkStatistics {
       example = "{\"OPEN\": 50, \"CLOSED\": 90, \"PENDING\": 10}")
   Map<NegotiationState, Integer> getStatusDistribution();
 }
-
