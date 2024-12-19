@@ -534,9 +534,9 @@ public class NetworkControllerTests {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                NETWORKS_URL + "/1/statistics?since=2024-11-18&until=2024-12-18"))
-        .andExpect(status().isOk())
+                NETWORKS_URL + "/1/statistics?since=2024-01-01&until=2024-12-18"))
         .andDo(print())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.networkId", is(1)))
         .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)))
         .andExpect(jsonPath("$.numberOfIgnoredNegotiations", is(0)))
