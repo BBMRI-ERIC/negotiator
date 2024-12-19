@@ -1,14 +1,18 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 
+@Schema(description = "Interface defining statistical information about a network.")
 public interface NetworkStatistics {
+
   /**
-   * Get id of the network
+   * Get id of the network.
    *
    * @return the id
    */
+  @Schema(description = "Unique identifier of the network", example = "101")
   Long getNetworkId();
 
   /**
@@ -16,6 +20,7 @@ public interface NetworkStatistics {
    *
    * @return a count
    */
+  @Schema(description = "Total number of negotiations in the network", example = "150")
   Integer getTotalNumberOfNegotiations();
 
   /**
@@ -23,6 +28,7 @@ public interface NetworkStatistics {
    *
    * @return a number of ignored Negotiations
    */
+  @Schema(description = "Number of negotiations ignored in the network", example = "10")
   Integer getNumberOfIgnoredNegotiations();
 
   /**
@@ -30,6 +36,7 @@ public interface NetworkStatistics {
    *
    * @return a median amount of days it takes resources in this Network to respond. E.g., 10.6
    */
+  @Schema(description = "Median response time for negotiations in days", example = "10.6")
   Double getMedianResponseTime();
 
   /**
@@ -38,6 +45,7 @@ public interface NetworkStatistics {
    *
    * @return a number of successful Negotiations
    */
+  @Schema(description = "Number of successful negotiations in the network", example = "120")
   Integer getNumberOfSuccessfulNegotiations();
 
   /**
@@ -46,6 +54,7 @@ public interface NetworkStatistics {
    *
    * @return a number of new Users
    */
+  @Schema(description = "Number of new requesters in the network", example = "30")
   Integer getNumberOfNewRequesters();
 
   /**
@@ -54,6 +63,7 @@ public interface NetworkStatistics {
    *
    * @return a number of active Users
    */
+  @Schema(description = "Number of active representatives in the network", example = "25")
   Integer getNumberOfActiveRepresentatives();
 
   /**
@@ -61,5 +71,9 @@ public interface NetworkStatistics {
    *
    * @return a map of states and their counts
    */
+  @Schema(
+      description = "Distribution of negotiation statuses in the network",
+      example = "{\"OPEN\": 50, \"CLOSED\": 90, \"PENDING\": 10}")
   Map<NegotiationState, Integer> getStatusDistribution();
 }
+
