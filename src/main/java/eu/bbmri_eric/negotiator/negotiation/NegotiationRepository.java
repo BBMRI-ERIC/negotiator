@@ -115,8 +115,8 @@ public interface NegotiationRepository
               + "JOIN n.resourcesLink rl "
               + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId")
-  Integer countAllForNetwork(Long networkId);
+              + "WHERE net.id = :networkId and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until")
+  Integer countAllForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   @Query(
       value =
@@ -126,7 +126,7 @@ public interface NegotiationRepository
                       JOIN n.resourcesLink rl
                       JOIN rl.id.resource rs
                       JOIN rs.networks net
-                      WHERE net.id = :networkId and n.creationDate > :since and n.creationDate <= :until group by n.currentState
+                      WHERE net.id = :networkId and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until group by n.currentState
                                            """)
   List<Object[]> countStatusDistribution(LocalDate since, LocalDate until, Long networkId);
 
