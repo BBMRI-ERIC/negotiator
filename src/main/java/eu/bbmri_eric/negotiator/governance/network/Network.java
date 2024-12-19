@@ -82,6 +82,11 @@ public class Network {
   @Setter(AccessLevel.NONE)
   private Set<Resource> resources = new HashSet<>();
 
+  public Network(String externalId, String uri) {
+    this.externalId = externalId;
+    this.uri = uri;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -100,9 +105,9 @@ public class Network {
   }
 
   /** Adds a resource to the network. */
-  public void addResource(Resource collection) {
-    resources.add(collection);
-    collection.getNetworks().add(this);
+  public void addResource(Resource resource) {
+    resources.add(resource);
+    resource.getNetworks().add(this);
   }
 
   /** Removes a resource from the network. */

@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
+import static org.apache.commons.math3.util.Precision.round;
+
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.util.Map;
@@ -9,24 +11,49 @@ import org.springframework.stereotype.Service;
 @Service
 public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
 
-  private final NetworkRepository networkRepository;
   private final NegotiationRepository negotiationRepository;
 
-  public NetworkStatisticsServiceImpl(
-      NetworkRepository networkRepository, NegotiationRepository negotiationRepository) {
-    this.networkRepository = networkRepository;
+  public NetworkStatisticsServiceImpl(NegotiationRepository negotiationRepository) {
     this.negotiationRepository = negotiationRepository;
   }
 
   @Override
-  public NetworkStatistics getBasicNetworkStats(Long networkId) {
-    Integer count = negotiationRepository.countAllForNetwork(networkId);
+  public NetworkStatistics getBasicNetworkStats(Long networkId, NetworkStatsFilter filter) {
+    Integer count =
+        negotiationRepository.countAllForNetwork(filter.getSince(), filter.getUntil(), networkId);
+    Double median =
+        negotiationRepository.getMedianResponseForNetwork(
+            filter.getSince(), filter.getUntil(), networkId);
+    try {
+      median = round(median, 2);
+    } catch (NullPointerException e) {
+      median = null;
+    }
     Map<NegotiationState, Integer> states =
-        negotiationRepository.countStatusDistribution(networkId).stream()
+        negotiationRepository
+            .countStatusDistribution(filter.getSince(), filter.getUntil(), networkId)
+            .stream()
             .collect(
                 Collectors.toMap(
                     result -> (NegotiationState) result[0],
                     result -> ((Long) result[1]).intValue()));
-    return new SimpleNetworkStatistics(networkId, count, states);
+    return SimpleNetworkStatistics.builder()
+        .networkId(networkId)
+        .numberOfNewRequesters(
+            negotiationRepository.getNumberOfNewRequesters(
+                filter.getSince(), filter.getUntil(), networkId))
+        .medianResponseTime(median)
+        .numberOfIgnoredNegotiations(
+            negotiationRepository.countIgnoredForNetwork(
+                filter.getSince(), filter.getUntil(), networkId))
+        .numberOfSuccessfulNegotiations(
+            negotiationRepository.getNumberOfSuccessfulNegotiationsForNetwork(
+                filter.getSince(), filter.getUntil(), networkId))
+        .numberOfActiveRepresentatives(
+            negotiationRepository.getNumberOfActiveRepresentatives(
+                filter.getSince(), filter.getUntil(), networkId))
+        .totalNumberOfNegotiations(count)
+        .statusDistribution(states)
+        .build();
   }
 }
