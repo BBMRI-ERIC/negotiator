@@ -258,7 +258,7 @@
         <dependency>
             <artifactId>json</artifactId>
             <groupId>org.json</groupId>
-            <version>20240303</version>
+            <version>20241224</version>
         </dependency>
         <dependency>
             <artifactId>reactor-core</artifactId>
