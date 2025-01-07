@@ -18,7 +18,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn --cwd frontend/ install
 
       - name: Save build folder
         uses: actions/upload-artifact@v4
