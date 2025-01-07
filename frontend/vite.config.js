@@ -8,8 +8,7 @@ import git from "git-rev-sync"
 
 const PROXY_TARGET = "http://localhost:8081"
 
-process.env.VITE_GIT_COMMIT_HASH = git.short()
-process.env.VITE_GIT_TAG = git.tag()
+process.env.VITE_GIT_TAG = git.short('../.')
 
 export default defineConfig({
     plugins: [

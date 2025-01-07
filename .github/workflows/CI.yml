@@ -78,6 +78,7 @@ jobs:
   lint-js:
     runs-on: ubuntu-latest
     name: Lint JS Code
+    needs: install
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,9 +89,10 @@ jobs:
           node-version: '22.11.0'
           cache: 'yarn'
 
-      - name: Install dependencies
-        working-directory: frontend
-        run: yarn install
+      - name: Download the build folder
+        uses: actions/download-artifact@v4
+        with:
+          name: build
 
       - name: Lint
         working-directory: frontend
@@ -191,7 +193,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
-          start: yarn dev
+          start: yarn dev --
           browser: ${{ matrix.browser }}
 
       - uses: actions/upload-artifact@v4
