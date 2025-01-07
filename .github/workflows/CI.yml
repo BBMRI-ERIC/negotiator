@@ -95,7 +95,44 @@ jobs:
       - name: Lint
         run: yarn --cwd frontend eslint src
 
+  analyze:
+    name: CodeQL Analysis
+    needs: compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+
+      - name: Compile with maven
+        run: mvn -f backend --quiet -B clean package -Dmaven.test.skip=true
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: java
+
+      - name: Update dependency graph
+        uses: advanced-security/maven-dependency-submission-action@v4
+        with:
+          directory: backend
 
   unit-tests:
     name: Unit tests
@@ -249,7 +286,7 @@ jobs:
         with:
           context: frontend
           tags: bbmrieric/negotiator-frontend:latest
-          outputs: type=docker,dest=/tmp/negotiator.tar
+          outputs: type=docker,dest=/tmp/negotiator-frontend.tar
 
       - name: Upload image
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
@@ -308,44 +345,6 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-  analyze:
-    name: CodeQL Analysis
-    needs: build-image
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    permissions:
-      actions: read
-      contents: write
-      security-events: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: java
-
-      - name: Compile with maven
-        run: mvn -f backend --quiet -B clean package -Dmaven.test.skip=true
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: java
-
-      - name: Update dependency graph
-        uses: advanced-security/maven-dependency-submission-action@v4
-        with:
-          directory: backend
   system-test:
     name: System tests
     runs-on: ubuntu-latest

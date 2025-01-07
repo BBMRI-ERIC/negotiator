@@ -1,6 +1,7 @@
 FROM node:lts-bookworm AS  build-stage
 WORKDIR /app
 COPY . .
+COPY ../.git .
 RUN yarn install
 RUN yarn build
 
