@@ -88,6 +88,7 @@ jobs:
         with:
           node-version: '22.11.0'
           cache: 'yarn'
+          cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Download the build folder
         uses: actions/download-artifact@v4
@@ -541,6 +542,7 @@ jobs:
 
   build-pages:
     runs-on: ubuntu-24.04
+    name: Build Docs
     steps:
       - name: Check out Git repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
@@ -572,6 +574,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
     needs: [ build-pages ]
+    name: Publish Docs
     permissions:
       pages: write
       id-token: write
