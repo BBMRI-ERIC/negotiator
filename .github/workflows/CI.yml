@@ -54,7 +54,7 @@ jobs:
         with:
           name: build
           if-no-files-found: error
-          path: node_modules
+          path: frontend/node_modules
 
   lint:
     name: Lint Java Code
