@@ -1,6 +1,6 @@
 services:
   negotiator:
     volumes:
-      - $GITHUB_WORKSPACE/src/main/resources/db/dev/migration:/app/data:ro
+      - $GITHUB_WORKSPACE/backend/src/main/resources/db/dev/migration:/app/data:ro
     ports:
       - '8081:8081'
