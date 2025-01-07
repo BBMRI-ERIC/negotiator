@@ -1,8 +1,8 @@
 <template>
   <v-tour
-      name="myTour"
-      :steps="steps"
-      :callbacks="myCallbacks"
+    name="myTour"
+    :steps="steps"
+    :callbacks="myCallbacks"
   />
 </template>
 
@@ -67,13 +67,11 @@ export default {
 .v-step {
   min-width: 420px !important;
   padding: 20px !important;
-
   .v-step__header {
     font-size: 24px;
     font-weight: bold;
   }
 }
-
 /* step-1 */
 .v-step[id=v-step-46f34eda] {
   background-color: #63e6be !important;
@@ -82,17 +80,14 @@ export default {
   .v-step__arrow, .v-step__arrow--dark:before {
     background-color: #63e6be !important;
   }
-
   .v-step__header {
     background-color: #63e6be !important;
   }
-
   .v-step__button {
     color: #183153 !important;
     border: 0.05rem solid #183153 !important;
   }
 }
-
 /* step-2 */
 .v-step[id=v-step-46f34ed8] {
   background-color: #74c0fc !important;
@@ -101,11 +96,9 @@ export default {
   .v-step__arrow, .v-step__arrow:before {
     background-color: #74c0fc !important;
   }
-
   .v-step__header {
     background-color: #74c0fc !important;
   }
-
   .v-step__button {
     color: #183153 !important;
     border: 0.05rem solid #183153 !important;
@@ -120,11 +113,9 @@ export default {
   .v-step__arrow, .v-step__arrow:before {
     background-color: #ffd43b !important;
   }
-
   .v-step__header {
     background-color: #ffd43b !important;
   }
-
   .v-step__button {
     color: #183153 !important;
     border: 0.05rem solid #183153 !important;
@@ -139,11 +130,9 @@ export default {
   .v-step__arrow, .v-step__arrow--dark:before {
     background-color: #63e6be !important;
   }
-
   .v-step__header {
     background-color: #63e6be !important;
   }
-
   .v-step__button {
     color: #183153 !important;
     border: 0.05rem solid #183153 !important;

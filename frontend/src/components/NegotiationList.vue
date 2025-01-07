@@ -1,70 +1,69 @@
 <template>
   <div
-      v-if="!loading"
-      class="container"
+    v-if="!loading"
+    class="container"
   >
-    <NewRequestButton v-if="!networkActivated"/>
+    <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
       <div class="row row-cols-2 d-grid-row mt-5 pt-3">
         <p>
           <span class="negotiations-search-results" :style="{'color':uiConfiguration?.searchResultsTextColor}"> <strong>Search results: </strong> </span>
           <br>
-          <span class="negotiations-number" :style="{'color':uiConfiguration?.searchResultsTextColor, 'opacity': 0.5}">{{
-              pagination.totalElements
+          <span class="negotiations-number" :style="{'color':uiConfiguration?.searchResultsTextColor, 'opacity': 0.5}">{{ pagination.totalElements
             }} Negotiations found</span>
         </p>
 
         <div class="text-end my-2">
           <button
-              v-if="negotiations.length > 0"
-              type="button"
-              class="btn btn-sm me-2"
-              :class="savedNegotiationsView === 'Card-one-column' ? '':'bg-body'"
-              :style="savedNegotiationsView === 'Card-one-column' ? {'background-color':uiConfiguration?.displayViewButtonColor} : ''"
-              @click="setSavedNegotiationsView('Card-one-column')"
+            v-if="negotiations.length > 0"
+            type="button"
+            class="btn btn-sm me-2"
+            :class="savedNegotiationsView === 'Card-one-column' ? '':'bg-body'"
+            :style="savedNegotiationsView === 'Card-one-column' ? {'background-color':uiConfiguration?.displayViewButtonColor} : ''"
+            @click="setSavedNegotiationsView('Card-one-column')"
           >
-            <i class="bi bi-list"/>
+            <i class="bi bi-list" />
           </button>
 
           <button
-              v-if="negotiations.length > 1"
-              type="button"
-              class="btn btn-sm me-2"
-              :class="savedNegotiationsView === 'Card-two-column' ? '':'bg-body'"
-              :style="savedNegotiationsView === 'Card-two-column' ? {'background-color':uiConfiguration?.displayViewButtonColor} : ''"
-              @click="savedNegotiationsView = 'Card-two-column', setSavedNegotiationsView('Card-two-column')"
+            v-if="negotiations.length > 1"
+            type="button"
+            class="btn btn-sm me-2"
+            :class="savedNegotiationsView === 'Card-two-column' ? '':'bg-body'"
+            :style="savedNegotiationsView === 'Card-two-column' ? {'background-color':uiConfiguration?.displayViewButtonColor} : ''"
+            @click="savedNegotiationsView = 'Card-two-column', setSavedNegotiationsView('Card-two-column')"
           >
-            <i class="bi bi-grid"/>
+            <i class="bi bi-grid" />
           </button>
 
           <button
-              v-if="negotiations.length > 0"
-              id="v-step-1"
-              type="button"
-              class="btn btn-sm"
-              :class="savedNegotiationsView === 'Table' ? '' : 'bg-body'"
-              :style="savedNegotiationsView === 'Table' ? {'background-color':uiConfiguration?.displayViewButtonColor} : ''"
-              @click="savedNegotiationsView = 'Table', setSavedNegotiationsView('Table')"
+            v-if="negotiations.length > 0"
+            id="v-step-1"
+            type="button"
+            class="btn btn-sm"
+            :class="savedNegotiationsView === 'Table' ? '' : 'bg-body'"
+            :style="savedNegotiationsView === 'Table' ? {'background-color':uiConfiguration?.displayViewButtonColor} : ''"
+            @click="savedNegotiationsView = 'Table', setSavedNegotiationsView('Table')"
           >
-            <i class="bi bi-table"/>
+            <i class="bi bi-table" />
           </button>
         </div>
       </div>
       <div
-          v-if="savedNegotiationsView === 'Card-one-column' || savedNegotiationsView === 'Card-two-column'"
-          class="row row-cols-1 d-grid-row"
-          :class="savedNegotiationsView === 'Card-one-column' ? 'row-cols-md-1' : 'row-cols-md-2'"
+        v-if="savedNegotiationsView === 'Card-one-column' || savedNegotiationsView === 'Card-two-column'"
+        class="row row-cols-1 d-grid-row"
+        :class="savedNegotiationsView === 'Card-one-column' ? 'row-cols-md-1' : 'row-cols-md-2'"
       >
         <NegotiationCard
-            v-for="fn in negotiations"
-            :id="fn.id"
-            :key="fn.id"
-            :title="fn.payload.project.title"
-            :status="fn.status"
-            :submitter="fn.author.name"
-            :creation-date="formatDate(fn.creationDate)"
-            :class="networkActivated === true ? '' : 'cursor-pointer'"
-            @click="goToNegotiation(fn.id,userRole,filtersData,sortby)"
+          v-for="fn in negotiations"
+          :id="fn.id"
+          :key="fn.id"
+          :title="fn.payload.project.title"
+          :status="fn.status"
+          :submitter="fn.author.name"
+          :creation-date="formatDate(fn.creationDate)"
+          :class="networkActivated === true ? '' : 'cursor-pointer'"
+          @click="goToNegotiation(fn.id)"
         />
       </div>
 
@@ -134,14 +133,14 @@
                   />
                 </button>
               </th>
-              <th scope="col"/>
+              <th scope="col" />
             </tr>
             </thead>
             <tbody>
             <tr
                 v-for="(fn,index) in negotiations"
                 :key="index"
-                @click="goToNegotiation(fn.id,userRole,filtersData,sortby)"
+                @click="goToNegotiation(fn.id)"
             >
               <th
                   scope="row"
@@ -160,19 +159,19 @@
               </td>
               <td>
                   <span
-                      class="badge"
-                      :class="getBadgeColor(fn.status)"
-                      style="width: 120px;"
+                    class="badge"
+                    :class="getBadgeColor(fn.status)"
+                    style="width: 120px;"
                   >
                     <i
-                        :class="getBadgeIcon(fn.status)"
-                        class="px-1"
+                      :class="getBadgeIcon(fn.status)"
+                      class="px-1"
                     />
                     {{ transformStatus(fn.status) }}
                   </span>
               </td>
               <td>
-                <i class="bi bi-chevron-right float-end" :style="{'color': uiConfiguration?.tableTextColor}"/>
+                <i class="bi bi-chevron-right float-end" :style="{'color': uiConfiguration?.tableTextColor}" />
               </td>
             </tr>
             </tbody>
@@ -181,22 +180,22 @@
       </div>
 
       <h2
-          v-if="negotiations.length === 0"
-          class="text-center"
+        v-if="negotiations.length === 0"
+        class="text-center"
       >
         No Negotiations found
       </h2>
     </div>
 
     <div
-        v-if="pagination.totalElements === 0"
-        class="d-flex justify-content-center"
+      v-if="pagination.totalElements === 0"
+      class="d-flex justify-content-center"
     >
       <div class="d-flex justify-content-center">
         <h3 class="text-center mt-3">
           <i
-              style="color: #7c7c7c;"
-              class="bi bi-circle"
+            style="color: #7c7c7c;"
+            class="bi bi-circle"
           />
 
           <h4 class="mb-3 ms-3 mt-3">
@@ -207,13 +206,13 @@
     </div>
   </div>
   <div
-      v-else-if="loading"
-      class="d-flex justify-content-center flex-row"
+    v-else-if="loading"
+    class="d-flex justify-content-center flex-row"
   >
     <div class="d-flex justify-content-center">
       <div
-          class="spinner-border d-flex justify-content-center "
-          role="status"
+        class="spinner-border d-flex justify-content-center "
+        role="status"
       />
       <div class="d-flex justify-content-center">
         <h4 class="mb-3 ms-3">
@@ -223,8 +222,8 @@
     </div>
   </div>
   <div
-      v-else
-      class="d-flex justify-content-center flex-row"
+    v-else
+    class="d-flex justify-content-center flex-row"
   >
     <div class="d-flex justify-content-center">
       <div class="d-flex justify-content-center">
@@ -237,16 +236,17 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, ref} from "vue"
+import { computed, onBeforeMount } from 'vue'
 import NegotiationCard from "@/components/NegotiationCard.vue"
-import {ROLES} from "@/config/consts"
+import { ROLES } from '@/config/consts'
 import moment from "moment"
-import {useRouter} from "vue-router"
-import {getBadgeColor, getBadgeIcon, transformStatus} from "../composables/utils.js"
+import { useRouter } from 'vue-router'
+import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import NewRequestButton from "../components/NewRequestButton.vue"
-import {useNegotiationsViewStore} from "../store/negotiationsView.js"
-import {useUiConfiguration} from '../store/uiConfiguration.js'
+import { useNegotiationsViewStore } from '../store/negotiationsView.js'
+import { useUiConfiguration } from '../store/uiConfiguration.js'
 
+const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
@@ -265,21 +265,11 @@ const props = defineProps({
     required: true,
     validator: (prop) => [ROLES.RESEARCHER, ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR].includes(prop)
   },
-  filtersSortData: {
-    type: Object,
-    default: undefined
-  },
   networkActivated: {
     type: Boolean,
     default: false
   }
 })
-
-const sortBy = ref([
-  {value: "title", label: "Title"},
-  {value: "creationDate", label: "Creation Date"},
-  {value: "currentState", label: "Current State"}
-])
 
 const loading = computed(() => {
   return props.negotiations === undefined
@@ -308,12 +298,12 @@ function formatDate(date) {
 }
 
 function changeSortDirection(sortBy) {
-  if (props.filtersSortData.sortDirection === "DESC") {
-    props.filtersSortData.sortBy = sortBy
-    props.filtersSortData.sortDirection = "ASC"
+  if (filtersSortData.value.sortDirection === 'DESC') {
+    filtersSortData.value.sortBy = sortBy
+    filtersSortData.value.sortDirection = 'ASC'
   } else {
-    props.filtersSortData.sortBy = sortBy
-    props.filtersSortData.sortDirection = "DESC"
+    filtersSortData.value.sortBy = sortBy
+    filtersSortData.value.sortDirection = 'DESC'
   }
 }
 
@@ -323,10 +313,10 @@ function emitFilterSortData() {
   emit("filtersSortData", props.filtersSortData)
 }
 
-function goToNegotiation(id, userRole, filtersData, sortby) {
+function goToNegotiation(id) {
   router.push({
     name: "negotiation-page",
-    params: {negotiationId: id, filters: filtersData, sortBy: sortby}
+    params: { negotiationId: id }
   })
 }
 </script>

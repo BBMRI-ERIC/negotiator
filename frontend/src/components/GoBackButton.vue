@@ -1,19 +1,19 @@
 <template>
   <button
-      type="button"
-      class="btn"
-      :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
-      @click="goBack()"
+    type="button"
+    class="btn"
+    :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
+    @click="goBack()"
   >
-    <i class="bi-arrow-left"/>
+    <i class="bi-arrow-left" />
     Go back
   </button>
 </template>
 
 <script setup>
-import {computed} from "vue"
-import {useRouter} from "vue-router"
-import {useUiConfiguration} from '@/store/uiConfiguration.js'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const router = useRouter()
 const uiConfigurationStore = useUiConfiguration()

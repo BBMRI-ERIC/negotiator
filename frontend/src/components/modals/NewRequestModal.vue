@@ -1,8 +1,8 @@
 <template>
   <NegotiatorModal
-      :id="id"
-      :title="title"
-      :is-modal-small="isModalSmall"
+    :id="id"
+    :title="title"
+    :is-modal-small="isModalSmall"
   >
     <template #body>
       <p>
@@ -11,10 +11,10 @@
     </template>
     <template #footer>
       <button
-          type="button"
-          class="btn btn-secondary px-4"
-          data-bs-dismiss="modal"
-          @click="emitConfirm"
+        type="button"
+        class="btn btn-secondary px-4"
+        data-bs-dismiss="modal"
+        @click="emitConfirm"
       >
         OK
       </button>

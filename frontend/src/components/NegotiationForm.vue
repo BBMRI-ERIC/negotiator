@@ -1,29 +1,29 @@
 <template>
   <button
-      ref="openModal"
-      hidden
-      data-bs-toggle="modal"
-      data-bs-target="#feedbackModal"
+    ref="openModal"
+    hidden
+    data-bs-toggle="modal"
+    data-bs-target="#feedbackModal"
   />
   <confirmation-modal
-      id="feedbackModal"
-      :title="notificationTitle"
-      :text="notificationText"
-      :message-enabled="false"
-      dismiss-button-text="Back to HomePage"
-      @dismiss="backToHomePage"
-      @confirm="startNegotiation"
+    id="feedbackModal"
+    :title="notificationTitle"
+    :text="notificationText"
+    :message-enabled="false"
+    dismiss-button-text="Back to HomePage"
+    @dismiss="backToHomePage"
+    @confirm="startNegotiation"
   />
   <div
-      v-if="loading"
-      class="d-flex align-items-center justify-content-center"
+    v-if="loading"
+    class="d-flex align-items-center justify-content-center"
   >
     <h4 class="me-2">
       Loading...
     </h4>
     <div
-        class="spinner-border"
-        role="status"
+      class="spinner-border"
+      role="status"
     />
   </div>
   <div v-else>
@@ -34,174 +34,174 @@
       Access Form Submission
     </div>
     <form-wizard
-        v-if="accessForm"
-        :start-index="0"
-        :color="uiConfiguration?.primaryTextColor"
-        step-size="md"
-        @on-complete="startModal"
+      v-if="accessForm"
+      :start-index="0"
+      :color="uiConfiguration?.primaryTextColor"
+      step-size="md"
+      @on-complete="startModal"
     >
       <tab-content
-          title="Request summary"
-          class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
+        title="Request summary"
+        class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
       >
         <div class="mx-3">
           <div class="fs-5 fw-bold" :style="{'color': uiConfiguration?.primaryTextColor}">
             SEARCH PARAMETERS
           </div>
           <div
-              v-for="(qp, index) in queryParameters"
-              :key="index"
-              class="fs-6 text-dar"
-              :style="{'color': uiConfiguration?.secondaryTextColor}"
+            v-for="(qp, index) in queryParameters"
+            :key="index"
+            class="fs-6 text-dar"
+            :style="{'color': uiConfiguration?.secondaryTextColor}"
           >
             {{ qp }}
           </div>
         </div>
         <hr class="mx-3">
         <resources-list
-            class="mx-3"
-            :resources="resources"
+          class="mx-3"
+          :resources="resources"
         />
       </tab-content>
       <tab-content
-          v-for="section in accessForm.sections"
-          :key="section.name"
-          :title="section.label"
-          class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
-          :style="{'color': uiConfiguration?.primaryTextColor}"
-          :before-change="isSectionValid(section)"
+        v-for="section in accessForm.sections"
+        :key="section.name"
+        :title="section.label"
+        class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
+        :style="{'color': uiConfiguration?.primaryTextColor}"
+        :before-change="isSectionValid(section)"
       >
         <div
-            v-if="section.description"
-            class="mx-3 d-flex justify-content-end"
+          v-if="section.description"
+          class="mx-3 d-flex justify-content-end"
         >
           <i
-              class="py-1 bi bi-info-circle"
-              data-bs-toggle="tooltip"
-              :data-bs-title="section.description"
-              :style="{'color': uiConfiguration?.primaryTextColor}"
+            class="py-1 bi bi-info-circle"
+            data-bs-toggle="tooltip"
+            :data-bs-title="section.description"
+            :style="{'color': uiConfiguration?.primaryTextColor}"
           />
         </div>
 
         <div
-            v-for="criteria in section.elements"
-            :key="criteria.name"
-            class="mb-4 mx-3"
+          v-for="criteria in section.elements"
+          :key="criteria.name"
+          class="mb-4 mx-3"
         >
           <label
-              class="form-label "
-              :style="{'color': uiConfiguration?.primaryTextColor}"
-              :class="{ required: criteria.required }"
+            class="form-label "
+            :style="{'color': uiConfiguration?.primaryTextColor}"
+            :class="{ required: criteria.required }"
           >
             {{ criteria.label }}
           </label>
 
           <span
-              v-if="criteria.description"
-              class="ms-2 text-muted"
+            v-if="criteria.description"
+            class="ms-2 text-muted"
           >
             <i
-                class="py-1 bi bi-info-circle"
-                data-bs-toggle="tooltip"
-                :data-bs-title="criteria.description"
-                :style="{'color': uiConfiguration?.primaryTextColor}"
+              class="py-1 bi bi-info-circle"
+              data-bs-toggle="tooltip"
+              :data-bs-title="criteria.description"
+              :style="{'color': uiConfiguration?.primaryTextColor}"
             />
           </span>
 
           <div v-if="criteria.type === 'TEXT'">
             <input
-                v-model="negotiationCriteria[section.name][criteria.name]"
-                :type="criteria.type"
-                :placeholder="criteria.description"
-                class="form-control text-secondary-text"
-                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                :required="criteria.required"
+              v-model="negotiationCriteria[section.name][criteria.name]"
+              :type="criteria.type"
+              :placeholder="criteria.description"
+              class="form-control text-secondary-text"
+              :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+              :required="criteria.required"
             >
           </div>
 
           <div v-else-if="criteria.type === 'BOOLEAN'">
             <div class="form-check form-check-inline">
               <input
-                  id="inlineRadio1"
-                  v-model="negotiationCriteria[section.name][criteria.name]"
-                  value="Yes"
-                  :required="criteria.required"
-                  class="form-check-input"
-                  :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                  type="radio"
+                id="inlineRadio1"
+                v-model="negotiationCriteria[section.name][criteria.name]"
+                value="Yes"
+                :required="criteria.required"
+                class="form-check-input"
+                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+                type="radio"
               >
               <label
-                  class="form-check-label"
-                  for="inlineRadio1"
+                class="form-check-label"
+                for="inlineRadio1"
               > Yes </label>
             </div>
             <div class="form-check form-check-inline">
               <input
-                  id="inlineRadio2"
-                  v-model="negotiationCriteria[section.name][criteria.name]"
-                  value="No"
-                  :required="criteria.required"
-                  class="form-check-input"
-                  :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                  type="radio"
+                id="inlineRadio2"
+                v-model="negotiationCriteria[section.name][criteria.name]"
+                value="No"
+                :required="criteria.required"
+                class="form-check-input"
+                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+                type="radio"
               >
               <label
-                  class="form-check-label"
-                  for="inlineRadio2"
+                class="form-check-label"
+                for="inlineRadio2"
               > No </label>
             </div>
           </div>
 
           <div v-else-if="criteria.type === 'MULTIPLE_CHOICE'">
             <div
-                v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
-                :key="index"
+              v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
+              :key="index"
             >
               <div class="form-check form-check-inline">
                 <input
-                    id="inlineCheckbox1"
-                    v-model="negotiationCriteria[section.name][criteria.name]"
-                    :value="value"
-                    :required="criteria.required"
-                    class="form-check-input"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                    type="checkbox"
+                  id="inlineCheckbox1"
+                  v-model="negotiationCriteria[section.name][criteria.name]"
+                  :value="value"
+                  :required="criteria.required"
+                  class="form-check-input"
+                  :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+                  type="checkbox"
                 >
                 <label
-                    class="form-check-label"
-                    for="inlineCheckbox1"
+                  class="form-check-label"
+                  for="inlineCheckbox1"
                 >{{ value }}</label>
               </div>
             </div>
             <div
-                v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'">
+              v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'">
               <span class="text-muted"> External Documentation - </span>
               <a
-                  :href="negotiationValueSets[criteria.id]?.externalDocumentation"
-                  :style="{ 'color':uiConfiguration?.linksTextColor }"
+                :href="negotiationValueSets[criteria.id]?.externalDocumentation"
+                :style="{ 'color':uiConfiguration?.linksTextColor }" 
               > {{ negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
             </div>
           </div>
 
           <div v-else-if="criteria.type === 'SINGLE_CHOICE'">
             <div
-                v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
-                :key="index"
+              v-for="(value, index) in negotiationValueSets[criteria.id]?.availableValues"
+              :key="index"
             >
               <div class="form-check form-check-inline">
                 <input
-                    id="inlineRadio1"
-                    v-model="negotiationCriteria[section.name][criteria.name]"
-                    :value="value"
-                    :required="criteria.required"
-                    class="form-check-input"
-                    :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                    type="radio"
-                    @click="uncheckRadioButton(value, section.name, criteria.name)"
+                  id="inlineRadio1"
+                  v-model="negotiationCriteria[section.name][criteria.name]"
+                  :value="value"
+                  :required="criteria.required"
+                  class="form-check-input"
+                  :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+                  type="radio"
+                  @click="uncheckRadioButton(value, section.name, criteria.name)"
                 >
                 <label
-                    class="form-check-label"
-                    for="inlineRadio1"
+                  class="form-check-label"
+                  for="inlineRadio1"
                 >{{ value }}</label>
               </div>
             </div>
@@ -209,23 +209,23 @@
 
           <div v-else-if="criteria.type === 'TEXT_LARGE'">
             <textarea
-                v-model="negotiationCriteria[section.name][criteria.name]"
-                :placeholder="criteria.description"
-                class="form-control text-secondary-text"
-                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                :required="criteria.required"
+              v-model="negotiationCriteria[section.name][criteria.name]"
+              :placeholder="criteria.description"
+              class="form-control text-secondary-text"
+              :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+              :required="criteria.required"
             />
           </div>
 
           <div v-else-if="criteria.type === 'NUMBER'" class="col-5">
             <input
-                v-model="negotiationCriteria[section.name][criteria.name]"
-                :type="criteria.type"
-                :placeholder="criteria.description"
-                class="form-control text-secondary-text"
-                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                :required="criteria.required"
-                @keypress="isNumber($event)"
+              v-model="negotiationCriteria[section.name][criteria.name]"
+              :type="criteria.type"
+              :placeholder="criteria.description"
+              class="form-control text-secondary-text"
+              :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+              :required="criteria.required"
+              @keypress="isNumber($event)"
             >
           </div>
 
@@ -234,114 +234,113 @@
               Uploaded file: {{ negotiationCriteria[section.name][criteria.name].name }}
             </label>
             <input
-                accept=".pdf"
-                class="form-control text-secondary-text"
-                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                :required="criteria.required"
-                :placeholder="criteria.description"
-                :type="criteria.type"
-                @change="handleFileUpload($event, section.name, criteria.name)"
+              accept=".pdf"
+              class="form-control text-secondary-text"
+              :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+              :required="criteria.required"
+              :placeholder="criteria.description"
+              :type="criteria.type"
+              @change="handleFileUpload($event, section.name, criteria.name)"
             >
           </div>
 
           <div
-              v-else-if="criteria.type === 'DATE'"
-              class="w-25"
+            v-else-if="criteria.type === 'DATE'"
+            class="w-25"
           >
             <p
-                v-if="criteria.description"
-                class="text-muted"
+              v-if="criteria.description"
+              class="text-muted"
             >
               {{ criteria.description }}
             </p>
             <input
-                id="startDate"
-                v-model="negotiationCriteria[section.name][criteria.name]"
-                value=""
-                class="form-control form-control-sm"
-                :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
-                type="date"
+              id="startDate"
+              v-model="negotiationCriteria[section.name][criteria.name]"
+              value=""
+              class="form-control form-control-sm"
+              :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid': ''"
+              type="date"
             >
           </div>
 
           <div v-else-if="criteria.type === 'INFORMATION'">
             <p
-                v-if="criteria.description"
-                class="text-muted"
+              v-if="criteria.description"
+              class="text-muted"
             >
               {{ criteria.description }}
             </p>
           </div>
 
           <input
-              v-else
-              v-model="negotiationCriteria[section.name][criteria.name]"
-              :type="criteria.type"
-              :placeholder="criteria.description"
-              class="form-control text-secondary-text"
-              :required="criteria.required"
+            v-else
+            v-model="negotiationCriteria[section.name][criteria.name]"
+            :type="criteria.type"
+            :placeholder="criteria.description"
+            class="form-control text-secondary-text"
+            :required="criteria.required"
           >
 
           <div
-              v-if="validationColorHighlight.includes(criteria.name)"
-              class="invalidText"
+            v-if="validationColorHighlight.includes(criteria.name)"
+            class="invalidText"
           >
             {{ transformMessage(criteria.type) }}
           </div>
           <div
-              v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'"
-              class="mt-2"
+            v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'"
+            class="mt-2"
           >
             <span class="text-muted"> External Documentation - </span>
             <a
-                :href="negotiationValueSets[criteria.id]?.externalDocumentation"
-                :style="{ 'color':uiConfiguration?.linksTextColor }"
+              :href="negotiationValueSets[criteria.id]?.externalDocumentation"
+              :style="{ 'color':uiConfiguration?.linksTextColor }"
             >
-              {{ negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
+            {{ negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
           </div>
         </div>
       </tab-content>
       <tab-content
-          title="Overview"
-          class="form-step overflow-auto"
+        title="Overview"
+        class="form-step overflow-auto"
       >
         <div
-            class="border rounded-2 input-group p-3 mb-2 mb-3"
+          class="border rounded-2 input-group p-3 mb-2 mb-3"
         >
           <span
-              class="mb-3 fs-4 fw-bold"
-              :style="{'color': uiConfiguration?.primaryTextColor}"
+            class="mb-3 fs-4 fw-bold"
+            :style="{'color': uiConfiguration?.primaryTextColor}"
           >
             Overview*
           </span>
           <span :style="{'color': uiConfiguration?.secondaryTextColor}">Upon confirmation, your request will undergo content review. Our reviewers may contact you via email for further details. Upon approval, the respective biobanks you wish to contact will be notified of your request. Please click 'Submit request' and then 'Confirm' to proceed.</span>
         </div>
         <div
-            v-for="section in accessForm.sections"
-            :key="section.name"
-            class="border rounded-2 input-group p-3 mb-2 mb-3"
+          v-for="section in accessForm.sections"
+          :key="section.name"
+          class="border rounded-2 input-group p-3 mb-2 mb-3"
         >
           <span
-              class="mb-3 fs-4 fw-bold"
-              :style="{'color': uiConfiguration?.primaryTextColor}"
+            class="mb-3 fs-4 fw-bold"
+            :style="{'color': uiConfiguration?.primaryTextColor}"
           >{{ section.label.toUpperCase() }}</span>
           <div
-              v-for="accessFormElement in section.elements"
-              :key="accessFormElement.name"
-              class="input-group mb-2"
+            v-for="accessFormElement in section.elements"
+            :key="accessFormElement.name"
+            class="input-group mb-2"
           >
-            <label class="me-2 fw-bold" :style="{'color': uiConfiguration?.primaryTextColor}">{{
-                accessFormElement.label
+            <label class="me-2 fw-bold" :style="{'color': uiConfiguration?.primaryTextColor}">{{ accessFormElement.label
               }}:</label>
             <span v-if="isAttachment(negotiationCriteria[section.name][accessFormElement.name])"
                   :style="{'color': uiConfiguration?.secondaryTextColor}">
-              <span v-if="negotiationCriteria[section.name][accessFormElement.name].name">{{
-                  negotiationCriteria[section.name][accessFormElement.name].name
+              <span
+                v-if="negotiationCriteria[section.name][accessFormElement.name].name">{{ negotiationCriteria[section.name][accessFormElement.name].name
                 }}</span>
               <div
-                  v-for="(choice,index) in negotiationCriteria[section.name][accessFormElement.name]"
-                  v-else
-                  :key="index"
+                v-for="(choice,index) in negotiationCriteria[section.name][accessFormElement.name]"
+                v-else
+                :key="index"
               >{{ choice }}</div>
             </span>
             <span v-else :style="{'color': uiConfiguration?.secondaryTextColor}">
@@ -353,20 +352,20 @@
       <template #footer="props">
         <div class="wizard-footer-left">
           <button
-              v-if="props.activeTabIndex > 0"
-              type="button"
-              class="btn"
-              :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
-              @click="props.prevTab()"
+            v-if="props.activeTabIndex > 0"
+            type="button"
+            class="btn"
+            :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
+            @click="props.prevTab()"
           >
             Previous
           </button>
         </div>
         <div class="wizard-footer-right">
           <button
-              class="btn"
-              @click="props.nextTab()"
-              :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
+            class="btn"
+            @click="props.nextTab()"
+            :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
           >
             {{ props.isLastStep ? "Submit request" : "Next" }}
           </button>
@@ -377,16 +376,16 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, onMounted, ref} from "vue"
-import {Tooltip} from "bootstrap"
-import {useRouter} from "vue-router"
+import { ref, computed, onBeforeMount, onMounted } from 'vue'
+import { Tooltip } from 'bootstrap'
+import { useRouter } from 'vue-router'
 import ConfirmationModal from "@/components/modals/ConfirmationModal.vue"
 import ResourcesList from "@/components/ResourcesList.vue"
-import {FormWizard, TabContent} from "vue3-form-wizard"
-import {useNegotiationFormStore} from "../store/negotiationForm"
-import {useNotificationsStore} from "../store/notifications"
-import {useUiConfiguration} from '@/store/uiConfiguration.js'
-import {useNegotiationPageStore} from "../store/negotiationPage.js"
+import { FormWizard, TabContent } from 'vue3-form-wizard'
+import { useNegotiationFormStore } from '../store/negotiationForm'
+import { useNotificationsStore } from '../store/notifications'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import "vue3-form-wizard/dist/style.css"
 
 const uiConfigurationStore = useUiConfiguration()
@@ -437,8 +436,8 @@ onBeforeMount(async () => {
     negotiation = await negotiationPageStore.retrieveNegotiationById(props.requestId)
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
-  }
-
+  }  
+  
   if (result.code) {
     if (result.code === 404) {
       showNotification("Error", "Request not found")
@@ -507,8 +506,8 @@ async function startNegotiation() {
 
 function startModal() {
   showNotification(
-      "Confirm submission",
-      "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed."
+    'Confirm submission',
+    'You will be redirected to the negotiation page where you can monitor the status. Click \'Confirm\' to proceed.'
   )
 }
 
@@ -612,9 +611,9 @@ function translateTrueFalse(value) {
 function isNumber(evt) {
   const charCode = evt.which ? evt.which : evt.keyCode
   if (
-      charCode > 31 &&
-      (charCode < 48 || charCode > 57) &&
-      charCode !== 46
+    charCode > 31 &&
+    (charCode < 48 || charCode > 57) &&
+    charCode !== 46
   ) {
     evt.preventDefault()
   }

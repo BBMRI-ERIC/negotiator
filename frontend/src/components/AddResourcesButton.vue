@@ -1,25 +1,26 @@
 <template>
   <button
-      type="button"
-      class="btn"
-      @click="openModal()"
-      :style="{ 'color': uiConfiguration.primaryTextColor}"
+    type="button"
+    class="btn"
+    @click="openModal()"
+    :style="{ 'color': uiConfiguration.primaryTextColor}"
   >
-    <i class="bi bi-pencil-square"/>
+    <i class="bi bi-pencil-square" />
     Edit
   </button>
   <add-resources-modal
-      id="resourcesModal"
-      :shown="shown"
-      :negotiation-id="props.negotiationId"
-      @confirm="closeModal()"
+    id="resourcesModal"
+    :shown="shown"
+    :negotiation-id="props.negotiationId"
+    @confirm="closeModal()"
   />
 </template>
 <script setup>
-import {computed, ref} from "vue"
+import { computed } from 'vue'
 import AddResourcesModal from "@/components/modals/AddResourcesModal.vue"
-import {Modal} from "bootstrap"
-import {useUiConfiguration} from '@/store/uiConfiguration.js'
+import { Modal } from 'bootstrap'
+import { ref } from 'vue'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const shown = ref(false)

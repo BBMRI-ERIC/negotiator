@@ -1,24 +1,24 @@
 <template>
   <div class="btn-group">
     <b-avatar
-        type="button"
-        :style="{'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important'}"
-        :text="returnAcronymOfName"
-        class="mr-3"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
+      type="button"
+      :style="{'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important'}"
+      :text="returnAcronymOfName"
+      class="mr-3"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
     />
 
     <ul class="dropdown-menu dropdown-menu-end mt-1">
       <li class="container mb-3 mt-2">
         <div class="d-flex flex-row">
           <b-avatar
-              type="button"
-              :style="{'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important'}"
-              :text="returnAcronymOfName"
-              class="me-3 mt-1"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
+            type="button"
+            :style="{'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important'}"
+            :text="returnAcronymOfName"
+            class="me-3 mt-1"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
           />
           <div>
             <div :style="{'color': uiConfiguration?.navbarTextColor}">
@@ -28,7 +28,7 @@
               {{ user.name }}
             </div>
           </div>
-          <i class="bi bi-x ms-2 h4"/>
+          <i class="bi bi-x ms-2 h4" />
         </div>
       </li>
       <li>
@@ -36,33 +36,33 @@
       </li>
       <li>
         <a
-            href="https://profile.aai.lifescience-ri.eu/profile"
-            class="dropdown-item"
-            :style="{'color': uiConfiguration?.navbarTextColor}"
-        > <i class="bi bi-gear"/>
+          href="https://profile.aai.lifescience-ri.eu/profile"
+          class="dropdown-item"
+          :style="{'color': uiConfiguration?.navbarTextColor}"
+        > <i class="bi bi-gear" />
           Profile Settings
         </a>
       </li>
       <li v-if="isRepresentative">
         <a
-            :href="externalLinks.auth_management_link"
-            class="dropdown-item"
-            :style="{'color': uiConfiguration?.navbarTextColor}"
-        > <i class="bi bi-person-gear"/>
+          :href="externalLinks.auth_management_link"
+          class="dropdown-item"
+          :style="{'color': uiConfiguration?.navbarTextColor}"
+        > <i class="bi bi-person-gear" />
           Authorization Settings
         </a>
       </li>
       <li v-if="isAdmin">
         <router-link to="/settings" class="dropdown-item"
                      :style="{'color': uiConfiguration?.navbarTextColor}">
-          <i class="bi bi-sliders"/>
+          <i class="bi bi-sliders" />
           Admin Settings
         </router-link>
       </li>
       <li v-if="isAdmin">
         <router-link to="/ui-configuration" class="dropdown-item"
                      :style="{'color': uiConfiguration?.navbarTextColor}">
-          <i class="bi bi-house-gear"/>
+          <i class="bi bi-house-gear" />
           Admin UI Configuration
         </router-link>
       </li>
@@ -73,14 +73,14 @@
         <a href="https://www.bbmri-eric.eu/wp-content/uploads/AoM_10_8_Access-Policy_FINAL_EU.pdfl"
            class="dropdown-item"
            :style="{'color': uiConfiguration?.navbarTextColor}">
-          <i class="bi bi-shield-lock"/>
+          <i class="bi bi-shield-lock" />
           Privacy Policy
         </a>
       </li>
       <li>
         <a href="https://www.bbmri-eric.eu/services/access-policies/" class="dropdown-item"
            :style="{'color': uiConfiguration?.navbarTextColor}">
-          <i class="bi bi-clipboard-check"/>
+          <i class="bi bi-clipboard-check" />
           Access Policy
         </a>
       </li>
@@ -89,12 +89,12 @@
       </li>
       <li class="text-center sign-out">
         <button
-            class="btn me-2 "
-            aria-current="page"
-            @click.stop.prevent="signOutOidc"
-            :style="{'color': uiConfiguration?.navbarTextColor}"
+          class="btn me-2 "
+          aria-current="page"
+          @click.stop.prevent="signOutOidc"
+          :style="{'color': uiConfiguration?.navbarTextColor}"
         >
-          <i class="bi bi-box-arrow-right"/> Sign Out
+          <i class="bi bi-box-arrow-right" /> Sign Out
         </button>
       </li>
     </ul>
@@ -102,17 +102,17 @@
 </template>
 
 <script setup>
-import {computed} from "vue"
+import { computed } from 'vue'
 import externalLinks from "@/config/externalLinks"
-import {useOidcStore} from "@/store/oidc";
-import {useUiConfiguration} from '../store/uiConfiguration.js'
+import { useOidcStore } from '@/store/oidc'
+import { useUiConfiguration } from '../store/uiConfiguration.js'
 
 const oidcStore = useOidcStore()
 
 const props = defineProps({
   user: {
     type: Object,
-    default: {}
+    default: () => ({})
   },
   isAdmin: {
     type: Boolean,
@@ -157,7 +157,6 @@ function signOutOidc() {
   height: 50px;
   border-radius: 50%;
 }
-
 .sign-out:hover {
   color: #dc3545;
 }

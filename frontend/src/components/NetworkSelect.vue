@@ -18,30 +18,29 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from "vue"
+import { ref, onMounted } from 'vue'
 
 const emit = defineEmits(["userNetworksSelected", "userNetworksSelectedName"])
 
 const props = defineProps({
   userNetworks: {
     type: Array,
-    default: []
+    default: () => ([])
   }
 })
 
 const userNetworksSelected = ref("")
 onMounted(() => {
   userNetworksSelected.value = props.userNetworks[0].id
-  emit("userNetworksSelected", props.userNetworks[0].id)
-  emit("userNetworksSelectedName", props.userNetworks[0].name)
+  emit('userNetworksSelected', props.userNetworks[0].id)
+  emit('userNetworksSelectedName', props.userNetworks[0].name)
 })
 
 function emitUserNetworksSelected() {
-  emit("userNetworksSelected", userNetworksSelected.value)
+  emit('userNetworksSelected', userNetworksSelected.value)
 }
-
 function emitUserNetworksSelectedName(name) {
-  emit("userNetworksSelectedName", name)
+  emit('userNetworksSelectedName', name)
 }
 
 function isChecked(value) {

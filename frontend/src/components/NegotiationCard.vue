@@ -5,13 +5,13 @@
         {{ title }}
         <h6 class="float-end">
           <span
-              :class="getBadgeColor(status)"
-              class="badge"
-              style="width: 125px;"
+            :class="getBadgeColor(status)"
+            class="badge"
+            style="width: 125px;"
           >
             <i
-                :class="getBadgeIcon(status)"
-                class="px-1"
+              :class="getBadgeIcon(status)"
+              class="px-1"
             />
             {{ transformStatus(status) }}
           </span>
@@ -33,11 +33,11 @@
 </template>
 
 <script setup>
-import {computed} from "vue"
-import {getBadgeColor, getBadgeIcon, transformStatus} from "../composables/utils.js"
-import {useUiConfiguration} from '../store/uiConfiguration.js'
+import { computed } from 'vue'
+import { transformStatus, getBadgeColor, getBadgeIcon } from '../composables/utils.js'
+import { useUiConfiguration } from '../store/uiConfiguration.js'
 
-const props = defineProps({
+defineProps({
   id: {
     type: String,
     default: ""

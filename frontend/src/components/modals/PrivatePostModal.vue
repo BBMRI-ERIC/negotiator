@@ -1,21 +1,21 @@
 <template>
   <NegotiatorModal
-      :id="id"
-      :title="`Resource: ${resourceId}`"
+    :id="id"
+    :title="`Resource: ${resourceId}`"
   >
     <template #body>
       <NegotiationPosts
-          :negotiation="negotiation"
-          :user-role="userRole"
-          scope="private"
-          :resource-id="resourceId"
+        :negotiation="negotiation"
+        :user-role="userRole"
+        scope="private"
+        :resource-id="resourceId"
       />
     </template>
     <template #footer>
       <button
-          type="button"
-          class="btn btn-info"
-          data-bs-dismiss="modal"
+        type="button"
+        class="btn btn-info"
+        data-bs-dismiss="modal"
       >
         Close
       </button>

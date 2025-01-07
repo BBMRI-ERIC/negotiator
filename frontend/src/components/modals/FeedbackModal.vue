@@ -1,8 +1,8 @@
 <template>
   <NegotiatorModal
-      :id="id"
-      :title="title"
-      :fade="fade"
+    :id="id"
+    :title="title"
+    :fade="fade"
   >
     <template #body>
       <p>
@@ -11,10 +11,10 @@
     </template>
     <template #footer>
       <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal"
-          @click="emitDismiss"
+        type="button"
+        class="btn btn-secondary"
+        data-bs-dismiss="modal"
+        @click="emitDismiss"
       >
         {{ dismissButtonText }}
       </button>

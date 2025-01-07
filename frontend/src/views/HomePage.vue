@@ -1,29 +1,29 @@
 <template>
   <div
-      v-if="!oidcIsAuthenticated || isUiConfigActive"
-      class="container-fluid d-flex justify-content-center align-items-center vh-100"
-      :class="isUiConfigActive ? '' : 'mt-5'"
+    v-if="!oidcIsAuthenticated || isUiConfigActive"
+    class="container-fluid d-flex justify-content-center align-items-center vh-100"
+    :class="isUiConfigActive ? '' : 'mt-5'"
   >
     <div class="row">
-      <div class="col-1"/>
+      <div class="col-1" />
       <div
-          class="col-sm-10"
+        class="col-sm-10"
       >
         <div
-            class="card py-5 p-3"
-            :style="{'background-color': uiConfiguration?.logincardColor}"
+          class="card py-5 p-3"
+          :style="{'background-color': uiConfiguration?.logincardColor}"
         >
           <div class="col-10 col-md-4 align-self-center">
             <img
-                :src="returnLogoSrc"
-                class="img-fluid mt-4 mb-2"
-                style="min-width: 50px;"
-                alt="home-page-logo"
+              :src="returnLogoSrc"
+              class="img-fluid mt-4 mb-2"
+              style="min-width: 50px;"
+              alt="home-page-logo"
             >
           </div>
           <h1
-              class="text-center card-title fw-bold mb-5"
-              :style="{'color':uiConfiguration?.loginNegotiatorTextColor}"
+            class="text-center card-title fw-bold mb-5"
+            :style="{'color':uiConfiguration?.loginNegotiatorTextColor}"
           >
             <b>NEGOTIATOR</b>
           </h1>
@@ -33,18 +33,18 @@
               Choose how to log in
             </h4>
             <div
-                class="d-grid mx-3 mb-5"
+              class="d-grid mx-3 mb-5"
             >
               <button
-                  class="btn btn-outline-light"
-                  @click.stop.prevent="authenticateOidc"
+                class="btn btn-outline-light"
+                @click.stop.prevent="authenticateOidc"
               >
                 <img
-                    width="28"
-                    height="23"
-                    class="float-center mb-1 pe-2"
-                    src="../assets/images/ls-aai-logo.png"
-                    alt="icon"
+                  width="28"
+                  height="23"
+                  class="float-center mb-1 pe-2"
+                  src="../assets/images/ls-aai-logo.png"
+                  alt="icon"
                 >
                 <span class="align-self-center pe-4"
                       :style="{'color':uiConfiguration?.loginTextColor}">
@@ -54,8 +54,8 @@
           </div>
         </div>
         <div
-            class="text-center mt-2 mb-2"
-            :style="{'color':uiConfiguration?.loginLinksTextColor}">
+          class="text-center mt-2 mb-2"
+          :style="{'color':uiConfiguration?.loginLinksTextColor}">
           Not familiar with LS Login? Visit their <a
             :style="{'color':uiConfiguration?.loginLinksColor}"
             target="_blank"
@@ -63,37 +63,37 @@
         >Website</a>.
         </div>
         <div class="text-center col mb-2">
-          <i class="bi bi-github me-1"/>
+          <i class="bi bi-github me-1" />
           <a href="https://github.com/BBMRI-ERIC/negotiator-v3-frontend"
              :style="{'color':uiConfiguration?.loginLinksColor}">GitHub UI</a>
           <span class="ms-2">
-            <i class="bi bi-github me-1"/>
+            <i class="bi bi-github me-1" />
             <a href="https://github.com/BBMRI-ERIC/negotiator" :style="{'color':uiConfiguration?.loginLinksColor}">GitHub Application</a>
           </span>
         </div>
         <div
-            class="text-center mt-2 mb-2"
+          class="text-center mt-2 mb-2"
         >
           <a
-              href="/api/swagger-ui/index.html"
-              :style="{'color':uiConfiguration?.loginLinksColor}"
+            href="/api/swagger-ui/index.html"
+            :style="{'color':uiConfiguration?.loginLinksColor}"
           >
-            <i class="bi bi-braces-asterisk text-primary-text"/>
+            <i class="bi bi-braces-asterisk text-primary-text" />
             API
           </a>
           <a
-              href="https://status.bbmri-eric.eu/"
-              class="ps-2"
-              :style="{'color':uiConfiguration?.loginLinksColor}"
+            href="https://status.bbmri-eric.eu/"
+            class="ps-2"
+            :style="{'color':uiConfiguration?.loginLinksColor}"
           >
-            <i class="bi bi-check-circle text-primary-text"/>
+            <i class="bi bi-check-circle text-primary-text" />
             BBMRI-ERIC Status page
           </a>
         </div>
         <div class="text-center mb-2"
              :style="{'color':uiConfiguration?.loginLinksTextColor}">
           Need help? <a
-            :style="{'color':uiConfiguration?.loginLinksColor}"
+          :style="{'color':uiConfiguration?.loginLinksColor}"
             href="mailto:negotiator@helpdesk.bbmri-eric.eu"
         >Contact us</a>.
         </div>
@@ -119,14 +119,14 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, ref} from "vue"
+import { ref, onBeforeMount, computed } from 'vue'
 import bbmriLogo from "../assets/images/bbmri/home-bbmri.png"
 import eucaimLogo from "../assets/images/eucaim/home-eucaim.png"
 import canservLogo from "../assets/images/canserv/home-canserv.png"
-import {useRouter} from "vue-router"
-import {useActuatorInfoStore} from "../store/actuatorInfo.js"
-import {useOidcStore} from "../store/oidc.js"
-import {useUiConfiguration} from '../store/uiConfiguration.js'
+import { useRouter } from 'vue-router'
+import { useActuatorInfoStore } from '../store/actuatorInfo.js'
+import { useOidcStore } from '../store/oidc.js'
+import { useUiConfiguration } from '../store/uiConfiguration.js'
 
 const props = defineProps({
   isUiConfigActive: {

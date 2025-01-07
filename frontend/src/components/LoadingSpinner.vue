@@ -1,11 +1,11 @@
 <template>
   <div
-      class="d-flex justify-content-center flex-row"
+    class="d-flex justify-content-center flex-row"
   >
     <div class="d-flex justify-content-center">
       <div
-          class="spinner-border d-flex justify-content-center "
-          role="status"
+        class="spinner-border d-flex justify-content-center "
+        role="status"
       />
       <div class="d-flex justify-content-center">
         <h4 class="mb-3 ms-3">

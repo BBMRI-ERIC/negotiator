@@ -1,14 +1,14 @@
 <template>
   <div
-      class="border rounded d-flex p-2 w-50"
+    class="border rounded d-flex p-2 w-50"
   >
     <div
-        id="file-type"
-        class="me-2"
+      id="file-type"
+      class="me-2"
     >
       <i
-          class="fs-2 bi"
-          :class="getFileTypeIconClass(contentType)"
+        class="fs-2 bi"
+        :class="getFileTypeIconClass(contentType)"
       />
     </div>
     <div id="file-info">
@@ -18,31 +18,30 @@
       </div>
     </div>
     <div
-        v-if="!downloadable"
-        id="file-reset"
-        class="ms-auto"
+      v-if="!downloadable"
+      id="file-reset"
+      class="ms-auto"
     >
       <button
-          type="button"
-          class="btn-close"
-          @click.prevent="$emit('removed')"
+        type="button"
+        class="btn-close"
+        @click.prevent="$emit('removed')"
       />
     </div>
     <div
-        v-if="downloadable"
-        class="ms-auto align-self-center pe-2 cursor-pointer"
+      v-if="downloadable"
+      class="ms-auto align-self-center pe-2 cursor-pointer"
     >
       <i
-          class="bi bi-download"
-          @click="$emit('download')"
+        class="bi bi-download"
+        @click="$emit('download')"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import {computed} from "vue"
-
+import { computed } from 'vue'
 const props = defineProps({
   id: {
     type: String,
@@ -62,8 +61,6 @@ const props = defineProps({
     required: true
   }
 })
-
-const emit = defineEmits(["removed", "download"])
 
 const downloadable = computed(() => {
   return props.id !== undefined
@@ -89,11 +86,11 @@ function getHumanFileSize(bytes, dp = 1) {
 
 function getFileTypeIconClass(fileType) {
   if (fileType === "application/pdf") {
-    return {"bi-file-pdf": true}
+    return { 'bi-file-pdf': true }
   } else if (["application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword"].includes(fileType)) {
-    return {"bi-file-word": true}
+    return { 'bi-file-word': true }
   } else {
-    return {"bi-file-earmark": true}
+    return { 'bi-file-earmark': true }
   }
 }
 
@@ -105,9 +102,5 @@ function getFileTypeName(fileType) {
   } else if (fileType === "application/msword") {
     return "DOC"
   }
-}
-
-function emitRemoved() {
-  emit("removed")
 }
 </script>

@@ -96,7 +96,6 @@ jobs:
           name: build
 
       - name: Lint
-        working-directory: frontend
         run: yarn --cwd frontend eslint src
 
 

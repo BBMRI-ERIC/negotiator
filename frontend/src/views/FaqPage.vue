@@ -14,9 +14,9 @@
           </h5>
           <div class="mt-4">
             <a
-                href="mailto:negotiator@helpdesk.bbmri-eric.eu"
-                class="link-underline link-underline-opacity-0"
-                :style="{'color': uiConfiguration?.linksColor}"
+              href="mailto:negotiator@helpdesk.bbmri-eric.eu"
+              class="link-underline link-underline-opacity-0"
+              :style="{'color': uiConfiguration?.linksColor}" 
             ><i class="bi bi-envelope-at"/> Email</a>
           </div>
         </div>
@@ -34,10 +34,10 @@
           </h5>
           <div class="mt-4">
             <a
-                href="https://forms.office.com/e/Z3EvCnp6cw"
-                :style="{'color': uiConfiguration?.linksColor}"
+              href="https://forms.office.com/e/Z3EvCnp6cw"
+              :style="{'color': uiConfiguration?.linksColor}" 
             >
-              <i class="bi bi-box-arrow-up-right"/>
+              <i class="bi bi-box-arrow-up-right" />
               Feedback form
             </a>
           </div>
@@ -53,28 +53,28 @@
       </h5>
       <div class="card-body">
         <div
-            id="accordionExample"
-            class="accordion"
+          id="accordionExample"
+          class="accordion"
         >
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button
-                  class="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseOne"
-                  aria-expanded="false"
-                  aria-controls="collapseOne"
-                  :style="{'color': uiConfiguration?.primaryTextColor}"
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseOne"
+                aria-expanded="false"
+                aria-controls="collapseOne"
+                :style="{'color': uiConfiguration?.primaryTextColor}"
               >
                 I want direct communication with the biobanks to align my needs with their possibilities.
               </button>
             </h2>
             <div
-                id="collapseOne"
-                class="accordion-collapse collapse"
-                data-bs-parent="#accordionExample"
-                :style="{'color': uiConfiguration?.secondaryTextColor}"
+              id="collapseOne"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+              :style="{'color': uiConfiguration?.secondaryTextColor}"
             >
               <div class="accordion-body">
                 BBMRI-ERIC provides its Negotiator as a platform to support researchers and biobankers in the complex
@@ -89,22 +89,22 @@
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button
-                  class="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseTwo"
-                  aria-expanded="false"
-                  aria-controls="collapseTwo"
-                  :style="{'color': uiConfiguration?.primaryTextColor}"
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo"
+                aria-expanded="false"
+                aria-controls="collapseTwo"
+                :style="{'color': uiConfiguration?.primaryTextColor}"
               >
                 I want to browse all biobanks in the BBMRI-ERIC.
               </button>
             </h2>
             <div
-                id="collapseTwo"
-                class="accordion-collapse collapse"
-                data-bs-parent="#accordionExample"
-                :style="{'color': uiConfiguration?.secondaryTextColor}"
+              id="collapseTwo"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+              :style="{'color': uiConfiguration?.secondaryTextColor}"
             >
               <div class="accordion-body">
                 The Directory is a broad catalogue of our biobanks with aggregated information on their collections. You
@@ -115,22 +115,22 @@
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button
-                  class="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseThree"
-                  aria-expanded="false"
-                  aria-controls="collapseThree"
-                  :style="{'color': uiConfiguration?.primaryTextColor}"
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseThree"
+                aria-expanded="false"
+                aria-controls="collapseThree"
+                :style="{'color': uiConfiguration?.primaryTextColor}"
               >
                 I need tissue and liquid samples fitting to my research scope.
               </button>
             </h2>
             <div
-                id="collapseThree"
-                class="accordion-collapse collapse"
-                data-bs-parent="#accordionExample"
-                :style="{'color': uiConfiguration?.secondaryTextColor}"
+              id="collapseThree"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+              :style="{'color': uiConfiguration?.secondaryTextColor}"
             >
               <div class="accordion-body">
                 The Locator is your access to the samples and data associated to the samples based on real-time search
@@ -141,22 +141,22 @@
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button
-                  class="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseFour"
-                  aria-expanded="false"
-                  aria-controls="collapseFour"
-                  :style="{'color': uiConfiguration?.primaryTextColor}"
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFour"
+                aria-expanded="false"
+                aria-controls="collapseFour"
+                :style="{'color': uiConfiguration?.primaryTextColor}"
               >
                 I am interested more in genomics and population data analysis than samples themselves.
               </button>
             </h2>
             <div
-                id="collapseFour"
-                class="accordion-collapse collapse"
-                data-bs-parent="#accordionExample"
-                :style="{'color': uiConfiguration?.secondaryTextColor}"
+              id="collapseFour"
+              class="accordion-collapse collapse"
+              data-bs-parent="#accordionExample"
+              :style="{'color': uiConfiguration?.secondaryTextColor}"
             >
               <div class="accordion-body">
                 The Finder is a data analysis tool focused on clinical, phenotypic and genomics data.
@@ -185,8 +185,7 @@
           </h5>
           <div class="mt-4">
             <a href="https://www.bbmri-eric.eu/services/sample-negotiator/"
-               :style="{'color': uiConfiguration?.linksColor}"> <i class="bi bi-box-arrow-up-right"/> Go to learn
-              page</a>
+               :style="{'color': uiConfiguration?.linksColor}"> <i class="bi bi-box-arrow-up-right" /> Go to learn page</a>
           </div>
         </div>
       </div>
@@ -202,9 +201,9 @@
             Information about the Federated Platform and its advanced services such as the federated search or data
             analysis platform.
           </h5>
-          <div class="mt-5"/>
+          <div class="mt-5" />
           <a href="https://www.bbmri-eric.eu/federated-platform/" :style="{'color': uiConfiguration?.linksColor}"> <i
-              class="bi bi-box-arrow-up-right"/> Go to Federated Platform page</a>
+            class="bi bi-box-arrow-up-right" /> Go to Federated Platform page</a>
         </div>
       </div>
     </div>
@@ -218,9 +217,9 @@
           <h5 class="card-title">
             Information about the BBMRI-ERIC access pipeline helping expedite access to samples and data.
           </h5>
-          <div class="mt-4"/>
+          <div class="mt-4" />
           <a href="https://www.bbmri-eric.eu/bbmri-sample-and-data-portal/"
-             :style="{'color': uiConfiguration?.linksColor}"><i class="bi bi-box-arrow-up-right"/> Go to BBMRI-ERIC
+             :style="{'color': uiConfiguration?.linksColor}"><i class="bi bi-box-arrow-up-right" /> Go to BBMRI-ERIC
             Sample and Data portal page</a>
         </div>
       </div>
@@ -229,9 +228,9 @@
 </template>
 
 <script setup>
-import {computed, onMounted} from "vue"
-import {useUserStore} from "../store/user"
-import {useUiConfiguration} from '@/store/uiConfiguration.js'
+import { onMounted, computed } from 'vue'
+import { useUserStore } from '../store/user'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const userStore = useUserStore()

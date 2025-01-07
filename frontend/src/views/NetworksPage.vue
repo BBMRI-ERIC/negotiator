@@ -3,7 +3,7 @@
     <div class="container">
       <div class="organization-details">
         <div class="avatar">
-          <i class="bi bi-people-fill mt-2"/>
+          <i class="bi bi-people-fill mt-2" />
         </div>
         <div class="organization-info ms-3">
           <h1 class="h2 lh-condensed">
@@ -11,21 +11,21 @@
           </h1>
           <ul class="list-style-none">
             <li>
-              <i class="bi bi-globe"/>
+              <i class="bi bi-globe" />
               <a
-                  :href="network.uri"
-                  class="ms-2"
+                :href="network.uri"
+                class="ms-2"
               >{{ network.uri }}</a>
             </li>
             <li>
-              <i class="bi bi-envelope"/>
+              <i class="bi bi-envelope" />
               <a
-                  :href="'mailto:' + network.contactEmail"
-                  class="ms-2"
+                :href="'mailto:' + network.contactEmail"
+                class="ms-2"
               >{{ network.contactEmail }}</a>
             </li>
             <li>
-              <i class="bi bi-clipboard"/>
+              <i class="bi bi-clipboard" />
               <div class="text-muted ms-2 text-nowrap">
                 {{ network.externalId }}
               </div>
@@ -37,29 +37,29 @@
       <ul class="nav nav-tabs">
         <li class="nav-item tab cursor-pointer">
           <a
-              class="nav-link"
-              :class="{ active: currentTab === 'overview' }"
-              @click="currentTab = 'overview'"
+            class="nav-link"
+            :class="{ active: currentTab === 'overview' }"
+            @click="currentTab = 'overview'"
           >
             Overview
           </a>
         </li>
         <li class="nav-item tab cursor-pointer">
           <a
-              class="nav-link"
-              :class="{ active: currentTab === 'negotiations' }"
-              @click="currentTab = 'negotiations'"
+            class="nav-link"
+            :class="{ active: currentTab === 'negotiations' }"
+            @click="currentTab = 'negotiations'"
           >
             Negotiations
           </a>
         </li>
       </ul>
       <div
-          v-if="currentTab === 'overview'"
-          class="mb-4"
+        v-if="currentTab === 'overview'"
+        class="mb-4"
       >
         <h4 class="mb-4 mt-5">
-          <i class="bi bi-graph-up"/>
+          <i class="bi bi-graph-up" />
           Insights
         </h4>
         <p class="text-muted">
@@ -71,27 +71,27 @@
           <div class="mb-4">
             <div class="form-group d-inline-block mr-3">
               <label
-                  for="startDate"
-                  class="form-label"
+                for="startDate"
+                class="form-label"
               >Start Date:</label>
               <input
-                  id="startDate"
-                  v-model="startDate"
-                  type="date"
-                  class="form-control"
+                id="startDate"
+                v-model="startDate"
+                type="date"
+                class="form-control"
               >
             </div>
 
             <div class="form-group d-inline-block mx-4">
               <label
-                  for="endDate"
-                  class="form-label"
+                for="endDate"
+                class="form-label"
               >End Date:</label>
               <input
-                  id="endDate"
-                  v-model="endDate"
-                  type="date"
-                  class="form-control"
+                id="endDate"
+                v-model="endDate"
+                type="date"
+                class="form-control"
               >
             </div>
           </div>
@@ -106,8 +106,8 @@
                 Requests
               </h4>
               <i
-                  class="bi bi-info-circle ml-2 small-icon"
-                  title="States of different Negotiations involving Resources in this Network"
+                class="bi bi-info-circle ml-2 small-icon"
+                title="States of different Negotiations involving Resources in this Network"
               />
             </div>
 
@@ -118,12 +118,12 @@
 
             <!-- Pie Chart Section -->
             <div
-                v-if="stats"
-                class="pie-chart-container"
+              v-if="stats"
+              class="pie-chart-container"
             >
               <Pie
-                  :data="pieData"
-                  :options="pieOptions"
+                :data="pieData"
+                :options="pieOptions"
               />
             </div>
           </div>
@@ -138,8 +138,8 @@
                 Additional Information
               </h4>
               <i
-                  class="bi bi-info-circle ml-2 small-icon"
-                  title="Additional statistics related to negotiations"
+                class="bi bi-info-circle ml-2 small-icon"
+                title="Additional statistics related to negotiations"
               />
             </div>
 
@@ -150,8 +150,8 @@
                   <div class="stat-label">
                     <span>Ignored Negotiations</span>
                     <i
-                        class="bi bi-info-circle small-icon"
-                        title="The number of negotiations that were ignored"
+                      class="bi bi-info-circle small-icon"
+                      title="The number of negotiations that were ignored"
                     />
                   </div>
                   <h5>{{ stats.numberOfIgnoredNegotiations }}</h5>
@@ -163,8 +163,8 @@
                   <div class="stat-label">
                     <span>Median Response Time</span>
                     <i
-                        class="bi bi-info-circle small-icon"
-                        title="Median time taken for negotiations to receive responses"
+                      class="bi bi-info-circle small-icon"
+                      title="Median time taken for negotiations to receive responses"
                     />
                   </div>
                   <h5 class="text-muted">
@@ -178,8 +178,8 @@
                   <div class="stat-label">
                     <span>Successful Negotiations</span>
                     <i
-                        class="bi bi-info-circle small-icon"
-                        title="The number of successful negotiations"
+                      class="bi bi-info-circle small-icon"
+                      title="The number of successful negotiations"
                     />
                   </div>
                   <h5>{{ stats.numberOfSuccessfulNegotiations }}</h5>
@@ -191,8 +191,8 @@
                   <div class="stat-label">
                     <span>New Requesters</span>
                     <i
-                        class="bi bi-info-circle small-icon"
-                        title="The number of new requesters in this network"
+                      class="bi bi-info-circle small-icon"
+                      title="The number of new requesters in this network"
                     />
                   </div>
                   <h5>{{ stats.numberOfNewRequesters }}</h5>
@@ -204,8 +204,8 @@
                   <div class="stat-label">
                     <span>Active Representatives</span>
                     <i
-                        class="bi bi-info-circle small-icon"
-                        title="The number of active representatives currently in the network"
+                      class="bi bi-info-circle small-icon"
+                      title="The number of active representatives currently in the network"
                     />
                   </div>
                   <h5>{{ stats.numberOfActiveRepresentatives }}</h5>
@@ -217,48 +217,47 @@
       </div>
 
       <div
-          v-else-if="currentTab === 'negotiations'"
-          class="mt-3"
+        v-else-if="currentTab === 'negotiations'"
+        class="mt-3"
       >
         <FilterSort
-            v-if="isLoaded"
-            :user-role="userRole"
-            :filters-status="states"
-            :filters-sort-data="filtersSortData"
-            @filters-sort-data="retrieveLatestNegotiations"
+          v-if="isLoaded"
+          :user-role="userRole"
+          :filters-status="states"
+          v-model:filtersSortData="filtersSortData"
+          @filters-sort-data="retrieveLatestNegotiations"
         />
         <NegotiationList
-            :negotiations="negotiations"
-            :pagination="pagination"
-            :network-activated="true"
-            :filters-sort-data="filtersSortData"
-            @filters-sort-data="retrieveLatestNegotiations"
+          :negotiations="negotiations"
+          :pagination="pagination"
+          :network-activated="true"
+          v-model:filtersSortData="filtersSortData"
+          @filters-sort-data="retrieveLatestNegotiations"
         />
         <NegotiationPagination
-            :negotiations="negotiations"
-            :pagination="pagination"
-            @current-page-number="retrieveLatestNegotiations"
+          :negotiations="negotiations"
+          :pagination="pagination"
+          @current-page-number="retrieveLatestNegotiations"
         />
       </div>
     </div>
   </div>
-  <LoadingSpinner v-else:/>
+  <LoadingSpinner v-else: />
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from "vue"
-import {useNetworksPageStore} from "@/store/networksPage"
+import { onMounted, ref, watch } from 'vue'
+import { useNetworksPageStore } from '@/store/networksPage'
 import LoadingSpinner from "@/components/LoadingSpinner.vue"
-import {useUserStore} from "@/store/user"
+import { useUserStore } from '@/store/user'
 import FilterSort from "@/components/FilterSort.vue"
 import NegotiationList from "@/components/NegotiationList.vue"
 import NegotiationPagination from "@/components/NegotiationPagination.vue"
-import {useNegotiationsStore} from "@/store/negotiations"
-import {Pie} from "vue-chartjs"
-import {ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip} from "chart.js"
-import {getPieChartBackgroundColor} from "../composables/utils.js";
-
+import { useNegotiationsStore } from '@/store/negotiations'
+import { Pie } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController } from 'chart.js'
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
+import { getPieChartBackgroundColor } from '../composables/utils.js'
 
 // Pie chart data
 
@@ -297,8 +296,8 @@ const pieOptions = ref({
   responsive: true,
   plugins: {
     legend: {
-      position: "right",
-      align: "center",
+      position: 'right',
+      align: 'center',
       labels: {
         boxWidth: 20,
         padding: 20
@@ -311,16 +310,16 @@ onMounted(async () => {
 })
 watch(endDate, () => {
   loadStats(props.networkId)
-}, {immediate: true})
+}, { immediate: true })
 watch(startDate, () => {
   loadStats(props.networkId)
-}, {immediate: true})
+}, { immediate: true })
 watch(
-    [network, states, stats],
-    ([newNetwork, newStates, newStats]) => {
-      isLoaded.value = !!(newNetwork && newStates && newStats)
-    },
-    {immediate: true} // Run the watcher immediately on component mount
+  [network, states, stats],
+  ([newNetwork, newStates, newStats]) => {
+    isLoaded.value = !!(newNetwork && newStates && newStats)
+  },
+  { immediate: true } // Run the watcher immediately on component mount
 )
 loadNetworkInfo(props.networkId)
 loadStats(props.networkId)
@@ -329,11 +328,6 @@ retrieveLatestNegotiations()
 
 async function loadNegotiationStates() {
   states.value = await negotiationsStore.retrieveNegotiationLifecycleStates()
-}
-
-function getLabelByValue(value) {
-  const item = states.value.find(entry => entry.value === value)
-  return item ? item.label : null // Returns null if the value is not found
 }
 
 async function loadNetworkInfo(networkId) {
@@ -464,7 +458,6 @@ async function retrieveLatestNegotiations(currentPageNumber) {
 .small-icon {
   font-size: 0.75rem;
 }
-
 .pie-chart-container {
   width: 100%; /* Ensure it fills its container */
   height: 300px; /* Fixed height */

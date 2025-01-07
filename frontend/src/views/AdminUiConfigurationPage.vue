@@ -1,10 +1,10 @@
 <template>
   <confirmation-modal
-      id="saveModal"
-      title="Are you sure you want to save?"
-      text="Confirming, you will change ui-configuration."
-      :message-enabled="false"
-      @confirm="save()"
+    id="saveModal"
+    title="Are you sure you want to save?"
+    text="Confirming, you will change ui-configuration."
+    :message-enabled="false"
+    @confirm="save()"
   />
   <h1 class="mb-5">
     UI Configuration
@@ -14,94 +14,94 @@
       <div class="mb-3 text-left fw-bold h3">
         Theme Settings
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse1"
-            aria-expanded="true"
-            aria-controls="collapse1"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse1"
+          aria-expanded="true"
+          aria-controls="collapse1"
         >
-          <i class="bi bi-arrows-angle-expand"/> collapse/expand
+          <i class="bi bi-arrows-angle-expand" /> collapse/expand
         </button>
       </div>
       <div
-          id="collapse1"
-          class="theme-config row collapse show"
+        id="collapse1"
+        class="theme-config row collapse show"
       >
-        <UiConfigurationSetting v-model="uiConfiguration.theme"/>
+        <UiConfigurationSetting v-model="uiConfiguration.theme" />
       </div>
     </div>
     <div class="nav-bar mb-2">
       <div class="mb-3 text-left fw-bold h3">
         Navbar Settings
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse2"
-            aria-expanded="false"
-            aria-controls="collapse2"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse2"
+          aria-expanded="false"
+          aria-controls="collapse2"
         >
-          <i class="bi bi-arrows-angle-expand"/> expand/collapse
+          <i class="bi bi-arrows-angle-expand" /> expand/collapse
         </button>
       </div>
       <div
-          id="collapse2"
-          class="navbar-config row collapse"
+        id="collapse2"
+        class="navbar-config row collapse"
       >
         <h5 class="mb-3 bold text-muted">
           You can see the changes live in the navbar above!
-          <i class="bi bi-arrow-up"/>
+          <i class="bi bi-arrow-up" />
         </h5>
-        <UiConfigurationSetting v-model="uiConfiguration.navbar"/>
+        <UiConfigurationSetting v-model="uiConfiguration.navbar" />
       </div>
     </div>
     <div class="login mb-2">
       <div class="mb-3 text-left fw-bold h3">
         Login page Settings
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse3"
-            aria-expanded="false"
-            aria-controls="collapse3"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse3"
+          aria-expanded="false"
+          aria-controls="collapse3"
         >
-          <i class="bi bi-arrows-angle-expand"/> expand/collapse
+          <i class="bi bi-arrows-angle-expand" /> expand/collapse
         </button>
       </div>
       <div
-          id="collapse3"
-          class="login-config row collapse"
+        id="collapse3"
+        class="login-config row collapse"
       >
-        <UiConfigurationSetting v-model="uiConfiguration.login"/>
-        <HomePage :is-ui-config-active="true"/>
+        <UiConfigurationSetting v-model="uiConfiguration.login" />
+        <HomePage :is-ui-config-active="true" />
       </div>
     </div>
     <div class="filter mb-2">
       <div class="mb-3 text-left fw-bold h3">
         Filter Sort Settings
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse4"
-            aria-expanded="false"
-            aria-controls="collapse4"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse4"
+          aria-expanded="false"
+          aria-controls="collapse4"
         >
-          <i class="bi bi-arrows-angle-expand"/> expand/collapse
+          <i class="bi bi-arrows-angle-expand" /> expand/collapse
         </button>
       </div>
       <div
-          id="collapse4"
-          class="filter-config row collapse mb-5"
+        id="collapse4"
+        class="filter-config row collapse mb-5"
       >
-        <UiConfigurationSetting v-model="uiConfiguration.filtersSort"/>
+        <UiConfigurationSetting v-model="uiConfiguration.filtersSort" />
         <FilterSort
-            :filters-sort-data="filtersSortData"
-            :user-role="userRole"
-            :filters-status="filtersStatus"
-            @filters-sort-data="retrieveNegotiationsBySortAndFilter"
+          v-model:filtersSortData="filtersSortData"
+          :user-role="userRole"
+          :filters-status="filtersStatus"
+          @filters-sort-data="retrieveNegotiationsBySortAndFilter"
         />
       </div>
     </div>
@@ -109,27 +109,27 @@
       <div class="mb-3 text-left fw-bold h3">
         Negotiation List Settings
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse5"
-            aria-expanded="false"
-            aria-controls="collapse5"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse5"
+          aria-expanded="false"
+          aria-controls="collapse5"
         >
-          <i class="bi bi-arrows-angle-expand"/> expand/collapse
+          <i class="bi bi-arrows-angle-expand" /> expand/collapse
         </button>
       </div>
       <div
-          id="collapse5"
-          class="negotiation-list-config row collapse mb-5"
+        id="collapse5"
+        class="negotiation-list-config row collapse mb-5"
       >
-        <UiConfigurationSetting v-model="uiConfiguration.negotiationList"/>
+        <UiConfigurationSetting v-model="uiConfiguration.negotiationList" />
         <NegotiationList
-            :negotiations="negotiations"
-            :pagination="pagination"
-            :user-role="userRole"
-            :filters-sort-data="filtersSortData"
-            @filters-sort-data="retrieveNegotiationsBySortAndFilter"
+          :negotiations="negotiations"
+          :pagination="pagination"
+          :user-role="userRole"
+          v-model:filtersSortData="filtersSortData"
+          @filters-sort-data="retrieveNegotiationsBySortAndFilter"
         />
       </div>
     </div>
@@ -137,61 +137,61 @@
       <div class="mb-3 text-left fw-bold h3">
         New Request Button
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse6"
-            aria-expanded="false"
-            aria-controls="collapse6"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse6"
+          aria-expanded="false"
+          aria-controls="collapse6"
         >
-          <i class="bi bi-arrows-angle-expand"/> expand/collapse
+          <i class="bi bi-arrows-angle-expand" /> expand/collapse
         </button>
       </div>
       <div
-          id="collapse6"
-          class="new-request-config row collapse"
+        id="collapse6"
+        class="new-request-config row collapse"
       >
-        <UiConfigurationSetting v-model="uiConfiguration.newRequestButton"/>
-        <NewRequestButton v-if="!networkActivated"/>
+        <UiConfigurationSetting v-model="uiConfiguration.newRequestButton" />
+        <NewRequestButton v-if="!networkActivated" />
       </div>
     </div>
     <div class="footer mb-2">
       <div class="mb-3 text-left fw-bold h3">
         Footer Settings
         <button
-            class="btn btn-sm btn-light"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapse7"
-            aria-expanded="false"
-            aria-controls="collapse7"
+          class="btn btn-sm btn-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse7"
+          aria-expanded="false"
+          aria-controls="collapse7"
         >
-          <i class="bi bi-arrows-angle-expand"/> expand/collapse
+          <i class="bi bi-arrows-angle-expand" /> expand/collapse
         </button>
       </div>
       <div
-          id="collapse7"
-          class="footer-config row collapse"
+        id="collapse7"
+        class="footer-config row collapse"
       >
         <h5 class="mb-3 bold text-muted">
           You can see the changes live in the footer below!
-          <i class="bi bi-arrow-down"/>
+          <i class="bi bi-arrow-down" />
         </h5>
-        <UiConfigurationSetting v-model="uiConfiguration.footer"/>
+        <UiConfigurationSetting v-model="uiConfiguration.footer" />
       </div>
     </div>
   </div>
   <div class="sticky-bottom pb-3">
     <button
-        class="btn btn-sm bg-primary sm my-2"
-        @click="restartSettings()"
+      class="btn btn-sm bg-primary sm my-2"
+      @click="restartSettings()"
     >
       <i class="bi bi-arrow-clockwise text-white">Reset to default settings</i>
     </button>
     <button
-        class="btn btn-sm bg-primary sm my-2 float-end"
-        data-bs-toggle="modal"
-        data-bs-target="#saveModal"
+      class="btn btn-sm bg-primary sm my-2 float-end"
+      data-bs-toggle="modal"
+      data-bs-target="#saveModal"
     >
       <i class="bi bi-floppy text-white"> Save Changes </i>
     </button>
@@ -199,9 +199,9 @@
 </template>
 
 <script setup>
-import {computed, ref} from "vue"
+import { computed, ref } from 'vue'
 import UiConfigurationSetting from "../components/UiConfigurationSetting.vue"
-import {useUiConfiguration} from "../store/uiConfiguration.js"
+import { useUiConfiguration } from '../store/uiConfiguration.js'
 import HomePage from "../views/HomePage.vue"
 import FilterSort from "@/components/FilterSort.vue"
 import NegotiationList from "@/components/NegotiationList.vue"
@@ -234,59 +234,59 @@ const filtersStatus = ref([{
   label: "Under review",
   description: "The negotiation has been submitted for review",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/SUBMITTED"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/SUBMITTED' }
   }
 }, {
   value: "APPROVED",
   label: "Approved",
   description: "The negotiation has been approved",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/APPROVED"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/APPROVED' }
   }
 }, {
   value: "DECLINED",
   label: "Declined",
   description: "The negotiation has been declined",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/DECLINED"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/DECLINED' }
   }
 }, {
   value: "IN_PROGRESS",
   label: "In Progress",
   description: "The negotiation is currently in progress",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/IN_PROGRESS"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/IN_PROGRESS' }
   }
 }, {
   value: "ABANDONED",
   label: "Abandoned",
   description: "The negotiation has been abandoned",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/ABANDONED"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/ABANDONED' }
   }
 }, {
   value: "CONCLUDED",
   label: "Concluded",
   description: "The negotiation has been concluded",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/CONCLUDED"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/CONCLUDED' }
   }
 }, {
   value: "PAUSED",
   label: "Paused",
   description: "The negotiation is paused",
   _links: {
-    states: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states"},
-    self: {href: "http://localhost:8081/api/v3/negotiation-lifecycle/states/PAUSED"}
+    states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
+    self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/PAUSED' }
   }
 }])
-const pagination = ref({size: 50, totalElements: 501, totalPages: 10, number: 0})
+const pagination = ref({ size: 50, totalElements: 501, totalPages: 10, number: 0 })
 const negotiations = ref([
   {
     id: "afa2d124-6870-1516-bc1a-d734c4be2617",

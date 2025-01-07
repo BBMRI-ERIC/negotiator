@@ -1,13 +1,13 @@
 <template>
   <div
-      class="modal"
-      :class="{ fade: fade }"
-      tabindex="-1"
-      :aria-labelledby="`${id}Label`"
-      aria-hidden="true"
+    class="modal"
+    :class="{ fade: fade }"
+    tabindex="-1"
+    :aria-labelledby="`${id}Label`"
+    aria-hidden="true"
   >
     <div
-        class="modal-dialog modal-dialog-centered modal-xl"
+      class="modal-dialog modal-dialog-centered modal-xl"
     >
       <div class="modal-content">
         <div class="modal-header">
@@ -15,10 +15,10 @@
             Edit Resources
           </h4>
           <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
           />
         </div>
         <div class="modal-body text-left">
@@ -27,13 +27,13 @@
           </h5>
           <div class="input-group flex-nowrap">
             <input
-                v-model="searchQuery"
-                type="text"
-                class="form-control mb-3"
-                placeholder="Search by name..."
-                aria-label="Search"
-                aria-describedby="addon-wrapping"
-                @input="onSearch"
+              v-model="searchQuery"
+              type="text"
+              class="form-control mb-3"
+              placeholder="Search by name..."
+              aria-label="Search"
+              aria-describedby="addon-wrapping"
+              @input="onSearch"
             >
           </div>
           <div class="d-flex justify-content-between">
@@ -48,19 +48,19 @@
             Status:
             <div class="col-3 ms-2">
               <select
-                  v-model="selectedState"
-                  class="form-select form-select-sm btn-outline-sort-filter-button-outline"
+                v-model="selectedState"
+                class="form-select form-select-sm btn-outline-sort-filter-button-outline"
               >
                 <option
-                    disabled
-                    value=""
+                  disabled
+                  value=""
                 >
                   Select a status...
                 </option>
                 <option
-                    v-for="(state, index) in states"
-                    :key="index"
-                    :value="state"
+                  v-for="(state, index) in states"
+                  :key="index"
+                  :value="state"
                 >
                   {{ state.label }}
                 </option>
@@ -69,12 +69,12 @@
           </div>
           <!-- Loading Spinner -->
           <div
-              v-if="loading"
-              class="text-center my-5"
+            v-if="loading"
+            class="text-center my-5"
           >
             <div
-                class="spinner-border"
-                role="status"
+              class="spinner-border"
+              role="status"
             >
               <span class="visually-hidden">Loading...</span>
             </div>
@@ -83,16 +83,16 @@
             <div class="mb-3 d-flex justify-content-between">
               <div>
                 <input
-                    v-model="selectAll"
-                    type="checkbox"
-                    class="form-check-input"
-                    @change="toggleSelectAll"
+                  v-model="selectAll"
+                  type="checkbox"
+                  class="form-check-input"
+                  @change="toggleSelectAll"
                 >
                 <label class="form-check-label ms-2">Select All</label>
               </div>
               <button
-                  class="btn btn-primary mx-2"
-                  @click="addResources"
+                class="btn btn-primary mx-2"
+                @click="addResources"
               >
                 Add
               </button>
@@ -144,17 +144,17 @@
             <!-- Pagination Controls -->
             <div class="d-flex justify-content-center my-4">
               <button
-                  class="btn btn-secondary me-2"
-                  :disabled="pageNumber === 0"
-                  @click="fetchPage(pageLinks.previous.href)"
+                class="btn btn-secondary me-2"
+                :disabled="pageNumber === 0"
+                @click="fetchPage(pageLinks.previous.href)"
               >
                 Previous
               </button>
               <span class="mx-2">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
               <button
-                  class="btn btn-secondary ms-2"
-                  :disabled="pageNumber === totalPages - 1"
-                  @click="fetchPage(pageLinks.next.href)"
+                class="btn btn-secondary ms-2"
+                :disabled="pageNumber === totalPages - 1"
+                @click="fetchPage(pageLinks.next.href)"
               >
                 Next
               </button>
@@ -166,10 +166,10 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref, watch} from "vue"
-import {Tooltip} from "bootstrap"
+import { onMounted, ref, watch } from 'vue'
+import { Tooltip } from 'bootstrap'
 import debounce from "@popperjs/core/lib/utils/debounce"
-import {useNegotiationPageStore} from "@/store/negotiationPage"
+import { useNegotiationPageStore } from '@/store/negotiationPage'
 
 const resources = ref([])
 const selectedResources = ref([])
@@ -208,7 +208,7 @@ onMounted(() => {
   })
 })
 
-async function loadResources(name = "") {
+async function loadResources(name = '') {
   const response = await store.retrieveAllResources(name)
   resources.value = response?._embedded?.resources ?? []
   pageLinks.value = response._links
@@ -225,7 +225,7 @@ async function loadStates() {
 const emit = defineEmits(["confirm"])
 
 async function addResources() {
-  let data = {resourceIds: selectedResources.value}
+  let data = { resourceIds: selectedResources.value }
   if (selectedState.value) {
     data = {
       resourceIds: selectedResources.value,
@@ -254,7 +254,7 @@ const handleCheckboxChange = () => {
 }
 
 async function fetchPage(url) {
-  const response = await store.dispatch("fetchURL", {url})
+  const response = await store.dispatch('fetchURL', { url })
   resources.value = response._embedded.resources
   pageLinks.value = response._links
   pageNumber.value = response.page.number

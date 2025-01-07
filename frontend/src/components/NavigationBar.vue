@@ -1,95 +1,95 @@
 <template>
   <nav
-      v-if="oidcIsAuthenticated"
-      id="v-step-0"
-      class="navbar fixed-top navbar-expand-lg"
-      :style="{'background-color': uiConfiguration?.navbarBackgroundColor}"
+    v-if="oidcIsAuthenticated"
+    id="v-step-0"
+    class="navbar fixed-top navbar-expand-lg"
+    :style="{'background-color': uiConfiguration?.navbarBackgroundColor}"
   >
     <div class="container-fluid">
       <router-link
-          to="/"
+        to="/"
       >
         <img
-            :src="returnLogoSrc"
-            height="34"
-            class="me-2"
-            alt="nav-bar-logo"
+          :src="returnLogoSrc"
+          height="34"
+          class="me-2"
+          alt="nav-bar-logo"
         >
       </router-link>
       <div
-          id="menu-navbar"
-          class="collapse navbar-collapse"
+        id="menu-navbar"
+        class="collapse navbar-collapse"
       >
         <ul
-            class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
+          class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
         >
           <li
-              v-if="isAdmin"
-              class="nav-item"
+            v-if="isAdmin"
+            class="nav-item"
           >
             <router-link
-                class="nav-link active nav-option"
-                :style="{'color': $route.path === '/admin' || $route.params.userRole === 'ROLE_ADMIN' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
-                to="/admin"
+              class="nav-link active nav-option"
+              :style="{'color': $route.path === '/admin' || $route.params.userRole === 'ROLE_ADMIN' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              to="/admin"
             >
-              <i class="bi bi-clipboard-check"/>
+              <i class="bi bi-clipboard-check" />
               Review requests
             </router-link>
           </li>
           <li
-              v-if="isResearcher"
-              class="nav-item"
+            v-if="isResearcher"
+            class="nav-item"
           >
             <router-link
-                class="nav-link active nav-option"
-                :style="{'color': $route.path === '/researcher' || $route.params.userRole === 'ROLE_RESEARCHER' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
-                to="/researcher"
+              class="nav-link active nav-option"
+              :style="{'color': $route.path === '/researcher' || $route.params.userRole === 'ROLE_RESEARCHER' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              to="/researcher"
             >
-              <i class="bi bi-chat-left-dots"/>
+              <i class="bi bi-chat-left-dots" />
               Your negotiations
             </router-link>
           </li>
           <li
-              v-if="isRepresentative"
-              class="nav-item"
+            v-if="isRepresentative"
+            class="nav-item"
           >
             <router-link
-                class="nav-link active nav-option"
-                :style="{'color': $route.path === '/biobanker' || $route.params.userRole === 'ROLE_REPRESENTATIVE' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
-                to="/biobanker"
+              class="nav-link active nav-option"
+              :style="{'color': $route.path === '/biobanker' || $route.params.userRole === 'ROLE_REPRESENTATIVE' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              to="/biobanker"
             >
-              <i class="bi bi-bank"/>
+              <i class="bi bi-bank" />
               Your biobank
             </router-link>
           </li>
           <li
-              v-if="showNetworksTab"
-              class="nav-item dropdown"
-              :class="{ 'show': dropdownVisible }"
+            v-if="showNetworksTab"
+            class="nav-item dropdown"
+            :class="{ 'show': dropdownVisible }"
           >
             <a
-                id="networksDropdown"
-                class="nav-link active nav-option dropdown-toggle"
-                :style="{'color': $route.path.startsWith('/networks') ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
-                href="#"
-                role="button"
-                @click="toggleDropdown"
+              id="networksDropdown"
+              class="nav-link active nav-option dropdown-toggle"
+              :style="{'color': $route.path.startsWith('/networks') ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              href="#"
+              role="button"
+              @click="toggleDropdown"
             >
-              <i class="bi bi-globe"/>
+              <i class="bi bi-globe" />
               Your networks
             </a>
             <ul
-                class="dropdown-menu dropdown-menu-right"
-                :class="{ 'show': dropdownVisible }"
+              class="dropdown-menu dropdown-menu-right"
+              :class="{ 'show': dropdownVisible }"
             >
               <li
-                  v-for="network in networks"
-                  :key="network.id"
+                v-for="network in networks"
+                :key="network.id"
               >
                 <a
-                    class="dropdown-item"
-                    href="#"
-                    @click="selectNetwork(network.id)"
+                  class="dropdown-item"
+                  href="#"
+                  @click="selectNetwork(network.id)"
                 >
                   {{ network.name }}
                 </a>
@@ -97,58 +97,58 @@
             </ul>
           </li>
           <li
-              v-if="featureFlagsFAQ"
-              class="nav-item"
+            v-if="featureFlagsFAQ"
+            class="nav-item"
           >
             <router-link
-                class="nav-link active nav-option"
-                :style="{'color': $route.path === '/FAQ' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
-                to="/FAQ"
+              class="nav-link active nav-option"
+              :style="{'color': $route.path === '/FAQ' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              to="/FAQ"
             >
-              <i class="bi bi-people"/>
+              <i class="bi bi-people" />
               Support
             </router-link>
           </li>
         </ul>
         <div
-            v-if="oidcIsAuthenticated && returnCurrentMode"
-            class="me-2 me-3"
-            :class="returnCurrentModeTextColor"
+          v-if="oidcIsAuthenticated && returnCurrentMode"
+          class="me-2 me-3"
+          :class="returnCurrentModeTextColor"
         >
           <div
-              class="spinner-grow spinner-grow-sm"
-              role="status"
+            class="spinner-grow spinner-grow-sm"
+            role="status"
           />
           {{ returnCurrentMode }}
         </div>
-        <Notifications
-            v-if="featureFlagsNotifications"
-            class="me-3"
+        <NotificationsButton
+          v-if="featureFlagsNotifications"
+          class="me-3"
         />
         <span
-            v-if="oidcIsAuthenticated"
-            class="me-2"
-            :style="{'color': uiConfiguration?.navbarWelcomeTextColor}"
+          v-if="oidcIsAuthenticated"
+          class="me-2"
+          :style="{'color': uiConfiguration?.navbarWelcomeTextColor}"
         >
           {{ oidcUser.preferred_username }}
         </span>
       </div>
       <div>
         <ProfileSettings
-            :user="oidcUser"
-            :is-representative="isRepresentative"
-            :is-admin="isAdmin"
-            class="me-3"
+          :user="oidcUser"
+          :is-representative="isRepresentative"
+          :is-admin="isAdmin"
+          class="me-3"
         />
         <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#menu-navbar"
-            aria-controls="menu-navbar"
-            aria-expanded="false"
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menu-navbar"
+          aria-controls="menu-navbar"
+          aria-expanded="false"
         >
-          <span class="navbar-toggler-icon"/>
+          <span class="navbar-toggler-icon" />
         </button>
       </div>
     </div>
@@ -156,20 +156,20 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, ref, watch} from "vue"
-import {ROLES} from "@/config/consts"
+import { computed, onBeforeMount, ref, watch } from 'vue'
+import { ROLES } from '@/config/consts'
 import ProfileSettings from "../components/ProfileSettings.vue"
 import bbmriLogo from "../assets/images/bbmri/nav-bar-bbmri.png"
 import canservLogo from "../assets/images/canserv/nav-bar-canserv.png"
 import eucaimLogo from "../assets/images/eucaim/nav-bar-eucaim.png"
-import Notifications from "../components/Notifications.vue"
+import NotificationsButton from './NotificationsButton.vue'
 import allFeatureFlags from "@/config/featureFlags.js"
-import {useUiConfiguration} from '../store/uiConfiguration.js'
-import {useActuatorInfoStore} from "../store/actuatorInfo"
-import {useUserStore} from "../store/user"
-import {useOidcStore} from "../store/oidc"
-import {useNetworksPageStore} from "../store/networksPage"
-import {useRouter} from "vue-router"
+import { useUiConfiguration } from '../store/uiConfiguration.js'
+import { useActuatorInfoStore } from '../store/actuatorInfo'
+import { useUserStore } from '../store/user'
+import { useOidcStore } from '../store/oidc'
+import { useNetworksPageStore } from '../store/networksPage'
+import { useRouter } from 'vue-router'
 
 const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
@@ -272,7 +272,6 @@ nav {
   font-size: 1rem;
   text-align: left;
 }
-
 .nav-item.dropdown .dropdown-menu {
   min-width: 140px; /* Set the minimum width of the dropdown */
   max-width: 200px; /* Ensure it doesn't exceed the width of the navbar item */
@@ -289,7 +288,6 @@ nav {
   color: #495057; /* Darker gray text color to match Bootstrap's default text */
   background-color: #e7e7e7;
 }
-
 .nav-item:hover .nav-link,
 .nav-item.dropdown .dropdown-item:hover,
 .nav-item.dropdown .dropdown-item:focus {

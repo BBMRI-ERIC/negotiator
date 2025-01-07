@@ -1,52 +1,52 @@
 <template>
   <div :style="{'background-color': uiConfiguration?.appBackgroundColor}">
-    <VueTour v-if="isVueTourVisible"/>
+    <VueTour v-if="isVueTourVisible" />
 
     <header>
-      <navigation-bar/>
+      <navigation-bar />
     </header>
     <div
-        v-if="$route.path !== '/'"
-        class="mt-5 pt-4"
+      v-if="$route.path !== '/'"
+      class="mt-5 pt-4"
     >
-      <Alert/>
+      <AlertNotification />
       &nbsp;
     </div>
     <div class="container body d-flex flex-column">
       <div class="row">
         <div
-            class="col-12"
+          class="col-12"
         >
-          <errorPage v-if="useNotifications.criticalError"/>
+          <errorPage v-if="useNotifications.criticalError" />
           <router-view
-              v-else
-              :key="$route.path"
+            v-else
+            :key="$route.path"
           />
         </div>
       </div>
     </div>
     <div
-        v-if="$route.path !== '/'"
-        class="container"
+      v-if="$route.path !== '/'"
+      class="container"
     >
       <div class="col-12">
-        <Footer/>
+        <Footer />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {computed, watch} from "vue"
-import {RouterView, useRoute, useRouter} from "vue-router"
-import {useNotificationsStore} from "@/store/notifications.js"
+import { computed, watch } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import { useNotificationsStore } from '@/store/notifications.js'
 import allFeatureFlags from "@/config/featureFlags.js"
 import VueTour from "./components/VueTour.vue"
 import NavigationBar from "./components/NavigationBar.vue"
-import Alert from "./components/Alert.vue"
-import Footer from "./components/Footer.vue"
+import AlertNotification from './components/AlertNotification.vue'
+import Footer from './components/FooterComp.vue'
 import errorPage from "@/views/ErrorPage.vue"
-import {useUiConfiguration} from '@/store/uiConfiguration.js'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const useNotifications = useNotificationsStore()
@@ -74,7 +74,6 @@ const uiConfiguration = computed(() => {
 .box {
   inline-size: 300px;
 }
-
 header {
   line-height: 1.5;
   max-height: 100vh;

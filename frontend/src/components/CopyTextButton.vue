@@ -1,15 +1,15 @@
 <template>
   <button
-      type="button"
-      class="btn btn-sm btn-muted"
-      @click="copyTextToClipboard(text)"
+    type="button"
+    class="btn btn-sm btn-muted"
+    @click="copyTextToClipboard(text)"
   >
-    <span class="bi-copy"/>
+    <span class="bi-copy" />
   </button>
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   text: {
     type: String,
     default: ""

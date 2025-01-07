@@ -1,8 +1,8 @@
 <template>
-  <div v-for="(item, index) in uiConfigurationCategoriesModel" class="col-4 pb-3">
+  <div v-for="(item, index) in uiConfigurationCategoriesModel" :key="index" class="col-4 pb-3">
     <div>{{ transformNameOfVariable(index) }}:</div>
     <input v-if="returnValueType(item) === 'text'" type="text" v-model="uiConfigurationCategoriesModel[index]"
-           class="form-control"/>
+           class="form-control" />
     <input v-if="returnValueType(item) === 'color'" v-model="uiConfigurationCategoriesModel[index]" type="color"
            class="form-control form-control-color mt-1" id="myColor"
            title="Choose a color">
@@ -21,10 +21,10 @@
 const uiConfigurationCategoriesModel = defineModel()
 
 function returnValueType(value) {
-  if (typeof value == "boolean") {
-    return "boolean"
+  if (typeof value == 'boolean') {
+    return 'boolean'
   } else if (CSS.supports('color', value)) {
-    return "color"
+    return 'color'
   }
   return 'text'
 }

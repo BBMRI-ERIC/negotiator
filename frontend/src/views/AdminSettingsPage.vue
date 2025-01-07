@@ -20,19 +20,19 @@
           Linked access form:
           <div class="col-3">
             <select
-                v-model="selectedAccessForm"
-                class="form-select form-select-sm btn-outline-sort-filter-button-outline"
+              v-model="selectedAccessForm"
+              class="form-select form-select-sm btn-outline-sort-filter-button-outline"
             >
               <option
-                  disabled
-                  value=""
+                disabled
+                value=""
               >
                 Select a form...
               </option>
               <option
-                  v-for="(form, index) in accessForms"
-                  :key="index"
-                  :value="form"
+                v-for="(form, index) in accessForms"
+                :key="index"
+                :value="form"
               >
                 {{ form.name }}
               </option>
@@ -43,19 +43,19 @@
           Linked lifecycle event:
           <div class="col-3">
             <select
-                v-model="selectedEvent"
-                class="form-select form-select-sm btn-outline-sort-filter-button-outline"
+              v-model="selectedEvent"
+              class="form-select form-select-sm btn-outline-sort-filter-button-outline"
             >
               <option
-                  disabled
-                  value=""
+                disabled
+                value=""
               >
                 Select an event...
               </option>
               <option
-                  v-for="(event, index) in resourceAllEvents"
-                  :key="index"
-                  :value="event"
+                v-for="(event, index) in resourceAllEvents"
+                :key="index"
+                :value="event"
               >
                 {{ event.label }}
               </option>
@@ -66,12 +66,12 @@
           Should only an Administrator see the summary:
           <div class="col-3">
             <select
-                v-model="summaryOnlyForAdmin"
-                class="form-select form-select-sm btn-outline-sort-filter-button-outline"
+              v-model="summaryOnlyForAdmin"
+              class="form-select form-select-sm btn-outline-sort-filter-button-outline"
             >
               <option
-                  value="true"
-                  selected
+                value="true"
+                selected
               >
                 Yes
               </option>
@@ -83,27 +83,27 @@
         </div>
       </div>
 
-      <div class="d-flex flex-row"/>
+      <div class="d-flex flex-row" />
       <div class="col-2 my-4">
         <button
-            class="btn btn-sm bg-new-request-button-color"
-            @click="setInfoRequirements()"
+          class="btn btn-sm bg-new-request-button-color"
+          @click="setInfoRequirements()"
         >
           <span class="text-white">Save</span>
         </button>
       </div>
 
-      <div class="row row-cols-1 row-cols-md-2 d-grid-row"/>
+      <div class="row row-cols-1 row-cols-md-2 d-grid-row" />
       <h4>
         Saved requirements:
         {{ infoRequirements?.['info-requirements'] ? infoRequirements?.['info-requirements'].length : 0 }}
       </h4>
       <div
-          class="table"
+        class="table"
       >
         <table
-            v-if="infoRequirements"
-            class="table"
+          v-if="infoRequirements"
+          class="table"
         >
           <thead>
           <tr>
@@ -151,13 +151,13 @@
     </div>
   </div>
   <div
-      v-else
-      class="d-flex justify-content-center flex-row"
+    v-else
+    class="d-flex justify-content-center flex-row"
   >
     <div class="d-flex justify-content-center">
       <div
-          class="spinner-border d-flex justify-content-center "
-          role="status"
+        class="spinner-border d-flex justify-content-center "
+        role="status"
       />
       <div class="d-flex justify-content-center">
         <h4 class="mb-3 ms-3">
@@ -169,10 +169,10 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from "vue"
-import {useUserStore} from '../store/user.js'
-import {useAdminStore} from '../store/admin.js'
-import {useFormsStore} from '../store/forms.js'
+import { onMounted, ref } from 'vue'
+import { useUserStore } from '../store/user.js'
+import { useAdminStore } from '../store/admin.js'
+import { useFormsStore } from '../store/forms.js'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()

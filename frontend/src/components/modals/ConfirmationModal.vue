@@ -1,32 +1,32 @@
 <template>
   <NegotiatorModal
-      :id="id"
-      :title="title"
+    :id="id"
+    :title="title"
   >
     <template #body>
       <p>
         {{ text }}
       </p>
       <textarea
-          v-if="messageEnabled"
-          v-model="message"
-          class="form-control"
+        v-if="messageEnabled"
+        v-model="message"
+        class="form-control"
       />
     </template>
     <template #footer>
       <button
-          type="button"
-          class="btn btn-dark"
-          data-bs-dismiss="modal"
-          @click="message = ''"
+        type="button"
+        class="btn btn-dark"
+        data-bs-dismiss="modal"
+        @click="message = ''"
       >
         Cancel
       </button>
       <button
-          type="button"
-          class="btn btn-danger"
-          data-bs-dismiss="modal"
-          @click="emitConfirm"
+        type="button"
+        class="btn btn-danger"
+        data-bs-dismiss="modal"
+        @click="emitConfirm"
       >
         Confirm
       </button>
@@ -36,7 +36,7 @@
 
 <script setup>
 import NegotiatorModal from "./NegotiatorModal.vue"
-import {ref} from "vue"
+import { ref } from 'vue'
 
 defineProps({
   id: {

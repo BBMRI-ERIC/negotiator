@@ -1,8 +1,8 @@
-import {ref} from "vue"
-import {defineStore} from "pinia"
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
 
 export const useNegotiationsViewStore = defineStore("negotiationsView", () => {
-    const savedNegotiationsView = ref("")
+  const savedNegotiationsView = ref('')
 
-    return {savedNegotiationsView}
+  return { savedNegotiationsView }
 })

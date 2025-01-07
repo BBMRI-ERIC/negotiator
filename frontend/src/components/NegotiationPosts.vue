@@ -4,20 +4,20 @@
       Comments
     </h5>
     <div
-        v-for="post in posts"
-        :key="post.id"
-        class="card mb-3"
+      v-for="post in posts"
+      :key="post.id"
+      class="card mb-3"
     >
       <div class="card-header">
         <div class="mb-2">
           <span>
             <span
-                v-for="badge in getUserBadges(post)"
-                :key="badge"
-                data-bs-toggle="tooltip"
-                class="badge rounded-pill"
-                :style="{ 'background-color': uiConfiguration.primaryTextColor}"
-                :title="getBadgeTooltip(badge)"
+              v-for="badge in getUserBadges(post)"
+              :key="badge"
+              data-bs-toggle="tooltip"
+              class="badge rounded-pill"
+              :style="{ 'background-color': uiConfiguration.primaryTextColor}"
+              :title="getBadgeTooltip(badge)"
             >
               {{ badge }}
             </span>
@@ -26,18 +26,18 @@
         <div class="d-flex justify-content-between align-items-center">
           <!-- Left Side: Author Information -->
           <div
-              class="d-flex align-items-center"
-              :style="{ 'color': uiConfiguration.primaryTextColor}"
+            class="d-flex align-items-center"
+            :style="{ 'color': uiConfiguration.primaryTextColor}"
           >
             <i
-                class="bi bi-person-circle"
+              class="bi bi-person-circle"
             />
             <span class="ms-2">
               <strong>{{ getAuthorName(post) }}</strong>
             </span>
             <span
-                class="ms-1"
-                :style="{ 'color': uiConfiguration.primaryTextColor, 'opacity': 0.7}"
+              class="ms-1"
+              :style="{ 'color': uiConfiguration.primaryTextColor, 'opacity': 0.7}"
             >
               posted on {{ printDate(post.creationDate) }}
             </span>
@@ -46,95 +46,95 @@
           <!-- Right Side: Recipient Badge -->
           <span>
             <span
-                class="me-1"
-                :style="{ 'color': uiConfiguration.primaryTextColor, 'opacity': 0.7}"
+              class="me-1"
+              :style="{ 'color': uiConfiguration.primaryTextColor, 'opacity': 0.7}"
             >
               to
             </span>
             <span
-                class="badge rounded-pill"
-                :class="getRecipientPostColor(post)"
+              class="badge rounded-pill"
+              :class="getRecipientPostColor(post)"
             >
-              <i :class="getRecipientIcon(post)"/>
+              <i :class="getRecipientIcon(post)" />
               {{ getRecipientName(post) }}
             </span>
           </span>
         </div>
       </div>
       <div
-          class="card-body"
-          :style="{ 'color': uiConfiguration.secondaryTextColor }"
-          v-html="formatText(post.text)"
+        class="card-body"
+        :style="{ 'color': uiConfiguration.secondaryTextColor }"
+        v-html="formatText(post.text)"
       />
     </div>
     <hr
-        v-if="posts.length === 0"
-        class="my-3"
+      v-if="posts.length === 0"
+      class="my-3"
     >
     <h5 :style="{ 'color': uiConfiguration.primaryTextColor}">
       Send a message
     </h5>
     <div
-        v-if="showMessageRecipientInfo"
-        class="text-muted"
+      v-if="showMessageRecipientInfo"
+      class="text-muted"
     >
-      <i class="bi bi-exclamation-diamond"/>
+      <i class="bi bi-exclamation-diamond" />
       This message will be visible to the request Author, representatives and the Administrator
     </div>
     <form
-        class="border rounded mb-4 p-2"
-        @submit.prevent="sendMessage"
+      class="border rounded mb-4 p-2"
+      @submit.prevent="sendMessage"
     >
       <textarea
-          v-model="message"
-          class="form-control mb-3"
-          :style="{ 'color': uiConfiguration.secondaryTextColor}"
+        v-model="message"
+        class="form-control mb-3"
+        :style="{ 'color': uiConfiguration.secondaryTextColor}"
       />
       <NegotiationAttachment
-          v-if="attachment"
-          class="ms-auto "
-          :name="attachment.name"
-          :content-type="attachment.type"
-          :size="attachment.size"
-          @removed="resetAttachment"
+        v-if="attachment"
+        class="ms-auto "
+        :name="attachment.name"
+        :content-type="attachment.type"
+        :size="attachment.size"
+        @removed="resetAttachment"
       />
       <div class="d-flex flex-row-reverse mt-3 mb-2">
         <span
-            data-bs-toggle="tooltip"
-            :title="negotiation.publicPostsEnabled ? '' : 'Messaging is unavailable until the request has been reviewed.' "
+          data-bs-toggle="tooltip"
+          :title="negotiation.publicPostsEnabled ? '' : 'Messaging is unavailable until the request has been reviewed.' "
         >
           <button
-              type="submit"
-              :disabled="!readyToSend"
-              class="btn ms-2"
-              :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
+            type="submit"
+            :disabled="!readyToSend"
+            class="btn ms-2"
+            :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
           >
             Send message
           </button>
         </span>
         <button
-            type="submit"
-            class="btn btn-attachment ms-2 border rounded"
+          type="submit"
+          class="btn btn-attachment ms-2 border rounded"
         >
           <input
-              id="attachment"
-              class="form-control"
-              type="file"
-              accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              @change="showAttachment"
+            id="attachment"
+            class="form-control"
+            type="file"
+            accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            @change="showAttachment"
           >
-          <i class="bi bi-paperclip"/>
+          <i class="bi bi-paperclip" />
         </button>
         <select
-            id="recipient"
-            v-model="recipientId"
-            class="form-select w-25"
-            :style="{ 'color': uiConfiguration.primaryTextColor}"
+          id="recipient"
+          v-model="recipientId"
+          class="form-select w-25"
+          :style="{ 'color': uiConfiguration.primaryTextColor}"
         >
           <option
-              disabled
-              selected
-              value=""
+            disabled
+            selected
+            value=""
           >
             -- Select recipient --
           </option>
@@ -143,10 +143,10 @@
           </option>
           <optgroup :label="privatePostsGroupLabel">
             <option
-                v-for="recipient in recipients"
-                :key="recipient.id"
-                :value="recipient.id"
-                :disabled="!negotiation.privatePostsEnabled"
+              v-for="recipient in recipients"
+              :key="recipient.id"
+              :value="recipient.id"
+              :disabled="!negotiation.privatePostsEnabled"
             >
               {{ recipient.name }}
             </option>
@@ -158,14 +158,14 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, onMounted, ref, watch} from "vue"
-import {Tooltip} from "bootstrap"
-import {dateFormat, POST_TYPE} from "@/config/consts"
+import { ref, onMounted, onBeforeMount, computed, watch } from 'vue'
+import { Tooltip } from 'bootstrap'
+import { dateFormat, POST_TYPE } from '@/config/consts'
 import moment from "moment"
 import NegotiationAttachment from "./NegotiationAttachment.vue"
-import {useOidcStore} from "../store/oidc"
-import {useNegotiationPageStore} from "../store/negotiationPage.js"
-import {useUiConfiguration} from "@/store/uiConfiguration.js"
+import { useOidcStore } from '../store/oidc'
+import { useNegotiationPageStore } from '../store/negotiationPage.js'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const uiConfigurationStore = useUiConfiguration()
 
@@ -214,7 +214,7 @@ const readyToSend = computed(() => {
       (props.negotiation.publicPostsEnabled || props.negotiation.privatePostsEnabled)
 })
 computed(() => {
-  return props.recipients.reduce((obj, item) => Object.assign(obj, {[item.id]: {name: item.name}}), {})
+  return props.recipients.reduce((obj, item) => Object.assign(obj, { [item.id]: { name: item.name } }), {})
 })
 const privatePostsGroupLabel = computed(() => {
   if (props.negotiation.privatePostsEnabled) {
@@ -263,7 +263,7 @@ async function addAttachmentToNegotiation() {
     negotiationId: props.negotiation.id,
     attachment: attachment.value
   }
-  await negotiationPageStore.addAttachmentToNegotiation(data).then((post) => {
+  await negotiationPageStore.addAttachmentToNegotiation(data).then(() => {
     if (attachment.value) {
       console.log(`Successfully uploaded file: ${attachment.value.name}`)
     }
@@ -314,11 +314,11 @@ function getAuthorName(post) {
 }
 
 function getRecipientPostColor(post) {
-  return post.type === POST_TYPE.PUBLIC ? {"bg-warning": true} : {"bg-primary": true}
+  return post.type === POST_TYPE.PUBLIC ? { 'bg-warning': true } : { 'bg-primary': true }
 }
 
 function getRecipientIcon(post) {
-  return post.type === POST_TYPE.PUBLIC ? {"bi bi-people-fill": true} : {"bi bi-lock-fill": true}
+  return post.type === POST_TYPE.PUBLIC ? { 'bi bi-people-fill': true } : { 'bi bi-lock-fill': true }
 }
 
 function getRecipientName(post) {

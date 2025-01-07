@@ -1,40 +1,38 @@
 <template>
   <FilterSort
-      v-if="!loading"
-      :filters-sort-data="filtersSortData"
-      :user-role="userRole"
-      :filters-status="filtersStatus"
-      @filters-sort-data="retrieveNegotiationsBySortAndFilter"
+    v-if="!loading"
+    v-model:filtersSortData="filtersSortData"
+    :user-role="userRole"
+    :filters-status="filtersStatus"
+    @filters-sort-data="retrieveNegotiationsBySortAndFilter"
   />
   <NegotiationList
-      :negotiations="negotiations"
-      :pagination="pagination"
-      :user-role="userRole"
-      :filters-sort-data="filtersSortData"
-      @filters-sort-data="retrieveNegotiationsBySortAndFilter"
+    :negotiations="negotiations"
+    :pagination="pagination"
+    :user-role="userRole"
+    v-model:filtersSortData="filtersSortData"
+    @filters-sort-data="retrieveNegotiationsBySortAndFilter"
   />
   <NegotiationPagination
-      :negotiations="negotiations"
-      :pagination="pagination"
-      @current-page-number="retrieveNegotiationsByPage"
+    :negotiations="negotiations"
+    :pagination="pagination"
+    @current-page-number="retrieveNegotiationsByPage"
   />
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue"
+import { ref, onMounted, computed } from 'vue'
 import moment from "moment"
 import NegotiationList from "@/components/NegotiationList.vue"
 import NegotiationPagination from "@/components/NegotiationPagination.vue"
 import FilterSort from "@/components/FilterSort.vue"
-import {ROLES} from "@/config/consts.js"
-import {useRoute, useRouter} from "vue-router"
-import {useUserStore} from "../store/user"
-import {useNegotiationsStore} from "../store/negotiations"
-import {useNotificationsStore} from "@/store/notifications"
+import { ROLES } from '@/config/consts.js'
+import { useRouter, useRoute } from 'vue-router'
+import { useUserStore } from '../store/user'
+import { useNegotiationsStore } from '../store/negotiations'
 
 const userStore = useUserStore()
 const negotiationsStore = useNegotiationsStore()
-const notifications = useNotificationsStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -113,7 +111,7 @@ function retrieveNegotiationsBySortAndFilter(filtersSortData) {
 }
 
 function updateRoutingParams(currentPageNumber) {
-  router.push({query: {filtersSort: encodeURI(stringify(filtersSortData.value)), currentPageNumber}})
+  router.push({ query: { filtersSort: encodeURI(stringify(filtersSortData.value)), currentPageNumber } })
 }
 
 function stringify(obj) {
