@@ -47,8 +47,7 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        working-directory: frontend
-        run: yarn install
+        run: yarn install -f frontend/yarn.lock
 
       - name: Save build folder
         uses: actions/upload-artifact@v4
@@ -76,6 +75,7 @@ jobs:
 
   lint-js:
     runs-on: ubuntu-latest
+    name: Lint JS Code
     needs: install
     steps:
       - name: Checkout
