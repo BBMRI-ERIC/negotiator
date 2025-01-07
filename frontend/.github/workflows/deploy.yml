@@ -1,0 +1,28 @@
+name: Deployment
+
+on: workflow_dispatch
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: development
+      url: https://negotiator-v3.bbmri-eric.eu/
+
+    steps:
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@master
+        env:
+          FRONTEND_DEPLOY_TAG: ${{ github.ref_name }}
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER}}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script_stop: true
+          envs: FRONTEND_DEPLOY_TAG
+          script: |
+            export FRONTEND_DEPLOY_TAG
+            source deploy-frontend

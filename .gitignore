@@ -3,7 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+frontend/node_modules
+frontend/dist
+backend/target
 ### STS ###
 .apt_generated
 .classpath
