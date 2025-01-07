@@ -193,7 +193,7 @@ const props = defineProps({
   }
 })
 const store = useNegotiationPageStore()
-watch(() => props.shown, (first, second) => {
+watch(() => props.shown, () => {
   if (props.shown !== false) {
     loadResources()
     loadStates()
@@ -222,7 +222,6 @@ async function loadStates() {
   const response = await store.retrieveResourceAllStates()
   states.value = response
 }
-
 const emit = defineEmits(["confirm"])
 
 async function addResources() {
@@ -238,7 +237,6 @@ async function addResources() {
   selectedResources.value = []
   emit("confirm")
 }
-
 const toggleSelectAll = () => {
   if (selectAll.value) {
     // Select all resources
@@ -261,7 +259,6 @@ async function fetchPage(url) {
   pageLinks.value = response._links
   pageNumber.value = response.page.number
 }
-
 // Method to handle search input
 const onSearch = debounce(async () => {
   if (searchQuery.value.length >= 3) {

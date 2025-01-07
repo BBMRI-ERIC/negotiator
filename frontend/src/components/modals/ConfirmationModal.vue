@@ -38,7 +38,7 @@
 import NegotiatorModal from "./NegotiatorModal.vue"
 import {ref} from "vue"
 
-const props = defineProps({
+defineProps({
   id: {
     type: String,
     required: true

@@ -325,11 +325,10 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref, watch} from "vue"
+import {onMounted, ref, watch} from "vue"
 import {Tooltip} from "bootstrap"
 import {FormWizard, TabContent} from "vue3-form-wizard"
 import "vue3-form-wizard/dist/style.css"
-import {useRouter} from "vue-router"
 import {useFormsStore} from "../../store/forms"
 import {useNotificationsStore} from "../../store/notifications"
 
@@ -384,8 +383,6 @@ const props = defineProps({
 const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
 
-const router = useRouter()
-
 const notificationTitle = ref("")
 const notificationText = ref("")
 const negotiationCriteria = ref({})
@@ -393,19 +390,8 @@ const negotiationValueSets = ref({})
 const validationColorHighlight = ref([])
 
 const accessForm = ref(undefined)
-const resources = ref([])
-const humanReadableSearchParameters = ref([])
-const openModal = ref(null)
 
-const loading = computed(() => {
-  return accessForm.value === undefined
-})
-
-const queryParameters = computed(() => {
-  return humanReadableSearchParameters.value.split("\r\n")
-})
-
-watch(() => props.requiredAccessFormId, async (first, second) => {
+watch(() => props.requiredAccessFormId, async () => {
   if (props.requiredAccessFormId !== undefined) {
     accessForm.value = await loadAccessForm(props.requiredAccessFormId)
     if (accessForm.value !== undefined) {
@@ -421,10 +407,6 @@ onMounted(() => {
 
 async function loadAccessForm(id) {
   return formsStore.retrieveAccessFormById(id)
-}
-
-function backToNegotiation(id) {
-  router.push("/negotiations/" + id + "/ROLE_RESEARCHER")
 }
 
 async function getValueSet(link, id) {

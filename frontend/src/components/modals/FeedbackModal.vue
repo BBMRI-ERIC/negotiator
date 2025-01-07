@@ -25,7 +25,7 @@
 <script setup>
 import NegotiatorModal from "./NegotiatorModal.vue"
 
-const props = defineProps({
+defineProps({
   id: {
     type: String,
     required: true
