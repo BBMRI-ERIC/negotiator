@@ -89,7 +89,7 @@ public class NetworkStatsRepositoryImpl implements NetworkStatsRepository {
         SELECT COUNT(DISTINCT n.id)
         FROM Negotiation n
         JOIN n.resourcesLink rl
-        JOIN rl.resource rs
+        JOIN rl.id.resource rs
         JOIN rs.networks net
         WHERE net.id = :networkId
           AND DATE(n.creationDate) > :since
@@ -109,7 +109,7 @@ public class NetworkStatsRepositoryImpl implements NetworkStatsRepository {
         SELECT n.currentState, COUNT(DISTINCT n.id)
         FROM Negotiation n
         JOIN n.resourcesLink rl
-        JOIN rl.resource rs
+        JOIN rl.id.resource rs
         JOIN rs.networks net
         WHERE net.id = :networkId
           AND DATE(n.creationDate) > :since
