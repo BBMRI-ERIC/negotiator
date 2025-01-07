@@ -1,6 +1,9 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
 import eu.bbmri_eric.negotiator.common.ValidationGroups;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatistics;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatisticsService;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatsFilter;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
@@ -12,6 +15,7 @@ import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.user.UserModelAssembler;
 import eu.bbmri_eric.negotiator.user.UserResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -40,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3")
 @Tag(name = "Networks", description = "Manage networks of resources and organizations")
+@SecurityRequirement(name = "security_auth")
 public class NetworkController {
 
   private final NetworkService networkService;
@@ -189,7 +194,8 @@ public class NetworkController {
   @Operation(
       summary = "Basic statistics about the network",
       description = "Provides basic statistics about requests linked to a Network.")
-  public EntityModel<NetworkStatistics> getNetworkStatistics(@PathVariable Long id) {
-    return EntityModel.of(networkStatisticsService.getBasicNetworkStats(id));
+  public EntityModel<NetworkStatistics> getNetworkStatistics(
+      @PathVariable Long id, @Valid @ParameterObject NetworkStatsFilter filterDTO) {
+    return EntityModel.of(networkStatisticsService.getBasicNetworkStats(id, filterDTO));
   }
 }

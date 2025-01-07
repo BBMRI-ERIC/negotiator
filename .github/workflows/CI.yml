@@ -388,6 +388,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: ARTIFACT_VERSION=${{  github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build-pages:
     runs-on: ubuntu-24.04

@@ -2,12 +2,11 @@ package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +26,21 @@ public interface NegotiationRepository
   @Query(
       value =
           """
+            SELECT PERCENTILE_CONT(0.5)
+           WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (nrlr.creation_date - n.creation_date)) / 86400)
+           AS median_days
+            FROM Negotiation n
+            LEFT JOIN public.negotiation_resource_lifecycle_record nrlr on n.id = nrlr.negotiation_id
+            left join public.network_resources_link nrl on nrlr.resource_id = nrl.resource_id
+            where nrl.network_id = :networkId and (nrlr.changed_to = 'CHECKING_AVAILABILITY' or nrlr.changed_to = 'RESOURCE_UNAVAILABLE')
+                    and Date(n.creation_date) > :since and Date(n.creation_date) <= :until
+        """,
+      nativeQuery = true)
+  Double getMedianResponseForNetwork(LocalDate since, LocalDate until, Long networkId);
+
+  @Query(
+      value =
+          """
           SELECT rl.currentState
           FROM Negotiation n
           JOIN n.resourcesLink rl
@@ -37,9 +51,6 @@ public interface NegotiationRepository
       String negotiationId, String resourceId);
 
   boolean existsByIdAndCreatedBy_Id(String negotiationId, Long personId);
-
-  List<Negotiation> findByModifiedDateBeforeAndCurrentState(
-      LocalDateTime thresholdTime, NegotiationState currentState);
 
   @Query(
       value =
@@ -55,43 +66,13 @@ public interface NegotiationRepository
 
   @Query(
       value =
-          "SELECT distinct (n) "
-              + "FROM Negotiation n "
-              + "JOIN n.resourcesLink rl "
-              + "JOIN rl.id.resource rs "
-              + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId")
-  Page<Negotiation> findAllForNetwork(Long networkId, Pageable pageable);
-
-  @Query(
-      value =
           "select count (distinct n.id) "
               + "FROM Negotiation n "
               + "JOIN n.resourcesLink rl "
               + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId")
-  Integer countAllForNetwork(Long networkId);
-
-  @Query(
-      value =
-          "select n.currentState, COUNT ( distinct n.id)"
-              + "FROM Negotiation n "
-              + "JOIN n.resourcesLink rl "
-              + "JOIN rl.id.resource rs "
-              + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId group by n.currentState")
-  List<Object[]> countStatusDistribution(Long networkId);
-
-  @Query(
-      value =
-          """
-SELECT distinct n from Negotiation n join n.resourcesLink rl
-join rl.id.resource rs
-join rs.representatives reps
-where n.currentState = 'IN_PROGRESS' and reps.id = :personId and rl.currentState = 'REPRESENTATIVE_CONTACTED'
-""")
-  List<Negotiation> findNegotiationsWithNoStatusUpdateFor(Long personId);
+              + "WHERE net.id = :networkId and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until")
+  Integer countAllForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
