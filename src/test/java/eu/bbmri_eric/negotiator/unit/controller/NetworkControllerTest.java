@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri_eric.negotiator.governance.network.NetworkController;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
-import eu.bbmri_eric.negotiator.governance.network.NetworkStatisticsService;
-import eu.bbmri_eric.negotiator.governance.network.SimpleNetworkStatistics;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatisticsService;
+import eu.bbmri_eric.negotiator.governance.network.stats.SimpleNetworkStatistics;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;

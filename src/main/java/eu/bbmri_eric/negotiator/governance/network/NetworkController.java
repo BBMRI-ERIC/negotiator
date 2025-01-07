@@ -1,6 +1,9 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
 import eu.bbmri_eric.negotiator.common.ValidationGroups;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatistics;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatisticsService;
+import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatsFilter;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;

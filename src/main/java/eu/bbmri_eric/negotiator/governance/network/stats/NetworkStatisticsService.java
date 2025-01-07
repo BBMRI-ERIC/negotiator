@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.governance.network;
+package eu.bbmri_eric.negotiator.governance.network.stats;
 
 public interface NetworkStatisticsService {
   /**

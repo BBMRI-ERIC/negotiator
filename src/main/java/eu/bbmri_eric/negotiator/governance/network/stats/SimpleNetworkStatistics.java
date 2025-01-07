@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.governance.network;
+package eu.bbmri_eric.negotiator.governance.network.stats;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
