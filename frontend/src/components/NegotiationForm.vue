@@ -176,7 +176,7 @@
             <div
               v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'">
               <span class="text-muted"> External Documentation - </span>
-              <a
+              <a 
                 :href="negotiationValueSets[criteria.id]?.externalDocumentation"
                 :style="{ 'color':uiConfiguration?.linksTextColor }" 
               > {{ negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
@@ -293,11 +293,11 @@
             class="mt-2"
           >
             <span class="text-muted"> External Documentation - </span>
-            <a
+            <a 
               :href="negotiationValueSets[criteria.id]?.externalDocumentation"
               :style="{ 'color':uiConfiguration?.linksTextColor }"
             >
-            {{ negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
+              {{ negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
           </div>
         </div>
       </tab-content>
@@ -308,7 +308,7 @@
         <div
           class="border rounded-2 input-group p-3 mb-2 mb-3"
         >
-          <span
+          <span 
             class="mb-3 fs-4 fw-bold"
             :style="{'color': uiConfiguration?.primaryTextColor}"
           >
@@ -321,7 +321,7 @@
           :key="section.name"
           class="border rounded-2 input-group p-3 mb-2 mb-3"
         >
-          <span
+          <span 
             class="mb-3 fs-4 fw-bold"
             :style="{'color': uiConfiguration?.primaryTextColor}"
           >{{ section.label.toUpperCase() }}</span>
@@ -334,9 +334,7 @@
               }}:</label>
             <span v-if="isAttachment(negotiationCriteria[section.name][accessFormElement.name])"
                   :style="{'color': uiConfiguration?.secondaryTextColor}">
-              <span
-                v-if="negotiationCriteria[section.name][accessFormElement.name].name">{{ negotiationCriteria[section.name][accessFormElement.name].name
-                }}</span>
+              <span v-if="negotiationCriteria[section.name][accessFormElement.name].name">{{ negotiationCriteria[section.name][accessFormElement.name].name }}</span>
               <div
                 v-for="(choice,index) in negotiationCriteria[section.name][accessFormElement.name]"
                 v-else

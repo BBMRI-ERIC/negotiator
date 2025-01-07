@@ -10,7 +10,7 @@
         class="col-sm-10"
       >
         <div
-          class="card py-5 p-3"
+          class="card py-5 p-3" 
           :style="{'background-color': uiConfiguration?.logincardColor}"
         >
           <div class="col-10 col-md-4 align-self-center">
@@ -75,7 +75,7 @@
           class="text-center mt-2 mb-2"
         >
           <a
-            href="/api/swagger-ui/index.html"
+            href="/api/swagger-ui/index.html" 
             :style="{'color':uiConfiguration?.loginLinksColor}"
           >
             <i class="bi bi-braces-asterisk text-primary-text" />

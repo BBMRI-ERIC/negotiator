@@ -30,9 +30,9 @@
           :class="getBadgeIcon(negotiation.status)"
           class="px-1"
         /> {{
-            negotiation ?
-              transformStatus(negotiation.status) : ''
-          }}</span>
+          negotiation ?
+            transformStatus(negotiation.status) : ""
+        }}</span>
       </div>
       <div class="col-12 col-md-8 order-2 order-md-1">
         <ul class="list-group list-group-flush rounded border px-3 my-3">
@@ -288,8 +288,8 @@
             >
               Negotiation ID:
             </div>
-            <span :style="{ 'color': uiConfiguration.secondaryTextColor }"> {{ negotiation ? negotiation.id : ''
-              }}</span>
+            <span
+              :style="{ 'color': uiConfiguration.secondaryTextColor }"> {{ negotiation ? negotiation.id : "" }}</span>
           </li>
           <li class="list-group-item p-2">
             <div
@@ -298,9 +298,7 @@
             >
               Submitted at:
             </div>
-            <span
-              :style="{ 'color': uiConfiguration.secondaryTextColor }"> {{ negotiation ? printDate(negotiation.creationDate) : ''
-              }}</span>
+            <span :style="{ 'color': uiConfiguration.secondaryTextColor }"> {{ negotiation ? printDate(negotiation.creationDate) : "" }}</span>
           </li>
           <li class="list-group-item p-2 d-flex justify-content-between">
             <div>
@@ -317,9 +315,9 @@
                 :class="getBadgeIcon(negotiation.status)"
                 class="px-1"
               /> {{
-                  negotiation ?
-                    transformStatus(negotiation.status) : ''
-                }}</span>
+                negotiation ?
+                  transformStatus(negotiation.status) : ""
+              }}</span>
             </div>
           </li>
           <li

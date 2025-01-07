@@ -9,8 +9,7 @@
         <p>
           <span class="negotiations-search-results" :style="{'color':uiConfiguration?.searchResultsTextColor}"> <strong>Search results: </strong> </span>
           <br>
-          <span class="negotiations-number" :style="{'color':uiConfiguration?.searchResultsTextColor, 'opacity': 0.5}">{{ pagination.totalElements
-            }} Negotiations found</span>
+          <span class="negotiations-number" :style="{'color':uiConfiguration?.searchResultsTextColor, 'opacity': 0.5}">{{ pagination.totalElements }} Negotiations found</span>
         </p>
 
         <div class="text-end my-2">

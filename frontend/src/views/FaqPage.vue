@@ -33,7 +33,7 @@
             We value your feedback to improve our services.
           </h5>
           <div class="mt-4">
-            <a
+            <a 
               href="https://forms.office.com/e/Z3EvCnp6cw"
               :style="{'color': uiConfiguration?.linksColor}" 
             >

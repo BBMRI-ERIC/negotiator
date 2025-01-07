@@ -181,7 +181,7 @@ const backendVersion = ref('')
 onBeforeMount(() => {
   actuatorInfoStore.retrieveBackendActuatorInfo().then(() => {
     backendVersion.value = actuatorInfoStore.actuatorInfoBuildVersion
-  })
+  });
 })
 
 const uiConfiguration = computed(() => {

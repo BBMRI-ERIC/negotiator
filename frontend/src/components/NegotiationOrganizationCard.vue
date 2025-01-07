@@ -173,7 +173,7 @@ import {
   getStatusColor,
   getStatusIcon,
   transformStatus
-} from '../composables/utils.js'
+} from '../composables/utils.js';
 import CopyTextButton from "@/components/CopyTextButton.vue";
 // eslint-disable-next-line
 import FormViewModal from "@/components/modals/FormViewModal.vue";
