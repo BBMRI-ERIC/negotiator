@@ -258,7 +258,9 @@ jobs:
           path: /tmp/negotiator-frontend.tar
 
   image-scan:
-    needs: build-image
+    needs:
+      - build-image
+      - build-frontend-image
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -286,6 +288,15 @@ jobs:
         uses: aquasecurity/trivy-action@5681af892cd0f4997658e2bacc62bd0a894cf564
         with:
           image-ref: bbmrieric/negotiator:latest
+          format: sarif
+          output: trivy-results.sarif
+          severity: 'CRITICAL,HIGH'
+          timeout: '15m0s'
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@5681af892cd0f4997658e2bacc62bd0a894cf564
+        with:
+          image-ref: bbmrieric/negotiator-frontend:latest
           format: sarif
           output: trivy-results.sarif
           severity: 'CRITICAL,HIGH'
