@@ -78,7 +78,6 @@ jobs:
   lint-js:
     runs-on: ubuntu-latest
     name: Lint JS Code
-    needs: install
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,11 +89,8 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
-      - name: Download the build folder
-        uses: actions/download-artifact@v4
-        with:
-          path: frontend
-          name: build
+      - name: Install dependencies
+        run: yarn install --cwd frontend
 
       - name: Lint
         run: yarn --cwd frontend eslint src
