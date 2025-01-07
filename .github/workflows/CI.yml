@@ -47,7 +47,8 @@ jobs:
           cache-dependency-path: 'frontend/yarn.lock'
 
       - name: Install dependencies
-        run: yarn install -f frontend/yarn.lock
+        working-directory: frontend
+        run: yarn install
 
       - name: Save build folder
         uses: actions/upload-artifact@v4
