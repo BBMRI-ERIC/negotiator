@@ -13,7 +13,6 @@
     "cy:run:firefox": "cypress run --browser firefox",
     "cy:open": "cypress open"
   },
-  "type": "commonjs",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.0",
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
