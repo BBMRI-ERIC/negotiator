@@ -1,0 +1,54 @@
+$theme-colors: (
+        "primary": #26336B,
+        "secondary": #26336B,
+        "primary-text": #3c3c3d,
+        "secondary-text": #3c3c3d,
+        "login-tittle-text": #4d4d4f,
+        "navbar-background": #e7e7e7,
+        "navbar-text": #3c3c3d,
+        "navbar-active-text": #e95713,
+        "navbar-welcome-text": #3c3c3d,
+        "navbar-button-outline": #003674,
+        "sort-filter-button-outline": #003674,
+        "sort-filter-dropdown-text": #3c3c3d,
+        "sort-filter-clear-button-outline": #dc3545,
+        "search-results-text": #3c3c3d,
+        "new-request-button-color": #e95713,
+        "display-view-button-color": #f37125,
+        "card-title-text": #3c3c3d,
+        "table-header-text": #3c3c3d,
+        "table-title-text": #3c3c3d,
+        "status-badge": #f37125,
+        "danger": #dc3545,
+        "warning": #e95713,
+        "success": #3B8501,
+        "info": #7c7c7c,
+        "light": #e7e7e7,
+        "dark": #3c3c3d,
+  // BBMRI-ERIC Color palette
+        "example-1": #003674,
+        "example-2": #e95713,
+        "example-3": #3c3c3d,
+);
+
+$body-color: #3c3c3d;
+
+$default-text-color: white;
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
+body {
+  font-family: Calibri, Arial, sans-serif;
+}
+
+.btn-primary {
+  color: white;
+}
+
+.btn-outline-light {
+  color: $dark;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
