@@ -671,11 +671,11 @@ jobs:
           cache: maven
 
       - name: Publish package
-        run: mvn --quiet -B versions:set -DnewVersion="${ARTIFACT_VERSION//v}"
+        run: mvn -f backend --quiet -B versions:set -DnewVersion="${ARTIFACT_VERSION//v}"
         env:
           ARTIFACT_VERSION: ${{  github.ref_name }}
 
       - name: Publish package
-        run: mvn --batch-mode deploy
+        run: mvn -f backend --batch-mode deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
