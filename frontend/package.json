@@ -58,7 +58,7 @@
     "eslint-plugin-vue": "^9.30.0",
     "jsdom": "^21.0.0",
     "prettier": "^3.3.3",
-    "sass": "^1.69.5",
+    "sass": "^1.83.1",
     "unplugin-vue-components": "^0.24.1",
     "vite": "^3.2.10",
     "vitest": "^0.23.0"
