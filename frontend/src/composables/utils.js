@@ -147,6 +147,37 @@ export function getStatusIcon(stateValue) {
   }
 }
 
-export function getPieChartBackgroundColor() {
-  return ['#014685', '#dc3544', '#a4a4a4', '#f36f22', '#545456']
-}
+export function generatePieChartBackgroundColorArray (labelsArray) {
+  const pieChartBackgroundColorArray = []
+    labelsArray.forEach(label => {
+      switch (label) {
+        case "SUBMITTED":
+          // "bg-status-badge" bootstrap theme color
+          pieChartBackgroundColorArray.push("#f37125")
+          break;
+        case "DECLINED":
+        case "ABANDONED":
+          // "bg-danger" bootstrap theme color
+          pieChartBackgroundColorArray.push("#dc3545")
+          break;
+        case "APPROVED":
+        case "PAUSED":
+          // "bg-info" bootstrap theme color
+          pieChartBackgroundColorArray.push("#7c7c7c")
+          break;
+        case "IN_PROGRESS":
+          // "bg-primary" bootstrap theme color
+          pieChartBackgroundColorArray.push("#26336B")
+          break;
+        case "CONCLUDED":
+          // "bg-success" bootstrap theme color
+          pieChartBackgroundColorArray.push("#3B8501")
+          break;
+        default:
+          // "bg-secondary" bootstrap theme color
+          pieChartBackgroundColorArray.push("#26336B")  // Fallback in case a status is not recognized
+      }
+    });
+
+    return pieChartBackgroundColorArray
+  }

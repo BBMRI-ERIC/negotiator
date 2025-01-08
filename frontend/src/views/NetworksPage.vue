@@ -257,7 +257,7 @@ import NegotiationPagination from '@/components/NegotiationPagination.vue'
 import { useNegotiationsStore } from '@/store/negotiations'
 import { Pie } from 'vue-chartjs'
 import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip } from 'chart.js'
-import { getPieChartBackgroundColor } from '../composables/utils.js'
+import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
 
@@ -337,7 +337,7 @@ async function loadNetworkInfo(networkId) {
 
 async function loadStats(networkId) {
   stats.value = await networksPageStore.retrieveNetworkStats(networkId, startDate.value, endDate.value)
-  if (!stats.value.statusDistribution) {
+  if (stats.value.statusDistribution) {
     setPieData(Object.keys(stats.value.statusDistribution), Object.values(stats.value.statusDistribution))
   } else {
     setPieData(['Total Requests: 0'], [100])
@@ -349,7 +349,7 @@ function setPieData(labelsData, datasetsData) {
     labels: labelsData,
     datasets: [{
       data: datasetsData,
-      backgroundColor: getPieChartBackgroundColor(),
+      backgroundColor: generatePieChartBackgroundColorArray(labelsData),
       hoverOffset: 4
     }]
   }
