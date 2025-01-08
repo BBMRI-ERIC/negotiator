@@ -6,13 +6,15 @@
 version: 2
 updates:
   - package-ecosystem: "maven" # See documentation for possible values
-    directory: "/backend" # Location of package manifests
+    directories:
+      - "/backend"
     reviewers:
       - "radovantomik"
     schedule:
       interval: "daily"
   - package-ecosystem: "yarn"
-    directory: "/frontend"
+    directories:
+      - "/frontend"
     reviewers:
       - "tmilost"
     schedule:
