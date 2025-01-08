@@ -12,8 +12,12 @@ const PROXY_TARGET = "http://localhost:8081"
 try {
     process.env.VITE_GIT_TAG = git.tag()
 } catch {
-    process.env.VITE_GIT_COMMIT_HASH = git.short('../.')
-    process.env.VITE_GIT_TAG = git.short('../.')
+    try {
+        process.env.VITE_GIT_TAG = git.short('../.')
+    } catch {
+        process.env.VITE_GIT_TAG = 'unknown'
+    }
+
 }
 
 export default defineConfig({
