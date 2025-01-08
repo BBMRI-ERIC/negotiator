@@ -12,7 +12,7 @@ updates:
       - "radovantomik"
     schedule:
       interval: "daily"
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directories:
       - "/frontend"
     reviewers:
