@@ -12,17 +12,13 @@
           <ul class="list-style-none">
             <li>
               <i class="bi bi-globe" />
-              <a
-                :href="network.uri"
-                class="ms-2"
-              >{{ network.uri }}</a>
+              <a :href="network.uri" class="ms-2">{{ network.uri }}</a>
             </li>
             <li>
               <i class="bi bi-envelope" />
-              <a
-                :href="'mailto:' + network.contactEmail"
-                class="ms-2"
-              >{{ network.contactEmail }}</a>
+              <a :href="'mailto:' + network.contactEmail" class="ms-2">{{
+                network.contactEmail
+              }}</a>
             </li>
             <li>
               <i class="bi bi-clipboard" />
@@ -54,45 +50,24 @@
           </a>
         </li>
       </ul>
-      <div
-        v-if="currentTab === 'overview'"
-        class="mb-4"
-      >
+      <div v-if="currentTab === 'overview'" class="mb-4">
         <h4 class="mb-4 mt-5">
           <i class="bi bi-graph-up" />
           Insights
         </h4>
-        <p class="text-muted">
-          The overview visible below is generated for the selected period
-        </p>
+        <p class="text-muted">The overview visible below is generated for the selected period</p>
 
         <!-- Date Range Filters -->
         <div class="mb-4">
           <div class="mb-4">
             <div class="form-group d-inline-block mr-3">
-              <label
-                for="startDate"
-                class="form-label"
-              >Start Date:</label>
-              <input
-                id="startDate"
-                v-model="startDate"
-                type="date"
-                class="form-control"
-              >
+              <label for="startDate" class="form-label">Start Date:</label>
+              <input id="startDate" v-model="startDate" type="date" class="form-control" />
             </div>
 
             <div class="form-group d-inline-block mx-4">
-              <label
-                for="endDate"
-                class="form-label"
-              >End Date:</label>
-              <input
-                id="endDate"
-                v-model="endDate"
-                type="date"
-                class="form-control"
-              >
+              <label for="endDate" class="form-label">End Date:</label>
+              <input id="endDate" v-model="endDate" type="date" class="form-control" />
             </div>
           </div>
         </div>
@@ -102,9 +77,7 @@
           <div class="card-body">
             <!-- Card Header -->
             <div class="d-flex flex-row mb-2 align-items-center">
-              <h4 class="card-title mb-0">
-                Requests
-              </h4>
+              <h4 class="card-title mb-0">Requests</h4>
               <i
                 class="bi bi-info-circle ml-2 small-icon"
                 title="States of different Negotiations involving Resources in this Network"
@@ -117,14 +90,8 @@
             </div>
 
             <!-- Pie Chart Section -->
-            <div
-              v-if="stats"
-              class="pie-chart-container"
-            >
-              <Pie
-                :data="pieData"
-                :options="pieOptions"
-              />
+            <div v-if="stats" class="pie-chart-container">
+              <Pie :data="pieData" :options="pieOptions" />
             </div>
           </div>
         </div>
@@ -134,9 +101,7 @@
           <div class="card-body">
             <!-- Card Header for Additional Information -->
             <div class="d-flex flex-row mb-4 align-items-center">
-              <h4 class="card-title mb-0">
-                Additional Information
-              </h4>
+              <h4 class="card-title mb-0">Additional Information</h4>
               <i
                 class="bi bi-info-circle ml-2 small-icon"
                 title="Additional statistics related to negotiations"
@@ -216,10 +181,7 @@
         </div>
       </div>
 
-      <div
-        v-else-if="currentTab === 'negotiations'"
-        class="mt-3"
-      >
+      <div v-else-if="currentTab === 'negotiations'" class="mt-3">
         <FilterSort
           v-if="isLoaded"
           :user-role="userRole"
@@ -256,7 +218,15 @@ import NegotiationList from '@/components/NegotiationList.vue'
 import NegotiationPagination from '@/components/NegotiationPagination.vue'
 import { useNegotiationsStore } from '@/store/negotiations'
 import { Pie } from 'vue-chartjs'
-import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip } from 'chart.js'
+import {
+  ArcElement,
+  CategoryScale,
+  Chart as ChartJS,
+  DoughnutController,
+  Legend,
+  Title,
+  Tooltip,
+} from 'chart.js'
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
@@ -266,30 +236,30 @@ ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutCont
 const props = defineProps({
   networkId: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 const userStore = useUserStore()
 const negotiationsStore = useNegotiationsStore()
 const networksPageStore = useNetworksPageStore()
 const network = ref(undefined)
 const negotiations = ref(undefined)
-const currentTab = ref("overview") // Default tab
+const currentTab = ref('overview') // Default tab
 const stats = ref(undefined)
 const pagination = ref(undefined)
 const states = ref(undefined)
 const filtersSortData = ref({
   status: [],
-  dateStart: "",
-  dateEnd: "",
-  sortBy: "creationDate",
-  sortDirection: "DESC"
+  dateStart: '',
+  dateEnd: '',
+  sortBy: 'creationDate',
+  sortDirection: 'DESC',
 })
 const today = new Date()
 const startOfYear = new Date(today.getFullYear(), 0, 1)
 const startDate = ref(startOfYear.toISOString().slice(0, 10))
 const endDate = ref(today.toISOString().slice(0, 10))
-const userRole = ref("author")
+const userRole = ref('author')
 const isLoaded = ref(false)
 // Pie chart data
 const pieData = ref({})
@@ -301,26 +271,34 @@ const pieOptions = ref({
       align: 'center',
       labels: {
         boxWidth: 20,
-        padding: 20
-      }
-    }
-  }
+        padding: 20,
+      },
+    },
+  },
 })
 onMounted(async () => {
   await userStore.retrieveUser()
 })
-watch(endDate, () => {
-  loadStats(props.networkId)
-}, { immediate: true })
-watch(startDate, () => {
-  loadStats(props.networkId)
-}, { immediate: true })
+watch(
+  endDate,
+  () => {
+    loadStats(props.networkId)
+  },
+  { immediate: true },
+)
+watch(
+  startDate,
+  () => {
+    loadStats(props.networkId)
+  },
+  { immediate: true },
+)
 watch(
   [network, states, stats],
   ([newNetwork, newStates, newStats]) => {
     isLoaded.value = !!(newNetwork && newStates && newStats)
   },
-  { immediate: true } // Run the watcher immediately on component mount
+  { immediate: true }, // Run the watcher immediately on component mount
 )
 loadNetworkInfo(props.networkId)
 loadStats(props.networkId)
@@ -336,9 +314,16 @@ async function loadNetworkInfo(networkId) {
 }
 
 async function loadStats(networkId) {
-  stats.value = await networksPageStore.retrieveNetworkStats(networkId, startDate.value, endDate.value)
+  stats.value = await networksPageStore.retrieveNetworkStats(
+    networkId,
+    startDate.value,
+    endDate.value,
+  )
   if (stats.value.statusDistribution) {
-    setPieData(Object.keys(stats.value.statusDistribution), Object.values(stats.value.statusDistribution))
+    setPieData(
+      Object.keys(stats.value.statusDistribution),
+      Object.values(stats.value.statusDistribution),
+    )
   } else {
     setPieData(['Total Requests: 0'], [100])
   }
@@ -347,16 +332,23 @@ async function loadStats(networkId) {
 function setPieData(labelsData, datasetsData) {
   pieData.value = {
     labels: labelsData,
-    datasets: [{
-      data: datasetsData,
-      backgroundColor: generatePieChartBackgroundColorArray(labelsData),
-      hoverOffset: 4
-    }]
+    datasets: [
+      {
+        data: datasetsData,
+        backgroundColor: generatePieChartBackgroundColorArray(labelsData),
+        hoverOffset: 4,
+      },
+    ],
   }
 }
 
 async function retrieveLatestNegotiations(currentPageNumber) {
-  const response = await networksPageStore.retrieveNetworkNegotiations(props.networkId, 50, currentPageNumber, filtersSortData.value)
+  const response = await networksPageStore.retrieveNetworkNegotiations(
+    props.networkId,
+    50,
+    currentPageNumber,
+    filtersSortData.value,
+  )
   pagination.value = response.page
   if (response.page.totalElements === 0) {
     negotiations.value = {}
@@ -366,8 +358,13 @@ async function retrieveLatestNegotiations(currentPageNumber) {
 }
 
 function incriseDateEndIfSame() {
-  if (filtersSortData.value.dateStart && filtersSortData.value.dateStart === filtersSortData.value.dateEnd) {
-    filtersSortData.value.dateEnd = moment(filtersSortData.value.dateEnd).add(1, 'days').format('YYYY-MM-DD')
+  if (
+    filtersSortData.value.dateStart &&
+    filtersSortData.value.dateStart === filtersSortData.value.dateEnd
+  ) {
+    filtersSortData.value.dateEnd = moment(filtersSortData.value.dateEnd)
+      .add(1, 'days')
+      .format('YYYY-MM-DD')
   }
 }
 
@@ -379,7 +376,6 @@ function retrieveNegotiationsBySortAndFilter() {
 function retrieveNegotiationsByPage(currentPageNumber) {
   retrieveLatestNegotiations(currentPageNumber - 1)
 }
-
 </script>
 <style scoped>
 .avatar {
@@ -566,7 +562,8 @@ function retrieveNegotiationsByPage(currentPageNumber) {
   color: #6c757d !important;
 }
 
-.mt-3, .mt-4 {
+.mt-3,
+.mt-4 {
   margin-top: 1.5rem !important;
 }
 
@@ -577,9 +574,9 @@ function retrieveNegotiationsByPage(currentPageNumber) {
   width: 100%;
 }
 
-.col-md-6, .col-lg-4 {
+.col-md-6,
+.col-lg-4 {
   flex: 1 1 45%; /* Adjust flex for responsiveness */
   max-width: 33%; /* Set max-width to prevent over-expansion */
 }
-
 </style>
