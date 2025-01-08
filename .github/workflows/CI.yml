@@ -577,6 +577,7 @@ jobs:
         with:
           images: |
             bbmrieric/negotiator-frontend
+            ghcr.io/${{ github.repository_owner }}/negotiator-frontend
           tags: |
             type=ref,event=branch
             type=raw,value=${{ github.head_ref }},event=pr
@@ -591,12 +592,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: frontend
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max,inline=true
+          cache-to: type=gha,mode=max
 
   build-pages:
     runs-on: ubuntu-24.04
