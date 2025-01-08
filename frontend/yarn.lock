@@ -6592,10 +6592,10 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
-vue3-form-wizard@^0.1.8:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/vue3-form-wizard/-/vue3-form-wizard-0.1.9.tgz#17b6c113e6e3253aae543825777eec946c7685c8"
-  integrity sha512-XTNjolQ/1gc2PTt/XXW11Ut6C6PIT8JLYzB6iSGVXPNFXRhes9LDgRQAfLjQwJ+XswiNIsHqfwVnVTPAfTZJ3w==
+vue3-form-wizard@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/vue3-form-wizard/-/vue3-form-wizard-0.2.4.tgz#682279d25029071a0de44becab1a16bc67d2286e"
+  integrity sha512-muf+lxSCSv0Yl9mu5OT6+cdROQ4nZdKuaHhiaazDVSiLWKEmX5wOcKwXhXG7mqaTg8q25u4J34kBvVuVzGSIXw==
 
 vue3-tour@^0.3.4:
   version "0.3.4"
