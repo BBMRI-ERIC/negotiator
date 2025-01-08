@@ -547,6 +547,9 @@ jobs:
       - oauth-test
       - backwards-compatibility
       - integration-tests
+    permissions:
+      packages: write
+      contents: read
     steps:
 
       - name: Checkout codebase
