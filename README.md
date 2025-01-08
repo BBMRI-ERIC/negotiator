@@ -28,20 +28,18 @@ official [Documentation](https://bbmri-eric.github.io/negotiator).
 
 ### Prerequisites
 
-- Java 17
-- Maven
-- Spring
-- Docker engine
+- Docker Engine 27.0 and newer
+- Docker Compose 2.30 and newer
+- Host networking enabled (See this [link](https://docs.docker.com/engine/network/drivers/host/) for Docker Desktop)
+- Unallocated Ports 8080, 8081 and 5432
 
-Running the command bellow in your terminal will spin-up the Negotiator in Dev mode
-along with a database in a Docker container using [testcontainers](https://testcontainers.com/).
+To launch a local instance of the Negotiator, run the following commands:
 ```shell
-mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev 
+git clone https://github.com/BBMRI-ERIC/negotiator.git
+cd negotiator
+docker compose up -d
 ```
 
-Negotiator application can also be spun up using the provided Docker image.
-To run the application with a mock authorization server using the OAuth2 protocol,
-see this [docker compose file](.github/oauth-test/compose.yaml).
 
 > [!TIP]
 > The Database is available at: ``
@@ -61,7 +59,7 @@ Official documentation available at https://bbmri-eric.github.io/negotiator.
 
 ## License
 
-Copyright 2020-2024 [BBMRI-ERIC](https://bbmri-eric.eu).
+Copyright 2020-2025 [BBMRI-ERIC](https://bbmri-eric.eu).
 
 Licensed under GNU Affero General Public License v3.0 (the "License");
 you may not use this file except in compliance with the License.
