@@ -337,7 +337,7 @@ jobs:
           image-ref: bbmrieric/negotiator:latest
           format: sarif
           output: trivy-results.sarif
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           timeout: '15m0s'
 
       - name: Run Trivy Vulnerability Scanner
@@ -346,7 +346,7 @@ jobs:
           image-ref: bbmrieric/negotiator-frontend:latest
           format: sarif
           output: trivy-results.sarif
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           timeout: '15m0s'
 
       - name: Upload Trivy Scan Results to GitHub Security Tab
