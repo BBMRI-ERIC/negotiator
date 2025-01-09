@@ -184,12 +184,14 @@ const props = defineProps({
   // Array of possible recipients for messages.
   recipients: {
     type: Array,
+    // prettier-ignore
     default(rawProps) { // eslint-disable-line no-unused-vars
       return []
     }
   },
   organizations: {
     type: Object,
+    // prettier-ignore
     default(rawProps) { // eslint-disable-line no-unused-vars
       return {}
     }
