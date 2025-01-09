@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useNetworksPageStore = defineStore("networksPage", () => {
+export const useNetworksPageStore = defineStore('networksPage', () => {
   const notifications = useNotificationsStore()
 
   function retrieveNetworkNegotiations(networkId, size, pageNumber, filtersSortData) {
@@ -16,11 +16,12 @@ export const useNetworksPageStore = defineStore("networksPage", () => {
         createdAfter: filtersSortData.dateStart,
         createdBefore: filtersSortData.dateEnd,
         sortBy: filtersSortData.sortBy,
-        sortOrder: filtersSortData.sortDirection
+        sortOrder: filtersSortData.sortDirection,
       },
-      paramsSerializer: { indexes: null }
+      paramsSerializer: { indexes: null },
     }
-    return axios.get(`${apiPaths.BASE_API_PATH}/networks/${networkId}/negotiations`, parameters)
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/networks/${networkId}/negotiations`, parameters)
       .then((response) => {
         return response.data
       })
@@ -31,14 +32,16 @@ export const useNetworksPageStore = defineStore("networksPage", () => {
   }
 
   async function retrieveUserNetworks(userId) {
-    return await axios.get(`${apiPaths.BASE_API_PATH}/users/${userId}/networks`, { headers: getBearerHeaders() })
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/users/${userId}/networks`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data._embedded.networks
       })
   }
 
   async function retrieveNetwork(networkId) {
-    return await axios.get(`${apiPaths.BASE_API_PATH}/networks/${networkId}`, { headers: getBearerHeaders() })
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/networks/${networkId}`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -49,7 +52,11 @@ export const useNetworksPageStore = defineStore("networksPage", () => {
   }
 
   async function retrieveNetworkStats(networkId, startDate, endDate) {
-    return await axios.get(`${apiPaths.BASE_API_PATH}/networks/${networkId}/statistics?since=${startDate}&until=${endDate}`, { headers: getBearerHeaders() })
+    return await axios
+      .get(
+        `${apiPaths.BASE_API_PATH}/networks/${networkId}/statistics?since=${startDate}&until=${endDate}`,
+        { headers: getBearerHeaders() },
+      )
       .then((response) => {
         return response.data
       })
@@ -63,6 +70,6 @@ export const useNetworksPageStore = defineStore("networksPage", () => {
     retrieveNetworkNegotiations,
     retrieveUserNetworks,
     retrieveNetwork,
-    retrieveNetworkStats
+    retrieveNetworkStats,
   }
 })

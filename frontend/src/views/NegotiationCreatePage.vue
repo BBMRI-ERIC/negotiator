@@ -1,12 +1,10 @@
 <template>
-  <negotiation-form
-    :request-id="$route.params.requestId"
-  />
+  <negotiation-form :request-id="$route.params.requestId" />
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
-import NegotiationForm from "@/components/NegotiationForm.vue"
+import NegotiationForm from '@/components/NegotiationForm.vue'
 import { useUserStore } from '../store/user.js'
 
 const userStore = useUserStore()

@@ -1,15 +1,16 @@
 import { onMounted, ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useUiConfiguration = defineStore("uiConfiguration", () => {
+export const useUiConfiguration = defineStore('uiConfiguration', () => {
   const notifications = useNotificationsStore()
   const uiConfiguration = ref({})
 
   function retrieveUiConfiguration() {
-    return axios.get(`${apiPaths.BASE_API_PATH}/ui-config`)
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/ui-config`)
       .then((response) => {
         uiConfiguration.value = response.data
         return response.data
@@ -21,9 +22,13 @@ export const useUiConfiguration = defineStore("uiConfiguration", () => {
   }
 
   function updateUiConfiguration(UiConfiguration) {
-    return axios.put(`${apiPaths.BASE_API_PATH}/ui-config`, UiConfiguration, { headers: getBearerHeaders() })
+    return axios
+      .put(`${apiPaths.BASE_API_PATH}/ui-config`, UiConfiguration, { headers: getBearerHeaders() })
       .then(() => {
-        notifications.setNotification('Thank you. Your Ui-Configuration was submitted successfully', 'success')
+        notifications.setNotification(
+          'Thank you. Your Ui-Configuration was submitted successfully',
+          'success',
+        )
       })
       .catch(() => {
         notifications.setNotification('Error updating Ui-Configuration status', 'danger')
@@ -40,6 +45,6 @@ export const useUiConfiguration = defineStore("uiConfiguration", () => {
   return {
     uiConfiguration,
     retrieveUiConfiguration,
-    updateUiConfiguration
+    updateUiConfiguration,
   }
 })

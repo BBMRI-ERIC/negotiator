@@ -1,21 +1,12 @@
 <template>
-  <NegotiatorModal
-    :id="id"
-    :title="title"
-    :fade="fade"
-  >
+  <NegotiatorModal :id="id" :title="title" :fade="fade">
     <template #body>
       <p>
         {{ text }}
       </p>
     </template>
     <template #footer>
-      <button
-        type="button"
-        class="btn btn-secondary"
-        data-bs-dismiss="modal"
-        @click="emitDismiss"
-      >
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="emitDismiss">
         {{ dismissButtonText }}
       </button>
     </template>
@@ -23,34 +14,34 @@
 </template>
 
 <script setup>
-import NegotiatorModal from "./NegotiatorModal.vue"
+import NegotiatorModal from './NegotiatorModal.vue'
 
 defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   text: {
     type: String,
-    required: true
+    required: true,
   },
   fade: {
     type: Boolean,
-    default: false
+    default: false,
   },
   dismissButtonText: {
     type: String,
-    default: "OK"
-  }
+    default: 'OK',
+  },
 })
 
-const emit = defineEmits(["dismiss"])
+const emit = defineEmits(['dismiss'])
 
 function emitDismiss() {
-  emit("dismiss")
+  emit('dismiss')
 }
 </script>

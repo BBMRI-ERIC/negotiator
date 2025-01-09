@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useFormsStore = defineStore("forms", () => {
+export const useFormsStore = defineStore('forms', () => {
   const notifications = useNotificationsStore()
 
   function retrieveAccessFormById(id) {
-    return axios.get(`${apiPaths.BASE_API_PATH}/access-forms/${id}`, { headers: getBearerHeaders() })
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/access-forms/${id}`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -18,7 +19,8 @@ export const useFormsStore = defineStore("forms", () => {
   }
 
   function retrieveAllAccessForms() {
-    return axios.get(`${apiPaths.BASE_API_PATH}/access-forms`, { headers: getBearerHeaders() })
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/access-forms`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data._embedded['access-forms']
       })
@@ -29,7 +31,8 @@ export const useFormsStore = defineStore("forms", () => {
   }
 
   function retrieveDynamicAccessFormsValueSetByLink(link) {
-    return axios.get(`${link}`, { headers: getBearerHeaders() })
+    return axios
+      .get(`${link}`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -40,7 +43,10 @@ export const useFormsStore = defineStore("forms", () => {
   }
 
   function submitRequiredInformation(data, negotiationId, requirementId) {
-    return axios.post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, { headers: getBearerHeaders() })
+    return axios
+      .post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         notifications.setNotification('Thank you. Your response was successfully submitted. ')
         return response.data.id
@@ -54,6 +60,6 @@ export const useFormsStore = defineStore("forms", () => {
     retrieveAccessFormById,
     retrieveAllAccessForms,
     retrieveDynamicAccessFormsValueSetByLink,
-    submitRequiredInformation
+    submitRequiredInformation,
   }
 })

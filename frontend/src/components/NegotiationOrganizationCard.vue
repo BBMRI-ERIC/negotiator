@@ -11,14 +11,10 @@
   <form-view-modal id="formViewModal" :payload="submittedForm" />
   <confirmation-modal
     id="statusUpdateModal"
-    :title="`Status update for ${
-      selectedOrganization ? selectedOrganization.name : 'Unknown'
-    }`"
+    :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown'}`"
     :text="`Are you sure you want to change the status of all ${
       selectedOrganization ? selectedOrganization.name : 'Unknown'
-    } resources you represent in this Negotiation to ${
-      orgStatus ? orgStatus.label : 'Unknown'
-    } ?`"
+    } resources you represent in this Negotiation to ${orgStatus ? orgStatus.label : 'Unknown'} ?`"
     :message-enabled="true"
     @confirm="updateOrganization()"
   />
@@ -29,22 +25,15 @@
           class="collapse-organization d-flex justify-content-end pt-1 p-1 cursor-pointer unpack align-items-center"
           data-bs-toggle="collapse"
           aria-expanded="false"
-          :data-bs-target="`#card-body-block-${getElementIdFromResourceId(
-            orgId
-          )}`"
-          :aria-controls="`card-body-block-${getElementIdFromResourceId(
-            orgId
-          )}`"
+          :data-bs-target="`#card-body-block-${getElementIdFromResourceId(orgId)}`"
+          :aria-controls="`card-body-block-${getElementIdFromResourceId(orgId)}`"
         >
           <div>
             <i class="bi bi-chevron-down" />
             <i class="bi bi-chevron-up" />
           </div>
           <div class="cursor-pointer">
-            <i
-              class="bi bi-buildings mx-2"
-              :style="{ color: uiConfiguration.primaryTextColor }"
-            />
+            <i class="bi bi-buildings mx-2" :style="{ color: uiConfiguration.primaryTextColor }" />
             <label
               class="fw-bold ml-2 cursor-pointer"
               :style="{ color: uiConfiguration.secondaryTextColor }"
@@ -62,12 +51,9 @@
           >
             <span class="badge" :class="getStatusColor(org.status)">
               <i :class="getStatusIcon(org.status)" class="px-1" />
-              {{ org.status?.replace(/_/g, " ") || "" }}
+              {{ org.status?.replace(/_/g, ' ') || '' }}
             </span>
-            <i
-              v-if="org.updatable"
-              class="bi bi-caret-down-fill icon-smaller mx-1"
-            />
+            <i v-if="org.updatable" class="bi bi-caret-down-fill icon-smaller mx-1" />
           </div>
           <div>
             <ul
@@ -95,11 +81,7 @@
       :id="`card-body-block-${getElementIdFromResourceId(orgId)}`"
       class="collapse multi-collapse"
     >
-      <div
-        v-for="resource in org.resources"
-        :key="resource.id"
-        class="card-body"
-      >
+      <div v-for="resource in org.resources" :key="resource.id" class="card-body">
         <div class="form-check">
           <div class="d-flex flex-row align-items-center flex-row">
             <div>
@@ -124,38 +106,28 @@
                 <CopyTextButton :text="resource.sourceId" />
               </div>
             </div>
-            <div
-              v-if="getLifecycleLinks(resource._links).length > 0"
-              class="ms-4"
-            >
+            <div v-if="getLifecycleLinks(resource._links).length > 0" class="ms-4">
               Update status:
               <div
                 v-for="(link, index) in getLifecycleLinks(resource._links)"
                 :key="index"
                 class="lifecycle-links flex-column"
               >
-                <a
-                  class="lifecycle-text cursor-pointer"
-                  @click="updateResourceState(link.href)"
-                ><i class="bi bi-patch-check" /> {{ link.name }}</a
+                <a class="lifecycle-text cursor-pointer" @click="updateResourceState(link.href)"
+                  ><i class="bi bi-patch-check" /> {{ link.name }}</a
                 >
               </div>
             </div>
           </div>
 
           <div v-for="(link, index) in getSubmissionLinks(resource._links)" :key="index">
-            <a
-              class="submission-text cursor-pointer"
-              @click.prevent="openFormModal(link.href)"
-            ><i class="bi bi-check-circle" /> {{ link.name }}
+            <a class="submission-text cursor-pointer" @click.prevent="openFormModal(link.href)"
+              ><i class="bi bi-check-circle" /> {{ link.name }}
             </a>
           </div>
           <div v-for="(link, index) in getRequirementLinks(resource._links)" :key="index">
-            <a
-              class="requirement-text cursor-pointer"
-              @click="openModal(link.href, resource.id)"
-            ><i class="bi bi-exclamation-circle-fill" />
-              {{ link.title }} required</a
+            <a class="requirement-text cursor-pointer" @click="openModal(link.href, resource.id)"
+              ><i class="bi bi-exclamation-circle-fill" /> {{ link.title }} required</a
             >
           </div>
           <div class="col-12 col-md-4 order-2 order-md-2" />
@@ -169,184 +141,174 @@
 import { computed, reactive, ref } from 'vue'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
-import {
-  getStatusColor,
-  getStatusIcon,
-  transformStatus
-} from '../composables/utils.js';
-import CopyTextButton from "@/components/CopyTextButton.vue";
+import { getStatusColor, getStatusIcon, transformStatus } from '../composables/utils.js'
+import CopyTextButton from '@/components/CopyTextButton.vue'
 // eslint-disable-next-line
-import FormViewModal from "@/components/modals/FormViewModal.vue";
+import FormViewModal from '@/components/modals/FormViewModal.vue'
 // eslint-disable-next-line
-import FormSubmissionModal from "@/components/modals/FormSubmissionModal.vue";
+import FormSubmissionModal from '@/components/modals/FormSubmissionModal.vue'
 
 const props = defineProps({
   orgId: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   org: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   resources: {
     type: Array,
-    default: () => ([])
+    default: () => [],
   },
   resourceStates: {
     type: Array,
-    default: () => ([])
+    default: () => [],
   },
   negotiationId: {
     type: String,
-    default: undefined
-  }
-});
+    default: undefined,
+  },
+})
 
-const uiConfigurationStore = useUiConfiguration();
-const requirementId = ref(undefined);
-const resourceId = ref(undefined);
-const requiredAccessForm = ref({});
-const formSubmissionModal = ref(null);
-const dropdownVisible = reactive({});
-const selectedOrganization = ref(undefined);
-const orgStatus = ref(undefined);
-const negotiationPageStore = useNegotiationPageStore();
-const submittedForm = ref(undefined);
-const formViewModal = ref(null);
-const emit = defineEmits(["reloadResources"]);
+const uiConfigurationStore = useUiConfiguration()
+const requirementId = ref(undefined)
+const resourceId = ref(undefined)
+const requiredAccessForm = ref({})
+const formSubmissionModal = ref(null)
+const dropdownVisible = reactive({})
+const selectedOrganization = ref(undefined)
+const orgStatus = ref(undefined)
+const negotiationPageStore = useNegotiationPageStore()
+const submittedForm = ref(undefined)
+const formViewModal = ref(null)
+const emit = defineEmits(['reloadResources'])
 
 const uiConfiguration = computed(() => {
-  return uiConfigurationStore.uiConfiguration?.theme;
-});
+  return uiConfigurationStore.uiConfiguration?.theme
+})
 
 const resourcesById = computed(() => {
   return getResources.value.reduce((resourcesObjects, resource) => {
-    resourcesObjects[resource.id] = resource;
-    return resourcesObjects;
-  }, {});
-});
+    resourcesObjects[resource.id] = resource
+    return resourcesObjects
+  }, {})
+})
 
 const getResources = computed(() => {
   return props.resources
 })
 
 const sortedStates = computed(() => {
-  return props.resourceStates
-    .slice()
-    .sort((a, b) => Number(a.ordinal) - Number(b.ordinal));
-});
+  return props.resourceStates.slice().sort((a, b) => Number(a.ordinal) - Number(b.ordinal))
+})
 
 const toggleDropdown = (orgId) => {
-  dropdownVisible[orgId] = !dropdownVisible[orgId];
-};
+  dropdownVisible[orgId] = !dropdownVisible[orgId]
+}
 
 function getElementIdFromResourceId(resourceId) {
-  return resourceId.replaceAll(":", "_");
+  return resourceId.replaceAll(':', '_')
 }
 
 async function updateOrgStatus(state, organization, orgId) {
-  toggleDropdown(orgId);
-  selectedOrganization.value = organization;
-  orgStatus.value = state;
+  toggleDropdown(orgId)
+  selectedOrganization.value = organization
+  orgStatus.value = state
 }
 
 function getStatusForResource(resourceId) {
-  const resource = resourcesById.value[resourceId].currentState;
-  return transformStatus(resource);
+  const resource = resourcesById.value[resourceId].currentState
+  return transformStatus(resource)
 }
 async function updateResourceState(link) {
-  await negotiationPageStore.updateResourceStatus(link);
-  emit("reloadResources");
+  await negotiationPageStore.updateResourceStatus(link)
+  emit('reloadResources')
 }
 function getSubmissionLinks(links) {
-  const submissionLinks = [];
+  const submissionLinks = []
   for (const key in links) {
     // Check if the key starts with "submission-"
-    if (key.startsWith("submission-")) {
+    if (key.startsWith('submission-')) {
       // Push the href value of the link to the submissionLinks array
-      submissionLinks.push(links[key]);
+      submissionLinks.push(links[key])
     }
   }
-  return submissionLinks;
+  return submissionLinks
 }
 
 async function openModal(href, resourcesId) {
-  const requirement = await negotiationPageStore.retrieveInfoRequirement(href);
-  resourceId.value = resourcesId;
-  requiredAccessForm.value = requirement.requiredAccessForm;
-  requirementId.value = requirement.id;
+  const requirement = await negotiationPageStore.retrieveInfoRequirement(href)
+  resourceId.value = resourcesId
+  requiredAccessForm.value = requirement.requiredAccessForm
+  requirementId.value = requirement.id
   // eslint-disable-next-line
-  formSubmissionModal.value = new Modal(
-    document.querySelector('#formSubmissionModal')
-  );
-  formSubmissionModal.value.show();
+  formSubmissionModal.value = new Modal(document.querySelector('#formSubmissionModal'))
+  formSubmissionModal.value.show()
 }
 
 async function openFormModal(href) {
-  const payload = await negotiationPageStore.retrieveInformationSubmission(
-    href
-  );
-  submittedForm.value = payload.payload;
+  const payload = await negotiationPageStore.retrieveInformationSubmission(href)
+  submittedForm.value = payload.payload
   // eslint-disable-next-line
-  formViewModal.value = new Modal(document.querySelector("#formViewModal"));
-  formViewModal.value.show();
+  formViewModal.value = new Modal(document.querySelector('#formViewModal'))
+  formViewModal.value.show()
 }
 
 function getRequirementLinks(links) {
-  const requirementLinks = [];
+  const requirementLinks = []
   for (const key in links) {
-    if (key.startsWith("requirement-")) {
-      requirementLinks.push(links[key]);
+    if (key.startsWith('requirement-')) {
+      requirementLinks.push(links[key])
     }
   }
-  return requirementLinks;
+  return requirementLinks
 }
 
 function getLifecycleLinks(links) {
-  const lifecycleLinks = [];
+  const lifecycleLinks = []
   for (const key in links) {
-    if (links[key].title === "Next Lifecycle event") {
-      lifecycleLinks.push(links[key]);
+    if (links[key].title === 'Next Lifecycle event') {
+      lifecycleLinks.push(links[key])
     }
   }
-  return lifecycleLinks;
+  return lifecycleLinks
 }
 
 async function hideFormSubmissionModal() {
-  formSubmissionModal.value.hide();
-  emit("reloadResources");
+  formSubmissionModal.value.hide()
+  emit('reloadResources')
 }
 
 function getRepresentedResources(resources) {
-  const resourceIds = [];
+  const resourceIds = []
 
   // Use for...of to iterate over the array of resources
   for (const resource of resources) {
     // Iterate over the _links of the resource
     for (const key in resource._links) {
-      if (resource._links[key].title === "Next Lifecycle event") {
-        resourceIds.push(resource.id);
-        break; // Exit inner loop when condition is met
+      if (resource._links[key].title === 'Next Lifecycle event') {
+        resourceIds.push(resource.id)
+        break // Exit inner loop when condition is met
       }
     }
   }
-  return resourceIds;
+  return resourceIds
 }
 
 async function updateOrganization() {
   const data = {
     resourceIds: getRepresentedResources(selectedOrganization.value.resources),
     state: orgStatus.value.value,
-  };
-  const negotiationId = props.negotiationId;
-  await negotiationPageStore.addResources(data, negotiationId);
-  emit("reloadResources");
+  }
+  const negotiationId = props.negotiationId
+  await negotiationPageStore.addResources(data, negotiationId)
+  emit('reloadResources')
 }
 </script>
 
 <style scoped>
-.collapse-organization[aria-expanded="true"] .bi-chevron-down {
+.collapse-organization[aria-expanded='true'] .bi-chevron-down {
   display: none;
 }
 
@@ -354,7 +316,7 @@ async function updateOrganization() {
   display: none;
 }
 
-.collapse-organization[aria-expanded="false"] .bi-chevron-up {
+.collapse-organization[aria-expanded='false'] .bi-chevron-up {
   display: none;
 }
 </style>

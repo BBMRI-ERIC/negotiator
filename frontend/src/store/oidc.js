@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 import { piniaOidcCreateStoreModule } from 'pinia-oidc'
-import oidcSettings from "../config/oidc"
+import oidcSettings from '../config/oidc'
 
 export const useOidcStore = defineStore(
-  piniaOidcCreateStoreModule(oidcSettings,
+  piniaOidcCreateStoreModule(
+    oidcSettings,
     // Optional OIDC store settings
-    { removeUserWhenTokensExpire: false })
+    { removeUserWhenTokensExpire: false },
+  ),
 )

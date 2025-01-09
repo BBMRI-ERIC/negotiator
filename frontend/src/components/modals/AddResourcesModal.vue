@@ -6,25 +6,14 @@
     :aria-labelledby="`${id}Label`"
     aria-hidden="true"
   >
-    <div
-      class="modal-dialog modal-dialog-centered modal-xl"
-    >
+    <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="justify-content-center">
-            Edit Resources
-          </h4>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          />
+          <h4 class="justify-content-center">Edit Resources</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
         </div>
         <div class="modal-body text-left">
-          <h5 class="text-center mb-3">
-            Select Resources and their desired Status
-          </h5>
+          <h5 class="text-center mb-3">Select Resources and their desired Status</h5>
           <div class="input-group flex-nowrap">
             <input
               v-model="searchQuery"
@@ -34,12 +23,10 @@
               aria-label="Search"
               aria-describedby="addon-wrapping"
               @input="onSearch"
-            >
+            />
           </div>
           <div class="d-flex justify-content-between">
-            <div class="ms-3 text-muted">
-              Found Resources: {{ getNumberOfFoundResources() }}
-            </div>
+            <div class="ms-3 text-muted">Found Resources: {{ getNumberOfFoundResources() }}</div>
             <div class="d-flex justify-content-end mb-2">
               Selected Resources: {{ getNumberOfSelectedResources() }}
             </div>
@@ -51,31 +38,16 @@
                 v-model="selectedState"
                 class="form-select form-select-sm btn-outline-sort-filter-button-outline"
               >
-                <option
-                  disabled
-                  value=""
-                >
-                  Select a status...
-                </option>
-                <option
-                  v-for="(state, index) in states"
-                  :key="index"
-                  :value="state"
-                >
+                <option disabled value="">Select a status...</option>
+                <option v-for="(state, index) in states" :key="index" :value="state">
                   {{ state.label }}
                 </option>
               </select>
             </div>
           </div>
           <!-- Loading Spinner -->
-          <div
-            v-if="loading"
-            class="text-center my-5"
-          >
-            <div
-              class="spinner-border"
-              role="status"
-            >
+          <div v-if="loading" class="text-center my-5">
+            <div class="spinner-border" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
@@ -87,58 +59,42 @@
                   type="checkbox"
                   class="form-check-input"
                   @change="toggleSelectAll"
-                >
+                />
                 <label class="form-check-label ms-2">Select All</label>
               </div>
-              <button
-                class="btn btn-primary mx-2"
-                @click="addResources"
-              >
-                Add
-              </button>
+              <button class="btn btn-primary mx-2" @click="addResources">Add</button>
             </div>
             <table class="table table-sm">
               <thead>
-              <tr>
-                <th scope="col">
-                  Select
-                </th>
-                <th scope="col">
-                  Resource Name
-                </th>
-                <th scope="col">
-                  Resource ID
-                </th>
-              </tr>
+                <tr>
+                  <th scope="col">Select</th>
+                  <th scope="col">Resource Name</th>
+                  <th scope="col">Resource ID</th>
+                </tr>
               </thead>
               <tbody>
-              <tr
-                  v-for="collection in resources"
-                  :key="collection.id"
-              >
-                <td>
-                  <input
+                <tr v-for="collection in resources" :key="collection.id">
+                  <td>
+                    <input
                       :id="collection.id"
                       v-model="selectedResources"
                       type="checkbox"
                       :value="collection.id"
                       class="form-check-input"
                       @change="handleCheckboxChange"
-                  >
-                </td>
-                <td>
-                  <label
-                      :for="collection.id"
-                      class="form-check-label"
-                  >{{ collection.name }}</label>
-                </td>
-                <td>
-                  <label
-                      :for="collection.id"
-                      class="form-check-label"
-                  >{{ collection.sourceId }}</label>
-                </td>
-              </tr>
+                    />
+                  </td>
+                  <td>
+                    <label :for="collection.id" class="form-check-label">{{
+                      collection.name
+                    }}</label>
+                  </td>
+                  <td>
+                    <label :for="collection.id" class="form-check-label">{{
+                      collection.sourceId
+                    }}</label>
+                  </td>
+                </tr>
               </tbody>
             </table>
             <!-- Pagination Controls -->
@@ -168,7 +124,7 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
-import debounce from "@popperjs/core/lib/utils/debounce"
+import debounce from '@popperjs/core/lib/utils/debounce'
 import { useNegotiationPageStore } from '@/store/negotiationPage'
 
 const resources = ref([])
@@ -179,32 +135,35 @@ const pageNumber = ref(0)
 const totalPages = ref(0)
 const totalElements = ref(0)
 const pageLinks = ref({})
-const searchQuery = ref("")
+const searchQuery = ref('')
 const states = ref([])
 const selectedState = ref({})
 const props = defineProps({
   shown: {
     type: Boolean,
-    required: true
+    required: true,
   },
   negotiationId: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 const store = useNegotiationPageStore()
-watch(() => props.shown, () => {
-  if (props.shown !== false) {
-    loadResources()
-    loadStates()
-  }
-})
+watch(
+  () => props.shown,
+  () => {
+    if (props.shown !== false) {
+      loadResources()
+      loadStates()
+    }
+  },
+)
 watch(selectedResources, (newVal) => {
   selectAll.value = newVal.length === resources.value.length
 })
 onMounted(() => {
   new Tooltip(document.body, {
-    selector: "[data-bs-toggle='tooltip']"
+    selector: "[data-bs-toggle='tooltip']",
   })
 })
 
@@ -222,25 +181,25 @@ async function loadStates() {
   const response = await store.retrieveResourceAllStates()
   states.value = response
 }
-const emit = defineEmits(["confirm"])
+const emit = defineEmits(['confirm'])
 
 async function addResources() {
   let data = { resourceIds: selectedResources.value }
   if (selectedState.value) {
     data = {
       resourceIds: selectedResources.value,
-      state: selectedState.value.value
+      state: selectedState.value.value,
     }
   }
   const negotiationId = props.negotiationId
   await store.addResources(data, negotiationId)
   selectedResources.value = []
-  emit("confirm")
+  emit('confirm')
 }
 const toggleSelectAll = () => {
   if (selectAll.value) {
     // Select all resources
-    selectedResources.value = resources.value.map(resource => resource.id)
+    selectedResources.value = resources.value.map((resource) => resource.id)
   } else {
     // Deselect all resources
     selectedResources.value = []
@@ -279,6 +238,4 @@ function getNumberOfFoundResources() {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

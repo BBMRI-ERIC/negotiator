@@ -1,18 +1,13 @@
 <template>
   <div class="error-page d-flex flex-column justify-content-center align-items-center">
-    <h1 class="text-title text-uppercase">
-      Oops! Sorry something went wrong.
-    </h1>
+    <h1 class="text-title text-uppercase">Oops! Sorry something went wrong.</h1>
     <div class="image-text-box mt-5">
       <div class="errors-text">
-        <p 
-          v-for="(error, index) in useNotifications.allNotifications"
-          :key="index"
-        >
+        <p v-for="(error, index) in useNotifications.allNotifications" :key="index">
           {{ error.message }}
         </p>
       </div>
-      <img class="image" :src="errorImage" alt="error image">
+      <img class="image" :src="errorImage" alt="error image" />
     </div>
   </div>
 </template>
@@ -21,7 +16,7 @@
 import { onMounted } from 'vue'
 import { useUserStore } from '../store/user'
 import { useNotificationsStore } from '../store/notifications'
-import errorImage from "../assets/images/error-image.jpg"
+import errorImage from '../assets/images/error-image.jpg'
 
 const userStore = useUserStore()
 const useNotifications = useNotificationsStore()

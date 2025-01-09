@@ -21,9 +21,7 @@
           />
         </div>
         <div class="modal-body text-left">
-          <div class="fs-3 mb-4 fw-bold text-secondary text-center">
-            Submitted Information
-          </div>
+          <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
           <div>
             <ul>
               <li
@@ -31,19 +29,10 @@
                 :key="element"
                 class="list-group-item p-3"
               >
-                <span class="fs-5 fw-bold text-primary-text mt-3">
-                  {{ key }}</span>
-                <div
-                  v-for="(subelement, subelementkey) in element"
-                  :key="subelement"
-                  class="mt-3"
-                >
-                  <label
-                    class="me-2 fw-bold text-secondary-text"
-                  >{{ subelementkey }}:</label>
-                  <span
-                    class="text-secondary-text text-break"
-                  >
+                <span class="fs-5 fw-bold text-primary-text mt-3"> {{ key }}</span>
+                <div v-for="(subelement, subelementkey) in element" :key="subelement" class="mt-3">
+                  <label class="me-2 fw-bold text-secondary-text">{{ subelementkey }}:</label>
+                  <span class="text-secondary-text text-break">
                     {{ translateTrueFalse(subelement) }}
                   </span>
                 </div>
@@ -59,43 +48,42 @@
 <script setup>
 import { onMounted } from 'vue'
 import { Tooltip } from 'bootstrap'
-import "vue3-form-wizard/dist/style.css"
+import 'vue3-form-wizard/dist/style.css'
 
 const props = defineProps({
   payload: {
     type: Object,
-    required: true
+    required: true,
   },
   isModalSmall: {
     type: Boolean,
     required: false,
-    default: true
+    default: true,
   },
   isXButtondisplayed: {
     type: Boolean,
     required: false,
-    default: true
-  }
+    default: true,
+  },
 })
 
 function translateTrueFalse(value) {
-  if (typeof value === "boolean") {
-    return value ? "Yes" : "No"
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No'
   }
   return value
 }
 
 onMounted(() => {
   new Tooltip(document.body, {
-    selector: "[data-bs-toggle='tooltip']"
+    selector: "[data-bs-toggle='tooltip']",
   })
 })
-
 </script>
 
 <style scoped>
 .required:after {
-  content: "  *\00a0";
+  content: '  *\00a0';
   color: red;
 }
 

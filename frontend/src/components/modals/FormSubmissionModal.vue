@@ -39,10 +39,7 @@
               class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto text-primary-text"
               :before-change="isSectionValid(section)"
             >
-              <div
-                v-if="section.description"
-                class="mx-3 d-flex justify-content-end"
-              >
+              <div v-if="section.description" class="mx-3 d-flex justify-content-end">
                 <i
                   class="py-1 bi bi-info-circle"
                   data-bs-toggle="tooltip"
@@ -50,11 +47,7 @@
                 />
               </div>
 
-              <div
-                v-for="criteria in section.elements"
-                :key="criteria.name"
-                class="mb-4 mx-3"
-              >
+              <div v-for="criteria in section.elements" :key="criteria.name" class="mb-4 mx-3">
                 <label
                   class="form-label text-primary-text"
                   :class="{ required: criteria.required }"
@@ -62,10 +55,7 @@
                   {{ criteria.label }}
                 </label>
 
-                <span
-                  v-if="criteria.description"
-                  class="ms-2 text-muted"
-                >
+                <span v-if="criteria.description" class="ms-2 text-muted">
                   <i
                     class="py-1 bi bi-info-circle"
                     data-bs-toggle="tooltip"
@@ -81,7 +71,7 @@
                     class="form-control text-secondary-text"
                     :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                     :required="criteria.required"
-                  >
+                  />
                 </div>
 
                 <div v-else-if="criteria.type === 'BOOLEAN'">
@@ -94,11 +84,8 @@
                       class="form-check-input"
                       :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                       type="radio"
-                    >
-                    <label
-                      class="form-check-label"
-                      for="inlineRadio1"
-                    > Yes </label>
+                    />
+                    <label class="form-check-label" for="inlineRadio1"> Yes </label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input
@@ -109,11 +96,8 @@
                       class="form-check-input"
                       :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                       type="radio"
-                    >
-                    <label
-                      class="form-check-label"
-                      for="inlineRadio2"
-                    > No </label>
+                    />
+                    <label class="form-check-label" for="inlineRadio2"> No </label>
                   </div>
                 </div>
 
@@ -129,21 +113,24 @@
                         :value="value"
                         :required="criteria.required"
                         class="form-check-input"
-                        :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                        :class="
+                          validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                        "
                         type="checkbox"
-                      >
-                      <label
-                        class="form-check-label"
-                        for="inlineCheckbox1"
-                      >{{ value }}</label>
+                      />
+                      <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
                     </div>
                   </div>
                   <div
-                    v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'"
+                    v-if="
+                      negotiationValueSets[criteria.id]?.externalDocumentation &&
+                      negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'
+                    "
                   >
                     <span class="text-muted"> External Documentation - </span>
-                    <a :href="negotiationValueSets[criteria.id]?.externalDocumentation"> {{
-                        negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
+                    <a :href="negotiationValueSets[criteria.id]?.externalDocumentation">
+                      {{ negotiationValueSets[criteria.id]?.externalDocumentation }}
+                    </a>
                   </div>
                 </div>
 
@@ -159,14 +146,13 @@
                         :value="value"
                         :required="criteria.required"
                         class="form-check-input"
-                        :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                        :class="
+                          validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''
+                        "
                         type="radio"
                         @click="uncheckRadioButton(value, section.name, criteria.name)"
-                      >
-                      <label
-                        class="form-check-label"
-                        for="inlineRadio1"
-                      >{{ value }}</label>
+                      />
+                      <label class="form-check-label" for="inlineRadio1">{{ value }}</label>
                     </div>
                   </div>
                 </div>
@@ -181,10 +167,7 @@
                   />
                 </div>
 
-                <div
-                  v-else-if="criteria.type === 'NUMBER'"
-                  class="col-5"
-                >
+                <div v-else-if="criteria.type === 'NUMBER'" class="col-5">
                   <input
                     v-model="negotiationCriteria[section.name][criteria.name]"
                     :type="criteria.type"
@@ -193,7 +176,7 @@
                     :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                     :required="criteria.required"
                     @keypress="isNumber($event)"
-                  >
+                  />
                 </div>
 
                 <div v-else-if="criteria.type === 'FILE'">
@@ -205,17 +188,11 @@
                     :placeholder="criteria.description"
                     :type="criteria.type"
                     @change="handleFileUpload($event, section.name, criteria.name)"
-                  >
+                  />
                 </div>
 
-                <div
-                  v-else-if="criteria.type === 'DATE'"
-                  class="w-25"
-                >
-                  <p
-                    v-if="criteria.description"
-                    class="text-muted"
-                  >
+                <div v-else-if="criteria.type === 'DATE'" class="w-25">
+                  <p v-if="criteria.description" class="text-muted">
                     {{ criteria.description }}
                   </p>
                   <input
@@ -225,14 +202,11 @@
                     class="form-control form-control-sm"
                     :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                     type="date"
-                  >
+                  />
                 </div>
 
                 <div v-else-if="criteria.type === 'INFORMATION'">
-                  <p
-                    v-if="criteria.description"
-                    class="text-muted"
-                  >
+                  <p v-if="criteria.description" class="text-muted">
                     {{ criteria.description }}
                   </p>
                 </div>
@@ -244,52 +218,61 @@
                   :placeholder="criteria.description"
                   class="form-control text-secondary-text"
                   :required="criteria.required"
-                >
+                />
 
-                <div
-                  v-if="validationColorHighlight.includes(criteria.name)"
-                  class="invalidText"
-                >
+                <div v-if="validationColorHighlight.includes(criteria.name)" class="invalidText">
                   {{ transformMessage(criteria.type) }}
                 </div>
                 <div
-                  v-if="negotiationValueSets[criteria.id]?.externalDocumentation && negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'"
+                  v-if="
+                    negotiationValueSets[criteria.id]?.externalDocumentation &&
+                    negotiationValueSets[criteria.id]?.externalDocumentation !== 'none'
+                  "
                   class="mt-2"
                 >
                   <span class="text-muted"> External Documentation - </span>
-                  <a :href="negotiationValueSets[criteria.id]?.externalDocumentation"> {{
-                      negotiationValueSets[criteria.id]?.externalDocumentation }} </a>
+                  <a :href="negotiationValueSets[criteria.id]?.externalDocumentation">
+                    {{ negotiationValueSets[criteria.id]?.externalDocumentation }}
+                  </a>
                   {{ props.requirementId }}
                 </div>
               </div>
             </tab-content>
-            <tab-content
-              title="Overview"
-              class="form-step overflow-auto"
-            >
+            <tab-content title="Overview" class="form-step overflow-auto">
               <div
                 v-for="section in accessForm.sections"
                 :key="section.name"
                 class="border rounded-2 input-group p-3 mb-2 mb-3 text-secondary-text"
               >
-                <span class="mb-3 fs-4 fw-bold text-secondary">{{ section.label.toUpperCase() }}</span>
+                <span class="mb-3 fs-4 fw-bold text-secondary">{{
+                  section.label.toUpperCase()
+                }}</span>
                 <div
                   v-for="accessFormElement in section.elements"
                   :key="accessFormElement.name"
                   class="input-group mb-2"
                 >
                   <label class="me-2 fw-bold">{{ accessFormElement.label }}:</label>
-                  <span v-if="isAttachment(negotiationCriteria[section.name][accessFormElement.name])">
+                  <span
+                    v-if="isAttachment(negotiationCriteria[section.name][accessFormElement.name])"
+                  >
                     <span v-if="negotiationCriteria[section.name][accessFormElement.name].name">{{
-                        negotiationCriteria[section.name][accessFormElement.name].name }}</span>
+                      negotiationCriteria[section.name][accessFormElement.name].name
+                    }}</span>
                     <div
-                      v-for="(choice, index) in negotiationCriteria[section.name][accessFormElement.name]"
+                      v-for="(choice, index) in negotiationCriteria[section.name][
+                        accessFormElement.name
+                      ]"
                       v-else
                       :key="index"
-                    >{{ choice }}</div>
+                    >
+                      {{ choice }}
+                    </div>
                   </span>
                   <span v-else>
-                    {{ translateTrueFalse(negotiationCriteria[section.name][accessFormElement.name]) }}
+                    {{
+                      translateTrueFalse(negotiationCriteria[section.name][accessFormElement.name])
+                    }}
                   </span>
                 </div>
               </div>
@@ -306,11 +289,8 @@
                 </button>
               </div>
               <div class="wizard-footer-right">
-                <button
-                  class="btn btn-secondary"
-                  @click="props.nextTab()"
-                >
-                  {{ props.isLastStep ? "Submit request" : "Next" }}
+                <button class="btn btn-secondary" @click="props.nextTab()">
+                  {{ props.isLastStep ? 'Submit request' : 'Next' }}
                 </button>
               </div>
             </template>
@@ -325,80 +305,83 @@
 import { ref, onMounted, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
-import "vue3-form-wizard/dist/style.css"
+import 'vue3-form-wizard/dist/style.css'
 import { useFormsStore } from '../../store/forms'
 import { useNotificationsStore } from '../../store/notifications'
 
 const props = defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   negotiationId: {
     type: String,
-    required: true
+    required: true,
   },
   requirementId: {
     type: String,
-    required: true
+    required: true,
   },
   resourceId: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   fade: {
     type: Boolean,
     required: false,
-    default: true
+    default: true,
   },
   isModalSmall: {
     type: Boolean,
     required: false,
-    default: false
+    default: false,
   },
   isXButtondisplayed: {
     type: Boolean,
     required: false,
-    default: true
+    default: true,
   },
   requiredAccessFormId: {
     type: String,
     required: true,
-    default: undefined
+    default: undefined,
   },
   requirementLink: {
     type: String,
     required: true,
-    default: undefined
-  }
+    default: undefined,
+  },
 })
 
 const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
 
-const notificationTitle = ref("")
-const notificationText = ref("")
+const notificationTitle = ref('')
+const notificationText = ref('')
 const negotiationCriteria = ref({})
 const negotiationValueSets = ref({})
 const validationColorHighlight = ref([])
 
 const accessForm = ref(undefined)
 
-watch(() => props.requiredAccessFormId, async () => {
-  if (props.requiredAccessFormId !== undefined) {
-    accessForm.value = await loadAccessForm(props.requiredAccessFormId)
-    if (accessForm.value !== undefined) {
-      initNegotiationCriteria()
+watch(
+  () => props.requiredAccessFormId,
+  async () => {
+    if (props.requiredAccessFormId !== undefined) {
+      accessForm.value = await loadAccessForm(props.requiredAccessFormId)
+      if (accessForm.value !== undefined) {
+        initNegotiationCriteria()
+      }
     }
-  }
-})
+  },
+)
 onMounted(() => {
   new Tooltip(document.body, {
-    selector: "[data-bs-toggle='tooltip']"
+    selector: "[data-bs-toggle='tooltip']",
   })
 })
 
@@ -415,7 +398,7 @@ async function getValueSet(link, id) {
 async function startRequiredAccessForm() {
   const data = {
     resourceId: props.resourceId,
-    payload: negotiationCriteria.value
+    payload: negotiationCriteria.value,
   }
   const negotiationId = props.negotiationId
   const requirementId = props.requirementId
@@ -444,11 +427,11 @@ function initNegotiationCriteria() {
   for (const section of accessForm.value.sections) {
     negotiationCriteria.value[section.name] = {}
     for (const criteria of section.elements) {
-      if (criteria.type === "MULTIPLE_CHOICE") {
+      if (criteria.type === 'MULTIPLE_CHOICE') {
         negotiationCriteria.value[section.name][criteria.name] = []
-        getValueSet(criteria._links["value-set"].href)
-      } else if (criteria.type === "SINGLE_CHOICE") {
-        getValueSet(criteria._links["value-set"].href, criteria.id)
+        getValueSet(criteria._links['value-set'].href)
+      } else if (criteria.type === 'SINGLE_CHOICE') {
+        getValueSet(criteria._links['value-set'].href, criteria.id)
       } else {
         negotiationCriteria.value[section.name][criteria.name] = null
       }
@@ -460,12 +443,19 @@ function isSectionValid(section) {
   return () => {
     let valid = true
     validationColorHighlight.value = []
-    section.elements.forEach(ac => {
+    section.elements.forEach((ac) => {
       if (ac.required) {
-        if (ac.type === "MULTIPLE_CHOICE" && Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0) {
+        if (
+          ac.type === 'MULTIPLE_CHOICE' &&
+          Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0
+        ) {
           validationColorHighlight.value.push(ac.name)
           valid = false
-        } else if (ac.type !== "MULTIPLE_CHOICE" && (typeof negotiationCriteria.value[section.name][ac.name] !== "string" || negotiationCriteria.value[section.name][ac.name] === "")) {
+        } else if (
+          ac.type !== 'MULTIPLE_CHOICE' &&
+          (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
+            negotiationCriteria.value[section.name][ac.name] === '')
+        ) {
           validationColorHighlight.value.push(ac.name)
           valid = false
         }
@@ -474,7 +464,7 @@ function isSectionValid(section) {
       }
     })
     if (!valid) {
-      notificationsStore.setNotification("Please fill out all required fields correctly")
+      notificationsStore.setNotification('Please fill out all required fields correctly')
     }
     return valid
   }
@@ -482,54 +472,47 @@ function isSectionValid(section) {
 
 function uncheckRadioButton(value, sectionName, criteriaName) {
   if (negotiationCriteria.value[sectionName][criteriaName] === value) {
-    negotiationCriteria.value[sectionName][criteriaName] = ""
+    negotiationCriteria.value[sectionName][criteriaName] = ''
   }
 }
 
 function translateTrueFalse(value) {
-  if (typeof value === "boolean") {
-    return value ? "Yes" : "No"
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No'
   }
   return value
 }
 
 function isNumber(evt) {
   const charCode = evt.which ? evt.which : evt.keyCode
-  if (
-    charCode > 31 &&
-    (charCode < 48 || charCode > 57) &&
-    charCode !== 46
-  ) {
+  if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46) {
     evt.preventDefault()
   }
 }
 
 function transformMessage(text) {
-  if (text == "SINGLE_CHOICE" || text == "BOOLEAN") {
-    return "Please select one of available values"
-  } else if (text == "MULTIPLE_CHOICE") {
-    return "Please select at least one of the available values"
-  } else if (text == "TEXT_LARGE") {
-    return "Please provide a text"
+  if (text == 'SINGLE_CHOICE' || text == 'BOOLEAN') {
+    return 'Please select one of available values'
+  } else if (text == 'MULTIPLE_CHOICE') {
+    return 'Please select at least one of the available values'
+  } else if (text == 'TEXT_LARGE') {
+    return 'Please provide a text'
   } else {
-    return "Please provide a " + text?.toLowerCase()
+    return 'Please provide a ' + text?.toLowerCase()
   }
 }
 
-const emit = defineEmits(["confirm"])
+const emit = defineEmits(['confirm'])
 
 function emitConfirm() {
-  showNotification(
-    'Confirm submission',
-    'Thank you. Your response has been submitted successfully'
-  )
-  emit("confirm")
+  showNotification('Confirm submission', 'Thank you. Your response has been submitted successfully')
+  emit('confirm')
 }
 </script>
 
 <style scoped>
 .required:after {
-  content: "  *\00a0";
+  content: '  *\00a0';
   color: red;
 }
 

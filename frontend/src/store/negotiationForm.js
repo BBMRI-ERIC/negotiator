@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useNegotiationFormStore = defineStore("negotiationForm", () => {
+export const useNegotiationFormStore = defineStore('negotiationForm', () => {
   const notifications = useNotificationsStore()
 
   async function retrieveRequestById(requestId) {
-    return await axios.get(`${apiPaths.REQUESTS_PATH}/${requestId}`, { headers: getBearerHeaders(requestId) })
+    return await axios
+      .get(`${apiPaths.REQUESTS_PATH}/${requestId}`, { headers: getBearerHeaders(requestId) })
       .then((response) => {
         // it handles the error when backend is unreachable but vite proxy strangely return 200
         if (response.data === '') {
@@ -25,7 +26,10 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
   }
 
   async function retrieveCombinedAccessForm(requestId) {
-    return await axios.get(`${apiPaths.BASE_API_PATH}/requests/${requestId}/access-form`, { headers: getBearerHeaders() })
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/requests/${requestId}/access-form`, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         return response.data
       })
@@ -36,18 +40,24 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
   }
 
   async function retrieveNegotiationCombinedAccessForm(requestId) {
-    return await axios.get(`${apiPaths.BASE_API_PATH}/negotiations/${requestId}/access-form`, { headers: getBearerHeaders() })
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/negotiations/${requestId}/access-form`, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error getting Negotiation Combined Access Form request data from server')
+        notifications.setNotification(
+          'Error getting Negotiation Combined Access Form request data from server',
+        )
         return null
       })
   }
 
   async function retrieveDynamicAccessFormsValueSetByID(id) {
-    return await axios.get(`${apiPaths.VALUE_SETS}/${id}`, { headers: getBearerHeaders() })
+    return await axios
+      .get(`${apiPaths.VALUE_SETS}/${id}`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -68,7 +78,8 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
 
           uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
-          const attachmentsIds = await axios.post('/api/v3/attachments', formData, uploadFileHeaders)
+          const attachmentsIds = await axios
+            .post('/api/v3/attachments', formData, uploadFileHeaders)
             .then((response) => {
               return response.data
             })
@@ -81,7 +92,8 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
         }
       }
     }
-    return axios.post(apiPaths.NEGOTIATION_PATH, data, { headers: getBearerHeaders() })
+    return axios
+      .post(apiPaths.NEGOTIATION_PATH, data, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data.id
       })
@@ -101,7 +113,12 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
 
           uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
-          const attachmentsIds = await axios.post(`${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`, formData, uploadFileHeaders)
+          const attachmentsIds = await axios
+            .post(
+              `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
+              formData,
+              uploadFileHeaders,
+            )
             .then((response) => {
               return response.data
             })
@@ -115,7 +132,8 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
       }
     }
 
-    return axios.put(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, data, { headers: getBearerHeaders() })
+    return axios
+      .put(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, data, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -132,6 +150,6 @@ export const useNegotiationFormStore = defineStore("negotiationForm", () => {
     retrieveNegotiationCombinedAccessForm,
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
-    updateNegotiationById
+    updateNegotiationById,
   }
 })
