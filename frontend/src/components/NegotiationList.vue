@@ -77,7 +77,7 @@
                     class="btn btn-sm py-0"
                     :style="{'color': uiConfiguration?.tableTextColor}"
                     type="button"
-                    @click="changeSortDirection('title'); emitFilterSortData();"
+                    @click="changeSortDirection('title'), emitFilterSortData()"
                 >
                   <i
                       :class="filtersSortData.sortDirection === 'ASC' && filtersSortData.sortBy === 'title' ? 'bi bi-sort-alpha-up-alt' : 'bi-sort-alpha-down'"
@@ -97,7 +97,7 @@
                     class="btn btn-sm py-0"
                     :style="{'color': uiConfiguration?.tableTextColor}"
                     type="button"
-                    @click="changeSortDirection('creationDate'); emitFilterSortData();"
+                    @click="changeSortDirection('creationDate'), emitFilterSortData()"
                 >
                   <i
                       :class="filtersSortData.sortDirection === 'ASC' && filtersSortData.sortBy === 'creationDate' ? 'bi bi-sort-numeric-up-alt' : 'bi-sort-numeric-down'"
@@ -121,7 +121,7 @@
                     class="btn btn-sm py-0"
                     :style="{'color': uiConfiguration?.tableTextColor}"
                     type="button"
-                    @click="changeSortDirection('currentState'); emitFilterSortData();"
+                    @click="changeSortDirection('currentState'), emitFilterSortData()"
                 >
                   <i
                       :class="filtersSortData.sortDirection === 'ASC' && filtersSortData.sortBy === 'currentState' ? 'bi bi-sort-up-alt' : 'bi-sort-down'"
