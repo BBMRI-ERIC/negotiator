@@ -10,14 +10,16 @@ import git from 'git-rev-sync'
 const PROXY_TARGET = "http://localhost:8081"
 
 try {
+    // eslint-disable-next-line
     process.env.VITE_GIT_TAG = git.tag()
 } catch {
     try {
+        // eslint-disable-next-line
         process.env.VITE_GIT_TAG = git.short('../.')
     } catch {
+        // eslint-disable-next-line
         process.env.VITE_GIT_TAG = 'unknown'
     }
-
 }
 
 export default defineConfig({
