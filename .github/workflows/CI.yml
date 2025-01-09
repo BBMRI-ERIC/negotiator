@@ -21,7 +21,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
@@ -85,7 +85,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Checkout Code
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Lint Code Base
         run: mvn -f backend clean com.spotify.fmt:fmt-maven-plugin:check
@@ -95,7 +95,7 @@ jobs:
     name: Lint JS Code
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
@@ -122,7 +122,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
@@ -157,7 +157,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
@@ -186,7 +186,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
@@ -217,7 +217,7 @@ jobs:
         browser: [ "chrome", "electron" ]
     steps:
       - name: Checkout
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
@@ -254,7 +254,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
@@ -283,7 +283,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
@@ -369,7 +369,7 @@ jobs:
           path: /tmp
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Load image
         run: docker load --input /tmp/negotiator.tar
@@ -413,7 +413,7 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup environment with auth server
         run: docker compose up -d
@@ -472,7 +472,7 @@ jobs:
         run: docker logs negotiator
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Check health
         run: .github/scripts/check_health.sh negotiator
@@ -491,7 +491,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
@@ -553,7 +553,7 @@ jobs:
     steps:
 
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
@@ -607,7 +607,7 @@ jobs:
     name: Build Docs
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
 
@@ -661,7 +661,7 @@ jobs:
       - integration-tests
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
