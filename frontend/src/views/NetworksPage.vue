@@ -227,7 +227,7 @@ import {
   Title,
   Tooltip,
 } from 'chart.js'
-import { getPieChartBackgroundColor } from '../composables/utils.js'
+import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
 
@@ -319,7 +319,8 @@ async function loadStats(networkId) {
     startDate.value,
     endDate.value,
   )
-  if (!stats.value.statusDistribution) {
+
+  if (stats.value.statusDistribution) {
     setPieData(
       Object.keys(stats.value.statusDistribution),
       Object.values(stats.value.statusDistribution),
@@ -335,7 +336,7 @@ function setPieData(labelsData, datasetsData) {
     datasets: [
       {
         data: datasetsData,
-        backgroundColor: getPieChartBackgroundColor(),
+        backgroundColor: generatePieChartBackgroundColorArray(labelsData),
         hoverOffset: 4,
       },
     ],
