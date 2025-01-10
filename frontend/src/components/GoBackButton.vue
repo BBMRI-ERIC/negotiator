@@ -2,7 +2,11 @@
   <button
     type="button"
     class="btn"
-    :style="{ 'background-color': uiConfiguration.buttonColor, 'border-color': uiConfiguration.buttonColor, 'color': '#FFFFFF'}"
+    :style="{
+      'background-color': uiConfiguration.buttonColor,
+      'border-color': uiConfiguration.buttonColor,
+      color: '#FFFFFF',
+    }"
     @click="goBack()"
   >
     <i class="bi-arrow-left" />
@@ -27,7 +31,7 @@ function goBack() {
     router.go(-1)
   } else {
     router.push({
-      name: "home"
+      name: 'home',
     })
   }
 }

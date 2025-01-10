@@ -1,14 +1,7 @@
 <template>
-  <div
-    v-if="notification !== undefined"
-    class="fixed-top mt-5 pt-3"
-  >
+  <div v-if="notification !== undefined" class="fixed-top mt-5 pt-3">
     <div class="col-12">
-      <div
-        class="alert alert-dismissible fade show"
-        :class="returnColor"
-        role="alert"
-      >
+      <div class="alert alert-dismissible fade show" :class="returnColor" role="alert">
         {{ notification }}
         <button
           type="button"
@@ -33,8 +26,7 @@ const notification = computed(() => {
 })
 
 const returnColor = computed(() => {
-  if (notificationsStore.notification.type)
-    return 'alert-' + notificationsStore.notification.type
+  if (notificationsStore.notification.type) return 'alert-' + notificationsStore.notification.type
 
   return 'alert-warning'
 })

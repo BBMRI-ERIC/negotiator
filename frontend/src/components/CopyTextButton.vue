@@ -1,9 +1,5 @@
 <template>
-  <button
-    type="button"
-    class="btn btn-sm btn-muted"
-    @click="copyTextToClipboard(text)"
-  >
+  <button type="button" class="btn btn-sm btn-muted" @click="copyTextToClipboard(text)">
     <span class="bi-copy" />
   </button>
 </template>
@@ -12,8 +8,8 @@
 defineProps({
   text: {
     type: String,
-    default: ""
-  }
+    default: '',
+  },
 })
 
 function copyTextToClipboard(text) {

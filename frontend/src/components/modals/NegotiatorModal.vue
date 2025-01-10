@@ -13,7 +13,7 @@
     >
       <div class="modal-content text-center">
         <div class="modal-header justify-content-center">
-          <h4 class="modal-title ">
+          <h4 class="modal-title">
             {{ title }}
           </h4>
           <button
@@ -40,26 +40,26 @@
 defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   fade: {
     type: Boolean,
     required: false,
-    default: true
+    default: true,
   },
   isModalSmall: {
     type: Boolean,
     required: false,
-    default: false
+    default: false,
   },
   isXButtondisplayed: {
     type: Boolean,
     required: false,
-    default: true
-  }
+    default: true,
+  },
 })
 </script>

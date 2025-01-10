@@ -1,33 +1,16 @@
 <template>
-  <NegotiatorModal
-    :id="id"
-    :title="title"
-  >
+  <NegotiatorModal :id="id" :title="title">
     <template #body>
       <p>
         {{ text }}
       </p>
-      <textarea
-        v-if="messageEnabled"
-        v-model="message"
-        class="form-control"
-      />
+      <textarea v-if="messageEnabled" v-model="message" class="form-control" />
     </template>
     <template #footer>
-      <button
-        type="button"
-        class="btn btn-dark"
-        data-bs-dismiss="modal"
-        @click="message = ''"
-      >
+      <button type="button" class="btn btn-dark" data-bs-dismiss="modal" @click="message = ''">
         Cancel
       </button>
-      <button
-        type="button"
-        class="btn btn-danger"
-        data-bs-dismiss="modal"
-        @click="emitConfirm"
-      >
+      <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="emitConfirm">
         Confirm
       </button>
     </template>
@@ -35,33 +18,33 @@
 </template>
 
 <script setup>
-import NegotiatorModal from "./NegotiatorModal.vue"
+import NegotiatorModal from './NegotiatorModal.vue'
 import { ref } from 'vue'
 
 defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   text: {
     type: String,
-    required: true
+    required: true,
   },
   messageEnabled: {
     type: Boolean,
-    required: false
-  }
+    required: false,
+  },
 })
 
-const message = ref("")
+const message = ref('')
 
-const emit = defineEmits(["confirm"])
+const emit = defineEmits(['confirm'])
 
 function emitConfirm() {
-  emit("confirm", message.value)
+  emit('confirm', message.value)
 }
 </script>

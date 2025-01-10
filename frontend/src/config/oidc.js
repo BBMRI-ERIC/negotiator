@@ -6,7 +6,7 @@ const devSettings = {
   scope: 'openid profile email permissions some-app-scope-1',
   post_logout_redirect_uri: 'http://localhost:8080',
   response_type: 'code',
-  automaticSilentRenew: true
+  automaticSilentRenew: true,
 }
 
 const prodSettings = {
@@ -17,7 +17,7 @@ const prodSettings = {
   scope: 'SCOPES_PLACEHOLDER',
   post_logout_redirect_uri: 'LOGOUT_URI_PLACEHOLDER',
   response_type: 'code',
-  automaticSilentRenew: true
+  automaticSilentRenew: true,
 }
 
 let oidcSettings

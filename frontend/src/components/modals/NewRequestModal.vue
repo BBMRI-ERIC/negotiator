@@ -1,9 +1,5 @@
 <template>
-  <NegotiatorModal
-    :id="id"
-    :title="title"
-    :is-modal-small="isModalSmall"
-  >
+  <NegotiatorModal :id="id" :title="title" :is-modal-small="isModalSmall">
     <template #body>
       <p>
         {{ text }}
@@ -26,31 +22,31 @@
 defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   text: {
     type: String,
-    required: true
+    required: true,
   },
   isModalSmall: {
     type: Boolean,
     required: false,
-    default: false
+    default: false,
   },
   isXButtondisplayed: {
     type: Boolean,
     required: false,
-    default: true
-  }
+    default: true,
+  },
 })
 
-const emit = defineEmits(["confirm"])
+const emit = defineEmits(['confirm'])
 
 function emitConfirm() {
-  emit("confirm")
+  emit('confirm')
 }
 </script>

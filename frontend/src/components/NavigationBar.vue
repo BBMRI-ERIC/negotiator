@@ -3,74 +3,68 @@
     v-if="oidcIsAuthenticated"
     id="v-step-0"
     class="navbar fixed-top navbar-expand-lg"
-    :style="{'background-color': uiConfiguration?.navbarBackgroundColor}"
+    :style="{ 'background-color': uiConfiguration?.navbarBackgroundColor }"
   >
     <div class="container-fluid">
-      <router-link
-        to="/"
-      >
-        <img
-          :src="returnLogoSrc"
-          height="34"
-          class="me-2"
-          alt="nav-bar-logo"
-        >
+      <router-link to="/">
+        <img :src="returnLogoSrc" height="34" class="me-2" alt="nav-bar-logo" />
       </router-link>
-      <div
-        id="menu-navbar"
-        class="collapse navbar-collapse"
-      >
-        <ul
-          class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
-        >
-          <li
-            v-if="isAdmin"
-            class="nav-item"
-          >
+      <div id="menu-navbar" class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
+          <li v-if="isAdmin" class="nav-item">
             <router-link
               class="nav-link active nav-option"
-              :style="{'color': $route.path === '/admin' || $route.params.userRole === 'ROLE_ADMIN' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              :style="{
+                color:
+                  $route.path === '/admin' || $route.params.userRole === 'ROLE_ADMIN'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
               to="/admin"
             >
               <i class="bi bi-clipboard-check" />
               Review requests
             </router-link>
           </li>
-          <li
-            v-if="isResearcher"
-            class="nav-item"
-          >
+          <li v-if="isResearcher" class="nav-item">
             <router-link
               class="nav-link active nav-option"
-              :style="{'color': $route.path === '/researcher' || $route.params.userRole === 'ROLE_RESEARCHER' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              :style="{
+                color:
+                  $route.path === '/researcher' || $route.params.userRole === 'ROLE_RESEARCHER'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
               to="/researcher"
             >
               <i class="bi bi-chat-left-dots" />
               Your negotiations
             </router-link>
           </li>
-          <li
-            v-if="isRepresentative"
-            class="nav-item"
-          >
+          <li v-if="isRepresentative" class="nav-item">
             <router-link
               class="nav-link active nav-option"
-              :style="{'color': $route.path === '/biobanker' || $route.params.userRole === 'ROLE_REPRESENTATIVE' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              :style="{
+                color:
+                  $route.path === '/biobanker' || $route.params.userRole === 'ROLE_REPRESENTATIVE'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
               to="/biobanker"
             >
               <i class="bi bi-bank" />
               Your biobank
             </router-link>
           </li>
-          <li
-            v-if="showNetworksTab"
-            class="nav-item dropdown"
-            :class="{ 'show': dropdownVisible }"
-          >
+          <li v-if="showNetworksTab" class="nav-item dropdown" :class="{ show: dropdownVisible }">
             <a
               id="networksDropdown"
               class="nav-link active nav-option dropdown-toggle"
-              :style="{'color': $route.path.startsWith('/networks') ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              :style="{
+                color: $route.path.startsWith('/networks')
+                  ? uiConfiguration?.navbarActiveTextColor
+                  : uiConfiguration?.navbarTextColor,
+              }"
               href="#"
               role="button"
               @click="toggleDropdown"
@@ -78,31 +72,23 @@
               <i class="bi bi-globe" />
               Your networks
             </a>
-            <ul
-              class="dropdown-menu dropdown-menu-right"
-              :class="{ 'show': dropdownVisible }"
-            >
-              <li
-                v-for="network in networks"
-                :key="network.id"
-              >
-                <a
-                  class="dropdown-item"
-                  href="#"
-                  @click="selectNetwork(network.id)"
-                >
+            <ul class="dropdown-menu dropdown-menu-right" :class="{ show: dropdownVisible }">
+              <li v-for="network in networks" :key="network.id">
+                <a class="dropdown-item" href="#" @click="selectNetwork(network.id)">
                   {{ network.name }}
                 </a>
               </li>
             </ul>
           </li>
-          <li
-            v-if="featureFlagsFAQ"
-            class="nav-item"
-          >
+          <li v-if="featureFlagsFAQ" class="nav-item">
             <router-link
               class="nav-link active nav-option"
-              :style="{'color': $route.path === '/FAQ' ? uiConfiguration?.navbarActiveTextColor : uiConfiguration?.navbarTextColor}"
+              :style="{
+                color:
+                  $route.path === '/FAQ'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
               to="/FAQ"
             >
               <i class="bi bi-people" />
@@ -115,20 +101,14 @@
           class="me-2 me-3"
           :class="returnCurrentModeTextColor"
         >
-          <div
-            class="spinner-grow spinner-grow-sm"
-            role="status"
-          />
+          <div class="spinner-grow spinner-grow-sm" role="status" />
           {{ returnCurrentMode }}
         </div>
-        <NotificationsButton
-          v-if="featureFlagsNotifications"
-          class="me-3"
-        />
+        <NotificationsButton v-if="featureFlagsNotifications" class="me-3" />
         <span
           v-if="oidcIsAuthenticated"
           class="me-2"
-          :style="{'color': uiConfiguration?.navbarWelcomeTextColor}"
+          :style="{ color: uiConfiguration?.navbarWelcomeTextColor }"
         >
           {{ oidcUser.preferred_username }}
         </span>
@@ -158,12 +138,12 @@
 <script setup>
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import { ROLES } from '@/config/consts'
-import ProfileSettings from "../components/ProfileSettings.vue"
-import bbmriLogo from "../assets/images/bbmri/nav-bar-bbmri.png"
-import canservLogo from "../assets/images/canserv/nav-bar-canserv.png"
-import eucaimLogo from "../assets/images/eucaim/nav-bar-eucaim.png"
+import ProfileSettings from '../components/ProfileSettings.vue'
+import bbmriLogo from '../assets/images/bbmri/nav-bar-bbmri.png'
+import canservLogo from '../assets/images/canserv/nav-bar-canserv.png'
+import eucaimLogo from '../assets/images/eucaim/nav-bar-eucaim.png'
 import NotificationsButton from './NotificationsButton.vue'
-import allFeatureFlags from "@/config/featureFlags.js"
+import allFeatureFlags from '@/config/featureFlags.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useActuatorInfoStore } from '../store/actuatorInfo'
 import { useUserStore } from '../store/user'
@@ -179,9 +159,11 @@ const networksPageStore = useNetworksPageStore()
 const dropdownVisible = ref(false)
 const router = useRouter()
 const roles = ref([])
-const featureFlagsFAQ = !!(allFeatureFlags.faqPage === "true" || allFeatureFlags.faqPage === true)
-const featureFlagsNotifications = !!(allFeatureFlags.notifications === "true" || allFeatureFlags.notifications === true)
-const backendEnvironment = ref("")
+const featureFlagsFAQ = !!(allFeatureFlags.faqPage === 'true' || allFeatureFlags.faqPage === true)
+const featureFlagsNotifications = !!(
+  allFeatureFlags.notifications === 'true' || allFeatureFlags.notifications === true
+)
+const backendEnvironment = ref('')
 const showNetworksTab = ref(false)
 const networks = ref([])
 const selectNetwork = (networkId) => {
@@ -209,19 +191,19 @@ const isRepresentative = computed(() => {
 })
 const returnCurrentMode = computed(() => {
   if (import.meta.env.DEV) {
-    return "Development Server"
-  } else if (backendEnvironment.value === "Acceptance") {
-    return "Acceptance Server"
+    return 'Development Server'
+  } else if (backendEnvironment.value === 'Acceptance') {
+    return 'Acceptance Server'
   }
-  return ""
+  return ''
 })
 const returnCurrentModeTextColor = computed(() => {
   if (import.meta.env.DEV) {
-    return "text-success"
-  } else if (backendEnvironment.value === "Acceptance") {
-    return "text-warning"
+    return 'text-success'
+  } else if (backendEnvironment.value === 'Acceptance') {
+    return 'text-warning'
   }
-  return ""
+  return ''
 })
 const userInfo = computed(() => {
   return userStore.userInfo

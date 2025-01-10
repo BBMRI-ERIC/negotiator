@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useNegotiationsStore = defineStore("negotiations", () => {
+export const useNegotiationsStore = defineStore('negotiations', () => {
   const notifications = useNotificationsStore()
 
   async function retrieveNegotiations(filtersSortData, pageNumber) {
@@ -15,11 +15,12 @@ export const useNegotiationsStore = defineStore("negotiations", () => {
         createdBefore: filtersSortData.dateEnd,
         sortBy: filtersSortData.sortBy,
         sortOrder: filtersSortData.sortDirection,
-        page: pageNumber
+        page: pageNumber,
       },
-      paramsSerializer: { indexes: null }
+      paramsSerializer: { indexes: null },
     }
-    return await axios.get(`${apiPaths.BASE_API_PATH}/negotiations`, parameters)
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/negotiations`, parameters)
       .then((response) => {
         return response.data
       })
@@ -40,11 +41,12 @@ export const useNegotiationsStore = defineStore("negotiations", () => {
         createdBefore: filtersSortData.dateEnd,
         sortBy: filtersSortData.sortBy,
         sortOrder: filtersSortData.sortDirection,
-        page: pageNumber
+        page: pageNumber,
       },
-      paramsSerializer: { indexes: null }
+      paramsSerializer: { indexes: null },
     }
-    return await axios.get(`${apiPaths.BASE_API_PATH}/users/${userId}/negotiations`, parameters)
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/users/${userId}/negotiations`, parameters)
       .then((response) => {
         return response.data
       })
@@ -56,12 +58,17 @@ export const useNegotiationsStore = defineStore("negotiations", () => {
   }
 
   async function retrieveNegotiationLifecycleStates() {
-    return await axios.get(`${apiPaths.BASE_API_PATH}/negotiation-lifecycle/states`, { headers: getBearerHeaders() })
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/negotiation-lifecycle/states`, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         return response.data._embedded.states
       })
       .catch(() => {
-        notifications.setNotification('Error getting negotiation lifecycle states request data from server')
+        notifications.setNotification(
+          'Error getting negotiation lifecycle states request data from server',
+        )
         return null
       })
   }

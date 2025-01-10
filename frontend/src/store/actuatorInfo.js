@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useActuatorInfoStore = defineStore("actuatorInfo", () => {
+export const useActuatorInfoStore = defineStore('actuatorInfo', () => {
   const notifications = useNotificationsStore()
 
   const actuatorInfo = ref({})
@@ -12,7 +12,8 @@ export const useActuatorInfoStore = defineStore("actuatorInfo", () => {
   const actuatorInfoApplicationEnvironment = ref('')
 
   function retrieveBackendActuatorInfo() {
-    return axios.get(apiPaths.BACKEND_ACTUATOR_INFO_PATH)
+    return axios
+      .get(apiPaths.BACKEND_ACTUATOR_INFO_PATH)
       .then((response) => {
         actuatorInfo.value = response.data
         actuatorInfoBuildVersion.value = response.data.build.version
@@ -25,5 +26,10 @@ export const useActuatorInfoStore = defineStore("actuatorInfo", () => {
       })
   }
 
-  return { actuatorInfo, actuatorInfoBuildVersion, actuatorInfoApplicationEnvironment, retrieveBackendActuatorInfo }
+  return {
+    actuatorInfo,
+    actuatorInfoBuildVersion,
+    actuatorInfoApplicationEnvironment,
+    retrieveBackendActuatorInfo,
+  }
 })

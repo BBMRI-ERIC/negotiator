@@ -22,10 +22,10 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import moment from "moment"
-import NegotiationList from "@/components/NegotiationList.vue"
-import NegotiationPagination from "@/components/NegotiationPagination.vue"
-import FilterSort from "@/components/FilterSort.vue"
+import moment from 'moment'
+import NegotiationList from '@/components/NegotiationList.vue'
+import NegotiationPagination from '@/components/NegotiationPagination.vue'
+import FilterSort from '@/components/FilterSort.vue'
 import { ROLES } from '@/config/consts.js'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../store/user'
@@ -40,8 +40,9 @@ const props = defineProps({
   userRole: {
     type: String,
     required: true,
-    validator: (prop) => [ROLES.RESEARCHER, ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR].includes(prop)
-  }
+    validator: (prop) =>
+      [ROLES.RESEARCHER, ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR].includes(prop),
+  },
 })
 
 const negotiations = ref(undefined)
@@ -51,10 +52,10 @@ const userId = ref(undefined)
 const filtersStatus = ref([])
 const filtersSortData = ref({
   status: [],
-  dateStart: "",
-  dateEnd: "",
-  sortBy: "creationDate",
-  sortDirection: "DESC"
+  dateStart: '',
+  dateEnd: '',
+  sortBy: 'creationDate',
+  sortDirection: 'DESC',
 })
 
 const loading = computed(() => {
@@ -76,16 +77,29 @@ onMounted(async () => {
 })
 
 async function retrieveNegotiationsByUserRole(pageNumber) {
-  if (props.userRole === "ROLE_ADMIN") {
-    negotiations.value = await negotiationsStore.retrieveNegotiations(filtersSortData.value, pageNumber)
+  if (props.userRole === 'ROLE_ADMIN') {
+    negotiations.value = await negotiationsStore.retrieveNegotiations(
+      filtersSortData.value,
+      pageNumber,
+    )
   }
 
-  if (props.userRole === "ROLE_RESEARCHER") {
-    negotiations.value = await negotiationsStore.retrieveNegotiationsByUserId("author", filtersSortData.value, userId.value, pageNumber)
+  if (props.userRole === 'ROLE_RESEARCHER') {
+    negotiations.value = await negotiationsStore.retrieveNegotiationsByUserId(
+      'author',
+      filtersSortData.value,
+      userId.value,
+      pageNumber,
+    )
   }
 
-  if (props.userRole === "ROLE_REPRESENTATIVE") {
-    negotiations.value = await negotiationsStore.retrieveNegotiationsByUserId("representative", filtersSortData.value, userId.value, pageNumber)
+  if (props.userRole === 'ROLE_REPRESENTATIVE') {
+    negotiations.value = await negotiationsStore.retrieveNegotiationsByUserId(
+      'representative',
+      filtersSortData.value,
+      userId.value,
+      pageNumber,
+    )
   }
 
   pagination.value = negotiations.value.page
@@ -111,13 +125,15 @@ function retrieveNegotiationsBySortAndFilter(filtersSortData) {
 }
 
 function updateRoutingParams(currentPageNumber) {
-  router.push({ query: { filtersSort: encodeURI(stringify(filtersSortData.value)), currentPageNumber } })
+  router.push({
+    query: { filtersSort: encodeURI(stringify(filtersSortData.value)), currentPageNumber },
+  })
 }
 
 function stringify(obj) {
   let cache = []
   const str = JSON.stringify(obj, function (key, value) {
-    if (typeof value === "object" && value !== null) {
+    if (typeof value === 'object' && value !== null) {
       if (cache.indexOf(value) !== -1) {
         // Circular reference found, discard key
         return
@@ -144,9 +160,13 @@ function loadActivefiltersSortDataFromURL() {
 }
 
 function incriseDateEndIfSame() {
-  if (filtersSortData.value.dateStart && filtersSortData.value.dateStart === filtersSortData.value.dateEnd) {
-    filtersSortData.value.dateEnd = moment(filtersSortData.value.dateEnd).add(1, "days").format("YYYY-MM-DD")
+  if (
+    filtersSortData.value.dateStart &&
+    filtersSortData.value.dateStart === filtersSortData.value.dateEnd
+  ) {
+    filtersSortData.value.dateEnd = moment(filtersSortData.value.dateEnd)
+      .add(1, 'days')
+      .format('YYYY-MM-DD')
   }
 }
-
 </script>

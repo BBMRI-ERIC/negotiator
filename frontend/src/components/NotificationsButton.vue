@@ -4,7 +4,7 @@
       type="button"
       class="btn btn-sm rounded-circle position-relative py-0 px-1"
       :class="getAllNotifications.length > 0 ? '' : 'disabled'"
-      :style="{'color':uiConfiguration?.navbarButtonOutlineColor}"
+      :style="{ color: uiConfiguration?.navbarButtonOutlineColor }"
       data-bs-toggle="dropdown"
       aria-expanded="false"
       @click="resetNotification"
@@ -19,22 +19,12 @@
       </span>
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
-      <li class="dropdown-item alert-warning">
-        Notifications:
-      </li>
+      <li class="dropdown-item alert-warning">Notifications:</li>
       <li>
-        <hr class="dropdown-divider">
+        <hr class="dropdown-divider" />
       </li>
-      <li
-        v-for="notification in getAllNotifications"
-        :key="notification"
-        class="dropdown-item"
-      >
-        <div
-          class="alert mb-1"
-          :class="returnColor(notification)"
-          role="alert"
-        >
+      <li v-for="notification in getAllNotifications" :key="notification" class="dropdown-item">
+        <div class="alert mb-1" :class="returnColor(notification)" role="alert">
           {{ notification.message }}
         </div>
       </li>
@@ -58,8 +48,7 @@ const getAllNotifications = computed(() => {
 })
 
 function returnColor(notification) {
-  if (notification.type)
-    return 'alert-' + notification.type
+  if (notification.type) return 'alert-' + notification.type
 
   return 'alert-warning'
 }

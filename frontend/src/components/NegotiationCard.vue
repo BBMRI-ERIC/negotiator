@@ -1,32 +1,19 @@
 <template>
   <div>
     <div class="card mb-2">
-      <h5 class="card-header bg-body" :style="{'color': uiConfiguration?.cardTextColor}">
+      <h5 class="card-header bg-body" :style="{ color: uiConfiguration?.cardTextColor }">
         {{ title }}
         <h6 class="float-end">
-          <span
-            :class="getBadgeColor(status)"
-            class="badge"
-            style="width: 125px;"
-          >
-            <i
-              :class="getBadgeIcon(status)"
-              class="px-1"
-            />
+          <span :class="getBadgeColor(status)" class="badge" style="width: 125px">
+            <i :class="getBadgeIcon(status)" class="px-1" />
             {{ transformStatus(status) }}
           </span>
         </h6>
       </h5>
-      <div class="card-body" :style="{'color': uiConfiguration?.cardTextColor, 'opacity': 0.7}">
-        <h6 class="card-subtitle mb-2">
-          Negotiation ID: {{ id }}
-        </h6>
-        <h6 class="card-subtitle mb-2">
-          Created on: {{ creationDate }}
-        </h6>
-        <h6 class="card-subtitle mb-2">
-          Author: {{ submitter }}
-        </h6>
+      <div class="card-body" :style="{ color: uiConfiguration?.cardTextColor, opacity: 0.7 }">
+        <h6 class="card-subtitle mb-2">Negotiation ID: {{ id }}</h6>
+        <h6 class="card-subtitle mb-2">Created on: {{ creationDate }}</h6>
+        <h6 class="card-subtitle mb-2">Author: {{ submitter }}</h6>
       </div>
     </div>
   </div>
@@ -40,24 +27,24 @@ import { useUiConfiguration } from '../store/uiConfiguration.js'
 defineProps({
   id: {
     type: String,
-    default: ""
+    default: '',
   },
   title: {
     type: String,
-    default: ""
+    default: '',
   },
   status: {
     type: String,
-    default: ""
+    default: '',
   },
   submitter: {
     type: String,
-    default: ""
+    default: '',
   },
   creationDate: {
     type: Date,
-    default: undefined
-  }
+    default: undefined,
+  },
 })
 
 const uiConfigurationStore = useUiConfiguration()

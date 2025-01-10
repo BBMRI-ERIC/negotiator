@@ -319,6 +319,7 @@ async function loadStats(networkId) {
     startDate.value,
     endDate.value,
   )
+
   if (stats.value.statusDistribution) {
     setPieData(
       Object.keys(stats.value.statusDistribution),

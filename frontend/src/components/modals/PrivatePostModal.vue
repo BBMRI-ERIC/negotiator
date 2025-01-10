@@ -1,8 +1,5 @@
 <template>
-  <NegotiatorModal
-    :id="id"
-    :title="`Resource: ${resourceId}`"
-  >
+  <NegotiatorModal :id="id" :title="`Resource: ${resourceId}`">
     <template #body>
       <NegotiationPosts
         :negotiation="negotiation"
@@ -12,13 +9,7 @@
       />
     </template>
     <template #footer>
-      <button
-        type="button"
-        class="btn btn-info"
-        data-bs-dismiss="modal"
-      >
-        Close
-      </button>
+      <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
     </template>
   </NegotiatorModal>
 </template>
@@ -27,19 +18,19 @@
 defineProps({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   resourceId: {
     type: String,
-    required: true
+    required: true,
   },
   negotiation: {
     type: Object,
-    required: true
+    required: true,
   },
   userRole: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 </script>

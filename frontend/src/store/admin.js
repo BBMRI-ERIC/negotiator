@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
-import axios from "axios"
+import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useAdminStore = defineStore("admin", () => {
+export const useAdminStore = defineStore('admin', () => {
   const notifications = useNotificationsStore()
 
   function retrieveResourceAllEvents() {
-    return axios.get(`${apiPaths.BASE_API_PATH}/resource-lifecycle/events`, { headers: getBearerHeaders() })
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/resource-lifecycle/events`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data._embedded.events
       })
@@ -17,7 +18,8 @@ export const useAdminStore = defineStore("admin", () => {
   }
 
   function setInfoRequirements(data) {
-    return axios.post(`${apiPaths.BASE_API_PATH}/info-requirements`, data, { headers: getBearerHeaders() })
+    return axios
+      .post(`${apiPaths.BASE_API_PATH}/info-requirements`, data, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -27,7 +29,8 @@ export const useAdminStore = defineStore("admin", () => {
   }
 
   function retrieveInfoRequirement(link) {
-    return axios.get(`${link}`, { headers: getBearerHeaders() })
+    return axios
+      .get(`${link}`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -37,7 +40,8 @@ export const useAdminStore = defineStore("admin", () => {
   }
 
   function retrieveInfoRequirements() {
-    return axios.get(`${apiPaths.BASE_API_PATH}/info-requirements`, { headers: getBearerHeaders() })
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/info-requirements`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data._embedded
       })
@@ -50,6 +54,6 @@ export const useAdminStore = defineStore("admin", () => {
     retrieveResourceAllEvents,
     setInfoRequirements,
     retrieveInfoRequirement,
-    retrieveInfoRequirements
+    retrieveInfoRequirements,
   }
 })

@@ -1,5 +1,5 @@
 import { useOidcStore } from '../store/oidc'
-const BASE_API_PATH = "/api/v3"
+const BASE_API_PATH = '/api/v3'
 
 const apiPaths = {
   BASE_API_PATH: `${BASE_API_PATH}`,
@@ -10,7 +10,7 @@ const apiPaths = {
   USER_RESOURCES_PATH: `${BASE_API_PATH}/users/resources`,
   ATTACHMENTS_PATH: `${BASE_API_PATH}/attachments`,
   BACKEND_ACTUATOR_INFO_PATH: '/api/actuator/info',
-  VALUE_SETS: `${BASE_API_PATH}/value-sets`
+  VALUE_SETS: `${BASE_API_PATH}/value-sets`,
 }
 
 function getBearerHeaders() {
