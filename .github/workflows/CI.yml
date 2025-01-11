@@ -520,6 +520,7 @@ jobs:
       - oauth-test
       - backwards-compatibility
       - integration-tests
+      - prometheus-test
     permissions:
       packages: write
       contents: read
@@ -582,6 +583,7 @@ jobs:
       - oauth-test
       - backwards-compatibility
       - integration-tests
+      - prometheus-test
     permissions:
       packages: write
       contents: read
@@ -694,6 +696,7 @@ jobs:
       - oauth-test
       - backwards-compatibility
       - integration-tests
+      - prometheus-test
     steps:
       - name: Checkout codebase
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
