@@ -306,7 +306,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Scheduled(cron = "${negotiator.email.frequency-cron-expression:0 0 * * * *}")
   @Async
   public void sendEmailsForNewNotifications() {
-    log.info("Sending new email notifications.");
+    log.debug("Sending new email notifications.");
     Set<Person> recipients = getPendingRecipients();
     sendOutNotificationEmails(recipients);
   }
