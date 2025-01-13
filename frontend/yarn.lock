@@ -526,7 +526,7 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.28.tgz#d45e01c4a56f143ee69c54dd6b12eade9e270a73"
   integrity sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==
 
-"@popperjs/core@^2.11.6":
+"@popperjs/core@^2.11.6", "@popperjs/core@^2.11.8":
   version "2.11.8"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
@@ -6609,17 +6609,16 @@ vue3-form-wizard@^0.2.4:
   resolved "https://registry.yarnpkg.com/vue3-form-wizard/-/vue3-form-wizard-0.2.4.tgz#682279d25029071a0de44becab1a16bc67d2286e"
   integrity sha512-muf+lxSCSv0Yl9mu5OT6+cdROQ4nZdKuaHhiaazDVSiLWKEmX5wOcKwXhXG7mqaTg8q25u4J34kBvVuVzGSIXw==
 
-vue3-tour@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/vue3-tour/-/vue3-tour-0.3.4.tgz#af20b92318eaeda3dabfe9f60d951b47916c54ac"
-  integrity sha512-Z9U5NQ4pkR4xPwwPTVEpGIqyroIKBULBzfqEj9RuKT5Sx+5rC4X7B8XEKc3Cf9Lb9PPCX7lbxDSrWq7O2dICog==
+vue3-tour@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/vue3-tour/-/vue3-tour-1.0.3.tgz#b934a5e5344665d44e38ae1a14688d1870a31358"
+  integrity sha512-npDpg+GHqu5lAtHW7GbrPgoUa4RWQPP90wtLSWf0Tb+FJBLXjRI9t4M+bNNjaRpn4FjKfQZEvutI09wJJRnlMg==
   dependencies:
-    "@popperjs/core" "^2.11.6"
-    hash-sum "^2.0.0"
+    "@popperjs/core" "^2.11.8"
     jump.js "^1.0.2"
-    vue "^3.2.37"
+    vue "^3.4.23"
 
-vue@^3.2.37, vue@^3.2.47:
+vue@^3.2.47, vue@^3.4.23:
   version "3.5.13"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.5.13.tgz#9f760a1a982b09c0c04a867903fc339c9f29ec0a"
   integrity sha512-wmeiSMxkZCSc+PM2w2VRsOYAZC8GdipNFRTsLSfodVqI9mbejKeXEGr8SckuLnrQPGe3oJN5c3K0vpoU9q/wCQ==
