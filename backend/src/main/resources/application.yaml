@@ -9,6 +9,11 @@ management:
   metrics:
     tags:
       application: Negotiator
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: 'true'
   endpoint:
     info:
       enabled: true
@@ -92,6 +97,8 @@ negotiator:
   email:
     frequency-cron-expression: "0 0 * * * *"
 logging:
+  pattern:
+    level: "%p"
   level:
     root: info
 springdoc:
