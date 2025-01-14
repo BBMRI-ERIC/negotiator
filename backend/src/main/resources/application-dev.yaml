@@ -1,3 +1,13 @@
+server:
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /dev
+      prefix: stdout
+      buffered: false
+      suffix:
+      file-date-format:
+      pattern: '%{yyyy-MM-dd HH:mm:ss.SSS}t DEBUG [%m] %h %l %u %t "%r" %s'
 spring:
   mail:
     host: "localhost"

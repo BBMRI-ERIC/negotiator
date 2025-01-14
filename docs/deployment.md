@@ -130,3 +130,16 @@ eduperson_orcid
 https://negotiator.bbmri-eric.eu
 ```
 
+## Monitoring
+
+The Negotiator by default exposes a [Prometheus](https://prometheus.io/) endpoint for scraping metrics over HTTP.
+See [Spring documentation](https://docs.spring.io/spring-boot/reference/actuator/metrics.html#actuator.metrics.export.prometheus)
+for a more in depth description.
+
+```
+GET /api/actuator/prometheus
+```
+
+Access to this endpoint requires authorization with a token that includes the **_negotiator_monitoring_** scope.
+For simple overview we recommend to integrate prometheus with Grafana and use a Springboot
+app [dashboard](https://grafana.com/grafana/dashboards/11378-justai-system-monitor/).

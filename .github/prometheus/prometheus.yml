@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'negotiator'
+    metrics_path: "/api/actuator/prometheus"
+    static_configs:
+      - targets: [ 'localhost:8081' ]
+    oauth2:
+      client_id: "123"
+      client_secret: "123"
+      token_url: "http://localhost:4011/connect/token"
+      endpoint_params:
+        resource: "https://negotiator.bbmri-eric.eu"
+

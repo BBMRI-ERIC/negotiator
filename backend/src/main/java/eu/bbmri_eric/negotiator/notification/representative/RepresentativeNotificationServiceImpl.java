@@ -43,7 +43,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
   @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
   @Transactional
   public void notifyAboutPendingNegotiations() {
-    log.info("Looking for pending negotiations");
+    log.debug("Looking for pending negotiations");
     Set<Negotiation> negotiations =
         new HashSet<>(negotiationRepository.findAllCreatedOn(LocalDateTime.now().minusDays(5)));
     for (Negotiation negotiation : negotiations) {

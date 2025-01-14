@@ -38,7 +38,8 @@
     "AllowedScopes": [
       "negotiator_api",
       "negotiator_authz_management",
-      "negotiator_resource_management"
+      "negotiator_resource_management",
+      "negotiator_monitoring"
     ],
     "ClientClaimsPrefix": "",
     "Claims": [],
