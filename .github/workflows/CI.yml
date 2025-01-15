@@ -231,8 +231,6 @@ jobs:
         with:
           working-directory: frontend
           browser: ${{ matrix.browser }}
-          env:
-            CYPRESS_BASE_URL: http://localhost:8080 # Point to your app's Docker container address
 
       - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4
         if: failure()
