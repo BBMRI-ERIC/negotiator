@@ -210,7 +210,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs:
-      - build
+      - build-image
+      - build-frontend-image
     name: E2E Tests
     strategy:
       matrix:
