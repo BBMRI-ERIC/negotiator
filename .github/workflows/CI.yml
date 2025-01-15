@@ -219,15 +219,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
       - name: Setup API server
         working-directory: backend
-        run: docker compose up -d negotiator oidc-server-mock
+        run: docker compose up -d
 
       - name: Wait
         run: sleep 30
@@ -236,8 +230,8 @@ jobs:
         uses: cypress-io/github-action@57b70560982e6a11d23d4b8bec7f8a487cdbb71b #v6
         with:
           working-directory: frontend
-          start: yarn dev
           browser: ${{ matrix.browser }}
+
 
       - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4
         if: failure()
