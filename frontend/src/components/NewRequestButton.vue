@@ -27,6 +27,7 @@ import { computed } from 'vue'
 import NewRequestModal from '@/components/modals/NewRequestModal.vue'
 import { useApiCallsStore } from '../store/apiCalls.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import allFeatureFlags from '@/config/featureFlags.js'
 
 const apiCallsStore = useApiCallsStore()
 const uiConfigurationStore = useUiConfiguration()
@@ -35,8 +36,9 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.newRequestButton
 })
 
+
 async function startNewRequest() {
-  if (import.meta.env.DEV) {
+  if (allFeatureFlags.dev_mode === 'true' || allFeatureFlags.dev_mode === true) {
     const data = {
       url: 'https://bbmritestnn.gcc.rug.nl',
       humanReadable:
