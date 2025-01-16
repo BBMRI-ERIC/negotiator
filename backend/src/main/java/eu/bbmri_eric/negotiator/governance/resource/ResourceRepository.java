@@ -23,10 +23,16 @@ select
     nrl.negotiation_id as negotiationId,
     rs.name            as name,
     rs.source_id       as sourceId,
+    rs.contact_email   as contactEmail,
+    rs.description     as description,
+    rs.uri             as uri,
     nrl.current_state as currentState,
     o.name             as organizationName,
     o.external_id      as organizationExternalId,
-    o.id               as organizationId
+    o.id               as organizationId,
+    o.contact_email    as organizationContactEmail,
+    o.description      as organizationDescription,
+    o.uri              as organizationUri
 from resource rs
     left join public.negotiation_resource_link nrl on rs.id = nrl.resource_id
     join public.organization o on o.id = rs.organization_id

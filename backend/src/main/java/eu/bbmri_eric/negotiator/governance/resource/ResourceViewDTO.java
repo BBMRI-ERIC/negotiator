@@ -7,6 +7,12 @@ public interface ResourceViewDTO {
 
   String getName();
 
+  String getDescription();
+
+  String getContactEmail();
+
+  String getUri();
+
   String getSourceId();
 
   String getNegotiationId();
@@ -18,4 +24,10 @@ public interface ResourceViewDTO {
   String getOrganizationId();
 
   String getOrganizationExternalId();
+
+  String getOrganizationContactEmail();
+
+  String getOrganizationDescription();
+
+  String getOrganizationUri();
 }

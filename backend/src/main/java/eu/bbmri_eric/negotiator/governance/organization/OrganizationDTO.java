@@ -43,4 +43,7 @@ public class OrganizationDTO {
 
   @Schema(description = "URI of the organization", example = "https://organization.org")
   private String uri;
+
+  @Schema(description = "Indicates if the organization is withdrawn", example = "false")
+  private Boolean withdrawn;
 }

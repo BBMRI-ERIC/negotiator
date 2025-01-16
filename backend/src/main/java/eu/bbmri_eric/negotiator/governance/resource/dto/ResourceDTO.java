@@ -35,6 +35,12 @@ public class ResourceDTO {
   @Nullable
   private String name;
 
+  @Nullable private String description;
+
+  @Nullable private String contactEmail;
+
+  @Nullable private String uri;
+
   @Schema(nullable = true, description = "Organization Managing the Resource", example = "{}")
   private OrganizationDTO organization;
 }
