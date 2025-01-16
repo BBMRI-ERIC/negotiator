@@ -50,6 +50,7 @@ services:
     image: bbmrieric/negotiator-frontend:${FRONTEND_TAG:-latest}
     restart: always
     environment:
+      - DEV_MODE=true
       - AUTH_URL=http://localhost:4011
       - CLIENT_ID=auth-code-client
       - REDIRECT_URI=http://localhost:8080/logged-in
