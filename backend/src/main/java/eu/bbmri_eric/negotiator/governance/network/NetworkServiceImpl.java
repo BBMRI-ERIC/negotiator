@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.network;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationWithResourcesDTO;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -10,6 +11,7 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +71,11 @@ public class NetworkServiceImpl implements NetworkService {
     Person manager = getManager(managerId);
     network.removeManager(manager);
     networkRepository.save(network);
+  }
+
+  @Override
+  public Set<OrganizationWithResourcesDTO> findAllOrganizations(Long id) {
+    return Set.of();
   }
 
   @Override
