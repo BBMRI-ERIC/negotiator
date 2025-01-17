@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,5 +46,22 @@ public class ResourceResponseModel {
     this.description = description;
     this.contactEmail = contactEmail;
     this.uri = uri;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    ResourceResponseModel that = (ResourceResponseModel) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(sourceId, that.sourceId)
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description)
+        && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(uri, that.uri);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, sourceId, name, description, contactEmail, uri);
   }
 }

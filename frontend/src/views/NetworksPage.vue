@@ -494,33 +494,7 @@ const startDate = ref(startOfYear.toISOString().slice(0, 10))
 const endDate = ref(today.toISOString().slice(0, 10))
 const userRole = ref('author')
 const isLoaded = ref(false)
-const organizations = ref({
-  'organizations': [
-    {
-      'id': 1,
-      'externalId': 'ORG-12345',
-      'name': 'BBMRI-ERIC',
-      'description': 'A European research infrastructure.',
-      'contactEmail': 'info@organization.org',
-      'uri': 'https://organization.org',
-      'resources': [
-        {
-          'id': 1,
-          'sourceId': 'SRC-56789',
-          'name': 'Clinical Data Repository',
-          'description': 'A repository for clinical data.',
-          'contactEmail': 'support@resource.org',
-          'uri': 'https://resource.org',
-          'representatives': [
-            'Sarah Rep',
-            'Adam Rep',
-            'John Rep'
-          ]
-        }
-      ]
-    }
-  ]
-})
+const organizations = ref({})
 // Pie chart data
 const pieData = ref({})
 const pieOptions = ref({
@@ -564,6 +538,15 @@ watch(
   { immediate: true }, // Run the watcher immediately on component mount
 )
 loadNetworkInfo(props.networkId)
+
+async function loadOrganizations(networkId) {
+  const response = await networksPageStore.retrieveNetworkOrganizations(networkId)
+  if (response._embedded) {
+    organizations.value = response._embedded
+  }
+}
+
+loadOrganizations(props.networkId)
 loadStats(props.networkId)
 loadNegotiationStates()
 retrieveLatestNegotiations(0)
