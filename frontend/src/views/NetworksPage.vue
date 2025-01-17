@@ -330,8 +330,16 @@
 
             <!-- Organization Body -->
             <div class="card-body">
-              <p>{{ organization.description }}</p>
-              <ul class="list-unstyled">
+              <!-- Loading Spinner -->
+              <div v-if="loading" class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+
+              <p v-if="!loading">{{ organization.description }}</p>
+
+              <ul v-if="!loading" class="list-unstyled">
                 <li>
                   <i class="bi bi-envelope"></i>
                   <a :href="'mailto:' + organization.contactEmail">
@@ -352,14 +360,15 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" :id="'headingResources_' + organization.id">
                     <button
-                      class="accordion-button collapsed"
+                      class="accordion-button"
                       type="button"
                       data-bs-toggle="collapse"
                       :data-bs-target="'#collapseResources_' + organization.id"
                       aria-expanded="false"
                       :aria-controls="'collapseResources_' + organization.id"
+                      @click="loadingSpinner = true"
                     >
-                      Resources:
+                      Resources List
                     </button>
                   </h2>
                   <div
@@ -382,6 +391,7 @@
                             :data-bs-target="'#collapse_' + resource.id"
                             aria-expanded="false"
                             :aria-controls="'collapse_' + resource.id"
+                            @click="loadingSpinner = true"
                           >
                             {{ resource.name }} ({{ resource.sourceId }})
                             <!-- Resource Status Icon -->
@@ -404,7 +414,7 @@
                           class="accordion-collapse collapse"
                           :aria-labelledby="'heading_' + resource.id"
                         >
-                          <div class="accordion-body">
+                          <div class="accordion-body" @transitionend="loadingSpinner = false">
                             <p>{{ resource.description }}</p>
                             <ul class="list-unstyled">
                               <li>
@@ -443,6 +453,7 @@
             </div>
           </div>
         </div>
+
 
 
       </div>
@@ -488,6 +499,7 @@ const currentTab = ref('overview') // Default tab
 const stats = ref(undefined)
 const pagination = ref(undefined)
 const states = ref(undefined)
+const loadingSpinner = ref(false)
 const filtersSortData = ref({
   status: [],
   dateStart: '',
