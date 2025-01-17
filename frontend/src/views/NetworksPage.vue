@@ -291,7 +291,7 @@
           <h4>Summary</h4>
           <ul class="list-unstyled mb-0">
             <li>
-              <strong>Total Organizations:</strong> {{ organizations.organizations.length }}
+              <strong>Total Organizations:</strong> {{ organizations.length }}
             </li>
             <li>
               <strong>Total Resources:</strong> {{ totalResources }}
@@ -304,7 +304,7 @@
 
         <div>
           <div
-            v-for="organization in organizations.organizations"
+            v-for="organization in organizations"
             :key="organization.id"
             class="card mb-3 position-relative"
           >
@@ -476,11 +476,11 @@ const allResourcesHaveRepresentatives = (resources) => {
   return resources.every((resource) => resource.representatives.length > 0)
 }
 const totalResources = computed(() => {
-  return organizations.value.organizations.reduce((sum, org) => sum + org.resources.length, 0)
+  return organizations.value.reduce((sum, org) => sum + org.resources.length, 0)
 })
 
 const resourcesWithoutRepresentatives = computed(() => {
-  return organizations.value.organizations.reduce(
+  return organizations.value.reduce(
     (sum, org) =>
       sum +
       org.resources.filter((resource) => resource.representatives.length === 0).length,
@@ -494,7 +494,7 @@ const startDate = ref(startOfYear.toISOString().slice(0, 10))
 const endDate = ref(today.toISOString().slice(0, 10))
 const userRole = ref('author')
 const isLoaded = ref(false)
-const organizations = ref({})
+const organizations = ref([])
 // Pie chart data
 const pieData = ref({})
 const pieOptions = ref({
@@ -542,7 +542,7 @@ loadNetworkInfo(props.networkId)
 async function loadOrganizations(networkId) {
   const response = await networksPageStore.retrieveNetworkOrganizations(networkId)
   if (response._embedded) {
-    organizations.value = response._embedded
+    organizations.value = response._embedded.organizations
   }
 }
 
