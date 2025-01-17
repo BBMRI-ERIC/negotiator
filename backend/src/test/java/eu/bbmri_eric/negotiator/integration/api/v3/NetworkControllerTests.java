@@ -542,4 +542,80 @@ public class NetworkControllerTests {
         .andExpect(jsonPath("$.numberOfIgnoredNegotiations", is(0)))
         .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
   }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_validID_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/organizations"))
+        .andExpect(status().isOk())
+        .andDo(print())
+        .andExpect(jsonPath("$._embedded.organizations[0].id", is(4)))
+        .andExpect(jsonPath("$._embedded.organizations[0].externalId", is("biobank:1")))
+        .andExpect(jsonPath("$._embedded.organizations[0].name", is("Biobank #1")))
+        .andExpect(jsonPath("$._embedded.organizations[0].description", is("Biobank #1")))
+        .andExpect(jsonPath("$._embedded.organizations[0].contactEmail", is("biobank1@test.org")))
+        .andExpect(jsonPath("$._embedded.organizations[0].resources[0].id", is(5)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[0].sourceId", is("biobank:1:collection:2")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[0].name",
+                is("Test collection #2 of biobank #1")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[0].description",
+                is("This is the second test collection of biobank 1")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[0].contactEmail", is("coll2bb1@test.org")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[0].representatives[0]", is("TheBiobanker")))
+        .andExpect(jsonPath("$._embedded.organizations[0].resources[1].id", is(4)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[1].sourceId", is("biobank:1:collection:1")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[1].name",
+                is("Test collection #1 of biobank #1")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[1].description",
+                is("This is the first test collection of biobank 1")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[1].contactEmail", is("coll1bb1@test.org")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[0].resources[1].representatives[0]", is("TheBiobanker")))
+        .andExpect(
+            jsonPath("$._embedded.organizations[0].resources[1].representatives[1]", is("perun")))
+        .andExpect(jsonPath("$._embedded.organizations[1].id", is(5)))
+        .andExpect(jsonPath("$._embedded.organizations[1].externalId", is("biobank:2")))
+        .andExpect(jsonPath("$._embedded.organizations[1].name", is("Biobank #2")))
+        .andExpect(jsonPath("$._embedded.organizations[1].description", is("Biobank #2")))
+        .andExpect(jsonPath("$._embedded.organizations[1].contactEmail", is("biobank2@test.org")))
+        .andExpect(jsonPath("$._embedded.organizations[1].resources[0].id", is(6)))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[1].resources[0].sourceId", is("biobank:2:collection:1")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[1].resources[0].name",
+                is("Test collection #1 of biobank #2")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[1].resources[0].description",
+                is("This is the first test collection of biobank 2")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[1].resources[0].contactEmail", is("coll1bb2@test.org")))
+        .andExpect(
+            jsonPath(
+                "$._embedded.organizations[1].resources[0].representatives[0]",
+                is("TheBiobanker")));
+  }
 }

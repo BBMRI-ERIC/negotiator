@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -88,6 +89,11 @@ public class NetworkServiceImpl implements NetworkService {
         && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You do not have permission to access this network");
     }
+    return getOrganizationWithResourcesDTOS(network);
+  }
+
+  private @NotNull Set<OrganizationWithResourcesDTO> getOrganizationWithResourcesDTOS(
+      Network network) {
     Set<Resource> resources = network.getResources();
     Set<OrganizationWithResourcesDTO> organizations = new HashSet<>();
     resources.forEach(
