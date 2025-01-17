@@ -46,10 +46,11 @@ public class Resource {
   private Long id;
 
   /** The name of the resource. */
-  private String name;
+  @NotNull private String name;
 
   /** The description of the resource. */
   @Column(columnDefinition = "VARCHAR(5000)")
+  @NotNull
   private String description;
 
   /** A unique and persistent identifier issued by an appropriate institution. */

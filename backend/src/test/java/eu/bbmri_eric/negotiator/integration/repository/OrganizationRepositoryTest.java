@@ -34,7 +34,12 @@ public class OrganizationRepositoryTest {
   void save_validId_uuidIsGenerated() {
     assertEquals(3, organizationRepository.count());
     Organization savedOrganization =
-        organizationRepository.save(Organization.builder().externalId("ExternalId").build());
+        organizationRepository.save(
+            Organization.builder()
+                .externalId("ExternalId")
+                .name("name")
+                .description("description")
+                .build());
     assertEquals(4, organizationRepository.count());
     assertEquals("ExternalId", savedOrganization.getExternalId());
     assertNotNull(savedOrganization.getId());
@@ -47,7 +52,7 @@ public class OrganizationRepositoryTest {
 
     Organization savedOrganization =
         organizationRepository.saveAndFlush(
-            new Organization("testorg", "testname", new HashSet<>(), false));
+            new Organization("testorg", "testname", "testdescription", new HashSet<>(), false));
 
     Resource resource =
         resourceRepository.saveAndFlush(

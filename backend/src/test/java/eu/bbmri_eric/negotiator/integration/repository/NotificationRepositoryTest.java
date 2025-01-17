@@ -68,7 +68,11 @@ public class NotificationRepositoryTest {
   void setUp() {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .build());
     this.discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     this.person = savePerson("test");
@@ -79,6 +83,7 @@ public class NotificationRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:1")
                 .name("test")
+                .description("test")
                 .representatives(new HashSet<>(List.of(person)))
                 .build());
     this.negotiation = saveNegotiation(this.person);

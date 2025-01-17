@@ -78,9 +78,19 @@ public class NegotiationRepositoryTest {
   void setUp() {
     this.organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .build());
     this.network =
-        networkRepository.save(Network.builder().externalId("idk").uri("http://idk.org").build());
+        networkRepository.save(
+            Network.builder()
+                .externalId("idk")
+                .name("idk")
+                .description("idk")
+                .uri("http://idk.org")
+                .build());
     this.discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     this.person = savePerson("test");
@@ -91,6 +101,7 @@ public class NegotiationRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:1")
                 .name("test")
+                .description("test")
                 .representatives(new HashSet<>(List.of(person)))
                 .build());
     this.network.addResource(resource);
@@ -130,6 +141,7 @@ public class NegotiationRepositoryTest {
       Organization organization =
           Organization.builder()
               .name("test-%s".formatted(i))
+              .description("test-%s".formatted(i))
               .externalId("biobank-%s".formatted(i))
               .build();
       organizations.add(organization);
@@ -142,6 +154,7 @@ public class NegotiationRepositoryTest {
               .discoveryService(discoveryService)
               .sourceId("collection:%s".formatted(i))
               .name("test")
+              .description("test")
               .representatives(new HashSet<>())
               .build();
       resources.add(resource);
@@ -395,6 +408,7 @@ public class NegotiationRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:2")
                 .name("test")
+                .description("test")
                 .representatives(new HashSet<>(List.of(person)))
                 .build());
     network.addResource(resource2);
@@ -439,6 +453,7 @@ public class NegotiationRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:2")
                 .name("test")
+                .description("test")
                 .representatives(new HashSet<>(List.of(person)))
                 .build());
     network.addResource(resource2);
@@ -467,6 +482,7 @@ public class NegotiationRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:2")
                 .name("test")
+                .description("test")
                 .representatives(new HashSet<>(List.of(person)))
                 .build());
     network.addResource(resource2);

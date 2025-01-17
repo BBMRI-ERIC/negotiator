@@ -33,6 +33,7 @@ public class OrganizationDTO {
   @Schema(description = "Name of the organization", example = "BBMRI-ERIC")
   private String name;
 
+  @NotNull
   @Schema(
       description = "Description of the organization",
       example = "A European research infrastructure.")

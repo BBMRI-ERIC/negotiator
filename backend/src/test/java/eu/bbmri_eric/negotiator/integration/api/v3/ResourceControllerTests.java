@@ -324,9 +324,17 @@ public class ResourceControllerTests {
   @WithUserDetails("admin")
   void addResource_batchOfResources_ok() throws Exception {
     Organization org1 =
-        Organization.builder().name("Organization 3").externalId("test_organization_3").build();
+        Organization.builder()
+            .name("Organization 3")
+            .description("Organization 3")
+            .externalId("test_organization_3")
+            .build();
     Organization org2 =
-        Organization.builder().name("Organization 4").externalId("test_organization_4").build();
+        Organization.builder()
+            .name("Organization 4")
+            .description("Organization 4")
+            .externalId("test_organization_4")
+            .build();
     organizationRepository.save(org1);
     organizationRepository.save(org2);
     Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
@@ -419,9 +427,17 @@ public class ResourceControllerTests {
   @WithUserDetails("admin")
   void updateResource_singleResource_ok() throws Exception {
     Organization org1 =
-        Organization.builder().name("Organization 1").externalId("test_organization_1").build();
+        Organization.builder()
+            .name("Organization 1")
+            .description("Organization 1")
+            .externalId("test_organization_1")
+            .build();
     Organization org2 =
-        Organization.builder().name("Organization 2").externalId("test_organization_2").build();
+        Organization.builder()
+            .name("Organization 2")
+            .description("Organization 2")
+            .externalId("test_organization_2")
+            .build();
     organizationRepository.save(org1);
     organizationRepository.save(org2);
     Long org1Id = organizationRepository.findByExternalId("test_organization_1").get().getId();

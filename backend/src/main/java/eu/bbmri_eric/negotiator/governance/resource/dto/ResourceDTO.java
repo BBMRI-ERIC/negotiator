@@ -32,10 +32,10 @@ public class ResourceDTO {
       nullable = true,
       description = "Name of the Resource",
       example = "A collection of bio samples at MMCI")
-  @Nullable
+  @NotNull
   private String name;
 
-  @Nullable private String description;
+  @NotNull private String description;
 
   @Nullable private String contactEmail;
 

@@ -114,7 +114,11 @@ public class ResourceRepositoryTest {
   void findAllByNegotiationId() {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .build());
 
     Resource res1 =
         resourceRepository.save(

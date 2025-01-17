@@ -201,6 +201,7 @@ public class NetworkControllerTests {
             .externalId("externalId")
             .contactEmail("new@negotiator.com")
             .name("newNetwork")
+            .description("newNetwork")
             .uri("http://newuri.org")
             .build();
     String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO));
@@ -236,6 +237,7 @@ public class NetworkControllerTests {
             .externalId("network1")
             .contactEmail("network1@negotiator.com")
             .name("network1")
+            .description("network1")
             .uri("http://network1.org")
             .build();
     NetworkCreateDTO networkDTO2 =
@@ -243,6 +245,7 @@ public class NetworkControllerTests {
             .externalId("network2")
             .contactEmail("network2@negotiator.com")
             .name("network2")
+            .description("network2")
             .uri("http://network2.org")
             .build();
     String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO1, networkDTO2));
@@ -376,6 +379,7 @@ public class NetworkControllerTests {
             .externalId("network3")
             .contactEmail("network3@negotiator.com")
             .name("network")
+            .description("network")
             .uri("http://network3.org")
             .build();
     NetworkCreateDTO networkDTO2 =
@@ -383,6 +387,7 @@ public class NetworkControllerTests {
             .externalId("network4")
             .contactEmail("network4@negotiator.com")
             .name("network")
+            .description("network")
             .uri("http://network4.org")
             .build();
     String requestBody = TestUtils.jsonFromRequest(Arrays.asList(networkDTO1, networkDTO2));
@@ -430,6 +435,7 @@ public class NetworkControllerTests {
             .externalId("bbmri-eric:ID:SE_890:network:bbmri-eric")
             .contactEmail("office@negotiator.org")
             .name("network-1")
+            .description("network-1")
             .uri("https://network-1/")
             .build();
     String requestBody = TestUtils.jsonFromRequest(networkDTO);
@@ -450,6 +456,7 @@ public class NetworkControllerTests {
             .externalId("externalId")
             .contactEmail("new@negotiator.com")
             .name("newNetwork")
+            .description("newNetwork")
             .uri("http://newuri.org")
             .build();
     String requestBody = TestUtils.jsonFromRequest(networkDTO);
