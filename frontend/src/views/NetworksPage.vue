@@ -331,15 +331,15 @@
             <!-- Organization Body -->
             <div class="card-body">
               <!-- Loading Spinner -->
-              <div v-if="loading" class="d-flex justify-content-center">
+              <div v-if="loadingSpinner" class="d-flex justify-content-center">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
               </div>
 
-              <p v-if="!loading">{{ organization.description }}</p>
+              <p v-if="!loadingSpinner">{{ organization.description }}</p>
 
-              <ul v-if="!loading" class="list-unstyled">
+              <ul v-if="!loadingSpinner" class="list-unstyled">
                 <li>
                   <i class="bi bi-envelope"></i>
                   <a :href="'mailto:' + organization.contactEmail">
