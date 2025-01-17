@@ -368,7 +368,7 @@
                       :aria-controls="'collapseResources_' + organization.id"
                       @click="loadingSpinner = true"
                     >
-                      Resources List
+                      Resources
                     </button>
                   </h2>
                   <div
