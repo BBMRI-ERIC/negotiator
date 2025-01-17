@@ -347,71 +347,93 @@
               </ul>
 
               <!-- Resources Accordion -->
-              <div>
-                <h6>Resources:</h6>
-                <div v-for="resource in organization.resources" :key="resource.id" class="accordion"
-                     id="accordionResources">
-                  <div class="accordion-item">
-                    <!-- Resource Header -->
-                    <h2 class="accordion-header" :id="'heading' + resource.id">
-                      <button
-                        class="accordion-button collapsed d-flex align-items-center"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        :data-bs-target="'#collapse' + resource.id"
-                        aria-expanded="false"
-                        :aria-controls="'collapse' + resource.id"
-                      >
-                        {{ resource.name }} ({{ resource.sourceId }})
-                        <!-- Resource Status Icon -->
-                        <i
-                          v-if="resource.representatives.length > 0"
-                          class="bi bi-check-circle-fill text-success"
-                          title="This resource has representatives"
-                        ></i>
-                        <i
-                          v-else
-                          class="bi bi-exclamation-triangle-fill text-warning"
-                          title="This resource has no representatives"
-                        ></i>
-                      </button>
-                    </h2>
-
-                    <!-- Resource Body -->
-                    <div
-                      :id="'collapse' + resource.id"
-                      class="accordion-collapse collapse"
-                      :aria-labelledby="'heading' + resource.id"
-                      data-bs-parent="#accordionResources"
+              <div class="accordion" :id="'accordionResources_' + organization.id">
+                <!-- Toggle for Resources List -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" :id="'headingResources_' + organization.id">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      :data-bs-target="'#collapseResources_' + organization.id"
+                      aria-expanded="false"
+                      :aria-controls="'collapseResources_' + organization.id"
                     >
-                      <div class="accordion-body">
-                        <p>{{ resource.description }}</p>
-                        <ul class="list-unstyled">
-                          <li>
-                            <i class="bi bi-envelope"></i>
-                            <a :href="'mailto:' + resource.contactEmail">
-                              {{ resource.contactEmail }}
-                            </a>
-                          </li>
-                          <li>
-                            <i class="bi bi-globe"></i>
-                            <a :href="resource.uri" target="_blank">
-                              {{ resource.uri }}
-                            </a>
-                          </li>
-                        </ul>
-                        <h6>Representatives:</h6>
-                        <ul>
-                          <li
-                            v-for="rep in resource.representatives"
-                            :key="rep"
+                      Resources:
+                    </button>
+                  </h2>
+                  <div
+                    :id="'collapseResources_' + organization.id"
+                    class="accordion-collapse collapse"
+                    :aria-labelledby="'headingResources_' + organization.id"
+                  >
+                    <div class="accordion-body">
+                      <!-- Individual Resources Accordion -->
+                      <div
+                        v-for="resource in organization.resources"
+                        :key="resource.id"
+                        class="accordion-item"
+                      >
+                        <h2 class="accordion-header" :id="'heading_' + resource.id">
+                          <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            :data-bs-target="'#collapse_' + resource.id"
+                            aria-expanded="false"
+                            :aria-controls="'collapse_' + resource.id"
                           >
-                            <i class="bi bi-person"></i> {{ rep }}
-                          </li>
-                        </ul>
-                        <!-- Warning if no representatives -->
-                        <div v-if="resource.representatives.length === 0" class="text-warning mt-2">
-                          <i class="bi bi-exclamation-triangle"></i> This resource has no representatives.
+                            {{ resource.name }} ({{ resource.sourceId }})
+                            <!-- Resource Status Icon -->
+                            <i
+                              v-if="resource.representatives.length > 0"
+                              class="bi bi-check-circle-fill text-success"
+                              title="This resource has representatives"
+                            ></i>
+                            <i
+                              v-else
+                              class="bi bi-exclamation-triangle-fill text-warning"
+                              title="This resource has no representatives"
+                            ></i>
+                          </button>
+                        </h2>
+
+                        <!-- Resource Body -->
+                        <div
+                          :id="'collapse_' + resource.id"
+                          class="accordion-collapse collapse"
+                          :aria-labelledby="'heading_' + resource.id"
+                        >
+                          <div class="accordion-body">
+                            <p>{{ resource.description }}</p>
+                            <ul class="list-unstyled">
+                              <li>
+                                <i class="bi bi-envelope"></i>
+                                <a :href="'mailto:' + resource.contactEmail">
+                                  {{ resource.contactEmail }}
+                                </a>
+                              </li>
+                              <li>
+                                <i class="bi bi-globe"></i>
+                                <a :href="resource.uri" target="_blank">
+                                  {{ resource.uri }}
+                                </a>
+                              </li>
+                            </ul>
+                            <h6>Representatives:</h6>
+                            <ul>
+                              <li
+                                v-for="rep in resource.representatives"
+                                :key="rep"
+                              >
+                                <i class="bi bi-person"></i> {{ rep }}
+                              </li>
+                            </ul>
+                            <!-- Warning if no representatives -->
+                            <div v-if="resource.representatives.length === 0" class="text-warning mt-2">
+                              <i class="bi bi-exclamation-triangle"></i> This resource has no representatives.
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -421,6 +443,8 @@
             </div>
           </div>
         </div>
+
+
       </div>
     </div>
   </div>
