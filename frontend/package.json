@@ -61,7 +61,7 @@
     "sass": "^1.83.4",
     "unplugin-vue-components": "^0.24.1",
     "vite": "^6.0.7",
-    "vitest": "^2.1.8"
+    "vitest": "^3.0.2"
   },
   "browserslist": [
     "> 1%",
