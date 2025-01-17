@@ -26,26 +26,26 @@ values (101, 'ADMIN'),  -- still needed for data sources tests
        (109, 'ROLE_REPRESENTATIVE_biobank:1:collection:2'),
        (109, 'ROLE_REPRESENTATIVE_biobank:2:collection:1');
 
-insert into organization (id, name, external_id, contact_email, description )
-values (4, 'Biobank #1', 'biobank:1', 'biobank1@test.org', 'Biobank #1'),
-       (5, 'Biobank #2', 'biobank:2', 'biobank2@test.org', 'Biobank #2'),
-       (6, 'Biobank #3', 'biobank:3', 'biobank3@test.org', 'Biobank #3');
+insert into organization (id, name, external_id, contact_email, description, uri)
+values (4, 'Biobank #1', 'biobank:1', 'biobank1@test.org', 'Biobank #1', 'https://biobank1.org'),
+       (5, 'Biobank #2', 'biobank:2', 'biobank2@test.org', 'Biobank #2', 'https://biobank2.org'),
+       (6, 'Biobank #3', 'biobank:3', 'biobank3@test.org', 'Biobank #3', 'https://biobank3.org');
 
-insert into resource (id, name, description, source_id, discovery_service_id, organization_id, access_form_id, contact_email)
+insert into resource (id, name, description, source_id, discovery_service_id, organization_id, access_form_id, contact_email, uri)
 values (4, 'Test collection #1 of biobank #1', 'This is the first test collection of biobank 1',
-        'biobank:1:collection:1', 1, 4, 1, 'coll1bb1@test.org'),
+        'biobank:1:collection:1', 1, 4, 1, 'coll1bb1@test.org', 'https://biobank1.org/collection1'),
        (5, 'Test collection #2 of biobank #1', 'This is the second test collection of biobank 1',
-        'biobank:1:collection:2', 1, 4, 1, 'coll2bb1@test.org'),
+        'biobank:1:collection:2', 1, 4, 1, 'coll2bb1@test.org', 'https://biobank1.org/collection2'),
        (6, 'Test collection #1 of biobank #2', 'This is the first test collection of biobank 2',
-        'biobank:2:collection:1', 1, 5, 1, 'coll1bb2@test.org'),
+        'biobank:2:collection:1', 1, 5, 1, 'coll1bb2@test.org', 'https://biobank2.org/collection1'),
        (7, 'Test collection #1 of biobank #3', 'This is the first test collection of biobank 3',
-        'biobank:3:collection:1', 1, 6, 1,'coll1bb3@test.org'),
+        'biobank:3:collection:1', 1, 6, 1,'coll1bb3@test.org', 'https://biobank3.org/collection1'),
        (8, 'Test collection #2 of biobank #3', 'This is the second test collection of biobank 3',
-        'biobank:3:collection:2', 1, 6, 1, 'coll2bb3@test.org'),
+        'biobank:3:collection:2', 1, 6, 1, 'coll2bb3@test.org', 'https://biobank3.org/collection2'),
        (9, 'Test collection #3 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:3', 1, 6, 1, 'coll3bb3@test.org'),
+        'biobank:3:collection:3', 1, 6, 1, 'coll3bb3@test.org', 'https://biobank3.org/collection3'),
        (10, 'Test collection #10 of biobank #3', 'This is the third test collection of biobank 3',
-        'biobank:3:collection:4', 1, 6, 1,'coll10bb3@test.org');
+        'biobank:3:collection:4', 1, 6, 1,'coll10bb3@test.org', 'https://biobank3.org/collection10');
 
 -- TheBiobanker (109) represents resources of biobank1 and biobank2.
 -- SareRepr (105) represents resources of biobank3
