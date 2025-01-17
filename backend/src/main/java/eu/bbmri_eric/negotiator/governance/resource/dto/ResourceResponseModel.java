@@ -5,6 +5,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.hateoas.server.core.Relation;
 
 /** A DTO for an abstract resource in the Negotiator. */
@@ -13,6 +14,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Relation(collectionRelation = "resources", itemRelation = "resource")
 @NoArgsConstructor
 @Schema(description = "A DTO representing an abstract resource in the Negotiator.")
+@ToString
 public class ResourceResponseModel {
   @Schema(description = "Unique identifier of the resource", example = "1")
   private Long id;

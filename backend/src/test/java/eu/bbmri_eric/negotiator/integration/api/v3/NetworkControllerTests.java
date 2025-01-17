@@ -544,6 +544,14 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithUserDetails("researcher")
+  void getOrganizations_notManager_403() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/organizations"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   @WithUserDetails("admin")
   void getOrganizations_validID_ok() throws Exception {
     mockMvc
