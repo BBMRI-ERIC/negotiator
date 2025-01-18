@@ -47,7 +47,7 @@
             <a
               type="button"
               class="btn btn-sm"
-              href='https://bbmri-eric.github.io/negotiator/representative'
+              href='https://bbmri-eric.github.io/negotiator/network_manager'
               :style="{
       'background-color': uiConfiguration?.buttonColor,
       'color': '#ffffff'
