@@ -26,12 +26,12 @@ To register a Representative for a resource in the Negotiator:
    shown in the image below. Each group’s description outlines the responsibilities and roles associated with
    membership.
 
-   ![Screenshot-1](AAI-1.png)
+   ![Screenshot-1](/AAI-1.png)
 
 4. **Locate the Relevant Group:** Expand the group with the description _"Grants member role in Negotiator..."_ to
    access specific Organizations and their resources.
 
-   ![Screenshot-2](AAI-2.png)
+   ![Screenshot-2](/AAI-2.png)
 
 5. **Select the Desired Group:** Click on a group to open the group management window.
 
@@ -44,7 +44,7 @@ To register a Representative for a resource in the Negotiator:
     - Click on **Members → Add.**
     - Search for the individual you want to assign as a Representative for the selected resource.
 
-   ![Screenshot-3](AAI-3.png)
+   ![Screenshot-3](/AAI-3.png)
 
 ### Additional Information
 
