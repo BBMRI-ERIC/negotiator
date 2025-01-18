@@ -1,33 +1,55 @@
 # Network Manger
 
-A Network Manager in the Negotiator
-is a person who is responsible for overseeing a group of resources called a **Network**.
-Note that the term resource refers to any entity an Organization allows access to. It can be a collection of biological
-samples, a dataset or a service such as expertise.
-They are expected to moderate access requests (Negotiations) for resources in a given Network,
-and to evaluate basic key performance indicators.
+A Network Manager in the Negotiator is a person responsible for overseeing a group of resources collectively known as a
+Network. The term "resource" refers to any entity an organization makes accessible, such as a collection of biological
+samples, a dataset, or a service like providing expertise.
 
+Network Managers play a crucial role in:
+
+* Moderating access requests (Negotiations) for resources within their Network.
+* Evaluating basic key performance indicators (KPIs) to ensure the efficient operation of the Network.
 ## Registering Representatives
 
-Each resource requires at least one Representative in the Negotiator to whom any new Requests are forwarded.
-For more detailed documentation click [here](/representative).
-To Register such a Representative for a Resource in the Negotiator,
-click on "Manage Resource Representatives" where you will be redirected to our Authentication and Authorization
-Infrastructure (AAI).
-You should Sign in using the same credentials as for the Negotiator.
-There depending on the number of networks you manage you should see at least 3 groups as visible in the image bellow.
-Their description outlines what membership in specific groups entails.
+Every resource in the Negotiator requires at least one designated Representative. Representatives are the primary
+contacts for new Requests, ensuring a smooth process for resource access.
 
-![Screenshot-1](AAI-1.png)
-To _Register Representatives_ unpack the Group with description _"Grants member role in Negotiator..."_.
-There you can unpack specific Organizations to see groups of Representatives for specific resources.
+For more detailed information, click [here](/representative).
 
-![Screenshot-2](AAI-2.png)
-Click on a desired group to view a group management window.
-::: danger
-Any person you wish to register must have logged in to the Negotiator or another BBMRI website at least once.
-:::
+### How to Register a Representative
 
-![Screenshot-3](AAI-3.png)
-Once there, click on Members → Add and then search for the Person you want to register as a Representative for the given
-resource.
+To register a Representative for a resource in the Negotiator:
+
+1. **Navigate to "Manage Resource Representatives":** You will be redirected to our Authentication and Authorization
+   Infrastructure (AAI).
+2. **Sign In:** Use the same credentials as you use for the Negotiator.
+3. **View Available Groups:** Depending on the number of Networks you manage, you will see at least three groups as
+   shown in the image below. Each group’s description outlines the responsibilities and roles associated with
+   membership.
+
+   ![Screenshot-1](AAI-1.png)
+
+4. **Locate the Relevant Group:** Expand the group with the description _"Grants member role in Negotiator..."_ to
+   access specific Organizations and their resources.
+
+   ![Screenshot-2](AAI-2.png)
+
+5. **Select the Desired Group:** Click on a group to open the group management window.
+
+   ::: warning
+   Any person you wish to register must have logged into the Negotiator or another BBMRI website at least once.
+   :::
+
+6. **Add a Representative:**
+
+    - Click on **Members → Add.**
+    - Search for the individual you want to assign as a Representative for the selected resource.
+
+   ![Screenshot-3](AAI-3.png)
+
+### Additional Information
+
+- Ensure Representatives are familiar with their roles and responsibilities to manage Requests efficiently.
+- Regularly review and update Representatives to reflect changes in your organization’s structure or resource
+  availability.
+- For further assistance, contact our support team via the "Help" section in the Negotiator.
+
