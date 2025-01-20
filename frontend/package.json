@@ -60,7 +60,7 @@
     "prettier": "^3.3.3",
     "sass": "^1.83.4",
     "unplugin-vue-components": "^0.24.1",
-    "vite": "^6.0.7",
+    "vite": "^6.0.9",
     "vitest": "^3.0.2"
   },
   "browserslist": [
