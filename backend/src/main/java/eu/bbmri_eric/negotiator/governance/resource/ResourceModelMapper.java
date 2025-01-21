@@ -21,14 +21,6 @@ public class ResourceModelMapper {
 
     typeMap.addMappings(mapper -> mapper.map(ResourceDTO::getName, Resource::setName));
 
-    typeMap.addMappings(
-        mapper -> mapper.map(ResourceDTO::getDescription, Resource::setDescription));
-
-    typeMap.addMappings(
-        mapper -> mapper.map(ResourceDTO::getContactEmail, Resource::setDescription));
-
-    typeMap.addMappings(mapper -> mapper.map(ResourceDTO::getUri, Resource::setUri));
-
     typeMap.addMappings(mapper -> mapper.skip(Resource::setId));
 
     TypeMap<Resource, ResourceDTO> resourceToDTOTypeMap =
@@ -38,13 +30,5 @@ public class ResourceModelMapper {
         mapper -> mapper.map(Resource::getSourceId, ResourceDTO::setId));
 
     resourceToDTOTypeMap.addMappings(mapper -> mapper.map(Resource::getName, ResourceDTO::setName));
-
-    resourceToDTOTypeMap.addMappings(
-        mapper -> mapper.map(Resource::getDescription, ResourceDTO::setDescription));
-
-    resourceToDTOTypeMap.addMappings(
-        mapper -> mapper.map(Resource::getContactEmail, ResourceDTO::setContactEmail));
-
-    resourceToDTOTypeMap.addMappings(mapper -> mapper.map(Resource::getUri, ResourceDTO::setUri));
   }
 }
