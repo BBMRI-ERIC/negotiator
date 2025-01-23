@@ -245,7 +245,7 @@ jobs:
         run: sleep 30
 
       - name: Cypress run
-        uses: cypress-io/github-action@57b70560982e6a11d23d4b8bec7f8a487cdbb71b #v6
+        uses: cypress-io/github-action@7271bed2a170d73c0b08939cd192db51a1c46c50 #v6
         with:
           working-directory: frontend
           browser: ${{ matrix.browser }}
