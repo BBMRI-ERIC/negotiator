@@ -36,7 +36,7 @@
     "jspdf-autotable": "^3.8.2",
     "moment": "^2.29.4",
     "oidc-client-ts": "^3.1.0",
-    "pinia": "^2.2.2",
+    "pinia": "^2.3.1",
     "pinia-oidc": "^1.0.10",
     "sass-loader": "^13.2.0",
     "vue": "^3.2.47",
