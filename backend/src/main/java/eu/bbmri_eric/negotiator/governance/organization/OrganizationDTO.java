@@ -45,6 +45,8 @@ public class OrganizationDTO {
   @Schema(description = "URI of the organization", example = "https://organization.org")
   private String uri;
 
-  @Schema(description = "Indicates if the organization has been revoked", example = "false")
+  @Schema(
+      description = "True if the Organization is no longer part of BBMRI-ERIC",
+      example = "false")
   private Boolean withdrawn;
 }
