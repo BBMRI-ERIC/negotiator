@@ -94,6 +94,7 @@ public class Resource {
   @Exclude
   private Set<Network> networks = new HashSet<>();
 
+  /** True if the Resource was withdrawn from usage. */
   @Builder.Default private Boolean withdrawn = false;
 
   public Resource(

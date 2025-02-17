@@ -45,12 +45,12 @@ public class OrganizationDTO {
 
   @Schema(description = "URI of the organization", example = "https://organization.org")
   private String uri;
-  
+
   @Schema(
       description = "True if the Organization is no longer accepting requests",
       example = "false")
   private Boolean withdrawn;
-  
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
