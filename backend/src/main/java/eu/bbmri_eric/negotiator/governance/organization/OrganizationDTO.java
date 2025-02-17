@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,9 +45,26 @@ public class OrganizationDTO {
 
   @Schema(description = "URI of the organization", example = "https://organization.org")
   private String uri;
-
+  
   @Schema(
-      description = "True if the Organization is no longer part of BBMRI-ERIC",
+      description = "True if the Organization is no longer accepting requests",
       example = "false")
   private Boolean withdrawn;
+  
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    OrganizationDTO that = (OrganizationDTO) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(externalId, that.externalId)
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description)
+        && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(uri, that.uri);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, externalId, name, description, contactEmail, uri);
+  }
 }

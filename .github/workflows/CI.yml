@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
         with:
           node-version: '20.12.2'
           cache: 'yarn'
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
         with:
           node-version: '20.12.2'
           cache: 'yarn'
@@ -79,7 +79,7 @@ jobs:
 
     steps:
       - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -98,7 +98,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
         with:
           node-version: '22.11.0'
           cache: 'yarn'
@@ -125,7 +125,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -160,7 +160,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -171,7 +171,7 @@ jobs:
         run: mvn --quiet clean test -B --file pom.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -189,7 +189,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -200,7 +200,7 @@ jobs:
         run: mvn --quiet clean verify -B -Dspring.profiles.active=test
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -245,7 +245,7 @@ jobs:
         run: sleep 30
 
       - name: Cypress run
-        uses: cypress-io/github-action@57b70560982e6a11d23d4b8bec7f8a487cdbb71b #v6
+        uses: cypress-io/github-action@d8ecebb25c9eaf9d4df9ad1aef88297ef2cb6f3c #v6
         with:
           working-directory: frontend
           browser: ${{ matrix.browser }}
@@ -268,13 +268,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
+        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
 
       - name: Build and push
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
         with:
           context: backend
           tags: bbmrieric/negotiator:latest
@@ -297,13 +297,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
+        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
 
       - name: Build and push
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
         with:
           context: frontend
           tags: bbmrieric/negotiator-frontend:latest
@@ -343,7 +343,7 @@ jobs:
         run: docker load --input /tmp/negotiator-frontend.tar
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@5681af892cd0f4997658e2bacc62bd0a894cf564
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
           image-ref: bbmrieric/negotiator:latest
           format: sarif
@@ -352,7 +352,7 @@ jobs:
           timeout: '15m0s'
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@5681af892cd0f4997658e2bacc62bd0a894cf564
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
           image-ref: bbmrieric/negotiator-frontend:latest
           format: sarif
@@ -385,12 +385,8 @@ jobs:
       - name: Load image
         run: docker load --input /tmp/negotiator.tar
 
-      - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
-
-      - name: Run docker compose
-        working-directory: /opt/negotiator
-        run: docker compose -f compose.yaml -f $GITHUB_WORKSPACE/.github/compose-overrides/compose.override.system.yaml up -d negotiator
+      - name: Setup environment with auth server
+        run: docker compose up -d
 
       - name: Wait
         run: sleep 30
@@ -489,18 +485,17 @@ jobs:
           name: negotiator
           path: /tmp
 
-      - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
+      - name: Checkout codebase
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Run docker compose
-        working-directory: /opt/negotiator
-        run: docker compose up -d negotiator
+      - name: Setup environment with auth server
+        run: docker compose up -d
 
       - name: Wait
         run: sleep 30
 
       - name: Down docker compose
-        run: cd /opt/negotiator && docker compose down
+        run: docker compose down
 
       - name: Remove image
         run: docker image rm bbmrieric/negotiator
@@ -509,7 +504,7 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Run docker compose
-        run: cd /opt/negotiator && docker compose up -d negotiator
+        run: docker compose up -d negotiator
 
       - name: Wait
         run: sleep 30
@@ -541,10 +536,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
+        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
 
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
@@ -561,7 +556,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5
+        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5
         with:
           images: |
             bbmrieric/negotiator
@@ -575,7 +570,7 @@ jobs:
       
 
       - name: Build and push
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
         with:
           context: backend
           platforms: linux/amd64,linux/arm64
@@ -604,10 +599,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
+        uses: docker/setup-qemu-action@4574d27a4764455b42196d70a065bc6853246a25 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
 
       - name: Login to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
@@ -624,7 +619,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5
+        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5
         with:
           images: |
             bbmrieric/negotiator-frontend
@@ -640,7 +635,7 @@ jobs:
         run: cp -r .git frontend
 
       - name: Build and push
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
         with:
           context: frontend
           platforms: linux/amd64,linux/arm64
@@ -660,7 +655,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
         with:
           node-version: 21
           cache: npm
@@ -713,7 +708,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           java-version: '17'
           distribution: 'temurin'
