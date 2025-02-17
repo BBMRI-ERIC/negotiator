@@ -94,6 +94,8 @@ public class Resource {
   @Exclude
   private Set<Network> networks = new HashSet<>();
 
+  @Builder.Default private Boolean withdrawn = false;
+
   public Resource(
       String name,
       String description,
