@@ -1,5 +1,5 @@
-import {defineConfig} from "vitepress"
-import {execSync} from 'child_process';
+import { defineConfig } from 'vitepress'
+import { execSync } from 'child_process'
 
 
 function getLatestGitTag() {
@@ -77,6 +77,7 @@ export default defineConfig({
                 items: [
                     {text: 'Administrator', link: '/administrator'},
                     {text: 'Representative', link: '/representative'},
+                    { text: 'Network Manager', link: '/network_manager' }
                 ]
             },
             {

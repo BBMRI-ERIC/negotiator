@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NetworkControllerTests {
 
   private static final String NETWORKS_URL = "/v3/networks";
@@ -541,5 +541,23 @@ public class NetworkControllerTests {
         .andExpect(jsonPath("$.totalNumberOfNegotiations", is(4)))
         .andExpect(jsonPath("$.numberOfIgnoredNegotiations", is(0)))
         .andExpect(jsonPath("$.statusDistribution.ABANDONED", is(1)));
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  void getOrganizations_notManager_403() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/organizations"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_validID_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/organizations"))
+        .andExpect(status().isOk())
+        .andDo(print())
+        .andExpect(jsonPath("$._embedded.organizations.size()", is(2)));
   }
 }

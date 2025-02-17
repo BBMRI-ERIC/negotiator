@@ -385,12 +385,8 @@ jobs:
       - name: Load image
         run: docker load --input /tmp/negotiator.tar
 
-      - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
-
-      - name: Run docker compose
-        working-directory: /opt/negotiator
-        run: docker compose -f compose.yaml -f $GITHUB_WORKSPACE/.github/compose-overrides/compose.override.system.yaml up -d negotiator
+      - name: Setup environment with auth server
+        run: docker compose up -d
 
       - name: Wait
         run: sleep 30
@@ -489,18 +485,17 @@ jobs:
           name: negotiator
           path: /tmp
 
-      - name: Clone deployment repo
-        run: git clone https://gitlab.bbmri-eric.eu/negotiator-deployment/negotiator-deployment-template.git /opt/negotiator
+      - name: Checkout codebase
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Run docker compose
-        working-directory: /opt/negotiator
-        run: docker compose up -d negotiator
+      - name: Setup environment with auth server
+        run: docker compose up -d
 
       - name: Wait
         run: sleep 30
 
       - name: Down docker compose
-        run: cd /opt/negotiator && docker compose down
+        run: docker compose down
 
       - name: Remove image
         run: docker image rm bbmrieric/negotiator
@@ -509,7 +504,7 @@ jobs:
         run: docker load --input /tmp/negotiator.tar
 
       - name: Run docker compose
-        run: cd /opt/negotiator && docker compose up -d negotiator
+        run: docker compose up -d negotiator
 
       - name: Wait
         run: sleep 30

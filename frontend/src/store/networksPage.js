@@ -66,10 +66,26 @@ export const useNetworksPageStore = defineStore('networksPage', () => {
       })
   }
 
+  async function retrieveNetworkOrganizations(networkId) {
+    return await axios
+      .get(
+        `${apiPaths.BASE_API_PATH}/networks/${networkId}/organizations`,
+        { headers: getBearerHeaders() }
+      )
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error retrieving network')
+        return {}
+      })
+  }
+
   return {
     retrieveNetworkNegotiations,
     retrieveUserNetworks,
     retrieveNetwork,
     retrieveNetworkStats,
+    retrieveNetworkOrganizations
   }
 })

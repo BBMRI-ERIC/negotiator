@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.common.ValidationGroups;
 import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatistics;
 import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatisticsService;
 import eu.bbmri_eric.negotiator.governance.network.stats.NetworkStatsFilter;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationWithResourcesDTO;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -132,6 +134,16 @@ public class NetworkController {
         (Page<ResourceResponseModel>)
             resourceService.findAllForNetwork(PageRequest.of(page, size), id),
         id);
+  }
+
+  @GetMapping("/networks/{id}/organizations")
+  @Operation(summary = "List all organizations of a network")
+  public CollectionModel<EntityModel<OrganizationWithResourcesDTO>> getNetworkOrganizations(
+      @PathVariable Long id) {
+    return CollectionModel.of(
+        networkService.findAllOrganizations(id).stream()
+            .map(EntityModel::of)
+            .collect(Collectors.toUnmodifiableSet()));
   }
 
   @DeleteMapping("/networks/{id}/resources/{resourceId}")

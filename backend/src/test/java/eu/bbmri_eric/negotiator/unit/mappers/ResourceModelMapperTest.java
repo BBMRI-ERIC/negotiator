@@ -9,6 +9,9 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceModelMapper;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
+import eu.bbmri_eric.negotiator.user.Person;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -59,5 +62,55 @@ public class ResourceModelMapperTest {
     assertEquals(resource.getName(), resourceResponseModel.getName());
     assertEquals(resource.getContactEmail(), resourceResponseModel.getContactEmail());
     assertEquals(resource.getUri(), resourceResponseModel.getUri());
+  }
+
+  @Test
+  void resourceToDTOWithReps_map_ok() {
+    // Arrange: Create a Resource instance
+    Resource resource =
+        Resource.builder()
+            .id(1L)
+            .name("Test Resource")
+            .description("This is a test resource.")
+            .sourceId("resource:123")
+            .contactEmail("test@resource.org")
+            .uri("https://resource.org")
+            .build();
+
+    // Add representatives
+    Person rep1 =
+        Person.builder()
+            .subjectId("1")
+            .id(1L)
+            .name("Sarah Rep")
+            .email("sarah.rep@example.com")
+            .build();
+    Person rep2 =
+        Person.builder()
+            .subjectId("2")
+            .id(2L)
+            .name("Adam Rep")
+            .email("adam.rep@example.com")
+            .build();
+    Person rep3 =
+        Person.builder()
+            .subjectId("3")
+            .id(3L)
+            .name("John Rep")
+            .email("john.rep@example.com")
+            .build();
+    resource.setRepresentatives(Set.of(rep1, rep3, rep2));
+
+    // Act: Map Resource to ResourceWithRepsDTO
+    ResourceWithRepsDTO dto = mapper.map(resource, ResourceWithRepsDTO.class);
+
+    // Assert: Validate the mapped DTO fields
+    assertNotNull(dto);
+    assertEquals(resource.getName(), dto.getName());
+    assertEquals(resource.getDescription(), dto.getDescription());
+    assertEquals(resource.getSourceId(), dto.getSourceId());
+    assertEquals(resource.getContactEmail(), dto.getContactEmail());
+    assertEquals(resource.getUri(), dto.getUri());
+    assertEquals(Set.of("Sarah Rep", "Adam Rep", "John Rep"), dto.getRepresentatives());
   }
 }
