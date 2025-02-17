@@ -28,6 +28,48 @@
             </li>
           </ul>
         </div>
+        <div>
+          <div class="d-flex flex-column">
+            <a
+              type="button"
+              class="btn btn-sm mb-2"
+              :href="externalLinks.auth_management_link"
+              :style="{
+      'background-color': uiConfiguration?.buttonColor,
+      'color': '#ffffff'
+    }"
+            >
+    <span>
+      <i class="bi bi-gear"></i>
+      Manage Resource Representatives
+    </span>
+            </a>
+            <a
+              type="button"
+              class="btn btn-sm"
+              href='https://bbmri-eric.github.io/negotiator/network_manager'
+              :style="{
+      'background-color': uiConfiguration?.buttonColor,
+      'color': '#ffffff'
+    }"
+            >
+    <span>
+      <i class="bi bi-book"></i>
+      Guide
+    </span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+      <!-- Warning Banner -->
+      <div v-if="resourcesWithoutRepresentatives > 0" class="alert alert-warning mt-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Warning: At least one or more Resources in your Network do not have a single <strong>Representative</strong>
+        attached to them.
+        Hence, any new requests for these Resources <strong>will not be forwarded</strong>. To see which Resources need
+        to be updated, go to the <strong>Organizations</strong> tab.
+        To update them, click on the <strong>"Manage Resource Representatives"</strong> button above.
       </div>
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs">
@@ -47,6 +89,15 @@
             @click="currentTab = 'negotiations'"
           >
             Negotiations
+          </a>
+        </li>
+        <li class="nav-item tab cursor-pointer">
+          <a
+            class="nav-link"
+            :class="{ active: currentTab === 'organizations' }"
+            @click="currentTab = 'organizations'"
+          >
+            Organizations
           </a>
         </li>
       </ul>
@@ -92,6 +143,39 @@
             <!-- Pie Chart Section -->
             <div v-if="stats" class="pie-chart-container">
               <Pie :data="pieData" :options="pieOptions" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-body">
+            <!-- Card Header for Additional Information -->
+            <div class="d-flex flex-row mb-4 align-items-center">
+              <h4 class="card-title mb-0">Status Distribution</h4>
+              <i
+                class="bi bi-info-circle ml-2 small-icon"
+                title="Statistics showing the distribution of negotiation statuses"
+              ></i>
+            </div>
+
+            <!-- Dynamically Generated Status Cards -->
+            <div class="row mt-4">
+              <div
+                v-for="(count, status) in stats.statusDistribution"
+                :key="status"
+                class="col-md-6 col-lg-4 mb-4 d-flex"
+              >
+                <div class="stat-card flex-fill">
+                  <div class="stat-label">
+                    <span>{{ formatStatusLabel(status) }}</span>
+                    <i
+                      class="bi bi-info-circle small-icon"
+                      :title="'The number of negotiations with status: ' + formatStatusLabel(status)"
+                    ></i>
+                  </div>
+                  <h5>{{ count }}</h5>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -181,7 +265,7 @@
         </div>
       </div>
 
-      <div v-else-if="currentTab === 'negotiations'" class="mt-3">
+      <div v-if="currentTab === 'negotiations'" class="mt-3">
         <FilterSort
           v-if="isLoaded"
           :user-role="userRole"
@@ -202,32 +286,186 @@
           @current-page-number="retrieveNegotiationsByPage"
         />
       </div>
+      <div v-if="currentTab === 'organizations'" class="mt-3">
+        <div class="summary-section mb-4 p-3 bg-light border rounded">
+          <h4>Summary</h4>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <strong>Total Organizations:</strong> {{ organizations.length }}
+            </li>
+            <li>
+              <strong>Total Resources:</strong> {{ totalResources }}
+            </li>
+            <li>
+              <strong>Resources Without Representatives:</strong> {{ resourcesWithoutRepresentatives }}
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <div
+            v-for="organization in organizations"
+            :key="organization.id"
+            class="card mb-3 position-relative"
+          >
+            <!-- Organization Header -->
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                {{ organization.name }} ({{ organization.externalId }})
+              </h5>
+              <!-- Status Icon -->
+              <div>
+                <i
+                  v-if="allResourcesHaveRepresentatives(organization.resources)"
+                  class="bi bi-check-circle-fill text-success"
+                  title="All resources have representatives"
+                ></i>
+                <i
+                  v-else
+                  class="bi bi-exclamation-triangle-fill text-warning"
+                  title="At least one resource has no representative"
+                ></i>
+              </div>
+            </div>
+
+            <!-- Organization Body -->
+            <div class="card-body">
+              <p>{{ organization.description }}</p>
+              <ul class="list-unstyled">
+                <li>
+                  <i class="bi bi-envelope"></i>
+                  <a :href="'mailto:' + organization.contactEmail">
+                    {{ organization.contactEmail }}
+                  </a>
+                </li>
+                <li>
+                  <i class="bi bi-globe"></i>
+                  <a :href="organization.uri" target="_blank">
+                    {{ organization.uri }}
+                  </a>
+                </li>
+              </ul>
+
+              <!-- Resources Accordion -->
+              <div class="accordion" :id="'accordionResources_' + organization.id">
+                <!-- Toggle for Resources List -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" :id="'headingResources_' + organization.id">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      :data-bs-target="'#collapseResources_' + organization.id"
+                      aria-expanded="false"
+                      :aria-controls="'collapseResources_' + organization.id"
+                    >
+                      Resources
+                    </button>
+                  </h2>
+                  <div
+                    :id="'collapseResources_' + organization.id"
+                    class="accordion-collapse collapse"
+                    :aria-labelledby="'headingResources_' + organization.id"
+                  >
+                    <div class="accordion-body">
+                      <!-- Individual Resources Accordion -->
+                      <div
+                        v-for="resource in organization.resources"
+                        :key="resource.id"
+                        class="accordion-item"
+                      >
+                        <h2 class="accordion-header" :id="'heading_' + resource.id">
+                          <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            :data-bs-target="'#collapse_' + resource.id"
+                            aria-expanded="false"
+                            :aria-controls="'collapse_' + resource.id"
+                          >
+                            {{ resource.name }} ({{ resource.sourceId }})
+                            <!-- Resource Status Icon -->
+                            <i
+                              v-if="resource.representatives.length > 0"
+                              class="bi bi-check-circle-fill text-success"
+                              title="This resource has representatives"
+                            ></i>
+                            <i
+                              v-else
+                              class="bi bi-exclamation-triangle-fill text-warning"
+                              title="This resource has no representatives"
+                            ></i>
+                          </button>
+                        </h2>
+
+                        <!-- Resource Body -->
+                        <div
+                          :id="'collapse_' + resource.id"
+                          class="accordion-collapse collapse"
+                          :aria-labelledby="'heading_' + resource.id"
+                        >
+                          <div class="accordion-body">
+                            <p>{{ resource.description }}</p>
+                            <ul class="list-unstyled">
+                              <li>
+                                <i class="bi bi-envelope"></i>
+                                <a :href="'mailto:' + resource.contactEmail">
+                                  {{ resource.contactEmail }}
+                                </a>
+                              </li>
+                              <li>
+                                <i class="bi bi-globe"></i>
+                                <a :href="resource.uri" target="_blank">
+                                  {{ resource.uri }}
+                                </a>
+                              </li>
+                            </ul>
+                            <h6>Representatives:</h6>
+                            <ul>
+                              <li
+                                v-for="rep in resource.representatives"
+                                :key="rep"
+                              >
+                                <i class="bi bi-person"></i> {{ rep }}
+                              </li>
+                            </ul>
+                            <!-- Warning if no representatives -->
+                            <div v-if="resource.representatives.length === 0" class="text-warning mt-2">
+                              <i class="bi bi-exclamation-triangle"></i> This resource has no representatives.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
     </div>
   </div>
   <LoadingSpinner v-else: />
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import moment from 'moment'
 import { useNetworksPageStore } from '@/store/networksPage'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useUserStore } from '@/store/user'
+import externalLinks from '@/config/externalLinks'
 import FilterSort from '@/components/FilterSort.vue'
 import NegotiationList from '@/components/NegotiationList.vue'
 import NegotiationPagination from '@/components/NegotiationPagination.vue'
 import { useNegotiationsStore } from '@/store/negotiations'
 import { Pie } from 'vue-chartjs'
-import {
-  ArcElement,
-  CategoryScale,
-  Chart as ChartJS,
-  DoughnutController,
-  Legend,
-  Title,
-  Tooltip,
-} from 'chart.js'
+import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip } from 'chart.js'
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
 
@@ -239,6 +477,8 @@ const props = defineProps({
     required: true,
   },
 })
+
+const uiConfigurationStore = useUiConfiguration()
 const userStore = useUserStore()
 const negotiationsStore = useNegotiationsStore()
 const networksPageStore = useNetworksPageStore()
@@ -255,12 +495,30 @@ const filtersSortData = ref({
   sortBy: 'creationDate',
   sortDirection: 'DESC',
 })
+// Helper function to check if all resources have representatives
+const allResourcesHaveRepresentatives = (resources) => {
+  return resources.every((resource) => resource.representatives.length > 0)
+}
+const totalResources = computed(() => {
+  return organizations.value.reduce((sum, org) => sum + org.resources.length, 0)
+})
+
+const resourcesWithoutRepresentatives = computed(() => {
+  return organizations.value.reduce(
+    (sum, org) =>
+      sum +
+      org.resources.filter((resource) => resource.representatives.length === 0).length,
+    0
+  )
+})
+
 const today = new Date()
 const startOfYear = new Date(today.getFullYear(), 0, 1)
 const startDate = ref(startOfYear.toISOString().slice(0, 10))
 const endDate = ref(today.toISOString().slice(0, 10))
 const userRole = ref('author')
 const isLoaded = ref(false)
+const organizations = ref([])
 // Pie chart data
 const pieData = ref({})
 const pieOptions = ref({
@@ -275,6 +533,9 @@ const pieOptions = ref({
       },
     },
   },
+})
+const uiConfiguration = computed(() => {
+  return uiConfigurationStore.uiConfiguration?.theme
 })
 onMounted(async () => {
   await userStore.retrieveUser()
@@ -301,6 +562,15 @@ watch(
   { immediate: true }, // Run the watcher immediately on component mount
 )
 loadNetworkInfo(props.networkId)
+
+async function loadOrganizations(networkId) {
+  const response = await networksPageStore.retrieveNetworkOrganizations(networkId)
+  if (response._embedded) {
+    organizations.value = response._embedded.organizations
+  }
+}
+
+loadOrganizations(props.networkId)
 loadStats(props.networkId)
 loadNegotiationStates()
 retrieveLatestNegotiations(0)
@@ -313,6 +583,13 @@ async function loadNetworkInfo(networkId) {
   network.value = await networksPageStore.retrieveNetwork(networkId)
 }
 
+function formatStatusLabel(status) {
+  // Convert status from snake case to title case for better display
+  return status
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
 async function loadStats(networkId) {
   stats.value = await networksPageStore.retrieveNetworkStats(
     networkId,
@@ -503,7 +780,6 @@ function retrieveNegotiationsByPage(currentPageNumber) {
 }
 
 .bi-info-circle {
-  cursor: pointer;
   font-size: 18px;
   color: #007bff;
   transition: color 0.2s ease;
@@ -573,6 +849,22 @@ function retrieveNegotiationsByPage(currentPageNumber) {
   flex-wrap: wrap;
   gap: 1rem;
   width: 100%;
+}
+
+.btn {
+  background-color: var(--button-color, #007bff); /* Default color if none provided */
+  color: #ffffff;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-decoration: none; /* Prevent underline on links */
+}
+
+.btn:hover {
+  background-color: var(--button-hover-color, #0056b3); /* Slightly darker color */
+  transform: scale(1.05); /* Slight zoom-in effect */
+}
+
+.btn:active {
+  transform: scale(1); /* Reset scale when clicked */
 }
 
 .col-md-6,

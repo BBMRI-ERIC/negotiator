@@ -14,13 +14,13 @@
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>3.4.1</version>
+        <version>3.4.2</version>
     </parent>
     <properties>
         <java.version>17</java.version>
         <spring-security.version>6.2.0</spring-security.version>
         <spring-boot.version>${project.parent.version}</spring-boot.version>
-        <spring.version>6.2.1</spring.version>
+        <spring.version>6.2.2</spring.version>
         <flyway.version>11.2.0</flyway.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
@@ -85,7 +85,7 @@
                     </execution>
                 </executions>
                 <groupId>org.springframework.boot</groupId>
-                <version>3.4.1</version>
+                <version>3.4.2</version>
             </plugin>
             <plugin>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -184,7 +184,7 @@
         <dependency>
             <artifactId>spring-context-support</artifactId>
             <groupId>org.springframework</groupId>
-            <version>6.2.1</version>
+            <version>6.2.3</version>
         </dependency>
         <dependency>
             <artifactId>jakarta.activation-api</artifactId>
