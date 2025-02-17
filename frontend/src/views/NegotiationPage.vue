@@ -419,13 +419,17 @@ const organizationsById = computed(() => {
 
 const representedOrganizationsById = computed(() => {
   return Object.entries(organizationsById.value)
-    .filter(([, value]) => value.updatable === true)
+    .filter(
+      ([, value]) => value.updatable === true && value.status !== 'REPRESENTATIVE_UNREACHABLE',
+    )
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
 })
 
 const notRepresentedOrganizationsById = computed(() => {
   return Object.entries(organizationsById.value)
-    .filter(([, value]) => value.updatable === false)
+    .filter(
+      ([, value]) => value.updatable === false || value.status === 'REPRESENTATIVE_UNREACHABLE',
+    )
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
 })
 
