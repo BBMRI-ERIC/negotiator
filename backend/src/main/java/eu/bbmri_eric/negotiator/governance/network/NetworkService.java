@@ -1,6 +1,8 @@
 package eu.bbmri_eric.negotiator.governance.network;
 
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationWithResourcesDTO;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Pageable;
 
 public interface NetworkService {
@@ -91,4 +93,6 @@ public interface NetworkService {
    * @param managerId
    */
   void removeManagerFromNetwork(Long networkId, Long managerId);
+
+  Set<OrganizationWithResourcesDTO> findAllOrganizations(Long id);
 }
