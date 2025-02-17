@@ -60,11 +60,12 @@ public class OrganizationDTO {
         && Objects.equals(name, that.name)
         && Objects.equals(description, that.description)
         && Objects.equals(contactEmail, that.contactEmail)
-        && Objects.equals(uri, that.uri);
+        && Objects.equals(uri, that.uri)
+        && Objects.equals(withdrawn, that.withdrawn);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, externalId, name, description, contactEmail, uri);
+    return Objects.hash(id, externalId, name, description, contactEmail, uri, withdrawn);
   }
 }
