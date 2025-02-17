@@ -163,7 +163,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(fn, index) in negotiations" :key="index" @click="goToNegotiation(fn.id)">
+              <tr
+                v-for="(fn, index) in negotiations"
+                :key="index"
+                @click="goToNegotiation(fn.id)"
+                class="cursor-pointer"
+              >
                 <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
                   {{ fn.payload.project.title }}
                 </th>
