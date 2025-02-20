@@ -36,7 +36,11 @@ public class PersonRepositoryTest {
   void existsByIdAndRepresentsResources_oneResource_Ok() {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .build());
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     Person person = savePerson("test");
@@ -48,6 +52,7 @@ public class PersonRepositoryTest {
                 .sourceId("collection:1")
                 .representatives(new HashSet<>())
                 .name("test")
+                .description("test")
                 .build());
     person.addResource(resource);
     personRepository.saveAndFlush(person);

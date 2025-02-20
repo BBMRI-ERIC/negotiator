@@ -78,7 +78,13 @@ public class TestUtils {
         ResourceDTO.builder()
             .id(collectionId)
             .name(collectionName)
-            .organization(OrganizationDTO.builder().externalId(biobankId).name(biobankName).build())
+            .description(collectionName)
+            .organization(
+                OrganizationDTO.builder()
+                    .externalId(biobankId)
+                    .name(biobankName)
+                    .description(biobankName)
+                    .build())
             .build();
 
     return RequestCreateDTO.builder()

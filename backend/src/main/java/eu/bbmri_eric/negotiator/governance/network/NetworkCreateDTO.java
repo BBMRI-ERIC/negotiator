@@ -25,6 +25,7 @@ public class NetworkCreateDTO {
   @Schema(description = "Name of the network", example = "European Bioinformatics Network")
   private String name;
 
+  @NotNull
   @Schema(
       description = "Description of the network",
       example = "A collaborative network for bioinformatics research.")

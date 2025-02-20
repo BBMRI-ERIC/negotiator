@@ -145,8 +145,16 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links").isMap());
   }
 
@@ -179,8 +187,16 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.uri").isString())
         .andExpect(
             jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
   }
@@ -203,8 +219,16 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").doesNotExist())
         .andExpect(
             jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
@@ -234,8 +258,16 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").isNotEmpty())
         .andExpect(
             jsonPath("$._embedded.resources[0]._links.MARK_AS_CHECKING_AVAILABILITY").isNotEmpty());
@@ -254,8 +286,16 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$._embedded.resources[0].id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].currentState").isString())
         .andExpect(jsonPath("$._embedded.resources[0].sourceId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0].organization.id").isNumber())
         .andExpect(jsonPath("$._embedded.resources[0].organization.externalId").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.name").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.description").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.contactEmail").isString())
+        .andExpect(jsonPath("$._embedded.resources[0].organization.uri").isString())
         .andExpect(jsonPath("$._embedded.resources[0]._links.submission-1").isNotEmpty())
         .andExpect(jsonPath("$._embedded.resources[0]._links.requirement-1").doesNotExist())
         .andExpect(
@@ -284,9 +324,17 @@ public class ResourceControllerTests {
   @WithUserDetails("admin")
   void addResource_batchOfResources_ok() throws Exception {
     Organization org1 =
-        Organization.builder().name("Organization 3").externalId("test_organization_3").build();
+        Organization.builder()
+            .name("Organization 3")
+            .description("Organization 3")
+            .externalId("test_organization_3")
+            .build();
     Organization org2 =
-        Organization.builder().name("Organization 4").externalId("test_organization_4").build();
+        Organization.builder()
+            .name("Organization 4")
+            .description("Organization 4")
+            .externalId("test_organization_4")
+            .build();
     organizationRepository.save(org1);
     organizationRepository.save(org2);
     Long org1Id = organizationRepository.findByExternalId("test_organization_3").get().getId();
@@ -379,9 +427,17 @@ public class ResourceControllerTests {
   @WithUserDetails("admin")
   void updateResource_singleResource_ok() throws Exception {
     Organization org1 =
-        Organization.builder().name("Organization 1").externalId("test_organization_1").build();
+        Organization.builder()
+            .name("Organization 1")
+            .description("Organization 1")
+            .externalId("test_organization_1")
+            .build();
     Organization org2 =
-        Organization.builder().name("Organization 2").externalId("test_organization_2").build();
+        Organization.builder()
+            .name("Organization 2")
+            .description("Organization 2")
+            .externalId("test_organization_2")
+            .build();
     organizationRepository.save(org1);
     organizationRepository.save(org2);
     Long org1Id = organizationRepository.findByExternalId("test_organization_1").get().getId();
@@ -469,6 +525,7 @@ public class ResourceControllerTests {
             .description("New Resource 3")
             .contactEmail("newres3@test.org")
             .uri("http://newres3.test.org")
+            .withdrawn(true)
             .build();
     String updatedRequestBody = TestUtils.jsonFromRequest(updatedResourceDTO);
     MvcResult updatedResult =
@@ -483,6 +540,7 @@ public class ResourceControllerTests {
             .andExpect(jsonPath("$.description", is(updatedResourceDTO.getDescription())))
             .andExpect(jsonPath("$.contactEmail", is(updatedResourceDTO.getContactEmail())))
             .andExpect(jsonPath("$.uri", is(updatedResourceDTO.getUri())))
+            .andExpect(jsonPath("$.withdrawn", is(updatedResourceDTO.isWithdrawn())))
             .andReturn();
     Optional<Resource> updatedResource = repository.findById(resource1.get().getId());
     assertEquals(updatedResourceDTO.getName(), updatedResource.get().getName());

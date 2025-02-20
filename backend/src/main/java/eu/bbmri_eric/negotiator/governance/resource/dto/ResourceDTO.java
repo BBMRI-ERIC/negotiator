@@ -32,8 +32,14 @@ public class ResourceDTO {
       nullable = true,
       description = "Name of the Resource",
       example = "A collection of bio samples at MMCI")
-  @Nullable
+  @NotNull
   private String name;
+
+  @NotNull private String description;
+
+  @Nullable private String contactEmail;
+
+  @Nullable private String uri;
 
   @Schema(nullable = true, description = "Organization Managing the Resource", example = "{}")
   private OrganizationDTO organization;

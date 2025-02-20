@@ -376,7 +376,7 @@
                       >
                         <h2 class="accordion-header" :id="'heading_' + resource.id">
                           <button
-                            class="accordion-button collapsed"
+                            :class="['accordion-button', 'collapsed', { 'gray-text': resource.withdrawn }]"
                             type="button"
                             data-bs-toggle="collapse"
                             :data-bs-target="'#collapse_' + resource.id"
@@ -386,13 +386,18 @@
                             {{ resource.name }} ({{ resource.sourceId }})
                             <!-- Resource Status Icon -->
                             <i
-                              v-if="resource.representatives.length > 0"
-                              class="bi bi-check-circle-fill text-success"
+                              v-if="resource.withdrawn === true"
+                              class="bi bi-x-octagon-fill text-warning ms-1"
+                              title="This resource is no longer active and cannot be a part of any request."
+                            ></i>
+                            <i
+                              v-if="resource.representatives.length > 0 && resource.withdrawn === false"
+                              class="bi bi-check-circle-fill text-success ms-1"
                               title="This resource has representatives"
                             ></i>
                             <i
-                              v-else
-                              class="bi bi-exclamation-triangle-fill text-warning"
+                              v-else-if="resource.representatives.length === 0 && resource.withdrawn === false"
+                              class="bi bi-exclamation-triangle-fill text-warning ms-1"
                               title="This resource has no representatives"
                             ></i>
                           </button>
@@ -407,6 +412,10 @@
                           <div class="accordion-body">
                             <p>{{ resource.description }}</p>
                             <ul class="list-unstyled">
+                              <li>
+                                <i class="bi bi-activity"></i>
+                                Withdrawn: {{ resource.withdrawn }}
+                              </li>
                               <li>
                                 <i class="bi bi-envelope"></i>
                                 <a :href="'mailto:' + resource.contactEmail">
@@ -497,7 +506,7 @@ const filtersSortData = ref({
 })
 // Helper function to check if all resources have representatives
 const allResourcesHaveRepresentatives = (resources) => {
-  return resources.every((resource) => resource.representatives.length > 0)
+  return resources.every((resource) => resource.representatives.length > 0 || resource.withdrawn === true)
 }
 const totalResources = computed(() => {
   return organizations.value.reduce((sum, org) => sum + org.resources.length, 0)
@@ -507,7 +516,7 @@ const resourcesWithoutRepresentatives = computed(() => {
   return organizations.value.reduce(
     (sum, org) =>
       sum +
-      org.resources.filter((resource) => resource.representatives.length === 0).length,
+      org.resources.filter((resource) => resource.representatives.length === 0 && resource.withdrawn === false).length,
     0
   )
 })
@@ -867,6 +876,10 @@ function retrieveNegotiationsByPage(currentPageNumber) {
   transform: scale(1); /* Reset scale when clicked */
 }
 
+/* styles.css */
+.gray-text {
+  color: gray;
+}
 .col-md-6,
 .col-lg-4 {
   flex: 1 1 45%; /* Adjust flex for responsiveness */
