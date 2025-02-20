@@ -245,7 +245,7 @@ jobs:
         run: sleep 30
 
       - name: Cypress run
-        uses: cypress-io/github-action@d8ecebb25c9eaf9d4df9ad1aef88297ef2cb6f3c #v6
+        uses: cypress-io/github-action@18a6541367f4580a515371905f499a27a44e8dbe #v6
         with:
           working-directory: frontend
           browser: ${{ matrix.browser }}
@@ -274,7 +274,7 @@ jobs:
         uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
 
       - name: Build and push
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
+        uses: docker/build-push-action@0adf9959216b96bec444f325f1e493d4aa344497 # v6
         with:
           context: backend
           tags: bbmrieric/negotiator:latest
@@ -303,7 +303,7 @@ jobs:
         uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3
 
       - name: Build and push
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
+        uses: docker/build-push-action@0adf9959216b96bec444f325f1e493d4aa344497 # v6
         with:
           context: frontend
           tags: bbmrieric/negotiator-frontend:latest
@@ -570,7 +570,7 @@ jobs:
       
 
       - name: Build and push
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
+        uses: docker/build-push-action@0adf9959216b96bec444f325f1e493d4aa344497 # v6
         with:
           context: backend
           platforms: linux/amd64,linux/arm64
@@ -635,7 +635,7 @@ jobs:
         run: cp -r .git frontend
 
       - name: Build and push
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6
+        uses: docker/build-push-action@0adf9959216b96bec444f325f1e493d4aa344497 # v6
         with:
           context: frontend
           platforms: linux/amd64,linux/arm64
