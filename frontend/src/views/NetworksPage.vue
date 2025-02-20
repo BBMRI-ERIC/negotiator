@@ -387,7 +387,7 @@
                             <!-- Resource Status Icon -->
                             <i
                               v-if="resource.withdrawn === true"
-                              class="bi bi-exclamation-triangle-fill text-warning"
+                              class="bi bi-x-octagon-fill text-warning"
                               title="This resource is no longer active and cannot be a part of any request."
                             ></i>
                             <i
