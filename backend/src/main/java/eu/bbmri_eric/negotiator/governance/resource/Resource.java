@@ -95,7 +95,7 @@ public class Resource {
   private Set<Network> networks = new HashSet<>();
 
   /** True if the Resource was withdrawn from usage. */
-  @Builder.Default private Boolean withdrawn = false;
+  @Builder.Default private boolean withdrawn = false;
 
   public Resource(
       String name,

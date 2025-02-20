@@ -525,6 +525,7 @@ public class ResourceControllerTests {
             .description("New Resource 3")
             .contactEmail("newres3@test.org")
             .uri("http://newres3.test.org")
+            .withdrawn(true)
             .build();
     String updatedRequestBody = TestUtils.jsonFromRequest(updatedResourceDTO);
     MvcResult updatedResult =
@@ -539,6 +540,7 @@ public class ResourceControllerTests {
             .andExpect(jsonPath("$.description", is(updatedResourceDTO.getDescription())))
             .andExpect(jsonPath("$.contactEmail", is(updatedResourceDTO.getContactEmail())))
             .andExpect(jsonPath("$.uri", is(updatedResourceDTO.getUri())))
+            .andExpect(jsonPath("$.withdrawn", is(updatedResourceDTO.isWithdrawn())))
             .andReturn();
     Optional<Resource> updatedResource = repository.findById(resource1.get().getId());
     assertEquals(updatedResourceDTO.getName(), updatedResource.get().getName());

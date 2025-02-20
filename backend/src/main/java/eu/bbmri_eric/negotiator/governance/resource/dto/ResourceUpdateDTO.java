@@ -30,6 +30,9 @@ public class ResourceUpdateDTO {
       example = "new-support@resource.org")
   private String contactEmail;
 
+  @Schema(description = "If the Resource is still active or not", example = "false")
+  private boolean withdrawn = false;
+
   @Schema(description = "Updated URI of the resource", example = "https://updated.resource.org")
   private String uri;
 }
