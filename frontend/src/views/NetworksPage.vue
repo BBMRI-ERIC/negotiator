@@ -387,17 +387,17 @@
                             <!-- Resource Status Icon -->
                             <i
                               v-if="resource.withdrawn === true"
-                              class="bi bi-x-octagon-fill text-warning"
+                              class="bi bi-x-octagon-fill text-warning ms-1"
                               title="This resource is no longer active and cannot be a part of any request."
                             ></i>
                             <i
                               v-if="resource.representatives.length > 0 && resource.withdrawn === false"
-                              class="bi bi-check-circle-fill text-success"
+                              class="bi bi-check-circle-fill text-success ms-1"
                               title="This resource has representatives"
                             ></i>
                             <i
                               v-else-if="resource.representatives.length === 0 && resource.withdrawn === false"
-                              class="bi bi-exclamation-triangle-fill text-warning"
+                              class="bi bi-exclamation-triangle-fill text-warning ms-1"
                               title="This resource has no representatives"
                             ></i>
                           </button>

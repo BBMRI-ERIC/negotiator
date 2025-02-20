@@ -59,7 +59,7 @@ public class Organization extends AuditEntity {
   private String contactEmail;
 
   /** Flag indicating if the organization is withdrawn or not. */
-  @NotNull @Builder.Default private Boolean withdrawn = false;
+  @Builder.Default private boolean withdrawn = false;
 
   /** URI of the organization. */
   private String uri;
@@ -91,14 +91,20 @@ public class Organization extends AuditEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Organization that = (Organization) o;
-    return Objects.equals(externalId, that.externalId);
+    return Objects.equals(id, that.id)
+        && Objects.equals(externalId, that.externalId)
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description)
+        && Objects.equals(resources, that.resources)
+        && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(withdrawn, that.withdrawn)
+        && Objects.equals(uri, that.uri);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(externalId);
+    return Objects.hash(id, externalId, name, description, resources, contactEmail, withdrawn, uri);
   }
 }

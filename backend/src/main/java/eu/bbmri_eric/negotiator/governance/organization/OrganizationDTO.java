@@ -49,7 +49,7 @@ public class OrganizationDTO {
   @Schema(
       description = "True if the Organization is no longer accepting requests",
       example = "false")
-  private Boolean withdrawn;
+  private boolean withdrawn;
 
   @Override
   public boolean equals(Object o) {
