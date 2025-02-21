@@ -20,6 +20,7 @@ public class OrganizationCreateDTO {
   @Schema(description = "Name of the organization", example = "BBMRI-ERIC")
   private String name;
 
+  @NotNull
   @Schema(
       description = "Description of the organization",
       example = "A European research infrastructure.")
@@ -32,8 +33,10 @@ public class OrganizationCreateDTO {
   @Schema(description = "Contact email of the organization", example = "info@organization.org")
   private String contactEmail;
 
+  @NotNull
+  @Builder.Default
   @Schema(description = "Indicates if the organization is withdrawn", example = "false")
-  private Boolean withdrawn;
+  private Boolean withdrawn = false;
 
   @Schema(description = "URI of the organization", example = "https://organization.org")
   private String uri;

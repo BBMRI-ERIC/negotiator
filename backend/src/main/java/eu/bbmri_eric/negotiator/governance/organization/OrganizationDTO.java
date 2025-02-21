@@ -34,6 +34,7 @@ public class OrganizationDTO {
   @Schema(description = "Name of the organization", example = "BBMRI-ERIC")
   private String name;
 
+  @NotNull
   @Schema(
       description = "Description of the organization",
       example = "A European research infrastructure.")
@@ -45,6 +46,11 @@ public class OrganizationDTO {
   @Schema(description = "URI of the organization", example = "https://organization.org")
   private String uri;
 
+  @Schema(
+      description = "True if the Organization is no longer accepting requests",
+      example = "false")
+  private boolean withdrawn;
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
@@ -54,11 +60,12 @@ public class OrganizationDTO {
         && Objects.equals(name, that.name)
         && Objects.equals(description, that.description)
         && Objects.equals(contactEmail, that.contactEmail)
-        && Objects.equals(uri, that.uri);
+        && Objects.equals(uri, that.uri)
+        && Objects.equals(withdrawn, that.withdrawn);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, externalId, name, description, contactEmail, uri);
+    return Objects.hash(id, externalId, name, description, contactEmail, uri, withdrawn);
   }
 }

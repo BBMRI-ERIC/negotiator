@@ -41,6 +41,6 @@ public class OrganizationCreateModelMapperTest {
     assertEquals(organization.getContactEmail(), orgCreateDto.getContactEmail());
     assertEquals(organization.getExternalId(), orgCreateDto.getExternalId());
     assertEquals(organization.getUri(), orgCreateDto.getUri());
-    assertEquals(organization.getWithdrawn(), orgCreateDto.getWithdrawn());
+    assertEquals(organization.isWithdrawn(), orgCreateDto.getWithdrawn());
   }
 }

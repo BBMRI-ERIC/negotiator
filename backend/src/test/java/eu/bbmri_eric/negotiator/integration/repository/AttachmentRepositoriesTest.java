@@ -68,6 +68,7 @@ public class AttachmentRepositoriesTest {
     return organizationRepository.save(
         Organization.builder()
             .name(organizationID)
+            .description(organizationID)
             .externalId("EXT_%s".formatted(organizationID))
             .build());
   }
@@ -79,6 +80,7 @@ public class AttachmentRepositoriesTest {
             .discoveryService(discoveryService)
             .sourceId(resourceId)
             .name("resource")
+            .description("resource_desc")
             .representatives(new HashSet<>(List.of(person)))
             .build());
   }

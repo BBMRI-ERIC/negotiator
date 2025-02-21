@@ -69,7 +69,15 @@ public class ResourceRepositoryTest {
   void findAllBySourceIds_2_ok() {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .withdrawn(false)
+                .contactEmail("test@test.org")
+                .contactEmail("test@test.org")
+                .uri("http://test.org")
+                .build());
 
     resourceRepository.save(
         Resource.builder()
@@ -77,6 +85,9 @@ public class ResourceRepositoryTest {
             .discoveryService(discoveryService)
             .sourceId("collection:1")
             .name("test")
+            .description("test")
+            .contactEmail("test@test.org")
+            .uri("http://test.org")
             .build());
 
     resourceRepository.save(
@@ -85,17 +96,29 @@ public class ResourceRepositoryTest {
             .discoveryService(discoveryService)
             .sourceId("collection:2")
             .name("test")
+            .description("test")
+            .contactEmail("test@test.org")
+            .uri("http://test.org")
             .build());
     assertEquals(
         2, resourceRepository.findAllBySourceIdIn(Set.of("collection:1", "collection:2")).size());
     assertEquals(1, resourceRepository.findAllBySourceIdIn(Set.of("collection:2")).size());
+    Resource resource = resourceRepository.findAllBySourceIdIn(Set.of("collection:2")).get(0);
+    assertEquals("test", resource.getName());
+    assertEquals("test", resource.getDescription());
+    assertEquals("test@test.org", resource.getContactEmail());
+    assertEquals("http://test.org", resource.getUri());
   }
 
   @Test
   void findAllByNegotiationId() {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .build());
 
     Resource res1 =
         resourceRepository.save(
@@ -104,6 +127,9 @@ public class ResourceRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:1")
                 .name("test")
+                .description("test")
+                .contactEmail("test@test.org")
+                .uri("http://test.org")
                 .build());
     Resource res2 =
         resourceRepository.save(
@@ -112,6 +138,9 @@ public class ResourceRepositoryTest {
                 .discoveryService(discoveryService)
                 .sourceId("collection:2")
                 .name("test")
+                .description("test")
+                .contactEmail("test@test.org")
+                .uri("http://test.org")
                 .build());
 
     Negotiation negotiation =
@@ -131,6 +160,15 @@ public class ResourceRepositoryTest {
     List<ResourceViewDTO> resources = resourceRepository.findByNegotiation(negotiation.getId());
     assertFalse(resources.isEmpty());
     assertEquals(res1.getSourceId(), resources.get(0).getSourceId());
+    assertEquals(res1.getName(), resources.get(0).getName());
+    assertEquals(res1.getDescription(), resources.get(0).getDescription());
+    assertEquals(res1.getContactEmail(), resources.get(0).getContactEmail());
+    assertEquals(res1.getUri(), resources.get(0).getUri());
     assertEquals(res2.getSourceId(), resources.get(1).getSourceId());
+    assertEquals(res2.getSourceId(), resources.get(1).getSourceId());
+    assertEquals(res2.getName(), resources.get(1).getName());
+    assertEquals(res2.getDescription(), resources.get(1).getDescription());
+    assertEquals(res2.getContactEmail(), resources.get(1).getContactEmail());
+    assertEquals(res2.getUri(), resources.get(1).getUri());
   }
 }

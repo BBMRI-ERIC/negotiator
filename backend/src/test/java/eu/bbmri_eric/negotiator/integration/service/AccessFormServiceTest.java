@@ -358,7 +358,11 @@ public class AccessFormServiceTest {
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:99").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:99")
+                .build());
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     for (int i = 0; i < 4; i++) {
@@ -370,6 +374,7 @@ public class AccessFormServiceTest {
                   .discoveryService(discoveryService)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")
+                  .description("test")
                   .build());
       request.getResources().add(resource);
     }

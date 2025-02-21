@@ -1136,6 +1136,7 @@ public class NegotiationControllerTests {
           organizationRepository.save(
               Organization.builder()
                   .name("test-%s".formatted(i))
+                  .description("test-%s".formatted(i))
                   .externalId("biobank-%s".formatted(i))
                   .build());
       Resource resource =
@@ -1145,6 +1146,7 @@ public class NegotiationControllerTests {
                   .discoveryService(discoveryService)
                   .sourceId("collection:%s".formatted(i))
                   .name("test")
+                  .description("test")
                   .representatives(new HashSet<>())
                   .build());
       resources.add(resource);

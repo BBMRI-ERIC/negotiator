@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 frontend/node_modules
 frontend/dist
+frontend/cypress/screenshots
 backend/target
 ### STS ###
 .apt_generated

@@ -262,6 +262,6 @@ public class OrganizationControllerTest {
     Optional<Organization> organization = organizationRepository.findById(id1);
     assert organization.isPresent();
     assertEquals(organizationDTO.getName(), organization.get().getName());
-    assertEquals(organizationDTO.getWithdrawn(), organization.get().getWithdrawn());
+    assertEquals(organizationDTO.getWithdrawn(), organization.get().isWithdrawn());
   }
 }

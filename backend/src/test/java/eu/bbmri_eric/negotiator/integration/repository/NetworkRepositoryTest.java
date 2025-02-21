@@ -34,7 +34,13 @@ public class NetworkRepositoryTest {
 
   @Test
   void findByExternalIdReturnsNetworkWhenIdExists() {
-    Network network = Network.builder().uri("http://example.com").externalId("validId").build();
+    Network network =
+        Network.builder()
+            .name("network_name")
+            .description("network_description")
+            .uri("http://example.com")
+            .externalId("validId")
+            .build();
     network.setExternalId("known-id");
     networkRepository.save(network);
 
@@ -52,7 +58,13 @@ public class NetworkRepositoryTest {
 
   @Test
   void existsByExternalIdReturnsTrueWhenIdExists() {
-    Network network = Network.builder().uri("http://example.com").externalId("validId").build();
+    Network network =
+        Network.builder()
+            .name("network_name")
+            .description("network_description")
+            .uri("http://example.com")
+            .externalId("validId")
+            .build();
     network.setExternalId("known-id");
     networkRepository.save(network);
 
@@ -70,7 +82,13 @@ public class NetworkRepositoryTest {
 
   @Test
   void existsByUriReturnsTrueWhenUriExists() {
-    Network network = Network.builder().uri("http://example.com").externalId("validId").build();
+    Network network =
+        Network.builder()
+            .uri("http://example.com")
+            .name("network_name")
+            .description("network_description")
+            .externalId("validId")
+            .build();
     network.setUri("known-uri");
     networkRepository.save(network);
 
@@ -91,7 +109,12 @@ public class NetworkRepositoryTest {
   void addResource() {
     Network network =
         networkRepository.saveAndFlush(
-            Network.builder().uri("http://example.com").externalId("validId").build());
+            Network.builder()
+                .name("network_name")
+                .description("network_description")
+                .uri("http://example.com")
+                .externalId("validId")
+                .build());
     Resource resource = createResource();
     network.addResource(resource);
     networkRepository.saveAndFlush(network);
@@ -106,7 +129,12 @@ public class NetworkRepositoryTest {
   void addManager() {
     Network network =
         networkRepository.saveAndFlush(
-            Network.builder().uri("http://example.com").externalId("validId").build());
+            Network.builder()
+                .name("network_name")
+                .description("network_description")
+                .uri("http://example.com")
+                .externalId("validId")
+                .build());
     Person person = createPerson();
     network.addManager(person);
     networkRepository.saveAndFlush(network);
@@ -119,7 +147,11 @@ public class NetworkRepositoryTest {
   private Resource createResource() {
     Organization organization =
         organizationRepository.save(
-            Organization.builder().name("test").externalId("biobank:1").build());
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .build());
     DiscoveryService discoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());
     Resource resource =
@@ -130,6 +162,7 @@ public class NetworkRepositoryTest {
                 .sourceId("collection:1")
                 .representatives(new HashSet<>())
                 .name("test")
+                .description("test")
                 .build());
     return resource;
   }

@@ -31,6 +31,9 @@ public class ResourceResponseModel {
   @Schema(description = "Contact email for the resource", example = "support@resource.org")
   private String contactEmail;
 
+  @Schema(description = "If the Resource is still active or not", example = "false")
+  private boolean withdrawn;
+
   @Schema(description = "URI of the resource", example = "https://resource.org")
   private String uri;
 
@@ -59,11 +62,12 @@ public class ResourceResponseModel {
         && Objects.equals(name, that.name)
         && Objects.equals(description, that.description)
         && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(withdrawn, that.withdrawn)
         && Objects.equals(uri, that.uri);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, sourceId, name, description, contactEmail, uri);
+    return Objects.hash(id, sourceId, name, description, contactEmail, withdrawn, uri);
   }
 }

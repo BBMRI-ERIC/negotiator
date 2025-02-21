@@ -46,10 +46,11 @@ public class Resource {
   private Long id;
 
   /** The name of the resource. */
-  private String name;
+  @NotNull private String name;
 
   /** The description of the resource. */
   @Column(columnDefinition = "VARCHAR(5000)")
+  @NotNull
   private String description;
 
   /** A unique and persistent identifier issued by an appropriate institution. */
@@ -92,6 +93,9 @@ public class Resource {
   @Setter(AccessLevel.NONE)
   @Exclude
   private Set<Network> networks = new HashSet<>();
+
+  /** True if the Resource was withdrawn from usage. */
+  @Builder.Default private boolean withdrawn = false;
 
   public Resource(
       String name,

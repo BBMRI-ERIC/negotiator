@@ -44,10 +44,11 @@ public class Organization extends AuditEntity {
   private String externalId;
 
   /** The name of the organization. */
-  private String name;
+  @NotNull private String name;
 
   /** The description of the organization. */
   @Column(columnDefinition = "VARCHAR(5000)")
+  @NotNull
   private String description;
 
   /** The list of resources that are part of the organization. */
@@ -58,7 +59,7 @@ public class Organization extends AuditEntity {
   private String contactEmail;
 
   /** Flag indicating if the organization is withdrawn or not. */
-  private Boolean withdrawn;
+  @Builder.Default private boolean withdrawn = false;
 
   /** URI of the organization. */
   private String uri;
@@ -68,29 +69,42 @@ public class Organization extends AuditEntity {
     this.name = name;
   }
 
-  public Organization(String externalId, String name, Set<Resource> resources) {
+  public Organization(String externalId, String name, String description, Set<Resource> resources) {
     this.externalId = externalId;
     this.name = name;
+    this.description = description;
     this.resources = resources;
   }
 
-  public Organization(String externalId, String name, Set<Resource> resources, Boolean withdrawn) {
+  public Organization(
+      String externalId,
+      String name,
+      String description,
+      Set<Resource> resources,
+      Boolean withdrawn) {
     this.externalId = externalId;
     this.name = name;
+    this.description = description;
     this.resources = resources;
     this.withdrawn = withdrawn;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Organization that = (Organization) o;
-    return Objects.equals(externalId, that.externalId);
+    return Objects.equals(id, that.id)
+        && Objects.equals(externalId, that.externalId)
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description)
+        && Objects.equals(resources, that.resources)
+        && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(withdrawn, that.withdrawn)
+        && Objects.equals(uri, that.uri);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(externalId);
+    return Objects.hash(id, externalId, name, description, resources, contactEmail, withdrawn, uri);
   }
 }

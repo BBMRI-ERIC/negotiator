@@ -28,6 +28,9 @@ public class ResourceWithStatusDTO {
   @NotNull private Long id;
   @NotNull private String sourceId;
   @Nullable private String name;
+  @Nullable private String description;
+  @Nullable private String contactEmail;
+  @Nullable private String uri;
   @JsonIgnore private String negotiationId;
 
   @Nullable private OrganizationDTO organization;

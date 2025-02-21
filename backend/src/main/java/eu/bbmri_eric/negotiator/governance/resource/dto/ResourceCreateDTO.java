@@ -20,6 +20,7 @@ public class ResourceCreateDTO {
   @Schema(description = "Name of the resource", example = "Clinical Data Repository")
   private String name;
 
+  @NotNull
   @Schema(description = "Description of the resource", example = "A repository for clinical data.")
   private String description;
 

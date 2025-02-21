@@ -44,9 +44,10 @@ public class Network {
   @NotNull private String uri;
 
   /** The name of the network */
-  @Column private String name;
+  @Column @NotNull private String name;
 
   /** The description of the network */
+  @NotNull
   @Column(columnDefinition = "VARCHAR(5000)")
   private String description;
 
