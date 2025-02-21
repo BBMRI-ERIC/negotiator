@@ -128,7 +128,7 @@
           <div class="card-body">
             <!-- Card Header -->
             <div class="d-flex flex-row mb-2 align-items-center">
-              <h4 class="card-title mb-0">Requests</h4>
+              <h4 class="card-title mb-0">Negotiations</h4>
               <i
                 class="bi bi-info-circle ml-2 small-icon"
                 title="States of different Negotiations involving Resources in this Network"
@@ -137,7 +137,7 @@
 
             <!-- Total Number of Requests -->
             <div class="text-center mb-2">
-              <h5>Total Requests: {{ stats.totalNumberOfNegotiations }}</h5>
+              <h5>Total Negotiations: {{ stats.totalNumberOfNegotiations }}</h5>
             </div>
 
             <!-- Pie Chart Section -->
@@ -200,7 +200,7 @@
                     <span>Ignored Negotiations</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      title="The number of negotiations that were ignored"
+                      title="Negotiations which involved at least one Resource in you Network and none responded"
                     />
                   </div>
                   <h5>{{ stats.numberOfIgnoredNegotiations }}</h5>
@@ -210,10 +210,10 @@
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
                 <div class="stat-card flex-fill">
                   <div class="stat-label">
-                    <span>Median Response Time</span>
+                    <span>Median Response Time in Days</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      title="Median time taken for negotiations to receive responses"
+                      title="Median number of days taken for negotiations to receive responses"
                     />
                   </div>
                   <h5 class="text-muted">
@@ -228,7 +228,7 @@
                     <span>Successful Negotiations</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      title="The number of successful negotiations"
+                      title="The number of negotiations where at least one Resource in you Network has been provided to the Requester"
                     />
                   </div>
                   <h5>{{ stats.numberOfSuccessfulNegotiations }}</h5>
