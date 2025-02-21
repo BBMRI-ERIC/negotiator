@@ -170,16 +170,24 @@
                 class="cursor-pointer"
               >
                 <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
-                  {{ fn.payload.project.title }}
+                  <span>
+                    {{ fn.payload.project.title }}
+                  </span>
                 </th>
-                <td :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                  {{ fn.id }}
+                <td>
+                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
+                    {{ fn.id }}
+                  </span>
                 </td>
-                <td :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                  {{ formatDate(fn.creationDate) }}
+                <td>
+                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
+                    {{ formatDate(fn.creationDate) }}
+                  </span>
                 </td>
-                <td :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                  {{ fn.author.name }}
+                <td>
+                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
+                    {{ fn.author.name }}
+                  </span>
                 </td>
                 <td>
                   <span class="badge" :class="getBadgeColor(fn.status)" style="width: 120px">
