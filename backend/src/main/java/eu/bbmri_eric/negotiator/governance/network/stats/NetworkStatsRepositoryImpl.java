@@ -37,6 +37,30 @@ public class NetworkStatsRepositoryImpl implements NetworkStatsRepository {
   }
 
   @Override
+  public List<String> getIgnoredForNetwork(LocalDate since, LocalDate until, Long networkId) {
+    @SuppressWarnings("unchecked")
+    List<String> ids =
+        entityManager
+            .createNativeQuery(
+                """
+                    SELECT DISTINCT n.id
+                    FROM negotiation n
+                    LEFT JOIN negotiation_resource_link nrl ON n.id = nrl.negotiation_id
+                    LEFT JOIN network_resources_link l ON nrl.resource_id = l.resource_id
+                    WHERE l.network_id = :networkId
+                      AND (nrl.current_state = 'REPRESENTATIVE_CONTACTED' OR nrl.current_state = 'REPRESENTATIVE_UNREACHABLE')
+                      AND DATE(n.creation_date) > :since
+                      AND DATE(n.creation_date) <= :until
+                    """)
+            .setParameter("networkId", networkId)
+            .setParameter("since", since)
+            .setParameter("until", until)
+            .getResultList();
+
+    return ids;
+  }
+
+  @Override
   public Double getMedianResponseForNetwork(LocalDate since, LocalDate until, Long networkId) {
     return ((Number)
             entityManager
@@ -78,6 +102,28 @@ public class NetworkStatsRepositoryImpl implements NetworkStatsRepository {
                 .setParameter("until", until)
                 .getSingleResult())
         .intValue();
+  }
+
+  @Override
+  public List<String> getSuccessfulForNetwork(LocalDate since, LocalDate until, Long networkId) {
+    @SuppressWarnings("unchecked")
+    List<String> ids =
+        entityManager
+            .createQuery(
+                """
+                    SELECT distinct n.id
+                    FROM Negotiation n
+                    join n.resourcesLink rl
+                    JOIN rl.id.resource r
+                    JOIN r.networks networks
+                    where networks.id = :networkId and rl.currentState = 'RESOURCE_MADE_AVAILABLE'
+                            and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until
+                """)
+            .setParameter("networkId", networkId)
+            .setParameter("since", since)
+            .setParameter("until", until)
+            .getResultList();
+    return ids;
   }
 
   @Override

@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.governance.network.stats;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import java.util.Map;
 
 @Schema(description = "Interface defining statistical information about a network.")
@@ -75,4 +76,6 @@ public interface NetworkStatistics {
       description = "Distribution of negotiation statuses in the network",
       example = "{\"OPEN\": 50, \"CLOSED\": 90, \"PENDING\": 10}")
   Map<NegotiationState, Integer> getStatusDistribution();
+
+  Map<String, List<String>> getNegotiationIds();
 }

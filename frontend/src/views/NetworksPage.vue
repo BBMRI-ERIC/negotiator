@@ -1,4 +1,9 @@
 <template>
+  <negotiations-list-modal
+    id="negotiationsModal"
+    title="List of Negotiations"
+    :negotiations="negotiationIds"
+  />
   <div v-if="isLoaded">
     <div class="container">
       <div class="organization-details">
@@ -195,7 +200,9 @@
             <!-- Additional Stats Information -->
             <div class="row mt-4">
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
-                <div class="stat-card flex-fill">
+                <div class="stat-card flex-fill cursor-pointer" type="button" data-bs-toggle="modal"
+                     data-bs-target="#negotiationsModal"
+                     @click="setNegotiationIds(stats.negotiationIds['Ignored'])">
                   <div class="stat-label">
                     <span>Ignored Negotiations</span>
                     <i
@@ -223,7 +230,9 @@
               </div>
 
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
-                <div class="stat-card flex-fill">
+                <div class="stat-card flex-fill cursor-pointer" type="button" data-bs-toggle="modal"
+                     data-bs-target="#negotiationsModal"
+                     @click="setNegotiationIds(stats.negotiationIds['Successful'])">
                   <div class="stat-label">
                     <span>Successful Negotiations</span>
                     <i
@@ -475,6 +484,7 @@ import { Pie } from 'vue-chartjs'
 import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip } from 'chart.js'
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import NegotiationsListModal from '@/components/modals/NegotiationsListModal.vue'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
 
@@ -528,6 +538,7 @@ const endDate = ref(today.toISOString().slice(0, 10))
 const userRole = ref('author')
 const isLoaded = ref(false)
 const organizations = ref([])
+const negotiationIds = ref([])
 // Pie chart data
 const pieData = ref({})
 const pieOptions = ref({
@@ -598,6 +609,10 @@ function formatStatusLabel(status) {
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function setNegotiationIds(ids) {
+  negotiationIds.value = ids
 }
 async function loadStats(networkId) {
   stats.value = await networksPageStore.retrieveNetworkStats(
