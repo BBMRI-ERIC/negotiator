@@ -6,10 +6,14 @@ import java.util.List;
 public interface NetworkStatsRepository {
   Integer countIgnoredForNetwork(LocalDate since, LocalDate until, Long networkId);
 
+  List<String> getIgnoredForNetwork(LocalDate since, LocalDate until, Long networkId);
+
   Double getMedianResponseForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   Integer getNumberOfSuccessfulNegotiationsForNetwork(
       LocalDate since, LocalDate until, Long networkId);
+
+  List<String> getSuccessfulForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   Integer countAllForNetwork(LocalDate since, LocalDate until, Long networkId);
 
