@@ -94,10 +94,9 @@ public class Negotiation extends AuditEntity {
 
   private boolean privatePostsEnabled = false;
 
-  @Builder.Default
   @Setter(AccessLevel.NONE)
   @Enumerated(EnumType.STRING)
-  private NegotiationState currentState = NegotiationState.SUBMITTED;
+  private NegotiationState currentState;
 
   public void setAttachments(Set<Attachment> attachments) {
     if (attachments != null) {
@@ -110,7 +109,7 @@ public class Negotiation extends AuditEntity {
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
   @Builder.Default
-  private Set<NegotiationLifecycleRecord> lifecycleHistory = creteInitialHistory();
+  private Set<NegotiationLifecycleRecord> lifecycleHistory = new HashSet<>();
 
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
