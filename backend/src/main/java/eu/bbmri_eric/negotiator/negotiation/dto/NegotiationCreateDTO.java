@@ -21,6 +21,8 @@ import lombok.Setter;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class NegotiationCreateDTO {
 
+  @Valid private boolean draft;
+
   @Valid @NotEmpty private String request;
 
   @NotNull private JsonNode payload;

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum NegotiationState {
+  DRAFT("Draft", "The negotiation request has been started but non completed yet"),
   SUBMITTED("Under review", "The negotiation has been submitted for review"),
   APPROVED("Approved", "The negotiation has been approved"),
   DECLINED("Declined", "The negotiation has been declined"),
