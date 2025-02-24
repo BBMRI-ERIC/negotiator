@@ -213,7 +213,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   public Iterable<NegotiationDTO> findAllByCurrentStatus(
       Pageable pageable, NegotiationState state) {
     return negotiationRepository
-        .findAll(NegotiationSpecification.hasState(List.of(state)), pageable)
+        .findAll(NegotiationSpecification.hasState(List.of(state), false), pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
@@ -339,7 +339,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   @Override
   public List<NegotiationDTO> findAllWithCurrentState(NegotiationState negotiationState) {
     return negotiationRepository
-        .findAll(NegotiationSpecification.hasState(List.of(negotiationState)))
+        .findAll(NegotiationSpecification.hasState(List.of(negotiationState), false))
         .stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
