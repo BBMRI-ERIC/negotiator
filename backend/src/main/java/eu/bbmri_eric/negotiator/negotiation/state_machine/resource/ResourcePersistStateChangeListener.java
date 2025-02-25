@@ -2,14 +2,13 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
@@ -25,9 +24,18 @@ import org.springframework.stereotype.Service;
 public class ResourcePersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
-  @Autowired NegotiationRepository negotiationRepository;
-  @Autowired NotificationRepository notificationRepository;
-  @Autowired @Lazy UserNotificationService userNotificationService;
+  private final NegotiationRepository negotiationRepository;
+  @Lazy private final UserNotificationService userNotificationService;
+  private final ApplicationEventPublisher eventPublisher;
+
+  public ResourcePersistStateChangeListener(
+      NegotiationRepository negotiationRepository,
+      UserNotificationService userNotificationService,
+      ApplicationEventPublisher eventPublisher) {
+    this.negotiationRepository = negotiationRepository;
+    this.userNotificationService = userNotificationService;
+    this.eventPublisher = eventPublisher;
+  }
 
   @Override
   @Transactional
@@ -38,6 +46,7 @@ public class ResourcePersistStateChangeListener
       StateMachine<String, String> stateMachine) {
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
+    log.info("here");
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
     if (negotiation.isPresent()) {
       negotiation = updateStateForResource(state, negotiation.get(), resourceId);
@@ -67,7 +76,11 @@ public class ResourcePersistStateChangeListener
   @NonNull
   private Optional<Negotiation> updateStateForResource(
       State<String, String> state, Negotiation negotiation, String resourceId) {
+    NegotiationResourceState fromState = negotiation.getCurrentStateForResource(resourceId);
     negotiation.setStateForResource(resourceId, NegotiationResourceState.valueOf(state.getId()));
+    NegotiationResourceState toState = negotiation.getCurrentStateForResource(resourceId);
+    eventPublisher.publishEvent(
+        new ResourceStateChangeEvent(this, negotiation.getId(), resourceId, fromState, toState));
     return Optional.of(negotiationRepository.save(negotiation));
   }
 

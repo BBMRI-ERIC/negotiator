@@ -25,8 +25,10 @@ import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,6 +59,7 @@ public class ResourceServiceImpl implements ResourceService {
   private final DiscoveryServiceRepository discoveryServiceRepository;
   private final OrganizationRepository organizationRepository;
   private final NegotiationAccessManager negotiationAccessManager;
+  private final EntityManager entityManager;
 
   public ResourceServiceImpl(
       NetworkRepository networkRepository,
@@ -68,7 +71,8 @@ public class ResourceServiceImpl implements ResourceService {
       AccessFormRepository accessFormRepository,
       DiscoveryServiceRepository discoveryServiceRepository,
       OrganizationRepository organizationRepository,
-      NegotiationAccessManager negotiationAccessManager) {
+      NegotiationAccessManager negotiationAccessManager,
+      EntityManager entityManager) {
     this.networkRepository = networkRepository;
     this.repository = repository;
     this.personRepository = personRepository;
@@ -79,6 +83,7 @@ public class ResourceServiceImpl implements ResourceService {
     this.discoveryServiceRepository = discoveryServiceRepository;
     this.organizationRepository = organizationRepository;
     this.negotiationAccessManager = negotiationAccessManager;
+    this.entityManager = entityManager;
   }
 
   @Override
@@ -110,6 +115,7 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
+  @Transactional
   public List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId) {
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
@@ -153,11 +159,15 @@ public class ResourceServiceImpl implements ResourceService {
     // Update state for each resource, conditionally handling 'SUBMITTED' state
     resourcesToUpdate.forEach(
         resource -> {
-          if (state == NegotiationResourceState.SUBMITTED
-              && negotiation.getCurrentStateForResource(resource.getSourceId()) == null) {
+          NegotiationResourceState before =
+              negotiation.getCurrentStateForResource(resource.getSourceId());
+          if (state == NegotiationResourceState.SUBMITTED && before == null) {
             negotiation.setStateForResource(resource.getSourceId(), state);
           } else if (state != NegotiationResourceState.SUBMITTED) {
             negotiation.setStateForResource(resource.getSourceId(), state);
+            applicationEventPublisher.publishEvent(
+                new ResourceStateChangeEvent(
+                    this, negotiation.getId(), resource.getSourceId(), before, state));
           }
         });
   }
@@ -212,7 +222,12 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
-    List<ResourceViewDTO> resourceViewDTOS = repository.findByNegotiation(negotiationId);
+    List<ResourceViewDTO> resourceViewDTOS = null;
+    try {
+      resourceViewDTOS = repository.findByNegotiation(negotiationId);
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+    }
     log.debug(
         "Negotiation %s now has %s resources after modification"
             .formatted(negotiationId, resourceViewDTOS.size()));

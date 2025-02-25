@@ -80,6 +80,7 @@ public class PersonRepositoryTest {
 
   @Test
   void findAllPage_onePerson_ok() {
+    personRepository.deleteAll();
     savePerson("test");
     assertEquals(1L, personRepository.findAll(PageRequest.of(0, 1)).getTotalElements());
     assertEquals(1, personRepository.findAll(PageRequest.of(0, 1)).getSize());
@@ -87,6 +88,7 @@ public class PersonRepositoryTest {
 
   @Test
   void findAllPage_1000People_ok() {
+    personRepository.deleteAll();
     Set<Person> persons = new HashSet<>();
     for (int i = 0; i < 1000; i++) {
       persons.add(
@@ -104,6 +106,7 @@ public class PersonRepositoryTest {
 
   @Test
   void findAllPageWithSort_1001People_nameWithAIsFirst() {
+    personRepository.deleteAll();
     for (int i = 0; i < 1000; i++) {
       savePerson("test-" + i);
     }
