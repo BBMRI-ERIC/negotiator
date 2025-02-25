@@ -243,7 +243,7 @@ public class RequestControllerTests {
   @WithUserDetails("researcher")
   public void testGetById_Ok_whenNegotiationIsAssigned() throws Exception {
     RequestDTO r = requestService.create(TestUtils.createRequest(false));
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(r.getId());
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation(r.getId(), false);
     NegotiationDTO n = negotiationService.create(negotiationCreateDTO, CREATOR_ID);
 
     long previousCount = repository.count();

@@ -108,10 +108,11 @@ public class TestUtils {
         .build();
   }
 
-  public static NegotiationCreateDTO createNegotiation(String requestsId) throws IOException {
+  public static NegotiationCreateDTO createNegotiation(String requestsId, boolean draft)
+      throws IOException {
     String payload =
         """
-                        {
+                {
                     "project": {
                     "title": "Title",
                     "description": "Description"
@@ -130,7 +131,11 @@ public class TestUtils {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
 
-    return NegotiationCreateDTO.builder().payload(jsonPayload).request(requestsId).build();
+    return NegotiationCreateDTO.builder()
+        .payload(jsonPayload)
+        .request(requestsId)
+        .draft(draft)
+        .build();
   }
 
   public static String jsonFromRequest(Object request) throws JsonProcessingException {
