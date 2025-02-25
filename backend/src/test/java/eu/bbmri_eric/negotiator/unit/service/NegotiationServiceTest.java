@@ -126,12 +126,13 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_ok() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
 
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
     negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.SUBMITTED);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
     NegotiationDTO savedDTO = new NegotiationDTO();
@@ -140,12 +141,34 @@ public class NegotiationServiceTest {
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
+    assertEquals("SUBMITTED", negotiationDTO.getId());
+    verify(userNotificationService, times(1)).notifyAdmins(negotiation);
+  }
+
+  @Test
+  void testCreateDraftNegotiation_ok() throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
+
+    Negotiation negotiation = Negotiation.builder().build();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
+    when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    NegotiationDTO savedDTO = new NegotiationDTO();
+    savedDTO.setId("saved");
+    when(negotiationRepository.save(negotiation)).thenReturn(negotiation);
+    when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
+    NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
+    assertEquals("saved", negotiationDTO.getId());
+    assertEquals("DRAFT", negotiationDTO.getId());
     verify(userNotificationService, times(1)).notifyAdmins(negotiation);
   }
 
   @Test
   void testCreateNegotiation_ok_with_attachments() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
     AttachmentMetadataDTO attachmentMetadataDTO =
         AttachmentMetadataDTO.builder().id("attachment-1").build();
     negotiationCreateDTO.setAttachments(Set.of(attachmentMetadataDTO));
@@ -171,7 +194,7 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_fails_when_DataException() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
@@ -187,7 +210,7 @@ public class NegotiationServiceTest {
 
   @Test
   void testCreateNegotiation_fails_when_DataIntegrityViolationException() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID");
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
     Negotiation negotiation = new Negotiation();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
