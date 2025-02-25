@@ -193,7 +193,7 @@ public class UserControllerTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   void assignNetwork_validResource_ok() throws Exception {
-    Person person = personRepository.findAll().get(2);
+    Person person = personRepository.findAll().get(3);
     ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
@@ -215,7 +215,7 @@ public class UserControllerTest {
   @WithMockUser(roles = "ADMIN")
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void removeNetworkFromManager_validResource_ok() throws Exception {
-    Person person = personRepository.findAll().iterator().next();
+    Person person = personRepository.findAll().get(1);
     ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
