@@ -931,7 +931,7 @@ public class NegotiationControllerTests {
   @Test
   @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsMissing() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED);
+    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
     request.setRequest(null);
     mockMvc
         .perform(
@@ -944,7 +944,7 @@ public class NegotiationControllerTests {
   @Test
   @WithMockUser
   public void testCreate_BadRequest_whenRequests_IsEmpty() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(null);
+    NegotiationCreateDTO request = TestUtils.createNegotiation(null, false);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NEGOTIATIONS_URL)
@@ -956,7 +956,7 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("researcher")
   public void testCreate_BadRequest_whenSomeRequests_IsNotFound() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation("unknown");
+    NegotiationCreateDTO request = TestUtils.createNegotiation("unknown", false);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(NEGOTIATIONS_URL)
@@ -971,7 +971,7 @@ public class NegotiationControllerTests {
   public void testCreate_BadRequest_whenRequest_IsAlreadyAssignedToAnotherRequest()
       throws Exception {
     // It tries to create a request by assigning the already assigned REQUEST_1
-    NegotiationCreateDTO negotiationBody = TestUtils.createNegotiation(REQUEST_1_ID);
+    NegotiationCreateDTO negotiationBody = TestUtils.createNegotiation(REQUEST_1_ID, false);
     String requestBody = TestUtils.jsonFromRequest(negotiationBody);
     long previousRequestCount = negotiationRepository.count();
     mockMvc
@@ -989,7 +989,7 @@ public class NegotiationControllerTests {
   @WithUserDetails("researcher") // researcher not
   @Transactional
   public void testCreate_Ok() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED);
+    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousRequestCount = negotiationRepository.count();
     MvcResult result =
@@ -1055,7 +1055,7 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenNoAuth() throws Exception {
-    NegotiationCreateDTO negotiationBody = TestUtils.createNegotiation(REQUEST_2_ID);
+    NegotiationCreateDTO negotiationBody = TestUtils.createNegotiation(REQUEST_2_ID, false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -1067,7 +1067,7 @@ public class NegotiationControllerTests {
 
   @Test
   public void testUpdate_Unauthorized_whenWrongAuth() throws Exception {
-    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED);
+    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
     TestUtils.checkErrorResponse(
         mockMvc,
         HttpMethod.PUT,
@@ -1083,7 +1083,7 @@ public class NegotiationControllerTests {
   public void testUpdate_Ok_whenChangePayload() throws Exception {
     // Tries to updated negotiation
     // Negotiation body with updated values
-    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_1_ID);
+    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_1_ID, false);
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody = requestBody.replace("Title", "New Title");
 
