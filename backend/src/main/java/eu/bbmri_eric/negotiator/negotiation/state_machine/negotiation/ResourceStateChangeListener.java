@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -23,20 +22,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 /** Listener for Resource State changes. */
 @Component
 @CommonsLog
-public class ResourceStateListener {
+public class ResourceStateChangeListener {
   private final NegotiationLifecycleService negotiationLifecycleService;
   private final ResourceService resourceService;
-  private final NegotiationRepository negotiationRepository;
   private final PersonRepository personRepository;
 
-  public ResourceStateListener(
+  public ResourceStateChangeListener(
       NegotiationLifecycleService negotiationLifecycleService,
       ResourceService resourceService,
-      NegotiationRepository negotiationRepository,
       PersonRepository personRepository) {
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceService = resourceService;
-    this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
   }
 
