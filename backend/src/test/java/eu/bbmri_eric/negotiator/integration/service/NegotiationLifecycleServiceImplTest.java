@@ -54,6 +54,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.statemachine.StateMachineException;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 
@@ -487,6 +488,7 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void successfulNegotiation_2finishedResources_closedAutomatically() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(NegotiationState.SUBMITTED, NegotiationState.valueOf(negotiationDTO.getStatus()));
