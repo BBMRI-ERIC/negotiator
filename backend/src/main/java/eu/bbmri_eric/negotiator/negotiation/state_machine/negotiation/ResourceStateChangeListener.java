@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -25,15 +26,15 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class ResourceStateChangeListener {
   private final NegotiationLifecycleService negotiationLifecycleService;
   private final ResourceService resourceService;
-  private final PersonRepository personRepository;
+  private final AuthenticatedUserContext authenticatedUserContext;
 
   public ResourceStateChangeListener(
-      NegotiationLifecycleService negotiationLifecycleService,
-      ResourceService resourceService,
-      PersonRepository personRepository) {
+          NegotiationLifecycleService negotiationLifecycleService,
+          ResourceService resourceService,
+          AuthenticatedUserContext authenticatedUserContext) {
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceService = resourceService;
-    this.personRepository = personRepository;
+      this.authenticatedUserContext = authenticatedUserContext;
   }
 
   @EventListener(ResourceStateChangeEvent.class)
@@ -50,15 +51,8 @@ public class ResourceStateChangeListener {
     List<ResourceWithStatusDTO> resources =
         resourceService.findAllInNegotiation(event.getNegotiationId());
     if (resources.stream().allMatch(resource -> isDelivered(resource) || isUnavailable(resource))) {
-      Person person = personRepository.findById(0L).get();
-      Authentication systemAuth =
-          new UsernamePasswordAuthenticationToken(
-              new UserPrincipal(person), null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-      SecurityContextHolder.getContext().setAuthentication(systemAuth);
-      concludeNegotiation(event);
-      SecurityContextHolder.clearContext();
+      authenticatedUserContext.runAsSystemUser(() -> concludeNegotiation(event));
     }
-    ;
   }
 
   private void concludeNegotiation(ResourceStateChangeEvent event) {
