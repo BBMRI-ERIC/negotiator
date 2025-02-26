@@ -25,7 +25,6 @@
     "axios": "^1.7.4",
     "bootstrap": "^5.2.2",
     "bootstrap-icons": "^1.11.1",
-    "bootstrap-vue-next": "0.8.10",
     "chart.js": "^4.4.7",
     "chartjs-plugin-datalabels": "^2.2.0",
     "core-js": "^3.40.0",
@@ -59,7 +58,6 @@
     "jsdom": "^26.0.0",
     "prettier": "^3.3.3",
     "sass": "^1.83.4",
-    "unplugin-vue-components": "^0.24.1",
     "vite": "^6.0.11",
     "vitest": "^3.0.5"
   },

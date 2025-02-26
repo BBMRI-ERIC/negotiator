@@ -347,6 +347,10 @@ defineExpose({
 </script>
 
 <style scoped>
+.btn-attachment  {
+    position: relative;
+    overflow: hidden;
+}
 /** the input file is hidden */
 .btn-attachment input[type='file'] {
   position: absolute;
