@@ -46,6 +46,25 @@ public class OrganizationRepositoryTest {
   }
 
   @Test
+  void save_longURI() {
+    String baseURI = "http://example.com";
+    String repetition = "a".repeat(1000);
+    String longURI = baseURI + repetition;
+    assertEquals(3, organizationRepository.count());
+    Organization savedOrganization =
+        organizationRepository.save(
+            Organization.builder()
+                .externalId("ExternalId")
+                .name("name")
+                .description("description")
+                .uri(longURI)
+                .build());
+    assertEquals(4, organizationRepository.count());
+    assertEquals("ExternalId", savedOrganization.getExternalId());
+    assertNotNull(savedOrganization.getId());
+  }
+
+  @Test
   void getDetailedResources_ok() {
     DiscoveryService savedDiscoveryService =
         discoveryServiceRepository.save(DiscoveryService.builder().url("").name("").build());

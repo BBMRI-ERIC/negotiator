@@ -111,6 +111,42 @@ public class ResourceRepositoryTest {
   }
 
   @Test
+  void saveWithLongURI() {
+    Organization organization =
+        organizationRepository.save(
+            Organization.builder()
+                .name("test")
+                .description("test")
+                .externalId("biobank:1")
+                .withdrawn(false)
+                .contactEmail("test@test.org")
+                .contactEmail("test@test.org")
+                .uri("http://test.org")
+                .build());
+
+    String baseURI = "http://example.com";
+    String repetition = "a".repeat(1000);
+    String longURI = baseURI + repetition;
+
+    resourceRepository.save(
+        Resource.builder()
+            .organization(organization)
+            .discoveryService(discoveryService)
+            .sourceId("collection:3")
+            .name("test")
+            .description("test")
+            .contactEmail("test@test.org")
+            .uri(longURI)
+            .build());
+
+    Resource resource = resourceRepository.findAllBySourceIdIn(Set.of("collection:3")).get(0);
+    assertEquals("test", resource.getName());
+    assertEquals("test", resource.getDescription());
+    assertEquals("test@test.org", resource.getContactEmail());
+    assertEquals(longURI, resource.getUri());
+  }
+
+  @Test
   void findAllByNegotiationId() {
     Organization organization =
         organizationRepository.save(

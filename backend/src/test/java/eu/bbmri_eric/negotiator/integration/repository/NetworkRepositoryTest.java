@@ -126,6 +126,29 @@ public class NetworkRepositoryTest {
 
   @Test
   @Transactional
+  void addResourceWithLongURI() {
+    String baseURI = "http://example.com";
+    String repetition = "a".repeat(1000);
+    String longURI = baseURI + repetition;
+    Network network =
+        networkRepository.saveAndFlush(
+            Network.builder()
+                .name("network_name")
+                .description("network_description")
+                .uri(longURI)
+                .externalId("validId")
+                .build());
+    Resource resource = createResource();
+    network.addResource(resource);
+    networkRepository.saveAndFlush(network);
+
+    assertTrue(networkRepository.existsById(network.getId()));
+    assertTrue(networkRepository.findById(network.getId()).get().getResources().contains(resource));
+    assertTrue(resourceRepository.findById(resource.getId()).get().getNetworks().contains(network));
+  }
+
+  @Test
+  @Transactional
   void addManager() {
     Network network =
         networkRepository.saveAndFlush(
