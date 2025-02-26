@@ -35,6 +35,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
@@ -48,6 +49,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @Builder
 @Convert(converter = JsonType.class, attributeName = "json")
+@ToString
 public class Negotiation extends AuditEntity {
 
   @Id

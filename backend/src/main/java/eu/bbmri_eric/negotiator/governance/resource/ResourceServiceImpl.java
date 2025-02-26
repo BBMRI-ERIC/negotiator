@@ -25,6 +25,7 @@ import eu.bbmri_eric.negotiator.negotiation.NewResourcesAddedEvent;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
@@ -110,6 +111,7 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
+  @Transactional
   public List<ResourceWithStatusDTO> findAllInNegotiation(String negotiationId) {
     if (!negotiationRepository.existsById(negotiationId)) {
       throw new EntityNotFoundException(negotiationId);
@@ -139,27 +141,44 @@ public class ResourceServiceImpl implements ResourceService {
 
   private void setStatusForUpdatedResources(
       Negotiation negotiation, Set<Resource> resourcesToUpdate, NegotiationResourceState state) {
+    verifyAuthForStatusUpdate(resourcesToUpdate);
+    resourcesToUpdate.forEach(
+        resource -> {
+          updateResourceStatus(negotiation, state, resource);
+        });
+  }
 
+  private void updateResourceStatus(
+      Negotiation negotiation, NegotiationResourceState state, Resource resource) {
+    NegotiationResourceState before =
+        negotiation.getCurrentStateForResource(resource.getSourceId());
+    if (isUninitialized(state, before)) {
+      negotiation.setStateForResource(resource.getSourceId(), state);
+    } else if (isStateMachineInitialized(state)) {
+      negotiation.setStateForResource(resource.getSourceId(), state);
+      applicationEventPublisher.publishEvent(
+          new ResourceStateChangeEvent(
+              this, negotiation.getId(), resource.getSourceId(), before, state));
+    }
+  }
+
+  private static boolean isStateMachineInitialized(NegotiationResourceState state) {
+    return state != NegotiationResourceState.SUBMITTED;
+  }
+
+  private static boolean isUninitialized(
+      NegotiationResourceState state, NegotiationResourceState before) {
+    return state == NegotiationResourceState.SUBMITTED && before == null;
+  }
+
+  private void verifyAuthForStatusUpdate(Set<Resource> resourcesToUpdate) {
     Long userId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
     Person representative =
         personRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
-
-    // Check permissions if the user is not an admin
     if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
         && !representative.getResources().containsAll(resourcesToUpdate)) {
       throw new ForbiddenRequestException("You do not have permission to update these resources");
     }
-
-    // Update state for each resource, conditionally handling 'SUBMITTED' state
-    resourcesToUpdate.forEach(
-        resource -> {
-          if (state == NegotiationResourceState.SUBMITTED
-              && negotiation.getCurrentStateForResource(resource.getSourceId()) == null) {
-            negotiation.setStateForResource(resource.getSourceId(), state);
-          } else if (state != NegotiationResourceState.SUBMITTED) {
-            negotiation.setStateForResource(resource.getSourceId(), state);
-          }
-        });
   }
 
   private static void addAnyNewResourcesToNegotiation(
