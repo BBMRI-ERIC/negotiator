@@ -6,7 +6,6 @@
     :text="notificationText"
     :message-enabled="false"
     dismiss-button-text="Back to HomePage"
-    @dismiss="backToHomePage"
     @confirm="startNegotiation"
   />
   <div v-if="loading" class="d-flex align-items-center justify-content-center">
@@ -338,7 +337,7 @@
           <button
             v-if="props.activeTabIndex > 0"
             class="btn me-4"
-            @click="startModal(true)"
+            @click="startModal(false)"
             :style="{
               'background-color': uiConfiguration.buttonColor,
               'border-color': uiConfiguration.buttonColor,
@@ -352,7 +351,7 @@
             @click="props.nextTab()"
             :style="{
               'background-color': uiConfiguration.buttonColor,
-              'border-color': uiConfiguration.buttonTextColor,
+              'border-color': uiConfiguration.buttonColor,
               color: '#FFFFFF',
             }"
           >
@@ -411,7 +410,7 @@ const uiConfiguration = computed(() => {
 })
 
 const loading = computed(() => {
-  return accessForm.value === undefined
+  return accessForm.value === undefined && (!props.isEditForm || (props.isEditForm && resources.value === undefined))
 })
 
 const queryParameters = computed(() => {
@@ -420,35 +419,31 @@ const queryParameters = computed(() => {
 
 onBeforeMount(async () => {
   let result = {}
-  let negotiation = {}
+  let accessFormResponse = undefined
   if (props.isEditForm) {
-    negotiation = await negotiationPageStore.retrieveNegotiationById(props.requestId)
+    result = await negotiationPageStore.retrieveNegotiationById(props.requestId)
+    result.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId) || [];
+    accessFormResponse = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(props.requestId)
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
+    accessFormResponse = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
   }
 
   if (result.code) {
     if (result.code === 404) {
-      showNotification('Error', 'Request not found')
+      showNotification('Error', `${props.isEditForm ? 'Request' : 'Negotiation' } not found`)
     } else {
-      showNotification('Error', 'Cannot contact the server to get request information')
+      showNotification('Error', `Cannot contact the server to get ${props.isEditForm ? 'request' : 'negotiation' } information`)
     }
-  } else if (result.negotiationId) {
+  } else if (!props.isEditForm && result.negotiationId) {
     requestAlreadySubmittedNegotiationId.value = result.negotiationId
     showNotification('Error', 'Request already submitted')
   } else {
-    if (props.isEditForm) {
-      accessForm.value = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(
-        props.requestId,
-      )
-      humanReadableSearchParameters.value = ''
-    } else {
-      accessForm.value = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
-      resources.value = result.resources
-      humanReadableSearchParameters.value = result.humanReadable
-    }
+    resources.value = result.resources
+    humanReadableSearchParameters.value = result.humanReadable
+    accessForm.value = accessFormResponse
     if (accessForm.value !== undefined) {
-      initNegotiationCriteria(negotiation?.payload)
+      initNegotiationCriteria(result?.payload)
     }
   }
 })
@@ -496,19 +491,19 @@ async function startNegotiation() {
 }
 
 function startModal(isDraft) {
-  if (!isDraft) {
+  if (isDraft) {
     showNotification(
-      'Confirm submission',
+      "Confirm submission",
       "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed.",
     )
   } else {
     showNotification(
-      'Confirm saving',
+      "Confirm saving",
       "You are about to save the form as a draft. To complete the request you will find the negotiation in you negotiation list. Click 'Confirm' to proceed.",
     )
   }
-  this.saveDraft = isDraft
 }
+
 
 function isAttachment(value) {
   return value instanceof File || value instanceof Object
