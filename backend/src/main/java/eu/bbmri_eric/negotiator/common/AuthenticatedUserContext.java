@@ -1,12 +1,11 @@
 package eu.bbmri_eric.negotiator.common;
 
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import eu.bbmri_eric.negotiator.user.Person;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,12 +23,11 @@ public class AuthenticatedUserContext {
 
   private final PersonRepository personRepository;
 
-    public AuthenticatedUserContext(PersonRepository personRepository) {
-        this.personRepository = personRepository;
-    }
+  public AuthenticatedUserContext(PersonRepository personRepository) {
+    this.personRepository = personRepository;
+  }
 
-
-    /**
+  /**
    * Retrieve an internal identifier for the currently Authenticated user.
    *
    * @return the internal identifier
@@ -47,6 +45,7 @@ public class AuthenticatedUserContext {
 
   /**
    * Method for temporary elevation of auth, useful for running automatic operations.
+   *
    * @param task a runnable method
    */
   public void runAsSystemUser(Runnable task) {
@@ -54,17 +53,15 @@ public class AuthenticatedUserContext {
     try {
       Person person = personRepository.findById(0L).get();
       Authentication systemAuth =
-              new UsernamePasswordAuthenticationToken(
-                      new UserPrincipal(person), null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+          new UsernamePasswordAuthenticationToken(
+              new UserPrincipal(person), null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
       SecurityContext newContext = SecurityContextHolder.createEmptyContext();
       newContext.setAuthentication(systemAuth);
       SecurityContextHolder.setContext(newContext);
       task.run();
-    }
-    catch (NoSuchElementException e){
+    } catch (NoSuchElementException e) {
       log.error("Could not execute automated actions as the system user does not exist");
-    }
-    finally {
+    } finally {
       SecurityContextHolder.setContext(originalContext);
     }
   }

@@ -46,7 +46,6 @@ public class ResourcePersistStateChangeListener
       StateMachine<String, String> stateMachine) {
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
-    log.info("here");
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
     if (negotiation.isPresent()) {
       negotiation = updateStateForResource(state, negotiation.get(), resourceId);
