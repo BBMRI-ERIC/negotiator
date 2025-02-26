@@ -461,8 +461,8 @@ onBeforeMount(async () => {
   const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
     props.negotiationId,
   )
-  if (resourceResponse?._embedded?.resources !== undefined) {
-    resources.value = resourceResponse._embedded.resources
+  if (resourceResponse !== undefined) {
+    resources.value = resourceResponse
     isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponse._links)
   }
   await negotiationPageStore
@@ -542,8 +542,8 @@ async function reloadResources() {
   const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
     props.negotiationId,
   )
-  if (resourceResponse._embedded.resources !== undefined) {
-    resources.value = resourceResponse._embedded.resources
+  if (resourceResponse !== undefined) {
+    resources.value = resourceResponse
   }
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
 }
