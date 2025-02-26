@@ -85,7 +85,7 @@
           :submitter="fn.author.name"
           :creation-date="formatDate(fn.creationDate)"
           :class="networkActivated === true ? '' : 'cursor-pointer'"
-          @click="goToNegotiation(fn.id)"
+          @click="goToNegotiation(fn)"
         />
       </div>
 
@@ -166,7 +166,7 @@
               <tr
                 v-for="(fn, index) in negotiations"
                 :key="index"
-                @click="goToNegotiation(fn.id)"
+                @click="goToNegotiation(fn)"
                 class="cursor-pointer"
               >
                 <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
@@ -316,10 +316,14 @@ function emitFilterSortData() {
   emit('filtersSortData', props.filtersSortData)
 }
 
-function goToNegotiation(id) {
-  router.push({
-    name: 'negotiation-page',
-    params: { negotiationId: id },
-  })
+function goToNegotiation(negotiation) {
+  if (negotiation.status == "DRAFT") {
+    router.push(`/edit/requests/${negotiation.id}`)
+  } else {
+    router.push({
+      name: 'negotiation-page',
+      params: { negotiationId: negotiation.id },
+    })
+  }
 }
 </script>
