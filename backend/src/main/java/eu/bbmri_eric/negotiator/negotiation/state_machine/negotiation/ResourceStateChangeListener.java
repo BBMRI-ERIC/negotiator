@@ -1,21 +1,14 @@
 package eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceStateChangeEvent;
-import eu.bbmri_eric.negotiator.user.Person;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -29,12 +22,12 @@ public class ResourceStateChangeListener {
   private final AuthenticatedUserContext authenticatedUserContext;
 
   public ResourceStateChangeListener(
-          NegotiationLifecycleService negotiationLifecycleService,
-          ResourceService resourceService,
-          AuthenticatedUserContext authenticatedUserContext) {
+      NegotiationLifecycleService negotiationLifecycleService,
+      ResourceService resourceService,
+      AuthenticatedUserContext authenticatedUserContext) {
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceService = resourceService;
-      this.authenticatedUserContext = authenticatedUserContext;
+    this.authenticatedUserContext = authenticatedUserContext;
   }
 
   @EventListener(ResourceStateChangeEvent.class)
