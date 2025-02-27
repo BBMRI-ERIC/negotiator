@@ -76,7 +76,7 @@
           :title="
             negotiation.publicPostsEnabled
               ? ''
-              : 'Messaging is unavailable until the request has been reviewed.'
+              : negotiation.status === 'DRAFT' ? 'Messaging is unavailable until you submit the request' : 'Messaging is unavailable until the request has been reviewed.'
           "
         >
           <button
