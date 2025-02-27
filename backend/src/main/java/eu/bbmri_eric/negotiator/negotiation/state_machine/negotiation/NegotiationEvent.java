@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum NegotiationEvent {
+  SUBMIT("Submit", "Submit the negotiation"),
   APPROVE("Approve", "Approve the negotiation"),
   DECLINE("Decline", "Decline the negotiation"),
   START("Start", "Start the negotiation"),
