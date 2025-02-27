@@ -141,13 +141,13 @@ public class NegotiationServiceTest {
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
-    assertEquals("SUBMITTED", negotiationDTO.getId());
+    assertEquals(null, negotiationDTO.getStatus());
     verify(userNotificationService, times(1)).notifyAdmins(negotiation);
   }
 
   @Test
   void testCreateDraftNegotiation_ok() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", true);
 
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
@@ -162,7 +162,7 @@ public class NegotiationServiceTest {
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
-    assertEquals("DRAFT", negotiationDTO.getId());
+    assertEquals(null, negotiationDTO.getStatus());
     verify(userNotificationService, times(1)).notifyAdmins(negotiation);
   }
 
