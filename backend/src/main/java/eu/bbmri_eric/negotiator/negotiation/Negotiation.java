@@ -90,7 +90,7 @@ public class Negotiation extends AuditEntity {
   @JdbcTypeCode(SqlTypes.JSON)
   private String payload;
 
-  private boolean publicPostsEnabled = true;
+  private boolean publicPostsEnabled;
 
   private boolean privatePostsEnabled = false;
 
