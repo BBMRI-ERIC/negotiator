@@ -335,7 +335,7 @@
         </div>
         <div class="wizard-footer-right">
           <button
-            v-if="props.activeTabIndex > 0"
+            v-if="props.activeTabIndex > 0 && (props.isEditForm === false || currentStatus === 'DRAFT')"
             class="btn me-4"
             @click="startModal(true)"
             :style="{
