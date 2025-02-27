@@ -36,6 +36,12 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
       throws Exception {
     transitions
         .withExternal()
+        .source(NegotiationState.DRAFT.name())
+        .target(NegotiationState.SUBMITTED.name())
+        .event(NegotiationEvent.SUBMIT.name())
+        .action(enablePublicPosts())
+        .and()
+        .withExternal()
         .source(NegotiationState.SUBMITTED.name())
         .target(NegotiationState.IN_PROGRESS.name())
         .event(NegotiationEvent.APPROVE.name())
@@ -74,6 +80,11 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .source(NegotiationState.IN_PROGRESS.name())
         .target(NegotiationState.CONCLUDED.name())
         .event(NegotiationEvent.CONCLUDE.name());
+  }
+
+  @Bean
+  public Action<String, String> enablePublicPosts() {
+    return new EnablePublicPostsAction();
   }
 
   @Bean

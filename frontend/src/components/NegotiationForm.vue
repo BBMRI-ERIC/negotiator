@@ -337,7 +337,7 @@
           <button
             v-if="props.activeTabIndex > 0"
             class="btn me-4"
-            @click="startModal(false)"
+            @click="startModal(true)"
             :style="{
               'background-color': uiConfiguration.buttonColor,
               'border-color': uiConfiguration.buttonColor,
@@ -393,6 +393,7 @@ const props = defineProps({
 })
 
 const saveDraft = ref(false)
+const currentStatus = ref(undefined)
 const notificationTitle = ref('')
 const notificationText = ref('')
 const negotiationCriteria = ref({})
@@ -424,6 +425,7 @@ onBeforeMount(async () => {
     result = await negotiationPageStore.retrieveNegotiationById(props.requestId)
     result.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId) || [];
     accessFormResponse = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(props.requestId)
+    currentStatus.value = result.status
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
     accessFormResponse = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
@@ -470,8 +472,16 @@ async function startNegotiation() {
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      backToNegotiation(props.requestId)
+      if (!saveDraft.value && currentStatus.value === 'DRAFT') {
+        negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+          backToNegotiation(props.requestId)
+        });
+      }
+      else {
+        backToNegotiation(props.requestId)
+      }
     })
+    
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
       backToNegotiation(requestAlreadySubmittedNegotiationId.value)
@@ -491,7 +501,8 @@ async function startNegotiation() {
 }
 
 function startModal(isDraft) {
-  if (isDraft) {
+  saveDraft.value = isDraft
+  if (!isDraft) {
     showNotification(
       "Confirm submission",
       "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed.",
