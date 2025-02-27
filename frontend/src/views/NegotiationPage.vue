@@ -273,7 +273,7 @@
             </div>
           </li>
           <li
-            v-if="possibleEvents.length > 0"
+            v-if="negotiation.status !== 'DRAFT' && possibleEvents.length > 0"
             class="list-group-item p-2 d-flex justify-content-between"
           >
             <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
