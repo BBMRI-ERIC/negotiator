@@ -68,6 +68,13 @@ public class NegotiationModelMapper {
             mapper
                 .using(currentStateConverter)
                 .map(NegotiationCreateDTO::isDraft, Negotiation::setCurrentState));
+
+    Converter<Boolean, Boolean> publicPostsConverter = c -> publicPostsConverter(c.getSource());
+    createDTOToEntity.addMappings(
+        mapper ->
+            mapper
+                .using(publicPostsConverter)
+                .map(NegotiationCreateDTO::isDraft, Negotiation::setPublicPostsEnabled));
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
@@ -87,5 +94,9 @@ public class NegotiationModelMapper {
 
   private NegotiationState currentStateConverter(boolean isDraft) {
     return isDraft ? NegotiationState.DRAFT : NegotiationState.SUBMITTED;
+  }
+
+  private boolean publicPostsConverter(boolean isDraft) {
+    return !isDraft;
   }
 }

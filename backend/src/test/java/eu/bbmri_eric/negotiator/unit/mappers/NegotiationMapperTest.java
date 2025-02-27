@@ -1,8 +1,5 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -13,16 +10,22 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelMapper;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.modelmapper.ModelMapper;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class NegotiationMapperTest {
   @Spy public ModelMapper mapper = new ModelMapper();
@@ -99,6 +102,7 @@ public class NegotiationMapperTest {
 
     Negotiation negotiation = this.mapper.map(negotiationCreateDTO, Negotiation.class);
     assertEquals(NegotiationState.SUBMITTED, negotiation.getCurrentState());
+    assertTrue(negotiation.isPublicPostsEnabled());
   }
 
   @Test
@@ -107,5 +111,6 @@ public class NegotiationMapperTest {
 
     Negotiation negotiation = this.mapper.map(negotiationCreateDTO, Negotiation.class);
     assertEquals(NegotiationState.DRAFT, negotiation.getCurrentState());
+    assertFalse(negotiation.isPublicPostsEnabled());
   }
 }
