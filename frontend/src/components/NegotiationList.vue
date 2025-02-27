@@ -309,13 +309,9 @@ function emitFilterSortData() {
 }
 
 function goToNegotiation(negotiation) {
-  if (negotiation.status == "DRAFT") {
-    router.push(`/edit/requests/${negotiation.id}`)
-  } else {
-    router.push({
-      name: 'negotiation-page',
-      params: { negotiationId: negotiation.id },
-    })
-  }
+  router.push({
+    name: 'negotiation-page',
+    params: { negotiationId: negotiation.id },
+  })
 }
 </script>
