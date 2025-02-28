@@ -169,6 +169,10 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationDTO.getId(), NegotiationEvent.ABANDON, "Not acceptable"));
   }
 
+  private NegotiationDTO saveNegotiation() throws IOException {
+    return saveNegotiation(false);
+  }
+
   private NegotiationDTO saveNegotiation(boolean draft) throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2", draft);
     DiscoveryService discoveryService =
