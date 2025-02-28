@@ -10,12 +10,11 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 
 /** Class to create query condition for NegotiationRepository. The conditions can be */
 public class NegotiationSpecification {
@@ -67,8 +66,8 @@ public class NegotiationSpecification {
    * Condition to filter Negotiation by states
    *
    * @param states a List of NegotiationState to use as filter
-   * @param not a flag to negate the condition (e.g., hasState(List.of('DRAFT'), true)
-   *            to get Negotiations with state different from DRAFT)
+   * @param not a flag to negate the condition (e.g., hasState(List.of('DRAFT'), true) to get
+   *     Negotiations with state different from DRAFT)
    * @return a Specification to add as part of a query to filter Negotiations
    */
   public static Specification<Negotiation> hasState(List<NegotiationState> states, boolean not) {
