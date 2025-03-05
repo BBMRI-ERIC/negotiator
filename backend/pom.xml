@@ -159,7 +159,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>1.14.3</version>
+            <version>1.14.4</version>
         </dependency>
         <dependency>
             <artifactId>spring-statemachine-core</artifactId>
