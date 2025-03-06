@@ -420,19 +420,19 @@
                         >
                           <div class="accordion-body">
                             <p>{{ resource.description }}</p>
-                            <ul class="list-unstyled">
-                              <li>
+                            <ul class="list-unstyled p-2">
+                              <li v-if="resource.withdrawn === true">
                                 <i class="bi bi-activity"></i>
-                                Withdrawn: {{ resource.withdrawn }}
+                                Withdrawn, no longer active
                               </li>
                               <li>
-                                <i class="bi bi-envelope"></i>
+                                <i class="bi bi-envelope p-2"></i>
                                 <a :href="'mailto:' + resource.contactEmail">
                                   {{ resource.contactEmail }}
                                 </a>
                               </li>
                               <li>
-                                <i class="bi bi-globe"></i>
+                                <i class="bi bi-globe p-2"></i>
                                 <a :href="resource.uri" target="_blank">
                                   {{ resource.uri }}
                                 </a>

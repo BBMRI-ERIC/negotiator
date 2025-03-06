@@ -35,6 +35,10 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
     } catch (NullPointerException e) {
       median = null;
     }
+    List<String> ignoredIds =
+        networkRepository.getIgnoredForNetwork(filter.getSince(), filter.getUntil(), networkId);
+    List<String> successfulIds =
+        networkRepository.getSuccessfulForNetwork(filter.getSince(), filter.getUntil(), networkId);
     Map<NegotiationState, Integer> states =
         networkRepository
             .countStatusDistribution(filter.getSince(), filter.getUntil(), networkId)
@@ -44,24 +48,16 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
                     result -> (NegotiationState) result[0],
                     result -> ((Long) result[1]).intValue()));
     Map<String, List<String>> ids = new HashMap<>();
-    ids.put(
-        "Ignored",
-        networkRepository.getIgnoredForNetwork(filter.getSince(), filter.getUntil(), networkId));
-    ids.put(
-        "Successful",
-        networkRepository.getSuccessfulForNetwork(filter.getSince(), filter.getUntil(), networkId));
+    ids.put("Ignored", ignoredIds);
+    ids.put("Successful", successfulIds);
     return SimpleNetworkStatistics.builder()
         .networkId(networkId)
         .numberOfNewRequesters(
             networkRepository.getNumberOfNewRequesters(
                 filter.getSince(), filter.getUntil(), networkId))
         .medianResponseTime(median)
-        .numberOfIgnoredNegotiations(
-            networkRepository.countIgnoredForNetwork(
-                filter.getSince(), filter.getUntil(), networkId))
-        .numberOfSuccessfulNegotiations(
-            networkRepository.getNumberOfSuccessfulNegotiationsForNetwork(
-                filter.getSince(), filter.getUntil(), networkId))
+        .numberOfIgnoredNegotiations(ignoredIds.size())
+        .numberOfSuccessfulNegotiations(successfulIds.size())
         .numberOfActiveRepresentatives(
             networkRepository.getNumberOfActiveRepresentatives(
                 filter.getSince(), filter.getUntil(), networkId))
