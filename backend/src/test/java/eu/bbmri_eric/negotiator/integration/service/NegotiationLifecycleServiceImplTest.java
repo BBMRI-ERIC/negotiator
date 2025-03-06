@@ -170,17 +170,23 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   private NegotiationDTO saveNegotiation() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
+    return saveNegotiation(false);
+  }
+
+  private NegotiationDTO saveNegotiation(boolean draft) throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2", draft);
     DiscoveryService discoveryService =
         discoveryServiceRepository.findById(1L).orElseThrow(TestAbortedException::new);
     Request request =
         requestRepository.findById("request-2").orElseThrow(TestAbortedException::new);
+    NegotiationState state = draft ? NegotiationState.DRAFT : NegotiationState.SUBMITTED;
     Negotiation negotiation =
         Negotiation.builder()
             .resources(new HashSet<>(request.getResources()))
             .discoveryService(discoveryService)
             .humanReadable("#1 MaterialType: DNA")
             .payload(negotiationCreateDTO.getPayload().toString())
+            .currentState(state)
             .build();
     negotiation.setCreatedBy(Person.builder().id(101L).name("TheBuilder").build());
     negotiationRepository.save(negotiation);
@@ -200,6 +206,25 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.SUBMITTED,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void sendEvent_submitCorrectly_calledActionEnablePublicPost() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation(true);
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
+    assertEquals(
+        negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
+        NegotiationState.DRAFT.getValue());
+    assertEquals(
+        NegotiationState.SUBMITTED,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.SUBMIT));
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertEquals(
+        negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
+        NegotiationState.SUBMITTED.getValue());
   }
 
   @Test

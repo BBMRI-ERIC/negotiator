@@ -81,7 +81,8 @@ public class NegotiationDTO {
   }
 
   public boolean isPayloadUpdatable() {
-    return Objects.equals(status, NegotiationState.SUBMITTED.getValue())
+    return Objects.equals(status, NegotiationState.DRAFT.getValue())
+        || Objects.equals(status, NegotiationState.SUBMITTED.getValue())
         || Objects.equals(status, NegotiationState.IN_PROGRESS.getValue());
   }
 }
