@@ -61,7 +61,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
               .filter(resource -> resource.getOrganization().equals(organization))
               .collect(Collectors.toSet());
       Set<Person> representatives =
-          negotiation.getResources().stream()
+          involvedResourcesOfOrganization.stream()
               .flatMap(resource -> resource.getRepresentatives().stream())
               .collect(Collectors.toSet());
       if (!hasOrganizationResponded(

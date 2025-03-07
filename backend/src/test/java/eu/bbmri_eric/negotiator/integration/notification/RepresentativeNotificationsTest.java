@@ -135,6 +135,33 @@ public class RepresentativeNotificationsTest {
         count, notificationRepository.findAllByRecipient_id(representative.getId()).size());
   }
 
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  void notifyForPendingNegotiation_2OrganizationsOnlyOneIgnoring_oneIsNotified()
+      throws IOException, InterruptedException {
+    NegotiationDTO negotiationDTO = saveNegotiation();
+    Person person = personRepository.findAll().iterator().next();
+    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
+    assertEquals(2, negotiation.getResources().size());
+    assertEquals(2, negotiation.getOrganizations().size());
+    negotiation
+        .getResources()
+        .forEach(
+            resource ->
+                assertEquals(
+                    NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+                    negotiation.getCurrentStateForResource(resource.getSourceId())));
+    negotiation.setCreationDate(LocalDateTime.now().minusDays(5));
+    negotiation.setCreatedBy(person);
+    negotiation.setStateForResource(
+        negotiation.getResources().iterator().next().getSourceId(),
+        NegotiationResourceState.RESOURCE_UNAVAILABLE);
+    long before = notificationRepository.count();
+    representativeNotificationService.notifyAboutPendingNegotiations();
+    assertEquals(before + 1L, notificationRepository.count());
+  }
+
   private NegotiationDTO saveNegotiation() throws IOException {
     NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
     DiscoveryService discoveryService =
