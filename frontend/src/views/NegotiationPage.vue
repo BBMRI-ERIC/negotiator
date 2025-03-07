@@ -332,13 +332,7 @@ import NegotiationOrganizationCard from '@/components/NegotiationOrganizationCar
 import PDFButton from '@/components/PDFButton.vue'
 import { dateFormat } from '@/config/consts'
 import moment from 'moment'
-import {
-  getBadgeColor,
-  getBadgeIcon,
-  getButtonColor,
-  getButtonIcon,
-  transformStatus,
-} from '../composables/utils.js'
+import { getBadgeColor, getBadgeIcon, getButtonColor, getButtonIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUserStore } from '../store/user.js'
@@ -551,6 +545,7 @@ async function reloadResources() {
   if (resourceResponse._embedded.resources !== undefined) {
     resources.value = resourceResponse._embedded.resources
   }
+  negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
 }
 
 async function reloadStates() {
