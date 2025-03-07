@@ -19,6 +19,8 @@
 </template>
 
 <script setup>
+import NegotiatorModal from './NegotiatorModal.vue'
+
 defineProps({
   id: {
     type: String,
