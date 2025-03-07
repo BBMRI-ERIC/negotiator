@@ -16,7 +16,7 @@
           <a
             v-if="uiConfiguration?.footerFollowUsLinkedin"
             :href="uiConfiguration?.footerFollowUsLinkedin"
-            class="ms-2"
+            class="ms-2 link"
             :style="{ color: uiConfiguration?.footerTextColor }"
           >
             <i class="bi bi-linkedin mr-3" />
@@ -24,7 +24,7 @@
           <a
             v-if="uiConfiguration?.footerFollowUsX"
             :href="uiConfiguration?.footerFollowUsX"
-            class="ms-2"
+            class="ms-2 link"
             :style="{ color: uiConfiguration?.footerTextColor }"
           >
             <i class="bi bi-twitter-x" />
@@ -32,7 +32,7 @@
           <a
             v-if="uiConfiguration?.footerFollowUsPodcast"
             :href="uiConfiguration?.footerFollowUsPodcast"
-            class="ms-2"
+            class="ms-2 link"
             :style="{ color: uiConfiguration?.footerTextColor }"
           >
             <i class="bi bi-mic-fill" />
@@ -40,21 +40,13 @@
         </div>
         <div class="mt-2 mb-2 mb-md-0" v-if="uiConfiguration?.isFooterGithubVisible">
           <a
-            v-if="uiConfiguration?.footerGithubFrontendLink"
-            href="https://github.com/BBMRI-ERIC/negotiator-v3-frontend"
-            :style="{ color: uiConfiguration?.footerTextColor }"
-          >
-            <i class="bi bi-github pe-1" />
-            <span>GitHub UI</span>
-          </a>
-          <a
             v-if="uiConfiguration?.footerGithubBackendLink"
             href="https://github.com/BBMRI-ERIC/negotiator"
-            class="ps-2"
-            :style="{ color: uiConfiguration?.footerTextColor }"
+            class="ps-2 link"
+            :style="{ color: uiConfiguration?.footerTextColor}"
           >
             <i class="bi bi-github pe-1" />
-            <span>GitHub Application</span>
+            <span>GitHub</span>
           </a>
         </div>
 
@@ -63,6 +55,7 @@
             v-if="uiConfiguration?.footerSwaggerLink && uiConfiguration?.isFooterSwaggerVisible"
             :href="uiConfiguration?.footerSwaggerLink"
             :style="{ color: uiConfiguration?.footerTextColor }"
+            class="link"
           >
             <i class="bi bi-braces-asterisk pe-1" />
             <span>{{ uiConfiguration?.footerSwaggerText }}</span>
@@ -73,7 +66,7 @@
             "
             :href="uiConfiguration?.footerStatusPageLink"
             :style="{ color: uiConfiguration?.footerTextColor }"
-            class="ps-2"
+            class="ps-2 link"
           >
             <i class="bi bi-check-circle pe-1" />
             <span>{{ uiConfiguration?.footerStatusPageText }}</span>
@@ -89,6 +82,7 @@
           "
           :style="{ color: uiConfiguration?.footerTextColor }"
           :href="uiConfiguration?.footerWorkProgrammeLink"
+          class="link"
         >
           <img
             v-if="uiConfiguration?.footerWorkProgrammeImageUrl"
@@ -123,7 +117,7 @@
         </div>
         <div v-if="uiConfiguration?.isFooterPrivacyPolicyVisible" class="ms-md-2 ms-5 mt-2">
           <a
-            class="me-5"
+            class="me-5 link"
             :style="{ color: uiConfiguration?.footerTextColor }"
             :href="uiConfiguration?.footerPrivacyPolicyLink"
           >
@@ -146,6 +140,7 @@
             <a
               :href="uiConfiguration?.footerHelpLink"
               :style="{ color: uiConfiguration?.footerTextColor, opacity: 0.7 }"
+              class="link"
               >Contact us</a
             >.
           </div>
@@ -158,6 +153,7 @@
           <a
             href="https://github.com/BBMRI-ERIC/negotiator"
             :style="{ color: uiConfiguration?.footerTextColor }"
+            class="link"
             >BBMRI-ERIC Negotiator</a
           >
           <span :style="{ color: uiConfiguration?.footerTextColor, opacity: 0.5 }">
@@ -166,6 +162,7 @@
           <a
             href="https://github.com/BBMRI-ERIC/negotiator/blob/master/LICENSE"
             :style="{ color: uiConfiguration?.footerTextColor }"
+            class="link"
             >(license: AGPLv3)</a
           >
           <div
@@ -182,7 +179,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, computed } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import bbmriLogo from '../assets/images/bbmri/home-bbmri.png'
 import canservLogo from '../assets/images/canserv/home-canserv.png'
 import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
@@ -229,6 +226,14 @@ const returnWorkProgrammeSrc = computed(() => {
 <style scoped>
 a {
   text-decoration: none;
+}
+
+.link {
+  transition: color 0.3s;
+}
+
+.link:hover {
+  color: red !important;
 }
 
 .custom-button-hover:hover {

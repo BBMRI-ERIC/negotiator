@@ -5,6 +5,8 @@ import static org.apache.commons.math3.util.Precision.round;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,10 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
     } catch (NullPointerException e) {
       median = null;
     }
+    List<String> ignoredIds =
+        networkRepository.getIgnoredForNetwork(filter.getSince(), filter.getUntil(), networkId);
+    List<String> successfulIds =
+        networkRepository.getSuccessfulForNetwork(filter.getSince(), filter.getUntil(), networkId);
     Map<NegotiationState, Integer> states =
         networkRepository
             .countStatusDistribution(filter.getSince(), filter.getUntil(), networkId)
@@ -41,23 +47,23 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
                 Collectors.toMap(
                     result -> (NegotiationState) result[0],
                     result -> ((Long) result[1]).intValue()));
+    Map<String, List<String>> ids = new HashMap<>();
+    ids.put("Ignored", ignoredIds);
+    ids.put("Successful", successfulIds);
     return SimpleNetworkStatistics.builder()
         .networkId(networkId)
         .numberOfNewRequesters(
             networkRepository.getNumberOfNewRequesters(
                 filter.getSince(), filter.getUntil(), networkId))
         .medianResponseTime(median)
-        .numberOfIgnoredNegotiations(
-            networkRepository.countIgnoredForNetwork(
-                filter.getSince(), filter.getUntil(), networkId))
-        .numberOfSuccessfulNegotiations(
-            networkRepository.getNumberOfSuccessfulNegotiationsForNetwork(
-                filter.getSince(), filter.getUntil(), networkId))
+        .numberOfIgnoredNegotiations(ignoredIds.size())
+        .numberOfSuccessfulNegotiations(successfulIds.size())
         .numberOfActiveRepresentatives(
             networkRepository.getNumberOfActiveRepresentatives(
                 filter.getSince(), filter.getUntil(), networkId))
         .totalNumberOfNegotiations(count)
         .statusDistribution(states)
+        .negotiationIds(ids)
         .build();
   }
 }

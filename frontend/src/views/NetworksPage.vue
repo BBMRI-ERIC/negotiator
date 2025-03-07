@@ -1,4 +1,9 @@
 <template>
+  <negotiations-list-modal
+    id="negotiationsModal"
+    title="List of Negotiations"
+    :negotiations="negotiationIds"
+  />
   <div v-if="isLoaded">
     <div class="container">
       <div class="organization-details">
@@ -128,7 +133,7 @@
           <div class="card-body">
             <!-- Card Header -->
             <div class="d-flex flex-row mb-2 align-items-center">
-              <h4 class="card-title mb-0">Requests</h4>
+              <h4 class="card-title mb-0">Negotiations</h4>
               <i
                 class="bi bi-info-circle ml-2 small-icon"
                 title="States of different Negotiations involving Resources in this Network"
@@ -137,7 +142,7 @@
 
             <!-- Total Number of Requests -->
             <div class="text-center mb-2">
-              <h5>Total Requests: {{ stats.totalNumberOfNegotiations }}</h5>
+              <h5>Total Negotiations: {{ stats.totalNumberOfNegotiations }}</h5>
             </div>
 
             <!-- Pie Chart Section -->
@@ -195,12 +200,14 @@
             <!-- Additional Stats Information -->
             <div class="row mt-4">
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
-                <div class="stat-card flex-fill">
+                <div class="stat-card flex-fill cursor-pointer" type="button" data-bs-toggle="modal"
+                     data-bs-target="#negotiationsModal"
+                     @click="setNegotiationIds(stats.negotiationIds['Ignored'])">
                   <div class="stat-label">
                     <span>Ignored Negotiations</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      title="The number of negotiations that were ignored"
+                      title="Negotiations which involved at least one Resource in you Network and none responded"
                     />
                   </div>
                   <h5>{{ stats.numberOfIgnoredNegotiations }}</h5>
@@ -210,10 +217,10 @@
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
                 <div class="stat-card flex-fill">
                   <div class="stat-label">
-                    <span>Median Response Time</span>
+                    <span>Median Response Time in Days</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      title="Median time taken for negotiations to receive responses"
+                      title="Median number of days taken for negotiations to receive responses"
                     />
                   </div>
                   <h5 class="text-muted">
@@ -223,12 +230,14 @@
               </div>
 
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
-                <div class="stat-card flex-fill">
+                <div class="stat-card flex-fill cursor-pointer" type="button" data-bs-toggle="modal"
+                     data-bs-target="#negotiationsModal"
+                     @click="setNegotiationIds(stats.negotiationIds['Successful'])">
                   <div class="stat-label">
                     <span>Successful Negotiations</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      title="The number of successful negotiations"
+                      title="The number of negotiations where at least one Resource in you Network has been provided to the Requester"
                     />
                   </div>
                   <h5>{{ stats.numberOfSuccessfulNegotiations }}</h5>
@@ -411,19 +420,19 @@
                         >
                           <div class="accordion-body">
                             <p>{{ resource.description }}</p>
-                            <ul class="list-unstyled">
-                              <li>
+                            <ul class="list-unstyled p-2">
+                              <li v-if="resource.withdrawn === true">
                                 <i class="bi bi-activity"></i>
-                                Withdrawn: {{ resource.withdrawn }}
+                                Withdrawn, no longer active
                               </li>
                               <li>
-                                <i class="bi bi-envelope"></i>
+                                <i class="bi bi-envelope p-2"></i>
                                 <a :href="'mailto:' + resource.contactEmail">
                                   {{ resource.contactEmail }}
                                 </a>
                               </li>
                               <li>
-                                <i class="bi bi-globe"></i>
+                                <i class="bi bi-globe p-2"></i>
                                 <a :href="resource.uri" target="_blank">
                                   {{ resource.uri }}
                                 </a>
@@ -475,6 +484,7 @@ import { Pie } from 'vue-chartjs'
 import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip } from 'chart.js'
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import NegotiationsListModal from '@/components/modals/NegotiationsListModal.vue'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
 
@@ -528,6 +538,7 @@ const endDate = ref(today.toISOString().slice(0, 10))
 const userRole = ref('author')
 const isLoaded = ref(false)
 const organizations = ref([])
+const negotiationIds = ref([])
 // Pie chart data
 const pieData = ref({})
 const pieOptions = ref({
@@ -598,6 +609,10 @@ function formatStatusLabel(status) {
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function setNegotiationIds(ids) {
+  negotiationIds.value = ids
 }
 async function loadStats(networkId) {
   stats.value = await networksPageStore.retrieveNetworkStats(
