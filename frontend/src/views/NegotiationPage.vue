@@ -273,7 +273,7 @@
             </div>
           </li>
           <li
-            v-if="possibleEvents.length > 0"
+            v-if="negotiation.status !== 'DRAFT' && possibleEvents.length > 0"
             class="list-group-item p-2 d-flex justify-content-between"
           >
             <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
@@ -461,8 +461,8 @@ onBeforeMount(async () => {
   const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
     props.negotiationId,
   )
-  if (resourceResponse?._embedded?.resources !== undefined) {
-    resources.value = resourceResponse._embedded.resources
+  if (resourceResponse !== undefined) {
+    resources.value = resourceResponse
     isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponse._links)
   }
   await negotiationPageStore
@@ -542,8 +542,8 @@ async function reloadResources() {
   const resourceResponse = await negotiationPageStore.retrieveResourcesByNegotiationId(
     props.negotiationId,
   )
-  if (resourceResponse._embedded.resources !== undefined) {
-    resources.value = resourceResponse._embedded.resources
+  if (resourceResponse !== undefined) {
+    resources.value = resourceResponse
   }
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
 }
