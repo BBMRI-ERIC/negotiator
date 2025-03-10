@@ -335,7 +335,7 @@
         </div>
         <div class="wizard-footer-right">
           <button
-            v-if="props.activeTabIndex > 0 && (props.isEditForm === false || currentStatus === 'DRAFT')"
+            v-if="isEditForm === false || currentStatus === 'DRAFT'"
             class="btn me-4"
             @click="startModal(true)"
             :style="{
@@ -421,6 +421,7 @@ const queryParameters = computed(() => {
 onBeforeMount(async () => {
   let result = {}
   let accessFormResponse = undefined
+  console.log(props.isEditForm)
   if (props.isEditForm) {
     result = await negotiationPageStore.retrieveNegotiationById(props.requestId)
     result.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId) || [];
