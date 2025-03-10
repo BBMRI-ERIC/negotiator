@@ -206,6 +206,7 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void sendEvent_submitCorrectly_calledActionEnablePublicPost() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation(true);
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
