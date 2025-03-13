@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 /** Main Application Security configuration class. */
 @Configuration
@@ -20,18 +21,23 @@ public class SecurityConfig {
 
   private final HTTPRegistryConfigurer httpRegistryConfigurer;
 
+  private final AccessDeniedHandler accessDeniedHandler;
+
   public SecurityConfig(
       ExceptionHandlerFilter exceptionHandlerFilter,
       OAuth2Configuration oauthConfigurer,
-      HTTPRegistryConfigurer httpRegistryConfigurer) {
+      HTTPRegistryConfigurer httpRegistryConfigurer,
+      AccessDeniedHandler accessDeniedHandler) {
     this.exceptionHandlerFilter = exceptionHandlerFilter;
     this.oauthConfigurer = oauthConfigurer;
     this.httpRegistryConfigurer = httpRegistryConfigurer;
+    this.accessDeniedHandler = accessDeniedHandler;
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class)
+        .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(AbstractHttpConfigurer::disable)
