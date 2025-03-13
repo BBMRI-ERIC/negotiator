@@ -381,7 +381,7 @@ public class NegotiatorExceptionHandler {
   }
 
   // This is mainly for Swagger documentation.
-  // The actual exception is handled by the CustomBearerTokenAuthenticationEntryPoint
+  // The actual exception is handled by the CustomAccessDeniedHandler
   @ExceptionHandler({AccessDeniedException.class})
   @ApiResponse(
       responseCode = "403",
