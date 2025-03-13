@@ -47,7 +47,7 @@
       <div
         class="card-body"
         :style="{ color: uiConfiguration.secondaryTextColor }"
-        v-html="formatText(post.text)"
+        v-dompurify-html="formatText(post.text)"
       />
     </div>
     <hr v-if="posts.length === 0" class="my-3" />
