@@ -25,6 +25,7 @@ public class CustomBearerTokenAuthenticationEntryPoint implements Authentication
       HttpServletResponse response,
       AuthenticationException authException)
       throws IOException, ServletException {
+    System.out.println(authException.getMessage());
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
     problemDetail.setTitle("Unauthorized");
     problemDetail.setDetail("Authentication is required to access this resource.");
