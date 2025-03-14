@@ -15,6 +15,7 @@ import Vue3Tour from 'vue3-tour'
 import 'vue3-tour/dist/vue3-tour.css'
 import { useOidcStore } from './store/oidc'
 import { piniaOidcCreateRouterMiddleware } from 'pinia-oidc'
+import VueDOMPurifyHTML from 'vue-dompurify-html';
 
 library.add(faSpinner)
 library.add(faPencil)
@@ -34,6 +35,12 @@ if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
 app.use(router)
 app.use(pinia)
 app.use(Vue3Tour)
+app.use(VueDOMPurifyHTML, {
+    default: {
+          USE_PROFILES: { html: false },
+      },
+  },
+)
 
 router.beforeEach(piniaOidcCreateRouterMiddleware(useOidcStore()))
 
