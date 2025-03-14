@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
@@ -356,7 +357,7 @@ public class NegotiatorExceptionHandler {
       description = "Unauthorized: Authentication is required to access this resource",
       content =
           @Content(
-              mediaType = "application/json",
+              mediaType = "application/json+problem",
               examples =
                   @ExampleObject(
                       value =
@@ -375,6 +376,37 @@ public class NegotiatorExceptionHandler {
     problemDetail.setDetail("Authentication is required to access this resource.");
     problemDetail.setType(
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"));
+    problemDetail.setProperties(Map.of());
+    return problemDetail;
+  }
+
+  // This is mainly for Swagger documentation.
+  // The actual exception is handled by the CustomAccessDeniedHandler
+  @ExceptionHandler({AccessDeniedException.class})
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden: You do not have permission to access this resource",
+      content =
+          @Content(
+              mediaType = "application/json+problem",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                                    {
+                                      "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403",
+                                      "title": "Forbidden",
+                                      "status": 403,
+                                      "detail": "You do not have permission to access this resource.",
+                                      "instance": "/api/your-endpoint"
+                                    }
+                                    """)))
+  public final ProblemDetail handleAccessDeniedException(AccessDeniedException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+    problemDetail.setTitle("Forbidden");
+    problemDetail.setDetail("You do not have permission to access this resource.");
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"));
     problemDetail.setProperties(Map.of());
     return problemDetail;
   }
