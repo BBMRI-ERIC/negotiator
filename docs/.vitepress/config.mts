@@ -17,9 +17,9 @@ function getLatestGitTag() {
 
 const latestVersion = getLatestGitTag();
 export default defineConfig({
-    title: "BBMRI-ERIC Negotiator",
+    title: 'Negotiator Docs',
     description: "Documentation for the BBMRI-ERIC Negotiator",
-    head: [['link', {rel: 'icon', href: '/handshake.svg'}]],
+    head: [['link', { rel: 'icon', href: '/negotiator/favicon.ico' }]],
     cleanUrls: true,
     lastUpdated: true,
     ignoreDeadLinks: true,
@@ -86,6 +86,7 @@ export default defineConfig({
                 items: [
                     {text: 'Connecting to a Negotiator', link: 'connecting-to-negotiator'},
                     {text: 'Contributing', link: '/contributing'},
+                    { text: 'Security', link: '/SECURITY' },
                     {text: 'Deployment', link: '/deployment'},
                     {text: 'Notifications', link: '/notifications'},
                     {text: 'REST API', link: '/REST'},
