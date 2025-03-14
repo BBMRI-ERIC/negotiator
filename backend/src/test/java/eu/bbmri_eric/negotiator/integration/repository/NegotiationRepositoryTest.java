@@ -216,7 +216,7 @@ public class NegotiationRepositoryTest {
         negotiation.getId(),
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
                 PageRequest.of(0, 10, Sort.by("id")))
             .get()
             .iterator()
@@ -226,7 +226,7 @@ public class NegotiationRepositoryTest {
         NegotiationState.SUBMITTED,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
                 PageRequest.of(0, 10, Sort.by("id")))
             .get()
             .iterator()
@@ -238,7 +238,7 @@ public class NegotiationRepositoryTest {
         0,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
                 PageRequest.of(0, 10, Sort.by("id")))
             .getNumberOfElements());
   }
@@ -266,7 +266,7 @@ public class NegotiationRepositoryTest {
         1,
         negotiationRepository
             .findAll(
-                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED)),
+                NegotiationSpecification.hasState(List.of(NegotiationState.SUBMITTED), false),
                 PageRequest.of(0, 10))
             .getNumberOfElements());
   }

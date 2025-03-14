@@ -68,6 +68,8 @@ export function getButtonIcon(event) {
 
 export function getBadgeIcon(status) {
   switch (status.toUpperCase()) {
+    case 'DRAFT':
+      return 'bi bi-pencil'
     case 'SUBMITTED':
       return 'bi bi-search'
     case 'DECLINED':

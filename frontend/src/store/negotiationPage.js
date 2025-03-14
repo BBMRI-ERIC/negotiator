@@ -174,12 +174,12 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   async function retrieveResourcesByNegotiationId(negotiationId) {
-    return axios
+    return await axios
       .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources`, {
         headers: getBearerHeaders(),
       })
       .then((response) => {
-        return response.data
+        return response.data?._embedded?.resources
       })
       .catch(() => {
         notifications.setNotification('Error fetching Resources', 'danger')

@@ -150,8 +150,8 @@ import FormSubmissionModal from '@/components/modals/FormSubmissionModal.vue'
 
 const props = defineProps({
   orgId: {
-    type: Object,
-    default: () => ({}),
+    type: String,
+    default: undefined
   },
   org: {
     type: Object,
