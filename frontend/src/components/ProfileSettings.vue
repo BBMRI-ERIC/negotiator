@@ -1,27 +1,29 @@
 <template>
   <div class="btn-group">
-    <b-avatar
+    <profileAvatar
       type="button"
+      class="mr-3 text-light"
       :style="{ 'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important' }"
-      :text="returnAcronymOfName"
-      class="mr-3"
       data-bs-toggle="dropdown"
       aria-expanded="false"
-    />
+    >
+      {{ returnAcronymOfName }}
+    </profileAvatar>
 
     <ul class="dropdown-menu dropdown-menu-end mt-1">
       <li class="container mb-3 mt-2">
         <div class="d-flex flex-row">
-          <b-avatar
-            type="button"
+          <profileAvatar
+          type="button"
+            class="me-3 mt-1 text-light"
             :style="{
               'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important',
             }"
-            :text="returnAcronymOfName"
-            class="me-3 mt-1"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-          />
+            >
+            {{ returnAcronymOfName }}
+          </profileAvatar>
           <div>
             <div :style="{ color: uiConfiguration?.navbarTextColor }">
               {{ user.email }}
@@ -121,6 +123,7 @@ import { computed } from 'vue'
 import externalLinks from '@/config/externalLinks'
 import { useOidcStore } from '@/store/oidc'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import profileAvatar from '@/components/ProfileAvatar.vue'
 
 const oidcStore = useOidcStore()
 
@@ -165,13 +168,7 @@ function signOutOidc() {
 }
 </script>
 
-<style>
-.avatar {
-  vertical-align: middle;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
+<style scoped>
 .sign-out:hover {
   color: #dc3545;
 }

@@ -24,7 +24,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import NewRequestModal from '@/components/modals/NewRequestModal.vue'
+import NewRequestModal from '../components/modals/NewRequestModal.vue'
 import { useApiCallsStore } from '../store/apiCalls.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import allFeatureFlags from '@/config/featureFlags.js'
