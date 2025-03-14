@@ -34,8 +34,8 @@ roles, and custom attributes, which are essential for fine-grained authorization
 
 Once the backend receives the _**userinfo**_ response, it parses the user's claims to make authorization decisions. The
 roles and permissions assigned to a user are often based on specific claims returned in the **_userinfo_** response. For
-instance, in the Negotiator platform, users may be assigned roles such as **RESEARCHER**, **ADMIN**, or **REPRESENTATIVE
-** based on values found in a claim like **_eduperson_entitlement_**.
+instance, in the Negotiator platform, users may be assigned roles such as **RESEARCHER**, **ADMIN**, or
+**REPRESENTATIVE** based on values found in a claim like **_eduperson_entitlement_**.
 
 For example:
 
