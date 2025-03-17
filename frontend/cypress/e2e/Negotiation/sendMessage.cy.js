@@ -5,10 +5,10 @@ describe("Test negotiation message", () => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
         // Go to negotiation
-        cy.get("tbody > :nth-child(1) > :nth-child(6)").click()
+        cy.get("tbody > :nth-child(2) > :nth-child(6)").click()
     })
 
-    context("check if message part in negotiation is visable", () => {
+    context("check if message part in negotiation is visible", () => {
         it("test if all message part are visible", () => {
             // Comment section
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")

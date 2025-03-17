@@ -27,14 +27,21 @@ describe("Test create negotiation", () => {
 
             cy.get(":nth-child(1) > .card").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(1) > .card > .card-header > .float-end > .bg-status-badge").should("be.visible")
+            cy.get(":nth-child(1) > .card > .card-header > .float-end > .bg-secondary").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(3)").should("be.visible")
+
+            cy.get(":nth-child(2) > .card").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-header").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-header > .float-end > .bg-status-badge").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-body > :nth-child(1)").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-body > :nth-child(2)").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-body > :nth-child(3)").should("be.visible")
         })
 
-        it("test if negotaiton page contains all fields", () => {
-            cy.get("tbody > :nth-child(1) > :nth-child(6)").click()
+        it("test if negotiation page contains all fields", () => {
+            cy.get("tbody > :nth-child(2) > :nth-child(6)").click()
 
             cy.url().should("contain", "/negotiations")
             //  Title
