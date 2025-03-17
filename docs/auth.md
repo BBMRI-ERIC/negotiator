@@ -51,8 +51,7 @@ or via environment variables.
 This flexibility allows the Negotiator platform to adapt to various authorization schemes and ensures that users only
 have access to resources and actions they are authorized to interact with.
 
-For more information about how roles and claims are handled in OIDC, see the *
-*[OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)** specification.
+For more information about how roles and claims are handled in OIDC, see the **[OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)** specification.
 
 ## Client Credentials Flow (Backend / External Systems)
 
@@ -113,7 +112,7 @@ assurance and can be enabled based on the security requirements of the environme
 
 ## Authorization
 
-Section detailing what roles does the Negotiator support.
+In this seciton the roles supported by the Negotiator are described.
 Unless stated otherwise, these roles are assigned through mapping values in a specific scope as stated above.
 
 ### Basic user roles
