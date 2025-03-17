@@ -141,6 +141,9 @@ describe("Test create negotiation", () => {
           cy.get(".modal-footer > .btn").click()
 
           // page 1
+          cy.get(".wizard-footer-right > .btn").contains("Next").click()
+          cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation")
+          
           cy.get(".wizard-footer-right > .btn").contains("Save Draft").click()
 
           // Confirmation modal
