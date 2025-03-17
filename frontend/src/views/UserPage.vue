@@ -21,13 +21,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import moment from 'moment'
 import NegotiationList from '@/components/NegotiationList.vue'
 import NegotiationPagination from '@/components/NegotiationPagination.vue'
 import FilterSort from '@/components/FilterSort.vue'
 import { ROLES } from '@/config/consts.js'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../store/user'
 import { useNegotiationsStore } from '../store/negotiations'
 
@@ -52,6 +52,7 @@ const userId = ref(undefined)
 const filtersStatus = ref([])
 const filtersSortData = ref({
   status: [],
+  organizations: [],
   dateStart: '',
   dateEnd: '',
   sortBy: 'creationDate',

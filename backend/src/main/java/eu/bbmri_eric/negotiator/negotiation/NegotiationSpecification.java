@@ -50,6 +50,10 @@ public class NegotiationSpecification {
       specs = initOrAnd(specs, byNetwork(network));
     }
 
+    if (filtersDTO.getOrganizationId() != null) {
+      specs = initOrAnd(specs, byOrganization(filtersDTO.getOrganizationId()));
+    }
+
     return specs;
   }
 
@@ -122,6 +126,30 @@ public class NegotiationSpecification {
           return criteriaBuilder.or(authorPredicate, involvedInResources);
         }
         return authorPredicate;
+      }
+    };
+  }
+
+  public static Specification<Negotiation> byOrganization(List<Long> organizationIds) {
+    return (root, query, criteriaBuilder) -> {
+      query.distinct(true);
+      if (organizationIds.size() == 1) {
+        return criteriaBuilder.equal(
+            root.joinSet("resourcesLink")
+                .join("id")
+                .join("resource")
+                .join("organization")
+                .get("id"),
+            organizationIds.get(0));
+      } else {
+        return criteriaBuilder
+            .in(
+                root.joinSet("resourcesLink")
+                    .join("id")
+                    .join("resource")
+                    .join("organization")
+                    .get("id"))
+            .value(organizationIds);
       }
     };
   }
