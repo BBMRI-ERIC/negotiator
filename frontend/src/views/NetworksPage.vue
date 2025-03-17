@@ -279,6 +279,7 @@
           v-if="isLoaded"
           :user-role="userRole"
           :filters-status="states"
+          :filter-organizations="organizations"
           v-model:filtersSortData="filtersSortData"
           @filters-sort-data="retrieveNegotiationsBySortAndFilter"
         />
@@ -509,6 +510,7 @@ const pagination = ref(undefined)
 const states = ref(undefined)
 const filtersSortData = ref({
   status: [],
+  organizations: [],
   dateStart: '',
   dateEnd: '',
   sortBy: 'creationDate',

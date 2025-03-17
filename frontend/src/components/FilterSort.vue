@@ -76,6 +76,37 @@
         </ul>
       </div>
 
+      <div id="v-step-4" class="filter-by-org" v-if="filterOrganizations.length > 0">
+        <button
+          class="btn btn-sm dropdown-toggle custom-button-hover"
+          :style="filtersSortData.organizations.length > 0 ? returnButtonActiveColor : returnButtonColor"
+          :class="filtersSortData.organizations.length > 0 ? 'show' : ''"
+          type="button"
+          data-bs-toggle="dropdown"
+          data-bs-auto-close="outside"
+          aria-expanded="false"
+        >
+          Filter by Organization
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
+          <div v-for="(org, index) in filterOrganizations" :key="index" class="form-check mx-2 my-2">
+            <input
+              v-model="filtersSortData.organizations"
+              class="form-check-input"
+              type="checkbox"
+              :value="org.id"
+              @change="emitFilterSortData"
+            />
+            <label
+              class="form-check-label"
+              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+            >
+              {{ org.name }}
+            </label>
+          </div>
+        </ul>
+      </div>
+
       <div class="filter-by-date">
         <button
           class="btn btn-sm dropdown-toggle custom-button-hover"
@@ -157,6 +188,10 @@ defineProps({
     type: Array,
     default: () => [],
   },
+  filterOrganizations: {
+    type: Array,
+    default: () => []
+  },
   userRole: {
     type: String,
     required: true,
@@ -218,6 +253,7 @@ function changeSortDirection() {
 
 function clearAllFilters() {
   filtersSortData.value.status = []
+  filtersSortData.value.organizations = []
   filtersSortData.value.dateStart = ''
   filtersSortData.value.dateEnd = ''
   filtersSortData.value.sortBy = 'creationDate'
