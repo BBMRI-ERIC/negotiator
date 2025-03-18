@@ -2,8 +2,9 @@
 
 The Negotiator (both backend and frontend) uses [OAuth 2.0](https://oauth.net/2/)
 and [OpenID Connect (OIDC)](https://openid.net/connect/) for secure authentication and authorization. These protocols
-ensure that only authorized users and systems can access the resources provided by the Negotiator. The system supports *
-*Authorization Code Flow** for user authentication and **Client Credentials Flow** for machine-to-machine communication,
+ensure that only authorized users and systems can access the resources provided by the Negotiator. The system supports
+**Authorization Code Flow** for user authentication and **Client Credentials Flow** for machine-to-machine
+communication,
 allowing seamless integration in both interactive and automated scenarios.
 
 ## Authorization Code Flow (Frontend)
@@ -33,8 +34,8 @@ roles, and custom attributes, which are essential for fine-grained authorization
 
 Once the backend receives the _**userinfo**_ response, it parses the user's claims to make authorization decisions. The
 roles and permissions assigned to a user are often based on specific claims returned in the **_userinfo_** response. For
-instance, in the Negotiator platform, users may be assigned roles such as **RESEARCHER**, **ADMIN**, or **REPRESENTATIVE
-** based on values found in a claim like **_eduperson_entitlement_**.
+instance, in the Negotiator platform, users may be assigned roles such as **RESEARCHER**, **ADMIN**, or
+**REPRESENTATIVE** based on values found in a claim like **_eduperson_entitlement_**.
 
 For example:
 
@@ -43,13 +44,14 @@ For example:
 
 The values in the *eduperson_entitlement* claim (or any other claim) are fully customizable to suit the needs of your
 application. You can define roles and permissions according to your organization's policies by mapping specific claim
-values to roles in your system.
+values to roles in your system. The mapping can be customized in
+the [application.yml file](https://github.com/BBMRI-ERIC/negotiator/blob/master/backend/src/main/resources/application.yaml).
+or via environment variables.
 
 This flexibility allows the Negotiator platform to adapt to various authorization schemes and ensures that users only
 have access to resources and actions they are authorized to interact with.
 
-For more information about how roles and claims are handled in OIDC, see the *
-*[OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)** specification.
+For more information about how roles and claims are handled in OIDC, see the **[OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)** specification.
 
 ## Client Credentials Flow (Backend / External Systems)
 
@@ -110,8 +112,25 @@ assurance and can be enabled based on the security requirements of the environme
 
 ## Authorization
 
-In the **Authorization Code Flow**, the frontend application redirects the user to the OIDC provider (e.g., Keycloak or
-LifeScience Login) to authenticate and authorize the application. Upon successful authentication, the OIDC provider
-issues an **authorization code**, which the frontend exchanges for an **access token** and an optional **ID token**.
-These tokens are then sent to the backend to authenticate and authorize the user.
+In this seciton the roles supported by the Negotiator are described.
+Unless stated otherwise, these roles are assigned through mapping values in a specific scope as stated above.
+
+### Basic user roles
+
+- **RESEARCHER**: The most basic role each user is granted. It allows the user to create Negotiations and interact with
+  them.
+- **REPRESENTATIVE**: A user responsible for mediating access to a given resource. It allows them interacting with
+  relevant Negotiations.
+- **NETWORK MANAGER**: A user responsible for moderating access to a group of resources. Grants them access to
+  monitoring functionalities over relevant Negotiations.
+
+### Special roles
+
+- **ADMIN**: Administrator over the entire instance.
+- **RESOURCE MANAGER**: Grants access to modify all available resources. Assigned to the user if the token contains
+  scope _**negotiator_resource_management**_.
+- **AUTH MANAGER**: Grants access to modify assigned representatives and network managers. Assigned to the user if the
+  token contains scope _**negotiator_authz_management**_.
+- **PROMETHEUS**: Grants access to metrics endpoints. Assigned to the user if the token contains scope
+  _**negotiator_monitoring**_.
 
