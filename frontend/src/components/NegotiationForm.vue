@@ -6,7 +6,7 @@
     :text="notificationText"
     :message-enabled="false"
     dismiss-button-text="Back to HomePage"
-    @confirm="startNegotiation"
+    @confirm="saveNegotiation(false)"
   />
   <div v-if="loading" class="d-flex align-items-center justify-content-center">
     <h4 class="me-2">Loading...</h4>
@@ -29,10 +29,11 @@
     </div>
     <form-wizard
       v-if="accessForm"
-      :start-index="0"
+      ref="wizard"
+      :start-index=wizardStartIndex
       :color="uiConfiguration?.primaryTextColor"
       step-size="md"
-      @on-complete="startModal(false)"
+      @on-complete="startModal()"
     >
       <tab-content
         title="Request summary"
@@ -55,12 +56,12 @@
         <resources-list class="mx-3" :resources="resources" />
       </tab-content>
       <tab-content
-        v-for="section in accessForm.sections"
+        v-for="(section, index) in accessForm.sections"
         :key="section.name"
         :title="section.label"
         class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
         :style="{ color: uiConfiguration?.primaryTextColor }"
-        :before-change="isSectionValid(section)"
+        :before-change="performNextStepAction(section, index + 2)"
       >
         <div v-if="section.description" class="mx-3 d-flex justify-content-end">
           <i
@@ -337,7 +338,7 @@
           <button
             v-if="isEditForm === false || currentStatus === 'DRAFT'"
             class="btn me-4"
-            @click="startModal(true)"
+            @click="saveDraft(props.activeTabIndex)"
             :style="{
               'background-color': uiConfiguration.buttonColor,
               'border-color': uiConfiguration.buttonColor,
@@ -364,7 +365,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeMount, onMounted } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
@@ -390,9 +391,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  step: {
+    type: Number,
+    default: 0
+  }
 })
+const wizard = ref(null);
+const wizardStartIndex = ref(props.step)
 
-const saveDraft = ref(false)
 const currentStatus = ref(undefined)
 const notificationTitle = ref('')
 const notificationText = ref('')
@@ -421,7 +427,6 @@ const queryParameters = computed(() => {
 onBeforeMount(async () => {
   let result = {}
   let accessFormResponse = undefined
-  console.log(props.isEditForm)
   if (props.isEditForm) {
     result = await negotiationPageStore.retrieveNegotiationById(props.requestId)
     result.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId) || [];
@@ -448,14 +453,31 @@ onBeforeMount(async () => {
     if (accessForm.value !== undefined) {
       initNegotiationCriteria(result?.payload)
     }
+
+    for (let i = 1; i < props.step; i++) {
+      const section = accessForm.value.sections[i-1];
+      const valid = isSectionValid(section, false);
+      if (!valid) {
+        wizardStartIndex.value = i;
+        break;
+      }
+    }
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   new Tooltip(document.body, {
     selector: "[data-bs-toggle='tooltip']",
   })
 })
+
+watch(() => wizard.value, (newValue) => {
+  if (newValue && wizard.value) {
+    for (let i = 0; i <= wizardStartIndex.value; i++) {
+      wizard.value.activateTab(i)
+    }
+  }
+}, { immediate: true })
 
 function backToNegotiation(id) {
   router.push('/negotiations/' + id + '/ROLE_RESEARCHER')
@@ -467,53 +489,51 @@ async function getValueSet(id) {
   })
 }
 
-async function startNegotiation() {
+async function saveDraft(step) {
+  if (!props.isEditForm || currentStatus.value === 'DRAFT') { 
+    await saveNegotiation(true, step) 
+  }
+  return true
+}
+
+async function saveNegotiation(isDraft, step) {
   if (props.isEditForm) {
     const data = {
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      if (!saveDraft.value && currentStatus.value === 'DRAFT') {
+      if (!isDraft && currentStatus.value === 'DRAFT') {
         negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
           backToNegotiation(props.requestId)
         });
       }
-      else {
-        backToNegotiation(props.requestId)
-      }
     })
-    
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
       backToNegotiation(requestAlreadySubmittedNegotiationId.value)
-      return
     }
     const data = {
-      draft: saveDraft.value,
+      draft: isDraft,
       request: props.requestId,
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
-        backToNegotiation(negotiationId)
+        if (isDraft) {
+          router.replace(`/edit/requests/${negotiationId}/${step}`)
+        } else {
+          backToNegotiation(negotiationId)
+        }
       }
     })
   }
 }
 
-function startModal(isDraft) {
-  saveDraft.value = isDraft
-  if (!isDraft) {
-    showNotification(
-      "Confirm submission",
-      "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed.",
-    )
-  } else {
-    showNotification(
-      "Confirm saving",
-      "You are about to save the form as a draft. To complete the request you will find the negotiation in you negotiation list. Click 'Confirm' to proceed.",
-    )
-  }
+function startModal() {
+  showNotification(
+    "Confirm submission",
+    "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed.",
+  )
 }
 
 
@@ -578,8 +598,18 @@ function initNegotiationCriteria(negotiationPayload) {
   }
 }
 
-function isSectionValid(section) {
+function performNextStepAction(section, step) {
   return () => {
+    const validSection = isSectionValid(section, true)
+    if (!validSection) {
+      notificationsStore.notification = 'Please fill out all required fields correctly'
+      return false
+    }
+    return saveDraft(step)
+  }
+}
+
+function isSectionValid(section, changeColor) {
     let valid = true
     validationColorHighlight.value = []
     section.elements.forEach((ac) => {
@@ -588,14 +618,18 @@ function isSectionValid(section) {
           ac.type === 'MULTIPLE_CHOICE' &&
           Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0
         ) {
-          validationColorHighlight.value.push(ac.name)
+          if (changeColor) {
+            validationColorHighlight.value.push(ac.name)
+          }
           valid = false
         } else if (
           ac.type === 'FILE' &&
           (typeof negotiationCriteria.value[section.name][ac.name] !== 'object' ||
             negotiationCriteria.value[section.name][ac.name] === null)
         ) {
-          validationColorHighlight.value.push(ac.name)
+          if (changeColor) {
+            validationColorHighlight.value.push(ac.name)
+          }
           valid = false
         } else if (
           ac.type !== 'MULTIPLE_CHOICE' &&
@@ -603,18 +637,16 @@ function isSectionValid(section) {
           (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
             negotiationCriteria.value[section.name][ac.name] === '')
         ) {
-          validationColorHighlight.value.push(ac.name)
+          if (changeColor) {
+            validationColorHighlight.value.push(ac.name)
+          }
           valid = false
         }
       } else if (valid) {
         valid = true
       }
     })
-    if (!valid) {
-      notificationsStore.notification = 'Please fill out all required fields correctly'
-    }
     return valid
-  }
 }
 
 function uncheckRadioButton(value, sectionName, criteriaName) {
