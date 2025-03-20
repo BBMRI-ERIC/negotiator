@@ -6,8 +6,7 @@
     :text="notificationText"
     :message-enabled="false"
     dismiss-button-text="Back to HomePage"
-    @dismiss="backToHomePage"
-    @confirm="startNegotiation"
+    @confirm="saveNegotiation(false)"
   />
   <div v-if="loading" class="d-flex align-items-center justify-content-center">
     <h4 class="me-2">Loading...</h4>
@@ -30,10 +29,11 @@
     </div>
     <form-wizard
       v-if="accessForm"
-      :start-index="0"
+      ref="wizard"
+      :start-index=wizardStartIndex
       :color="uiConfiguration?.primaryTextColor"
       step-size="md"
-      @on-complete="startModal"
+      @on-complete="startModal()"
     >
       <tab-content
         title="Request summary"
@@ -56,12 +56,12 @@
         <resources-list class="mx-3" :resources="resources" />
       </tab-content>
       <tab-content
-        v-for="section in accessForm.sections"
+        v-for="(section, index) in accessForm.sections"
         :key="section.name"
         :title="section.label"
         class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
         :style="{ color: uiConfiguration?.primaryTextColor }"
-        :before-change="isSectionValid(section)"
+        :before-change="performNextStepAction(section, index + 2)"
       >
         <div v-if="section.description" class="mx-3 d-flex justify-content-end">
           <i
@@ -317,7 +317,7 @@
             </span>
           </div>
         </div>
-      </tab-content>
+      </tab-content>          
       <template #footer="props">
         <div class="wizard-footer-left">
           <button
@@ -336,6 +336,19 @@
         </div>
         <div class="wizard-footer-right">
           <button
+            v-if="isEditForm === false || currentStatus === 'DRAFT'"
+            class="btn me-4"
+            @click="saveDraft(props.activeTabIndex)"
+            :disabled="currentSectionModified === false"
+            :style="{
+              'background-color': uiConfiguration.buttonColor,
+              'border-color': uiConfiguration.buttonColor,
+              color: '#FFFFFF',
+            }"
+          >
+            Save Draft
+          </button>
+          <button
             class="btn"
             @click="props.nextTab()"
             :style="{
@@ -353,7 +366,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeMount, onMounted } from 'vue'
+import { ref, computed, onBeforeMount, onMounted, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
@@ -370,7 +383,6 @@ const negotiationFormStore = useNegotiationFormStore()
 const notificationsStore = useNotificationsStore()
 const negotiationPageStore = useNegotiationPageStore()
 const router = useRouter()
-
 const props = defineProps({
   requestId: {
     type: String,
@@ -380,8 +392,15 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  step: {
+    type: Number,
+    default: 0
+  }
 })
+const wizard = ref(null);
+const wizardStartIndex = ref(props.step)
 
+const currentStatus = ref(undefined)
 const notificationTitle = ref('')
 const notificationText = ref('')
 const negotiationCriteria = ref({})
@@ -393,59 +412,94 @@ const resources = ref([])
 const humanReadableSearchParameters = ref([])
 const openModal = ref(null)
 const requestAlreadySubmittedNegotiationId = ref(null)
+const currentSectionModified = ref(false)
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
 })
 
 const loading = computed(() => {
-  return accessForm.value === undefined
+  return accessForm.value === undefined && (!props.isEditForm || (props.isEditForm && resources.value === undefined))
 })
 
 const queryParameters = computed(() => {
   return humanReadableSearchParameters.value.split('\r\n')
 })
 
+const currentSection = computed(() => {
+  if (!wizard.value || !accessForm.value) return null
+  const currentIndex = wizard.value.activeTabIndex
+  return accessForm.value.sections[currentIndex - 1]?.name
+})
+
+
+const currentSectionCriteria = computed(() => {
+  if (!currentSection.value || !negotiationCriteria.value) return null
+  return negotiationCriteria.value[currentSection.value]
+})
+
 onBeforeMount(async () => {
   let result = {}
-  let negotiation = {}
+  let accessFormResponse = undefined
   if (props.isEditForm) {
-    negotiation = await negotiationPageStore.retrieveNegotiationById(props.requestId)
+    result = await negotiationPageStore.retrieveNegotiationById(props.requestId)
+    result.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId) || [];
+    accessFormResponse = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(props.requestId)
+    currentStatus.value = result.status
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
+    accessFormResponse = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
   }
 
   if (result.code) {
     if (result.code === 404) {
-      showNotification('Error', 'Request not found')
+      showNotification('Error', `${props.isEditForm ? 'Request' : 'Negotiation' } not found`)
     } else {
-      showNotification('Error', 'Cannot contact the server to get request information')
+      showNotification('Error', `Cannot contact the server to get ${props.isEditForm ? 'request' : 'negotiation' } information`)
     }
-  } else if (result.negotiationId) {
+  } else if (!props.isEditForm && result.negotiationId) {
     requestAlreadySubmittedNegotiationId.value = result.negotiationId
     showNotification('Error', 'Request already submitted')
   } else {
-    if (props.isEditForm) {
-      accessForm.value = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(
-        props.requestId,
-      )
-      humanReadableSearchParameters.value = ''
-    } else {
-      accessForm.value = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
-      resources.value = result.resources
-      humanReadableSearchParameters.value = result.humanReadable
-    }
+    resources.value = result.resources
+    humanReadableSearchParameters.value = result.humanReadable
+    accessForm.value = accessFormResponse
     if (accessForm.value !== undefined) {
-      initNegotiationCriteria(negotiation?.payload)
+      initNegotiationCriteria(result?.payload)
+    }
+
+    for (let i = 1; i < props.step; i++) {
+      const section = accessForm.value.sections[i-1];
+      const valid = isSectionValid(section, false);
+      if (!valid) {
+        wizardStartIndex.value = i;
+        break;
+      }
     }
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   new Tooltip(document.body, {
     selector: "[data-bs-toggle='tooltip']",
   })
 })
+
+watch(() => wizard.value, (newValue) => {
+  if (newValue && wizard.value) {
+    for (let i = 0; i <= wizardStartIndex.value; i++) {
+      wizard.value.activateTabAndCheckStep(i)
+    }
+  }
+}, { immediate: true })
+
+
+watch(currentSectionCriteria, (newValue, oldValue) => {
+  if (newValue && oldValue && JSON.stringify(Object.keys(newValue).sort()) === JSON.stringify(Object.keys(oldValue).sort())) {
+    currentSectionModified.value = true
+  }
+}, { deep: true })
+
 
 function backToNegotiation(id) {
   router.push('/negotiations/' + id + '/ROLE_RESEARCHER')
@@ -457,26 +511,46 @@ async function getValueSet(id) {
   })
 }
 
-async function startNegotiation() {
+async function saveDraft(step) {  
+  if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) { 
+    await saveNegotiation(true, step)
+    currentSectionModified.value = false
+  }
+  return true
+}
+
+async function saveNegotiation(savingDraft, step) {
   if (props.isEditForm) {
     const data = {
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      backToNegotiation(props.requestId)
+      if (!savingDraft) {
+        if (currentStatus.value === 'DRAFT') {
+          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT')
+        }
+        backToNegotiation(props.requestId)
+      } else {
+        notificationsStore.setNotification("Negotiation saved correctly as draft")
+      }
     })
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
       backToNegotiation(requestAlreadySubmittedNegotiationId.value)
-      return
     }
     const data = {
+      draft: savingDraft,
       request: props.requestId,
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
-        backToNegotiation(negotiationId)
+        if (savingDraft) {
+          notificationsStore.setNotification(`Negotiation saved correctly as draft with id ${negotiationId}`)
+          router.replace(`/edit/requests/${negotiationId}/${step}`)
+        } else {
+          backToNegotiation(negotiationId)
+        }
       }
     })
   }
@@ -484,10 +558,11 @@ async function startNegotiation() {
 
 function startModal() {
   showNotification(
-    'Confirm submission',
+    "Confirm submission",
     "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed.",
   )
 }
+
 
 function isAttachment(value) {
   return value instanceof File || value instanceof Object
@@ -550,8 +625,18 @@ function initNegotiationCriteria(negotiationPayload) {
   }
 }
 
-function isSectionValid(section) {
+function performNextStepAction(section, step) {
   return () => {
+    const validSection = isSectionValid(section, true)
+    if (!validSection) {
+      notificationsStore.notification = 'Please fill out all required fields correctly'
+      return false
+    }
+    return saveDraft(step)
+  }
+}
+
+function isSectionValid(section, changeColor) {
     let valid = true
     validationColorHighlight.value = []
     section.elements.forEach((ac) => {
@@ -560,14 +645,18 @@ function isSectionValid(section) {
           ac.type === 'MULTIPLE_CHOICE' &&
           Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0
         ) {
-          validationColorHighlight.value.push(ac.name)
+          if (changeColor) {
+            validationColorHighlight.value.push(ac.name)
+          }
           valid = false
         } else if (
           ac.type === 'FILE' &&
           (typeof negotiationCriteria.value[section.name][ac.name] !== 'object' ||
             negotiationCriteria.value[section.name][ac.name] === null)
         ) {
-          validationColorHighlight.value.push(ac.name)
+          if (changeColor) {
+            validationColorHighlight.value.push(ac.name)
+          }
           valid = false
         } else if (
           ac.type !== 'MULTIPLE_CHOICE' &&
@@ -575,18 +664,16 @@ function isSectionValid(section) {
           (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
             negotiationCriteria.value[section.name][ac.name] === '')
         ) {
-          validationColorHighlight.value.push(ac.name)
+          if (changeColor) {
+            validationColorHighlight.value.push(ac.name)
+          }
           valid = false
         }
       } else if (valid) {
         valid = true
       }
     })
-    if (!valid) {
-      notificationsStore.notification = 'Please fill out all required fields correctly'
-    }
     return valid
-  }
 }
 
 function uncheckRadioButton(value, sectionName, criteriaName) {

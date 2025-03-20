@@ -180,7 +180,11 @@ public class NegotiationLifecycleServiceImplTest {
   }
 
   private NegotiationDTO saveNegotiation() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
+    return saveNegotiation(false);
+  }
+
+  private NegotiationDTO saveNegotiation(boolean draft) throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2", draft);
     return negotiationService.create(negotiationCreateDTO, 109L);
   }
 
@@ -198,6 +202,26 @@ public class NegotiationLifecycleServiceImplTest {
         NegotiationState.SUBMITTED,
         NegotiationState.valueOf(
             negotiationService.findById(negotiationDTO.getId(), false).getStatus()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+  void sendEvent_submitCorrectly_calledActionEnablePublicPost() throws IOException {
+    NegotiationDTO negotiationDTO = saveNegotiation(true);
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
+    assertEquals(
+        negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
+        NegotiationState.DRAFT.getValue());
+    assertEquals(
+        NegotiationState.SUBMITTED,
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.SUBMIT));
+    assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
+    assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    assertEquals(
+        negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
+        NegotiationState.SUBMITTED.getValue());
   }
 
   @Test
