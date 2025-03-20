@@ -503,11 +503,16 @@ async function saveNegotiation(isDraft, step) {
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      if (!isDraft && currentStatus.value === 'DRAFT') {
-        negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+      console.log(isDraft)
+      console.log(currentStatus.value)
+      if (!isDraft) 
+        if (currentStatus.value === 'DRAFT') {
+          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+            backToNegotiation(props.requestId)
+          });
+        } else {
           backToNegotiation(props.requestId)
-        });
-      }
+      } 
     })
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
