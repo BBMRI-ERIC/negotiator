@@ -425,6 +425,7 @@ const queryParameters = computed(() => {
 })
 
 onBeforeMount(async () => {
+  console.log("Mounting ")
   let result = {}
   let accessFormResponse = undefined
   if (props.isEditForm) {
@@ -474,7 +475,7 @@ onMounted(async () => {
 watch(() => wizard.value, (newValue) => {
   if (newValue && wizard.value) {
     for (let i = 0; i <= wizardStartIndex.value; i++) {
-      wizard.value.activateTab(i)
+      wizard.value.activateTabAndCheckStep(i)
     }
   }
 }, { immediate: true })
@@ -520,6 +521,7 @@ async function saveNegotiation(isDraft, step) {
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
         if (isDraft) {
+          console.log("Moving to negotiation")
           router.replace(`/edit/requests/${negotiationId}/${step}`)
         } else {
           backToNegotiation(negotiationId)
