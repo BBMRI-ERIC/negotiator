@@ -4,8 +4,8 @@ describe("Test negotiation message", () => {
     beforeEach(() => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
-        // Go to negotiation
-        cy.get("tbody > :nth-child(2) > :nth-child(6)").click()
+        // Go to negotiation.
+        cy.get("tbody > tr > td ").contains("UNDER REVIEW").parent().parent().find(":nth-child(6)").click()
     })
 
     context("check if message part in negotiation is visible", () => {

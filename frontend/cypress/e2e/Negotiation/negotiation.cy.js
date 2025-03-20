@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe("Test create negotiation", () => {
+describe("Test access negotiations", () => {
     beforeEach(() => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
@@ -25,6 +25,7 @@ describe("Test create negotiation", () => {
             // Negotiation is visible in card view
             cy.get(".text-end > :nth-child(1)").click()
 
+            // First draft negotiation
             cy.get(":nth-child(1) > .card").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-header").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-header > .float-end > .bg-secondary").should("be.visible")
@@ -32,16 +33,25 @@ describe("Test create negotiation", () => {
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(3)").should("be.visible")
 
+            // Second draft negotiation
             cy.get(":nth-child(2) > .card").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(2) > .card > .card-header > .float-end > .bg-status-badge").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-header > .float-end > .bg-secondary").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(3)").should("be.visible")
+
+            // Negotiation under review
+            cy.get(":nth-child(3) > .card").should("be.visible")
+            cy.get(":nth-child(3) > .card > .card-header").should("be.visible")
+            cy.get(":nth-child(3) > .card > .card-header > .float-end > .bg-status-badge").should("be.visible")
+            cy.get(":nth-child(3) > .card > .card-body > :nth-child(1)").should("be.visible")
+            cy.get(":nth-child(3) > .card > .card-body > :nth-child(2)").should("be.visible")
+            cy.get(":nth-child(3) > .card > .card-body > :nth-child(3)").should("be.visible")
         })
 
         it("test if negotiation page contains all fields", () => {
-            cy.get("tbody > :nth-child(2) > :nth-child(6)").click()
+            cy.get("tbody > tr > td ").contains("UNDER REVIEW").parent().parent().find(":nth-child(6)").click()
 
             cy.url().should("contain", "/negotiations")
             //  Title
