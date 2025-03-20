@@ -1,0 +1,131 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!-- The definition of elements in an access form -->
+    <xs:element name="access_form" type="access_form"/>
+    <!-- The definition of the access form -->
+    <xs:complexType name="access_form">
+        <xs:sequence>
+            <xs:element name="name" type="name"/>
+            <xs:element name="form_section" type="form_section" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+   </xs:complexType>
+    <!-- The definition of the access form name -->
+    <xs:simpleType name="name">
+        <xs:restriction base="xs:string">
+        <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- The definition of the access form section label -->
+    <xs:simpleType name="label">
+        <xs:restriction base="xs:string">
+        <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- The definition of the access form section description -->
+    <xs:simpleType name="description">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- The definition of the form section -->
+    <xs:complexType name="form_section">
+        <xs:sequence>
+                <!-- ensure the order number is unique for the section fields -->
+                        <xs:element name="order" type="xs:integer">
+                            <xs:unique name="access_form_sections_uniqueOrder">
+                                <xs:selector xpath="."/>
+                                <xs:field xpath="@order"/>
+                            </xs:unique>
+                        </xs:element>
+            <xs:element name="name" type="name" />
+            <xs:element name="label" type="label" />
+            <xs:element name="description" type="description" />
+            <xs:sequence>
+                <xs:element name="section_field" type="section_fields" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- The definition of the available section fields -->
+    <xs:complexType name="section_fields">
+        <xs:sequence>
+            <!-- ensure the order number is unique for the section fields -->
+            <xs:element name="order" type="xs:integer">
+                <xs:unique name="section_fields_uniqueOrder">
+                    <xs:selector xpath="."/>
+                    <xs:field xpath="@order"/>
+                </xs:unique>
+            </xs:element>
+            <xs:element name="field_name" type="name"/>
+            <xs:element name="field_label" type="label"/>
+            <xs:element name="field_description" type="description"/>
+            <xs:element name="field_required" type="xs:boolean"/>
+            <xs:element name="field" type="field_types"/>
+        </xs:sequence>
+    </xs:complexType>   
+    <xs:complexType name="field_types">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="field_type" type="field_type"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    <!-- The definition of the available field types -->
+    <xs:simpleType name="field_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="TEXT"/>
+            <xs:enumeration value="TEXT_LARGE"/>
+            <xs:enumeration value="NUMBER"/>
+            <xs:enumeration value="DATE"/>
+            <xs:enumeration value="SINGLE_CHOICE"/>
+            <xs:enumeration value="MULTIPLE_CHOICE"/>
+            <xs:enumeration value="BOOLEAN"/>
+            <xs:enumeration value="FILE"/>
+            <xs:enumeration value="INFORMATION"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- Type definitions for the field type restrictions -->
+    <xs:simpleType name="TEXT">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="TEXT_LARGE">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="2048"/>
+        </xs:restriction>
+    </xs:simpleType>
+    </xs:simpleType>
+        <xs:simpleType name="NUMBER">
+        <xs:restriction base="xs:decimal">
+            <xs:fractionDigits value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="BOOLEAN">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="True"/>
+            <xs:enumeration value="False"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="SINGLE_CHOICE">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CHOICE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="MULTIPLE_CHOICE">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CHOICE_1"/>
+            <xs:enumeration value="CHOICE_2"/>
+            <xs:enumeration value="CHOICE_3"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="FILE">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    </xs:simpleType>
+        <xs:simpleType name="INFORMATION">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

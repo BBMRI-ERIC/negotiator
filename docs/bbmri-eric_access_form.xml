@@ -1,0 +1,71 @@
+<?xml-model href="bbmri-eric_negotiator_access_form.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<access_form>
+  <name>BBMRI Template</name>
+    <form_section>
+      <order>1</order>
+      <name>project</name>
+      <label>Project</label>
+      <description>Provide information about your project</description>
+      <section_field>
+        <order>1</order>
+        <field_name>title</field_name>
+        <field_label>Title</field_label>
+        <field_description>Give a title</field_description>
+        <field_required>true</field_required>
+        <field>
+          <field_type>TEXT</field_type>
+        </field>
+      </section_field>
+      <section_field>
+        <order>2</order>
+        <field_name>description</field_name>
+        <field_label>Description</field_label>
+        <field_description>Give a description</field_description>
+        <field_required>true</field_required>
+        <field>
+          <field_type>TEXT_LARGE</field_type>
+        </field>
+      </section_field>
+    </form_section>
+    <form_section>
+      <order>2</order>
+      <name>request</name>
+      <label>Request</label>
+      <description>Provide information the resources you are requesting</description>
+      <section_field>
+        <order>1</order>
+        <field_name>description</field_name>
+        <field_label>Description</field_label>
+        <field_description>Provide a request description</field_description>
+        <field_required>true</field_required>
+        <field>
+          <field_type>TEXT_LARGE</field_type>
+        </field>
+      </section_field>    </form_section>
+    <form_section>
+      <order>3</order>
+      <name>ethics_vote</name>
+      <label>Ethics vote</label>
+      <description>Provide information the resources you are requesting</description>
+      <section_field>
+        <order>1</order>
+        <field_name>ethics-vote</field_name>
+        <field_label>Ethics vote</field_label>
+        <field_description>Write the ethics vote</field_description>
+        <field_required>true</field_required>
+        <field>
+          <field_type>TEXT_LARGE</field_type>
+        </field>
+      </section_field>
+            <section_field>
+        <order>2</order>
+        <field_name>attachment</field_name>
+        <field_label>Attachment</field_label>
+        <field_description>Upload ethics vote</field_description>
+        <field_required>false</field_required>
+        <field>
+          <field_type>FILE</field_type>
+        </field>
+      </section_field>
+    </form_section>
+</access_form>

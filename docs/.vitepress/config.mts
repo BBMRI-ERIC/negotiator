@@ -86,13 +86,14 @@ export default defineConfig({
                 items: [
                     {text: 'Connecting to a Negotiator', link: 'connecting-to-negotiator'},
                     {text: 'Contributing', link: '/contributing'},
-                    { text: 'Security', link: '/SECURITY' },
+                    {text: 'Security', link: '/SECURITY' },
                     {text: 'Deployment', link: '/deployment'},
                     {text: 'Notifications', link: '/notifications'},
                     {text: 'REST API', link: '/REST'},
                     {text: 'Authentication and Authorization', link: '/auth'},
                     {text: 'Logging', link: '/logging'},
                     {text: 'Lifecycle', link: '/lifecycle'},
+                    {text: 'Dynamic Access Form', link: '/dynamic-access-form'},
                     {text: 'Database Migration', link: '/database_migration'}
                 ]
             }
