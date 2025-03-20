@@ -411,6 +411,7 @@ const resources = ref([])
 const humanReadableSearchParameters = ref([])
 const openModal = ref(null)
 const requestAlreadySubmittedNegotiationId = ref(null)
+const currentSectionModified = ref(false)
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -424,8 +425,19 @@ const queryParameters = computed(() => {
   return humanReadableSearchParameters.value.split('\r\n')
 })
 
+const currentSection = computed(() => {
+  if (!wizard.value || !accessForm.value) return null
+  const currentIndex = wizard.value.activeTabIndex
+  return accessForm.value.sections[currentIndex - 1]?.name
+})
+
+
+const currentSectionCriteria = computed(() => {
+  if (!currentSection.value || !negotiationCriteria.value) return null
+  return negotiationCriteria.value[currentSection.value]
+})
+
 onBeforeMount(async () => {
-  console.log("Mounting ")
   let result = {}
   let accessFormResponse = undefined
   if (props.isEditForm) {
@@ -480,6 +492,14 @@ watch(() => wizard.value, (newValue) => {
   }
 }, { immediate: true })
 
+
+watch(currentSectionCriteria, (newValue, oldValue) => {
+  if (newValue && oldValue && JSON.stringify(Object.keys(newValue).sort()) === JSON.stringify(Object.keys(oldValue).sort())) {
+    currentSectionModified.value = true
+  }
+}, { deep: true })
+
+
 function backToNegotiation(id) {
   router.push('/negotiations/' + id + '/ROLE_RESEARCHER')
 }
@@ -490,43 +510,42 @@ async function getValueSet(id) {
   })
 }
 
-async function saveDraft(step) {
-  if (!props.isEditForm || currentStatus.value === 'DRAFT') { 
-    await saveNegotiation(true, step) 
+async function saveDraft(step) {  
+  if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) { 
+    await saveNegotiation(true, step)
+    currentSectionModified.value = false
   }
   return true
 }
 
-async function saveNegotiation(isDraft, step) {
+async function saveNegotiation(savingDraft, step) {
   if (props.isEditForm) {
     const data = {
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      console.log(isDraft)
-      console.log(currentStatus.value)
-      if (!isDraft) 
+      if (!savingDraft) {
         if (currentStatus.value === 'DRAFT') {
-          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
-            backToNegotiation(props.requestId)
-          });
-        } else {
-          backToNegotiation(props.requestId)
-      } 
+          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT')
+        }
+        backToNegotiation(props.requestId)
+      } else {
+        notificationsStore.setNotification("Negotiation saved correctly as draft")
+      }
     })
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
       backToNegotiation(requestAlreadySubmittedNegotiationId.value)
     }
     const data = {
-      draft: isDraft,
+      draft: savingDraft,
       request: props.requestId,
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
-        if (isDraft) {
-          console.log("Moving to negotiation")
+        if (savingDraft) {
+          notificationsStore.setNotification(`Negotiation saved correctly as draft with id ${negotiationId}`)
           router.replace(`/edit/requests/${negotiationId}/${step}`)
         } else {
           backToNegotiation(negotiationId)
