@@ -22,9 +22,9 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   watch(notification, () => {
-    if (notification.value) {
-      setTimeout(() => resetNotification(), 5000)
-    }
+    // if (notification.value) {
+    //   setTimeout(() => resetNotification(), 5000)
+    // }
   })
 
   return { notification, allNotifications, criticalError, setNotification, resetNotification }

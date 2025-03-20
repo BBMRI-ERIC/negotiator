@@ -339,6 +339,7 @@
             v-if="isEditForm === false || currentStatus === 'DRAFT'"
             class="btn me-4"
             @click="saveDraft(props.activeTabIndex)"
+            :disabled="currentSectionModified === false"
             :style="{
               'background-color': uiConfiguration.buttonColor,
               'border-color': uiConfiguration.buttonColor,
