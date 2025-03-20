@@ -93,8 +93,10 @@
             <xs:maxLength value="2048"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="DATE">
+        <xs:restriction base="xs:dateTime"/>
     </xs:simpleType>
-        <xs:simpleType name="NUMBER">
+    <xs:simpleType name="NUMBER">
         <xs:restriction base="xs:decimal">
             <xs:fractionDigits value="10"/>
         </xs:restriction>
@@ -122,8 +124,7 @@
             <xs:maxLength value="255"/>
         </xs:restriction>
     </xs:simpleType>
-    </xs:simpleType>
-        <xs:simpleType name="INFORMATION">
+    <xs:simpleType name="INFORMATION">
         <xs:restriction base="xs:string">
             <xs:maxLength value="255"/>
         </xs:restriction>
