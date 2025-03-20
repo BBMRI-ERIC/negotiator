@@ -51,7 +51,7 @@ const router = createRouter({
     },
     {
       path: '/edit/requests/:requestId/:step(\\d+)',
-      name: 'edit',
+      name: 'editWithStep',
       props: { isEditForm: true },
       component: NegotiationCreatePage,
     },
