@@ -116,6 +116,42 @@ public class NetworkControllerTests {
   }
 
   @Test
+  @WithMockNegotiatorUser(id = 101L)
+  public void getNetworkNegotiations_filterByOrgId_returnsNegotiations() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?organizationId=5"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(0)));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?organizationId=6"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(2)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(2)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-5")));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?organizationId=4"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-1")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 101L)
+  public void getNetworkNegotiations_filterBy2OrgId_returnsNegotiations() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                NETWORKS_URL + "/1/negotiations?organizationId=5&organizationId=6"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.page.totalElements", is(2)));
+  }
+
+  @Test
   @WithMockNegotiatorUser(id = 102L)
   public void getNetworkNegotiations_sortAsc_Ok() throws Exception {
     mockMvc
