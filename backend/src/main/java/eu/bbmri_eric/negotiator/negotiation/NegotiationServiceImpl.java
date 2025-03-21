@@ -22,7 +22,6 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -283,14 +282,9 @@ public class NegotiationServiceImpl implements NegotiationService {
             filtersDTO.getPage(),
             filtersDTO.getSize(),
             Sort.by(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name()));
-    try {
-      return negotiationRepository
-          .findAll(filtersSpec, pageable)
-          .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
-    }
-    return new ArrayList<>();
+    return negotiationRepository
+        .findAll(filtersSpec, pageable)
+        .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
   }
 
   private Negotiation findEntityById(String negotiationId, boolean includeDetails) {
