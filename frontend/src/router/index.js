@@ -9,6 +9,7 @@ import AdminSettingsPage from '../views/AdminSettingsPage.vue'
 import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
+import CustomizeForm from '@/views/customizeForm.vue'
 import { ROLES } from '@/config/consts'
 import { useUserStore } from '../store/user.js'
 import hasUser from '@/middlewares/hasUser.js'
@@ -117,6 +118,13 @@ const router = createRouter({
       path: '/networks/:networkId',
       name: 'networks-page',
       component: NetworksPage,
+      props: true,
+      meta: { isPublic: false },
+    },
+    {
+      path: '/customizeForm',
+      name: 'customize-form',
+      component: CustomizeForm,
       props: true,
       meta: { isPublic: false },
     },

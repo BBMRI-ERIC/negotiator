@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccessCriteriaSection: typeof import('./src/components/negotiation-tabs/AccessCriteriaSection.vue')['default']
+    AddFormSectionModal: typeof import('./src/components/modals/AddFormSectionModal.vue')['default']
     AddResourcesButton: typeof import('./src/components/AddResourcesButton.vue')['default']
     AddResourcesModal: typeof import('./src/components/modals/AddResourcesModal.vue')['default']
     Alert: typeof import('./src/components/AlertNotification.vue')['default']
