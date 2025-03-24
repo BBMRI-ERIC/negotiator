@@ -1,16 +1,21 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelMapper;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Set;
@@ -88,5 +93,23 @@ public class NegotiationMapperTest {
   void map_statePerResource_Ok() {
     Negotiation negotiation = buildNegotiation();
     negotiation.setStateForResource("collection:1", NegotiationResourceState.SUBMITTED);
+  }
+
+  @Test
+  void map_fromNegotiationDTO_notDraft_Ok() throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", false);
+
+    Negotiation negotiation = this.mapper.map(negotiationCreateDTO, Negotiation.class);
+    assertEquals(NegotiationState.SUBMITTED, negotiation.getCurrentState());
+    assertTrue(negotiation.isPublicPostsEnabled());
+  }
+
+  @Test
+  void map_stateFromNegotiationDTO_Draft_Ok() throws IOException {
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("requestID", true);
+
+    Negotiation negotiation = this.mapper.map(negotiationCreateDTO, Negotiation.class);
+    assertEquals(NegotiationState.DRAFT, negotiation.getCurrentState());
+    assertFalse(negotiation.isPublicPostsEnabled());
   }
 }

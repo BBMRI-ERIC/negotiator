@@ -27,7 +27,8 @@ describe("Test create negotiation", () => {
             cy.get(".modal-footer > .btn").click()
 
             // page 1
-            cy.get(".wizard-footer-right > .btn").click()
+            cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+            cy.get(".wizard-footer-right > .btn").contains("Next").click()
 
             //  form input
             // page 2
@@ -44,7 +45,8 @@ describe("Test create negotiation", () => {
             cy.get(":nth-child(1) > .form-check > #inlineRadio1").check()
             cy.get(":nth-child(10) > :nth-child(3) > :nth-child(1) > #inlineRadio1").check()
             //  next
-            cy.get(".wizard-footer-right > .btn").click()
+            cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+            cy.get(".wizard-footer-right > .btn").contains("Next").click()
             // page 3
             cy.get("#Request2 > :nth-child(2) > div > .form-control").type("In this project, we need CML and ALL (BCR::ABL1 positive) samples for checking the sensitivity and selectivity of our method.")
             cy.get("#Request2 > :nth-child(3) > div > .form-control").type("TEST")
@@ -52,12 +54,14 @@ describe("Test create negotiation", () => {
             cy.get("#Request2 > :nth-child(5) > div > .form-control").type("CML (BCR::ABL1 P210) and ALL (BCR::ABL1 P190)")
             cy.get(":nth-child(6) > div > .form-control").type("TEST")
             //  next
-            cy.get(".wizard-footer-right > .btn").click()
+            cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+            cy.get(".wizard-footer-right > .btn").contains("Next").click()
             // page 4
             cy.get("#Ethicsvote3 > :nth-child(2) > div > .form-control").type("Approved")
             cy.get("#Ethicsvote3 > :nth-child(3) > div > .form-control").should("be.visible")
             //  next
-            cy.get(".wizard-footer-right > .btn").click()
+            cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+            cy.get(".wizard-footer-right > .btn").contains("Next").click()
             // page 5
             //  Overview*
             cy.get(":nth-child(1) > .mb-3").should("be.visible")
@@ -91,7 +95,8 @@ describe("Test create negotiation", () => {
             cy.get("#Overview4 > :nth-child(4) > :nth-child(2)").should("be.visible")
             cy.get("#Overview4 > :nth-child(4) > :nth-child(3)").should("be.visible")
             //  Submit request
-            cy.get(".wizard-footer-right > .btn").click()
+            cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+            cy.get(".wizard-footer-right > .btn").contains("Submit request").click()
 
             // Confirmation modal
             cy.get(".modal-content").should("be.visible")
@@ -109,12 +114,89 @@ describe("Test create negotiation", () => {
 
             // Submit request
             cy.wait(200)
-            cy.get(".wizard-footer-right > .btn").click()
+            cy.get(".wizard-footer-right > .btn").contains("Submit request").click()
             cy.wait(200)
             cy.get(".btn-danger").click()
 
             cy.url().should("contain", "/negotiations")
             cy.url().should("contain", "/ROLE_RESEARCHER")
+        }),
+        it("test saving negotiation as draft by clicking on Save Draft", () => {
+          cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").should("be.visible")
+          cy.wait(500)
+          cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").click()
+          cy.wait(500)
+          cy.get(".modal-content").should("be.visible")
+          cy.get(".modal-body > p").should("be.visible")
+
+          cy.get(".modal-footer > .btn").should("be.visible")
+
+          cy.window().then(win => {
+              cy.stub(win, "open").callsFake((url) => {
+                  // call the original `win.open` method
+                  // but pass the `_self` argument
+                  return win.open.wrappedMethod.call(win, url, "_self")
+              }).as("open")
+          })
+          cy.get(".modal-footer > .btn").click()
+
+          // page 1
+          cy.get(".wizard-footer-right > .btn").contains("Next").click()
+          cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation")          
+          cy.get(".wizard-footer-right > .btn").contains("Save Draft").click()
+
+          // Submit request
+          cy.wait(200)
+          cy.get(".alert").should("be.visible")
+          cy.get(".alert").contains("Negotiation saved correctly as draft")
+          cy.url().should("contain", "/edit/requests")
+        })
+        it("test saving negotiation as draft by clicking on Next", () => {
+          cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").should("be.visible")
+          cy.wait(500)
+          cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").click()
+          cy.wait(500)
+          cy.get(".modal-content").should("be.visible")
+          cy.get(".modal-body > p").should("be.visible")
+
+          cy.get(".modal-footer > .btn").should("be.visible")
+
+          cy.window().then(win => {
+              cy.stub(win, "open").callsFake((url) => {
+                  // call the original `win.open` method
+                  // but pass the `_self` argument
+                  return win.open.wrappedMethod.call(win, url, "_self")
+              }).as("open")
+          })
+          cy.get(".modal-footer > .btn").click()
+
+          // page 1
+          cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+          cy.get(".wizard-footer-right > .btn").contains("Next").click()
+
+          //  form input
+          // page 2
+          cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation")
+          cy.get("#Project1 > :nth-child(3) > div > .form-control").type("C92.1")
+          cy.get("#Project1 > :nth-child(4) > div > .form-control").type("Innovative method to detect BCR::ABL1")
+          cy.get("#Project1 > :nth-child(5) > div > .form-control").type("Masaryk memorial cancer institute")
+
+          cy.get(":nth-child(6) > :nth-child(3) > :nth-child(2) > #inlineRadio2").check()
+
+          cy.get(":nth-child(7) > div > .form-control").type("OPJAK")
+
+          cy.get(":nth-child(1) > .form-check > #inlineCheckbox1").check()
+          cy.get(":nth-child(1) > .form-check > #inlineRadio1").check()
+          cy.get(":nth-child(10) > :nth-child(3) > :nth-child(1) > #inlineRadio1").check()
+          //  next
+          cy.get(".wizard-footer-right > .btn").contains("Save Draft").should("be.visible")
+          cy.get(".wizard-footer-right > .btn").contains("Next").click()
+
+          // Submit request
+          cy.wait(200)
+          cy.get(".alert").should("be.visible")
+          cy.get(".alert").contains("Negotiation saved correctly as draft")
+          cy.url().should("contain", "/edit/requests")
         })
     })
 })

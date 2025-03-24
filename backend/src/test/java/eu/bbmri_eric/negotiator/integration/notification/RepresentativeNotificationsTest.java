@@ -163,7 +163,7 @@ public class RepresentativeNotificationsTest {
   }
 
   private NegotiationDTO saveNegotiation() throws IOException {
-    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2");
+    NegotiationCreateDTO negotiationCreateDTO = TestUtils.createNegotiation("request-2", false);
     DiscoveryService discoveryService =
         discoveryServiceRepository.findById(1L).orElseThrow(TestAbortedException::new);
     Request request =

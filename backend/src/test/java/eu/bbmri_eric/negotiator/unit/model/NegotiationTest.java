@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.unit.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -75,30 +76,20 @@ public class NegotiationTest {
   }
 
   @Test
-  void newNegotiationCurrentState_hasDefaultValue() {
-    assertInstanceOf(NegotiationState.class, Negotiation.builder().build().getCurrentState());
+  void newNegotiationCurrentState_hasNoDefaultValue() {
+    assertNull(Negotiation.builder().build().getCurrentState());
   }
 
   @Test
-  void getLifecycleHistory_newNegotiation_hasOneEntry() {
+  void getLifecycleHistory_newNegotiation_isEmpty() {
     Negotiation negotiation = Negotiation.builder().build();
-    assertEquals(1, negotiation.getLifecycleHistory().size());
-  }
-
-  @Test
-  void getLifeCycleHistory_newNegotiation_entryForSubmitted() {
-    Negotiation negotiation = Negotiation.builder().build();
-    assertEquals(
-        NegotiationState.SUBMITTED,
-        negotiation.getLifecycleHistory().iterator().next().getChangedTo());
+    assertEquals(0, negotiation.getLifecycleHistory().size());
   }
 
   @Test
   void setCurrentState_correctly_updatesHistory() {
     Negotiation negotiation = Negotiation.builder().build();
-    assertEquals(
-        NegotiationState.SUBMITTED,
-        negotiation.getLifecycleHistory().iterator().next().getChangedTo());
+    negotiation.setCurrentState(NegotiationState.SUBMITTED);
     negotiation.setCurrentState(NegotiationState.IN_PROGRESS);
     assertEquals(2, negotiation.getLifecycleHistory().size());
   }

@@ -30,11 +30,14 @@ public class NegotiationSpecification {
         specs = initOrAnd(specs, hasAuthor(user));
       } else {
         specs = initOrAnd(specs, hasResourcesIn(user.getResources()));
+        specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
       }
+    } else {
+      specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
     }
 
     if (filtersDTO.getStatus() != null && !filtersDTO.getStatus().isEmpty()) {
-      specs = initOrAnd(specs, hasState(filtersDTO.getStatus()));
+      specs = initOrAnd(specs, hasState(filtersDTO.getStatus(), false));
     }
 
     if (filtersDTO.getCreatedAfter() != null || filtersDTO.getCreatedBefore() != null) {
@@ -63,9 +66,11 @@ public class NegotiationSpecification {
    * Condition to filter Negotiation by states
    *
    * @param states a List of NegotiationState to use as filter
+   * @param not a flag to negate the condition (e.g., hasState(List.of('DRAFT'), true) to get
+   *     Negotiations with state different from DRAFT)
    * @return a Specification to add as part of a query to filter Negotiations
    */
-  public static Specification<Negotiation> hasState(List<NegotiationState> states) {
+  public static Specification<Negotiation> hasState(List<NegotiationState> states, boolean not) {
     return new Specification<>() {
       List<NegotiationState> inputStates;
 
@@ -76,11 +81,16 @@ public class NegotiationSpecification {
           @Nonnull CriteriaQuery<?> query,
           @Nonnull CriteriaBuilder criteriaBuilder) {
         inputStates = states;
+        Predicate predicate;
         if (states.size() == 1) {
-          return criteriaBuilder.equal(root.get("currentState"), states.get(0));
+          predicate = criteriaBuilder.equal(root.get("currentState"), states.get(0));
         } else {
-          return criteriaBuilder.in(root.get("currentState")).value(states);
+          predicate = criteriaBuilder.in(root.get("currentState")).value(states);
         }
+        if (not) {
+          predicate = predicate.not();
+        }
+        return predicate;
       }
 
       @Override

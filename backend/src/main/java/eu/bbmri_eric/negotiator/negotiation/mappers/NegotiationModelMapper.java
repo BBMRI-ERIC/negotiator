@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import jakarta.annotation.PostConstruct;
@@ -56,6 +57,24 @@ public class NegotiationModelMapper {
             mapper
                 .using(negotiationStatusConverter)
                 .map(Negotiation::getCurrentState, NegotiationDTO::setStatus));
+
+    TypeMap<NegotiationCreateDTO, Negotiation> createDTOToEntity =
+        modelMapper.createTypeMap(NegotiationCreateDTO.class, Negotiation.class);
+
+    Converter<Boolean, NegotiationState> currentStateConverter =
+        c -> currentStateConverter(c.getSource());
+    createDTOToEntity.addMappings(
+        mapper ->
+            mapper
+                .using(currentStateConverter)
+                .map(NegotiationCreateDTO::isDraft, Negotiation::setCurrentState));
+
+    Converter<Boolean, Boolean> publicPostsConverter = c -> publicPostsConverter(c.getSource());
+    createDTOToEntity.addMappings(
+        mapper ->
+            mapper
+                .using(publicPostsConverter)
+                .map(NegotiationCreateDTO::isDraft, Negotiation::setPublicPostsEnabled));
   }
 
   private JsonNode payloadConverter(String jsonPayload) throws JsonProcessingException {
@@ -71,5 +90,13 @@ public class NegotiationModelMapper {
       return "";
     }
     return currentState.name();
+  }
+
+  private NegotiationState currentStateConverter(boolean isDraft) {
+    return isDraft ? NegotiationState.DRAFT : NegotiationState.SUBMITTED;
+  }
+
+  private boolean publicPostsConverter(boolean isDraft) {
+    return !isDraft;
   }
 }
