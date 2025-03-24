@@ -144,6 +144,33 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  async function retrieveFormElements() {
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/elements`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data._embedded.elements
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting Form elements data from server')
+        return null
+      })
+  }
+
+  async function addAccessForm(data) {
+    return await axios
+      .post(`${apiPaths.BASE_API_PATH}/access-forms`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error adding access form')
+      })
+  }
+
   return {
     retrieveRequestById,
     retrieveCombinedAccessForm,
@@ -151,5 +178,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
     updateNegotiationById,
+    retrieveFormElements,
+    addAccessForm
   }
 })
