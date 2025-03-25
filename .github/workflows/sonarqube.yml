@@ -33,7 +33,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd backend && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=BBMRI-ERIC_negotiator -DskipTests=true
+        run: cd backend && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=BBMRI-ERIC_negotiator -DskipTests=true -Dsonar.moduleKey=backend
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
@@ -41,3 +41,5 @@ jobs:
           projectBaseDir: frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_MODULE_KEY: frontend
+          SONAR_MODULES: backend,frontend
