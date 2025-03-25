@@ -1,6 +1,14 @@
 <template>
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
+    <div v-if="userRole === ROLES.ADMINISTRATOR" class="float-end my-2 mx-2">
+      <RedirectButton
+        :buttonText="'+  Add Acess Form'"
+        :redirectRouteName="'customize-form'"
+        :titleModal="'Are you sure?'"
+        :textModal="'You will be redirected to page where you can add access form'"
+      />
+    </div>
     <div class="pt-1">
       <div class="row row-cols-2 d-grid-row mt-5 pt-3">
         <p>
@@ -245,6 +253,7 @@ import moment from 'moment'
 import { useRouter } from 'vue-router'
 import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import NewRequestButton from '../components/NewRequestButton.vue'
+import RedirectButton from '../components/RedirectButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 

@@ -67,19 +67,6 @@
 
         </div>
       </div>
-      <div>
-          <button
-                  @click="redirectCustomizeForm()"
-                  type="button" 
-                  class="btn btn-sm sm my-3 py-1 px-1 me-md-5"
-                  :style="{
-                    'background-color': uiConfiguration?.buttonColor,
-                    'color': '#ffffff'
-                  }"
-              >
-              +  Add Acess Form
-          </button>
-      </div>
       <!-- Warning Banner -->
       <div v-if="resourcesWithoutRepresentatives > 0" class="alert alert-warning mt-3" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -499,7 +486,6 @@ import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import NegotiationsListModal from '@/components/modals/NegotiationsListModal.vue'
-import { useRouter } from 'vue-router'
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, DoughnutController)
 
 // Pie chart data
@@ -511,7 +497,6 @@ const props = defineProps({
   },
 })
 
-const router = useRouter()
 const uiConfigurationStore = useUiConfiguration()
 const userStore = useUserStore()
 const negotiationsStore = useNegotiationsStore()
@@ -693,10 +678,6 @@ function retrieveNegotiationsBySortAndFilter() {
 
 function retrieveNegotiationsByPage(currentPageNumber) {
   retrieveLatestNegotiations(currentPageNumber - 1)
-}
-
-function redirectCustomizeForm() {
-  router.push({ name: 'customize-form'})
 }
 </script>
 <style scoped>
