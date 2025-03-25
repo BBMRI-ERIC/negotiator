@@ -34,3 +34,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: cd backend && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=BBMRI-ERIC_negotiator -DskipTests=true
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: frontend
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
