@@ -26,8 +26,8 @@
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
         <sonar.organization>bbmri-eric</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectBaseDir>src/main/java,../</sonar.projectBaseDir>
-        <sonar.sources>../frontend/src</sonar.sources>
+        <sonar.projectBaseDir>../</sonar.projectBaseDir>
+        <sonar.sources>../frontend/src,src/main/java</sonar.sources>
     </properties>
     <distributionManagement>
         <repository>
@@ -39,7 +39,11 @@
     <build>
         <finalName>negotiator</finalName>
         <plugins>
-
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.11.0.3922</version>
+            </plugin>
             <plugin>
                 <artifactId>fmt-maven-plugin</artifactId>
                 <groupId>com.spotify.fmt</groupId>
