@@ -33,4 +33,4 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: cd backend && mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -DskipTests=true
+        run: cd backend && mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -DskipTests=true
