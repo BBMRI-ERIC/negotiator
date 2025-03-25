@@ -24,6 +24,8 @@
         <flyway.version>11.3.3</flyway.version>
         <testcontainers.version>1.20.5</testcontainers.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
+        <sonar.organization>bbmri-eric</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <distributionManagement>
         <repository>
