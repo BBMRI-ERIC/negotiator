@@ -2,35 +2,40 @@
   <div>
     <button ref="openModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackModal" />
     <confirmation-modal
-    id="feedbackModal"
-    :title="notificationTitle"
-    :text="notificationText"
-    :message-enabled="false"
-    dismiss-button-text="Back to HomePage"
-    @dismiss="backToHomePage"
-    @confirm="startNegotiation"
-  />
-  <button ref="openAddFormSectionModal" hidden data-bs-toggle="modal" data-bs-target="#fromWizardTabModal" />
+      id="feedbackModal"
+      :title="notificationTitle"
+      :text="notificationText"
+      :message-enabled="false"
+      dismiss-button-text="Back to HomePage"
+      @dismiss="backToHomePage"
+      @confirm="startNegotiation"
+    />
+    <button
+      ref="openAddFormSectionModal"
+      hidden
+      data-bs-toggle="modal"
+      data-bs-target="#fromWizardTabModal"
+    />
 
-  <add-form-section-modal
-    id="fromWizardTabModal"
-    :title="'Add Section details'"
-    :text="'Please input fields'"
-    dismiss-button-text="Back to HomePage"
-    @dismiss="backToHomePage"
-    @confirm="addFormSection"
-  />
+    <add-form-section-modal
+      id="fromWizardTabModal"
+      :title="'Add Section details'"
+      :text="'Please input fields'"
+      dismiss-button-text="Back to HomePage"
+      @dismiss="backToHomePage"
+      @confirm="addFormSection"
+    />
 
     <button
-            @click="openAddFormSectionModal.click()"
-            type="button" 
-            class="btn btn-sm sm btn-danger my-3 py-1 px-1 me-md-5"
-        >
-        +  Add form section
+      @click="openAddFormSectionModal.click()"
+      type="button"
+      class="btn btn-sm sm btn-danger my-3 py-1 px-1 me-md-5"
+    >
+      + Add form section
     </button>
 
     <form-wizard
-    :key="forceReRenderFormWizard"
+      :key="forceReRenderFormWizard"
       v-if="accessForm"
       :start-index="0"
       :color="uiConfiguration?.primaryTextColor"
@@ -38,7 +43,7 @@
       @on-complete="startModal"
     >
       <tab-content
-        v-for="(section,index) in accessForm.sections"
+        v-for="(section, index) in accessForm.sections"
         :key="section.name"
         :title="section.label"
         class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
@@ -57,7 +62,10 @@
           />
         </div>
 
-        <draggable :modelValue="accessForm.sections[index].elements" @update:modelValue="newValue => accessForm.sections[index].elements = newValue">
+        <draggable
+          :modelValue="accessForm.sections[index].elements"
+          @update:modelValue="(newValue) => (accessForm.sections[index].elements = newValue)"
+        >
           <template #item="{ element: criteria }">
             <div class="mb-4 mx-3 cursor-move d-flex">
               <div class="form-check form-check-inline align-middle">
@@ -73,7 +81,14 @@
                 <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
               </div>
 
-        <div class="w-100" :style="isElementActive(activeElements[index].selectedElements, criteria.id) ? '' : 'opacity: 0.5;'">
+              <div
+                class="w-100"
+                :style="
+                  isElementActive(activeElements[index].selectedElements, criteria.id)
+                    ? ''
+                    : 'opacity: 0.5;'
+                "
+              >
                 <label
                   class="form-label"
                   :style="{ color: uiConfiguration?.primaryTextColor }"
@@ -303,7 +318,6 @@
               color: '#FFFFFF',
             }"
           >
-          
             {{ props.isLastStep ? 'Submit request' : 'Next' }}
           </button>
         </div>
@@ -350,41 +364,38 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
 })
 
-
-onMounted(async() => {
+onMounted(async () => {
   new Tooltip(document.body, {
     selector: "[data-bs-toggle='tooltip']",
   })
 
   accessForm.value = accessFormData
   accessFormElements.value = await negotiationFormStore.retrieveFormElements()
-  forceReRenderFormWizard.value +=1
+  forceReRenderFormWizard.value += 1
 
   accessFormData.sections.forEach((section) => {
-    activeElements.value.push({id: section.id, selectedElements: []})
+    activeElements.value.push({ id: section.id, selectedElements: [] })
     section.elements = accessFormElements.value
-  });
+  })
 
   if (accessForm.value !== undefined) {
     initNegotiationCriteria()
   }
 })
 
-
 function addFormSection(name, label, description) {
-    let newSection = JSON.parse(JSON.stringify(accessForm.value.sections[0])) 
+  let newSection = JSON.parse(JSON.stringify(accessForm.value.sections[0]))
 
-    newSection.id = accessForm.value.sections.length +1 
-    newSection.name = name
-    newSection.label = label
-    newSection.description =description
+  newSection.id = accessForm.value.sections.length + 1
+  newSection.name = name
+  newSection.label = label
+  newSection.description = description
 
-    accessForm.value.sections.push(newSection)
-    activeElements.value.push({id: accessForm.value.sections.length, selectedElements: []})
+  accessForm.value.sections.push(newSection)
+  activeElements.value.push({ id: accessForm.value.sections.length, selectedElements: [] })
 
-
-    initNegotiationCriteria()
-    forceReRenderFormWizard.value +=1
+  initNegotiationCriteria()
+  forceReRenderFormWizard.value += 1
 }
 
 async function getValueSet(id) {
@@ -394,11 +405,12 @@ async function getValueSet(id) {
 }
 
 async function startNegotiation() {
-    const postAccessForm = JSON.parse(JSON.stringify(accessForm.value)) 
-    accessForm.value.sections.forEach((section, sectionIndex) => {
-        postAccessForm.sections[sectionIndex].elements = activeElements.value[sectionIndex].selectedElements
-    });
-    await negotiationFormStore.addAccessForm(postAccessForm)
+  const postAccessForm = JSON.parse(JSON.stringify(accessForm.value))
+  accessForm.value.sections.forEach((section, sectionIndex) => {
+    postAccessForm.sections[sectionIndex].elements =
+      activeElements.value[sectionIndex].selectedElements
+  })
+  await negotiationFormStore.addAccessForm(postAccessForm)
 }
 
 function startModal() {
@@ -499,13 +511,15 @@ function transformMessage(text) {
 }
 
 function isElementActive(selectedElements, elementId) {
-   return  selectedElements.find(x => x.id ===  elementId)
+  return selectedElements.find((x) => x.id === elementId)
 }
 </script>
 
 <style scoped>
 .cursor-move,
-label, input, textarea {
+label,
+input,
+textarea {
   cursor: move;
 }
 .required:after {

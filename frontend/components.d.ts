@@ -45,6 +45,7 @@ declare module '@vue/runtime-core' {
     PDFButton: typeof import('./src/components/PDFButton.vue')['default']
     PrivatePostModal: typeof import('./src/components/modals/PrivatePostModal.vue')['default']
     ProfileSettings: typeof import('./src/components/ProfileSettings.vue')['default']
+    RedirectButton: typeof import('./src/components/RedirectButton.vue')['default']
     ResourcesList: typeof import('./src/components/ResourcesList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
