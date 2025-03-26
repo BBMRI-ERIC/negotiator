@@ -13,6 +13,7 @@ export const useNetworksPageStore = defineStore('networksPage', () => {
         size,
         page: pageNumber,
         status: filtersSortData.status,
+        organizationId: filtersSortData.organizations,
         createdAfter: filtersSortData.dateStart,
         createdBefore: filtersSortData.dateEnd,
         sortBy: filtersSortData.sortBy,

@@ -31,6 +31,9 @@ public class NegotiationFilterDTO implements FilterDTO {
   @Schema(description = "List of required statuses")
   List<NegotiationState> status;
 
+  @Schema(description = "List of IDs of Organizations for which Negotiations should be fetched")
+  List<Long> organizationId;
+
   @Schema(
       description = "The date after which the negotiations were created",
       example = "2024-11-18")

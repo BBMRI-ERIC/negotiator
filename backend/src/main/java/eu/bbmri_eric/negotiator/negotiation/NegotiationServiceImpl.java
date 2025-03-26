@@ -282,7 +282,6 @@ public class NegotiationServiceImpl implements NegotiationService {
             filtersDTO.getPage(),
             filtersDTO.getSize(),
             Sort.by(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name()));
-
     return negotiationRepository
         .findAll(filtersSpec, pageable)
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class));
