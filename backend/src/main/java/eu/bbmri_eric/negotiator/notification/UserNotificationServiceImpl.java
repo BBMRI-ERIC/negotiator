@@ -12,6 +12,11 @@ import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +33,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.WritableResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -45,6 +52,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   EmailService emailService;
   TemplateEngine templateEngine;
   NegotiationRepository negotiationRepository;
+  ResourceLoader resourceLoader;
 
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
@@ -58,19 +66,27 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${negotiator.emailLogo}")
   private String logoURL;
 
+  @Value("${spring.thymeleaf.prefix:classpath:/templates/}")
+  private String thymeleafPrefix;
+
+  @Value("${spring.thymeleaf.suffix:.html}")
+  private String thymeleafSuffix;
+
   public UserNotificationServiceImpl(
       NotificationRepository notificationRepository,
       PersonRepository personRepository,
       ModelMapper modelMapper,
       EmailService emailService,
       TemplateEngine templateEngine,
-      NegotiationRepository negotiationRepository) {
+      NegotiationRepository negotiationRepository,
+      ResourceLoader resourceLoader) {
     this.notificationRepository = notificationRepository;
     this.personRepository = personRepository;
     this.modelMapper = modelMapper;
     this.emailService = emailService;
     this.templateEngine = templateEngine;
     this.negotiationRepository = negotiationRepository;
+    this.resourceLoader = resourceLoader;
   }
 
   private static Set<Resource> getResourcesInNegotiationRepresentedBy(
@@ -168,6 +184,61 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       createNotificationsForPrivatePost(post);
     }
   }
+
+  @Override
+  public String getNotificationTemplate(String templateName) {
+    log.info("Getting notification template.");
+
+    try {
+        org.springframework.core.io.Resource resource = resourceLoader.getResource(thymeleafPrefix + templateName + thymeleafSuffix);
+        //Path templatePath = Paths.get(thymeleafPrefix + templateName + thymeleafSuffix);
+        //return Files.readString(templatePath);
+        return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+        log.error("Failed to get notification template", e);
+        throw new RuntimeException("Failed to get notification template", e);
+    }
+  }
+
+  @Override
+  public String updateNotificationTemplate(String templateName, String template) {
+    log.info("Updating notification template.");
+      // Validate the template string (basic validation example)
+      if (template == null || template.isEmpty()) {
+          throw new IllegalArgumentException("Template content is invalid");
+      }
+
+      String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
+      writeTemplateToFile(targetTemplatePath, template);
+
+      return template;
+
+  }
+
+  @Override
+  public String resetNotificationTemplate(String templateName) {
+    log.info("Resetting notification template.");
+    try {
+      String defaultTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix + ".default";
+      org.springframework.core.io.Resource defaultTemplateResource = resourceLoader.getResource(defaultTemplatePath);
+
+      if (!defaultTemplateResource.exists()) {
+        throw new FileNotFoundException("Default template not found: " + defaultTemplatePath);
+      }
+
+      String defaultTemplate = new String(defaultTemplateResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+      String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
+      writeTemplateToFile(targetTemplatePath, defaultTemplate);
+
+      return defaultTemplate;
+
+    } catch (IOException e) {
+      log.error("Failed to reset notification template", e);
+      throw new RuntimeException("Failed to reset notification template", e);
+    }
+  }
+
 
   private void createNotificationsForPrivatePost(Post post) {
     Set<Person> representatives = getRepresentativesOfOrganization(post);
@@ -423,5 +494,25 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     return notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
         .map(Notification::getRecipient)
         .collect(Collectors.toSet());
+  }
+
+  private void writeTemplateToFile(String targetTemplatePath, String templateContent) {
+    try {
+      org.springframework.core.io.Resource targetTemplateResource = resourceLoader.getResource(targetTemplatePath);
+
+      if (!(targetTemplateResource instanceof WritableResource writable)) {
+        throw new IOException("Template is not writable: " + targetTemplatePath);
+      }
+
+      try (OutputStream outputStream = writable.getOutputStream()) {
+        outputStream.write(templateContent.getBytes(StandardCharsets.UTF_8));
+      } catch (IOException e) {
+        log.error("Failed to write template to file", e);
+        throw new RuntimeException("Failed to write template to file", e);
+      }
+    } catch (IOException e) {
+      log.error("Failed to write template to file", e);
+      throw new RuntimeException("Failed to write template to file", e);
+    }
   }
 }
