@@ -3,13 +3,16 @@ package eu.bbmri_eric.negotiator.attachment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
+/** Validates File type based on decoded mime type. */
 @Component
+@CommonsLog
 public class FileTypeValidator implements Validator {
 
   private static final Tika tika = new Tika();
@@ -40,6 +43,7 @@ public class FileTypeValidator implements Validator {
 
     try (InputStream inputStream = file.getInputStream()) {
       String detectedType = tika.detect(inputStream);
+      log.debug("Detected attachment type: " + detectedType);
       if (!ALLOWED_MIME_TYPES.contains(detectedType)) {
         throw new UnsupportedFileTypeException(
             "File type "

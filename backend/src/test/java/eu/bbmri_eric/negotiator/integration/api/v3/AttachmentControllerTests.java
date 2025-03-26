@@ -257,7 +257,7 @@ public class AttachmentControllerTests {
     fileName = "malicious_file.exe.pdf";
     file = new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
     mockMvc
-        .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
         .andDo(print())
         .andExpect(status().isBadRequest()) // Expecting bad request if validation fails
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))

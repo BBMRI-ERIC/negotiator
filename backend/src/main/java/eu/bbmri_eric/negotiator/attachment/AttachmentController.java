@@ -2,6 +2,8 @@ package eu.bbmri_eric.negotiator.attachment;
 
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,11 +48,18 @@ public class AttachmentController {
       value = "/negotiations/{negotiationId}/attachments",
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Upload an attachment to a specific Negotiation")
   @ResponseStatus(HttpStatus.CREATED)
   public AttachmentMetadataDTO createForNegotiation(
-      @PathVariable String negotiationId,
-      @RequestParam("file") @Valid MultipartFile file,
-      @Nullable @RequestParam("organizationId") String organizationId) {
+      @PathVariable @Schema(example = "negotiation-1") String negotiationId,
+      @RequestParam("file") @Valid @Schema(description = "File to be uploaded") MultipartFile file,
+      @Nullable
+          @RequestParam("organizationId")
+          @Schema(
+              example = "biobank:1",
+              description = "External ID of the Organization the attachment is for")
+          String organizationId) {
+    fileTypeValidator.validateObject(file);
     return storageService.createForNegotiation(negotiationId, organizationId, file);
   }
 
@@ -75,8 +84,13 @@ public class AttachmentController {
       value = "/attachments",
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      summary = "Post an attachment",
+      description = "Upload an attachment that you can then reference in a Negotiation")
   @ResponseStatus(HttpStatus.CREATED)
-  public AttachmentMetadataDTO create(@RequestParam("file") @Valid MultipartFile file) {
+  public AttachmentMetadataDTO create(
+      @RequestParam("file") @Valid @Schema(description = "File to be uploaded")
+          MultipartFile file) {
     fileTypeValidator.validateObject(file);
     return storageService.create(file);
   }
