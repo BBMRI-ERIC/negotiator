@@ -1,6 +1,7 @@
 # Negotiator
 
 ![build](https://github.com/BBMRI-ERIC/negotiator-v3/actions/workflows/CI.yml/badge.svg?)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=BBMRI-ERIC_negotiator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=BBMRI-ERIC_negotiator)
 ![GitHub release](https://img.shields.io/github/v/release/BBMRI-ERIC/negotiator)
 [![codecov](https://codecov.io/github/BBMRI-ERIC/negotiator/graph/badge.svg?token=YN9M34IM3S)](https://codecov.io/github/BBMRI-ERIC/negotiator)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/BBMRI-ERIC/negotiator/badge)](https://scorecard.dev/viewer/?uri=github.com/BBMRI-ERIC/negotiator)
