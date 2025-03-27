@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -28,9 +30,11 @@ import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest(loadTestData = true)
@@ -280,5 +284,66 @@ class UserNotificationServiceTest {
         negotiation.getId());
     assertFalse(
         notificationRepository.findByRecipientId(negotiation.getCreatedBy().getId()).isEmpty());
+  }
+
+  @Test
+  void getNotificationTemplate_existingTemplate_ok() {
+    String templateName = "footer";
+    String templateContent = userNotificationService.getNotificationTemplate(templateName);
+    assertNotNull(templateContent);
+    assertFalse(templateContent.isEmpty());
+  }
+
+  @Test
+  void getNotificationTemplate_nonExistentTemplate_throwsEntityNotFoundException() {
+    String templateName = "nonExistentTemplate";
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> userNotificationService.getNotificationTemplate(templateName));
+  }
+
+  @Test
+  void updateNotificationTemplate_validTemplate_ok() {
+    String templateName = "footer";
+    String newTemplateContent = "<html><body>Updated Template</body></html>";
+    String updatedTemplate =
+        userNotificationService.updateNotificationTemplate(templateName, newTemplateContent);
+    assertEquals(Jsoup.parse(newTemplateContent).html(), updatedTemplate);
+  }
+
+  @Test
+  void updateNotificationTemplate_invalidHtml_throwsUnsupportedMediaTypeException() {
+    String templateName = "footer";
+    String invalidTemplateContent = null;
+    assertThrows(
+        UnsupportedMediaTypeException.class,
+        () ->
+            userNotificationService.updateNotificationTemplate(
+                templateName, invalidTemplateContent));
+  }
+
+  @Test
+  void updateNotificationTemplate_nonExistentDefaultTemplate_throwsForbiddenRequestException() {
+    String templateName = "templateWithoutDefault";
+    String newTemplateContent = "<html><body>Updated Template</body></html>";
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> userNotificationService.updateNotificationTemplate(templateName, newTemplateContent));
+  }
+
+  @Test
+  void resetNotificationTemplate_existingDefaultTemplate_ok() {
+    String templateName = "footer";
+    String defaultTemplateContent = userNotificationService.resetNotificationTemplate(templateName);
+    assertNotNull(defaultTemplateContent);
+    assertFalse(defaultTemplateContent.isEmpty());
+  }
+
+  @Test
+  void resetNotificationTemplate_nonExistentDefaultTemplate_throwsEntityNotFoundException() {
+    String templateName = "templateWithoutDefault";
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> userNotificationService.resetNotificationTemplate(templateName));
   }
 }
