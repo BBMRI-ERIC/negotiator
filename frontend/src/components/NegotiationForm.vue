@@ -210,7 +210,7 @@
               Uploaded file: {{ negotiationCriteria[section.name][criteria.name].name }}
             </label>
             <input
-              accept=".pdf"
+              accept=".pdf, .png, .jpeg, .jpg, .doc, .docx, .txt, .csv, .xls, .xlsx"
               class="form-control text-secondary-text"
               :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
               :required="criteria.required"
@@ -366,7 +366,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeMount, onMounted, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
