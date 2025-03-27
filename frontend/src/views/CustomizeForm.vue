@@ -8,7 +8,7 @@
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
       @dismiss="backToHomePage"
-      @confirm="startNegotiation"
+      @confirm="addAccessForm"
     />
     <button
       ref="openAddFormSectionModal"
@@ -25,18 +25,37 @@
       @dismiss="backToHomePage"
       @confirm="addFormSection"
     />
-
-    <button
-      @click="openAddFormSectionModal.click()"
-      type="button"
-      class="btn btn-sm sm btn-danger my-3 py-1 px-1 me-md-5"
-    >
-      + Add form section
-    </button>
+    <div class="new-section-button">
+      <label :style="{ color: uiConfiguration?.primaryTextColor }">
+        This form allows for the inclusion of multiple sections to accommodate various data inputs.
+        If your situation requires additional details, or if you are submitting information related
+        to multiple items or categories, please click the button below to add a new section. Each
+        added section will function independently, allowing for distinct data entry. You can add as
+        many sections as needed to accurately reflect your information.
+      </label>
+      <button
+        @click="openAddFormSectionModal.click()"
+        type="button"
+        class="btn btn-sm sm btn-danger my-3 py-1 px-1 me-md-5"
+      >
+        + Add new section
+      </button>
+    </div>
+    <div class="template-name" v-if="accessForm">
+      <label class="form-label" :style="{ color: uiConfiguration?.primaryTextColor }">
+        Template Name
+      </label>
+      <input
+        v-model="accessForm.name"
+        type="TEXT"
+        placeholder="Give a template name"
+        class="form-control text-secondary-text w-25"
+      />
+    </div>
 
     <form-wizard
       :key="forceReRenderFormWizard"
-      v-if="accessForm"
+      v-if="accessForm && accessForm.sections.length"
       :start-index="0"
       :color="uiConfiguration?.primaryTextColor"
       step-size="md"
@@ -106,7 +125,7 @@
                   />
                 </span>
 
-                <div v-if="criteria.type === 'TEXT'" disabled>
+                <div v-if="criteria.type === 'TEXT'">
                   <input
                     v-model="negotiationCriteria[section.name][criteria.name]"
                     :type="criteria.type"
@@ -337,7 +356,6 @@ import { useNotificationsStore } from '../store/notifications'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 import 'vue3-form-wizard/dist/style.css'
-import { accessFormData } from '../composables/customizeForm.js'
 import draggable from 'vuedraggable'
 
 const uiConfigurationStore = useUiConfiguration()
@@ -352,7 +370,11 @@ const negotiationCriteria = ref({})
 const negotiationValueSets = ref({})
 const validationColorHighlight = ref([])
 
-const accessForm = ref(undefined)
+const accessForm = ref({
+  id: 1,
+  name: '',
+  sections: [],
+})
 
 const accessFormElements = ref([])
 const openModal = ref(null)
@@ -369,14 +391,8 @@ onMounted(async () => {
     selector: "[data-bs-toggle='tooltip']",
   })
 
-  accessForm.value = accessFormData
   accessFormElements.value = await negotiationFormStore.retrieveFormElements()
   forceReRenderFormWizard.value += 1
-
-  accessFormData.sections.forEach((section) => {
-    activeElements.value.push({ id: section.id, selectedElements: [] })
-    section.elements = accessFormElements.value
-  })
 
   if (accessForm.value !== undefined) {
     initNegotiationCriteria()
@@ -384,12 +400,19 @@ onMounted(async () => {
 })
 
 function addFormSection(name, label, description) {
-  let newSection = JSON.parse(JSON.stringify(accessForm.value.sections[0]))
+  let newSection = {
+    id: 1,
+    name: 'project',
+    label: 'Project',
+    description: 'Provide information about your project',
+    elements: [],
+  }
 
   newSection.id = accessForm.value.sections.length + 1
   newSection.name = name
   newSection.label = label
   newSection.description = description
+  newSection.elements = accessFormElements.value
 
   accessForm.value.sections.push(newSection)
   activeElements.value.push({ id: accessForm.value.sections.length, selectedElements: [] })
@@ -404,7 +427,7 @@ async function getValueSet(id) {
   })
 }
 
-async function startNegotiation() {
+async function addAccessForm() {
   const postAccessForm = JSON.parse(JSON.stringify(accessForm.value))
   accessForm.value.sections.forEach((section, sectionIndex) => {
     postAccessForm.sections[sectionIndex].elements =
