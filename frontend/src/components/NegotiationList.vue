@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
-    <div v-if="userRole === ROLES.ADMINISTRATOR" class="float-end my-2 mx-2">
+    <div v-if="userRole === ROLES.ADMINISTRATOR" class="float-end my-2 ms-2">
       <RedirectButton
         :buttonText="'+  Add Acess Form'"
         :redirectRouteName="'customize-form'"
