@@ -3,79 +3,76 @@ package eu.bbmri_eric.negotiator.notification;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.post.Post;
-
 import java.util.List;
 
 public interface UserNotificationService {
 
-    /**
-     * Returns all notifications for a given user.
-     *
-     * @param userId the id of the user.
-     * @return a list of notifications.
-     */
-    List<NotificationDTO> getNotificationsForUser(Long userId);
+  /**
+   * Returns all notifications for a given user.
+   *
+   * @param userId the id of the user.
+   * @return a list of notifications.
+   */
+  List<NotificationDTO> getNotificationsForUser(Long userId);
 
-    /**
-     * Notify all admins of a new negotiation.
-     *
-     * @param negotiation that was created.
-     */
-    void notifyAdmins(Negotiation negotiation);
+  /**
+   * Notify all admins of a new negotiation.
+   *
+   * @param negotiation that was created.
+   */
+  void notifyAdmins(Negotiation negotiation);
 
-    /**
-     * Create notifications for all representatives of resources involved in a new negotiation.
-     *
-     * @param negotiation that was created.
-     */
-    void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
+  /**
+   * Create notifications for all representatives of resources involved in a new negotiation.
+   *
+   * @param negotiation that was created.
+   */
+  void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
 
-    /**
-     * Create notifications for all representatives of resources involved in a new negotiation.
-     *
-     * @param negotiationId that was created.
-     */
-    void notifyRepresentativesAboutNewNegotiation(String negotiationId);
+  /**
+   * Create notifications for all representatives of resources involved in a new negotiation.
+   *
+   * @param negotiationId that was created.
+   */
+  void notifyRepresentativesAboutNewNegotiation(String negotiationId);
 
-    /**
-     * Create a notification of a resource status change for the author of the request.
-     *
-     * @param negotiation that was updated.
-     */
-    void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource);
+  /**
+   * Create a notification of a resource status change for the author of the request.
+   *
+   * @param negotiation that was updated.
+   */
+  void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource);
 
-    /**
-     * Create notifications for all relevant Users about a new Post.
-     *
-     * @param post that was created.
-     */
-    void notifyUsersAboutNewPost(Post post);
+  /**
+   * Create notifications for all relevant Users about a new Post.
+   *
+   * @param post that was created.
+   */
+  void notifyUsersAboutNewPost(Post post);
 
-    /**
-     * Send out emails for all pending notifications.
-     */
-    void sendEmailsForNewNotifications();
+  /** Send out emails for all pending notifications. */
+  void sendEmailsForNewNotifications();
 
-    /**
-     * Get a notification template.
-     *
-     * @param templateName the name of the template.
-     * @return the template.
-     */
-    String getNotificationTemplate(String templateName);
+  /**
+   * Get a notification template.
+   *
+   * @param templateName the name of the template.
+   * @return the template.
+   */
+  String getNotificationTemplate(String templateName);
 
-    /**
-     * Update a notification template.
-     *
-     * @param templateName the name of the template.
-     * @param template     the new template.
-     */
-    String updateNotificationTemplate(String templateName, String template);
+  /**
+   * Update a notification template.
+   *
+   * @param templateName the name of the template.
+   * @param template the new template.
+   */
+  String updateNotificationTemplate(String templateName, String template);
 
-    /**
-     * Reset a notification template.
-     *
-     * @param templateName the name of the template.
-     */
-    String resetNotificationTemplate(String templateName);
+  /**
+   * Reset a notification template.
+   *
+   * @param templateName the name of the template.
+   */
+  String resetNotificationTemplate(String templateName);
 }
