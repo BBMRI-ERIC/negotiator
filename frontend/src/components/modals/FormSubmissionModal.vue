@@ -181,7 +181,7 @@
 
                 <div v-else-if="criteria.type === 'FILE'">
                   <input
-                    accept=".pdf"
+                    accept=".pdf, .png, .jpeg, .jpg, .doc, .docx, .txt, .csv, .xls, .xlsx"
                     class="form-control text-secondary-text"
                     :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                     :required="criteria.required"
