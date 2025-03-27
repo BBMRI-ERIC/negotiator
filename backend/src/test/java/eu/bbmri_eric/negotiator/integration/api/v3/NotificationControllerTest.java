@@ -62,4 +62,67 @@ public class NotificationControllerTest {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(3)));
   }
+
+  @Test
+  @WithUserDetails("admin")
+  void getNotificationTemplate_validTemplateName_Ok() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.get("/v3/notifications/template/footer"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/xhtml+xml;charset=UTF-8"));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getNotificationTemplate_invalidTemplateName_NotFound() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.get("/v3/notifications/template/invalidTemplate"))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void updateNotificationTemplate_validTemplateName_Ok() throws Exception {
+    String newTemplateContent = "<html>\n" +
+            " <head></head>\n" +
+            " <body>\n" +
+            "  Updated Template Content\n" +
+            " </body>\n" +
+            "</html>";
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.post("/v3/notifications/template/footer")
+                            .contentType(MediaType.APPLICATION_XHTML_XML)
+                            .content(newTemplateContent))
+            .andExpect(status().isOk())
+            .andExpect(content().string(newTemplateContent));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void updateNotificationTemplate_invalidTemplateName_Forbidden() throws Exception {
+    String newTemplateContent = "Updated Template Content";
+    mockMvc
+            .perform(
+                    MockMvcRequestBuilders.post("/v3/notifications/template/invalidTemplate")
+                            .contentType(MediaType.APPLICATION_XHTML_XML)
+                            .content(newTemplateContent))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void resetNotificationTemplate_validTemplateName_Ok() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.post("/v3/notifications/template/footer/reset"))
+            .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void resetNotificationTemplate_invalidTemplateName_NotFound() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.post("/v3/notifications/template/invalidTemplate/reset"))
+            .andExpect(status().isNotFound());
+  }
 }
