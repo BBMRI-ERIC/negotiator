@@ -39,7 +39,8 @@ public class TemplateInitiationRunner implements CommandLineRunner {
     }
 
     private void resetTemplateIfNotExists(String templateFile) {
-        if (!Files.exists(Paths.get(thymeleafPrefix+templateFile))) {
+        String cleanedPrefix = thymeleafPrefix.replaceFirst("^file:(//)?", "");
+        if (!Files.exists(Paths.get(cleanedPrefix+templateFile))) {
             userNotificationService.resetNotificationTemplate(templateFile.replace(thymeleafSuffix,""));
         }
     }
