@@ -26,19 +26,26 @@ public class NotificationController {
         AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  @GetMapping(value = "/notifications/template/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @GetMapping(
+      value = "/notifications/template/{templateName}",
+      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public String getNotificationTemplate(@PathVariable String templateName) {
     return userNotificationService.getNotificationTemplate(templateName);
   }
 
-  @PostMapping(value = "/notifications/template/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @PostMapping(
+      value = "/notifications/template/{templateName}",
+      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public String updateNotificationTemplate(@PathVariable String templateName, @RequestBody String template) {
+  public String updateNotificationTemplate(
+      @PathVariable String templateName, @RequestBody String template) {
     return userNotificationService.updateNotificationTemplate(templateName, template);
   }
 
-  @PostMapping(value = "/notifications/template/{templateName}/reset", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @PostMapping(
+      value = "/notifications/template/{templateName}/reset",
+      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public String updateNotificationTemplate(@PathVariable String templateName) {
     return userNotificationService.resetNotificationTemplate(templateName);

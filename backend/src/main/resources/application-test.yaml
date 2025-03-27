@@ -17,6 +17,8 @@ spring:
         jwt:
           jwk-set-uri: "https://testoidc"
           type: "JWT"
+  thymeleaf:
+    prefix: "file:../config/templates/"
 negotiator:
   frontend-url: "http://localhost"
   authorization:
