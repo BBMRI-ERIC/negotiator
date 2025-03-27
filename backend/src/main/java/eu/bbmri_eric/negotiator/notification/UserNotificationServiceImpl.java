@@ -13,7 +13,6 @@ import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -209,10 +208,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
 
     org.springframework.core.io.Resource defaultTemplateResource =
-            resourceLoader.getResource(targetTemplatePath+".default");
+        resourceLoader.getResource(targetTemplatePath + ".default");
 
     if (!defaultTemplateResource.exists()) {
-      throw new ForbiddenRequestException("Default template for "+targetTemplatePath+" does not exist");
+      throw new ForbiddenRequestException(
+          "Default template for " + targetTemplatePath + " does not exist");
     }
 
     writeTemplateToFile(targetTemplatePath, validateTemplate);
