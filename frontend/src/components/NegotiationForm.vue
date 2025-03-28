@@ -210,6 +210,7 @@
               Uploaded file: {{ negotiationCriteria[section.name][criteria.name].name }}
             </label>
             <input
+              :key="fileInputKey"
               :accept="fileExtensions"
               class="form-control text-secondary-text"
               :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
@@ -378,6 +379,7 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import 'vue3-form-wizard/dist/style.css'
 import fileExtensions from '@/config/uploadFileExtensions.js'
+import { isFileExtensionsSuported } from '../composables/utils.js'
 
 
 const uiConfigurationStore = useUiConfiguration()
@@ -570,8 +572,14 @@ function isAttachment(value) {
   return value instanceof File || value instanceof Object
 }
 
+let fileInputKey = ref(0)
+
 function handleFileUpload(event, section, criteria) {
-  negotiationCriteria.value[section][criteria] = event.target.files[0]
+  if(isFileExtensionsSuported(event.target.files[0])) {
+    negotiationCriteria.value[section][criteria] = event.target.files[0]
+  } else {
+    fileInputKey.value++
+  }
 }
 
 function showNotification(header, body) {

@@ -183,3 +183,19 @@ export function generatePieChartBackgroundColorArray(labelsArray) {
 
   return pieChartBackgroundColorArray
 }
+
+import fileExtensions from '@/config/uploadFileExtensions.js'
+import { useNotificationsStore } from '../store/notifications'
+
+export function isFileExtensionsSuported(file) {
+  const notificationsStore = useNotificationsStore()
+
+  if (fileExtensions.includes(file['type'])) {
+    return true
+  }
+  notificationsStore.setNotification(
+    'Invalid file type. Please upload a file with a valid extension.',
+    'danger',
+  )
+  return false
+}

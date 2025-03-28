@@ -76,7 +76,9 @@
           :title="
             negotiation.publicPostsEnabled
               ? ''
-              : negotiation.status === 'DRAFT' ? 'Messaging is unavailable until you submit the request' : 'Messaging is unavailable until the request has been reviewed.'
+              : negotiation.status === 'DRAFT'
+                ? 'Messaging is unavailable until you submit the request'
+                : 'Messaging is unavailable until the request has been reviewed.'
           "
         >
           <button
@@ -94,6 +96,7 @@
         </span>
         <button type="submit" class="btn btn-attachment ms-2 border rounded">
           <input
+            :key="fileInputKey"
             id="attachment"
             class="form-control"
             type="file"
@@ -136,6 +139,7 @@ import { useOidcStore } from '../store/oidc'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import fileExtensions from '@/config/uploadFileExtensions.js'
+import { isFileExtensionsSuported } from '../composables/utils.js'
 
 const uiConfigurationStore = useUiConfiguration()
 
@@ -263,9 +267,16 @@ function printDate(date) {
   return moment(date).format(dateFormat)
 }
 
+let fileInputKey = ref(0)
+
 function showAttachment(event) {
   const file = event.target.files[0]
-  attachment.value = file
+
+  if (isFileExtensionsSuported(file)) {
+    attachment.value = file
+  } else {
+    fileInputKey.value++
+  }
 }
 
 async function sendMessage() {
@@ -348,9 +359,9 @@ defineExpose({
 </script>
 
 <style scoped>
-.btn-attachment  {
-    position: relative;
-    overflow: hidden;
+.btn-attachment {
+  position: relative;
+  overflow: hidden;
 }
 /** the input file is hidden */
 .btn-attachment input[type='file'] {
