@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.common.exceptions;
 
+import eu.bbmri_eric.negotiator.attachment.UnsupportedFileTypeException;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -209,6 +210,7 @@ public class NegotiatorExceptionHandler {
     EntityNotStorableException.class,
     WrongRequestException.class,
     ConstraintViolationException.class,
+    UnsupportedFileTypeException.class,
   })
   @ApiResponse(
       responseCode = "400",
