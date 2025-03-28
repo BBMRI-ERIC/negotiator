@@ -52,7 +52,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/cli-service": "^5.0.8",
     "@vue/eslint-config-prettier": "^10.2.0",
-    "cypress": "^14.0.3",
+    "cypress": "^14.2.1",
     "eslint": "^9.20.1",
     "eslint-plugin-cypress": "^4.1.0",
     "eslint-plugin-vue": "^9.30.0",
