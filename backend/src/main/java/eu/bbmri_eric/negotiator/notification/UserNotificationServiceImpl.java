@@ -73,6 +73,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${spring.thymeleaf.suffix:.html}")
   private String thymeleafSuffix;
 
+  private String defaultThymeleafPrefix = "classpath:/templates/";
+
   public UserNotificationServiceImpl(
       NotificationRepository notificationRepository,
       PersonRepository personRepository,
@@ -203,12 +205,15 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public String updateNotificationTemplate(String templateName, String template) {
     log.info("Updating notification template.");
+    if (thymeleafPrefix.equals(defaultThymeleafPrefix)) {
+      throw new ForbiddenRequestException("Cannot update default templates");
+    }
     String validateTemplate = validateHtml(template);
 
     String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
 
     org.springframework.core.io.Resource defaultTemplateResource =
-        resourceLoader.getResource(targetTemplatePath + ".default");
+        resourceLoader.getResource(targetTemplatePath);
 
     if (!defaultTemplateResource.exists()) {
       throw new ForbiddenRequestException(
@@ -223,8 +228,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public String resetNotificationTemplate(String templateName) {
     log.info("Resetting notification template.");
+    if (thymeleafPrefix.equals(defaultThymeleafPrefix)) {
+      throw new ForbiddenRequestException("Cannot update default templates");
+    }
     try {
-      String defaultTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix + ".default";
+      String defaultTemplatePath = "classpath:/templates/" + templateName + thymeleafSuffix;
       org.springframework.core.io.Resource defaultTemplateResource =
           resourceLoader.getResource(defaultTemplatePath);
 
