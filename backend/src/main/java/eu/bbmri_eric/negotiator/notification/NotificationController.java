@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -29,6 +30,8 @@ public class NotificationController {
   @GetMapping(
       value = "/notifications/template/{templateName}",
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @Operation(summary = "Get a notification email-template",
+  description = "Get a notification email-template by name")
   @ResponseStatus(HttpStatus.OK)
   public String getNotificationTemplate(@PathVariable String templateName) {
     return userNotificationService.getNotificationTemplate(templateName);
@@ -37,6 +40,8 @@ public class NotificationController {
   @PostMapping(
       value = "/notifications/template/{templateName}",
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @Operation(summary = "Update a notification email-template",
+  description = "Update the content of a notification email-template by name")
   @ResponseStatus(HttpStatus.OK)
   public String updateNotificationTemplate(
       @PathVariable String templateName, @RequestBody String template) {
@@ -46,6 +51,8 @@ public class NotificationController {
   @PostMapping(
       value = "/notifications/template/{templateName}/reset",
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @Operation(summary = "Reset a notification email-template",
+  description = "Reset a notification email-template to the default content")
   @ResponseStatus(HttpStatus.OK)
   public String updateNotificationTemplate(@PathVariable String templateName) {
     return userNotificationService.resetNotificationTemplate(templateName);
