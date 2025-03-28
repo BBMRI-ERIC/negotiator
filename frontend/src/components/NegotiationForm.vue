@@ -210,7 +210,7 @@
               Uploaded file: {{ negotiationCriteria[section.name][criteria.name].name }}
             </label>
             <input
-              accept=".pdf, .png, .jpeg, .jpg, .doc, .docx, .txt, .csv, .xls, .xlsx"
+              accept=".pdf, .png, .jpeg, .jpg, .doc, .docx, .txt, .csv, .xls, .xlsx, application/pdf, image/png, image/jpeg, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               class="form-control text-secondary-text"
               :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
               :required="criteria.required"
