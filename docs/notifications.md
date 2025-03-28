@@ -57,13 +57,18 @@ The email template uses variables to include dynamic content. These variables ar
  - `emailHelpdeskHref`: The URL for the helpdesk.
 
 #### Updating Templates at Runtime
-Thymeleaf supports runtime updates to email templates. This allows you to make changes without restarting the application, which is useful for quick updates or tweaks:
- - **Enable Template Cache Refresh:** By default, Thymeleaf caches templates for performance. To enable runtime updates, you need to configure Thymeleaf to refresh templates automatically. This can typically be done by setting the `spring.thymeleaf.cache` property to `false` in your application configuration file (`application.yml`):
+
+The Negotiator provides an [REST](REST.md) endpoint to update the email template at runtime. This is only enabled when the thyemleaf.prefix is set in the `application.yml` file e.g.:
+
 ```yaml
-spring.thymeleaf.cache=false
+spring:
+  thymeleaf:
+    prefix: file:resources/templates/
 ```
- - **Hot Reload:** If using a development environment that supports hot reloading (like Spring Boot DevTools), you can take advantage of this feature to see changes immediately after saving the template files.
- - **Production Considerations:** While runtime updates are useful in development, it's recommended to enable caching in production to improve performance. Ensure templates are thoroughly tested before deploying updates in a production environment.
+Using the endpoint, you can update the email template without restarting the application. This is useful for making quick changes or tweaks to the template. 
+The content of the email template can be updated by sending a POST request to the `/api/v3/notifications/template/<template_name>` endpoint with the new template content in the request body. This endpoint is protected by the `ROLE_ADMIN` role. 
+To reset the template to the default content, send a POST request to the `/api/v3/notifications/template/<template_name>/reset` endpoint.
+
 
 ### Email reminder
 Automates the sending of emails based on schedules. The email reminder service is implemented using [Spring's Task Execution and Scheduling](https://spring.io/guides/gs/scheduling-tasks/). 
