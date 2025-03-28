@@ -97,7 +97,7 @@
             id="attachment"
             class="form-control"
             type="file"
-            accept=".pdf, .png, .jpeg, .jpg, .doc, .docx, .txt, .csv, .xls, .xlsx, application/pdf, image/png, image/jpeg, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            :accept="fileExtensions"
             @change="showAttachment"
           />
           <i class="bi bi-paperclip" />
@@ -135,6 +135,7 @@ import NegotiationAttachment from './NegotiationAttachment.vue'
 import { useOidcStore } from '../store/oidc'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import fileExtensions from '@/config/uploadFileExtensions.js'
 
 const uiConfigurationStore = useUiConfiguration()
 
