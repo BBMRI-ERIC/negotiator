@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
@@ -237,5 +238,29 @@ public class AttachmentControllerTests {
             get(String.format("%s", WITH_NEGOTIATIONS_ENDPOINT))
                 .with(httpBasic("researcher", "wrong_pass")))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_CreateWithExeFile_ShouldReject() throws Exception {
+    byte[] data = new byte[] {0x4D, 0x5A, (byte) 0x90, 0x00};
+    String fileName = "malicious_file.exe";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    mockMvc
+        .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+        .andDo(print())
+        .andExpect(status().isBadRequest()) // Expecting bad request if validation fails
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.detail", containsString("not supported")));
+    fileName = "malicious_file.exe.pdf";
+    file = new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    mockMvc
+        .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+        .andDo(print())
+        .andExpect(status().isBadRequest()) // Expecting bad request if validation fails
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.detail", containsString("not supported")));
   }
 }

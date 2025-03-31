@@ -181,7 +181,8 @@
 
                 <div v-else-if="criteria.type === 'FILE'">
                   <input
-                    accept=".pdf"
+                    :key="fileInputKey"
+                    :accept="fileExtensions"
                     class="form-control text-secondary-text"
                     :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                     :required="criteria.required"
@@ -308,6 +309,8 @@ import { FormWizard, TabContent } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'
 import { useFormsStore } from '../../store/forms'
 import { useNotificationsStore } from '../../store/notifications'
+import fileExtensions from '@/config/uploadFileExtensions.js'
+import { isFileExtensionsSuported } from '../../composables/utils.js'
 
 const props = defineProps({
   id: {
@@ -414,8 +417,14 @@ function isAttachment(value) {
   return value instanceof File || value instanceof Object
 }
 
+let fileInputKey = ref(0)
+
 function handleFileUpload(event, section, criteria) {
-  negotiationCriteria.value[section][criteria] = event.target.files[0]
+  if (isFileExtensionsSuported(event.target.files[0])) {
+    negotiationCriteria.value[section][criteria] = event.target.files[0]
+  } else {
+    fileInputKey.value++
+  }
 }
 
 function showNotification(header, body) {
