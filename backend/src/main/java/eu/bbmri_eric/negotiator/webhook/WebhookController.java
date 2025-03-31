@@ -68,4 +68,14 @@ public class WebhookController {
   public void deleteWebhook(@PathVariable Long id) {
     webhookService.deleteWebhook(id);
   }
+
+  @Operation(
+      summary = "Deliver a message to a webhook",
+      description = "Adds a new delivery to the specified webhook and returns the response")
+  @PostMapping("/{id}/deliveries")
+  public EntityModel<DeliveryDTO> addDelivery(
+      @PathVariable Long id, @Valid @RequestBody DeliveryCreateDTO deliveryCreateDTO) {
+    DeliveryDTO dto = webhookService.deliver(deliveryCreateDTO, id);
+    return EntityModel.of(dto);
+  }
 }

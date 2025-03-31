@@ -1,9 +1,19 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.List;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class WebhookServiceImpl implements WebhookService {
@@ -52,5 +62,58 @@ public class WebhookServiceImpl implements WebhookService {
       throw new EntityNotFoundException(id);
     }
     webhookRepository.deleteById(id);
+  }
+
+  @Override
+  @Transactional
+  public DeliveryDTO deliver(DeliveryCreateDTO dto, Long webhookId) {
+    Webhook webhook =
+        webhookRepository
+            .findById(webhookId)
+            .orElseThrow(
+                () -> new EntityNotFoundException("Webhook not found with id: " + webhookId));
+    RestTemplate restTemplate =
+        webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
+    Delivery delivery;
+    try {
+      ResponseEntity<String> response =
+          restTemplate.postForEntity(webhook.getUrl(), dto.getContent(), String.class);
+      int statusCode = response.getStatusCodeValue();
+      boolean success = response.getStatusCode() == HttpStatus.OK;
+      String errorMessage = success ? null : response.getBody();
+      delivery = new Delivery(success, dto.getContent(), statusCode, errorMessage);
+    } catch (Exception ex) {
+      delivery = new Delivery(false, dto.getContent(), 500, ex.getMessage());
+    }
+    webhook.addDelivery(delivery);
+    webhookRepository.save(webhook);
+    DeliveryDTO deliveryDTO = modelMapper.map(delivery, DeliveryDTO.class);
+    deliveryDTO.setWebhookId(webhook.getId());
+    return deliveryDTO;
+  }
+
+  private RestTemplate createNoSSLRestTemplate() {
+    try {
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+      sslContext.init(
+          null,
+          new TrustManager[] {
+            new X509TrustManager() {
+              public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+              }
+
+              public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+
+              public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+            }
+          },
+          new SecureRandom());
+      HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+      HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+      return new RestTemplate();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

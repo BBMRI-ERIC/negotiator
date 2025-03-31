@@ -1,18 +1,29 @@
 package eu.bbmri_eric.negotiator.integration.api;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.webhook.DeliveryCreateDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookCreateDTO;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -22,7 +33,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest
+@WireMockTest
 public class WebhookControllerTest {
+
+  @RegisterExtension
+  static WireMockExtension wireMockServer =
+      WireMockExtension.newInstance()
+          .options(WireMockConfiguration.options().dynamicPort())
+          .build();
 
   private MockMvc mockMvc;
 
@@ -147,5 +165,28 @@ public class WebhookControllerTest {
         .perform(
             MockMvcRequestBuilders.get("/v3/webhooks/1").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void testDeliverSuccess(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = new Webhook(url, true, true);
+    webhook = webhookRepository.save(webhook);
+    stubFor(
+        post(urlEqualTo("/test-endpoint")).willReturn(aResponse().withStatus(200).withBody("OK")));
+    DeliveryCreateDTO dto = new DeliveryCreateDTO("{\"data\":\"success\"}");
+    String payload = objectMapper.writeValueAsString(dto);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+        .andExpect(status().isOk())
+        .andDo(print())
+        .andExpect(jsonPath("$.httpStatusCode", is(200)))
+        .andExpect(jsonPath("$.successful", is(true)))
+        .andExpect(jsonPath("$.errorMessage").doesNotExist());
   }
 }

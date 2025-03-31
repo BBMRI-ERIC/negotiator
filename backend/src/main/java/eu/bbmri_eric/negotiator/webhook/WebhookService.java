@@ -41,4 +41,12 @@ public interface WebhookService {
    * @param id the identifier of the webhook to delete
    */
   void deleteWebhook(Long id);
+
+  /**
+   * Creates a new delivery for a given webhook.
+   *
+   * @param dto the DTO containing the webhook ID and JSON content for the delivery
+   * @return a DTO representing the newly created delivery
+   */
+  DeliveryDTO deliver(DeliveryCreateDTO dto, Long webhookId);
 }
