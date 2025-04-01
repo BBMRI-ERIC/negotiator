@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.webhook;
 
-
 import java.util.List;
 
 public interface WebhookService {
