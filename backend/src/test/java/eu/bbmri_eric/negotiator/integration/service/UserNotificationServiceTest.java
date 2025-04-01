@@ -332,6 +332,15 @@ class UserNotificationServiceTest {
   }
 
   @Test
+  void updateNotificationTemplate_invalidPathToOtherLocation_throwsForbiddenRequestException() {
+    String templateName = "../path/to/other/location";
+    String newTemplateContent = "<html><body>Updated Template</body></html>";
+    assertThrows(
+        ForbiddenRequestException.class,
+        () -> userNotificationService.updateNotificationTemplate(templateName, newTemplateContent));
+  }
+
+  @Test
   void resetNotificationTemplate_existingDefaultTemplate_ok() {
     String templateName = "footer";
     String defaultTemplateContent = userNotificationService.resetNotificationTemplate(templateName);
