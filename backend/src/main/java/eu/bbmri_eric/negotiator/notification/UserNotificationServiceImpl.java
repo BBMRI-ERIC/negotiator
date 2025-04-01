@@ -192,7 +192,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Override
   public String getNotificationTemplate(String templateName) {
     log.info("Getting notification template.");
-
+    validateTemplateName(templateName);
     try {
       org.springframework.core.io.Resource resource =
           resourceLoader.getResource(thymeleafPrefix + templateName + thymeleafSuffix);
@@ -209,6 +209,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     if (thymeleafPrefix.equals(defaultThymeleafPrefix)) {
       throw new ForbiddenRequestException("Cannot update default templates");
     }
+    validateTemplateName(templateName);
     String validateTemplate = validateHtml(template);
     String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
 
@@ -230,6 +231,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     if (thymeleafPrefix.equals(defaultThymeleafPrefix)) {
       throw new ForbiddenRequestException("Cannot update default templates");
     }
+    validateTemplateName(templateName);
     String defaultTemplatePath = "classpath:/templates/" + templateName + thymeleafSuffix;
     org.springframework.core.io.Resource defaultTemplateResource =
         resourceLoader.getResource(defaultTemplatePath);
@@ -532,4 +534,11 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       throw new UnsupportedMediaTypeException("Template is not valid HTML: " + e.getMessage());
     }
   }
+
+  private void validateTemplateName(String templateName) {
+    if (templateName.contains("..") || templateName.contains("/") || templateName.contains("\\")) {
+      throw new ForbiddenRequestException("Invalid template name");
+    }
+  }
+
 }
