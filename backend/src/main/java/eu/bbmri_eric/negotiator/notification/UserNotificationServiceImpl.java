@@ -14,6 +14,7 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -73,7 +74,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${spring.thymeleaf.suffix:.html}")
   private String thymeleafSuffix;
 
-  private String defaultThymeleafPrefix = "classpath:/templates/";
+  private final String defaultThymeleafPrefix = "classpath:/templates/";
 
   public UserNotificationServiceImpl(
       NotificationRepository notificationRepository,
@@ -209,7 +210,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       throw new ForbiddenRequestException("Cannot update default templates");
     }
     String validateTemplate = validateHtml(template);
-
     String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
 
     org.springframework.core.io.Resource defaultTemplateResource =
@@ -221,7 +221,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     writeTemplateToFile(targetTemplatePath, validateTemplate);
-
     return validateTemplate;
   }
 
@@ -231,18 +230,15 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     if (thymeleafPrefix.equals(defaultThymeleafPrefix)) {
       throw new ForbiddenRequestException("Cannot update default templates");
     }
-    try {
-      String defaultTemplatePath = "classpath:/templates/" + templateName + thymeleafSuffix;
-      org.springframework.core.io.Resource defaultTemplateResource =
-          resourceLoader.getResource(defaultTemplatePath);
+    String defaultTemplatePath = "classpath:/templates/" + templateName + thymeleafSuffix;
+    org.springframework.core.io.Resource defaultTemplateResource =
+        resourceLoader.getResource(defaultTemplatePath);
 
-      if (!defaultTemplateResource.exists()) {
-        throw new EntityNotFoundException(defaultTemplatePath);
-      }
-
-      String defaultTemplate =
-          new String(
-              defaultTemplateResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    if (!defaultTemplateResource.exists()) {
+      throw new EntityNotFoundException(defaultTemplatePath);
+    }
+    try (InputStream inputStream = defaultTemplateResource.getInputStream()) {
+      String defaultTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
       String targetTemplatePath = thymeleafPrefix + templateName + thymeleafSuffix;
       writeTemplateToFile(targetTemplatePath, defaultTemplate);
@@ -522,9 +518,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
       try (OutputStream outputStream = writable.getOutputStream()) {
         outputStream.write(templateContent.getBytes(StandardCharsets.UTF_8));
-      } catch (IOException e) {
-        log.error("Failed to write template to file", e);
-        throw new RuntimeException("Failed to write template to file", e);
       }
     } catch (IOException e) {
       log.error("Failed to write template to file", e);
