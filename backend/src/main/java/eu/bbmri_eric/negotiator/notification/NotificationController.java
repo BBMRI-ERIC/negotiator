@@ -57,7 +57,7 @@ public class NotificationController {
       summary = "Reset a notification email-template",
       description = "Reset a notification email-template to the default content")
   @ResponseStatus(HttpStatus.OK)
-  public String updateNotificationTemplate(@PathVariable String templateName) {
+  public String resetNotificationTemplate(@PathVariable String templateName) {
     return userNotificationService.resetNotificationTemplate(templateName);
   }
 }
