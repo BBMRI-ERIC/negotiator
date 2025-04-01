@@ -540,5 +540,4 @@ public class UserNotificationServiceImpl implements UserNotificationService {
       throw new ForbiddenRequestException("Invalid template name");
     }
   }
-
 }
