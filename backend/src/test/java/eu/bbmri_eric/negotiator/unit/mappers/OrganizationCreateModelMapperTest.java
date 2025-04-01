@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.governance.organization.Organization;

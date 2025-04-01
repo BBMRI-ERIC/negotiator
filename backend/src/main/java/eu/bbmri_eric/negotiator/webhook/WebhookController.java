@@ -86,5 +86,4 @@ public class WebhookController {
     DeliveryDTO dto = webhookService.deliver(content.toString(), id);
     return EntityModel.of(dto);
   }
-
 }
