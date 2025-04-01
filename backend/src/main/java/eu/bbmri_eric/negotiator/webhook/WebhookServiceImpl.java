@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.security.SecureRandom;
@@ -9,13 +10,14 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@CommonsLog
 public class WebhookServiceImpl implements WebhookService {
   private final WebhookRepository webhookRepository;
   private final ModelMapper modelMapper;
@@ -33,6 +35,7 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
+  @Transactional
   public WebhookResponseDTO getWebhookById(Long id) {
     Webhook webhook =
         webhookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -40,6 +43,7 @@ public class WebhookServiceImpl implements WebhookService {
   }
 
   @Override
+  @Transactional
   public List<WebhookResponseDTO> getAllWebhooks() {
     List<Webhook> webhooks = webhookRepository.findAll();
     return webhooks.stream()
@@ -67,30 +71,40 @@ public class WebhookServiceImpl implements WebhookService {
   @Override
   @Transactional
   public DeliveryDTO deliver(String jsonPayload, Long webhookId) {
+    if (!JSONUtils.isJSONValid(jsonPayload)) {
+      throw new IllegalArgumentException("Content is not a valid JSON");
+    }
     Webhook webhook =
         webhookRepository
             .findById(webhookId)
             .orElseThrow(
                 () -> new EntityNotFoundException("Webhook not found with id: " + webhookId));
+    if (!webhook.isActive()) {
+      throw new IllegalArgumentException("Webhook is not active, therefore cannot deliver");
+    }
     RestTemplate restTemplate =
         webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
-    return tryToDeliver(jsonPayload, restTemplate, webhook);
+    return deliverWebhook(jsonPayload, restTemplate, webhook);
   }
 
-  private DeliveryDTO tryToDeliver(String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
+  private DeliveryDTO deliverWebhook(
+      String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
     Delivery delivery;
     try {
       ResponseEntity<String> response =
           restTemplate.postForEntity(webhook.getUrl(), jsonPayload, String.class);
       int statusCode = response.getStatusCode().value();
-      boolean success = response.getStatusCode() == HttpStatus.OK;
-      String errorMessage = success ? null : response.getBody();
-      delivery = new Delivery(jsonPayload, statusCode, errorMessage);
+      delivery = new Delivery(jsonPayload, statusCode);
+    } catch (org.springframework.web.client.HttpClientErrorException
+        | org.springframework.web.client.HttpServerErrorException ex) {
+      delivery =
+          new Delivery(jsonPayload, ex.getStatusCode().value(), parseErrorMessage(ex.getMessage()));
     } catch (Exception ex) {
-      delivery = new Delivery(jsonPayload, 500, ex.getMessage());
+      delivery = new Delivery(jsonPayload, 500, parseErrorMessage(ex.getMessage()));
     }
     webhook.addDelivery(delivery);
-    return modelMapper.map(delivery, DeliveryDTO.class);
+    webhook = webhookRepository.saveAndFlush(webhook);
+    return modelMapper.map(webhook.getDeliveries().get(0), DeliveryDTO.class);
   }
 
   private RestTemplate createNoSSLRestTemplate() {
@@ -104,9 +118,13 @@ public class WebhookServiceImpl implements WebhookService {
                 return new X509Certificate[0];
               }
 
-              public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+              public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                // Empty implementation
+              }
 
-              public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+              public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                // Empty implementation
+              }
             }
           },
           new SecureRandom());
@@ -114,7 +132,15 @@ public class WebhookServiceImpl implements WebhookService {
       HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
       return new RestTemplate();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new InternalError();
+    }
+  }
+
+  private String parseErrorMessage(String errorMessage) {
+    if (errorMessage != null && errorMessage.length() > 255) {
+      return errorMessage.substring(0, 255);
+    } else {
+      return errorMessage;
     }
   }
 }

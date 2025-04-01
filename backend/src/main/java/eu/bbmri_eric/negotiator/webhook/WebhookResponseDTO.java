@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.webhook;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,8 @@ public class WebhookResponseDTO {
 
   @Schema(description = "Flag indicating if the webhook is active", example = "true")
   private boolean active;
+
+  private List<DeliveryDTO> deliveries;
 
   public WebhookResponseDTO() {}
 

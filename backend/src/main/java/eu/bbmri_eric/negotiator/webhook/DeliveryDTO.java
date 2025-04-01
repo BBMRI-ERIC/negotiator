@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.webhook;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class DeliveryDTO {
 
   /** JSON content of the delivery. */
   @Schema(description = "JSON content of the delivery", example = "{\"key\":\"value\"}")
-  private String content;
+  private JsonNode content;
 
   @Schema(description = "HTTP Response Code for the Delivery attempt", example = "200")
   private Integer httpStatusCode;

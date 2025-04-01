@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import org.json.JSONObject;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/v3/webhooks", produces = "application/json", consumes = "application/json")
+@RequestMapping(path = "/v3/webhooks")
 @Tag(name = "Webhook API", description = "Operations related to webhooks")
 @SecurityRequirement(name = "security_auth")
 public class WebhookController {
@@ -74,16 +73,19 @@ public class WebhookController {
   }
 
   @Operation(
-      summary = "Deliver a message to a webhook",
+      summary = "Add a delivery to a webhook",
       description = "Adds a new delivery to the specified webhook and returns the response")
   @PostMapping(value = "/{id}/deliveries")
   public EntityModel<DeliveryDTO> addDelivery(
       @PathVariable Long id,
       @Valid
           @RequestBody
-          @Schema(description = "Content to deliver", example = "{\"test\":\"yes\"}")
-          JSONObject content) {
-    DeliveryDTO dto = webhookService.deliver(content.toString(), id);
+          @Schema(
+              description = "Content to deliver",
+              example = "{\"test\":\"yes\"}",
+              type = "object")
+          String content) {
+    DeliveryDTO dto = webhookService.deliver(content, id);
     return EntityModel.of(dto);
   }
 }

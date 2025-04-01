@@ -202,10 +202,7 @@ public class WebhookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidPayload))
         .andExpect(status().isBadRequest())
-        .andExpect(
-            jsonPath(
-                "$.detail",
-                is("Could not read the request body. Please check the request format.")));
+        .andExpect(jsonPath("$.detail", is("Content is not a valid JSON")));
     invalidPayload = "{\"data\"\"fail\"}";
     mockMvc
         .perform(
@@ -214,10 +211,7 @@ public class WebhookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidPayload))
         .andExpect(status().isBadRequest())
-        .andExpect(
-            jsonPath(
-                "$.detail",
-                is("Could not read the request body. Please check the request format.")));
+        .andExpect(jsonPath("$.detail", is("Content is not a valid JSON")));
   }
 
   @Test
@@ -238,8 +232,29 @@ public class WebhookControllerTest {
                 .content(payload))
         .andExpect(status().isOk())
         .andDo(print())
-        // Assuming your API returns the external HTTP status in the JSON body.
         .andExpect(jsonPath("$.httpStatusCode", is(500)))
         .andExpect(jsonPath("$.errorMessage", containsString("Internal")));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void testDeliver_notActive_returns400(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = new Webhook(url, true, false);
+    webhook = webhookRepository.save(webhook);
+    stubFor(
+        post(urlEqualTo("/test-endpoint"))
+            .willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
+    String payload = objectMapper.writeValueAsString("{\"data\":\"fail\"}");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath(
+                "$.detail", containsString("Webhook is not active, therefore cannot deliver")));
   }
 }
