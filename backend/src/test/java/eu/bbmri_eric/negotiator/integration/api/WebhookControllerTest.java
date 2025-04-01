@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -17,7 +18,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import eu.bbmri_eric.negotiator.webhook.DeliveryCreateDTO;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookCreateDTO;
 import eu.bbmri_eric.negotiator.webhook.WebhookRepository;
@@ -175,8 +175,7 @@ public class WebhookControllerTest {
     webhook = webhookRepository.save(webhook);
     stubFor(
         post(urlEqualTo("/test-endpoint")).willReturn(aResponse().withStatus(200).withBody("OK")));
-    DeliveryCreateDTO dto = new DeliveryCreateDTO("{\"data\":\"success\"}");
-    String payload = objectMapper.writeValueAsString(dto);
+    String payload = objectMapper.writeValueAsString("{\"data\":\"fail\"}");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
@@ -186,7 +185,61 @@ public class WebhookControllerTest {
         .andExpect(status().isOk())
         .andDo(print())
         .andExpect(jsonPath("$.httpStatusCode", is(200)))
-        .andExpect(jsonPath("$.successful", is(true)))
         .andExpect(jsonPath("$.errorMessage").doesNotExist());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void testDeliverInvalidJson(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = new Webhook(url, true, true);
+    webhook = webhookRepository.save(webhook);
+    String invalidPayload = "Not a JSON";
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidPayload))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath(
+                "$.detail",
+                is("Could not read the request body. Please check the request format.")));
+    invalidPayload = "{\"data\"\"fail\"}";
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidPayload))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath(
+                "$.detail",
+                is("Could not read the request body. Please check the request format.")));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void testDeliverExternalServerError(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+    Webhook webhook = new Webhook(url, true, true);
+    webhook = webhookRepository.save(webhook);
+    stubFor(
+        post(urlEqualTo("/test-endpoint"))
+            .willReturn(aResponse().withStatus(500).withBody("Internal Server Error")));
+    String payload = objectMapper.writeValueAsString("{\"data\":\"fail\"}");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+        .andExpect(status().isOk())
+        .andDo(print())
+        // Assuming your API returns the external HTTP status in the JSON body.
+        .andExpect(jsonPath("$.httpStatusCode", is(500)))
+        .andExpect(jsonPath("$.errorMessage", containsString("Internal")));
   }
 }

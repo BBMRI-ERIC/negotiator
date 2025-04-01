@@ -66,7 +66,7 @@ public class WebhookServiceImpl implements WebhookService {
 
   @Override
   @Transactional
-  public DeliveryDTO deliver(DeliveryCreateDTO dto, Long webhookId) {
+  public DeliveryDTO deliver(String jsonPayload, Long webhookId) {
     Webhook webhook =
         webhookRepository
             .findById(webhookId)
@@ -74,22 +74,23 @@ public class WebhookServiceImpl implements WebhookService {
                 () -> new EntityNotFoundException("Webhook not found with id: " + webhookId));
     RestTemplate restTemplate =
         webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
+    return tryToDeliver(jsonPayload, restTemplate, webhook);
+  }
+
+  private DeliveryDTO tryToDeliver(String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
     Delivery delivery;
     try {
       ResponseEntity<String> response =
-          restTemplate.postForEntity(webhook.getUrl(), dto.getContent(), String.class);
-      int statusCode = response.getStatusCodeValue();
+          restTemplate.postForEntity(webhook.getUrl(), jsonPayload, String.class);
+      int statusCode = response.getStatusCode().value();
       boolean success = response.getStatusCode() == HttpStatus.OK;
       String errorMessage = success ? null : response.getBody();
-      delivery = new Delivery(success, dto.getContent(), statusCode, errorMessage);
+      delivery = new Delivery(jsonPayload, statusCode, errorMessage);
     } catch (Exception ex) {
-      delivery = new Delivery(false, dto.getContent(), 500, ex.getMessage());
+      delivery = new Delivery(jsonPayload, 500, ex.getMessage());
     }
     webhook.addDelivery(delivery);
-    webhookRepository.save(webhook);
-    DeliveryDTO deliveryDTO = modelMapper.map(delivery, DeliveryDTO.class);
-    deliveryDTO.setWebhookId(webhook.getId());
-    return deliveryDTO;
+    return modelMapper.map(delivery, DeliveryDTO.class);
   }
 
   private RestTemplate createNoSSLRestTemplate() {

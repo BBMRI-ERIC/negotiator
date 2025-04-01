@@ -11,7 +11,6 @@ CREATE TABLE delivery
 (
     id               VARCHAR(36) PRIMARY KEY,
     webhook_id       BIGINT    NOT NULL,
-    successful       BOOLEAN   NOT NULL DEFAULT FALSE,
     content          JSON      NOT NULL,
     http_status_code INT,
     error_message    VARCHAR(255),

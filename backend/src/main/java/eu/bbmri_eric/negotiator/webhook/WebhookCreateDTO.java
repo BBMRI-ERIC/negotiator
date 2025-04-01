@@ -3,12 +3,17 @@ package eu.bbmri_eric.negotiator.webhook;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Schema(description = "DTO for creating a new webhook.")
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class WebhookCreateDTO {
 
   @Schema(
@@ -30,8 +35,6 @@ public class WebhookCreateDTO {
       defaultValue = "true")
   private boolean active = true;
 
-  public WebhookCreateDTO() {}
-
   public WebhookCreateDTO(String url) {
     this.url = url;
   }
@@ -39,11 +42,5 @@ public class WebhookCreateDTO {
   public WebhookCreateDTO(String url, boolean sslVerification) {
     this.url = url;
     this.sslVerification = sslVerification;
-  }
-
-  public WebhookCreateDTO(String url, boolean sslVerification, boolean active) {
-    this.url = url;
-    this.sslVerification = sslVerification;
-    this.active = active;
   }
 }

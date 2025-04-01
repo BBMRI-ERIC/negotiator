@@ -31,8 +31,6 @@ public class Delivery {
   @ManyToOne(optional = false)
   private Webhook webhook;
 
-  private boolean successful = false;
-
   @JdbcTypeCode(SqlTypes.JSON)
   private String content;
 
@@ -46,17 +44,15 @@ public class Delivery {
   /** Optional error message if the delivery attempt failed. */
   private String errorMessage;
 
-  public Delivery(boolean successful, String content, Integer httpStatusCode, String errorMessage) {
+  public Delivery(String content, Integer httpStatusCode, String errorMessage) {
     validateStatusAndMessage(httpStatusCode, errorMessage);
-    this.successful = successful;
     this.content = content;
     this.httpStatusCode = httpStatusCode;
     this.errorMessage = errorMessage;
   }
 
-  public Delivery(boolean successful, String content, Integer httpStatusCode) {
+  public Delivery(String content, Integer httpStatusCode) {
     validateStatusAndMessage(httpStatusCode, errorMessage);
-    this.successful = successful;
     this.content = content;
     this.httpStatusCode = httpStatusCode;
   }
@@ -80,8 +76,7 @@ public class Delivery {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Delivery delivery = (Delivery) o;
-    return successful == delivery.successful
-        && Objects.equals(id, delivery.id)
+    return Objects.equals(id, delivery.id)
         && Objects.equals(webhook, delivery.webhook)
         && Objects.equals(content, delivery.content)
         && Objects.equals(at, delivery.at);
@@ -89,6 +84,6 @@ public class Delivery {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, webhook, successful, content, at);
+    return Objects.hash(id, webhook, content, at);
   }
 }

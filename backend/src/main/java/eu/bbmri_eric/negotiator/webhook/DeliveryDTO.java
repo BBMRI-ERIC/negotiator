@@ -21,22 +21,16 @@ public class DeliveryDTO {
       example = "123e4567-e89b-12d3-a456-426614174000")
   private String id;
 
-  /** ID of the associated webhook. */
-  @Schema(description = "ID of the associated webhook", example = "1")
-  private Long webhookId;
-
-  /** Indicates if the delivery was successful. */
-  @Schema(description = "Indicates if the delivery was successful", example = "false")
-  private boolean successful;
-
   /** JSON content of the delivery. */
   @Schema(description = "JSON content of the delivery", example = "{\"key\":\"value\"}")
   private String content;
 
-  /** Optional HTTP status code from the delivery attempt. */
+  @Schema(description = "HTTP Response Code for the Delivery attempt", example = "200")
   private Integer httpStatusCode;
 
-  /** Optional error message if the delivery attempt failed. */
+  @Schema(
+      description = "Optional error message for the Delivery attempt",
+      example = "Could not deliver")
   private String errorMessage;
 
   /** Timestamp when the delivery was created. */

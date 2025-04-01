@@ -45,8 +45,8 @@ public interface WebhookService {
   /**
    * Creates a new delivery for a given webhook.
    *
-   * @param dto the DTO containing the webhook ID and JSON content for the delivery
+   * @param jsonPayload the JSON content for the delivery
    * @return a DTO representing the newly created delivery
    */
-  DeliveryDTO deliver(DeliveryCreateDTO dto, Long webhookId);
+  DeliveryDTO deliver(String jsonPayload, Long webhookId);
 }

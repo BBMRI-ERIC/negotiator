@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.mappers;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkCreateDTO;
