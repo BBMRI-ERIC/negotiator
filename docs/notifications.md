@@ -58,7 +58,7 @@ The email template uses variables to include dynamic content. These variables ar
 
 #### Updating Templates at Runtime
 
-The Negotiator provides an [REST](REST.md) endpoint to update the email template at runtime. This is only enabled when the thyemleaf.prefix is set in the `application.yml` file e.g.:
+The Negotiator provides an [REST](REST.md) endpoint to update the email template at runtime. This is only enabled when the spring.thymeleaf.prefix is set in the `application.yml` file e.g.:
 
 ```yaml
 spring:
