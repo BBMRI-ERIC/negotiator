@@ -36,12 +36,4 @@ defineProps({
 const addWebhook = () => {
   emit('add-webhook')
 }
-
-const editWebhook = (webhook) => {
-  emit('edit-webhook', webhook)
-}
-
-const deleteWebhook = (webhook) => {
-  emit('delete-webhook', webhook)
-}
 </script>
