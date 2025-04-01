@@ -171,6 +171,49 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  async function addAccessFormSections(data) {
+    return await axios
+      .post(`${apiPaths.BASE_API_PATH}/sections`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error adding access form')
+      })
+  }
+
+  async function linkSectionToAccessForm(id, data) {
+    return await axios
+      .put(`${apiPaths.BASE_API_PATH}/access-forms/${id}/sections`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error linking section to access form')
+      })
+  }
+
+  async function linkElementsToSectionToAccessForm(formId, sectionId, data) {
+    return await axios
+      .put(
+        `${apiPaths.BASE_API_PATH}/access-forms/${formId}/sections/${sectionId}/elements`,
+        data,
+        {
+          headers: getBearerHeaders(),
+        },
+      )
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error linking elemets to specific section in an access form')
+      })
+  }
+
   return {
     retrieveRequestById,
     retrieveCombinedAccessForm,
@@ -179,6 +222,9 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     createNegotiation,
     updateNegotiationById,
     retrieveFormElements,
-    addAccessForm
+    addAccessForm,
+    addAccessFormSections,
+    linkSectionToAccessForm,
+    linkElementsToSectionToAccessForm,
   }
 })
