@@ -429,11 +429,43 @@ async function getValueSet(id) {
 
 async function addAccessForm() {
   const postAccessForm = JSON.parse(JSON.stringify(accessForm.value))
+  let accessFormId = undefined
+
+  await negotiationFormStore.addAccessForm(postAccessForm).then((resp) => {
+    accessFormId = resp.id
+  })
+
   accessForm.value.sections.forEach((section, sectionIndex) => {
     postAccessForm.sections[sectionIndex].elements =
       activeElements.value[sectionIndex].selectedElements
+
+    const sections = {
+      name: section.name,
+      label: section.label,
+      description: section.description,
+    }
+    negotiationFormStore.addAccessFormSections(sections).then((section) => {
+      const currentSection = {
+        sectionId: section.id,
+        sectionOrder: sectionIndex,
+      }
+      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection)
+
+      postAccessForm.sections[sectionIndex].elements.forEach((element) => {
+        let currentElement = {
+          elementId: element.id,
+          elementOrder: 1,
+          required: false,
+        }
+
+        negotiationFormStore.linkElementsToSectionToAccessForm(
+          accessFormId,
+          section.id,
+          currentElement,
+        )
+      })
+    })
   })
-  await negotiationFormStore.addAccessForm(postAccessForm)
 }
 
 function startModal() {
