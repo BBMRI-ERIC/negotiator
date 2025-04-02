@@ -39,7 +39,7 @@ public class Webhook {
     this.active = active;
   }
 
-  @OneToMany(mappedBy = "webhook", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "webhookId", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("at DESC")
   private List<Delivery> deliveries = new ArrayList<>();
 
