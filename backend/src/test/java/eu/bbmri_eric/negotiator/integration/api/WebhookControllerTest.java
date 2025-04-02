@@ -275,26 +275,29 @@ public class WebhookControllerTest {
 
     // Stub the endpoint to simulate a successful delivery.
     stubFor(
-            post(urlEqualTo("/test-endpoint"))
-                    .willReturn(aResponse()
-                            .withStatus(200)
-                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                            .withBody("{\"status\":\"received\"}")));
+        post(urlEqualTo("/test-endpoint"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody("{\"status\":\"received\"}")));
 
     // Prepare a JSON payload to send.
     String payload = "{\"data\":\"success\"}";
 
     // Perform the test delivery request via mockMvc.
-    mockMvc.perform(
-                    MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(payload))
-            .andExpect(status().isOk());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+        .andExpect(status().isOk());
 
     // Verify that the stub endpoint received a POST request with the expected JSON payload.
-    verify(postRequestedFor(urlEqualTo("/test-endpoint"))
+    verify(
+        postRequestedFor(urlEqualTo("/test-endpoint"))
             .withHeader("Content-Type", equalTo("application/json"))
             .withRequestBody(equalToJson(JSONUtils.toJSON(payload))));
   }
-
 }
