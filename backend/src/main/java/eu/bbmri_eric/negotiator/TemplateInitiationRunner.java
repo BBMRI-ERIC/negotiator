@@ -32,7 +32,10 @@ public class TemplateInitiationRunner implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    if (thymeleafPrefix.equals(defaultTemplatePath)) {
+    Path normalizedThymeleafPrefix = Paths.get(thymeleafPrefix).toAbsolutePath().normalize();
+    Path normalizedDefaultTemplatePath =
+        Paths.get(defaultTemplatePath).toAbsolutePath().normalize();
+    if (normalizedThymeleafPrefix.equals(normalizedDefaultTemplatePath)) {
       return;
     }
     String cleanedPrefix = thymeleafPrefix.replaceFirst("^file:(//)?", "");
