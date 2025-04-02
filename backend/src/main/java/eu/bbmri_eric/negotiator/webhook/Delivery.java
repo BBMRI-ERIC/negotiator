@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.webhook;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -28,8 +27,8 @@ public class Delivery {
 
   @Id private String id;
 
-  @ManyToOne(optional = false)
-  private Webhook webhook;
+  @Column(nullable = false)
+  private Long webhookId;
 
   @JdbcTypeCode(SqlTypes.JSON)
   private String content;
@@ -77,13 +76,15 @@ public class Delivery {
     if (o == null || getClass() != o.getClass()) return false;
     Delivery delivery = (Delivery) o;
     return Objects.equals(id, delivery.id)
-        && Objects.equals(webhook, delivery.webhook)
+        && Objects.equals(webhookId, delivery.webhookId)
         && Objects.equals(content, delivery.content)
-        && Objects.equals(at, delivery.at);
+        && Objects.equals(at, delivery.at)
+        && Objects.equals(httpStatusCode, delivery.httpStatusCode)
+        && Objects.equals(errorMessage, delivery.errorMessage);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, webhook, content, at);
+    return Objects.hash(id, webhookId, content, at, httpStatusCode, errorMessage);
   }
 }

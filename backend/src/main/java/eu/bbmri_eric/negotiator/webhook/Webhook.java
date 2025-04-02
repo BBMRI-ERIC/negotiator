@@ -13,6 +13,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 
+/** A Webhook entity representing a URL to which notifications are sent. */
 @Setter
 @Getter
 @Entity
@@ -43,7 +44,7 @@ public class Webhook {
   private List<Delivery> deliveries = new ArrayList<>();
 
   public void addDelivery(Delivery delivery) {
-    delivery.setWebhook(this);
+    delivery.setWebhookId(this.id);
     deliveries.add(0, delivery);
     if (deliveries.size() > 100) {
       deliveries.remove(deliveries.size() - 1);
