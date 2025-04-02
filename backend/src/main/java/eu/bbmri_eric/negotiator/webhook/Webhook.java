@@ -18,15 +18,15 @@ import lombok.Setter;
 @Getter
 @Entity
 public class Webhook {
-
-  // Getters and Setters
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private String url;
 
-  // Indicates whether SSL certificate verification is enabled
+  /*
+  Indicates whether SSL certificate verification is enabled
+   */
   private boolean sslVerification;
 
   private boolean active;

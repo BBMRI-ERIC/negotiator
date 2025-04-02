@@ -11,11 +11,11 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import lombok.extern.apachecommons.CommonsLog;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -77,7 +77,13 @@ public class WebhookServiceImpl implements WebhookService {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
-    System.out.println(jsonPayload);
+    Webhook webhook = getWebhook(webhookId);
+    RestTemplate restTemplate =
+        webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
+    return deliverWebhook(jsonPayload, restTemplate, webhook);
+  }
+
+  private @NotNull Webhook getWebhook(Long webhookId) {
     Webhook webhook =
         webhookRepository
             .findById(webhookId)
@@ -86,22 +92,15 @@ public class WebhookServiceImpl implements WebhookService {
     if (!webhook.isActive()) {
       throw new IllegalArgumentException("Webhook is not active, therefore cannot deliver");
     }
-    RestTemplate restTemplate =
-        webhook.isSslVerification() ? new RestTemplate() : createNoSSLRestTemplate();
-    return deliverWebhook(jsonPayload, restTemplate, webhook);
+    return webhook;
   }
 
   private DeliveryDTO deliverWebhook(
       String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
     Delivery delivery;
     try {
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_JSON);
-      String payload = JSONUtils.toJSON(jsonPayload);
-      HttpEntity<String> request = new HttpEntity<>(payload, headers);
-      ResponseEntity<String> response =
-          restTemplate.postForEntity(webhook.getUrl(), request, String.class);
-      int statusCode = response.getStatusCode().value();
+      HttpEntity<String> request = buildHttpEntity(jsonPayload);
+      int statusCode = postWebhook(restTemplate, webhook, request);
       delivery = new Delivery(jsonPayload, statusCode);
     } catch (org.springframework.web.client.HttpClientErrorException
         | org.springframework.web.client.HttpServerErrorException ex) {
@@ -110,11 +109,34 @@ public class WebhookServiceImpl implements WebhookService {
     } catch (Exception ex) {
       delivery = new Delivery(jsonPayload, 500, parseErrorMessage(ex.getMessage()));
     }
+    return persistDelivery(webhook, delivery);
+  }
+
+  private DeliveryDTO persistDelivery(Webhook webhook, Delivery delivery) {
     webhook.addDelivery(delivery);
     webhook = webhookRepository.saveAndFlush(webhook);
     return modelMapper.map(webhook.getDeliveries().get(0), DeliveryDTO.class);
   }
 
+  private static int postWebhook(
+      RestTemplate restTemplate, Webhook webhook, HttpEntity<String> request) {
+    return restTemplate
+        .postForEntity(webhook.getUrl(), request, String.class)
+        .getStatusCode()
+        .value();
+  }
+
+  private static @NotNull HttpEntity<String> buildHttpEntity(String jsonPayload) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    return new HttpEntity<>(JSONUtils.toJSON(jsonPayload), headers);
+  }
+
+  /**
+   * Allows the creation of a RestTemplate that does not verify SSL certificates.
+   *
+   * @return
+   */
   private RestTemplate createNoSSLRestTemplate() {
     try {
       SSLContext sslContext = SSLContext.getInstance("TLS");
