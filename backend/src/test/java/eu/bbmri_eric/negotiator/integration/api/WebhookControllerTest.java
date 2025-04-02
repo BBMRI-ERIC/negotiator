@@ -1,9 +1,13 @@
 package eu.bbmri_eric.negotiator.integration.api;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -17,6 +21,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import eu.bbmri_eric.negotiator.common.JSONUtils;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.webhook.Webhook;
 import eu.bbmri_eric.negotiator.webhook.WebhookCreateDTO;
@@ -257,4 +262,39 @@ public class WebhookControllerTest {
             jsonPath(
                 "$.detail", containsString("Webhook is not active, therefore cannot deliver")));
   }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void testDeliver_active_receivesWebhook(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    // Build the URL for the WireMock stub endpoint.
+    String url = wmRuntimeInfo.getHttpBaseUrl() + "/test-endpoint";
+
+    // Create an active webhook (active = true)
+    Webhook webhook = new Webhook(url, true, true);
+    webhook = webhookRepository.save(webhook);
+
+    // Stub the endpoint to simulate a successful delivery.
+    stubFor(
+            post(urlEqualTo("/test-endpoint"))
+                    .willReturn(aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                            .withBody("{\"status\":\"received\"}")));
+
+    // Prepare a JSON payload to send.
+    String payload = "{\"data\":\"success\"}";
+
+    // Perform the test delivery request via mockMvc.
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(String.format("/v3/webhooks/%d/deliveries", webhook.getId()))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(payload))
+            .andExpect(status().isOk());
+
+    // Verify that the stub endpoint received a POST request with the expected JSON payload.
+    verify(postRequestedFor(urlEqualTo("/test-endpoint"))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withRequestBody(equalToJson(JSONUtils.toJSON(payload))));
+  }
+
 }
