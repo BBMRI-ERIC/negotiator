@@ -73,14 +73,14 @@ const props = defineProps({
   form: { type: Object, required: true },
   urlIsValid: { type: Boolean, required: true }
 })
-const emit = defineEmits(['update:form', 'submit'])
+const emit = defineEmits(['updateForm', 'submit'])
 
 // Create a local reactive copy of the form prop
 const localForm = reactive({ ...props.form })
 
 // When localForm changes, emit an update to inform the parent.
 watch(localForm, (newVal) => {
-  emit('update:form', newVal)
+  emit('updateForm', newVal)
 }, { deep: true })
 
 // If the parent updates the form prop, update our local copy.

@@ -18,8 +18,8 @@
     />
   </div>
   <LoadingIndicator v-else />
-  <WebhookEditModal
-    id="webhookeditmodal"
+  <WebhookModal
+    id="webhookmodal"
     :shown="shown"
     :webhook="selectedWebhook"
     @update="handleWebhookUpdate"
@@ -40,13 +40,13 @@ import { onMounted, ref } from 'vue'
 import { useUserStore } from '../store/user.js'
 import { useAdminStore } from '../store/admin.js'
 import { useFormsStore } from '../store/forms.js'
-import WebhookEditModal from '@/components/modals/WebhookModal.vue'
 import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
 import WebhooksSection from '@/components/WebhooksSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
+import WebhookModal from '@/components/modals/WebhookModal.vue'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
@@ -94,14 +94,14 @@ const addWebhook = () => {
     active: true,
     deliveries: []
   }
-  editModal.value = new Modal(document.querySelector('#webhookeditmodal'))
+  editModal.value = new Modal(document.querySelector('#webhookmodal'))
   shown.value = true
   editModal.value.show()
 }
 
 const editWebhook = (webhook) => {
   selectedWebhook.value = webhook
-  editModal.value = new Modal(document.querySelector('#webhookeditmodal'))
+  editModal.value = new Modal(document.querySelector('#webhookmodal'))
   shown.value = true
   editModal.value.show()
 }

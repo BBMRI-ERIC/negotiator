@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,7 @@ public class Webhook {
   }
 
   @OneToMany(mappedBy = "webhook", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("at DESC")
   private List<Delivery> deliveries = new ArrayList<>();
 
   public void addDelivery(Delivery delivery) {

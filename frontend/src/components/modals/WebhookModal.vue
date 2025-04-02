@@ -54,7 +54,11 @@
                 role="tabpanel"
                 aria-labelledby="config-tab"
               >
-                <WebhookConfig :form="form" :urlIsValid="urlIsValid" />
+                <WebhookConfig
+                  :form="form"
+                  :urlIsValid="urlIsValid"
+                  @updateForm="updateForm"
+                />
               </div>
               <div
                 class="tab-pane fade"
@@ -71,9 +75,8 @@
             <WebhookConfig
               :form="form"
               :urlIsValid="urlIsValid"
-              @update:form="updateForm"
+              @updateForm="updateForm"
             />
-
           </div>
         </div>
         <div class="modal-footer justify-content-center">
@@ -107,7 +110,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update', 'create'])
 
-// Initialize a reactive form object
+// Initialize a reactive form object using the webhook prop.
 const form = reactive({
   url: props.webhook.url,
   sslVerification: props.webhook.sslVerification,
@@ -117,24 +120,26 @@ const form = reactive({
 // Determine if this is a new webhook (i.e. no ID exists)
 const isNew = computed(() => !props.webhook.id)
 
-// Update the form when the webhook prop changes
-watch(() => props.webhook, newWebhook => {
+// Update the form when the webhook prop changes.
+watch(() => props.webhook, (newWebhook) => {
   form.url = newWebhook.url
   form.sslVerification = newWebhook.sslVerification
   form.active = newWebhook.active
-})
+}, { deep: true })
 
-// URL validation logic
+// URL validation logic.
 const urlIsValid = computed(() => {
   const pattern = /^https?:\/\/.+/
   return pattern.test(form.url)
 })
 
+// This handler is triggered when the child emits the updateForm event.
 const updateForm = (updatedForm) => {
+  console.log('Updated form:', updatedForm)
   Object.assign(form, updatedForm)
 }
 
-
+// Submit the form by emitting create/update events.
 const submitForm = () => {
   if (urlIsValid.value) {
     if (isNew.value) {

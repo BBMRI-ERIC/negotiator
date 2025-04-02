@@ -104,17 +104,22 @@ export const useAdminStore = defineStore('admin', () => {
 
   function testWebhook(webhookId) {
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries`, { 'test': 'yes' }, {
-        headers: getBearerHeaders()
-      })
+      .post(
+        `${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries`,
+        { 'test': 'yes' },
+        {
+          headers: getBearerHeaders()
+        }
+      )
       .then(response => {
         return response.data
       })
       .catch(error => {
         notifications.setNotification('Failed to send test delivery', 'error')
         throw error
-      })
+      });
   }
+
 
   function getWebhook(webhookId) {
     return axios.get(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}`, {

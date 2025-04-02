@@ -12,6 +12,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -74,6 +77,7 @@ public class WebhookServiceImpl implements WebhookService {
     if (!JSONUtils.isJSONValid(jsonPayload)) {
       throw new IllegalArgumentException("Content is not a valid JSON");
     }
+    System.out.println(jsonPayload);
     Webhook webhook =
         webhookRepository
             .findById(webhookId)
@@ -91,8 +95,12 @@ public class WebhookServiceImpl implements WebhookService {
       String jsonPayload, RestTemplate restTemplate, Webhook webhook) {
     Delivery delivery;
     try {
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      String payload = JSONUtils.toJSON(jsonPayload);
+      HttpEntity<String> request = new HttpEntity<>(payload, headers);
       ResponseEntity<String> response =
-          restTemplate.postForEntity(webhook.getUrl(), jsonPayload, String.class);
+          restTemplate.postForEntity(webhook.getUrl(), request, String.class);
       int statusCode = response.getStatusCode().value();
       delivery = new Delivery(jsonPayload, statusCode);
     } catch (org.springframework.web.client.HttpClientErrorException
