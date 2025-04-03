@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
@@ -24,18 +24,17 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
+@NoArgsConstructor
 public class ResourceModelAssembler
     implements RepresentationModelAssembler<
         ResourceResponseModel, EntityModel<ResourceResponseModel>> {
-  public ResourceModelAssembler() {}
 
   @Override
   public EntityModel<ResourceResponseModel> toModel(ResourceResponseModel entity) {
     return EntityModel.of(entity)
         .add(
             WebMvcLinkBuilder.linkTo(
-                    methodOn(ResourceController.class)
-                        .getResourceById(Long.valueOf(entity.getId())))
+                    methodOn(ResourceController.class).getResourceById(entity.getId()))
                 .withSelfRel(),
             linkTo(ResourceController.class).withRel("resources"));
   }
@@ -51,9 +50,7 @@ public class ResourceModelAssembler
             linkTo(methodOn(ResourceController.class).list(null)).toUri(), filterDTO, pageMetadata);
 
     return PagedModel.of(
-        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
-        pageMetadata,
-        links);
+        page.getContent().stream().map(this::toModel).toList(), pageMetadata, links);
   }
 
   public PagedModel<EntityModel<ResourceResponseModel>> toPagedModel(
@@ -63,7 +60,7 @@ public class ResourceModelAssembler
       links = getLinks(page, networkId);
     }
     return PagedModel.of(
-        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        page.getContent().stream().map(this::toModel).toList(),
         new PagedModel.PageMetadata(
             page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
         links);

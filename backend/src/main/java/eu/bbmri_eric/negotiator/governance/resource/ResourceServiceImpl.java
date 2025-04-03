@@ -142,10 +142,7 @@ public class ResourceServiceImpl implements ResourceService {
   private void setStatusForUpdatedResources(
       Negotiation negotiation, Set<Resource> resourcesToUpdate, NegotiationResourceState state) {
     verifyAuthForStatusUpdate(resourcesToUpdate);
-    resourcesToUpdate.forEach(
-        resource -> {
-          updateResourceStatus(negotiation, state, resource);
-        });
+    resourcesToUpdate.forEach(resource -> updateResourceStatus(negotiation, state, resource));
   }
 
   private void updateResourceStatus(
