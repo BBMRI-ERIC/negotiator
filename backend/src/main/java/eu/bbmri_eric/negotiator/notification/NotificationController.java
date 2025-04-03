@@ -27,37 +27,5 @@ public class NotificationController {
         AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 
-  @GetMapping(
-      value = "/notifications/template/{templateName}",
-      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
-  @Operation(
-      summary = "Get a notification email-template",
-      description = "Get a notification email-template by name")
-  @ResponseStatus(HttpStatus.OK)
-  public String getNotificationTemplate(@PathVariable String templateName) {
-    return userNotificationService.getNotificationTemplate(templateName);
-  }
 
-  @PostMapping(
-      value = "/notifications/template/{templateName}",
-      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
-  @Operation(
-      summary = "Update a notification email-template",
-      description = "Update the content of a notification email-template by name")
-  @ResponseStatus(HttpStatus.OK)
-  public String updateNotificationTemplate(
-      @PathVariable String templateName, @RequestBody String template) {
-    return userNotificationService.updateNotificationTemplate(templateName, template);
-  }
-
-  @PostMapping(
-      value = "/notifications/template/{templateName}/reset",
-      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
-  @Operation(
-      summary = "Reset a notification email-template",
-      description = "Reset a notification email-template to the default content")
-  @ResponseStatus(HttpStatus.OK)
-  public String resetNotificationTemplate(@PathVariable String templateName) {
-    return userNotificationService.resetNotificationTemplate(templateName);
-  }
 }
