@@ -28,6 +28,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/negotiator
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
     network_mode: host
+    volumes:
+      - ./config/templates:/app/config/templates
   postgres:
     container_name: negotiator-db
     image: postgres:16-alpine
