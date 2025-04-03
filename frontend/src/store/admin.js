@@ -50,10 +50,95 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
+  function retrieveWebhooks() {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/webhooks`, { headers: getBearerHeaders() })
+      .then((response) => {
+        if (!response.data._embedded || !response.data._embedded.webhookResponseDTOList) {
+          return []
+        }
+        return response.data._embedded.webhookResponseDTOList
+      })
+      .catch((error) => {
+        notifications.setNotification('Error getting webhooks from server')
+        console.error('Error retrieving webhooks:', error)
+        return []
+      })
+  }
+
+  function createWebhook(data) {
+    return axios
+      .post(`${apiPaths.BASE_API_PATH}/webhooks`, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error sending message')
+      })
+  }
+
+  function updateWebhook(id, data) {
+    return axios
+      .patch(`${apiPaths.BASE_API_PATH}/webhooks/${id}`, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error sending message')
+      })
+  }
+
+  function deleteWebhook(webhookId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}`, {
+        headers: getBearerHeaders()
+      })
+      .then(() => {
+        notifications.setNotification('Webhook deleted successfully')
+      })
+      .catch((error) => {
+        notifications.setNotification('Error deleting webhook', 'error')
+        throw error
+      })
+  }
+
+  function testWebhook(webhookId) {
+    return axios
+      .post(
+        `${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries`,
+        { 'test': 'yes' },
+        {
+          headers: getBearerHeaders()
+        }
+      )
+      .then(response => {
+        return response.data
+      })
+      .catch(error => {
+        notifications.setNotification('Failed to send test delivery', 'error')
+        throw error
+      });
+  }
+
+
+  function getWebhook(webhookId) {
+    return axios.get(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}`, {
+      headers: getBearerHeaders()
+    }).then(response => response.data)
+  }
+
+
+
   return {
     retrieveResourceAllEvents,
     setInfoRequirements,
     retrieveInfoRequirement,
     retrieveInfoRequirements,
+    retrieveWebhooks,
+    createWebhook,
+    updateWebhook,
+    deleteWebhook,
+    testWebhook,
+    getWebhook
   }
 })

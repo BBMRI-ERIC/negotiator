@@ -101,7 +101,7 @@ public class NegotiatorExceptionHandler {
   }
 
   @ExceptionHandler(AuthenticationServiceException.class)
-  public final ResponseEntity<HttpErrorResponseModel> handleJwtError(
+  public final ResponseEntity<HttpErrorResponseModel> handleAuthServerError(
       RuntimeException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
         HttpErrorResponseModel.builder()
@@ -113,7 +113,10 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler(EntityNotFoundException.class)
+  @ExceptionHandler({
+    EntityNotFoundException.class,
+    jakarta.persistence.EntityNotFoundException.class
+  })
   public final ResponseEntity<HttpErrorResponseModel> handleEntityNotFoundException(
       EntityNotFoundException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
@@ -440,7 +443,7 @@ public class NegotiatorExceptionHandler {
     e.getBindingResult()
         .getAllErrors()
         .forEach(
-            (error) -> {
+            error -> {
               String fieldName = ((FieldError) error).getField();
               String errorMessage = error.getDefaultMessage();
               errors.put(fieldName, errorMessage);
