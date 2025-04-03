@@ -451,10 +451,10 @@ async function addAccessForm() {
       }
       negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection)
 
-      postAccessForm.sections[sectionIndex].elements.forEach((element) => {
+      postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
         let currentElement = {
           elementId: element.id,
-          elementOrder: 1,
+          elementOrder: elementIndex,
           required: false,
         }
 
