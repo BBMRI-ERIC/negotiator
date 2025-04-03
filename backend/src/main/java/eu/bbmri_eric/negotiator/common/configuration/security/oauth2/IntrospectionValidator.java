@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 @CommonsLog
 public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
-  OAuth2Error error = new OAuth2Error("401", "Introspection failed", null);
+  private final OAuth2Error error = new OAuth2Error("401", "Introspection failed", null);
   private final String introspectionUri;
   private final String clientId;
   private final String clientSecret;
@@ -35,41 +35,59 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
   public OAuth2TokenValidatorResult validate(Jwt token) {
     if (introspectionUri.isEmpty()) {
       return OAuth2TokenValidatorResult.success();
-    } else {
-      return introspect(token);
     }
+    return introspect(token);
   }
 
   private OAuth2TokenValidatorResult introspect(Jwt token) {
     String subject = token.getSubject();
-    if (Objects.isNull(subject)) {
+    if (subject == null) {
       subject = token.getClaimAsString("client_id");
     }
-    if (jwtCache.containsKey(subject) || isRequestSuccessful(sendHttpRequest(token))) {
-      log.debug("Introspection for subject %s was successful!".formatted(subject));
-      return OAuth2TokenValidatorResult.success();
-    } else {
-      log.warn("Introspection for subject %s failed!".formatted(subject));
+    if (subject == null) {
+      log.error("Token does not contain a subject or client_id claim.");
+      return OAuth2TokenValidatorResult.failure(error);
+    }
+    try {
+      if (jwtCache.containsKey(subject)) {
+        log.debug("Token for subject %s found in cache.".formatted(subject));
+        return OAuth2TokenValidatorResult.success();
+      }
+      HttpResponse<String> response = sendHttpRequest(token);
+      if (isRequestSuccessful(response)) {
+        jwtCache.put(subject, token);
+        log.debug("Token for subject %s validated and stored in cache.".formatted(subject));
+        return OAuth2TokenValidatorResult.success();
+      } else {
+        log.warn("Token for subject %s failed introspection.".formatted(subject));
+        return OAuth2TokenValidatorResult.failure(error);
+      }
+    } catch (Exception e) {
+      log.error(
+          "Error during introspection for subject %s: %s".formatted(subject, e.getMessage()), e);
       return OAuth2TokenValidatorResult.failure(error);
     }
   }
 
   private boolean isRequestSuccessful(HttpResponse<String> response) {
-    if (Objects.isNull(response)) return false;
-    return response.statusCode() == 200 && response.body().contains("\"active\":true");
+    return response != null
+        && response.statusCode() == 200
+        && response.body().contains("\"active\":true");
   }
 
   private HttpResponse<String> sendHttpRequest(Jwt token) {
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest request = buildHttpRequest(token);
-    HttpResponse<String> response;
     try {
-      response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    } catch (IOException | InterruptedException e) {
-      log.error("Could not send request to introspection endpoint!");
+      return client.send(request, HttpResponse.BodyHandlers.ofString());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt(); // Preserve the interrupt status
+      log.error("Thread was interrupted while sending HTTP request to introspection endpoint!", e);
+      return null;
+    } catch (IOException e) {
+      log.error("Could not send request to introspection endpoint!", e);
       return null;
     }
-    return response;
   }
 
   private HttpRequest buildHttpRequest(Jwt token) {
@@ -80,13 +98,18 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
             "Authorization",
             "Basic "
                 + Base64.getEncoder()
-                    .encodeToString((("%s:%s").formatted(clientId, clientSecret)).getBytes()))
+                    .encodeToString(("%s:%s".formatted(clientId, clientSecret)).getBytes()))
         .POST(HttpRequest.BodyPublishers.ofString("token=" + token.getTokenValue()))
         .build();
   }
 
-  static void cleanCache() {
+  public static void cleanCache() {
     log.debug("Clearing JWT cache.");
     jwtCache.clear();
+  }
+
+  // Add a public method to inspect cache size
+  public static int getCacheSize() {
+    return jwtCache.size();
   }
 }

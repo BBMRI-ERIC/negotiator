@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +17,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.RequestModelsMapper;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
-import eu.bbmri_eric.negotiator.negotiation.request.RequestService;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestServiceImpl;
 import java.util.List;
 import java.util.Objects;
@@ -35,20 +34,22 @@ import org.modelmapper.ModelMapper;
 @CommonsLog
 public class RequestServiceTest {
 
-  @Mock RequestRepository requestRepository;
+  @Mock private RequestRepository requestRepository;
 
-  @Mock ResourceRepository resourceRepository;
+  @Mock private ResourceRepository resourceRepository;
 
-  @Mock DiscoveryServiceRepository discoveryServiceRepository;
+  @Mock private DiscoveryServiceRepository discoveryServiceRepository;
 
-  @Spy ModelMapper modelMapper = new ModelMapper();
+  @Spy private ModelMapper modelMapper = new ModelMapper();
 
-  @InjectMocks RequestService requestService = new RequestServiceImpl();
+  @InjectMocks private RequestServiceImpl requestService;
 
   @InjectMocks
-  RequestModelsMapper requestModelsMapper = new RequestModelsMapper("http://localhost:8080");
+  private RequestModelsMapper requestModelsMapper =
+      new RequestModelsMapper("http://localhost:8080");
 
-  @InjectMocks ResourceModelMapper resourceModelMapper;
+  @InjectMocks
+  private ResourceModelMapper resourceModelMapper = new ResourceModelMapper(new ModelMapper());
 
   private static RequestCreateDTO buildRequestCreateDTO() {
     ResourceDTO resourceDTO =
@@ -71,6 +72,7 @@ public class RequestServiceTest {
   void getAll_ReturnsAll() {
     when(requestRepository.findAll()).thenReturn(List.of(new Request()));
     assertEquals(1, requestService.findAll().size());
+
     when(requestRepository.findAll()).thenReturn(List.of(new Request(), new Request()));
     assertEquals(2, requestService.findAll().size());
   }
@@ -90,12 +92,14 @@ public class RequestServiceTest {
     Request requestToBeSaved = modelMapper.map(requestCreateDTO, Request.class);
     requestToBeSaved.setId("generatedByDB");
     Resource resourceToBeSaved = modelMapper.map(resourceDTO, Resource.class);
+
     when(resourceRepository.findBySourceId(resourceDTO.getId()))
         .thenReturn(Optional.of(resourceToBeSaved));
     when(discoveryServiceRepository.findByUrl(requestCreateDTO.getUrl()))
         .thenReturn(Optional.of(new DiscoveryService()));
     when(requestRepository.save(argThat(request -> request.getId() == null)))
         .thenReturn(requestToBeSaved);
+
     RequestDTO savedRequest = requestService.create(requestCreateDTO);
     assertEquals(requestToBeSaved.getId(), savedRequest.getId());
     assertEquals(requestCreateDTO.getHumanReadable(), savedRequest.getHumanReadable());
@@ -108,16 +112,20 @@ public class RequestServiceTest {
     savedRequest.setId("AlreadySavedRequest");
     RequestCreateDTO updatedRequestCreateDTO = buildRequestCreateDTO();
     updatedRequestCreateDTO.setHumanReadable("Now I want nothing!");
+
     when(requestRepository.findById("AlreadySavedRequest")).thenReturn(Optional.of(savedRequest));
     when(resourceRepository.findBySourceId(
             updatedRequestCreateDTO.getResources().iterator().next().getId()))
         .thenReturn(Optional.of(new Resource()));
     when(discoveryServiceRepository.findByUrl(updatedRequestCreateDTO.getUrl()))
         .thenReturn(Optional.of(new DiscoveryService()));
+
+    // Mimic update on the saved request object
     savedRequest.setHumanReadable(updatedRequestCreateDTO.getHumanReadable());
     when(requestRepository.save(
             argThat(request -> Objects.equals(request.getId(), savedRequest.getId()))))
         .thenReturn(savedRequest);
+
     RequestDTO updatedRequest =
         requestService.update(savedRequest.getId(), updatedRequestCreateDTO);
     assertEquals("Now I want nothing!", updatedRequest.getHumanReadable());
@@ -125,12 +133,13 @@ public class RequestServiceTest {
 
   @Test
   void create_unknownExternaiId_ko() {
-    when(resourceRepository.findBySourceId("notexistingId")).thenReturn(null);
+    when(resourceRepository.findBySourceId("notexistingId")).thenReturn(Optional.empty());
     ResourceDTO resourceDTO =
         ResourceDTO.builder().id("notexistingId").name("not existing").build();
 
     RequestCreateDTO requestCreateDTO = buildRequestCreateDTO();
     requestCreateDTO.setResources(Set.of(resourceDTO));
+
     assertThrows(WrongRequestException.class, () -> requestService.create(requestCreateDTO));
   }
 }

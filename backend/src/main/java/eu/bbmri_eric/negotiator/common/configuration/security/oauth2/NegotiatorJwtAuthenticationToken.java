@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.common.NegotiatorPrincipal;
 import eu.bbmri_eric.negotiator.common.UserPrincipal;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.util.Collection;
+import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -26,5 +27,18 @@ public class NegotiatorJwtAuthenticationToken extends JwtAuthenticationToken {
   @Override
   public NegotiatorPrincipal getPrincipal() {
     return principal;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    NegotiatorJwtAuthenticationToken that = (NegotiatorJwtAuthenticationToken) o;
+    return Objects.equals(principal, that.principal);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), principal);
   }
 }
