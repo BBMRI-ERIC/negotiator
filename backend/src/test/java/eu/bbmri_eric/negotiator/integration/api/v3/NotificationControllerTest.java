@@ -62,5 +62,4 @@ public class NotificationControllerTest {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(3)));
   }
-
 }
