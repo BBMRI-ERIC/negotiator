@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -67,6 +68,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
             .map(existing -> updatePersonIfNecessary(existing, claims))
             .orElseGet(() -> saveNewUserAsPerson(claims));
     Collection<GrantedAuthority> authorities = parseUserAuthorities(claims);
+    log.info("USER_LOGIN: User %s logged in.".formatted(claims.get(CLAIM_NAME)));
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities);
   }
 
@@ -97,7 +99,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     return person;
   }
 
-  private static Collection<GrantedAuthority> getAuthoritiesFromScope(Jwt jwt) {
+  public static Collection<GrantedAuthority> getAuthoritiesFromScope(Jwt jwt) {
     Set<GrantedAuthority> authorities = new HashSet<>();
     if (jwt.hasClaim(CLAIM_SCOPE)) {
       String scopes = jwt.getClaimAsString(CLAIM_SCOPE);
@@ -114,7 +116,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     return authorities;
   }
 
-  private Collection<GrantedAuthority> parseUserAuthorities(Map<String, Object> claims) {
+  public Collection<GrantedAuthority> parseUserAuthorities(Map<String, Object> claims) {
     Set<GrantedAuthority> authorities = new HashSet<>();
     if (claims.containsKey(authzClaim)) {
       @SuppressWarnings("unchecked")
@@ -154,8 +156,11 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     if (claimsResponse instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> claims = (Map<String, Object>) claimsResponse;
-      userInfoCache.put(jwt.getSubject(), claims);
-      log.info("USER_LOGIN: User %s logged in.".formatted(claims.get(CLAIM_NAME)));
+      try {
+        userInfoCache.put(jwt.getSubject(), claims);
+      } catch (Exception e) {
+        throw new WrongJWTException();
+      }
       return claims;
     } else {
       log.warn("Unexpected response format from user info endpoint. Falling back to JWT claims.");
@@ -174,7 +179,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
       return response.getBody();
     } catch (RestClientException e) {
       log.error("Could not connect to user info endpoint: %s".formatted(e.getMessage()), e);
-      return Collections.emptyMap();
+      throw new AuthenticationServiceException("Could not connect to user info endpoint");
     }
   }
 
@@ -224,5 +229,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   public static void cleanCache() {
     log.debug("Clearing userInfo cache.");
     userInfoCache.clear();
+  }
+
+  public static int getUserInfoCacheSize() {
+    return userInfoCache.size();
   }
 }

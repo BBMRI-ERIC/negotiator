@@ -103,8 +103,13 @@ public class IntrospectionValidator implements OAuth2TokenValidator<Jwt> {
         .build();
   }
 
-  static void cleanCache() {
+  public static void cleanCache() {
     log.debug("Clearing JWT cache.");
     jwtCache.clear();
+  }
+
+  // Add a public method to inspect cache size
+  public static int getCacheSize() {
+    return jwtCache.size();
   }
 }
