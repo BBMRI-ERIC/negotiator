@@ -5,8 +5,6 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
@@ -35,9 +33,7 @@ public class RequestServiceImpl implements RequestService {
       RequestRepository requestRepository,
       ResourceRepository resourceRepository,
       DiscoveryServiceRepository discoveryServiceRepository,
-      ModelMapper modelMapper,
-      OrganizationRepository organizationRepository,
-      AccessFormRepository accessFormRepository) {
+      ModelMapper modelMapper) {
     this.requestRepository = requestRepository;
     this.resourceRepository = resourceRepository;
     this.discoveryServiceRepository = discoveryServiceRepository;
