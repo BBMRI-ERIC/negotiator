@@ -1,10 +1,11 @@
 package eu.bbmri_eric.negotiator;
 
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import eu.bbmri_eric.negotiator.notification.email.EmailTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TemplateInitiationRunner implements CommandLineRunner {
 
-  private final UserNotificationService userNotificationService;
+  private final EmailTemplateService emailTemplateService;
 
   @Value("${spring.thymeleaf.prefix:classpath:/templates/}")
   private String thymeleafPrefix;
@@ -23,11 +24,11 @@ public class TemplateInitiationRunner implements CommandLineRunner {
   @Value("${spring.thymeleaf.suffix:.html}")
   private String thymeleafSuffix;
 
-  private String defaultTemplatePath = "classpath:/templates/";
+  private final String defaultTemplatePath = "classpath:/templates/";
 
   @Autowired
-  public TemplateInitiationRunner(UserNotificationService userNotificationService) {
-    this.userNotificationService = userNotificationService;
+  public TemplateInitiationRunner(EmailTemplateService emailTemplateService) {
+    this.emailTemplateService = emailTemplateService;
   }
 
   @Override
@@ -57,7 +58,7 @@ public class TemplateInitiationRunner implements CommandLineRunner {
       Path fileOnDisk = templatesDir.resolve(filename);
       if (!Files.exists(fileOnDisk)) {
         String templateName = filename.replace(thymeleafSuffix, "");
-        userNotificationService.resetNotificationTemplate(templateName);
+        emailTemplateService.resetNotificationTemplate(templateName);
       }
     }
   }
