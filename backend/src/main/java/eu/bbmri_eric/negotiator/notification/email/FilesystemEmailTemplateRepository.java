@@ -111,7 +111,9 @@ public class FilesystemEmailTemplateRepository implements EmailTemplateRepositor
   private void validateTemplateName(String templateName) {
     if (templateName == null || templateName.isEmpty()) {
       throw new ForbiddenRequestException("Template name cannot be null or empty");
-    }else if (templateName.contains("..") || templateName.contains("/") || templateName.contains("\\")) {
+    } else if (templateName.contains("..")
+        || templateName.contains("/")
+        || templateName.contains("\\")) {
       throw new ForbiddenRequestException("Invalid template name");
     }
   }
