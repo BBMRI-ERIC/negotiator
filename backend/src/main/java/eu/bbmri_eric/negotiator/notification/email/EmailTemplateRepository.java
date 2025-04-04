@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.notification.email;
 
-
 public interface EmailTemplateRepository {
   /**
    * Get a notification template.

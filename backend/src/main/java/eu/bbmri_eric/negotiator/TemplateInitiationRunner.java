@@ -43,7 +43,7 @@ public class TemplateInitiationRunner implements CommandLineRunner {
   private boolean isDefaultTemplatePathUsed() {
     Path normalizedThymeleafPrefix = Paths.get(thymeleafPrefix).toAbsolutePath().normalize();
     Path normalizedDefaultTemplatePath =
-            Paths.get(defaultTemplatePath).toAbsolutePath().normalize();
+        Paths.get(defaultTemplatePath).toAbsolutePath().normalize();
     return normalizedThymeleafPrefix.equals(normalizedDefaultTemplatePath);
   }
 
@@ -73,5 +73,4 @@ public class TemplateInitiationRunner implements CommandLineRunner {
       }
     }
   }
-
 }
