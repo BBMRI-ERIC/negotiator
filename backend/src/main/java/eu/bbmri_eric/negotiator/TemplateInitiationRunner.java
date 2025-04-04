@@ -32,21 +32,33 @@ public class TemplateInitiationRunner implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    Path normalizedThymeleafPrefix = Paths.get(thymeleafPrefix).toAbsolutePath().normalize();
-    Path normalizedDefaultTemplatePath =
-        Paths.get(defaultTemplatePath).toAbsolutePath().normalize();
-    if (normalizedThymeleafPrefix.equals(normalizedDefaultTemplatePath)) {
+    if (isDefaultTemplatePathUsed()) {
       return;
     }
+    Path templatesDir = resolveTemplateDirectory();
+    createDirectoryIfNotExists(templatesDir);
+    initializeTemplates(templatesDir);
+  }
+
+  private boolean isDefaultTemplatePathUsed() {
+    Path normalizedThymeleafPrefix = Paths.get(thymeleafPrefix).toAbsolutePath().normalize();
+    Path normalizedDefaultTemplatePath =
+            Paths.get(defaultTemplatePath).toAbsolutePath().normalize();
+    return normalizedThymeleafPrefix.equals(normalizedDefaultTemplatePath);
+  }
+
+  private Path resolveTemplateDirectory() {
     String cleanedPrefix = thymeleafPrefix.replaceFirst("^file:(//)?", "");
-    Path templatesDir = Paths.get(cleanedPrefix).toAbsolutePath().normalize();
-    try {
-      if (!Files.exists(templatesDir)) {
-        Files.createDirectories(templatesDir);
-      }
-    } catch (IOException aE) {
-      throw new RuntimeException("Could not create directory for templates: " + templatesDir, aE);
+    return Paths.get(cleanedPrefix).toAbsolutePath().normalize();
+  }
+
+  private void createDirectoryIfNotExists(Path path) throws IOException {
+    if (!Files.exists(path)) {
+      Files.createDirectories(path);
     }
+  }
+
+  private void initializeTemplates(Path templatesDir) throws IOException {
     PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
     Resource[] resources = resolver.getResources("classpath:/templates/*" + thymeleafSuffix);
 
@@ -61,4 +73,5 @@ public class TemplateInitiationRunner implements CommandLineRunner {
       }
     }
   }
+
 }
