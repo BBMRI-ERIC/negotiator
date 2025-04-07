@@ -449,21 +449,21 @@ async function addAccessForm() {
         sectionId: section.id,
         sectionOrder: sectionIndex,
       }
-      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection)
+      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
+        postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
+          let currentElement = {
+            elementId: element.id,
+            elementOrder: elementIndex,
+            required: false,
+          }
 
-      postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
-        let currentElement = {
-          elementId: element.id,
-          elementOrder: elementIndex,
-          required: false,
-        }
-
-        negotiationFormStore.linkElementsToSectionToAccessForm(
-          accessFormId,
-          section.id,
-          currentElement,
-        )
-      })
+          negotiationFormStore.linkElementsToSectionToAccessForm(
+            accessFormId,
+            section.id,
+            currentElement,
+          )
+        })
+      })     
     })
   })
 }
