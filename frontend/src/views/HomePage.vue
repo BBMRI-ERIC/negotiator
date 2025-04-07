@@ -121,7 +121,7 @@
           >Server version: <span>{{ backendVersion }}</span>
         </div>
         <div class="text-center mb-5" :style="{ color: uiConfiguration?.loginLinksTextColor }">
-          <p>&copy; 2024 BBMRI-ERIC</p>
+          <CopyrightText />
         </div>
       </div>
     </div>
@@ -137,6 +137,7 @@ import { useRouter } from 'vue-router'
 import { useActuatorInfoStore } from '../store/actuatorInfo.js'
 import { useOidcStore } from '../store/oidc.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import CopyrightText from '../components/CopyrightText.vue'
 
 const props = defineProps({
   isUiConfigActive: {

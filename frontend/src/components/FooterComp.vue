@@ -43,7 +43,7 @@
             v-if="uiConfiguration?.footerGithubBackendLink"
             href="https://github.com/BBMRI-ERIC/negotiator"
             class="ps-2 link"
-            :style="{ color: uiConfiguration?.footerTextColor}"
+            :style="{ color: uiConfiguration?.footerTextColor }"
           >
             <i class="bi bi-github pe-1" />
             <span>GitHub</span>
@@ -128,7 +128,7 @@
       <div>
         <div class="row mt-4">
           <div class="col text-center" :style="{ color: uiConfiguration?.footerTextColor }">
-            <p>© 2024 BBMRI-ERIC</p>
+            <CopyrightText />
           </div>
           <div class="col text-center ms-4"></div>
           <div
@@ -186,6 +186,7 @@ import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
 import workProgrammeLogo from '../assets/images/work-programme.png'
 import { useActuatorInfoStore } from '../store/actuatorInfo.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import CopyrightText from '../components/CopyrightText.vue'
 
 const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
