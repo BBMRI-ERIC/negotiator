@@ -3,6 +3,13 @@ package eu.bbmri_eric.negotiator.notification.email;
 public interface EmailTemplateService {
 
   /**
+   * Get all notification templates.
+   *
+   * @return the templates.
+   */
+  String getAllNotificationTemplates();
+
+  /**
    * Get a notification template.
    *
    * @param templateName the name of the template.

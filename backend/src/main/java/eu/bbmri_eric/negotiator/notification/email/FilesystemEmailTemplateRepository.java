@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.WritableResource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Repository;
 import org.testcontainers.shaded.com.google.common.annotations.VisibleForTesting;
 
@@ -18,6 +20,7 @@ import org.testcontainers.shaded.com.google.common.annotations.VisibleForTesting
 public class FilesystemEmailTemplateRepository implements EmailTemplateRepository {
 
   ResourceLoader resourceLoader;
+  ResourcePatternResolver resourcePatResolver;
 
   @Value("${spring.thymeleaf.prefix:classpath:/templates/}")
   private String thymeleafPrefix;
@@ -27,8 +30,30 @@ public class FilesystemEmailTemplateRepository implements EmailTemplateRepositor
 
   private final String defaultThymeleafPrefix = "classpath:/templates/";
 
-  public FilesystemEmailTemplateRepository(ResourceLoader resourceLoader) {
+  public FilesystemEmailTemplateRepository(
+      ResourceLoader resourceLoader, ResourcePatternResolver resourcePatResolver) {
     this.resourceLoader = resourceLoader;
+    this.resourcePatResolver = resourcePatResolver;
+  }
+
+  @Override
+  public ArrayList<String> listAll() {
+    log.debug("Listing all notification templates");
+    ArrayList<String> templates = new ArrayList<>();
+    try {
+      org.springframework.core.io.Resource[] resources =
+          resourcePatResolver.getResources(thymeleafPrefix + "*" + thymeleafSuffix);
+      for (org.springframework.core.io.Resource resource : resources) {
+        String templateName = resource.getFilename();
+        if (templateName != null) {
+          templates.add(templateName.replace(thymeleafSuffix, ""));
+        }
+      }
+    } catch (IOException e) {
+      log.error("Failed to list notification templates", e);
+      throw new EntityNotFoundException("Failed to list notification templates");
+    }
+    return templates;
   }
 
   @Override

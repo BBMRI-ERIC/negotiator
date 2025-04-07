@@ -1,6 +1,16 @@
 package eu.bbmri_eric.negotiator.notification.email;
 
+import java.util.ArrayList;
+
 public interface EmailTemplateRepository {
+
+  /**
+   * Get all notification templates.
+   *
+   * @return the templates.
+   */
+  ArrayList<String> listAll();
+
   /**
    * Get a notification template.
    *
