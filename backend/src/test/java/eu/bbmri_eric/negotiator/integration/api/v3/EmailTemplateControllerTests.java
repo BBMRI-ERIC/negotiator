@@ -139,4 +139,26 @@ public class EmailTemplateControllerTests {
                     .next()
                     .getName()));
   }
+
+  @Test
+  @WithUserDetails("admin")
+  void getAllNotificationTemplates_Ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/email-templates"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/json"));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getAllNotificationTemplates_NotEmpty() throws Exception {
+    // Assuming the service returns an empty string or empty XML when there are no templates
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/email-templates"))
+        .andExpect(status().isOk())
+        .andExpect(
+            content()
+                .string(
+                    "[\"email-notification\",\"footer\",\"logo\",\"negotiation-confirmation\",\"negotiation-reminder\",\"negotiation-status-change\"]"));
+  }
 }
