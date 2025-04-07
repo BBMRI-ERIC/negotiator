@@ -7,16 +7,12 @@ services:
     network_mode: host  # Use host network
     command:
       - "--providers.docker=true"
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:8080"  # Make Traefik listen on 8080 for all traffic
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik_dynamic:/etc/traefik/dynamic
   negotiator:
     container_name: negotiator
-#    image: bbmrieric/negotiator:latest
-    build: ./backend
+    image: bbmrieric/negotiator:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,7 +57,7 @@ services:
       - CLIENT_ID=auth-code-client
       - REDIRECT_URI=http://localhost:8080/logged-in
       - LOGOUT_URI=http://localhost:8080
-      - API_RESOURCES=https://localhost:8081
+      - API_RESOURCES=https://negotiator.bbmri-eric.eu
       - "SCOPES=openid profile email permissions some-app-scope-1"
     labels:
       - "traefik.enable=true"
