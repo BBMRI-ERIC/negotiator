@@ -291,7 +291,7 @@
               </div>
               <div class="wizard-footer-right">
                 <button class="btn btn-secondary" @click="props.nextTab()">
-                  {{ props.isLastStep ? 'Submit request' : 'Next' }}
+                  {{ props.isLastStep ? 'Submit' : 'Next' }}
                 </button>
               </div>
             </template>
@@ -303,7 +303,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
 import 'vue3-form-wizard/dist/style.css'

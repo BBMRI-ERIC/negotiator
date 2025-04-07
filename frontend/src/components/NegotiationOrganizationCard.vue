@@ -1,6 +1,7 @@
 <template>
   <!-- Modals -->
   <form-submission-modal
+    ref="formSubmissionModalRef"
     id="formSubmissionModal"
     :title="requiredAccessForm.name"
     :negotiation-id="negotiationId"
@@ -10,7 +11,7 @@
     @confirm="hideFormSubmissionModal"
     requirement-link=""
   />
-  <form-view-modal id="formViewModal" :payload="submittedForm" />
+  <form-view-modal ref="formViewModalRef" id="formViewModal" :payload="submittedForm" />
   <confirmation-modal
     id="statusUpdateModal"
     :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown'}`"
@@ -28,8 +29,8 @@
           class="collapse-organization d-flex align-items-center cursor-pointer"
           data-bs-toggle="collapse"
           aria-expanded="false"
-          :data-bs-target="`#card-body-block-${getElementIdFromResourceId(orgId)}`"
-          :aria-controls="`card-body-block-${getElementIdFromResourceId(orgId)}`"
+          :data-bs-target="`#card-body-block-${sanitizeId(orgId)}`"
+          :aria-controls="`card-body-block-${sanitizeId(orgId)}`"
           @click="toggleCollapse(orgId)"
         >
           <i class="bi" :class="isCollapsed[orgId] ? 'bi-chevron-right' : 'bi-chevron-down'" />
@@ -40,10 +41,10 @@
         </div>
 
         <!-- Status Dropdown -->
-        <div class="status-dropdown-container ms-auto">
-          <div
-            class="status-box p-1 cursor-pointer d-flex align-items-center"
-            role="button"
+        <div class="status-dropdown-container ms-auto" :data-org-id="orgId">
+          <button
+            type="button"
+            class="status-box p-1 d-flex align-items-center btn"
             title="Select current status. The term Resource is abstract and can for example refer to biological samples, datasets or a service such as sequencing."
             @click.stop="toggleDropdown(orgId)"
           >
@@ -51,9 +52,12 @@
               <i :class="getStatusIcon(org.status)" class="px-1" />
               {{ org.status?.replace(/_/g, ' ') || '' }}
             </span>
-            <i v-if="org.updatable" class="bi icon-smaller mx-1"
-               :class="dropdownVisible[orgId] ? 'bi-caret-up-fill' : 'bi-caret-down-fill'" />
-          </div>
+            <i
+              v-if="org.updatable"
+              class="bi icon-smaller mx-1"
+              :class="dropdownVisible[orgId] ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
+            />
+          </button>
           <ul v-if="org.updatable && dropdownVisible[orgId]" class="dropdown-menu show">
             <li
               v-for="state in sortedStates"
@@ -72,7 +76,7 @@
     </div>
 
     <!-- Organization Resources -->
-    <div :id="`card-body-block-${getElementIdFromResourceId(orgId)}`" class="collapse multi-collapse">
+    <div :id="`card-body-block-${sanitizeId(orgId)}`" class="collapse multi-collapse">
       <div v-for="resource in org.resources" :key="resource.id" class="card-body">
         <div class="form-check d-flex flex-column">
           <div class="d-flex flex-row align-items-center flex-wrap">
@@ -81,7 +85,7 @@
                 class="form-check-label text-truncate"
                 :style="{ color: uiConfiguration.primaryTextColor, maxWidth: '300px' }"
                 :title="resource.name"
-                :for="getElementIdFromResourceId(resource.sourceId)"
+                :for="sanitizeId(resource.sourceId)"
               >
                 <i class="bi bi-box-seam" />
                 {{ resource.name }}
@@ -107,7 +111,7 @@
               </div>
 
               <!-- Resource Lifecycle Links -->
-              <div v-if="getLifecycleLinks(resource._links).length > 0" class="me-3 mb-2">
+              <div v-if="getLifecycleLinks(resource._links).length" class="me-3 mb-2">
                 Update status:
                 <div
                   v-for="(link, index) in getLifecycleLinks(resource._links)"
@@ -123,14 +127,22 @@
           </div>
 
           <!-- Submitted Requirements (Green) -->
-          <div v-for="(link, index) in getSubmissionLinks(resource._links)" :key="index" class="mt-1">
+          <div
+            v-for="(link, index) in getSubmissionLinks(resource._links)"
+            :key="index"
+            class="mt-1"
+          >
             <a class="submission-text cursor-pointer" @click.prevent="openFormModal(link.href)">
               <i class="bi bi-check-circle" /> {{ link.name }}
             </a>
           </div>
 
           <!-- Missing Requirements (Red) -->
-          <div v-for="(link, index) in getRequirementLinks(resource._links)" :key="index" class="mt-1">
+          <div
+            v-for="(link, index) in getRequirementLinks(resource._links)"
+            :key="index"
+            class="mt-1"
+          >
             <a class="requirement-text cursor-pointer" @click="openModal(link.href, resource.id)">
               <i class="bi bi-exclamation-circle-fill" /> {{ link.title }} required
             </a>
@@ -160,9 +172,10 @@ const props = defineProps({
   negotiationId: { type: String, default: undefined }
 })
 
+const emit = defineEmits(['reloadResources'])
+
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
-const emit = defineEmits(['reloadResources'])
 
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 const getResources = computed(() => props.resources)
@@ -176,115 +189,106 @@ const sortedStates = computed(() =>
   props.resourceStates.slice().sort((a, b) => Number(a.ordinal) - Number(b.ordinal))
 )
 
+// UI State
 const dropdownVisible = reactive({})
 const isCollapsed = reactive({})
 
+// Modal and Form Data
 const requirementId = ref(undefined)
 const resourceId = ref(undefined)
 const requiredAccessForm = ref({})
 const submittedForm = ref(undefined)
 const selectedOrganization = ref(undefined)
 const orgStatus = ref(undefined)
-let formSubmissionModal = ref(null)
-let formViewModal = ref(null)
 
+// Modal Refs and Instances
+const formSubmissionModalRef = ref(null)
+const formSubmissionModalInstance = ref(null)
+const formViewModalRef = ref(null)
+const formViewModalInstance = ref(null)
+
+// Utility: Replace disallowed characters in an ID string
+const sanitizeId = (id) => id.replaceAll(':', '_')
+
+// Toggle the status dropdown visibility for an organization
 const toggleDropdown = (orgId) => {
-  // Close all other dropdowns
   Object.keys(dropdownVisible).forEach(key => {
     if (key !== orgId) dropdownVisible[key] = false
   })
   dropdownVisible[orgId] = !dropdownVisible[orgId]
 }
 
+// Toggle collapse for an organization
 const toggleCollapse = (orgId) => {
   isCollapsed[orgId] = !isCollapsed[orgId]
 }
 
-function getElementIdFromResourceId(resourceId) {
-  return resourceId.replaceAll(':', '_')
-}
-
-async function updateOrgStatus(state, organization, orgId) {
+// Update organization status and store selected org/state for later processing
+const updateOrgStatus = (state, organization, orgId) => {
   toggleDropdown(orgId)
   selectedOrganization.value = organization
   orgStatus.value = state
 }
 
-function getStatusForResource(resourceId) {
-  const resource = resourcesById.value[resourceId]?.currentState
-  return resource ? transformStatus(resource) : ''
+// Get a resource’s current status label (if available)
+const getStatusForResource = (resourceId) => {
+  const currentState = resourcesById.value[resourceId]?.currentState
+  return currentState ? transformStatus(currentState) : ''
 }
 
-async function updateResourceState(link) {
+// Update the resource state and then trigger a reload
+const updateResourceState = async (link) => {
   await negotiationPageStore.updateResourceStatus(link)
   emit('reloadResources')
 }
 
-function getSubmissionLinks(links) {
-  const submissionLinks = []
-  for (const key in links) {
-    if (key.startsWith('submission-')) {
-      submissionLinks.push(links[key])
-    }
-  }
-  return submissionLinks
-}
+// Filter links by key prefix (submission or requirement)
+const getSubmissionLinks = (links) =>
+  Object.entries(links)
+    .filter(([key]) => key.startsWith('submission-'))
+    .map(([, value]) => value)
 
-function getRequirementLinks(links) {
-  const requirementLinks = []
-  for (const key in links) {
-    if (key.startsWith('requirement-')) {
-      requirementLinks.push(links[key])
-    }
-  }
-  return requirementLinks
-}
+const getRequirementLinks = (links) =>
+  Object.entries(links)
+    .filter(([key]) => key.startsWith('requirement-'))
+    .map(([, value]) => value)
 
-function getLifecycleLinks(links) {
-  const lifecycleLinks = []
-  for (const key in links) {
-    if (links[key].title === 'Next Lifecycle event') {
-      lifecycleLinks.push(links[key])
-    }
-  }
-  return lifecycleLinks
-}
+// Get lifecycle links where the title matches the expected event
+const getLifecycleLinks = (links) =>
+  Object.values(links).filter(link => link.title === 'Next Lifecycle event')
 
-async function openModal(href, resourcesId) {
+// Open the form submission modal and load requirement info
+const openModal = async (href, resId) => {
   const requirement = await negotiationPageStore.retrieveInfoRequirement(href)
-  resourceId.value = resourcesId
+  resourceId.value = resId
   requiredAccessForm.value = requirement.requiredAccessForm
   requirementId.value = requirement.id
-  formSubmissionModal.value = new Modal(document.querySelector('#formSubmissionModal'))
-  formSubmissionModal.value.show()
+  formSubmissionModalInstance.value.show()
 }
 
-async function openFormModal(href) {
+// Open the form view modal and load submitted form data
+const openFormModal = async (href) => {
   const payload = await negotiationPageStore.retrieveInformationSubmission(href)
   submittedForm.value = payload.payload
-  formViewModal.value = new Modal(document.querySelector('#formViewModal'))
-  formViewModal.value.show()
+  formViewModalInstance.value.show()
 }
 
-async function hideFormSubmissionModal() {
-  formSubmissionModal.value.hide()
+// Hide the form submission modal and trigger a resource reload
+const hideFormSubmissionModal = async () => {
+  formSubmissionModalInstance.value.hide()
   emit('reloadResources')
 }
 
-function getRepresentedResources(resources) {
-  const resourceIds = []
-  for (const resource of resources) {
-    for (const key in resource._links) {
-      if (resource._links[key].title === 'Next Lifecycle event') {
-        resourceIds.push(resource.id)
-        break
-      }
-    }
-  }
-  return resourceIds
-}
+// Get IDs of resources represented by an organization (i.e. those having a next lifecycle event)
+const getRepresentedResources = (resources) =>
+  resources
+    .filter(resource =>
+      Object.values(resource._links).some(link => link.title === 'Next Lifecycle event')
+    )
+    .map(resource => resource.id)
 
-async function updateOrganization() {
+// Update organization with new status for all represented resources
+const updateOrganization = async () => {
   const data = {
     resourceIds: getRepresentedResources(selectedOrganization.value.resources),
     state: orgStatus.value.value,
@@ -304,6 +308,9 @@ const handleClickOutside = (event) => {
 }
 
 onMounted(() => {
+  // Initialize modal instances using component refs
+  formSubmissionModalInstance.value = new Modal(formSubmissionModalRef.value.$el)
+  formViewModalInstance.value = new Modal(formViewModalRef.value.$el)
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -324,12 +331,31 @@ onUnmounted(() => {
   display: inline-block;
 }
 
+/* Desktop dropdown menu */
 .status-dropdown-container .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
   margin-top: 0.5rem;
   z-index: 1000;
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  .status-dropdown-container {
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  .status-dropdown-container .dropdown-menu {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin-top: 0.5rem;
+    text-align: left;
+  }
 }
 
 /* Requirement (missing) - red text */
