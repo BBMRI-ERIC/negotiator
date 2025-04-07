@@ -1,7 +1,7 @@
 package eu.bbmri_eric.negotiator.notification.email;
 
-import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -17,10 +17,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
   }
 
   @Override
-  public String getAllNotificationTemplates() {
+  public List<String> getAllNotificationTemplates() {
     log.info("Getting all notification templates.");
     ArrayList<String> templates = emailTemplateRepository.listAll();
-    return new Gson().toJson(templates);
+    return templates;
   }
 
   @Override
