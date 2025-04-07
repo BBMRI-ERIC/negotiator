@@ -13,7 +13,7 @@
             {{ resource.name }}
           </label>
           <span class="badge rounded-pill bg-status-badge ms-2">
-            {{ getStatusForResource(resource.id) }}
+            {{ getStatusForResource() }}
           </span>
         </div>
         <!-- Resource URI if available -->
@@ -81,7 +81,7 @@ const emit = defineEmits(['open-form-modal', 'open-modal', 'update-resource-stat
 
 const sanitizeId = (id) => id.replaceAll(':', '_')
 
-const getStatusForResource = (resourceId) => {
+const getStatusForResource = () => {
   return props.resource.currentState ? transformStatus(props.resource.currentState) : ''
 }
 

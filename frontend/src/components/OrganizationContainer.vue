@@ -94,7 +94,7 @@ const updateResourceState = async (link) => {
   emit('reloadResources')
 }
 
-const updateOrgStatus = (state, organization, orgId) => {
+const updateOrgStatus = (state, organization) => {
   selectedOrganization.value = organization
   orgStatus.value = state
 }
