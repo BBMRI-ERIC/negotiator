@@ -197,6 +197,76 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     )
     return response.data
   }
+  
+  async function retrieveFormElements() {
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/elements`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data._embedded.elements
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting Form elements data from server')
+        return null
+      })
+  }
+
+  async function addAccessForm(data) {
+    return await axios
+      .post(`${apiPaths.BASE_API_PATH}/access-forms`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error adding access form')
+      })
+  }
+
+  async function addAccessFormSections(data) {
+    return await axios
+      .post(`${apiPaths.BASE_API_PATH}/sections`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error adding access form')
+      })
+  }
+
+  async function linkSectionToAccessForm(id, data) {
+    return await axios
+      .put(`${apiPaths.BASE_API_PATH}/access-forms/${id}/sections`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error linking section to access form')
+      })
+  }
+
+  async function linkElementsToSectionToAccessForm(formId, sectionId, data) {
+    return await axios
+      .put(
+        `${apiPaths.BASE_API_PATH}/access-forms/${formId}/sections/${sectionId}/elements`,
+        data,
+        {
+          headers: getBearerHeaders(),
+        },
+      )
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error linking elemets to specific section in an access form')
+      })
+  }
 
   return {
     retrieveRequestById,
@@ -207,5 +277,10 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     updateNegotiationById,
     deleteAttachment,
     transferNegotiation,
+    retrieveFormElements,
+    addAccessForm,
+    addAccessFormSections,
+    linkSectionToAccessForm,
+    linkElementsToSectionToAccessForm,
   }
 })

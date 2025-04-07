@@ -2,7 +2,7 @@
   <div v-if="uiConfiguration?.isButtonVisible && uiConfiguration?.buttonText" class="new-request">
     <button
       ref="openModal"
-      class="btn btn-sm sm my-2 float-end"
+      class="btn btn-sm sm ms-2 float-end"
       data-bs-toggle="modal"
       data-bs-target="#newRequestModal"
       :style="{ 'background-color': uiConfiguration?.buttonColor }"
