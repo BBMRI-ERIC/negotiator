@@ -7,7 +7,6 @@
       :text="notificationText"
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
-      @dismiss="backToHomePage"
       @confirm="addAccessForm"
     />
     <button
@@ -22,7 +21,6 @@
       :title="'Add Section details'"
       :text="'Please input fields'"
       dismiss-button-text="Back to HomePage"
-      @dismiss="backToHomePage"
       @confirm="addFormSection"
     />
     <div class="new-section-button">
@@ -356,6 +354,9 @@ import { useNotificationsStore } from '../store/notifications'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 const uiConfigurationStore = useUiConfiguration()
 const negotiationFormStore = useNegotiationFormStore()
 const notificationsStore = useNotificationsStore()
@@ -452,11 +453,20 @@ async function addAccessForm() {
       })
     })
   })
+
+  goBackHome()
 }
+
+function goBackHome() {
+  router.push({
+    name: 'home',
+  })
+}
+
 function startModal() {
   showNotification(
     'Confirm submission',
-    "You will be redirected to the network page. Click 'Confirm' to proceed.",
+    "You will be redirected to the Home page. Click 'Confirm' to proceed.",
   )
 }
 function showNotification(header, body) {
