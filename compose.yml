@@ -7,12 +7,16 @@ services:
     network_mode: host  # Use host network
     command:
       - "--providers.docker=true"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:8080"  # Make Traefik listen on 8080 for all traffic
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik_dynamic:/etc/traefik/dynamic
   negotiator:
     container_name: negotiator
-    image: bbmrieric/negotiator:latest
+#    image: bbmrieric/negotiator:latest
+    build: ./backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,7 +33,7 @@ services:
       - SPRING_FLYWAY_LOCATIONS=classpath:db/migration/,db/dev/migration
     network_mode: host
     volumes:
-      - ./config/templates:/app/config/templates
+      - negotiator-email-templates:/app/config/templates
   postgres:
     container_name: negotiator-db
     image: postgres:16-alpine
@@ -57,7 +61,7 @@ services:
       - CLIENT_ID=auth-code-client
       - REDIRECT_URI=http://localhost:8080/logged-in
       - LOGOUT_URI=http://localhost:8080
-      - API_RESOURCES=https://negotiator.bbmri-eric.eu
+      - API_RESOURCES=https://localhost:8081
       - "SCOPES=openid profile email permissions some-app-scope-1"
     labels:
       - "traefik.enable=true"
@@ -90,3 +94,4 @@ services:
       - ./oidc-server-config:/config:ro
 volumes:
   negotiator-db-data:
+  negotiator-email-templates:
