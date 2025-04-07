@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.notification.email;
 
+import java.util.List;
+
 public interface EmailTemplateService {
 
   /**
@@ -7,7 +9,7 @@ public interface EmailTemplateService {
    *
    * @return the templates.
    */
-  String getAllNotificationTemplates();
+  List<String> getAllNotificationTemplates();
 
   /**
    * Get a notification template.
