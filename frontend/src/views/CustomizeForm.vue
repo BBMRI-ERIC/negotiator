@@ -67,6 +67,11 @@
         :style="{ color: uiConfiguration?.primaryTextColor }"
         :before-change="isSectionValid(section)"
       >
+        <div class="d-flex me-3 justify-content-end">
+          <button type="button" class="btn btn-danger btn-sm" v-on:click="removeSection(index)">
+            remove section
+          </button>
+        </div>
         <div class="d-flex justify-content-center fs-5 fw-bold">
           Check the boxes of the fields you wish to display!
         </div>
@@ -565,6 +570,11 @@ function sortActiveElements(referenceArray, arrayToSort, sectionIndex) {
   })
 
   activeElements.value[sectionIndex].selectedElements = arrayToSort
+}
+
+function removeSection(sectionIndex) {
+  accessForm.value.sections.splice(sectionIndex, 1)
+  forceReRenderFormWizard.value += 1
 }
 </script>
 <style scoped>
