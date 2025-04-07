@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.notification.email;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class EmailTemplateController {
       summary = "Get all notification email-templates",
       description = "Get all notification email-templates")
   @ResponseStatus(HttpStatus.OK)
-  public String getAllNotificationTemplates() {
+  public List<String> getAllNotificationTemplates() {
     return emailTemplateService.getAllNotificationTemplates();
   }
 
