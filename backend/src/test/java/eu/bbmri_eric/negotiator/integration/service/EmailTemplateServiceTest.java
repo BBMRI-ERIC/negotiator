@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.notification.email.EmailTemplateService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import java.util.List;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,5 +83,12 @@ public class EmailTemplateServiceTest {
     assertThrows(
         EntityNotFoundException.class,
         () -> emailTemplateService.resetNotificationTemplate(templateName));
+  }
+
+  @Test
+  void getAllNotificationTemplates_existingTemplates_ok() {
+    List<String> templates = emailTemplateService.getAllNotificationTemplates();
+    assertNotNull(templates);
+    assertFalse(templates.isEmpty());
   }
 }

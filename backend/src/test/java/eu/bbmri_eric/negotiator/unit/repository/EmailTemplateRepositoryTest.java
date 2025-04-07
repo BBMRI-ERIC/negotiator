@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.unit.repository;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -12,6 +13,7 @@ import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,10 +22,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.WritableResource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 @RepositoryTest(loadTestData = true)
 public class EmailTemplateRepositoryTest {
   @Mock private ResourceLoader resourceLoader;
+
+  @Mock private ResourcePatternResolver resourcePatResolver;
 
   @Mock private WritableResource writableResource;
 
@@ -147,5 +152,40 @@ public class EmailTemplateRepositoryTest {
     String templateName = "template";
 
     assertThrows(ForbiddenRequestException.class, () -> repository.reset(templateName));
+  }
+
+  @Test
+  void listAll_ReturnsAllTemplates() throws IOException {
+    org.springframework.core.io.Resource resource1 =
+        mock(org.springframework.core.io.Resource.class);
+    org.springframework.core.io.Resource resource2 =
+        mock(org.springframework.core.io.Resource.class);
+    when(resource1.getFilename()).thenReturn("template1.html");
+    when(resource2.getFilename()).thenReturn("template2.html");
+    when(resourcePatResolver.getResources(anyString()))
+        .thenReturn(new org.springframework.core.io.Resource[] {resource1, resource2});
+
+    List<String> templates = repository.listAll();
+
+    assertEquals(2, templates.size());
+    assertTrue(templates.contains("template1"));
+    assertTrue(templates.contains("template2"));
+  }
+
+  @Test
+  void listAll_ThrowsEntityNotFoundException_WhenIOExceptionOccurs() throws IOException {
+    when(resourcePatResolver.getResources(anyString())).thenThrow(new IOException());
+
+    assertThrows(EntityNotFoundException.class, () -> repository.listAll());
+  }
+
+  @Test
+  void listAll_ReturnsEmptyList_WhenNoTemplatesFound() throws IOException {
+    when(resourcePatResolver.getResources(anyString()))
+        .thenReturn(new org.springframework.core.io.Resource[] {});
+
+    List<String> templates = repository.listAll();
+
+    assertTrue(templates.isEmpty());
   }
 }
