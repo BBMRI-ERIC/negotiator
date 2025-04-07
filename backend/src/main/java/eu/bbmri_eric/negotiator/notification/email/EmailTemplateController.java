@@ -18,6 +18,15 @@ public class EmailTemplateController {
 
   @Autowired EmailTemplateService emailTemplateService;
 
+  @GetMapping("/email-templates")
+  @Operation(
+      summary = "Get all notification email-templates",
+      description = "Get all notification email-templates")
+  @ResponseStatus(HttpStatus.OK)
+  public String getAllNotificationTemplates() {
+    return emailTemplateService.getAllNotificationTemplates();
+  }
+
   @GetMapping(
       value = "/email-templates/{templateName}",
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
