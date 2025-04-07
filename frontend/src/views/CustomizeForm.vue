@@ -418,6 +418,12 @@ async function addAccessForm() {
     accessFormId = resp.id
   })
   accessForm.value.sections.forEach((section, sectionIndex) => {
+    sortActiveElements(
+      accessForm.value.sections[sectionIndex].elements,
+      activeElements.value[sectionIndex].selectedElements,
+      sectionIndex,
+    )
+
     postAccessForm.sections[sectionIndex].elements =
       activeElements.value[sectionIndex].selectedElements
     const sections = {
@@ -538,6 +544,17 @@ function transformMessage(text) {
 }
 function isElementActive(selectedElements, elementId) {
   return selectedElements.find((x) => x.id === elementId)
+}
+function sortActiveElements(referenceArray, arrayToSort, sectionIndex) {
+  // Sort the arrayToSort based on the order in the referenceArray
+  arrayToSort.sort((a, b) => {
+    return (
+      referenceArray.findIndex((item) => item.id === a.id) -
+      referenceArray.findIndex((item) => item.id === b.id)
+    )
+  })
+
+  activeElements.value[sectionIndex].selectedElements = arrayToSort
 }
 </script>
 <style scoped>
