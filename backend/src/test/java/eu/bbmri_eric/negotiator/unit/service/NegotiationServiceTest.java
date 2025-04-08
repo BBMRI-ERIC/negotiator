@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.unit.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -162,8 +163,8 @@ public class NegotiationServiceTest {
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
-    assertEquals(null, negotiationDTO.getStatus());
-    verify(userNotificationService, times(1)).notifyAdmins(negotiation);
+    assertNull(negotiationDTO.getStatus());
+    verify(userNotificationService, times(0)).notifyAdmins(negotiation);
   }
 
   @Test

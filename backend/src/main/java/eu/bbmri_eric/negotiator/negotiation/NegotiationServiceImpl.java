@@ -24,6 +24,7 @@ import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
@@ -138,7 +139,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiation = buildNegotiation(negotiationBody, request);
     negotiation = persistNegotiation(negotiationBody, negotiation);
     requestRepository.delete(request);
-    userNotificationService.notifyAdmins(negotiation);
+    if (!negotiationBody.isDraft()) {
+      userNotificationService.notifyAdmins(negotiation);
+    }
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 
@@ -153,7 +156,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     if (negotiationBody.getAttachments() != null) {
       linkAttachments(negotiationBody, negotiation);
     }
-    eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
+    if (Objects.equals(negotiation.getCurrentState(), NegotiationState.SUBMITTED)) {
+      eventPublisher.publishEvent(new NewNegotiationEvent(this, negotiation.getId()));
+    }
     return negotiation;
   }
 
