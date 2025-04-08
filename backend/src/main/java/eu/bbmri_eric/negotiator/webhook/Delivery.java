@@ -51,7 +51,6 @@ public class Delivery {
   }
 
   public Delivery(String content, Integer httpStatusCode) {
-    validateStatusAndMessage(httpStatusCode, errorMessage);
     this.content = content;
     this.httpStatusCode = httpStatusCode;
   }

@@ -58,7 +58,7 @@ There, you can add a new requirement by providing the following information:
 After you have added a requirement, it will be displayed in the list of requirements.
 The requirement will be triggered when a Representative tries to advance the State Machine.
 
-## Webhooks Guide
+## Webhooks
 
 The Negotiator uses a webhook system to allow external systems to be notified of events that occur within the
 Negotiator.
