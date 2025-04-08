@@ -28,7 +28,7 @@ describe("Test negotiation message", () => {
             // Send message section
             cy.get(".mb-4 > .mb-3").type("Hi i want to test message functionality, have a great day.")
             cy.get("#recipient").select("Everyone")
-            cy.get("span > .btn").click()
+            cy.get('#send').click()
         })
     })
     context("check if message is visible in negotiation", () => {
