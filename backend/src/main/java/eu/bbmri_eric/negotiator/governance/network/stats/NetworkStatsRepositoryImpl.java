@@ -160,6 +160,7 @@ public class NetworkStatsRepositoryImpl implements NetworkStatsRepository {
         WHERE net.id = :networkId
           AND DATE(n.creationDate) > :since
           AND DATE(n.creationDate) <= :until
+          AND n.currentState != 'DRAFT'
         GROUP BY n.currentState
         """;
 
