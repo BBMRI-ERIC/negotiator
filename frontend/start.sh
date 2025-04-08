@@ -16,6 +16,7 @@ for file in assets/index*.js;
          -e "s|MATOMO_SITE_ID_PLACEHOLDER|${MATOMO_SITE_ID:-default_site_id}|g" \
          -e "s|FEATURE_FLAG_FAQPAGE_PLACEHOLDER|${FEATURE_FLAG_FAQPAGE:-false}|g" \
          -e "s|FEATURE_FLAG_NETWORKS_PLACEHOLDER|${FEATURE_FLAG_NETWORKS:-false}|g" \
+         -e "s|FEATURE_FLAG_ADD_ACCESS_FORM_PLACEHOLDER|${FEATURE_FLAG_ADD_FORM:-false}|g" \
          -e "s|FEATURE_FLAG_VUETOUR_PLACEHOLDER|${FEATURE_FLAG_VUETOUR:-false}|g" \
          -e "s|FEATURE_FLAG_NOTIFICATIONS|${FEATURE_FLAG_NOTIFICATIONS:-false}|g" \
          -e "s|DEV_MODE_PLACEHOLDER|${DEV_MODE:-false}|g" \
