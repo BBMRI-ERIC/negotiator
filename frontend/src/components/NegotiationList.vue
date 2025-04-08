@@ -1,9 +1,9 @@
 <template>
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
-    <div v-if="userRole === ROLES.ADMINISTRATOR" class="float-end ms-2">
+    <div v-if="userRole === ROLES.ADMINISTRATOR && addAcessFormFeatureFlag" class="float-end ms-2">
       <RedirectButton
-        :buttonText="'+  Add Acess Form'"
+        :buttonText="'+  Add Access Form'"
         :redirectRouteName="'customize-form'"
         :titleModal="'Are you sure?'"
         :textModal="'You will be redirected to page where you can add access form'"
@@ -259,11 +259,16 @@ import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import RedirectButton from '../components/RedirectButton.vue'
+import allFeatureFlags from '@/config/featureFlags.js'
+
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
+const addAcessFormFeatureFlag = !!(
+  allFeatureFlags.add_acess_form === 'true' || allFeatureFlags.add_acess_form === true
+)
 
 const props = defineProps({
   negotiations: {
