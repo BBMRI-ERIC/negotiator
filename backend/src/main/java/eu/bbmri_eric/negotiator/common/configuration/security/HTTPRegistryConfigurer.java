@@ -143,6 +143,8 @@ public class HTTPRegistryConfigurer {
         .permitAll()
         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/ui-config"))
         .hasRole("ADMIN")
+        .requestMatchers(mvc.pattern("/v3/webhooks/**"))
+        .hasRole("ADMIN")
         .requestMatchers(mvc.pattern("/actuator/prometheus"))
         .hasRole("PROMETHEUS")
         .requestMatchers(mvc.pattern("/actuator/info"))
