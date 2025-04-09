@@ -26,12 +26,11 @@ public class AdminNotificationListener {
   @Transactional(Transactional.TxType.REQUIRES_NEW)
   @Async
   public void handleSubmittedNegotiation(NegotiationStateChangeEvent event) {
-    log.error(Thread.currentThread().getName());
     if (event.getEvent().equals(NegotiationEvent.SUBMIT)) {
       try {
         userNotificationService.notifyAdmins(event.getNegotiationId());
       } catch (Exception e) {
-        log.error("Error notifying admins about negotiation submission", e);
+        log.error("Error notifying admins about negotiation submission");
       }
     }
   }

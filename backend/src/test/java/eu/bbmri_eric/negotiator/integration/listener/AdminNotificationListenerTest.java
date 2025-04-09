@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.listener;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -29,11 +31,21 @@ public class AdminNotificationListenerTest {
   }
 
   @Test
-  void testListenerMethodIsCalled() throws InterruptedException {
+  void testListenerMethodIsCalled() {
     eventPublisher.publishEvent(
         new NegotiationStateChangeEvent(
             this, "negotiationId", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, null));
-    Thread.sleep(10);
-    verify(listener, times(1)).handleSubmittedNegotiation(any());
+
+    await()
+        .atMost(1, SECONDS)
+        .until(
+            () -> {
+              try {
+                verify(listener, times(1)).handleSubmittedNegotiation(any());
+                return true;
+              } catch (AssertionError e) {
+                return false;
+              }
+            });
   }
 }

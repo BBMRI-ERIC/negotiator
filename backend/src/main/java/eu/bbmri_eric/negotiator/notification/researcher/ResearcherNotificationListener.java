@@ -49,7 +49,6 @@ public class ResearcherNotificationListener {
   @Transactional(Transactional.TxType.REQUIRES_NEW)
   @Async
   public void handleSubmittedNegotiation(NegotiationStateChangeEvent event) {
-    log.error(Thread.currentThread().getName());
     if (event.getEvent().equals(NegotiationEvent.SUBMIT)) {
       try {
         notificationService.createConfirmationNotification(event.getNegotiationId());
