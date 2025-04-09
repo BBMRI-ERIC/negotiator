@@ -5,8 +5,6 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
-import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
@@ -15,25 +13,32 @@ import eu.bbmri_eric.negotiator.negotiation.dto.RequestDTO;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service(value = "DefaultRequestService")
+@Service(value = "defaultRequestService")
 @CommonsLog
 public class RequestServiceImpl implements RequestService {
 
-  @Autowired private RequestRepository requestRepository;
-  @Autowired private ResourceRepository resourceRepository;
-  @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
-  @Autowired private ModelMapper modelMapper;
-  @Autowired private OrganizationRepository organizationRepository;
-  @Autowired private AccessFormRepository accessFormRepository;
+  private final RequestRepository requestRepository;
+  private final ResourceRepository resourceRepository;
+  private final DiscoveryServiceRepository discoveryServiceRepository;
+  private final ModelMapper modelMapper;
+
+  public RequestServiceImpl(
+      RequestRepository requestRepository,
+      ResourceRepository resourceRepository,
+      DiscoveryServiceRepository discoveryServiceRepository,
+      ModelMapper modelMapper) {
+    this.requestRepository = requestRepository;
+    this.resourceRepository = resourceRepository;
+    this.discoveryServiceRepository = discoveryServiceRepository;
+    this.modelMapper = modelMapper;
+  }
 
   @Transactional
   public RequestDTO create(RequestCreateDTO requestBody) throws EntityNotStorableException {
@@ -62,22 +67,14 @@ public class RequestServiceImpl implements RequestService {
     return resourceDTOs.stream()
         .map(
             resourceDTO ->
-                findResourceByExternalId(resourceDTO.getId())
+                resourceRepository
+                    .findBySourceId(resourceDTO.getId())
                     .orElseThrow(
                         () ->
                             new WrongRequestException(
                                 "Resource with external ID: %s was not found. Make sure that the synchronization between Negotiator and you Discovery Service is running "
                                     .formatted(resourceDTO.getId()))))
         .collect(Collectors.toSet());
-  }
-
-  private Optional<Resource> findResourceByExternalId(String id) {
-    Optional<Resource> resource = resourceRepository.findBySourceId(id);
-    if (resource != null && resource.isPresent()) {
-      return resource;
-    }
-    log.warn("Resource with ID %s not found in database.".formatted(id));
-    return Optional.ofNullable(null);
   }
 
   private DiscoveryService getValidDiscoveryService(String url) {
@@ -100,9 +97,7 @@ public class RequestServiceImpl implements RequestService {
   @Transactional(readOnly = true)
   public List<RequestDTO> findAll() {
     List<Request> requests = requestRepository.findAll();
-    return requests.stream()
-        .map(request -> modelMapper.map(request, RequestDTO.class))
-        .collect(Collectors.toList());
+    return requests.stream().map(request -> modelMapper.map(request, RequestDTO.class)).toList();
   }
 
   @Transactional(readOnly = true)
