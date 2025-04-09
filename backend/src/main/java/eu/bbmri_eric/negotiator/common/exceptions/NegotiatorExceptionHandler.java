@@ -117,6 +117,24 @@ public class NegotiatorExceptionHandler {
     EntityNotFoundException.class,
     jakarta.persistence.EntityNotFoundException.class
   })
+  @ApiResponse(
+      responseCode = "404",
+      description = "Not Found - The requested resource does not exist",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ProblemDetail.class),
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                                  {
+                                    "status": 404,
+                                    "title": "Resource Not Found",
+                                    "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404",
+                                    "detail": "The resource you are looking for does not exist or could not be found."
+                                  }
+                                  """)))
   public final ResponseEntity<HttpErrorResponseModel> handleEntityNotFoundException(
       EntityNotFoundException ex, WebRequest request) {
     HttpErrorResponseModel errorResponse =
