@@ -559,7 +559,7 @@ async function saveNegotiation(savingDraft, step) {
     const data = {
       draft: savingDraft,
       request: props.requestId,
-      payload: negotiationCriteria.value,
+      payload: negotiationCritseria.value,
     }
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
