@@ -30,7 +30,7 @@
     <form-wizard
       v-if="accessForm"
       ref="wizard"
-      :start-index=wizardStartIndex
+      :start-index="wizardStartIndex"
       :color="uiConfiguration?.primaryTextColor"
       step-size="md"
       @on-complete="startModal()"
@@ -318,7 +318,7 @@
             </span>
           </div>
         </div>
-      </tab-content>          
+      </tab-content>
       <template #footer="props">
         <div class="wizard-footer-left">
           <button
@@ -336,19 +336,6 @@
           </button>
         </div>
         <div class="wizard-footer-right">
-          <button
-            v-if="isEditForm === false || currentStatus === 'DRAFT'"
-            class="btn me-4"
-            @click="saveDraft(props.activeTabIndex)"
-            :disabled="currentSectionModified === false"
-            :style="{
-              'background-color': uiConfiguration.buttonColor,
-              'border-color': uiConfiguration.buttonColor,
-              color: '#FFFFFF',
-            }"
-          >
-            Save Draft
-          </button>
           <button
             class="btn"
             @click="props.nextTab()"
@@ -381,7 +368,6 @@ import 'vue3-form-wizard/dist/style.css'
 import fileExtensions from '@/config/uploadFileExtensions.js'
 import { isFileExtensionsSuported } from '../composables/utils.js'
 
-
 const uiConfigurationStore = useUiConfiguration()
 const negotiationFormStore = useNegotiationFormStore()
 const notificationsStore = useNotificationsStore()
@@ -398,10 +384,10 @@ const props = defineProps({
   },
   step: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 })
-const wizard = ref(null);
+const wizard = ref(null)
 const wizardStartIndex = ref(props.step)
 
 const currentStatus = ref(undefined)
@@ -423,7 +409,10 @@ const uiConfiguration = computed(() => {
 })
 
 const loading = computed(() => {
-  return accessForm.value === undefined && (!props.isEditForm || (props.isEditForm && resources.value === undefined))
+  return (
+    accessForm.value === undefined &&
+    (!props.isEditForm || (props.isEditForm && resources.value === undefined))
+  )
 })
 
 const queryParameters = computed(() => {
@@ -436,7 +425,6 @@ const currentSection = computed(() => {
   return accessForm.value.sections[currentIndex - 1]?.name
 })
 
-
 const currentSectionCriteria = computed(() => {
   if (!currentSection.value || !negotiationCriteria.value) return null
   return negotiationCriteria.value[currentSection.value]
@@ -447,8 +435,11 @@ onBeforeMount(async () => {
   let accessFormResponse = undefined
   if (props.isEditForm) {
     result = await negotiationPageStore.retrieveNegotiationById(props.requestId)
-    result.resources = await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId) || [];
-    accessFormResponse = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(props.requestId)
+    result.resources =
+      (await negotiationPageStore.retrieveResourcesByNegotiationId(props.requestId)) || []
+    accessFormResponse = await negotiationFormStore.retrieveNegotiationCombinedAccessForm(
+      props.requestId,
+    )
     currentStatus.value = result.status
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
@@ -457,9 +448,12 @@ onBeforeMount(async () => {
 
   if (result.code) {
     if (result.code === 404) {
-      showNotification('Error', `${props.isEditForm ? 'Request' : 'Negotiation' } not found`)
+      showNotification('Error', `${props.isEditForm ? 'Request' : 'Negotiation'} not found`)
     } else {
-      showNotification('Error', `Cannot contact the server to get ${props.isEditForm ? 'request' : 'negotiation' } information`)
+      showNotification(
+        'Error',
+        `Cannot contact the server to get ${props.isEditForm ? 'request' : 'negotiation'} information`,
+      )
     }
   } else if (!props.isEditForm && result.negotiationId) {
     requestAlreadySubmittedNegotiationId.value = result.negotiationId
@@ -473,11 +467,11 @@ onBeforeMount(async () => {
     }
 
     for (let i = 1; i < props.step; i++) {
-      const section = accessForm.value.sections[i-1];
-      const valid = isSectionValid(section, false);
+      const section = accessForm.value.sections[i - 1]
+      const valid = isSectionValid(section, false)
       if (!valid) {
-        wizardStartIndex.value = i;
-        break;
+        wizardStartIndex.value = i
+        break
       }
     }
   }
@@ -489,21 +483,31 @@ onMounted(async () => {
   })
 })
 
-watch(() => wizard.value, (newValue) => {
-  if (newValue && wizard.value) {
-    for (let i = 0; i <= wizardStartIndex.value; i++) {
-      wizard.value.activateTabAndCheckStep(i)
+watch(
+  () => wizard.value,
+  (newValue) => {
+    if (newValue && wizard.value) {
+      for (let i = 0; i <= wizardStartIndex.value; i++) {
+        wizard.value.activateTabAndCheckStep(i)
+      }
     }
-  }
-}, { immediate: true })
+  },
+  { immediate: true },
+)
 
-
-watch(currentSectionCriteria, (newValue, oldValue) => {
-  if (newValue && oldValue && JSON.stringify(Object.keys(newValue).sort()) === JSON.stringify(Object.keys(oldValue).sort())) {
-    currentSectionModified.value = true
-  }
-}, { deep: true })
-
+watch(
+  currentSectionCriteria,
+  (newValue, oldValue) => {
+    if (
+      newValue &&
+      oldValue &&
+      JSON.stringify(Object.keys(newValue).sort()) === JSON.stringify(Object.keys(oldValue).sort())
+    ) {
+      currentSectionModified.value = true
+    }
+  },
+  { deep: true },
+)
 
 function backToNegotiation(id) {
   router.push('/negotiations/' + id + '/ROLE_RESEARCHER')
@@ -515,8 +519,8 @@ async function getValueSet(id) {
   })
 }
 
-async function saveDraft(step) {  
-  if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) { 
+async function saveDraft(step) {
+  if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
     await saveNegotiation(true, step)
     currentSectionModified.value = false
   }
@@ -531,11 +535,14 @@ async function saveNegotiation(savingDraft, step) {
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
       if (!savingDraft) {
         if (currentStatus.value === 'DRAFT') {
-          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT')
+          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+            backToNegotiation(props.requestId)
+          })
+        } else {
+          backToNegotiation(props.requestId)
         }
-        backToNegotiation(props.requestId)
       } else {
-        notificationsStore.setNotification("Negotiation saved correctly as draft")
+        notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
       }
     })
   } else {
@@ -550,8 +557,11 @@ async function saveNegotiation(savingDraft, step) {
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
         if (savingDraft) {
-          notificationsStore.setNotification(`Negotiation saved correctly as draft with id ${negotiationId}`)
           router.replace(`/edit/requests/${negotiationId}/${step}`)
+          notificationsStore.setNotification(
+            `Negotiation saved correctly as draft with id ${negotiationId}`,
+            'light',
+          )
         } else {
           backToNegotiation(negotiationId)
         }
@@ -562,11 +572,10 @@ async function saveNegotiation(savingDraft, step) {
 
 function startModal() {
   showNotification(
-    "Confirm submission",
+    'Confirm submission',
     "You will be redirected to the negotiation page where you can monitor the status. Click 'Confirm' to proceed.",
   )
 }
-
 
 function isAttachment(value) {
   return value instanceof File || value instanceof Object
@@ -575,7 +584,7 @@ function isAttachment(value) {
 let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
-  if(isFileExtensionsSuported(event.target.files[0])) {
+  if (isFileExtensionsSuported(event.target.files[0])) {
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++
@@ -647,43 +656,43 @@ function performNextStepAction(section, step) {
 }
 
 function isSectionValid(section, changeColor) {
-    let valid = true
-    validationColorHighlight.value = []
-    section.elements.forEach((ac) => {
-      if (ac.required) {
-        if (
-          ac.type === 'MULTIPLE_CHOICE' &&
-          Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0
-        ) {
-          if (changeColor) {
-            validationColorHighlight.value.push(ac.name)
-          }
-          valid = false
-        } else if (
-          ac.type === 'FILE' &&
-          (typeof negotiationCriteria.value[section.name][ac.name] !== 'object' ||
-            negotiationCriteria.value[section.name][ac.name] === null)
-        ) {
-          if (changeColor) {
-            validationColorHighlight.value.push(ac.name)
-          }
-          valid = false
-        } else if (
-          ac.type !== 'MULTIPLE_CHOICE' &&
-          ac.type !== 'FILE' &&
-          (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
-            negotiationCriteria.value[section.name][ac.name] === '')
-        ) {
-          if (changeColor) {
-            validationColorHighlight.value.push(ac.name)
-          }
-          valid = false
+  let valid = true
+  validationColorHighlight.value = []
+  section.elements.forEach((ac) => {
+    if (ac.required) {
+      if (
+        ac.type === 'MULTIPLE_CHOICE' &&
+        Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0
+      ) {
+        if (changeColor) {
+          validationColorHighlight.value.push(ac.name)
         }
-      } else if (valid) {
-        valid = true
+        valid = false
+      } else if (
+        ac.type === 'FILE' &&
+        (typeof negotiationCriteria.value[section.name][ac.name] !== 'object' ||
+          negotiationCriteria.value[section.name][ac.name] === null)
+      ) {
+        if (changeColor) {
+          validationColorHighlight.value.push(ac.name)
+        }
+        valid = false
+      } else if (
+        ac.type !== 'MULTIPLE_CHOICE' &&
+        ac.type !== 'FILE' &&
+        (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
+          negotiationCriteria.value[section.name][ac.name] === '')
+      ) {
+        if (changeColor) {
+          validationColorHighlight.value.push(ac.name)
+        }
+        valid = false
       }
-    })
-    return valid
+    } else if (valid) {
+      valid = true
+    }
+  })
+  return valid
 }
 
 function uncheckRadioButton(value, sectionName, criteriaName) {
