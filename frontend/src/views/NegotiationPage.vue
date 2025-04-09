@@ -188,7 +188,7 @@
                   v-for="[orgId, org] in Object.entries(representedOrganizationsById)"
                   :key="orgId"
                 >
-                  <NegotiationOrganizationCard
+                  <OrganizationContainer
                     :org-id="orgId"
                     :org="org"
                     :negotiation-id="negotiationId"
@@ -209,7 +209,7 @@
                   v-for="[orgId, org] in Object.entries(notRepresentedOrganizationsById)"
                   :key="orgId"
                 >
-                  <NegotiationOrganizationCard
+                  <OrganizationContainer
                     :org-id="orgId"
                     :org="org"
                     :negotiation-id="negotiationId"
@@ -328,7 +328,7 @@ import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
 import GoBackButton from '@/components/GoBackButton.vue'
-import NegotiationOrganizationCard from '@/components/NegotiationOrganizationCard.vue'
+import OrganizationContainer from '@/components/OrganizationContainer.vue'
 import PDFButton from '@/components/PDFButton.vue'
 import { dateFormat } from '@/config/consts'
 import moment from 'moment'

@@ -83,6 +83,7 @@
         >
           <button
             type="submit"
+            id="send"
             :disabled="!readyToSend"
             class="btn ms-2"
             :style="{
@@ -130,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeMount, computed, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { Tooltip } from 'bootstrap'
 import { dateFormat, POST_TYPE } from '@/config/consts'
 import moment from 'moment'
