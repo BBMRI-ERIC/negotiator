@@ -28,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -101,6 +100,10 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Override
   public void notifyAdmins(Negotiation negotiation) {
+    createNotificationsForAdmins(negotiation);
+  }
+
+  private void createNotificationsForAdmins(Negotiation negotiation) {
     List<Notification> newNotifications =
         createNotificationsForAdmins(
             negotiation,
@@ -119,6 +122,15 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                         parseTitleFromNegotiation(negotiation),
                         notification.getRecipient()))
             .collect(Collectors.toList()));
+  }
+
+  @Override
+  public void notifyAdmins(String negotiationId) {
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    createNotificationsForAdmins(negotiation);
   }
 
   @Override
@@ -304,7 +316,6 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Override
   @Scheduled(cron = "${negotiator.email.frequency-cron-expression:0 0 * * * *}")
-  @Async
   public void sendEmailsForNewNotifications() {
     log.debug("Sending new email notifications.");
     Set<Person> recipients = getPendingRecipients();
@@ -325,7 +336,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
           notificationRepository.findById(notificationView.getId()).orElseThrow();
       notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
       notification.setModifiedDate(LocalDateTime.now());
-      notificationRepository.save(notification);
+      notificationRepository.saveAndFlush(notification);
     }
   }
 

@@ -175,16 +175,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     return negotiation;
   }
 
-  private NegotiationDTO update(
-      Negotiation negotiationEntity, NegotiationCreateDTO negotiationCreateDTO) {
-    try {
-      Negotiation negotiation = negotiationRepository.save(negotiationEntity);
-      return modelMapper.map(negotiation, NegotiationDTO.class);
-    } catch (DataException | DataIntegrityViolationException ex) {
-      throw new EntityNotStorableException();
-    }
-  }
-
   /**
    * Updates the negotiation with the specified ID.
    *

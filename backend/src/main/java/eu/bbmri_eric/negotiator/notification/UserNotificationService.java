@@ -23,6 +23,13 @@ public interface UserNotificationService {
   void notifyAdmins(Negotiation negotiation);
 
   /**
+   * Notify all admins of a new negotiation.
+   *
+   * @param negotiationId that was created.
+   */
+  void notifyAdmins(String negotiationId);
+
+  /**
    * Create notifications for all representatives of resources involved in a new negotiation.
    *
    * @param negotiation that was created.

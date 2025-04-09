@@ -219,6 +219,8 @@ public class NegotiationLifecycleServiceImplTest {
         negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.SUBMIT));
     assertTrue(negotiationService.findById(negotiationDTO.getId(), false).isPublicPostsEnabled());
     assertFalse(negotiationService.findById(negotiationDTO.getId(), false).isPrivatePostsEnabled());
+    long numEvents = events.stream(NegotiationStateChangeEvent.class).count();
+    assertEquals(1, numEvents);
     assertEquals(
         negotiationService.findById(negotiationDTO.getId(), false).getStatus(),
         NegotiationState.SUBMITTED.getValue());
