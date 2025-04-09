@@ -134,6 +134,7 @@ public class NegotiationControllerTests {
    */
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testGetAllForAdministrator_whenNoFilters() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations"))
@@ -991,6 +992,7 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("researcher") // researcher not
   @Transactional
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
     String requestBody = TestUtils.jsonFromRequest(request);

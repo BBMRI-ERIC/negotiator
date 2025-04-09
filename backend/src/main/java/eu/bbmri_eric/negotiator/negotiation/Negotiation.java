@@ -36,6 +36,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UuidGenerator;
@@ -88,6 +89,7 @@ public class Negotiation extends AuditEntity {
 
   @Type(JsonType.class)
   @Column(columnDefinition = "json")
+  @ColumnTransformer(read = "payload::text", write = "?::json")
   private String payload;
 
   private boolean publicPostsEnabled;
