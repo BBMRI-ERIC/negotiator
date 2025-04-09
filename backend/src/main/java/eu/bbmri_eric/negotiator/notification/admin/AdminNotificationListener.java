@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -23,7 +24,9 @@ public class AdminNotificationListener {
   @EventListener(value = NegotiationStateChangeEvent.class)
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Transactional(Transactional.TxType.REQUIRES_NEW)
+  @Async
   public void handleSubmittedNegotiation(NegotiationStateChangeEvent event) {
+    log.error(Thread.currentThread().getName());
     if (event.getEvent().equals(NegotiationEvent.SUBMIT)) {
       try {
         userNotificationService.notifyAdmins(event.getNegotiationId());

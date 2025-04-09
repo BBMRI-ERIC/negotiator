@@ -175,7 +175,8 @@ public class UserNotificationServiceTest {
   @WithMockNegotiatorUser(
       id = 109L,
       authorities = {"ROLE_ADMIN"})
-  void notifyRepresentatives_called2Times_noNewEmailsSent() {
+  void notifyRepresentatives_called2Times_noNewEmailsSent() throws InterruptedException {
+    notificationEmailRepository.deleteAll();
     assertTrue(notificationEmailRepository.findAll().isEmpty());
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     assertTrue(
