@@ -32,9 +32,7 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -213,10 +211,12 @@ public class ResourceServiceImpl implements ResourceService {
           accessFormRepository
               .findById(resDTO.getAccessFormId())
               .orElseThrow(() -> new AccessFormNotFoundException(resDTO.getAccessFormId()));
-      Optional<Organization> organization =
-          organizationRepository.findById(resDTO.getOrganizationId());
+      Organization organization =
+          organizationRepository
+              .findById(resDTO.getOrganizationId())
+              .orElseThrow(() -> new EntityNotFoundException(resDTO.getOrganizationId()));
       Resource res = modelMapper.map(resDTO, Resource.class);
-      res.setOrganization(organization.get());
+      res.setOrganization(organization);
       res.setAccessForm(accessForm);
       res.setDiscoveryService(discoveryService);
       resources.add(res);
@@ -224,7 +224,7 @@ public class ResourceServiceImpl implements ResourceService {
     List<Resource> savedResources = repository.saveAll(resources);
     return savedResources.stream()
         .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private @NonNull List<ResourceWithStatusDTO> getResourceWithStatusDTOS(String negotiationId) {
