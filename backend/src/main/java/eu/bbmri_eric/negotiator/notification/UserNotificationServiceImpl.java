@@ -101,6 +101,10 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   @Override
   public void notifyAdmins(Negotiation negotiation) {
+    createNotificationsForAdmins(negotiation);
+  }
+
+  private void createNotificationsForAdmins(Negotiation negotiation) {
     List<Notification> newNotifications =
         createNotificationsForAdmins(
             negotiation,
@@ -119,6 +123,15 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                         parseTitleFromNegotiation(negotiation),
                         notification.getRecipient()))
             .collect(Collectors.toList()));
+  }
+
+  @Override
+  public void notifyAdmins(String negotiationId) {
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(negotiationId)
+            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+    createNotificationsForAdmins(negotiation);
   }
 
   @Override
