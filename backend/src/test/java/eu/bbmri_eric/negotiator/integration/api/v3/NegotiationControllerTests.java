@@ -1041,7 +1041,6 @@ public class NegotiationControllerTests {
     MvcResult result2 =
         mockMvc
             .perform(MockMvcRequestBuilders.get(NEGOTIATIONS_URL + "/" + negotiationId))
-            .andDo(print())
             .andExpect(status().isOk())
             .andReturn();
     actualPayloadObject = JsonPath.read(result2.getResponse().getContentAsString(), "$.payload");
@@ -1089,7 +1088,6 @@ public class NegotiationControllerTests {
             MockMvcRequestBuilders.put("/v3/negotiations/negotiation-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.jsonFromRequest(updateDTO)))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").isString())
