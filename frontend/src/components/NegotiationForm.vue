@@ -344,19 +344,6 @@
         </div>
         <div class="wizard-footer-right">
           <button
-            v-if="isEditForm === false || currentStatus === 'DRAFT'"
-            class="btn me-4"
-            @click="saveDraft(props.activeTabIndex)"
-            :disabled="currentSectionModified === false"
-            :style="{
-              'background-color': uiConfiguration.buttonColor,
-              'border-color': uiConfiguration.buttonColor,
-              color: '#FFFFFF',
-            }"
-          >
-            Save Draft
-          </button>
-          <button
             class="btn"
             @click="props.nextTab()"
             :style="{
@@ -555,11 +542,14 @@ async function saveNegotiation(savingDraft, step) {
     await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
       if (!savingDraft) {
         if (currentStatus.value === 'DRAFT') {
-          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT')
+          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+            backToNegotiation(props.requestId)
+          })
+        } else {
+          backToNegotiation(props.requestId)
         }
-        backToNegotiation(props.requestId)
       } else {
-        notificationsStore.setNotification('Negotiation saved correctly as draft')
+        notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
       }
     })
   } else {
@@ -574,10 +564,11 @@ async function saveNegotiation(savingDraft, step) {
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
         if (savingDraft) {
+          router.replace(`/edit/requests/${negotiationId}/${step}`)
           notificationsStore.setNotification(
             `Negotiation saved correctly as draft with id ${negotiationId}`,
+            'light',
           )
-          router.replace(`/edit/requests/${negotiationId}/${step}`)
         } else {
           backToNegotiation(negotiationId)
         }
