@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -37,6 +38,7 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.util.HashSet;
@@ -84,6 +86,7 @@ public class NegotiationControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired PersonRepository personRepository;
+  @Autowired EntityManager entityManager; // for flushing the entity manager
 
   @Autowired ResourceRepository resourceRepository;
 
@@ -131,6 +134,7 @@ public class NegotiationControllerTests {
    */
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testGetAllForAdministrator_whenNoFilters() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations"))
@@ -988,6 +992,7 @@ public class NegotiationControllerTests {
   @Test
   @WithUserDetails("researcher") // researcher not
   @Transactional
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testCreate_Ok() throws Exception {
     NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
     String requestBody = TestUtils.jsonFromRequest(request);
@@ -1013,6 +1018,46 @@ public class NegotiationControllerTests {
     assert negotiation.isPresent();
     assertEquals(negotiation.get().getCreatedBy().getName(), "researcher");
     assertFalse(requestRepository.existsById(REQUEST_UNASSIGNED));
+  }
+
+  @Test
+  @WithUserDetails("researcher") // researcher not
+  public void testCreate_Ok_orderIsPreserved() throws Exception {
+    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
+    JsonNode jsonPayload = getJsonNode();
+    request.setPayload(jsonPayload);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(NEGOTIATIONS_URL))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andReturn();
+    String negotiationId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    ObjectMapper mapper = new ObjectMapper();
+    JsonPath.read(result.getResponse().getContentAsString(), "$.payload");
+    Object actualPayloadObject;
+    String expectedPayloadJson = mapper.writeValueAsString(request.getPayload());
+    MvcResult result2 =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get(NEGOTIATIONS_URL + "/" + negotiationId))
+            .andExpect(status().isOk())
+            .andReturn();
+    actualPayloadObject = JsonPath.read(result2.getResponse().getContentAsString(), "$.payload");
+    String actualPayloadJson = mapper.writeValueAsString(actualPayloadObject);
+    assertEquals(expectedPayloadJson, actualPayloadJson);
+  }
+
+  private static JsonNode getJsonNode() throws JsonProcessingException {
+    String payload =
+        """
+                {"project":{"title":"sdfsdfsd","diseaese-code":null,"objective":null,"organization":"sdfsdf","profit":"Yes","acknowledgment":null,"Multichoice test":[],"Bool test":null,"Single test":"first_choice"},"request":{"description":null,"collection":null,"donors":null,"samples":null,"specifics":null},"ethics-vote":{"ethics-vote":null,"ethics-vote-attachment":null}}""";
+    ;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    return jsonPayload;
   }
 
   @Test

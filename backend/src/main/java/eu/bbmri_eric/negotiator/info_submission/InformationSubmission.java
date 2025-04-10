@@ -3,6 +3,8 @@ package eu.bbmri_eric.negotiator.info_submission;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,8 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.Type;
 
 /** Represents a submission of additional information by the resource representative. */
 @Setter
@@ -62,6 +63,7 @@ public class InformationSubmission {
   @JoinColumn(name = "negotiation_id")
   private Negotiation negotiation;
 
-  @JdbcTypeCode(SqlTypes.JSON)
+  @Type(JsonType.class)
+  @Column(columnDefinition = "json")
   private String payload;
 }
