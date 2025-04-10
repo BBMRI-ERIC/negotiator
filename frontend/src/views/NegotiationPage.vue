@@ -463,7 +463,10 @@ onBeforeMount(async () => {
   )
   if (resourceResponse !== undefined) {
     resources.value = resourceResponse
-    isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponse._links)
+    const resourceResponseLinks = await negotiationPageStore.retrieveResourcesByNegotiationIdLinks(
+    props.negotiationId,
+    )
+    isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponseLinks._links)
   }
   await negotiationPageStore
     .retrieveUserIdRepresentedResources(userStore.userInfo?.id)

@@ -186,6 +186,19 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
+  async function retrieveResourcesByNegotiationIdLinks(negotiationId) {
+    return await axios
+      .get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/resources`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error fetching Resources', 'danger')
+      })
+  }
+
   function downloadAttachmentFromLink(href) {
     axios.get(`${href}`, { headers: getBearerHeaders(), responseType: 'blob' }).then((response) => {
       const disposition = response.headers['Content-Disposition']
@@ -303,6 +316,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveUserIdRepresentedResources,
     downloadAttachment,
     retrieveResourcesByNegotiationId,
+    retrieveResourcesByNegotiationIdLinks,
     downloadAttachmentFromLink,
     retrieveInformationSubmission,
     fetchURL,
