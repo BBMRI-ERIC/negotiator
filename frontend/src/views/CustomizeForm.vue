@@ -39,14 +39,14 @@
         + Add new section
       </button>
     </div>
-    <div class="template-name" v-if="accessForm">
+    <div class="form-name" v-if="accessForm">
       <label class="form-label" :style="{ color: uiConfiguration?.primaryTextColor }">
-        Template Name
+        Form Name
       </label>
       <input
         v-model="accessForm.name"
         type="TEXT"
-        placeholder="Give a template name"
+        placeholder="Give a form name"
         class="form-control text-secondary-text w-25"
       />
     </div>
@@ -89,7 +89,7 @@
           @update:modelValue="(newValue) => (accessForm.sections[index].elements = newValue)"
         >
           <template #item="{ element: criteria }">
-            <div class="mb-4 mx-3 cursor-move d-flex">
+            <div class="mb-4 mx-3 d-flex">
               <div class="form-check form-check-inline align-middle">
                 <input
                   id="inlineCheckbox1"
@@ -104,7 +104,7 @@
               </div>
 
               <div
-                class="w-100"
+                class="w-100 section-elements"
                 :style="
                   isElementActive(activeElements[index].selectedElements, criteria.id)
                     ? ''
@@ -578,10 +578,7 @@ function removeSection(sectionIndex) {
 }
 </script>
 <style scoped>
-.cursor-move,
-label,
-input,
-textarea {
+.section-elements {
   cursor: move;
 }
 .required:after {
