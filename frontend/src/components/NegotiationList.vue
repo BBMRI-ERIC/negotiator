@@ -1,14 +1,6 @@
 <template>
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
-    <div v-if="userRole === ROLES.ADMINISTRATOR" class="float-end ms-2">
-      <RedirectButton
-        :buttonText="'+  Add Access Form'"
-        :redirectRouteName="'customize-form'"
-        :titleModal="'Are you sure?'"
-        :textModal="'You will be redirected to page where you can add access form'"
-      />
-    </div>
     <div class="pt-1">
       <div class="row row-cols-2 d-grid-row mt-5 pt-3">
         <p>
