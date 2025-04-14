@@ -138,8 +138,8 @@ const router = createRouter({
       meta: { isPublic: false },
     },
     {
-      path: '/customizeForm',
-      name: 'customize-form',
+      path: '/createAccessForm',
+      name: 'create-Access-Form',
       component: CustomizeForm,
       props: true,
       meta: { isPublic: false },
