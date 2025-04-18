@@ -23,6 +23,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.2",
     "@popperjs/core": "^2.11.6",
     "@vue/test-utils": "^2.2.7",
+    "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.5",
     "bootstrap-icons": "^1.11.1",
