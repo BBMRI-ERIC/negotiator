@@ -14,14 +14,14 @@
       <li class="container mb-3 mt-2">
         <div class="d-flex flex-row">
           <profileAvatar
-          type="button"
+            type="button"
             class="me-3 mt-1 text-light"
             :style="{
               'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important',
             }"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            >
+          >
             {{ returnAcronymOfName }}
           </profileAvatar>
           <div>
@@ -76,6 +76,16 @@
         >
           <i class="bi bi-house-gear" />
           Admin UI Configuration
+        </router-link>
+      </li>
+      <li v-if="isAdmin">
+        <router-link
+          to="/email-template"
+          class="dropdown-item"
+          :style="{ color: uiConfiguration?.navbarTextColor }"
+        >
+          <i class="bi bi-envelope-plus" />
+          Add email template
         </router-link>
       </li>
       <li>
