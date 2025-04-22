@@ -555,6 +555,9 @@ const pieOptions = ref({
       },
     },
   },
+  onClick: (evt, array) => {
+    displayNegotiationsWithStatus(Object.keys(stats.value.statusDistribution)[array[0]?.index])
+  },
 })
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -623,7 +626,7 @@ async function loadStats(networkId) {
     endDate.value,
   )
 
-  if (stats.value.statusDistribution) {
+  if (Object.keys(stats.value.statusDistribution).length > 0) {
     setPieData(
       Object.keys(stats.value.statusDistribution),
       Object.values(stats.value.statusDistribution),
@@ -680,6 +683,18 @@ function retrieveNegotiationsBySortAndFilter() {
 function retrieveNegotiationsByPage(currentPageNumber) {
   retrieveLatestNegotiations(currentPageNumber - 1)
 }
+
+function displayNegotiationsWithStatus(status) {
+  if(status){
+    filtersSortData.value.status = [status]
+    filtersSortData.value.dateStart = startDate.value
+    filtersSortData.value.dateEnd = moment(endDate.value).add(1, 'days').format('YYYY-MM-DD')
+    currentTab.value = 'negotiations'
+
+    retrieveNegotiationsBySortAndFilter()
+  }
+}
+
 </script>
 <style scoped>
 .avatar {
