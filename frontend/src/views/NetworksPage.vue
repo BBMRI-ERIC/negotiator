@@ -40,41 +40,40 @@
               class="btn btn-sm mb-2"
               :href="externalLinks.auth_management_link"
               :style="{
-      'background-color': uiConfiguration?.buttonColor,
-      'color': '#ffffff'
-    }"
+                'background-color': uiConfiguration?.buttonColor,
+                color: '#ffffff',
+              }"
             >
-    <span>
-      <i class="bi bi-gear"></i>
-      Manage Resource Representatives
-    </span>
+              <span>
+                <i class="bi bi-gear"></i>
+                Manage Resource Representatives
+              </span>
             </a>
             <a
               type="button"
               class="btn btn-sm"
-              href='https://bbmri-eric.github.io/negotiator/network_manager'
+              href="https://bbmri-eric.github.io/negotiator/network_manager"
               :style="{
-      'background-color': uiConfiguration?.buttonColor,
-      'color': '#ffffff'
-    }"
+                'background-color': uiConfiguration?.buttonColor,
+                color: '#ffffff',
+              }"
             >
-    <span>
-      <i class="bi bi-book"></i>
-      Guide
-    </span>
+              <span>
+                <i class="bi bi-book"></i>
+                Guide
+              </span>
             </a>
           </div>
-
         </div>
       </div>
       <!-- Warning Banner -->
       <div v-if="resourcesWithoutRepresentatives > 0" class="alert alert-warning mt-3" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        Warning: At least one or more Resources in your Network do not have a single <strong>Representative</strong>
-        attached to them.
-        Hence, any new requests for these Resources <strong>will not be forwarded</strong>. To see which Resources need
-        to be updated, go to the <strong>Organizations</strong> tab.
-        To update them, click on the <strong>"Manage Resource Representatives"</strong> button above.
+        Warning: At least one or more Resources in your Network do not have a single
+        <strong>Representative</strong> attached to them. Hence, any new requests for these
+        Resources <strong>will not be forwarded</strong>. To see which Resources need to be updated,
+        go to the <strong>Organizations</strong> tab. To update them, click on the
+        <strong>"Manage Resource Representatives"</strong> button above.
       </div>
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs">
@@ -175,7 +174,9 @@
                     <span>{{ formatStatusLabel(status) }}</span>
                     <i
                       class="bi bi-info-circle small-icon"
-                      :title="'The number of negotiations with status: ' + formatStatusLabel(status)"
+                      :title="
+                        'The number of negotiations with status: ' + formatStatusLabel(status)
+                      "
                     ></i>
                   </div>
                   <h5>{{ count }}</h5>
@@ -200,9 +201,13 @@
             <!-- Additional Stats Information -->
             <div class="row mt-4">
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
-                <div class="stat-card flex-fill cursor-pointer" type="button" data-bs-toggle="modal"
-                     data-bs-target="#negotiationsModal"
-                     @click="setNegotiationIds(stats.negotiationIds['Ignored'])">
+                <div
+                  class="stat-card flex-fill cursor-pointer"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#negotiationsModal"
+                  @click="setNegotiationIds(stats.negotiationIds['Ignored'])"
+                >
                   <div class="stat-label">
                     <span>Ignored Negotiations</span>
                     <i
@@ -230,9 +235,13 @@
               </div>
 
               <div class="col-md-6 col-lg-4 mb-4 d-flex">
-                <div class="stat-card flex-fill cursor-pointer" type="button" data-bs-toggle="modal"
-                     data-bs-target="#negotiationsModal"
-                     @click="setNegotiationIds(stats.negotiationIds['Successful'])">
+                <div
+                  class="stat-card flex-fill cursor-pointer"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#negotiationsModal"
+                  @click="setNegotiationIds(stats.negotiationIds['Successful'])"
+                >
                   <div class="stat-label">
                     <span>Successful Negotiations</span>
                     <i
@@ -300,14 +309,11 @@
         <div class="summary-section mb-4 p-3 bg-light border rounded">
           <h4>Summary</h4>
           <ul class="list-unstyled mb-0">
+            <li><strong>Total Organizations:</strong> {{ organizations.length }}</li>
+            <li><strong>Total Resources:</strong> {{ totalResources }}</li>
             <li>
-              <strong>Total Organizations:</strong> {{ organizations.length }}
-            </li>
-            <li>
-              <strong>Total Resources:</strong> {{ totalResources }}
-            </li>
-            <li>
-              <strong>Resources Without Representatives:</strong> {{ resourcesWithoutRepresentatives }}
+              <strong>Resources Without Representatives:</strong>
+              {{ resourcesWithoutRepresentatives }}
             </li>
           </ul>
         </div>
@@ -320,9 +326,7 @@
           >
             <!-- Organization Header -->
             <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">
-                {{ organization.name }} ({{ organization.externalId }})
-              </h5>
+              <h5 class="mb-0">{{ organization.name }} ({{ organization.externalId }})</h5>
               <!-- Status Icon -->
               <div>
                 <i
@@ -386,7 +390,11 @@
                       >
                         <h2 class="accordion-header" :id="'heading_' + resource.id">
                           <button
-                            :class="['accordion-button', 'collapsed', { 'gray-text': resource.withdrawn }]"
+                            :class="[
+                              'accordion-button',
+                              'collapsed',
+                              { 'gray-text': resource.withdrawn },
+                            ]"
                             type="button"
                             data-bs-toggle="collapse"
                             :data-bs-target="'#collapse_' + resource.id"
@@ -401,12 +409,17 @@
                               title="This resource is no longer active and cannot be a part of any request."
                             ></i>
                             <i
-                              v-if="resource.representatives.length > 0 && resource.withdrawn === false"
+                              v-if="
+                                resource.representatives.length > 0 && resource.withdrawn === false
+                              "
                               class="bi bi-check-circle-fill text-success ms-1"
                               title="This resource has representatives"
                             ></i>
                             <i
-                              v-else-if="resource.representatives.length === 0 && resource.withdrawn === false"
+                              v-else-if="
+                                resource.representatives.length === 0 &&
+                                resource.withdrawn === false
+                              "
                               class="bi bi-exclamation-triangle-fill text-warning ms-1"
                               title="This resource has no representatives"
                             ></i>
@@ -441,16 +454,17 @@
                             </ul>
                             <h6>Representatives:</h6>
                             <ul>
-                              <li
-                                v-for="rep in resource.representatives"
-                                :key="rep"
-                              >
+                              <li v-for="rep in resource.representatives" :key="rep">
                                 <i class="bi bi-person"></i> {{ rep }}
                               </li>
                             </ul>
                             <!-- Warning if no representatives -->
-                            <div v-if="resource.representatives.length === 0" class="text-warning mt-2">
-                              <i class="bi bi-exclamation-triangle"></i> This resource has no representatives.
+                            <div
+                              v-if="resource.representatives.length === 0"
+                              class="text-warning mt-2"
+                            >
+                              <i class="bi bi-exclamation-triangle"></i> This resource has no
+                              representatives.
                             </div>
                           </div>
                         </div>
@@ -462,8 +476,6 @@
             </div>
           </div>
         </div>
-
-
       </div>
     </div>
   </div>
@@ -482,7 +494,15 @@ import NegotiationList from '@/components/NegotiationList.vue'
 import NegotiationPagination from '@/components/NegotiationPagination.vue'
 import { useNegotiationsStore } from '@/store/negotiations'
 import { Pie } from 'vue-chartjs'
-import { ArcElement, CategoryScale, Chart as ChartJS, DoughnutController, Legend, Title, Tooltip } from 'chart.js'
+import {
+  ArcElement,
+  CategoryScale,
+  Chart as ChartJS,
+  DoughnutController,
+  Legend,
+  Title,
+  Tooltip,
+} from 'chart.js'
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import NegotiationsListModal from '@/components/modals/NegotiationsListModal.vue'
@@ -518,7 +538,9 @@ const filtersSortData = ref({
 })
 // Helper function to check if all resources have representatives
 const allResourcesHaveRepresentatives = (resources) => {
-  return resources.every((resource) => resource.representatives.length > 0 || resource.withdrawn === true)
+  return resources.every(
+    (resource) => resource.representatives.length > 0 || resource.withdrawn === true,
+  )
 }
 const totalResources = computed(() => {
   return organizations.value.reduce((sum, org) => sum + org.resources.length, 0)
@@ -528,8 +550,10 @@ const resourcesWithoutRepresentatives = computed(() => {
   return organizations.value.reduce(
     (sum, org) =>
       sum +
-      org.resources.filter((resource) => resource.representatives.length === 0 && resource.withdrawn === false).length,
-    0
+      org.resources.filter(
+        (resource) => resource.representatives.length === 0 && resource.withdrawn === false,
+      ).length,
+    0,
   )
 })
 
@@ -685,7 +709,7 @@ function retrieveNegotiationsByPage(currentPageNumber) {
 }
 
 function displayNegotiationsWithStatus(status) {
-  if(status){
+  if (status) {
     filtersSortData.value.status = [status]
     filtersSortData.value.dateStart = startDate.value
     filtersSortData.value.dateEnd = moment(endDate.value).add(1, 'days').format('YYYY-MM-DD')
@@ -694,7 +718,6 @@ function displayNegotiationsWithStatus(status) {
     retrieveNegotiationsBySortAndFilter()
   }
 }
-
 </script>
 <style scoped>
 .avatar {
@@ -895,7 +918,9 @@ function displayNegotiationsWithStatus(status) {
 .btn {
   background-color: var(--button-color, #007bff); /* Default color if none provided */
   color: #ffffff;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
   text-decoration: none; /* Prevent underline on links */
 }
 
