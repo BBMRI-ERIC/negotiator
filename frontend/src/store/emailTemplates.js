@@ -38,7 +38,8 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
   function updateEmailTemplate(templateName, data) {
     return axios
       .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}`, data, {
-        headers: getBearerHeaders(),
+        headers: { ...getBearerHeaders(), 'Content-Type': 'text/plain' },
+        responseType: 'text',
       })
       .then(() => {
         notifications.setNotification(
@@ -54,7 +55,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function creatEmailTemplateReset(templateName) {
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}/reset`, {
+      .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}/reset`, '', {
         headers: getBearerHeaders(),
       })
       .then(() => {
