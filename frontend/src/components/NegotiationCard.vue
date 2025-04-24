@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="card mb-2">
-      <h5 class="card-header bg-body" :style="{ color: uiConfiguration?.cardTextColor }">
-        {{ title }}
+      <div class="card-header bg-body" :style="{ color: uiConfiguration?.cardTextColor }">
+        <span class="h5">{{ title }}</span>
         <h6 class="float-end">
           <span :class="getBadgeColor(status)" class="badge" style="width: 125px">
             <i :class="getBadgeIcon(status)" class="px-1" />
             {{ transformStatus(status) }}
           </span>
         </h6>
-      </h5>
+      </div>
       <div class="card-body" :style="{ color: uiConfiguration?.cardTextColor, opacity: 0.7 }">
         <h6 class="card-subtitle mb-2">Negotiation ID: {{ id }}</h6>
         <h6 class="card-subtitle mb-2">Created on: {{ creationDate }}</h6>
