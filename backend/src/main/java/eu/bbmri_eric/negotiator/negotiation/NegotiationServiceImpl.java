@@ -341,10 +341,11 @@ public class NegotiationServiceImpl implements NegotiationService {
   }
 
   public void deleteNegotiation(String negotiationId) {
-    if (!isNegotiationCreator(negotiationId)) {
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    if (!isNegotiationCreator(negotiationId)
+        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You are not allowed to delete this entity");
     }
-    Negotiation negotiation = findEntityById(negotiationId, false);
     if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
       throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
     }

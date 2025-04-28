@@ -316,7 +316,7 @@ public class NegotiationServiceTest {
       authSubject = "researcher@aai.eu",
       authEmail = "researcher@aai.eu",
       authorities = {"ROLE_RESEARCHER"})
-  void testDeleteNegotiation_ok() {
+  void testDeleteNegotiation_ok_whenCreator() {
     Negotiation negotiation = Negotiation.builder().build();
     Request request = new Request();
     request.setResources(Set.of(new Resource()));
@@ -325,6 +325,25 @@ public class NegotiationServiceTest {
     negotiation.setCurrentState(NegotiationState.DRAFT);
 
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
+    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
+    negotiationService.deleteNegotiation(negotiation.getId());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+      authName = "admin",
+      authSubject = "admin@negotiator.dev",
+      authEmail = "admin@negotiator.dev",
+      authorities = {"ROLE_ADMIN"})
+  void testDeleteNegotiation_ok_whenAdministrator() {
+    Negotiation negotiation = Negotiation.builder().build();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setId("negotiation-id");
+    negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+
+    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
     when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
     negotiationService.deleteNegotiation(negotiation.getId());
   }

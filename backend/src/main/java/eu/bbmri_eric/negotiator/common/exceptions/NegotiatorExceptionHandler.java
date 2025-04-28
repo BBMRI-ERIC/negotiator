@@ -458,8 +458,7 @@ public class NegotiatorExceptionHandler {
 
   @ResponseStatus(HttpStatus.CONFLICT)
   @ExceptionHandler(ConflictStatusException.class)
-  public final ProblemDetail handleConflictStatusException(
-      HttpMessageNotReadableException exception) {
+  public final ProblemDetail handleConflictStatusException(ConflictStatusException exception) {
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
     problemDetail.setTitle("Conflict");
     problemDetail.setDetail(exception.getMessage());
