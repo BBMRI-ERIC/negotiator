@@ -302,6 +302,17 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
+  async function deleteNegotiation(negotiationId) {
+    return axios
+      .delete(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, { headers: getBearerHeaders() })
+      .then(() => {
+        notifications.setNotification(`Negotiation with id ${negotiationId} deleted successfully`)
+      })
+      .catch(() => {
+        notifications.setNotification('Error deleting negotiation')
+      })
+  }
+
   return {
     updateNegotiationStatus,
     retrievePossibleEvents,
@@ -323,5 +334,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     addResources,
     retrieveAllResources,
     retrieveResourceAllStates,
+    deleteNegotiation
   }
 })

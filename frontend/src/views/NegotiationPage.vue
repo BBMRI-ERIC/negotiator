@@ -15,6 +15,14 @@
       :message-enabled="false"
       @confirm="updateNegotiationPayload()"
     />
+
+    <confirmation-modal
+      id="negotiationDeleteModal"
+      title="Negotiation delete"
+      text="Are you sure you want to delete the Negotiation. All your data will be lost."
+      :message-enabled="false"
+      @confirm="deleteNegotiation()"
+    />
     <div class="row mt-4">
       <div class="row-col-2">
         <h1 class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
@@ -291,6 +299,21 @@
               </li>
             </ul>
           </li>
+          <li
+            v-else-if="negotiation.status === 'DRAFT'"
+            class="list-group-item p-2 d-flex justify-content-between">
+            <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
+              <li class="me-2">
+                <button
+                  class="btn btn-status bg-danger mb-1 d-flex text-left"
+                  data-bs-toggle="modal"
+                  data-bs-target="#negotiationDeleteModal"
+                >
+                  <i class="bi bi-trash" /> DELETE
+                </button>
+              </li>
+            </ul>
+          </li>
 
           <li class="list-group-item p-2 btn-sm border-bottom-0">
             <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
@@ -528,6 +551,10 @@ async function updateNegotiation(message) {
   await reloadStates()
 
   negotiationPosts.value.retrievePostsByNegotiationId()
+}
+
+async function deleteNegotiation() {
+  await negotiationPageStore.deleteNegotiation(negotiation.value.id).then(router.push('/'))
 }
 
 function getSummaryLinks(links) {
