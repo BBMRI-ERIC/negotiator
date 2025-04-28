@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -126,8 +127,8 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testCreate_Ok() throws Exception {
-
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousCount = requestRepository.count();
