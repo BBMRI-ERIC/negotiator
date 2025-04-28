@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -138,7 +139,8 @@ public class QueryV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(header().string("Location", containsString("http://localhost/request")))
-        .andExpect(jsonPath("$.redirect_uri", containsString("http://localhost/request")));
+        .andExpect(jsonPath("$.redirect_uri", containsString("http://localhost/request")))
+        .andDo(print());
     assertEquals(requestRepository.count(), previousCount + 1);
   }
 
