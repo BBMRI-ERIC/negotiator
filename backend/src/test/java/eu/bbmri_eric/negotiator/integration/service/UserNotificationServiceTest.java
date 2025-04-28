@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest(loadTestData = true)
 @Transactional
-public class UserNotificationServiceTest {
+class UserNotificationServiceTest {
 
   @Autowired UserNotificationService userNotificationService;
   @Autowired PersonRepository personRepository;
@@ -175,7 +175,7 @@ public class UserNotificationServiceTest {
   @WithMockNegotiatorUser(
       id = 109L,
       authorities = {"ROLE_ADMIN"})
-  void notifyRepresentatives_called2Times_noNewEmailsSent() throws InterruptedException {
+  void notifyRepresentatives_called2Times_noNewEmailsSent() {
     notificationEmailRepository.deleteAll();
     assertTrue(notificationEmailRepository.findAll().isEmpty());
     Negotiation negotiation = negotiationRepository.findAll().get(0);

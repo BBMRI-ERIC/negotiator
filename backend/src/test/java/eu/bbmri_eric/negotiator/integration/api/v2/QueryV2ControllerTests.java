@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -125,8 +127,8 @@ public class QueryV2ControllerTests {
   }
 
   @Test
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testCreate_Ok() throws Exception {
-
     QueryCreateV2DTO request = TestUtils.createQueryV2Request();
     String requestBody = TestUtils.jsonFromRequest(request);
     long previousCount = requestRepository.count();
@@ -138,7 +140,8 @@ public class QueryV2ControllerTests {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(header().string("Location", containsString("http://localhost/request")))
-        .andExpect(jsonPath("$.redirect_uri", containsString("http://localhost/request")));
+        .andExpect(jsonPath("$.redirect_uri", containsString("http://localhost/request")))
+        .andDo(print());
     assertEquals(requestRepository.count(), previousCount + 1);
   }
 
