@@ -5,7 +5,6 @@ import NegotiationCreatePage from '../views/NegotiationCreatePage.vue'
 import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
 import NetworksPage from '../views/NetworksPage.vue'
-import EmailTemplate from '../views/EmailTemplate.vue'
 import AdminSettingsPage from '../views/AdminSettingsPage.vue'
 import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import UserPage from '@/views/UserPage.vue'
@@ -124,13 +123,6 @@ const router = createRouter({
       path: '/networks/:networkId',
       name: 'networks-page',
       component: NetworksPage,
-      props: true,
-      meta: { isPublic: false },
-    },
-    {
-      path: '/email-template',
-      name: 'email-template',
-      component: EmailTemplate,
       props: true,
       meta: { isPublic: false },
     },

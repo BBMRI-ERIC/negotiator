@@ -78,16 +78,6 @@
           Admin UI Configuration
         </router-link>
       </li>
-      <li v-if="isAdmin">
-        <router-link
-          to="/email-template"
-          class="dropdown-item"
-          :style="{ color: uiConfiguration?.navbarTextColor }"
-        >
-          <i class="bi bi-envelope-plus" />
-          Add email template
-        </router-link>
-      </li>
       <li>
         <hr class="dropdown-divider" />
       </li>
