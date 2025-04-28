@@ -259,6 +259,7 @@ public class NegotiationServiceTest {
     negotiation.setResources(request.getResources());
     negotiation.setCurrentState(NegotiationState.DRAFT);
 
+    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
     when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
     assertThrows(
         ForbiddenRequestException.class,
