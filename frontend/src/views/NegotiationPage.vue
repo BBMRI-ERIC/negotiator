@@ -300,7 +300,7 @@
             </ul>
           </li>
           <li
-            v-else-if="negotiation.status === 'DRAFT'"
+            v-else-if="isDeletable()"
             class="list-group-item p-2 d-flex justify-content-between">
             <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
               <li class="me-2">
@@ -347,6 +347,7 @@
 
 <script setup>
 import { computed, onBeforeMount, onMounted, ref } from 'vue'
+import { ROLES } from '@/config/consts'
 import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
@@ -440,6 +441,14 @@ const organizationsById = computed(() => {
   }, {})
 })
 
+const userInfo = computed(() => {
+  return userStore.userInfo
+})
+
+const isAdmin = computed(() => {
+  return userInfo.value.roles.includes(ROLES.ADMINISTRATOR)
+})
+
 const representedOrganizationsById = computed(() => {
   return Object.entries(organizationsById.value)
     .filter(
@@ -469,6 +478,7 @@ function isResourceRepresented(resource) {
 const numberOfResources = computed(() => {
   return getResources.value.length
 })
+
 const postsRecipients = computed(() => {
   return organizations.value.map((org) => {
     return { id: org.externalId, name: org.name }
@@ -478,9 +488,11 @@ const postsRecipients = computed(() => {
 function assignStatus(status) {
   selectedStatus.value = status
 }
+
 const author = computed(() => {
   return negotiation.value.author
 })
+
 const loading = computed(() => {
   return negotiation.value === undefined || resources.value.length === 0
 })
@@ -551,6 +563,10 @@ async function updateNegotiation(message) {
   await reloadStates()
 
   negotiationPosts.value.retrievePostsByNegotiationId()
+}
+
+function isDeletable() {
+  return negotiation.value.status === 'DRAFT' && (isAdmin.value || userInfo.value.subjectId === negotiation.value.author.subjectId)
 }
 
 async function deleteNegotiation() {
