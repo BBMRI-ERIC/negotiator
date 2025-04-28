@@ -4,6 +4,7 @@ import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -22,11 +23,6 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
@@ -38,6 +34,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service(value = "DefaultNegotiationService")
 @CommonsLog
@@ -337,5 +339,16 @@ public class NegotiationServiceImpl implements NegotiationService {
         .stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
+  }
+
+  public void deleteNegotiation(String negotiationId) {
+    if (!isNegotiationCreator(negotiationId)) {
+      throw new ForbiddenRequestException("You are not allowed to delete this entity");
+    }
+    Negotiation negotiation = findEntityById(negotiationId, false);
+    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
+      throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
+    }
+    negotiationRepository.delete(negotiation);
   }
 }

@@ -456,6 +456,17 @@ public class NegotiatorExceptionHandler {
     return problemDetail;
   }
 
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(ConflictStatusException.class)
+  public final ProblemDetail handleConflictStatusException( HttpMessageNotReadableException exception) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    problemDetail.setTitle("Conflict");
+    problemDetail.setDetail(exception.getMessage());
+    problemDetail.setType(
+            URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409"));
+    return problemDetail;
+  }
+
   private static void extractDetails(
       MethodArgumentNotValidException e, Map<String, String> errors) {
     e.getBindingResult()
