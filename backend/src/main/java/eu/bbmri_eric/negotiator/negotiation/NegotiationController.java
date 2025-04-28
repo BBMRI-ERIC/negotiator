@@ -21,6 +21,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -42,10 +45,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v3")
@@ -161,20 +160,19 @@ public class NegotiationController {
    * Delete a negotiation
    *
    * @param id of the negotiation
-   * @return 204 No Content in case of success, 404 Not Found in case the negotiation doesn't exist, 403 in case the
-   * operation is Forbidden
+   * @return 204 No Content in case of success, 404 Not Found in case the negotiation doesn't exist,
+   *     403 in case the operation is Forbidden
    */
   @DeleteMapping("/negotiations/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
-          summary = "Delete a negotiation",
-          description =
-                  "Endpoint to remove a negotiation. The operation is allowed only if the Negotiation is in DRAFT " +
-                          "state and the user that is deleting it is the creator")
+      summary = "Delete a negotiation",
+      description =
+          "Endpoint to remove a negotiation. The operation is allowed only if the Negotiation is in DRAFT "
+              + "state and the user that is deleting it is the creator")
   public void delete(@Valid @PathVariable String id) {
     negotiationService.deleteNegotiation(id);
   }
-
 
   /**
    * Interact with the state of a negotiation by sending an Event

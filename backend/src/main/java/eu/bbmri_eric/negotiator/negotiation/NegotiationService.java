@@ -153,8 +153,8 @@ public interface NegotiationService {
       Long networkId, NegotiationFilterDTO negotiationFilterDTO);
 
   /**
-   * Delete the Negotiation with the specified id. The Negotiation can be deleted only by its creator and only
-   * when it is in DRAFT state
+   * Delete the Negotiation with the specified id. The Negotiation can be deleted only by its
+   * creator and only when it is in DRAFT state
    *
    * @param negotiationId the if of the network
    */

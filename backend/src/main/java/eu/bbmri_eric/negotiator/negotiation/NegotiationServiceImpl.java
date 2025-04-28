@@ -23,6 +23,11 @@ import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
@@ -34,12 +39,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service(value = "DefaultNegotiationService")
 @CommonsLog
