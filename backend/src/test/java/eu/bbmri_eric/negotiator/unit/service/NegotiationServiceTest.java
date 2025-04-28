@@ -1,19 +1,12 @@
 package eu.bbmri_eric.negotiator.unit.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -29,10 +22,6 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.hibernate.exception.DataException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +36,21 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
@@ -239,6 +243,85 @@ public class NegotiationServiceTest {
     assertEquals(
         NegotiationState.SUBMITTED.name(),
         negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+          id = 2L,
+          authName = "researcher",
+          authSubject = "researcher@aai.eu",
+          authEmail = "researcher@aai.eu",
+          authorities = {"ROLE_RESEARCHER"})
+  void testDeleteNegotiation_fails_when_CreatorIsDifferent() {
+    Negotiation negotiation = Negotiation.builder().build();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setId("negotiation-id");
+    negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+
+    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
+    assertThrows(ForbiddenRequestException.class, () -> negotiationService.deleteNegotiation(negotiation.getId()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+          id = 2L,
+          authName = "researcher",
+          authSubject = "researcher@aai.eu",
+          authEmail = "researcher@aai.eu",
+          authorities = {"ROLE_RESEARCHER"})
+  void testDeleteNegotiation_fails_when_notInDraftState() {
+    Negotiation negotiation = Negotiation.builder().build();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setId("negotiation-id");
+    negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.SUBMITTED);
+
+    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
+    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
+    assertThrows(ConflictStatusException.class, () -> negotiationService.deleteNegotiation(negotiation.getId()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+          id = 2L,
+          authName = "researcher",
+          authSubject = "researcher@aai.eu",
+          authEmail = "researcher@aai.eu",
+          authorities = {"ROLE_RESEARCHER"})
+  void testDeleteNegotiation_fails_when_negotiationNotFound() {
+    Negotiation negotiation = Negotiation.builder().build();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setId("negotiation-id");
+    negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.SUBMITTED);
+
+    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
+    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.empty());
+    assertThrows(EntityNotFoundException.class, () -> negotiationService.deleteNegotiation(negotiation.getId()));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(
+          id = 2L,
+          authName = "researcher",
+          authSubject = "researcher@aai.eu",
+          authEmail = "researcher@aai.eu",
+          authorities = {"ROLE_RESEARCHER"})
+  void testDeleteNegotiation_ok() {
+    Negotiation negotiation = Negotiation.builder().build();
+    Request request = new Request();
+    request.setResources(Set.of(new Resource()));
+    negotiation.setId("negotiation-id");
+    negotiation.setResources(request.getResources());
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+
+    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
+    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
+    negotiationService.deleteNegotiation(negotiation.getId());
   }
 
   @Test
