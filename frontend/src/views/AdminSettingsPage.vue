@@ -33,6 +33,8 @@
     @confirm="confirmDeleteWebhook"
     ref="deleteModal"
   />
+  <hr />
+  <email-template-section />
 </template>
 
 <script setup>
@@ -47,6 +49,7 @@ import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
+import EmailTemplateSection from '@/components/EmailTemplateSection.vue'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
@@ -92,7 +95,7 @@ const addWebhook = () => {
     url: '',
     sslVerification: true,
     active: true,
-    deliveries: []
+    deliveries: [],
   }
   editModal.value = new Modal(document.querySelector('#webhookmodal'))
   shown.value = true
@@ -123,7 +126,7 @@ const confirmDeleteWebhook = async () => {
     await adminStore.deleteWebhook(webhookToDelete.value.id)
 
     // Refresh the list
-    webhooks.value = await adminStore.retrieveWebhooks() || []
+    webhooks.value = (await adminStore.retrieveWebhooks()) || []
 
     notifications.setNotification('Webhook deleted successfully')
   } catch (error) {
@@ -162,7 +165,7 @@ const handleNewWebhook = async (updatedConfig) => {
   }
 }
 const testWebhook = async (webhook) => {
-  const index = webhooks.value.findIndex(w => w.id === webhook.id)
+  const index = webhooks.value.findIndex((w) => w.id === webhook.id)
   if (index === -1) return
 
   // Set testing state
@@ -176,12 +179,12 @@ const testWebhook = async (webhook) => {
     const updatedWebhook = await adminStore.getWebhook(webhook.id)
     webhooks.value[index] = {
       ...updatedWebhook,
-      testInProgress: false
+      testInProgress: false,
     }
   } catch {
     webhooks.value[index] = {
       ...webhooks.value[index],
-      testInProgress: false
+      testInProgress: false,
     }
   }
 }

@@ -53,7 +53,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
       })
   }
 
-  function creatEmailTemplateReset(templateName) {
+  function emailTemplateReset(templateName) {
     return axios
       .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}/reset`, '', {
         headers: getBearerHeaders(),
@@ -74,6 +74,6 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
     retrieveEmailTemplates,
     retrieveEmailTemplateByName,
     updateEmailTemplate,
-    creatEmailTemplateReset,
+    emailTemplateReset,
   }
 })
