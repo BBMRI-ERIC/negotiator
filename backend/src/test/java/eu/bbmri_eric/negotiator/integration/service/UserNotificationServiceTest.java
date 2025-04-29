@@ -177,7 +177,7 @@ class UserNotificationServiceTest {
       id = 109L,
       authorities = {"ROLE_ADMIN"})
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  void notifyRepresentatives_called2Times_noNewEmailsSent() {
+  void notifyRepresentatives_called2Times_noNewEmailsSent() throws InterruptedException {
     notificationEmailRepository.deleteAll();
     assertTrue(notificationEmailRepository.findAll().isEmpty());
     Negotiation negotiation = negotiationRepository.findAll().get(0);
@@ -186,6 +186,7 @@ class UserNotificationServiceTest {
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     userNotificationService.sendEmailsForNewNotifications();
+    wait(100);
     int numOfEmails = notificationEmailRepository.findAll().size();
     assertTrue(numOfEmails > 0);
     userNotificationService.sendEmailsForNewNotifications();
