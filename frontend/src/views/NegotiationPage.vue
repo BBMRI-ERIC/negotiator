@@ -300,7 +300,7 @@
             </ul>
           </li>
           <li
-            v-else-if="isDeletable()"
+            v-else-if="canDelete()"
             class="list-group-item p-2 d-flex justify-content-between">
             <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
               <li class="me-2">
@@ -314,7 +314,6 @@
               </li>
             </ul>
           </li>
-
           <li class="list-group-item p-2 btn-sm border-bottom-0">
             <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
           </li>
@@ -565,7 +564,7 @@ async function updateNegotiation(message) {
   negotiationPosts.value.retrievePostsByNegotiationId()
 }
 
-function isDeletable() {
+function canDelete() {
   return negotiation.value.status === 'DRAFT' && (isAdmin.value || userInfo.value.subjectId === negotiation.value.author.subjectId)
 }
 

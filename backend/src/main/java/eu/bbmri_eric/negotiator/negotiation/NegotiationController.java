@@ -171,6 +171,7 @@ public class NegotiationController {
           "Endpoint to remove a negotiation. The operation is allowed only if the Negotiation is in DRAFT "
               + "state and the user that is deleting it is the creator")
   public void delete(@Valid @PathVariable String id) {
+
     negotiationService.deleteNegotiation(id);
   }
 
