@@ -56,8 +56,8 @@
                 v-if="isAttachment(subelement)"
                 :style="{ color: uiConfiguration.secondaryTextColor }"
               >
-                <span v-if="subelement.name">
-                  {{ subelement.name }}
+                <span v-if="subelement.name" class="d-flex col">
+                  <span class="text-truncate" :title="subelement.name">{{ subelement.name }}</span>
                   <font-awesome-icon
                     v-if="isAttachment(subelement)"
                     class="ms-1 cursor-pointer"
@@ -332,7 +332,13 @@ import OrganizationContainer from '@/components/OrganizationContainer.vue'
 import PDFButton from '@/components/PDFButton.vue'
 import { dateFormat } from '@/config/consts'
 import moment from 'moment'
-import { getBadgeColor, getBadgeIcon, getButtonColor, getButtonIcon, transformStatus } from '../composables/utils.js'
+import {
+  getBadgeColor,
+  getBadgeIcon,
+  getButtonColor,
+  getButtonIcon,
+  transformStatus,
+} from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUserStore } from '../store/user.js'
@@ -464,7 +470,7 @@ onBeforeMount(async () => {
   if (resourceResponse !== undefined) {
     resources.value = resourceResponse
     const resourceResponseLinks = await negotiationPageStore.retrieveResourcesByNegotiationIdLinks(
-    props.negotiationId,
+      props.negotiationId,
     )
     isAddResourcesButtonVisible.value = hasRightsToAddResources(resourceResponseLinks._links)
   }
