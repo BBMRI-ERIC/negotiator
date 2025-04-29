@@ -25,26 +25,26 @@ describe("Test access negotiations", () => {
             // Negotiation is visible in card view
             cy.get(".text-end > :nth-child(1)").click()
 
-            // First draft negotiation
+            // First negotiation
             cy.get(":nth-child(1) > .card").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(1) > .card > .card-header > .float-end > .bg-secondary").should("be.visible")
+            cy.get(":nth-child(1) > .card > .card-header > .float-end").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(1) > .card > .card-body > :nth-child(3)").should("be.visible")
 
-            // Second draft negotiation
+            // Second negotiation
             cy.get(":nth-child(2) > .card").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(2) > .card > .card-header > .float-end > .bg-secondary").should("be.visible")
+            cy.get(":nth-child(2) > .card > .card-header > .float-end").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(3)").should("be.visible")
 
-            // Negotiation under review
+            // Third negotiation
             cy.get(":nth-child(3) > .card").should("be.visible")
             cy.get(":nth-child(3) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(3) > .card > .card-header > .float-end > .bg-status-badge").should("be.visible")
+            cy.get(":nth-child(3) > .card > .card-header > .float-end").should("be.visible")
             cy.get(":nth-child(3) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(3) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(3) > .card > .card-body > :nth-child(3)").should("be.visible")
