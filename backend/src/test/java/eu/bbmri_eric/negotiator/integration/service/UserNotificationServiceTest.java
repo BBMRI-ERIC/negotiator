@@ -29,6 +29,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest(loadTestData = true)
 @Transactional
@@ -175,6 +176,7 @@ class UserNotificationServiceTest {
   @WithMockNegotiatorUser(
       id = 109L,
       authorities = {"ROLE_ADMIN"})
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void notifyRepresentatives_called2Times_noNewEmailsSent() {
     notificationEmailRepository.deleteAll();
     assertTrue(notificationEmailRepository.findAll().isEmpty());
