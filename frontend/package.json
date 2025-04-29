@@ -32,7 +32,7 @@
     "dotenv": "^16.0.3",
     "git-rev-sync": "^3.0.2",
     "http-server": "^14.1.1",
-    "jspdf": "^2.5.1",
+    "jspdf": "^3.0.1",
     "jspdf-autotable": "^3.8.2",
     "moment": "^2.29.4",
     "oidc-client-ts": "^3.1.0",
@@ -60,7 +60,7 @@
     "jsdom": "^26.0.0",
     "prettier": "^3.5.3",
     "sass": "1.77.6",
-    "vite": "^6.1.1",
+    "vite": "^6.2.6",
     "vitest": "^3.0.5"
   },
   "browserslist": [
