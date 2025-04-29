@@ -13,10 +13,7 @@ import static org.mockito.Mockito.when;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
-import eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException;
-import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
-import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -242,111 +239,6 @@ public class NegotiationServiceTest {
     assertEquals(
         NegotiationState.SUBMITTED.name(),
         negotiationService.findAllWithCurrentState(NegotiationState.SUBMITTED).get(0).getStatus());
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      id = 2L,
-      authName = "researcher",
-      authSubject = "researcher@aai.eu",
-      authEmail = "researcher@aai.eu",
-      authorities = {"ROLE_RESEARCHER"})
-  void testDeleteNegotiation_fails_when_CreatorIsDifferent() {
-    Negotiation negotiation = Negotiation.builder().build();
-    Request request = new Request();
-    request.setResources(Set.of(new Resource()));
-    negotiation.setId("negotiation-id");
-    negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.DRAFT);
-
-    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
-    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
-    assertThrows(
-        ForbiddenRequestException.class,
-        () -> negotiationService.deleteNegotiation(negotiation.getId()));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      id = 2L,
-      authName = "researcher",
-      authSubject = "researcher@aai.eu",
-      authEmail = "researcher@aai.eu",
-      authorities = {"ROLE_RESEARCHER"})
-  void testDeleteNegotiation_fails_when_notInDraftState() {
-    Negotiation negotiation = Negotiation.builder().build();
-    Request request = new Request();
-    request.setResources(Set.of(new Resource()));
-    negotiation.setId("negotiation-id");
-    negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.SUBMITTED);
-
-    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
-    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
-    assertThrows(
-        ConflictStatusException.class,
-        () -> negotiationService.deleteNegotiation(negotiation.getId()));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      id = 2L,
-      authName = "researcher",
-      authSubject = "researcher@aai.eu",
-      authEmail = "researcher@aai.eu",
-      authorities = {"ROLE_RESEARCHER"})
-  void testDeleteNegotiation_fails_when_negotiationNotFound() {
-    Negotiation negotiation = Negotiation.builder().build();
-    Request request = new Request();
-    request.setResources(Set.of(new Resource()));
-    negotiation.setId("negotiation-id");
-    negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.SUBMITTED);
-
-    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
-    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.empty());
-    assertThrows(
-        EntityNotFoundException.class,
-        () -> negotiationService.deleteNegotiation(negotiation.getId()));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      id = 2L,
-      authName = "researcher",
-      authSubject = "researcher@aai.eu",
-      authEmail = "researcher@aai.eu",
-      authorities = {"ROLE_RESEARCHER"})
-  void testDeleteNegotiation_ok_whenCreator() {
-    Negotiation negotiation = Negotiation.builder().build();
-    Request request = new Request();
-    request.setResources(Set.of(new Resource()));
-    negotiation.setId("negotiation-id");
-    negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.DRAFT);
-
-    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(true);
-    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
-    negotiationService.deleteNegotiation(negotiation.getId());
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      authName = "admin",
-      authSubject = "admin@negotiator.dev",
-      authEmail = "admin@negotiator.dev",
-      authorities = {"ROLE_ADMIN"})
-  void testDeleteNegotiation_ok_whenAdministrator() {
-    Negotiation negotiation = Negotiation.builder().build();
-    Request request = new Request();
-    request.setResources(Set.of(new Resource()));
-    negotiation.setId("negotiation-id");
-    negotiation.setResources(request.getResources());
-    negotiation.setCurrentState(NegotiationState.DRAFT);
-
-    when(personRepository.isNegotiationCreator(2L, "negotiation-id")).thenReturn(false);
-    when(negotiationRepository.findById("negotiation-id")).thenReturn(Optional.of(negotiation));
-    negotiationService.deleteNegotiation(negotiation.getId());
   }
 
   @Test

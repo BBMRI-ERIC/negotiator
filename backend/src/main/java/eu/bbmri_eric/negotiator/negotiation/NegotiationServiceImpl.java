@@ -4,7 +4,6 @@ import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.exceptions.ConflictStatusException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotStorableException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -339,17 +338,5 @@ public class NegotiationServiceImpl implements NegotiationService {
         .stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
-  }
-
-  public void deleteNegotiation(String negotiationId) {
-    Negotiation negotiation = findEntityById(negotiationId, false);
-    if (!isNegotiationCreator(negotiationId)
-        && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
-      throw new ForbiddenRequestException("You are not allowed to delete this entity");
-    }
-    if (negotiation.getCurrentState() != NegotiationState.DRAFT) {
-      throw new ConflictStatusException("Cannot delete a Negotiation that is not in DRAFT state");
-    }
-    negotiationRepository.delete(negotiation);
   }
 }

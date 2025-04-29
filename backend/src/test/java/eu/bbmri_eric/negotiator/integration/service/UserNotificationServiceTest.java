@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,11 +26,9 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest(loadTestData = true)
 @Transactional
@@ -178,7 +175,6 @@ class UserNotificationServiceTest {
   @WithMockNegotiatorUser(
       id = 109L,
       authorities = {"ROLE_ADMIN"})
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void notifyRepresentatives_called2Times_noNewEmailsSent() {
     notificationEmailRepository.deleteAll();
     assertTrue(notificationEmailRepository.findAll().isEmpty());
@@ -188,14 +184,9 @@ class UserNotificationServiceTest {
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     userNotificationService.sendEmailsForNewNotifications();
-    await()
-        .atMost(1, TimeUnit.SECONDS)
-        .until(() -> !notificationEmailRepository.findAll().isEmpty());
     int numOfEmails = notificationEmailRepository.findAll().size();
+    assertTrue(numOfEmails > 0);
     userNotificationService.sendEmailsForNewNotifications();
-    await()
-        .atMost(2, TimeUnit.SECONDS)
-        .until(() -> notificationEmailRepository.findAll().size() == numOfEmails);
     assertEquals(numOfEmails, notificationEmailRepository.findAll().size());
   }
 

@@ -34,7 +34,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -157,25 +156,6 @@ public class NegotiationController {
   }
 
   /**
-   * Delete a negotiation
-   *
-   * @param id of the negotiation
-   * @return 204 No Content in case of success, 404 Not Found in case the negotiation doesn't exist,
-   *     403 in case the operation is Forbidden
-   */
-  @DeleteMapping("/negotiations/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(
-      summary = "Delete a negotiation",
-      description =
-          "Endpoint to remove a negotiation. The operation is allowed only if the Negotiation is in DRAFT "
-              + "state and the user that is deleting it is the creator")
-  public void delete(@Valid @PathVariable String id) {
-
-    negotiationService.deleteNegotiation(id);
-  }
-
-  /**
    * Interact with the state of a negotiation by sending an Event
    *
    * @param id of the negotiation
@@ -283,6 +263,14 @@ public class NegotiationController {
       @PathVariable String id, @RequestBody @Valid UpdateResourcesDTO updateResourcesDTO) {
     return resourceWithStatusAssembler.toCollectionModel(
         resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
+  }
+
+  private boolean isAuthorizedForNegotiation(NegotiationDTO negotiationDTO) {
+    return isCreator(negotiationDTO)
+        || personService.isRepresentativeOfAnyResourceOfNegotiation(
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(),
+            negotiationDTO.getId())
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   private String getUserId() {

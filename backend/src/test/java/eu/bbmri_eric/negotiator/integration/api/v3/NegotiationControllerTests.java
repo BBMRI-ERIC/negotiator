@@ -31,7 +31,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
@@ -1590,69 +1589,5 @@ public class NegotiationControllerTests {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/posts"))
         .andExpect(status().isOk());
-  }
-
-  @Test
-  public void testDelete_Unauthorized() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isUnauthorized());
-  }
-
-  @Test
-  @WithUserDetails("SarahRepr")
-  public void testDelete_Forbidden_whenUserNotCreatorOrAdmin() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithUserDetails("TheResearcher")
-  public void testDelete_NotFound() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/unknown".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  @WithUserDetails("TheResearcher")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  public void testDelete_conflict_whenWrongStatus() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  @WithUserDetails("TheResearcher")
-  @Transactional
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  public void testDelete_ok_whenNegotiatorAuthor() throws Exception {
-    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
-    negotiationRepository.save(negotiation);
-
-    mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isNoContent());
-
-    assertFalse(negotiationRepository.findById("negotiation-1").isPresent());
-  }
-
-  @Test
-  @WithUserDetails("admin")
-  @Transactional
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  public void testDelete_ok_whenAdmin() throws Exception {
-    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
-    negotiationRepository.save(negotiation);
-
-    mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
-        .andExpect(status().isNoContent());
-
-    assertFalse(negotiationRepository.findById("negotiation-1").isPresent());
   }
 }

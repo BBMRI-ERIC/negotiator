@@ -32,6 +32,8 @@ public class NegotiationSpecification {
         specs = initOrAnd(specs, hasResourcesIn(user.getResources()));
         specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
       }
+    } else {
+      specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
     }
 
     if (filtersDTO.getStatus() != null && !filtersDTO.getStatus().isEmpty()) {
