@@ -211,12 +211,11 @@
     </div>
 
     <div v-if="pagination.totalElements === 0" class="d-flex justify-content-center">
-      <div class="d-flex justify-content-center">
+      <div class="d-flex row justify-content-center">
         <h3 class="text-center mt-3">
           <i style="color: #7c7c7c" class="bi bi-circle" />
-
-          <h4 class="mb-3 ms-3 mt-3">There aren’t any negotiations.</h4>
         </h3>
+        <h4 class="mb-3 ms-3 mt-3 text-center">There aren’t any negotiations.</h4>
       </div>
     </div>
   </div>
