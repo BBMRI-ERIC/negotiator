@@ -96,7 +96,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   public boolean isAuthorizedForNegotiation(String negotiationId) {
     return isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
-            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   public boolean isOrganizationPartOfNegotiation(

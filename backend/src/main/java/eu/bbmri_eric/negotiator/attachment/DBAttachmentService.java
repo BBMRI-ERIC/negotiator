@@ -156,7 +156,8 @@ public class DBAttachmentService implements AttachmentService {
     // checks whether the user is representative of the organization
     if (organizationExternalId != null
         && !negotiationService.isNegotiationCreator(negotiationId)
-        && !isRepresentativeOfOrganization(organizationExternalId)) {
+        && !isRepresentativeOfOrganization(organizationExternalId)
+        && !isAdmin()) {
       throw new ForbiddenRequestException(
           "User %s is not authorized to upload attachments to this organization for this negotiation"
               .formatted(userId));
