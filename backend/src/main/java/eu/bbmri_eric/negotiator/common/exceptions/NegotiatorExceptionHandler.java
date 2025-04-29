@@ -458,6 +458,24 @@ public class NegotiatorExceptionHandler {
 
   @ResponseStatus(HttpStatus.CONFLICT)
   @ExceptionHandler(ConflictStatusException.class)
+  @ApiResponse(
+      responseCode = "409",
+      description = "Conflict: The status of the resource is in conflict with the one required",
+      content =
+          @Content(
+              mediaType = "application/json+problem",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                                          {
+                                            "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/409",
+                                            "title": "Conflict",
+                                            "status": 409,
+                                            "detail": "The status of the resource is in conflict with the one required.",
+                                            "instance": "/api/your-endpoint"
+                                          }
+                                          """)))
   public final ProblemDetail handleConflictStatusException(ConflictStatusException exception) {
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
     problemDetail.setTitle("Conflict");
