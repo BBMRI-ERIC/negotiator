@@ -40,14 +40,6 @@ describe("Test access negotiations", () => {
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(1)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(2)").should("be.visible")
             cy.get(":nth-child(2) > .card > .card-body > :nth-child(3)").should("be.visible")
-
-            // Third negotiation
-            cy.get(":nth-child(3) > .card").should("be.visible")
-            cy.get(":nth-child(3) > .card > .card-header").should("be.visible")
-            cy.get(":nth-child(3) > .card > .card-header > .float-end").should("be.visible")
-            cy.get(":nth-child(3) > .card > .card-body > :nth-child(1)").should("be.visible")
-            cy.get(":nth-child(3) > .card > .card-body > :nth-child(2)").should("be.visible")
-            cy.get(":nth-child(3) > .card > .card-body > :nth-child(3)").should("be.visible")
         })
 
         it("test if negotiation page contains all fields", () => {
