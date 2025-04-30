@@ -72,8 +72,12 @@
           />
         </div>
 
-        <div v-for="criteria in section.elements" :key="criteria.name" class="mb-4 mx-3" v-on:focusout="handleFocusoutSave(index + 2)"
->
+        <div
+          v-for="criteria in section.elements"
+          :key="criteria.name"
+          class="mb-4 mx-3"
+          v-on:focusout="handleFocusoutSave(index + 2)"
+        >
           <label
             class="form-label"
             :style="{ color: uiConfiguration?.primaryTextColor }"
@@ -738,7 +742,6 @@ function transformMessage(text) {
 async function handleFocusoutSave(step) {
   saveDraft(step)
 }
-
 </script>
 
 <style scoped>
