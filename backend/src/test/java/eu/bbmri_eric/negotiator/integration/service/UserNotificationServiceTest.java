@@ -28,11 +28,9 @@ import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest(loadTestData = true)
