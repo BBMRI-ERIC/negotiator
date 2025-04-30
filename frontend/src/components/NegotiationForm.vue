@@ -72,7 +72,8 @@
           />
         </div>
 
-        <div v-for="criteria in section.elements" :key="criteria.name" class="mb-4 mx-3">
+        <div v-for="criteria in section.elements" :key="criteria.name" class="mb-4 mx-3" v-on:focusout="handleFocusoutSave(index + 2)"
+>
           <label
             class="form-label"
             :style="{ color: uiConfiguration?.primaryTextColor }"
@@ -559,7 +560,7 @@ async function saveNegotiation(savingDraft, step) {
     const data = {
       draft: savingDraft,
       request: props.requestId,
-      payload: negotiationCritseria.value,
+      payload: negotiationCriteria.value,
     }
     await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
       if (negotiationId) {
@@ -733,6 +734,11 @@ function transformMessage(text) {
     return 'Please provide a ' + text?.toLowerCase()
   }
 }
+
+async function handleFocusoutSave(step) {
+  saveDraft(step)
+}
+
 </script>
 
 <style scoped>
