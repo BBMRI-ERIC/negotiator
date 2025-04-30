@@ -31,8 +31,8 @@ describe("Test create negotiation", () => {
 
             //  form input
             // page 2
-            cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation")
-            cy.get("#Project1 > :nth-child(3) > div > .form-control").type("C92.1")
+            cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation", {force: true})
+            cy.get("#Project1 > :nth-child(3) > div > .form-control").type("C92.1", {force: true})
             cy.get("#Project1 > :nth-child(4) > div > .form-control").type("Innovative method to detect BCR::ABL1")
             cy.get("#Project1 > :nth-child(5) > div > .form-control").type("Masaryk memorial cancer institute")
 
@@ -141,8 +141,8 @@ describe("Test create negotiation", () => {
 
           //  form input
           // page 2
-          cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation")
-          cy.get("#Project1 > :nth-child(3) > div > .form-control").type("C92.1")
+          cy.get("#Project1 > :nth-child(2) > div > .form-control").type("Test e2e negotiation", {force: true})
+          cy.get("#Project1 > :nth-child(3) > div > .form-control").type("C92.1", {force: true})
           cy.get("#Project1 > :nth-child(4) > div > .form-control").type("Innovative method to detect BCR::ABL1")
           cy.get("#Project1 > :nth-child(5) > div > .form-control").type("Masaryk memorial cancer institute")
 
