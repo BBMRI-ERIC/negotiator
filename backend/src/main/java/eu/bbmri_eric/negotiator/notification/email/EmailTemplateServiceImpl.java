@@ -45,6 +45,9 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
   }
 
   private String validateHtml(String html) {
+    if (html == null) {
+      throw new UnsupportedMediaTypeException("Template cannot be null.");
+    }
     try {
       return Jsoup.parse(html).html();
     } catch (Exception e) {
