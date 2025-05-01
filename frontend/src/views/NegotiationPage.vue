@@ -28,6 +28,14 @@
         <h1 class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ negotiation ? negotiation.payload.project.title?.toUpperCase() : '' }}
         </h1>
+        <p
+          v-if="negotiation.status === 'DRAFT'"
+          class="fw-bold alert alert-light"
+          :style="{ color: uiConfiguration.primaryTextColor }"
+        >
+          This Negotiation is currently saved as a draft. Please review and edit the information
+          below to ensure accuracy and completeness before publishing.
+        </p>
         <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
           ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
           {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
@@ -46,11 +54,11 @@
             >
               <button
                 type="button"
-                class="btn text-black status-box cursor-pointer"
+                class="btn status-box cursor-pointer"
                 data-bs-toggle="modal"
                 data-bs-target="#negotiationUpdateModal"
               >
-                <i class="bi bi-pencil-square cursor-pointer" />
+                Edit <i class="bi bi-pencil-square cursor-pointer" />
               </button>
             </div>
             <span class="fs-5 fw-bold mt-3" :style="{ color: uiConfiguration.primaryTextColor }">
