@@ -1,119 +1,128 @@
 <template>
-  <div class="d-flex justify-content-between align-items-center mb-1">
-    <h2 class="text-left">Users</h2>
-  </div>
   <div class="user-list-section">
-    <div v-if="users.length === 0" class="text-muted mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="text-left">Users</h2>
+    </div>
+    <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">
       No users found.
     </div>
     <div v-else class="table-container">
       <table class="table table-hover">
         <thead>
         <tr>
-          <th @click="sort('name')" :class="getSortClass('name')">Name</th>
-          <th @click="sort('email')" :class="getSortClass('email')">Email</th>
-          <th @click="sort('lastLogin')" :class="getSortClass('lastLogin')">Last Login</th>
-          <th @click="sort('admin')" :class="getSortClass('admin')">Admin</th>
-          <th @click="sort('networkManager')" :class="getSortClass('networkManager')">Network Manager</th>
-          <th @click="sort('representativeOfAnyResource')" :class="getSortClass('representativeOfAnyResource')">Resource
-            Representative
-          </th>
-          <th @click="sort('isServiceAccount')" :class="getSortClass('isServiceAccount')">Service Account</th>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Subject ID</th>
+          <th>Last Login</th>
+          <th>Admin</th>
+          <th>Service Account</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="user in paginatedUsers" :key="user.id">
+          <td>{{ user.id }}</td>
           <td>{{ user.name }}</td>
           <td>{{ user.email }}</td>
+          <td>{{ user.subjectId }}</td>
           <td>{{ formatDate(user.lastLogin) }}</td>
           <td>{{ user.admin ? 'Yes' : 'No' }}</td>
-          <td>{{ user.networkManager ? 'Yes' : 'No' }}</td>
-          <td>{{ user.representativeOfAnyResource ? 'Yes' : 'No' }}</td>
           <td>{{ user.serviceAccount === true || user.serviceAccount === 'true' ? 'Yes' : 'No' }}</td>
         </tr>
         </tbody>
       </table>
       <div class="pagination">
-        <button @click="previousPage" :disabled="currentPage === 1" class="page-button">&#8249; Prev</button>
+        <button @click="previousPage" :disabled="currentPage === 1 || isLoading" class="page-button">‹ Prev</button>
         <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages" class="page-button">Next &#8250;</button>
-        <select v-model="pageSize" @change="resetPage" class="page-size-select">
-          <option v-for="size in [10, 25, 50, 100]" :key="size" :value="size">{{ size }} per page</option>
-        </select>
+        <button @click="nextPage" :disabled="currentPage === totalPages || isLoading" class="page-button">Next ›
+        </button>
+        <input
+          v-model.number="pageSize"
+          @change="resetPage"
+          type="number"
+          min="1"
+          class="page-size-input"
+          placeholder="Page size"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, defineProps, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useAdminStore } from '@/store/admin.js'
 
-const props = defineProps({
-  users: {
-    type: Array,
-    required: true,
-    default: () => []
-  }
-})
-
-const sortBy = ref('name')
-const sortOrder = ref('asc')
+const users = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
+const totalUsers = ref(0)
+const isLoading = ref(false)
+const adminStore = useAdminStore()
 
 const formatDate = (dateString) => {
   if (!dateString) return '-'
   return new Date(dateString).toLocaleString()
 }
 
-const sort = (column) => {
-  if (sortBy.value === column) {
-    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    sortBy.value = column
-    sortOrder.value = 'asc'
-  }
-}
-
-const getSortClass = (column) => {
-  return column === sortBy.value ? (sortOrder.value === 'asc' ? 'sorted-asc' : 'sorted-desc') : ''
-}
-
-const sortedUsers = computed(() => {
-  return [...props.users].sort((a, b) => {
-    const aValue = a[sortBy.value]
-    const bValue = b[sortBy.value]
-    if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1
-    if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1
-    return 0
-  })
-})
-
 const totalPages = computed(() => {
-  return Math.ceil(sortedUsers.value.length / pageSize.value)
+  return Math.ceil(totalUsers.value / pageSize.value) || 1
 })
 
 const paginatedUsers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return sortedUsers.value.slice(start, end)
+  return users.value
 })
 
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value -= 1
+    fetchUsers()
   }
 }
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value += 1
+    fetchUsers()
   }
 }
 
 const resetPage = () => {
+  if (pageSize.value < 1) {
+    pageSize.value = 10 // Default to 10 if invalid
+  }
   currentPage.value = 1
+  fetchUsers()
 }
+
+const fetchUsers = async () => {
+  isLoading.value = true
+  try {
+    const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
+      currentPage.value - 1,
+      pageSize.value
+    )
+    users.value = usersData || []
+    totalUsers.value = totalCount || 0
+    if (currentPage.value > totalPages.value && totalPages.value > 0) {
+      currentPage.value = totalPages.value
+      fetchUsers() // Re-fetch if page is out of bounds
+    }
+  } catch (error) {
+    users.value = []
+    totalUsers.value = 0
+  } finally {
+    isLoading.value = false
+  }
+}
+
+watch(pageSize, () => {
+  resetPage()
+})
+
+onMounted(() => {
+  fetchUsers()
+})
 </script>
 
 <style scoped>
@@ -140,7 +149,7 @@ const resetPage = () => {
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: #6c757d; /* gray text */
+  color: #6c757d;
   padding: 1rem;
   border-bottom: 2px solid #e8ecef;
   cursor: pointer;
@@ -160,16 +169,6 @@ const resetPage = () => {
 
 .table tbody tr:hover {
   background-color: #f8f9fa;
-}
-
-.sorted-asc::after {
-  content: " ↑";
-  font-size: 0.85rem;
-}
-
-.sorted-desc::after {
-  content: " ↓";
-  font-size: 0.85rem;
 }
 
 .pagination {
@@ -198,11 +197,13 @@ const resetPage = () => {
   color: #6c757d;
 }
 
-.page-size-select {
+.page-size-input {
   padding: 0.3rem 0.75rem;
   font-size: 0.95rem;
   margin-left: 1rem;
+  width: 60px;
   border: 1px solid #e8ecef;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
