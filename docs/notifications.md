@@ -65,28 +65,8 @@ spring:
   thymeleaf:
     prefix: file:resources/templates/
 ```
-Using the endpoint as an **admin** user, you can update the email template without restarting the application. This is useful for making quick changes or tweaks to the template. 
-The content of the email template can be updated by sending a POST request to the `/api/v3/email-templates/<template_name>` endpoint with the new template content in the request body. This endpoint is protected by the `ROLE_ADMIN` role. 
-To reset the template to the default content, send a POST request to the `/api/v3/email-templates/<template_name>/reset` endpoint.
-You can get a list of all available templates by sending a GET request to the `/api/v3/email-templates` endpoint. It is not possible to add new templates or delete existing ones.
 
-#### Example of a POST request to update the email template
-```bash
-curl -X POST \
-  http://localhost:8081/api/v3/email-templates/email-notification \
-  -H 'Content-Type: application/xml' \
-  -H 'Authorization: Bearer <token>' \
-  -d '<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-    <head>
-        <title>Email notification</title>
-    </head>
-    <body>
-    Hello <span th:utext="${recipient.getName()}"></span>
-    </body>
-</html>'
-```
-
+Email templates used for system notifications can be managed via the admin UI. Admin users can update existing templates or reset them to default without restarting the application. No new templates can be added or deleted.
 
 ### Email reminder
 Automates the sending of emails based on schedules. The email reminder service is implemented using [Spring's Task Execution and Scheduling](https://spring.io/guides/gs/scheduling-tasks/). 
