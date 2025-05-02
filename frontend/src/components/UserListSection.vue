@@ -108,7 +108,7 @@ const fetchUsers = async () => {
       currentPage.value = totalPages.value
       fetchUsers() // Re-fetch if page is out of bounds
     }
-  } catch (error) {
+  } catch {
     users.value = []
     totalUsers.value = 0
   } finally {

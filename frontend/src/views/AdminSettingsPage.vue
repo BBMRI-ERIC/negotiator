@@ -7,6 +7,7 @@
       :info-requirements="infoRequirements"
       :access-forms="accessForms"
       @set-info-requirements="setInfoRequirements"
+      @add-requirement="() => {}"
     />
     <hr />
     <WebhooksSection
