@@ -145,16 +145,12 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
   }
 
   async function transferNegotiation(negotiationId, subjectId) {
-    try {
-      const response = await axios.patch(
-        `${apiPaths.NEGOTIATION_PATH}/${negotiationId}`,
-        { authorSubjectId: subjectId },
-        { headers: getBearerHeaders() }
-      )
-      return response.data // Returns full response including author.name
-    } catch (error) {
-      throw error // Let the caller handle specific status codes
-    }
+    const response = await axios.patch(
+      `${apiPaths.NEGOTIATION_PATH}/${negotiationId}`,
+      { authorSubjectId: subjectId },
+      { headers: getBearerHeaders() }
+    )
+    return response.data
   }
 
   return {
