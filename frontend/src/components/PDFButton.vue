@@ -15,8 +15,7 @@
 <script setup>
 import { computed } from 'vue'
 import jsPDF from 'jspdf'
-// eslint-disable-next-line
-import autoTable from 'jspdf-autotable'
+ 
 import bbmriLogo from '../assets/images/bbmri/nav-bar-bbmri.png'
 import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
 import canservLogo from '../assets/images/canserv/nav-bar-canserv.png'
@@ -128,7 +127,8 @@ a {
   text-decoration: none;
 }
 
-.pdf-text-hover:hover {
-  color: var(--hoverColor) !important;
+.pdf-text-hover:hover,
+.pdf-text-hover:hover i {
+  color: #dc3545 !important; /* Bootstrap's danger red */
 }
 </style>

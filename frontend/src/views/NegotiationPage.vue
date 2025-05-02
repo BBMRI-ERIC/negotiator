@@ -249,97 +249,15 @@
           @new_attachment="retrieveAttachments()"
         />
       </div>
-      <div class="col-12 col-md-4 order-1 order-md-2">
-        <ul class="list-group list-group-flush my-3">
-          <li class="list-group-item p-2">
-            <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Author:</div>
-            <div :style="{ color: uiConfiguration.secondaryTextColor }">
-              {{ author.name }}
-            </div>
-          </li>
-          <li class="list-group-item p-2">
-            <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
-            <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
-          </li>
-          <li class="list-group-item p-2">
-            <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-              Negotiation ID:
-            </div>
-            <span :style="{ color: uiConfiguration.secondaryTextColor }">
-              {{ negotiation ? negotiation.id : '' }}</span
-            >
-          </li>
-          <li class="list-group-item p-2">
-            <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-              Submitted at:
-            </div>
-            <span :style="{ color: uiConfiguration.secondaryTextColor }">
-              {{ negotiation ? printDate(negotiation.creationDate) : '' }}</span
-            >
-          </li>
-          <li class="list-group-item p-2 d-flex justify-content-between">
-            <div>
-              <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-                Status:
-              </div>
-              <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-                ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-                {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
-              >
-            </div>
-          </li>
-          <li
-            v-if="negotiation.status !== 'DRAFT' && possibleEvents.length > 0"
-            class="list-group-item p-2 d-flex justify-content-between"
-          >
-            <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
-              <li v-for="event in possibleEvents" :key="event.label" class="me-2">
-                <button
-                  :class="getButtonColor(event.label)"
-                  class="btn btn-status mb-1 d-flex text-left"
-                  data-bs-toggle="modal"
-                  data-bs-target="#abandonModal"
-                  @click="assignStatus(event)"
-                >
-                  <i :class="getButtonIcon(event.label)" />
-                  {{ event.label }}
-                </button>
-              </li>
-            </ul>
-          </li>
-          <li
-            v-else-if="canDelete()"
-            class="list-group-item p-2 d-flex justify-content-between">
-            <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
-              <li class="me-2">
-                <button
-                  class="btn btn-status bg-danger mb-1 d-flex text-left"
-                  data-bs-toggle="modal"
-                  data-bs-target="#negotiationDeleteModal"
-                >
-                  <i class="bi bi-trash" /> DELETE
-                </button>
-              </li>
-            </ul>
-          </li>
-          <li class="list-group-item p-2 btn-sm border-bottom-0">
-            <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
-          </li>
-          <li
-            v-if="getSummaryLinks(negotiation._links).length > 0"
-            class="list-group-item p-2 border-bottom-0 flex-column d-flex"
-          >
-            <a
-              v-for="link in getSummaryLinks(negotiation._links)"
-              :key="link"
-              class="cursor-pointer"
-              :style="{ color: uiConfiguration.primaryTextColor }"
-              @click="downloadAttachmentFromLink(link.href)"
-              ><i class="bi bi-filetype-pdf" /> {{ link.title }}</a
-            >
-          </li>
-        </ul>
-      </div>
+      <NegotiationSidebar
+        :negotiation="negotiation"
+        :author="author"
+        :possible-events="possibleEvents"
+        :ui-configuration="uiConfiguration"
+        :can-delete="canDelete"
+        @assign-status="assignStatus"
+        @download-attachment-from-link="downloadAttachmentFromLink"
+      />
     </div>
   </div>
   <div v-else class="d-flex justify-content-center flex-row">
@@ -354,27 +272,20 @@
 
 <script setup>
 import { computed, onBeforeMount, onMounted, ref } from 'vue'
-import { ROLES } from '@/config/consts'
+import { dateFormat, ROLES } from '@/config/consts'
 import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
 import GoBackButton from '@/components/GoBackButton.vue'
 import OrganizationContainer from '@/components/OrganizationContainer.vue'
-import PDFButton from '@/components/PDFButton.vue'
-import { dateFormat } from '@/config/consts'
 import moment from 'moment'
-import {
-  getBadgeColor,
-  getBadgeIcon,
-  getButtonColor,
-  getButtonIcon,
-  transformStatus,
-} from '../composables/utils.js'
+import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
+import NegotiationSidebar from '@/components/NegotiationSidebar.vue' // Import the new component
 
 const props = defineProps({
   negotiationId: {
@@ -646,9 +557,9 @@ function updateNegotiationPayload() {
 }
 
 .icon-smaller {
-  font-size: 0.85em; /* Make the icon smaller */
+  font-size: 0.85em;
   position: relative;
-  top: 2px; /* Adjust this value to lower the icon */
+  top: 2px;
   color: black;
 }
 
@@ -657,12 +568,12 @@ function updateNegotiationPayload() {
   opacity: 0.7;
 }
 .unpack:hover {
-  background-color: lightgray; /* Light gray background on hover */
-  color: #212529; /* Darker text color on hover */
+  background-color: lightgray;
+  color: #212529;
 }
 .status-box:hover {
-  background-color: lightgray; /* Light gray background on hover */
-  color: #212529; /* Darker text color on hover */
+  background-color: lightgray;
+  color: #212529;
 }
 
 .requirement-text {
@@ -678,37 +589,27 @@ function updateNegotiationPayload() {
   color: #3c3c3d;
 }
 
-.btn-status {
-  color: white;
-  min-width: 100%;
-  padding: 5px 10px;
-  font-size: 12px;
-  line-height: 1.5;
-  border-radius: 3px;
-  width: 100px;
-  gap: 8px;
-}
 .nav-item.dropdown .dropdown-menu {
-  min-width: 140px; /* Set the minimum width of the dropdown */
-  max-width: 200px; /* Ensure it doesn't exceed the width of the navbar item */
-  background-color: #e7e7e7; /* Light gray background to match the Bootstrap light navbar */
-  border: 1px solid #dee2e6; /* Light border for the dropdown */
-  border-radius: 0; /* No border-radius for a flush fit with the navbar */
-  box-shadow: none; /* Remove shadow for a flat appearance */
+  min-width: 140px;
+  max-width: 200px;
+  background-color: #e7e7e7;
+  border: 1px solid #dee2e6;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .nav-item.dropdown .dropdown-item {
-  white-space: nowrap; /* Prevent text from wrapping */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Ellipsis for overflowing text */
-  color: #495057; /* Darker gray text color to match Bootstrap's default text */
+  text-overflow: ellipsis;
+  color: #495057;
   background-color: #e7e7e7;
 }
 .nav-item:hover .nav-link,
 .nav-item.dropdown .dropdown-item:hover,
 .nav-item.dropdown .dropdown-item:focus {
-  background-color: lightgray; /* Light gray background on hover */
-  color: #212529; /* Darker text color on hover */
+  background-color: lightgray;
+  color: #212529;
 }
 .abandon-text:hover {
   color: #dc3545;
