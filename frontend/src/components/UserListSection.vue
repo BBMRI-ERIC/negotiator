@@ -217,4 +217,14 @@ onMounted(() => {
     padding: 1rem;
   }
 }
+
+.table tbody td,
+.table thead th {
+  /* Prevent overflowing text from breaking the layout */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 200px; /* Adjust as needed for your layout */
+  white-space: normal;
+}
+
 </style>
