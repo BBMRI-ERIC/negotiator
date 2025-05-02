@@ -7,7 +7,8 @@
     <div class="text-muted mb-3">
       Information requirements ensure Representatives of Resources in a Negotiation provide additional information
       before advancing to a chosen state. Learn more in our
-      <a href="https://bbmri-eric.github.io/negotiator/administrator#information-requirements" target="_blank"
+      <a href="https://bbmri-eric.github.io/negotiator/administrator#additional-information-requirements-guide"
+         target="_blank"
          rel="noopener noreferrer">Information Requirements Documentation</a>.
     </div>
 
