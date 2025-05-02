@@ -18,7 +18,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
   @Override
   public List<String> getAllNotificationTemplates() {
-    log.info("Getting all notification templates.");
+    log.debug("Getting all notification templates.");
     ArrayList<String> templates = emailTemplateRepository.listAll();
     return templates;
   }
