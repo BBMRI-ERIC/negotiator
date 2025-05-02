@@ -91,15 +91,32 @@ public class EmailTemplateControllerTests {
   @WithUserDetails("admin")
   void resetNotificationTemplate_validTemplateName_Ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.post("/v3/email-templates/footer/reset"))
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/email-templates/footer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reset\": true}"))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void resetNotificationTemplate_invalidContent_BadRequest() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/email-templates/invalidTemplate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"incorrectField\": true}"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
   @WithUserDetails("admin")
   void resetNotificationTemplate_invalidTemplateName_NotFound() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.post("/v3/email-templates/invalidTemplate/reset"))
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/email-templates/invalidTemplate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reset\": true}"))
         .andExpect(status().isNotFound());
   }
 

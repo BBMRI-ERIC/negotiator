@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Map;
-
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,11 +61,11 @@ public class EmailTemplateController {
       summary = "Reset a notification email-template",
       description = "Reset a notification email-template to the default content")
   @ResponseStatus(HttpStatus.OK)
-  public String resetNotificationTemplate(@PathVariable String templateName, @RequestBody Map<String, Object> body) {
+  public String resetNotificationTemplate(
+      @PathVariable String templateName, @RequestBody Map<String, Object> body) {
     if (body.size() != 1 || !Boolean.TRUE.equals(body.get("reset"))) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "Only { \"reset\": true } is supported for this endpoint");
+          HttpStatus.BAD_REQUEST, "Only { \"reset\": true } is supported for this endpoint");
     }
     return emailTemplateService.resetNotificationTemplate(templateName);
   }
