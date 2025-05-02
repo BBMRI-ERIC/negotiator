@@ -55,8 +55,8 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function emailTemplateReset(templateName) {
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}/reset`, '', {
-        headers: getBearerHeaders(),
+      .patch(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}`, '{ "reset": true }', {
+        headers: { ...getBearerHeaders(), 'Content-Type': 'application/json' },
       })
       .then(() => {
         notifications.setNotification(
