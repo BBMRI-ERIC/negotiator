@@ -75,7 +75,11 @@
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0">
         <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
-        <TransferButton class="mt-2" />
+        <TransferButton
+          class="mt-2"
+          :negotiation-id="negotiation.id"
+          @transfer-negotiation="handleTransferNegotiation"
+        />
       </li>
       <li
         v-if="getSummaryLinks(negotiation._links).length > 0"
@@ -99,32 +103,20 @@ import { dateFormat } from '@/config/consts'
 import PDFButton from '@/components/PDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import moment from 'moment'
+import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { getBadgeColor, getBadgeIcon, getButtonColor, getButtonIcon, transformStatus } from '../composables/utils.js'
 
+const negotiationPageStore = useNegotiationPageStore()
+
 const props = defineProps({
-  negotiation: {
-    type: Object,
-    required: true
-  },
-  author: {
-    type: Object,
-    required: true
-  },
-  possibleEvents: {
-    type: Array,
-    required: true
-  },
-  uiConfiguration: {
-    type: Object,
-    required: true
-  },
-  canDelete: {
-    type: Function,
-    required: true
-  }
+  negotiation: { type: Object, required: true },
+  author: { type: Object, required: true },
+  possibleEvents: { type: Array, required: true },
+  uiConfiguration: { type: Object, required: true },
+  canDelete: { type: Function, required: true }
 })
 
-const emit = defineEmits(['assign-status', 'download-attachment-from-link'])
+const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation'])
 
 function printDate(date) {
   return moment(date).format(dateFormat)
@@ -146,6 +138,12 @@ function getSummaryLinks(links) {
     }
   }
   return summaryLinks
+}
+
+function handleTransferNegotiation(subjectId) {
+  // Optional: Log or perform cleanup
+  console.log(`Negotiation transferred to Subject ID: ${subjectId}`)
+  emit('transfer-negotiation', subjectId)
 }
 </script>
 

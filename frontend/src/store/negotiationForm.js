@@ -144,6 +144,20 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  async function transferNegotiation(negotiationId, subjectId) {
+    try {
+      const response = await axios.patch(
+        `${apiPaths.NEGOTIATION_PATH}/${negotiationId}`,
+        { authorSubjectId: subjectId },
+        { headers: getBearerHeaders() }
+      )
+      return response.data // Returns full response including author.name
+    } catch (error) {
+      notifications.setNotification(`Error transferring Negotiation: ${negotiationId}`, 'warning')
+      throw error // Let the caller handle specific status codes
+    }
+  }
+
   return {
     retrieveRequestById,
     retrieveCombinedAccessForm,
@@ -151,5 +165,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
     updateNegotiationById,
+    transferNegotiation
   }
 })

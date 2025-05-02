@@ -191,6 +191,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
+      log.error("Transferring Negotiation");
       Person person =
           personRepository
               .findBySubjectId(updateDTO.getAuthorSubjectId())

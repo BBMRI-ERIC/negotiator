@@ -15,46 +15,64 @@
             class="btn-close"
             @click="close"
             aria-label="Close"
+            :disabled="isLoading"
           ></button>
         </div>
         <div class="modal-body">
-          <p class="mb-3">
-            You are about to transfer this negotiation to another user. Enter the Subject ID of the
-            user who will become the new owner. This action will reassign all responsibilities and
-            permissions associated with the negotiation to the specified user.
-          </p>
-          <p class="text-muted mb-3">
-            <i class="bi bi-info-circle me-1"></i>
-            The Subject ID can be found on the user’s profile page.
-          </p>
-          <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <div v-if="isSuccess" class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
             <div>
-              <strong>Warning:</strong> If the transfer is successful, you will lose access to this
-              negotiation.
+              Negotiation successfully transferred to {{ authorName }}! Redirecting to homepage...
             </div>
           </div>
-          <div class="mb-3">
-            <label for="subjectIdInput" class="form-label fw-bold">Subject ID</label>
-            <input
-              v-model="localSubjectId"
-              type="text"
-              class="form-control"
-              id="subjectIdInput"
-              placeholder="Enter Subject ID"
-              @input="clearError"
-            />
-            <div v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</div>
+          <div v-else>
+            <p class="mb-3">
+              You are about to transfer this negotiation to another user. Enter the Subject ID of the
+              user who will become the new owner. This action will reassign all responsibilities and
+              permissions associated with the negotiation to the specified user.
+            </p>
+            <p class="text-muted mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              The Subject ID can be found on the user’s profile page.
+            </p>
+            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <div>
+                <strong>Warning:</strong> If the transfer is successful, you will lose access to this
+                negotiation.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="subjectIdInput" class="form-label fw-bold">Subject ID</label>
+              <input
+                v-model="localSubjectId"
+                type="text"
+                class="form-control"
+                id="subjectIdInput"
+                placeholder="Enter Subject ID"
+                @input="clearError"
+                :disabled="isLoading"
+              />
+              <div v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</div>
+            </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" @click="close">Cancel</button>
+        <div v-if="!isSuccess" class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            @click="close"
+            :disabled="isLoading"
+          >
+            Cancel
+          </button>
           <button
             type="button"
             class="btn btn-primary"
             @click="confirm"
-            :disabled="!localSubjectId.trim()"
+            :disabled="!localSubjectId.trim() || isLoading"
           >
+            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
             Confirm
           </button>
         </div>
@@ -65,6 +83,8 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNegotiationFormStore } from '@/store/negotiationForm.js'
 
 const props = defineProps({
   isOpen: {
@@ -74,13 +94,23 @@ const props = defineProps({
   subjectId: {
     type: String,
     default: ''
+  },
+  negotiationId: {
+    type: String,
+    required: true
   }
 })
 
-const emit = defineEmits(['update:isOpen', 'update:subjectId', 'confirm', 'cancel'])
+const emit = defineEmits(['update:isOpen', 'update:subjectId', 'cancel'])
+
+const router = useRouter()
+const negotiationFormStore = useNegotiationFormStore()
 
 const localSubjectId = ref(props.subjectId)
 const errorMessage = ref('')
+const isLoading = ref(false)
+const isSuccess = ref(false)
+const authorName = ref('')
 
 // Sync localSubjectId with props.subjectId
 watch(() => props.subjectId, (newValue) => {
@@ -93,25 +123,67 @@ watch(localSubjectId, (newValue) => {
 })
 
 function handleBackdropClick() {
-  close()
+  if (!isLoading.value && !isSuccess.value) {
+    close()
+  }
 }
 
 function close() {
   emit('update:isOpen', false)
   emit('cancel')
+  localSubjectId.value = ''
+  errorMessage.value = ''
+  isLoading.value = false
+  isSuccess.value = false
+  authorName.value = ''
 }
 
 function clearError() {
   errorMessage.value = ''
 }
 
-function confirm() {
+async function confirm() {
   if (!localSubjectId.value.trim()) {
     errorMessage.value = 'Subject ID is required.'
     return
   }
-  emit('confirm', localSubjectId.value.trim())
-  close()
+
+  isLoading.value = true
+  errorMessage.value = ''
+  isSuccess.value = false
+  authorName.value = ''
+
+  try {
+    const response = await negotiationFormStore.transferNegotiation(
+      props.negotiationId,
+      localSubjectId.value.trim()
+    )
+    isSuccess.value = true
+    authorName.value = response.author?.name || 'the new owner'
+    setTimeout(() => {
+      close()
+      router.push('/')
+    }, 2000) // Show success message for 2 seconds before redirect
+  } catch (error) {
+    isLoading.value = false
+    if (error.response) {
+      switch (error.response.status) {
+        case 400:
+          errorMessage.value = 'Invalid Subject ID. Please check and try again.'
+          break
+        case 403:
+          errorMessage.value = 'You are not authorized to transfer this negotiation.'
+          break
+        case 404:
+          errorMessage.value = 'Negotiation or user not found.'
+          break
+        default:
+          errorMessage.value = 'An error occurred while transferring the negotiation.'
+      }
+    } else {
+      errorMessage.value = 'Network error. Please check your connection and try again.'
+    }
+  }
 }
 </script>
 
@@ -176,6 +248,19 @@ function confirm() {
 .alert-warning i {
   font-size: 1.2rem;
   color: #856404;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+}
+
+.alert-success i {
+  font-size: 1.2rem;
+  color: #155724;
 }
 
 .form-label {

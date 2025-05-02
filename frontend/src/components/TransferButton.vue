@@ -16,6 +16,7 @@
     <TransferNegotiationModal
       :is-open="isModalOpen"
       :subject-id="subjectId"
+      :negotiation-id="negotiationId"
       @update:is-open="isModalOpen = $event"
       @update:subject-id="subjectId = $event"
       @confirm="handleConfirm"
@@ -29,6 +30,12 @@ import { computed, ref } from 'vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import TransferNegotiationModal from '@/components/modals/TransferNegotiationModal.vue'
 
+const props = defineProps({
+  negotiationId: {
+    type: String,
+    required: true
+  }
+})
 
 const uiConfigurationStore = useUiConfiguration()
 const uiConfigurationTheme = computed(() => {
