@@ -30,7 +30,7 @@ import { computed, ref } from 'vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import TransferNegotiationModal from '@/components/modals/TransferNegotiationModal.vue'
 
-const props = defineProps({
+defineProps({
   negotiationId: {
     type: String,
     required: true

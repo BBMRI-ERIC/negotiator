@@ -106,9 +106,8 @@ import moment from 'moment'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { getBadgeColor, getBadgeIcon, getButtonColor, getButtonIcon, transformStatus } from '../composables/utils.js'
 
-const negotiationPageStore = useNegotiationPageStore()
-
-const props = defineProps({
+useNegotiationPageStore()
+defineProps({
   negotiation: { type: Object, required: true },
   author: { type: Object, required: true },
   possibleEvents: { type: Array, required: true },

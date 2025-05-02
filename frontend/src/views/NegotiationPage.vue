@@ -272,20 +272,19 @@
 
 <script setup>
 import { computed, onBeforeMount, onMounted, ref } from 'vue'
-import { dateFormat, ROLES } from '@/config/consts'
 import NegotiationPosts from '@/components/NegotiationPosts.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import NegotiationAttachment from '@/components/NegotiationAttachment.vue'
 import GoBackButton from '@/components/GoBackButton.vue'
 import OrganizationContainer from '@/components/OrganizationContainer.vue'
-import moment from 'moment'
 import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
-import NegotiationSidebar from '@/components/NegotiationSidebar.vue' // Import the new component
+import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
+import { ROLES } from '@/config/consts.js' // Import the new component
 
 const props = defineProps({
   negotiationId: {
@@ -467,10 +466,6 @@ function isAttachment(value) {
   return value instanceof Object
 }
 
-function printDate(date) {
-  return moment(date).format(dateFormat)
-}
-
 async function updateNegotiation(message) {
   await negotiationPageStore
     .updateNegotiationStatus(negotiation.value.id, selectedStatus.value.value, message)
@@ -489,16 +484,6 @@ function canDelete() {
 
 async function deleteNegotiation() {
   await negotiationPageStore.deleteNegotiation(negotiation.value.id).then(router.push('/'))
-}
-
-function getSummaryLinks(links) {
-  const summaryLinks = []
-  for (const key in links) {
-    if (key.startsWith('Requirement summary')) {
-      summaryLinks.push(links[key])
-    }
-  }
-  return summaryLinks
 }
 
 function translateTrueFalse(value) {
