@@ -153,7 +153,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       )
       return response.data // Returns full response including author.name
     } catch (error) {
-      notifications.setNotification(`Error transferring Negotiation: ${negotiationId}`, 'warning')
       throw error // Let the caller handle specific status codes
     }
   }

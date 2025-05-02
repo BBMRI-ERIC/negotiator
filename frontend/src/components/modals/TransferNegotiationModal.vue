@@ -19,43 +19,51 @@
           ></button>
         </div>
         <div class="modal-body">
-          <div v-if="isSuccess" class="alert alert-success d-flex align-items-center" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            <div>
-              Negotiation successfully transferred to {{ authorName }}! Redirecting to homepage...
-            </div>
-          </div>
-          <div v-else>
-            <p class="mb-3">
-              You are about to transfer this negotiation to another user. Enter the Subject ID of the
-              user who will become the new owner. This action will reassign all responsibilities and
-              permissions associated with the negotiation to the specified user.
-            </p>
-            <p class="text-muted mb-3">
-              <i class="bi bi-info-circle me-1"></i>
-              The Subject ID can be found on the user’s profile page.
-            </p>
-            <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <div>
-                <strong>Warning:</strong> If the transfer is successful, you will lose access to this
-                negotiation.
+          <form id="transfer-negotiation-form" @submit.prevent="confirm">
+            <output
+              v-if="isSuccess"
+              for="subjectIdInput"
+              class="alert alert-success d-flex align-items-center"
+            >
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span>
+                Negotiation successfully transferred to {{ authorName }}! Redirecting to homepage...
+              </span>
+            </output>
+            <div v-else>
+              <p class="mb-3">
+                You are about to transfer this negotiation to another user. Enter the Subject ID of the
+                user who will become the new owner. This action will reassign all responsibilities and
+                permissions associated with the negotiation to the specified user.
+              </p>
+              <p class="text-muted mb-3">
+                <i class="bi bi-info-circle me-1"></i>
+                The Subject ID can be found on the user’s profile page.
+              </p>
+              <div class="alert alert-warning d-flex align-items-center mb-3" role="note">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>
+                  <strong>Warning:</strong> If the transfer is successful, you will lose access to this
+                  negotiation.
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="subjectIdInput" class="form-label fw-bold">Subject ID</label>
+                <input
+                  v-model="localSubjectId"
+                  type="text"
+                  class="form-control"
+                  id="subjectIdInput"
+                  placeholder="Enter Subject ID"
+                  @input="clearError"
+                  :disabled="isLoading"
+                />
+                <output v-if="errorMessage" for="subjectIdInput" class="text-danger mt-2">
+                  {{ errorMessage }}
+                </output>
               </div>
             </div>
-            <div class="mb-3">
-              <label for="subjectIdInput" class="form-label fw-bold">Subject ID</label>
-              <input
-                v-model="localSubjectId"
-                type="text"
-                class="form-control"
-                id="subjectIdInput"
-                placeholder="Enter Subject ID"
-                @input="clearError"
-                :disabled="isLoading"
-              />
-              <div v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</div>
-            </div>
-          </div>
+          </form>
         </div>
         <div v-if="!isSuccess" class="modal-footer">
           <button
@@ -98,7 +106,7 @@ const props = defineProps({
   negotiationId: {
     type: String,
     required: true
-  }
+  },
 })
 
 const emit = defineEmits(['update:isOpen', 'update:subjectId', 'cancel'])

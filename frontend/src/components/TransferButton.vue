@@ -1,16 +1,14 @@
 <template>
   <div>
     <!-- Transfer Button -->
-    <a
-      class="pdf-text-hover cursor-pointer"
+    <button
+      class="pdf-text-hover cursor-pointer btn btn-link p-0"
       @click="openModal"
       :style="{ color: uiConfigurationTheme.primaryTextColor }"
-      role="button"
-      tabindex="0"
     >
-      <i class="bi bi-person-fill-add" />
+      <i class="bi bi-person-fill-add me-1"></i>
       Transfer
-    </a>
+    </button>
 
     <!-- Transfer Negotiation Modal -->
     <TransferNegotiationModal
@@ -34,7 +32,7 @@ defineProps({
   negotiationId: {
     type: String,
     required: true
-  }
+  },
 })
 
 const uiConfigurationStore = useUiConfiguration()
@@ -63,15 +61,23 @@ function handleConfirm(subjectId) {
 </script>
 
 <style scoped>
-a {
+.btn-link {
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 5px;
+  font-size: 1rem;
+  background: none;
+  border: none;
 }
 
-.pdf-text-hover:hover,
-.pdf-text-hover:hover i {
+.btn-link:hover,
+.btn-link:hover i {
   color: #dc3545 !important; /* Bootstrap's danger red */
+}
+
+.btn-link:focus {
+  outline: 2px solid #80bdff;
+  outline-offset: 2px;
 }
 </style>
