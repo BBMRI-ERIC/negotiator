@@ -1088,7 +1088,7 @@ public class NegotiationControllerTests {
                     """));
     mockMvc
         .perform(
-            MockMvcRequestBuilders.put("/v3/negotiations/negotiation-1")
+            MockMvcRequestBuilders.patch("/v3/negotiations/negotiation-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.jsonFromRequest(updateDTO)))
         .andExpect(status().isOk())
@@ -1104,7 +1104,7 @@ public class NegotiationControllerTests {
     NegotiationCreateDTO negotiationBody = TestUtils.createNegotiation(REQUEST_2_ID, false);
     TestUtils.checkErrorResponse(
         mockMvc,
-        HttpMethod.PUT,
+        HttpMethod.PATCH,
         negotiationBody,
         status().isUnauthorized(),
         anonymous(),
@@ -1116,7 +1116,7 @@ public class NegotiationControllerTests {
     NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, false);
     TestUtils.checkErrorResponse(
         mockMvc,
-        HttpMethod.PUT,
+        HttpMethod.PATCH,
         request,
         status().isUnauthorized(),
         httpBasic("admin", "wrong_pass"),
@@ -1127,22 +1127,17 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheResearcher")
   @Transactional
   public void testUpdate_Ok_whenChangePayload() throws Exception {
-    // Tries to updated negotiation
-    // Negotiation body with updated values
     NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_1_ID, false);
     String requestBody = TestUtils.jsonFromRequest(request);
     requestBody = requestBody.replace("Title", "New Title");
-
-    MvcResult result =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.put("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestBody))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("%s/%s".formatted(NEGOTIATIONS_URL, NEGOTIATION_1_ID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
     Optional<Negotiation> negotiation = negotiationRepository.findById(NEGOTIATION_1_ID);
     negotiation.ifPresent(value -> assertEquals(value.getModifiedBy().getName(), "TheResearcher"));
   }
@@ -1654,5 +1649,51 @@ public class NegotiationControllerTests {
         .andExpect(status().isNoContent());
 
     assertFalse(negotiationRepository.findById("negotiation-1").isPresent());
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  void updateNegotiation_notAuthor_throws403() throws Exception {
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setAuthorSubjectId("idk");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/negotiation-1")
+                .content(TestUtils.jsonFromRequest(updateDTO))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void updateNegotiation_transferToNonExistingUser_throws400() throws Exception {
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setAuthorSubjectId("idk");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/negotiation-1")
+                .content(TestUtils.jsonFromRequest(updateDTO))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void updateNegotiation_transferToExistingUser_ok() throws Exception {
+    NegotiationUpdateDTO updateDTO = new NegotiationUpdateDTO();
+    updateDTO.setAuthorSubjectId("2");
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/v3/negotiations/negotiation-1")
+                .content(TestUtils.jsonFromRequest(updateDTO))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.author.id", is("102")))
+        .andExpect(jsonPath("$.author.name", is("directory")));
+    assertEquals(
+        102L, negotiationRepository.findById("negotiation-1").get().getCreatedBy().getId());
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1"))
+        .andExpect(status().isForbidden());
   }
 }

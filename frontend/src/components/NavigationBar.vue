@@ -121,6 +121,20 @@
               Support
             </router-link>
           </li>
+          <li class="nav-item">
+            <a
+              :style="{
+                color: uiConfiguration?.navbarTextColor,
+              }"
+              class="nav-link active nav-option"
+              href="https://bbmri-eric.github.io/negotiator/requester"
+              target="_blank"
+              rel="noopener"
+            >
+              <i class="bi bi-book" />
+              Documentation
+            </a>
+          </li>
         </ul>
         <div
           v-if="oidcIsAuthenticated && returnCurrentMode"
