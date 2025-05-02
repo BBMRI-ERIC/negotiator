@@ -55,7 +55,8 @@ public class UserController {
       @RequestParam(required = false) Map<String, String> filterProperty,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    if (AuthenticatedUserContext.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")) {
+    if (AuthenticatedUserContext.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       if (Objects.nonNull(filterProperty) && !filterProperty.isEmpty()) {
         return filteredPageModel(filterProperty, page, size);
       }

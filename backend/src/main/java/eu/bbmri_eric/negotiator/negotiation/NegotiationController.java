@@ -99,7 +99,7 @@ public class NegotiationController {
    *
    * @return NegotiationDTO
    */
-  @PutMapping(
+  @PatchMapping(
       value = "/negotiations/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
