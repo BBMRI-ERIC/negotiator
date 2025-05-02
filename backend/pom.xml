@@ -255,7 +255,7 @@
         <dependency>
             <groupId>io.hypersistence</groupId>
             <artifactId>hypersistence-utils-hibernate-63</artifactId>
-            <version>3.9.2</version>
+            <version>3.9.10</version>
         </dependency>
         <dependency>
             <artifactId>spring-boot-starter-validation</artifactId>
