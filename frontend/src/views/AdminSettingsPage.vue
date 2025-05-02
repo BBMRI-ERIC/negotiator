@@ -16,6 +16,8 @@
       @delete-webhook="deleteWebhook"
       @test-webhook="testWebhook"
     />
+    <hr />
+    <UserListSection :users="users" />
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -42,6 +44,7 @@ import { useAdminStore } from '../store/admin.js'
 import { useFormsStore } from '../store/forms.js'
 import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
 import WebhooksSection from '@/components/WebhooksSection.vue'
+import UserListSection from '@/components/UserListSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
@@ -51,16 +54,17 @@ import WebhookModal from '@/components/modals/WebhookModal.vue'
 const userStore = useUserStore()
 const adminStore = useAdminStore()
 const formsStore = useFormsStore()
+const notifications = useNotificationsStore()
 
 const resourceAllEvents = ref({})
 const infoRequirements = ref([])
 const accessForms = ref([])
+const users = ref([])
 const isLoading = ref(true)
 const editModal = ref(undefined)
 const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
-const notifications = useNotificationsStore()
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -72,8 +76,9 @@ onMounted(async () => {
     resourceAllEvents.value = await adminStore.retrieveResourceAllEvents()
     infoRequirements.value = await adminStore.retrieveInfoRequirements()
     accessForms.value = await formsStore.retrieveAllAccessForms()
+    users.value = await adminStore.retrieveUsers() || []
     const freshWebhooks = await adminStore.retrieveWebhooks()
-    webhooks.value = freshWebhooks || [] // Ensure we always have an array
+    webhooks.value = freshWebhooks || []
   } catch (error) {
     console.error('Initialization error:', error)
   } finally {
@@ -121,10 +126,7 @@ const confirmDeleteWebhook = async () => {
   try {
     isLoading.value = true
     await adminStore.deleteWebhook(webhookToDelete.value.id)
-
-    // Refresh the list
     webhooks.value = await adminStore.retrieveWebhooks() || []
-
     notifications.setNotification('Webhook deleted successfully')
   } catch (error) {
     console.error('Error deleting webhook:', error)
@@ -134,12 +136,13 @@ const confirmDeleteWebhook = async () => {
     webhookToDelete.value = null
   }
 }
+
 const handleWebhookUpdate = async (updatedConfig) => {
   try {
     isLoading.value = true
     await adminStore.updateWebhook(selectedWebhook.value.id, updatedConfig)
     const freshWebhooks = await adminStore.retrieveWebhooks()
-    webhooks.value = freshWebhooks || [] // Ensure we always have an array
+    webhooks.value = freshWebhooks || []
   } catch (error) {
     console.error('Error updating webhook:', error)
   } finally {
@@ -147,6 +150,7 @@ const handleWebhookUpdate = async (updatedConfig) => {
     editModal.value.hide()
   }
 }
+
 const handleNewWebhook = async (updatedConfig) => {
   try {
     isLoading.value = true
@@ -161,18 +165,15 @@ const handleNewWebhook = async (updatedConfig) => {
     editModal.value.hide()
   }
 }
+
 const testWebhook = async (webhook) => {
   const index = webhooks.value.findIndex(w => w.id === webhook.id)
   if (index === -1) return
 
-  // Set testing state
   webhooks.value[index] = { ...webhooks.value[index], testInProgress: true }
 
   try {
-    // Make test call
     await adminStore.testWebhook(webhook.id)
-
-    // Refresh just this webhook's data
     const updatedWebhook = await adminStore.getWebhook(webhook.id)
     webhooks.value[index] = {
       ...updatedWebhook,

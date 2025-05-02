@@ -127,6 +127,18 @@ export const useAdminStore = defineStore('admin', () => {
     }).then(response => response.data)
   }
 
+  function retrieveUsers() {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/users`, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data._embedded.users
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting users data from server')
+        return []
+      })
+  }
+
 
 
   return {
@@ -139,6 +151,7 @@ export const useAdminStore = defineStore('admin', () => {
     updateWebhook,
     deleteWebhook,
     testWebhook,
-    getWebhook
+    getWebhook,
+    retrieveUsers
   }
 })
