@@ -25,13 +25,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
   @Override
   public String getNotificationTemplate(String templateName) {
-    log.info("Getting notification template.");
+    log.debug("Getting notification template.");
     return emailTemplateRepository.load(templateName);
   }
 
   @Override
   public String updateNotificationTemplate(String templateName, String template) {
-    log.info("Updating notification template.");
+    log.debug("Updating notification template.");
     String validatedTemplate = validateHtml(template);
     emailTemplateRepository.save(templateName, validatedTemplate);
     return emailTemplateRepository.load(templateName);
@@ -39,7 +39,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
   @Override
   public String resetNotificationTemplate(String templateName) {
-    log.info("Resetting notification template.");
+    log.debug("Resetting notification template.");
     emailTemplateRepository.reset(templateName);
     return emailTemplateRepository.load(templateName);
   }
