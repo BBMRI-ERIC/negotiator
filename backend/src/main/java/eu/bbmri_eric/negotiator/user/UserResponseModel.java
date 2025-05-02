@@ -45,6 +45,9 @@ public class UserResponseModel {
   @Schema(description = "Timestamp of the last successful login", example = "2021-01-01T12:00:00Z")
   private LocalDateTime lastLogin;
 
+  @Schema(description = "Indicates whether the user is a service account", example = "false")
+  private boolean isServiceAccount;
+
   public void setId(Long id) {
     this.id = String.valueOf(id);
   }

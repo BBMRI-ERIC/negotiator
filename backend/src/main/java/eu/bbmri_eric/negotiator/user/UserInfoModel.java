@@ -12,7 +12,8 @@ public class UserInfoModel extends UserResponseModel {
         userResponseModel.isRepresentativeOfAnyResource(),
         userResponseModel.isAdmin(),
         userResponseModel.isNetworkManager(),
-        userResponseModel.getLastLogin());
+        userResponseModel.getLastLogin(),
+        userResponseModel.isServiceAccount());
     this.roles = roles;
   }
 

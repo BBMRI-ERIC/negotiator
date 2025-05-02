@@ -18,6 +18,7 @@
           <th @click="sort('representativeOfAnyResource')" :class="getSortClass('representativeOfAnyResource')">Resource
             Representative
           </th>
+          <th @click="sort('isServiceAccount')" :class="getSortClass('isServiceAccount')">Service Account</th>
         </tr>
         </thead>
         <tbody>
@@ -28,6 +29,7 @@
           <td>{{ user.admin ? 'Yes' : 'No' }}</td>
           <td>{{ user.networkManager ? 'Yes' : 'No' }}</td>
           <td>{{ user.representativeOfAnyResource ? 'Yes' : 'No' }}</td>
+          <td>{{ user.serviceAccount === true || user.serviceAccount === 'true' ? 'Yes' : 'No' }}</td>
         </tr>
         </tbody>
       </table>
