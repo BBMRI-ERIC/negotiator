@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationEventMetadataDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
+import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationTimelineEventDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
@@ -63,23 +64,26 @@ public class NegotiationController {
 
   private final ResourceService resourceService;
 
+  private final NegotiationTimeline timelineService;
+
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
   public NegotiationController(
-      NegotiationService negotiationService,
-      NegotiationLifecycleService negotiationLifecycleService,
-      ResourceLifecycleService resourceLifecycleService,
-      PersonService personService,
-      ResourceService resourceService,
-      NegotiationModelAssembler assembler,
-      ResourceWithStatusAssembler resourceWithStatusAssembler) {
+          NegotiationService negotiationService,
+          NegotiationLifecycleService negotiationLifecycleService,
+          ResourceLifecycleService resourceLifecycleService,
+          PersonService personService,
+          ResourceService resourceService, NegotiationTimeline timelineService,
+          NegotiationModelAssembler assembler,
+          ResourceWithStatusAssembler resourceWithStatusAssembler) {
     this.negotiationService = negotiationService;
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceLifecycleService = resourceLifecycleService;
     this.personService = personService;
     this.resourceService = resourceService;
-    this.assembler = assembler;
+      this.timelineService = timelineService;
+      this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
   }
 
@@ -154,6 +158,11 @@ public class NegotiationController {
       return assembler.toModelWithRequirementLink(negotiationDTO, isAdmin);
     }
     return assembler.toModel(negotiationDTO);
+  }
+
+  @GetMapping("/negotiations/{id}/timeline")
+  public CollectionModel<NegotiationTimelineEventDTO> retrieveTimeline(@Valid @PathVariable String id) {
+    return CollectionModel.of(timelineService.getTimelineEvents(id));
   }
 
   /**
