@@ -3,6 +3,7 @@
     <Timeline
       :combined-items="combinedItems"
       :ui-configuration="uiConfiguration"
+      :organizations="organizations"
     />
     <hr v-if="combinedItems.length === 0" class="my-3" />
     <MessageForm
