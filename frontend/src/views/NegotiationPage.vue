@@ -247,6 +247,7 @@
           :organizations="organizationsById"
           :recipients="postsRecipients"
           :external-posts="posts"
+          :timeline-events="timelineEvents"
           @new_attachment="retrieveAttachments()"
         />
       </div>
@@ -307,6 +308,7 @@ const userStore = useUserStore()
 const negotiationPageStore = useNegotiationPageStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
+const timelineEvents = ref([])
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -436,6 +438,7 @@ onBeforeMount(async () => {
     })
   possibleEvents.value = await negotiationPageStore.retrievePossibleEvents(props.negotiationId)
   resourceStates.value = await negotiationPageStore.retrieveResourceAllStates()
+  timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
 })
 
 retrieveAttachments()
@@ -511,6 +514,7 @@ async function reloadResources() {
     resources.value = resourceResponse
   }
   negotiation.value = await negotiationPageStore.retrieveNegotiationById(props.negotiationId)
+  timelineEvents.value = await negotiationPageStore.retrieveNegotiationTimeline(props.negotiationId)
 }
 
 async function reloadStates() {
@@ -609,4 +613,5 @@ function updateNegotiationPayload() {
 .abandon-text:hover {
   color: #dc3545;
 }
+
 </style>

@@ -118,27 +118,33 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   async function addAttachmentToNegotiation(data) {
-    const formData = new FormData()
-    const uploadFileHeaders = { headers: getBearerHeaders() }
-    if (data.organizationId != null) {
-      formData.append('organizationId', data.organizationId)
-    }
-    formData.append('file', data.attachment)
-    uploadFileHeaders['Content-type'] = 'multipart/form-data'
+    try {
+      const formData = new FormData();
+      const uploadFileHeaders = { headers: getBearerHeaders() };
+      if (data.organizationId != null) {
+        formData.append('organizationId', data.organizationId);
+      }
+      formData.append('file', data.attachment);
+      uploadFileHeaders['Content-type'] = 'multipart/form-data';
 
-    return await axios
-      .post(
+      const response = await axios.post(
         `${apiPaths.NEGOTIATION_PATH}/${data.negotiationId}/attachments`,
         formData,
-        uploadFileHeaders,
-      )
-      .then((response) => {
-        return response.data
-      })
-      .catch(() => {
-        notifications.setNotification('There was an error saving the attachment')
-        return null
-      })
+        uploadFileHeaders
+      );
+      return response; // Return full response object (success or failure)
+    } catch (error) {
+      // Handle network errors or Axios errors with a response
+      if (error.response) {
+        // API responded with an error status (e.g., 400)
+        return error.response; // Return the error response object
+      }
+      // Network error or other failure
+      return {
+        status: 0,
+        data: { detail: 'Network error: Failed to upload attachment. Please check your connection.' }
+      };
+    }
   }
 
   async function retrieveUserIdRepresentedResources(userId) {
@@ -313,6 +319,21 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
+  async function retrieveNegotiationTimeline(negotiationId) {
+    try {
+      const response = await axios.get(
+        `${apiPaths.NEGOTIATION_PATH}/${negotiationId}/timeline`,
+        { headers: getBearerHeaders() }
+      );
+
+      return response.data?._embedded?.timelineEvents ?? [];
+    } catch (error) {
+      console.error("Failed to retrieve timeline:", error);
+      return [];
+    }
+  }
+
+
   return {
     updateNegotiationStatus,
     retrievePossibleEvents,
@@ -334,6 +355,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     addResources,
     retrieveAllResources,
     retrieveResourceAllStates,
-    deleteNegotiation
+    deleteNegotiation,
+    retrieveNegotiationTimeline
   }
 })
