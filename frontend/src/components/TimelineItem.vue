@@ -65,7 +65,7 @@
           <div
             class="card-body"
             :style="{ color: uiConfiguration.secondaryTextColor }"
-            v-dompurify-html="formatText(item.text)"
+            v-html="formatText(item.text)"
           />
         </div>
       </div>
@@ -159,7 +159,17 @@ function printDate(date) {
   return date ? moment(date).format(dateFormat) : 'Unknown date'
 }
 
-const formatText = (text) => (text ? text.replace(/\n/g, '<br>') : '')
+function formatText(text) {
+  if (!text) return ''
+  // Escape HTML to prevent XSS, then replace newlines with <br>
+  const escapedText = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+  return escapedText.replace(/\n/g, '<br>')
+}
 </script>
 
 <style scoped>
