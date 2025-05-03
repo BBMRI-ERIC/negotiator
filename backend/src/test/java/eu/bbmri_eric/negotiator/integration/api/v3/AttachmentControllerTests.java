@@ -18,6 +18,7 @@ import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentController;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -262,5 +263,31 @@ public class AttachmentControllerTests {
         .andExpect(status().isBadRequest()) // Expecting bad request if validation fails
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.detail", containsString("not supported")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 101L)
+  @Transactional
+  void uploadAttachmentForNegotiation_asAdmin_ok() throws Exception {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    MvcResult result =
+        mockMvc
+            .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isString())
+            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
+            .andExpect(jsonPath("$.size", is(data.length)))
+            .andReturn();
+
+    String attachmentId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Attachment> attachment = repository.findById(attachmentId);
+    assert attachment.isPresent();
+    assertEquals("USER", attachment.get().getCreatedBy().getName());
   }
 }

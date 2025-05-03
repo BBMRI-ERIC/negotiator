@@ -96,7 +96,8 @@ public class NegotiationServiceImpl implements NegotiationService {
   public boolean isAuthorizedForNegotiation(String negotiationId) {
     return isNegotiationCreator(negotiationId)
         || personService.isRepresentativeOfAnyResourceOfNegotiation(
-            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId);
+            AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), negotiationId)
+        || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
 
   public boolean isOrganizationPartOfNegotiation(
@@ -185,13 +186,28 @@ public class NegotiationServiceImpl implements NegotiationService {
    */
   public NegotiationDTO update(String negotiationId, NegotiationUpdateDTO updateDTO) {
     Negotiation negotiationEntity = findEntityById(negotiationId, true);
+    verifyWriteAccessToNegotiation(negotiationEntity);
+    if (Objects.nonNull(updateDTO.getPayload())) {
+      negotiationEntity.setPayload(updateDTO.getPayload().toString());
+    }
+    if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
+      log.error("Transferring Negotiation");
+      Person person =
+          personRepository
+              .findBySubjectId(updateDTO.getAuthorSubjectId())
+              .orElseThrow(() -> new EntityNotFoundException(updateDTO.getAuthorSubjectId()));
+      negotiationEntity.setCreatedBy(person);
+    }
+    negotiationRepository.saveAndFlush(negotiationEntity);
+    return modelMapper.map(negotiationEntity, NegotiationDTO.class);
+  }
+
+  private static void verifyWriteAccessToNegotiation(Negotiation negotiationEntity) {
     if (!AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()
             .equals(negotiationEntity.getCreatedBy().getId())
         && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new ForbiddenRequestException("You are not allowed to update this entity");
     }
-    negotiationEntity.setPayload(updateDTO.getPayload().toString());
-    return modelMapper.map(negotiationEntity, NegotiationDTO.class);
   }
 
   /**

@@ -133,7 +133,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     }
 
     return axios
-      .put(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, data, { headers: getBearerHeaders() })
+      .patch(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, data, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -144,6 +144,15 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  async function transferNegotiation(negotiationId, subjectId) {
+    const response = await axios.patch(
+      `${apiPaths.NEGOTIATION_PATH}/${negotiationId}`,
+      { authorSubjectId: subjectId },
+      { headers: getBearerHeaders() }
+    )
+    return response.data
+  }
+
   return {
     retrieveRequestById,
     retrieveCombinedAccessForm,
@@ -151,5 +160,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
     updateNegotiationById,
+    transferNegotiation
   }
 })
