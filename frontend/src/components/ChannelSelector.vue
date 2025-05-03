@@ -1,0 +1,62 @@
+<template>
+  <div>
+    <div v-if="selectedChannelName" class="mt-2">
+      <span class="badge rounded-pill" :class="channelId === 'public' ? 'bg-warning' : 'bg-primary'">
+        <i :class="channelId === 'public' ? 'bi bi-globe' : 'bi bi-lock-fill'" />
+        Channel: {{ selectedChannelName }}
+      </span>
+      <div class="text-muted small mt-1">
+        {{ channelVisibilityMessage }}
+      </div>
+    </div>
+    <select
+      id="recipient"
+      v-model="channelId"
+      class="form-select w-50"
+      :style="{ color: uiConfiguration.primaryTextColor }"
+    >
+      <option disabled selected value="">-- Select channel --</option>
+      <option value="public">Public channel</option>
+      <optgroup label="Private channels">
+        <option
+          v-for="recipient in recipients"
+          :key="recipient.id"
+          :value="recipient.id"
+          :disabled="!negotiation.privatePostsEnabled"
+        >
+          Author - {{ recipient.name }}
+        </option>
+      </optgroup>
+    </select>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  selectedChannelName: String,
+  channelVisibilityMessage: String,
+  negotiation: {
+    type: Object,
+    required: true,
+    default: () => ({ privatePostsEnabled: false })
+  },
+  recipients: {
+    type: Array,
+    default: () => []
+  },
+  uiConfiguration: {
+    type: Object,
+    required: true,
+    default: () => ({ primaryTextColor: '#000' })
+  },
+})
+
+const channelId = defineModel('channelId', { type: String, default: '' })
+</script>
+
+<style scoped>
+.form-select {
+  font-size: 1rem; /* Matches typical Bootstrap form-control size */
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem; /* Matches Bootstrap form-select padding */
+}
+</style>

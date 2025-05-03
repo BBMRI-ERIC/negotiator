@@ -70,20 +70,21 @@ public class NegotiationController {
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
   public NegotiationController(
-          NegotiationService negotiationService,
-          NegotiationLifecycleService negotiationLifecycleService,
-          ResourceLifecycleService resourceLifecycleService,
-          PersonService personService,
-          ResourceService resourceService, NegotiationTimeline timelineService,
-          NegotiationModelAssembler assembler,
-          ResourceWithStatusAssembler resourceWithStatusAssembler) {
+      NegotiationService negotiationService,
+      NegotiationLifecycleService negotiationLifecycleService,
+      ResourceLifecycleService resourceLifecycleService,
+      PersonService personService,
+      ResourceService resourceService,
+      NegotiationTimeline timelineService,
+      NegotiationModelAssembler assembler,
+      ResourceWithStatusAssembler resourceWithStatusAssembler) {
     this.negotiationService = negotiationService;
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceLifecycleService = resourceLifecycleService;
     this.personService = personService;
     this.resourceService = resourceService;
-      this.timelineService = timelineService;
-      this.assembler = assembler;
+    this.timelineService = timelineService;
+    this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
   }
 
@@ -161,7 +162,8 @@ public class NegotiationController {
   }
 
   @GetMapping("/negotiations/{id}/timeline")
-  public CollectionModel<NegotiationTimelineEventDTO> retrieveTimeline(@Valid @PathVariable String id) {
+  public CollectionModel<NegotiationTimelineEventDTO> retrieveTimeline(
+      @Valid @PathVariable String id) {
     return CollectionModel.of(timelineService.getTimelineEvents(id));
   }
 

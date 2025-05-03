@@ -9,19 +9,19 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public final class NegotiationLifecycleRecord extends AuditEntity implements NegotiationTimelineEvent {
+public final class NegotiationLifecycleRecord extends AuditEntity
+    implements NegotiationTimelineEvent {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,8 @@ public final class NegotiationLifecycleRecord extends AuditEntity implements Neg
 
   @Override
   public String getText() {
-    return "%s changed the status of the Negotiation to  %s".formatted(getTriggeredBy(), changedTo.getLabel());
+    return "%s changed the status of the Negotiation to  %s"
+        .formatted(getTriggeredBy(), changedTo.getLabel());
   }
 
   @Override
