@@ -17,8 +17,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, onMounted, ref } from 'vue'
-import { Tooltip } from 'bootstrap'
+import { computed, onBeforeMount, ref } from 'vue'
 import Timeline from './NegotiationTimeline.vue'
 import MessageForm from './MessageForm.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
@@ -55,10 +54,6 @@ const combinedItems = computed(() => {
     id: `post-${post.id}`
   }))
   return [...events, ...postsMapped].sort((a, b) => a.timestamp - b.timestamp)
-})
-
-onMounted(() => {
-  new Tooltip(document.body, { selector: "[data-bs-toggle='tooltip']" })
 })
 
 onBeforeMount(() => {
