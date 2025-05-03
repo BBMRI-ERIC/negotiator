@@ -249,6 +249,7 @@
           :external-posts="posts"
           :timeline-events="timelineEvents"
           @new_attachment="retrieveAttachments()"
+          class="col-11 ms-2"
         />
       </div>
       <NegotiationSidebar
