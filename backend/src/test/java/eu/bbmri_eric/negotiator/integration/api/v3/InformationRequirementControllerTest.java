@@ -504,8 +504,8 @@ public class InformationRequirementControllerTest {
         .andExpect(status().isOk());
     String expectedResponse =
         """
-resourceId,num-of-samples,num-of-subjects,sample-type,volume-per-sample
-biobank:1:collection:1,20,10,DNA,5
+resourceId,sample-type,num-of-subjects,num-of-samples,volume-per-sample
+biobank:1:collection:1,DNA,10,20,5
 """;
     mockMvc
         .perform(
