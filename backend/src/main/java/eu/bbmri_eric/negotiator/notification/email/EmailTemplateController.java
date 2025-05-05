@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,8 +52,8 @@ public class EmailTemplateController {
     return emailTemplateService.updateNotificationTemplate(templateName, template);
   }
 
-  @PatchMapping(
-      value = "/email-templates/{templateName}",
+  @PostMapping(
+      value = "/email-templates/{templateName}/operations",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @Operation(
@@ -62,11 +61,11 @@ public class EmailTemplateController {
       description = "Reset a notification email-template to the default content")
   @ResponseStatus(HttpStatus.OK)
   public String resetNotificationTemplate(
-      @PathVariable String templateName, @RequestBody Map<String, Object> body) {
-    if (body.size() != 1 || !Boolean.TRUE.equals(body.get("reset"))) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Only { \"reset\": true } is supported for this endpoint");
+      @PathVariable String templateName, @RequestBody EmailTemplateOperationRequest request) {
+
+    if (request.getOperation() == EmailTemplateOperationRequest.Operation.RESET) {
+      return emailTemplateService.resetNotificationTemplate(templateName);
     }
-    return emailTemplateService.resetNotificationTemplate(templateName);
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid operation");
   }
 }
