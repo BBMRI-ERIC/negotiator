@@ -65,8 +65,9 @@
               {{ transformDashToSpace(key).toUpperCase() }}</span
             >
             <div v-for="(subelement, subelementkey) in element" :key="subelement" class="mt-3">
-              <label class="me-2 fw-bold" :style="{ color: uiConfiguration.secondaryTextColor }"
-                >{{ transformDashToSpace(subelementkey).toUpperCase() }}:</label
+              <div class="me-2 fw-bold" :style="{ color: uiConfiguration.secondaryTextColor }"
+                   v-html="decodeHTML(subelementkey)"
+              ></div
               >
               <span
                 v-if="isAttachment(subelement)"
@@ -464,6 +465,15 @@ function hasRightsToAddResources(links) {
 
 function isAttachment(value) {
   return value instanceof Object
+}
+
+function decodeHTML(htmlString) {
+  let spacedString = transformDashToSpace(htmlString)
+  const parser = new DOMParser()
+  const decodedString = parser.parseFromString(spacedString, 'text/html').body.textContent
+  const txt = document.createElement('div')
+  txt.innerHTML = decodedString
+  return txt.innerHTML
 }
 
 async function updateNegotiation(message) {

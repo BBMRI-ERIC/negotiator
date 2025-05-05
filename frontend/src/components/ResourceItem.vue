@@ -52,7 +52,7 @@
         class="mt-1"
       >
         <a class="submission-text cursor-pointer" @click.prevent="onOpenFormModal(link.href)">
-          <i class="bi bi-check-circle" /> {{ link.name }}
+          <i class="bi bi-check-circle" /> {{ link.name }} submitted
         </a>
       </div>
       <!-- Missing Requirements (Red) -->
