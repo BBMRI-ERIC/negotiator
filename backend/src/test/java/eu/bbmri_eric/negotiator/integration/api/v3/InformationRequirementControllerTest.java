@@ -3,6 +3,8 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -11,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepository;
@@ -60,7 +63,7 @@ public class InformationRequirementControllerTest {
     InformationRequirementCreateDTO createDTO = new InformationRequirementCreateDTO(null, null);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isBadRequest())
@@ -73,7 +76,7 @@ public class InformationRequirementControllerTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isUnauthorized());
@@ -86,7 +89,7 @@ public class InformationRequirementControllerTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isCreated())
@@ -102,7 +105,7 @@ public class InformationRequirementControllerTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT, false);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isCreated())
@@ -113,7 +116,7 @@ public class InformationRequirementControllerTest {
     createDTO = new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isCreated())
@@ -130,7 +133,7 @@ public class InformationRequirementControllerTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isCreated());
@@ -170,7 +173,7 @@ public class InformationRequirementControllerTest {
     MvcResult mvcResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                post(INFO_REQUIREMENT_ENDPOINT)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(createDTO)))
             .andExpect(status().isCreated())
@@ -196,7 +199,7 @@ public class InformationRequirementControllerTest {
   @WithMockUser
   void findAllRequirements_noExist_returnsEmptyArray() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT))
+        .perform(get(INFO_REQUIREMENT_ENDPOINT))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._links").isNotEmpty());
   }
@@ -208,7 +211,7 @@ public class InformationRequirementControllerTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO1)))
         .andExpect(status().isCreated());
@@ -217,13 +220,13 @@ public class InformationRequirementControllerTest {
         new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.STEP_AWAY);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+            post(INFO_REQUIREMENT_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(createDTO2)))
         .andExpect(status().isCreated());
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT))
+        .perform(get(INFO_REQUIREMENT_ENDPOINT))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.info-requirements", Matchers.hasSize(2)))
         .andExpect(jsonPath("$._links").isNotEmpty());
@@ -250,7 +253,7 @@ public class InformationRequirementControllerTest {
     MvcResult mvcResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post(INFO_REQUIREMENT_ENDPOINT)
+                post(INFO_REQUIREMENT_ENDPOINT)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(createDTO)))
             .andExpect(status().isCreated())
@@ -261,7 +264,7 @@ public class InformationRequirementControllerTest {
             .get("id")
             .asLong();
     mockMvc
-        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT + "/" + id))
+        .perform(get(INFO_REQUIREMENT_ENDPOINT + "/" + id))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.forResourceEvent", is("CONTACT")))
@@ -273,7 +276,7 @@ public class InformationRequirementControllerTest {
   void findRequirementById_nonExistingId_notFound() throws Exception {
     long nonExistingId = 999L;
     mockMvc
-        .perform(MockMvcRequestBuilders.get(INFO_REQUIREMENT_ENDPOINT + "/" + nonExistingId))
+        .perform(get(INFO_REQUIREMENT_ENDPOINT + "/" + nonExistingId))
         .andExpect(status().isNotFound());
   }
 
@@ -301,9 +304,8 @@ public class InformationRequirementControllerTest {
             negotiation.getResources().iterator().next().getId(), jsonPayload);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    INFO_SUBMISSION_ENDPOINT.formatted(
-                        negotiation.getId(), informationRequirementDTO.getId()))
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isOk())
@@ -322,9 +324,7 @@ public class InformationRequirementControllerTest {
             new InformationSubmission(
                 null, negotiation.getResources().iterator().next(), negotiation, "{}"));
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
+        .perform(get(SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
         .andExpect(status().isForbidden());
   }
 
@@ -341,9 +341,7 @@ public class InformationRequirementControllerTest {
             new InformationSubmission(
                 null, negotiation.getResources().iterator().next(), negotiation, "{}"));
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
+        .perform(get(SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
         .andExpect(status().isOk());
   }
 
@@ -363,9 +361,7 @@ public class InformationRequirementControllerTest {
                 negotiation,
                 "{}"));
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
+        .perform(get(SUBMISSION_ENDPOINT.formatted(informationSubmission.getId())))
         .andExpect(status().isOk());
   }
 
@@ -393,9 +389,8 @@ public class InformationRequirementControllerTest {
             negotiation.getResources().iterator().next().getId(), jsonPayload);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    INFO_SUBMISSION_ENDPOINT.formatted(
-                        negotiation.getId(), informationRequirementDTO.getId()))
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isForbidden());
@@ -425,17 +420,15 @@ public class InformationRequirementControllerTest {
             negotiation.getResources().iterator().next().getId(), jsonPayload);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    INFO_SUBMISSION_ENDPOINT.formatted(
-                        negotiation.getId(), informationRequirementDTO.getId()))
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isOk());
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    INFO_SUBMISSION_ENDPOINT.formatted(
-                        negotiation.getId(), informationRequirementDTO.getId()))
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isBadRequest());
@@ -446,9 +439,7 @@ public class InformationRequirementControllerTest {
   void generateSummary_representative_403() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), 9999L)))
+        .perform(get(INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), 9999L)))
         .andExpect(status().isForbidden());
   }
 
@@ -457,9 +448,7 @@ public class InformationRequirementControllerTest {
   void generateSummary_nonExistentRequirement_404() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), 9999L)))
+        .perform(get(INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), 9999L)))
         .andExpect(status().isNotFound());
   }
 
@@ -472,8 +461,7 @@ public class InformationRequirementControllerTest {
             new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(
-                INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), requirementDTO.getId())))
+            get(INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), requirementDTO.getId())))
         .andExpect(status().isOk())
         .andExpect(
             header()
@@ -509,9 +497,8 @@ public class InformationRequirementControllerTest {
             negotiation.getResources().iterator().next().getId(), jsonPayload);
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    INFO_SUBMISSION_ENDPOINT.formatted(
-                        negotiation.getId(), informationRequirementDTO.getId()))
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isOk());
@@ -522,7 +509,7 @@ biobank:1:collection:1,20,10,DNA,5
 """;
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(
+            get(
                 INFO_SUBMISSION_ENDPOINT.formatted(
                     negotiation.getId(), informationRequirementDTO.getId())))
         .andExpect(status().isOk())
@@ -534,6 +521,92 @@ biobank:1:collection:1,20,10,DNA,5
                         .formatted(informationRequirementDTO.getRequiredAccessForm().getName())))
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "text/csv"))
         .andExpect(content().string(normalizeLineEndingsToCRLF(expectedResponse)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
+  @Transactional
+  void generateSummary_orderIsPreserved_ok() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+
+    String payload =
+        """
+            {
+              "Result of feasibility check": {
+                "Is the service request feasible?": "Yes",
+                "Is the proposed timing feasible?": "Yes",
+                "Comments": "all good"
+              },
+              "Cost Estimation": {
+                "Original Unit Cost": "120",
+                "New estimated Unit Cost": "130",
+                "Original Number of Units": "2",
+                "New Number of Units": "2",
+                "Original Actual Cost": "1",
+                "New estimated Actual Cost": "1",
+                "Was there a change in the cost methodology": "no",
+                "Cost estimation upload": "no",
+                "TNA Sheet Uploaded": "no",
+                "New service provider": "no",
+                "Comments": "nothing further"
+              },
+              "Comments": {
+                "Comments": "none"
+              }
+            }
+            """;
+
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    Resource resource = negotiation.getResources().iterator().next();
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(resource.getId(), jsonPayload);
+
+    mockMvc
+        .perform(
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isOk());
+
+    String expectedHeader =
+        "resourceId,Result of feasibility check.Is the service request feasible?,Result of feasibility check.Is the proposed timing feasible?,Result of feasibility check.Comments,Cost Estimation.Original Unit Cost,Cost Estimation.New estimated Unit Cost,Cost Estimation.Original Number of Units,Cost Estimation.New Number of Units,Cost Estimation.Original Actual Cost,Cost Estimation.New estimated Actual Cost,Cost Estimation.Was there a change in the cost methodology,Cost Estimation.Cost estimation upload,Cost Estimation.TNA Sheet Uploaded,Cost Estimation.New service provider,Cost Estimation.Comments,Comments.Comments";
+    String expectedResponse =
+        """
+            %s,Yes,Yes,all good,120,130,2,2,1,1,no,no,no,no,nothing further,none
+            """
+            .formatted(resource.getSourceId());
+    String expectedFullResponse = expectedHeader + "\r\n" + expectedResponse;
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                get(
+                    INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId())))
+            .andExpect(status().isOk())
+            .andExpect(
+                header()
+                    .string(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"%s-summary.csv\""
+                            .formatted(
+                                informationRequirementDTO.getRequiredAccessForm().getName())))
+            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "text/csv"))
+            .andReturn();
+
+    String actualResponse = result.getResponse().getContentAsString();
+    String normalizedActualResponse = normalizeLineEndingsToCRLF(actualResponse);
+
+    String[] responseLines = normalizedActualResponse.split("\r\n");
+    assertEquals(2, responseLines.length);
+    assertEquals(expectedHeader, responseLines[0]);
+    assertEquals(expectedResponse.trim(), responseLines[1]);
+    assertEquals(normalizeLineEndingsToCRLF(expectedFullResponse), normalizedActualResponse);
   }
 
   private String normalizeLineEndingsToCRLF(String text) {
