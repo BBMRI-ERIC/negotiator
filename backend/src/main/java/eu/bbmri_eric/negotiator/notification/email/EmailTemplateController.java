@@ -41,7 +41,7 @@ public class EmailTemplateController {
     return emailTemplateService.getNotificationTemplate(templateName);
   }
 
-  @PostMapping(
+  @PutMapping(
       value = "/email-templates/{templateName}",
       produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @Operation(

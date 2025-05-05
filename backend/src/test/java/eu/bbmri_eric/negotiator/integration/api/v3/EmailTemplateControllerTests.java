@@ -68,7 +68,7 @@ public class EmailTemplateControllerTests {
             + "</html>";
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/email-templates/footer")
+            MockMvcRequestBuilders.put("/v3/email-templates/footer")
                 .contentType(MediaType.APPLICATION_XHTML_XML)
                 .content(newTemplateContent))
         .andExpect(status().isOk())
@@ -81,7 +81,7 @@ public class EmailTemplateControllerTests {
     String newTemplateContent = "Updated Template Content";
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/email-templates/invalidTemplate")
+            MockMvcRequestBuilders.put("/v3/email-templates/invalidTemplate")
                 .contentType(MediaType.APPLICATION_XHTML_XML)
                 .content(newTemplateContent))
         .andExpect(status().isForbidden());
@@ -127,7 +127,7 @@ public class EmailTemplateControllerTests {
         "<html><body><p>Welcome, <span th:utext=\"${recipient.getName()}\"></span></p></body></html>";
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/v3/email-templates/email-notification")
+            MockMvcRequestBuilders.put("/v3/email-templates/email-notification")
                 .contentType(MediaType.APPLICATION_XHTML_XML)
                 .content(templateContent))
         .andExpect(status().isOk());

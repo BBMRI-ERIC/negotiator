@@ -37,7 +37,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function updateEmailTemplate(templateName, data) {
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}`, data, {
+      .put(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}`, data, {
         headers: { ...getBearerHeaders(), 'Content-Type': 'text/plain' },
         responseType: 'text',
       })
