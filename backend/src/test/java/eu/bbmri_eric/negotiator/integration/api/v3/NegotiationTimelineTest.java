@@ -47,25 +47,33 @@ class NegotiationTimelineTest {
   @Transactional
   void getTimeline_isAuthor_ok() throws Exception {
     // Arrange: Set up the negotiation state
-    Negotiation negotiation = negotiationRepository.findById("negotiation-1")
+    Negotiation negotiation =
+        negotiationRepository
+            .findById("negotiation-1")
             .orElseThrow(() -> new EntityNotFoundException("Negotiation not found"));
     assertFalse(negotiation.getNegotiationResourceLifecycleRecords().isEmpty());
     negotiation.setStateForResource(
-            negotiation.getResources().stream().findFirst().get().getSourceId(),
-            NegotiationResourceState.RESOURCE_AVAILABLE);
+        negotiation.getResources().stream().findFirst().get().getSourceId(),
+        NegotiationResourceState.RESOURCE_AVAILABLE);
     assertFalse(negotiation.getLifecycleHistory().isEmpty());
 
     // Act & Assert: Perform the request and verify the response
-    mockMvc.perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.timelineEvents").isArray())
-            .andExpect(jsonPath("$._embedded.timelineEvents.length()").value(2))
-            .andExpect(jsonPath("$._embedded.timelineEvents[0].triggeredBy").value("admin"))
-            .andExpect(jsonPath("$._embedded.timelineEvents[0].text").value("admin changed the status of the Negotiation to In Progress"))
-            .andExpect(jsonPath("$._embedded.timelineEvents[0].timestamp").value("2023-06-19T10:15:00"))
-            .andExpect(jsonPath("$._embedded.timelineEvents[1].triggeredBy").value("TheResearcher"))
-            .andExpect(jsonPath("$._embedded.timelineEvents[1].text").value("TheResearcher changed the status of biobank:1:collection:1 to Resource Available"));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/timeline"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.timelineEvents").isArray())
+        .andExpect(jsonPath("$._embedded.timelineEvents.length()").value(2))
+        .andExpect(jsonPath("$._embedded.timelineEvents[0].triggeredBy").value("admin"))
+        .andExpect(
+            jsonPath("$._embedded.timelineEvents[0].text")
+                .value("admin changed the status of the Negotiation to In Progress"))
+        .andExpect(jsonPath("$._embedded.timelineEvents[0].timestamp").value("2023-06-19T10:15:00"))
+        .andExpect(jsonPath("$._embedded.timelineEvents[1].triggeredBy").value("TheResearcher"))
+        .andExpect(
+            jsonPath("$._embedded.timelineEvents[1].text")
+                .value(
+                    "TheResearcher changed the status of biobank:1:collection:1 to Resource Available"));
   }
 
   @Test
