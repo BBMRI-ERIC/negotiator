@@ -14,14 +14,14 @@
       <li class="container mb-3 mt-2">
         <div class="d-flex flex-row">
           <profileAvatar
-          type="button"
+            type="button"
             class="me-3 mt-1 text-light"
             :style="{
               'background-color': uiConfiguration?.navbarButtonOutlineColor + '!important',
             }"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            >
+          >
             {{ returnAcronymOfName }}
           </profileAvatar>
           <div>
