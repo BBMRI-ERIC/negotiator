@@ -23,7 +23,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class NegotiationResourceLifecycleRecord extends AuditEntity implements NegotiationTimelineEvent {
+public class NegotiationResourceLifecycleRecord extends AuditEntity
+    implements NegotiationTimelineEvent {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +45,8 @@ public class NegotiationResourceLifecycleRecord extends AuditEntity implements N
 
   @Override
   public String getText() {
-    return "%s changed the status of %s to %s".formatted(getTriggeredBy(), resource.getSourceId(), changedTo.getLabel());
+    return "%s changed the status of %s to %s"
+        .formatted(getTriggeredBy(), resource.getSourceId(), changedTo.getLabel());
   }
 
   @Override

@@ -38,14 +38,24 @@ public class NegotiationTimelineImpl implements NegotiationTimeline {
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    List<NegotiationTimelineEvent> resourceRecords = negotiation.getNegotiationResourceLifecycleRecords().stream()
+    List<NegotiationTimelineEvent> resourceRecords =
+        negotiation.getNegotiationResourceLifecycleRecords().stream()
             .filter(Objects::nonNull)
-            .filter(res -> !res.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED) && !res.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE))
-            .map(NegotiationTimelineEvent.class::cast).toList();
-    List<NegotiationTimelineEvent> negotiationRecords = negotiation.getLifecycleHistory().stream()
-        .filter(Objects::nonNull)
-        .map(NegotiationTimelineEvent.class::cast)
+            .filter(
+                res ->
+                    !res.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED)
+                        && !res.getChangedTo()
+                            .equals(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE))
+            .map(NegotiationTimelineEvent.class::cast)
+            .toList();
+    List<NegotiationTimelineEvent> negotiationRecords =
+        negotiation.getLifecycleHistory().stream()
+            .filter(Objects::nonNull)
+            .map(NegotiationTimelineEvent.class::cast)
+            .toList();
+    return Stream.concat(resourceRecords.stream(), negotiationRecords.stream())
+        .map(event -> modelMapper.map(event, NegotiationTimelineEventDTO.class))
+        .sorted(Comparator.comparing(NegotiationTimelineEventDTO::getTimestamp))
         .toList();
-    return Stream.concat(resourceRecords.stream(), negotiationRecords.stream()).map(event -> modelMapper.map(event, NegotiationTimelineEventDTO.class)).sorted(Comparator.comparing(NegotiationTimelineEventDTO::getTimestamp)).toList();
   }
 }
