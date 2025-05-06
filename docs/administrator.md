@@ -85,29 +85,11 @@ There, you can add a new webhook by providing the following information:
 
 
 ## Email Notifications
-Admin users can update or reset notification templates via the UI or using direct API calls.
+Admin users can update or reset notification templates via the UI in the Admin Settings -> 
+Select and Manage Email Templates section.
+A default template is provided, but you can modify it to suit your needs.
+The templates are written in HTML with [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing you to include dynamic 
+content using expressions, conditionals, and loops.
+The available variables are listed in the [Notification](notifications.md) documentation.
 
- - `GET /api/v3/email-templates` – list all templates
 
- - `POST /api/v3/email-templates/{templateName}` – update template content
-
- - `PATCH /api/v3/email-templates/{templateName}` with `{ "reset": true }` – reset template to default
-
-All endpoints require `ROLE_ADMIN`. Adding or deleting templates is not supported.
-
-#### Example of a POST request to update the email template
-```bash
-curl -X POST \
-  http://localhost:8081/api/v3/email-templates/email-notification \
-  -H 'Content-Type: application/xml' \
-  -H 'Authorization: Bearer <token>' \
-  -d '<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-    <head>
-        <title>Email notification</title>
-    </head>
-    <body>
-    Hello <span th:utext="${recipient.getName()}"></span>
-    </body>
-</html>'
-```
