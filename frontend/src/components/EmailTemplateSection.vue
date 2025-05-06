@@ -8,7 +8,7 @@
       @confirm="updateEmailTemplate()"
       :ref="updateEmailTemplateModal"
     />
-    <h2>Select and Manage Email Templates</h2>
+    <h2>Email Templates</h2>
     <div class="text-muted mb-3">
       In this section, you can select an email template from the list and choose from the following
       options:

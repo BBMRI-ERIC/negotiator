@@ -43,7 +43,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
       })
       .then(() => {
         notifications.setNotification(
-          'Thank you. Your email template was submitted successfully',
+          'Email template was updated successfully',
           'success',
         )
       })
@@ -60,7 +60,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
       })
       .then(() => {
         notifications.setNotification(
-          'Thank you. Your email template was Reseted successfully',
+          'Email template was successfully reset',
           'success',
         )
       })
