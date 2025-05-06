@@ -3,9 +3,12 @@ package eu.bbmri_eric.negotiator.negotiation;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationTimelineEventDTO;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import jakarta.transaction.Transactional;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +38,14 @@ public class NegotiationTimelineImpl implements NegotiationTimeline {
         negotiationRepository
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-
-    return negotiation.getLifecycleHistory().stream()
+    List<NegotiationTimelineEvent> resourceRecords = negotiation.getNegotiationResourceLifecycleRecords().stream()
+            .filter(Objects::nonNull)
+            .filter(res -> !res.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_CONTACTED) && !res.getChangedTo().equals(NegotiationResourceState.REPRESENTATIVE_UNREACHABLE))
+            .map(NegotiationTimelineEvent.class::cast).toList();
+    List<NegotiationTimelineEvent> negotiationRecords = negotiation.getLifecycleHistory().stream()
         .filter(Objects::nonNull)
         .map(NegotiationTimelineEvent.class::cast)
-        .map(event -> modelMapper.map(event, NegotiationTimelineEventDTO.class))
         .toList();
+    return Stream.concat(resourceRecords.stream(), negotiationRecords.stream()).map(event -> modelMapper.map(event, NegotiationTimelineEventDTO.class)).sorted(Comparator.comparing(NegotiationTimelineEventDTO::getTimestamp)).toList();
   }
 }

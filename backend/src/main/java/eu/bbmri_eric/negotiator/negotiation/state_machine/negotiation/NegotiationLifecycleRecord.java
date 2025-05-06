@@ -38,7 +38,7 @@ public final class NegotiationLifecycleRecord extends AuditEntity
 
   @Override
   public String getText() {
-    return "%s changed the status of the Negotiation to  %s"
+    return "%s changed the status of the Negotiation to %s"
         .formatted(getTriggeredBy(), changedTo.getLabel());
   }
 
