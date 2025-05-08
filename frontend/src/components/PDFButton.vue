@@ -15,7 +15,8 @@
 <script setup>
 import { computed } from 'vue'
 import jsPDF from 'jspdf'
- 
+import { applyPlugin } from 'jspdf-autotable'
+
 import bbmriLogo from '../assets/images/bbmri/nav-bar-bbmri.png'
 import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
 import canservLogo from '../assets/images/canserv/nav-bar-canserv.png'
@@ -23,6 +24,8 @@ import { useUiConfiguration } from '../store/uiConfiguration.js'
 import moment from 'moment'
 import { dateFormat } from '@/config/consts'
 import { transformStatus } from '../composables/utils.js'
+
+applyPlugin(jsPDF)
 
 const props = defineProps({
   negotiationPdfData: {
@@ -104,8 +107,14 @@ function createPDF() {
 
     for (const value in props.negotiationPdfData.payload[key]) {
       if (props.negotiationPdfData.payload[key][value]) {
+        let payloadValue = props.negotiationPdfData.payload[key][value]
+
+        // Check if the value is attachment and display the name if it exists
+        if (props.negotiationPdfData.payload[key][value].name)
+          payloadValue = props.negotiationPdfData.payload[key][value].name
+
         doc.autoTable({
-          body: [[value + ': ', props.negotiationPdfData.payload[key][value]]],
+          body: [[value + ': ', payloadValue]],
           startY: doc.lastAutoTable.finalY + 2,
           columnStyles: {
             0: { cellWidth: 25, font: 'calibri', fontStyle: 'bold' },
