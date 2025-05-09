@@ -349,6 +349,19 @@
         </div>
         <div class="wizard-footer-right">
           <button
+            v-if="isEditForm === false || currentStatus === 'DRAFT'"
+            class="btn me-4"
+            @click="saveDraft(props.activeTabIndex)"
+            :disabled="currentSectionModified === false"
+            :style="{
+              'background-color': uiConfiguration.buttonColor,
+              'border-color': uiConfiguration.buttonColor,
+              color: '#FFFFFF',
+            }"
+          >
+            Save Draft
+          </button>
+          <button
             class="btn"
             @click="props.nextTab()"
             :style="{
