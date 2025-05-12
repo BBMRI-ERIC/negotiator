@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="modal"
+    class="modal form-submission-modal"
     :class="{ fade: fade }"
     tabindex="-1"
     :aria-labelledby="`${id}Label`"
