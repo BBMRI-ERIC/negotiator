@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -122,6 +123,7 @@ public class EmailTemplateControllerTests {
 
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext()
   void templateUsedInEmailContent() throws Exception {
     String templateContent =
         "<html><body><p>Welcome, <span th:utext=\"${recipient.getName()}\"></span></p></body></html>";
@@ -139,6 +141,7 @@ public class EmailTemplateControllerTests {
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     userNotificationService.sendEmailsForNewNotifications();
+    Thread.sleep(1000);
     int numOfEmails = notificationEmailRepository.findAll().size();
     assertTrue(numOfEmails > 0);
     NotificationEmail notificationEmail = notificationEmailRepository.findAll().get(0);
