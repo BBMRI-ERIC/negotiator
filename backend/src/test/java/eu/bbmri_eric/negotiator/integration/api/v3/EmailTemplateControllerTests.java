@@ -1,5 +1,8 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -123,10 +126,10 @@ public class EmailTemplateControllerTests {
 
   @Test
   @WithUserDetails("admin")
-  @DirtiesContext()
+  @DirtiesContext
   void templateUsedInEmailContent() throws Exception {
     String templateContent =
-        "<html><body><p>Welcome, <span th:utext=\"${recipient.getName()}\"></span></p></body></html>";
+        "<html><body><p>WelcomeVeryUnique, <span th:utext=\"${recipient.getName()}\"></span></p></body></html>";
     mockMvc
         .perform(
             MockMvcRequestBuilders.put("/v3/email-templates/email-notification")
@@ -141,23 +144,14 @@ public class EmailTemplateControllerTests {
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
     userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     userNotificationService.sendEmailsForNewNotifications();
-    Thread.sleep(1000);
+    await()
+        .atMost(1, SECONDS)
+        .pollInterval(100, MILLISECONDS)
+        .until(() -> !notificationEmailRepository.findAll().isEmpty());
     int numOfEmails = notificationEmailRepository.findAll().size();
     assertTrue(numOfEmails > 0);
     NotificationEmail notificationEmail = notificationEmailRepository.findAll().get(0);
-    assertTrue(notificationEmail.getMessage().contains("Welcome"));
-    assertTrue(
-        notificationEmail
-            .getMessage()
-            .contains(
-                negotiation
-                    .getResources()
-                    .iterator()
-                    .next()
-                    .getRepresentatives()
-                    .iterator()
-                    .next()
-                    .getName()));
+    assertTrue(notificationEmail.getMessage().contains("WelcomeVeryUnique"));
   }
 
   @Test
