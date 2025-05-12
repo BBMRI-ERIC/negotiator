@@ -42,7 +42,31 @@ export const useFormsStore = defineStore('forms', () => {
       })
   }
 
-  function submitRequiredInformation(data, negotiationId, requirementId) {
+  async function submitRequiredInformation(data, negotiationId, requirementId) {
+    data.attachments = []
+    for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
+      for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
+        if (criteriaValue instanceof File) {
+          const formData = new FormData()
+          formData.append('file', criteriaValue)
+          const uploadFileHeaders = { headers: getBearerHeaders() }
+
+          uploadFileHeaders['Content-type'] = 'multipart/form-data'
+
+          const attachmentsIds = await axios
+            .post('/api/v3/attachments', formData, uploadFileHeaders)
+            .then((response) => {
+              return response.data
+            })
+            .catch(() => {
+              notifications.setNotification('There was an error saving the attachment')
+              return null
+            })
+          data.payload[sectionName][criteriaName] = attachmentsIds
+          data.attachments.push(attachmentsIds)
+        }
+      }
+    }
     return axios
       .post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, {
         headers: getBearerHeaders(),
