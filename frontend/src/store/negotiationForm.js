@@ -102,36 +102,40 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
-  async function updateNegotiationById(negotiationId, data) {
+  async function updateNegotiationById(negotiationId, data, isSaveDraft) {
     data.attachments = []
-    for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
-      for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
-        if (criteriaValue instanceof File) {
-          const formData = new FormData()
-          formData.append('file', criteriaValue)
-          const uploadFileHeaders = { headers: getBearerHeaders() }
+    if (!isSaveDraft) {
+      for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
+        for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
+          if (criteriaValue instanceof File) {
+            const formData = new FormData()
+            formData.append('file', criteriaValue)
+            const uploadFileHeaders = { headers: getBearerHeaders() }
 
-          uploadFileHeaders['Content-type'] = 'multipart/form-data'
+            uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
-          const attachmentsIds = await axios
-            .post(
-              `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
-              formData,
-              uploadFileHeaders,
-            )
-            .then((response) => {
-              return response.data
-            })
-            .catch(() => {
-              notifications.setNotification('There was an error updating the attachment', 'danger')
-              return null
-            })
-          data.payload[sectionName][criteriaName] = attachmentsIds
-          data.attachments.push(attachmentsIds)
+            const attachmentsIds = await axios
+              .post(
+                `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
+                formData,
+                uploadFileHeaders,
+              )
+              .then((response) => {
+                return response.data
+              })
+              .catch(() => {
+                notifications.setNotification(
+                  'There was an error updating the attachment',
+                  'danger',
+                )
+                return null
+              })
+            data.payload[sectionName][criteriaName] = attachmentsIds
+            data.attachments.push(attachmentsIds)
+          }
         }
       }
     }
-
     return axios
       .patch(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, data, { headers: getBearerHeaders() })
       .then((response) => {
