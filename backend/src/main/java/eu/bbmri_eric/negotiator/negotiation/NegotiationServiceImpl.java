@@ -367,11 +367,10 @@ public class NegotiationServiceImpl implements NegotiationService {
       throw new ForbiddenRequestException("You are not allowed to perform this operation");
     }
     if (templateName == null) {
-        templateName = "negotiation";
+      templateName = "negotiation";
     }
 
     return negotiationPdfService.generatePdf(negotiation, templateName);
-
   }
 
   public void deleteNegotiation(String negotiationId) {
