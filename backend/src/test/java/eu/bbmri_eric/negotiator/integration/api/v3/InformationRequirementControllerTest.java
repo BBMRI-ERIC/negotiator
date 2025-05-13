@@ -4,7 +4,9 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
@@ -312,6 +315,117 @@ public class InformationRequirementControllerTest {
         .andExpect(jsonPath("$.id").isNumber())
         .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
         .andExpect(jsonPath("$.payload.sample-type").value("DNA"));
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  @Transactional
+  void submitInformation_update_ok() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    String payload =
+        """
+                            {
+                           "sample-type": "DNA",
+                           "num-of-subjects": 10,
+                           "num-of-samples": 20,
+                           "volume-per-sample": 5
+                        }
+                        """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                post(INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
+            .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
+            .andReturn();
+    Integer submissionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.id");
+    payload =
+        """
+                            {
+                           "sample-type": "NEW_UPDATED_VALUE",
+                           "num-of-subjects": 10,
+                           "num-of-samples": 20,
+                           "volume-per-sample": 5
+                        }
+                        """;
+    submissionDTO.setPayload(mapper.readTree(payload));
+    mockMvc
+        .perform(
+            patch(SUBMISSION_ENDPOINT.formatted(submissionId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
+        .andExpect(jsonPath("$.payload.sample-type").value("NEW_UPDATED_VALUE"));
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  @Transactional
+  void updateSubmission_notExisting_404() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    String payload =
+        """
+                            {
+                           "sample-type": "DNA",
+                           "num-of-subjects": 10,
+                           "num-of-samples": 20,
+                           "volume-per-sample": 5
+                        }
+                        """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
+    mockMvc
+        .perform(
+            patch(SUBMISSION_ENDPOINT.formatted(9999))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void updateSubmission_notAuthorized_403() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    String payload =
+        """
+                            {
+                           "sample-type": "DNA",
+                           "num-of-subjects": 10,
+                           "num-of-samples": 20,
+                           "volume-per-sample": 5
+                        }
+                        """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload);
+    mockMvc
+        .perform(
+            patch(SUBMISSION_ENDPOINT.formatted(1))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isForbidden());
   }
 
   @Test
