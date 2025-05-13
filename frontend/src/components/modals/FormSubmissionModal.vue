@@ -438,7 +438,7 @@ function initNegotiationCriteria() {
     for (const criteria of section.elements) {
       if (criteria.type === 'MULTIPLE_CHOICE') {
         negotiationCriteria.value[section.name][criteria.name] = []
-        getValueSet(criteria._links['value-set'].href)
+        getValueSet(criteria._links['value-set'].href, criteria.id)
       } else if (criteria.type === 'SINGLE_CHOICE') {
         getValueSet(criteria._links['value-set'].href, criteria.id)
       } else {
