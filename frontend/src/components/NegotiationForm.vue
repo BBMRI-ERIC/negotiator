@@ -546,30 +546,32 @@ async function getValueSet(id) {
 
 async function saveDraft(step) {
   if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
-    await saveNegotiation(true, step)
+    await saveNegotiation(true, step, true)
     currentSectionModified.value = false
   }
   return true
 }
 
-async function saveNegotiation(savingDraft, step) {
+async function saveNegotiation(savingDraft, step, isSaveDraft) {
   if (props.isEditForm) {
     const data = {
       payload: negotiationCriteria.value,
     }
-    await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      if (!savingDraft) {
-        if (currentStatus.value === 'DRAFT') {
-          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+    await negotiationFormStore
+      .updateNegotiationById(props.requestId, data, isSaveDraft)
+      .then(() => {
+        if (!savingDraft) {
+          if (currentStatus.value === 'DRAFT') {
+            negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+              backToNegotiation(props.requestId)
+            })
+          } else {
             backToNegotiation(props.requestId)
-          })
+          }
         } else {
-          backToNegotiation(props.requestId)
+          notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
         }
-      } else {
-        notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
-      }
-    })
+      })
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
       backToNegotiation(requestAlreadySubmittedNegotiationId.value)
