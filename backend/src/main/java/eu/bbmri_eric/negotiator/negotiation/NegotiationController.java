@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -284,6 +286,31 @@ public class NegotiationController {
     return resourceWithStatusAssembler.toCollectionModel(
         resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
   }
+
+  @GetMapping(
+          value = "/negotiations/{id}/pdf",
+          produces = MediaType.APPLICATION_PDF_VALUE)
+  @Operation(summary = "Generate a PDF for a negotiation")
+  @SecurityRequirement(name = "security_auth")
+  public ResponseEntity<byte[]> generateNegotiationPdf(
+          @Valid @PathVariable String id,
+          @RequestParam(value = "template", required = false) String templateName) {
+
+    if (!negotiationService.isNegotiationCreator(id) &&
+            !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+    try{
+      byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
+      return ResponseEntity.ok()
+              .contentType(MediaType.APPLICATION_PDF)
+              .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
+              .body(pdfBytes);
+    }catch (Exception e){
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
+    }
+  }
+
 
   private String getUserId() {
     String userId = null;

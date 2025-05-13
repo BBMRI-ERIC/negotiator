@@ -313,6 +313,27 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
+  async function retrieveNegotiationPDF (id) {
+    axios
+      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf`, {
+        headers: getBearerHeaders(),
+        responseType: 'blob',
+      })
+      .then((response) => {
+        const href = window.URL.createObjectURL(response.data)
+
+        const anchorElement = document.createElement('a')
+        anchorElement.href = href
+        anchorElement.download = name
+
+        document.body.appendChild(anchorElement)
+        anchorElement.click()
+
+        document.body.removeChild(anchorElement)
+        window.URL.revokeObjectURL(href)
+      })
+  }
+
   return {
     updateNegotiationStatus,
     retrievePossibleEvents,
@@ -334,6 +355,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     addResources,
     retrieveAllResources,
     retrieveResourceAllStates,
-    deleteNegotiation
+    deleteNegotiation,
+    retrieveNegotiationPDF
   }
 })
