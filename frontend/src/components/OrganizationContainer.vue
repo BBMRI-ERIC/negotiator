@@ -89,7 +89,7 @@ const openFormModal = async (href) => {
 const hideFormSubmissionModal = async () => {
   formSubmissionModalInstance.value.hide()
   emit('reloadResources')
-  router.push()
+  router.go()
 }
 
 const updateResourceState = async (link) => {
