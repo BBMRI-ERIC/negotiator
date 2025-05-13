@@ -75,7 +75,24 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     verifyAuthorization(informationSubmissionDTO);
     InformationSubmission submission =
         buildSubmissionEntity(informationSubmissionDTO, informationRequirementId, negotiationId);
-    return saveInformationSubmission(informationRequirementId, negotiationId, submission);
+    if (informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id(
+        submission.getResource().getSourceId(), negotiationId, informationRequirementId)) {
+      throw new WrongRequestException(
+          "The required information for this resource was already provided");
+    }
+    return saveInformationSubmission(negotiationId, submission);
+  }
+
+  @Override
+  public SubmittedInformationDTO updateSubmission(
+      InformationSubmissionDTO informationSubmissionDTO, Long submissionId) {
+    verifyAuthorization(informationSubmissionDTO);
+    InformationSubmission submission =
+        informationSubmissionRepository
+            .findById(submissionId)
+            .orElseThrow(() -> new EntityNotFoundException(submissionId));
+    submission.setPayload(informationSubmissionDTO.getPayload().toString());
+    return saveInformationSubmission(submission.getNegotiation().getId(), submission);
   }
 
   @Override
@@ -127,12 +144,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   }
 
   private SubmittedInformationDTO saveInformationSubmission(
-      Long informationRequirementId, String negotiationId, InformationSubmission submission) {
-    if (informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id(
-        submission.getResource().getSourceId(), negotiationId, informationRequirementId)) {
-      throw new WrongRequestException(
-          "The required information for this resource was already provided");
-    }
+      String negotiationId, InformationSubmission submission) {
     submission = informationSubmissionRepository.saveAndFlush(submission);
     applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
     return modelMapper.map(submission, SubmittedInformationDTO.class);
