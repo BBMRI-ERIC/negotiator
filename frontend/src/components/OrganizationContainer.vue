@@ -43,6 +43,7 @@ import OrganizationCard from './OrganizationCard.vue'
 import FormViewModal from '@/components/modals/FormViewModal.vue'
 import FormSubmissionModal from '@/components/modals/FormSubmissionModal.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   orgId: { type: String, default: undefined },
@@ -52,6 +53,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['reloadResources'])
 
+const router = useRouter()
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
@@ -87,6 +89,7 @@ const openFormModal = async (href) => {
 const hideFormSubmissionModal = async () => {
   formSubmissionModalInstance.value.hide()
   emit('reloadResources')
+  router.push()
 }
 
 const updateResourceState = async (link) => {
