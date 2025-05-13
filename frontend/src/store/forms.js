@@ -13,7 +13,7 @@ export const useFormsStore = defineStore('forms', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error getting request data from server')
+        notifications.setNotification('Error getting request data from server', 'danger')
         return null
       })
   }
@@ -25,7 +25,7 @@ export const useFormsStore = defineStore('forms', () => {
         return response.data._embedded['access-forms']
       })
       .catch(() => {
-        notifications.setNotification('Error getting request data from server')
+        notifications.setNotification('Error getting request data from server', 'danger')
         return null
       })
   }
@@ -37,7 +37,7 @@ export const useFormsStore = defineStore('forms', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error getting value-sets request data from server')
+        notifications.setNotification('Error getting value-sets request data from server', 'danger')
         return null
       })
   }
@@ -59,7 +59,7 @@ export const useFormsStore = defineStore('forms', () => {
               return response.data
             })
             .catch(() => {
-              notifications.setNotification('There was an error saving the attachment')
+              notifications.setNotification('There was an error saving the attachment','warning')
               return null
             })
           data.payload[sectionName][criteriaName] = attachmentsIds
@@ -72,11 +72,11 @@ export const useFormsStore = defineStore('forms', () => {
         headers: getBearerHeaders(),
       })
       .then((response) => {
-        notifications.setNotification('Thank you. Your response was successfully submitted. ')
+        notifications.setNotification('Thank you. Your response was successfully submitted. ','success')
         return response.data.id
       })
       .catch(() => {
-        notifications.setNotification('There was an error saving the Negotiation')
+        notifications.setNotification('There was an error saving the Negotiation','danger')
       })
   }
 
