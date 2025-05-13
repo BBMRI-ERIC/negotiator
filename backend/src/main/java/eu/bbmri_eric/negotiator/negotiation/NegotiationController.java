@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -287,30 +286,27 @@ public class NegotiationController {
         resourceService.updateResourcesInANegotiation(id, updateResourcesDTO));
   }
 
-  @GetMapping(
-          value = "/negotiations/{id}/pdf",
-          produces = MediaType.APPLICATION_PDF_VALUE)
+  @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(summary = "Generate a PDF for a negotiation")
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdf(
-          @Valid @PathVariable String id,
-          @RequestParam(value = "template", required = false) String templateName) {
+      @Valid @PathVariable String id,
+      @RequestParam(value = "template", required = false) String templateName) {
 
-    if (!negotiationService.isNegotiationCreator(id) &&
-            !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    try{
+    try {
       byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
       return ResponseEntity.ok()
-              .contentType(MediaType.APPLICATION_PDF)
-              .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-              .body(pdfBytes);
-    }catch (Exception e){
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
+          .contentType(MediaType.APPLICATION_PDF)
+          .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
+          .body(pdfBytes);
+    } catch (Exception e) {
+      throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
     }
   }
-
 
   private String getUserId() {
     String userId = null;

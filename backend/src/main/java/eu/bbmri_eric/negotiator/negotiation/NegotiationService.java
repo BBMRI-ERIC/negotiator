@@ -8,8 +8,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import java.util.List;
-
-import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Pageable;
 
 public interface NegotiationService {
@@ -168,6 +166,5 @@ public interface NegotiationService {
    * @param negotiationId the id of the negotiation
    * @param templateName the name of the template to use for generating the PDF
    */
-    byte[] generatePdf(String negotiationId, String templateName) throws Exception;
-
+  byte[] generatePdf(String negotiationId, String templateName) throws Exception;
 }
