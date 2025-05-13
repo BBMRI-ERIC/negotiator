@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 2em; line-height: 1.4; }
+        h1, h2 { color: #003366; }
+        h2 { border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-top: 1.5em; }
+        .field { margin-bottom: 0.5em; }
+        .label { font-weight: bold; }
+        .section { margin-bottom: 1em; }
+        .value { margin-left: 1em; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<h1>REQUEST SUMMARY</h1>
+<div class="section">
+    <div class="field"><span class="label">Author:</span> <span th:text="${negotiationPdfData.author.name}">AUTHOR-NAME-HERE</span></div>
+    <div class="field"><span class="label">Email:</span> <span th:text="${negotiationPdfData.author.email}">AUTHOR-EMAIL-HERE</span></div>
+    <div class="field"><span class="label">Negotiation ID:</span> <span th:text="${negotiationPdfData.id}">UUID-HERE</span></div>
+    <!--<div class="field"><span class="label">Submitted at:</span> <span th:text="${negotiationPdfData.createdAt}">May 13, 2025 - 1:26 PM</span></div>-->
+    <div class="field"><span class="label">Status:</span> <span th:text="${negotiationPdfData.status}">STATUS-HERE</span></div>
+    <div class="field"><span class="label">Report generated at:</span> <span th:text="${now}">CURRENTDATE-HERE</span></div>
+</div>
+
+
+<div th:each="section : ${negotiationPdfData.payload}">
+    <h2 th:text="${#strings.toUpperCase(section.key)}">SECTION</h2>
+    <div class="section">
+        <div class="field" th:each="entry : ${section.value}">
+            <span class="label" th:text="${entry.key + ':'}">field-name:</span>
+
+            <!-- Handle multi-choice arrays -->
+            <span th:if="${entry.value instanceof T(java.util.List)}"
+                  th:text="${#strings.arrayJoin(entry.value, ', ')}">value1, value2</span>
+
+
+            <!-- Map/object check -->
+            <span th:if="${entry.value instanceof T(java.util.Map)}"
+                  th:text="'[object]'">[object]</span>
+
+
+            <!-- Fallback for scalar types -->
+            <span th:if="${!(entry.value instanceof T(java.util.List)) and !(entry.value instanceof T(java.util.Map))}"
+                  th:text="${entry.value}">simple value</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
