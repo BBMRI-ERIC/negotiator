@@ -22,10 +22,12 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="resetForm()" 
           />
         </div>
         <div class="modal-body text-left">
           <form-wizard
+            ref="wizard"
             v-if="accessForm"
             :start-index="0"
             color="var(--bs-secondary)"
@@ -360,6 +362,7 @@ const props = defineProps({
   },
 })
 
+const wizard = ref(null)
 const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
 
@@ -411,7 +414,12 @@ async function startRequiredAccessForm() {
 function startModal() {
   startRequiredAccessForm().then(() => {
     emitConfirm()
+    resetForm()
   })
+}
+
+function resetForm() {
+  wizard.value.reset()
 }
 
 function isAttachment(value) {
