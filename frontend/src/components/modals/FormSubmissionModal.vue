@@ -409,8 +409,9 @@ async function startRequiredAccessForm() {
 }
 
 function startModal() {
-  startRequiredAccessForm()
-  emitConfirm()
+  startRequiredAccessForm().then(() => {
+    emitConfirm()
+  })
 }
 
 function isAttachment(value) {

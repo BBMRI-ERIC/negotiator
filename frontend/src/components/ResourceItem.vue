@@ -46,21 +46,13 @@
         </div>
       </div>
       <!-- Submitted Requirements (Green) -->
-      <div
-        v-for="(link, index) in getSubmissionLinks(resource._links)"
-        :key="index"
-        class="mt-1"
-      >
+      <div v-for="(link, index) in getSubmissionLinks" :key="index" class="mt-1">
         <a class="submission-text cursor-pointer" @click.prevent="onOpenFormModal(link.href)">
           <i class="bi bi-check-circle" /> {{ link.name }} submitted
         </a>
       </div>
       <!-- Missing Requirements (Red) -->
-      <div
-        v-for="(link, index) in getRequirementLinks(resource._links)"
-        :key="index"
-        class="mt-1"
-      >
+      <div v-for="(link, index) in getRequirementLinks" :key="index" class="mt-1">
         <a class="requirement-text cursor-pointer" @click="onOpenModal(link.href, resource.id)">
           <i class="bi bi-exclamation-circle-fill" /> {{ link.title }} required
         </a>
@@ -70,12 +62,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { transformStatus } from '../composables/utils.js'
 import CopyTextButton from '@/components/CopyTextButton.vue'
 
 const props = defineProps({
   resource: { type: Object, required: true },
-  uiConfiguration: { type: Object, required: true }
+  uiConfiguration: { type: Object, required: true },
 })
 const emit = defineEmits(['open-form-modal', 'open-modal', 'update-resource-state'])
 
@@ -85,18 +78,20 @@ const getStatusForResource = () => {
   return props.resource.currentState ? transformStatus(props.resource.currentState) : ''
 }
 
-const getSubmissionLinks = (links) =>
-  Object.entries(links)
+const getSubmissionLinks = computed(() => {
+  return Object.entries(props.resource._links)
     .filter(([key]) => key.startsWith('submission-'))
     .map(([, value]) => value)
+})
 
-const getRequirementLinks = (links) =>
-  Object.entries(links)
+const getRequirementLinks = computed(() => {
+  return Object.entries(props.resource._links)
     .filter(([key]) => key.startsWith('requirement-'))
     .map(([, value]) => value)
+})
 
 const getLifecycleLinks = (links) =>
-  Object.values(links).filter(link => link.title === 'Next Lifecycle event')
+  Object.values(links).filter((link) => link.title === 'Next Lifecycle event')
 
 const onOpenModal = (href, resourceId) => {
   emit('open-modal', href, resourceId)
