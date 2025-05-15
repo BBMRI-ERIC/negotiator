@@ -32,7 +32,7 @@
             :start-index="0"
             color="var(--bs-secondary)"
             step-size="md"
-            @on-complete="startModal"
+            @on-complete="startRequiredAccessForm"
           >
             <tab-content
               v-for="section in accessForm.sections"
@@ -408,13 +408,11 @@ async function startRequiredAccessForm() {
   }
   const negotiationId = props.negotiationId
   const requirementId = props.requirementId
-  await formsStore.submitRequiredInformation(data, negotiationId, requirementId)
-}
-
-function startModal() {
-  startRequiredAccessForm().then(() => {
-    emitConfirm()
-    resetForm()
+  await formsStore.submitRequiredInformation(data, negotiationId, requirementId).then((resp) => {
+    if(resp !== undefined && resp !== null) {
+      emitConfirm()
+      resetForm()
+    }
   })
 }
 

@@ -44,6 +44,7 @@ export const useFormsStore = defineStore('forms', () => {
 
   async function submitRequiredInformation(data, negotiationId, requirementId) {
     data.attachments = []
+    let isAtachmentError = false
     for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
       for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
         if (criteriaValue instanceof File) {
@@ -53,31 +54,40 @@ export const useFormsStore = defineStore('forms', () => {
 
           uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
-          const attachmentsIds = await axios
+          await axios
             .post('/api/v3/attachments', formData, uploadFileHeaders)
             .then((response) => {
-              return response.data
+              data.payload[sectionName][criteriaName] = response.data
+              data.attachments.push(response.data)
+              isAtachmentError = false
             })
-            .catch(() => {
-              notifications.setNotification('There was an error saving the attachment','warning')
+            .catch((error) => {
+              if (error.response) {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+              } else if (error.request) {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+              } else {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+              }
+              isAtachmentError = true
               return null
             })
-          data.payload[sectionName][criteriaName] = attachmentsIds
-          data.attachments.push(attachmentsIds)
         }
       }
     }
-    return axios
-      .post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, {
-        headers: getBearerHeaders(),
-      })
-      .then((response) => {
-        notifications.setNotification('Thank you. Your response was successfully submitted. ','success')
-        return response.data.id
-      })
-      .catch(() => {
-        notifications.setNotification('There was an error saving the Negotiation','danger')
-      })
+    if(!isAtachmentError){
+      return axios
+        .post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, {
+          headers: getBearerHeaders(),
+        })
+        .then((response) => {
+          notifications.setNotification('Thank you. Your response was successfully submitted. ','success')
+          return response.data.id
+        })
+        .catch(() => {
+          notifications.setNotification('There was an error saving the Negotiation','danger')
+        })
+    }
   }
 
   return {
