@@ -8,7 +8,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function retrieveEmailTemplates() {
     return axios
-      .get(`${apiPaths.BASE_API_PATH}/email-templates`, { headers: getBearerHeaders() })
+      .get(`${apiPaths.BASE_API_PATH}/templates`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -20,7 +20,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function retrieveEmailTemplateByName(templateName) {
     return axios
-      .get(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}`, {
+      .get(`${apiPaths.BASE_API_PATH}/templates/${templateName}`, {
         headers: getBearerHeaders(),
       })
       .then((response) => {
@@ -37,7 +37,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function updateEmailTemplate(templateName, data) {
     return axios
-      .put(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}`, data, {
+      .put(`${apiPaths.BASE_API_PATH}/templates/${templateName}`, data, {
         headers: { ...getBearerHeaders(), 'Content-Type': 'text/plain' },
         responseType: 'text',
       })
@@ -55,7 +55,7 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
 
   function emailTemplateReset(templateName) {
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/email-templates/${templateName}/operations`, '{ "operation": "RESET" }', {
+      .post(`${apiPaths.BASE_API_PATH}/templates/${templateName}/operations`, '{ "operation": "RESET" }', {
         headers: { ...getBearerHeaders(), 'Content-Type': 'application/json' },
       })
       .then(() => {

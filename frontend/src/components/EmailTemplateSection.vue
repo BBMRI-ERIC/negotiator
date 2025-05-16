@@ -1,5 +1,5 @@
 <template>
-  <div class="email-templates">
+  <div class="templates">
     <confirmation-modal
       id="update-email-template-modal"
       title="Update Email Template"
@@ -8,7 +8,7 @@
       @confirm="updateEmailTemplate()"
       :ref="updateEmailTemplateModal"
     />
-    <h2>Email Templates</h2>
+    <h2>Templates</h2>
     <div class="text-muted mb-3">
       In this section, you can select an email template from the list and choose from the following
       options:

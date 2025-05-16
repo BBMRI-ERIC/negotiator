@@ -59,7 +59,7 @@ public class HTTPRegistryConfigurer {
         .authenticated()
         .requestMatchers(mvc.pattern("/v3/notifications"))
         .authenticated()
-        .requestMatchers(mvc.pattern("/v3/email-templates/**"))
+        .requestMatchers(mvc.pattern("/v3/templates/**"))
         .hasRole("ADMIN")
         .requestMatchers(mvc.pattern("/v3/users/roles"))
         .authenticated()

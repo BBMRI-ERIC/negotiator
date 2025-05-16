@@ -1,15 +1,15 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.template;
 
-import java.util.List;
+import java.util.ArrayList;
 
-public interface EmailTemplateService {
+public interface TemplateRepository {
 
   /**
    * Get all notification templates.
    *
    * @return the templates.
    */
-  List<String> getAllNotificationTemplates();
+  ArrayList<String> listAll();
 
   /**
    * Get a notification template.
@@ -17,7 +17,7 @@ public interface EmailTemplateService {
    * @param templateName the name of the template.
    * @return the template.
    */
-  String getNotificationTemplate(String templateName);
+  String load(String templateName);
 
   /**
    * Update a notification template.
@@ -25,12 +25,12 @@ public interface EmailTemplateService {
    * @param templateName the name of the template.
    * @param template the new template.
    */
-  String updateNotificationTemplate(String templateName, String template);
+  void save(String templateName, String template);
 
   /**
    * Reset a notification template.
    *
    * @param templateName the name of the template.
    */
-  String resetNotificationTemplate(String templateName);
+  void reset(String templateName);
 }
