@@ -14,8 +14,7 @@ import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 @IntegrationTest(loadTestData = true)
 public class TemplateServiceTest {
-  @Autowired
-  TemplateService templateService;
+  @Autowired TemplateService templateService;
 
   @Test
   void getNotificationTemplate_existingTemplate_ok() {
@@ -29,8 +28,7 @@ public class TemplateServiceTest {
   void getNotificationTemplate_nonExistentTemplate_throwsEntityNotFoundException() {
     String templateName = "nonExistentTemplate";
     assertThrows(
-        EntityNotFoundException.class,
-        () -> templateService.getNotificationTemplate(templateName));
+        EntityNotFoundException.class, () -> templateService.getNotificationTemplate(templateName));
   }
 
   @Test
@@ -48,8 +46,7 @@ public class TemplateServiceTest {
     String invalidTemplateContent = null;
     assertThrows(
         UnsupportedMediaTypeException.class,
-        () ->
-            templateService.updateNotificationTemplate(templateName, invalidTemplateContent));
+        () -> templateService.updateNotificationTemplate(templateName, invalidTemplateContent));
   }
 
   @Test

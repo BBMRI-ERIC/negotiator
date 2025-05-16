@@ -18,8 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 @SecurityRequirement(name = "security_auth")
 public class TemplateController {
 
-  @Autowired
-  TemplateService templateService;
+  @Autowired TemplateService templateService;
 
   @GetMapping("/templates")
   @Operation(
@@ -30,9 +29,7 @@ public class TemplateController {
     return templateService.getAllNotificationTemplates();
   }
 
-  @GetMapping(
-      value = "/templates/{templateName}",
-      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @GetMapping(value = "/templates/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @Operation(
       summary = "Get a notification template",
       description = "Get a notification template by name")
@@ -41,9 +38,7 @@ public class TemplateController {
     return templateService.getNotificationTemplate(templateName);
   }
 
-  @PutMapping(
-      value = "/templates/{templateName}",
-      produces = MediaType.APPLICATION_XHTML_XML_VALUE)
+  @PutMapping(value = "/templates/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
   @Operation(
       summary = "Update a notification template",
       description = "Update the content of a notification template by name")
