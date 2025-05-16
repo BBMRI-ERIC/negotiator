@@ -1,7 +1,7 @@
 <template>
   <div
     :id="id"
-    class="modal"
+    class="modal form-submission-modal"
     :class="{ fade: fade }"
     tabindex="-1"
     :aria-labelledby="`${id}Label`"
@@ -22,15 +22,17 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="resetForm()" 
           />
         </div>
         <div class="modal-body text-left">
           <form-wizard
+            ref="wizard"
             v-if="accessForm"
             :start-index="0"
             color="var(--bs-secondary)"
             step-size="md"
-            @on-complete="startModal"
+            @on-complete="startRequiredAccessForm"
           >
             <tab-content
               v-for="section in accessForm.sections"
@@ -360,6 +362,7 @@ const props = defineProps({
   },
 })
 
+const wizard = ref(null)
 const formsStore = useFormsStore()
 const notificationsStore = useNotificationsStore()
 
@@ -405,12 +408,16 @@ async function startRequiredAccessForm() {
   }
   const negotiationId = props.negotiationId
   const requirementId = props.requirementId
-  await formsStore.submitRequiredInformation(data, negotiationId, requirementId)
+  await formsStore.submitRequiredInformation(data, negotiationId, requirementId).then((resp) => {
+    if(resp !== undefined && resp !== null) {
+      emitConfirm()
+      resetForm()
+    }
+  })
 }
 
-function startModal() {
-  startRequiredAccessForm()
-  emitConfirm()
+function resetForm() {
+  wizard.value.reset()
 }
 
 function isAttachment(value) {
@@ -438,7 +445,7 @@ function initNegotiationCriteria() {
     for (const criteria of section.elements) {
       if (criteria.type === 'MULTIPLE_CHOICE') {
         negotiationCriteria.value[section.name][criteria.name] = []
-        getValueSet(criteria._links['value-set'].href)
+        getValueSet(criteria._links['value-set'].href, criteria.id)
       } else if (criteria.type === 'SINGLE_CHOICE') {
         getValueSet(criteria._links['value-set'].href, criteria.id)
       } else {

@@ -20,10 +20,10 @@
             aria-label="Close"
           />
         </div>
-        <div class="modal-body text-left">
+        <div class="modal-body text-left mb-3 mx-3">
           <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
           <div>
-            <ul>
+            <ul class="ps-0">
               <li
                 v-for="(element, key) in props.payload"
                 :key="element"
@@ -32,7 +32,26 @@
                 <span class="fs-5 fw-bold text-primary-text mt-3"> {{ key }}</span>
                 <div v-for="(subelement, subelementkey) in element" :key="subelement" class="mt-3">
                   <label class="me-2 fw-bold text-secondary-text">{{ subelementkey }}:</label>
-                  <span class="text-secondary-text text-break">
+                  <span v-if="isAttachment(subelement)">
+                    <span v-if="subelement.name" class="d-flex col">
+                      <span class="text-truncate" :title="subelement.name">{{
+                        subelement.name
+                      }}</span>
+                      <font-awesome-icon
+                        v-if="isAttachment(subelement)"
+                        class="ms-1 cursor-pointer"
+                        icon="fa fa-download"
+                        fixed-width
+                        @click.prevent="downloadAttachment(subelement.id, subelement.name)"
+                      />
+                    </span>
+                    <span v-else>
+                      <div v-for="(choice, index) in subelement" :key="index">
+                        {{ choice }}
+                      </div>
+                    </span>
+                  </span>
+                  <span v-else class="text-break">
                     {{ translateTrueFalse(subelement) }}
                   </span>
                 </div>
@@ -49,6 +68,9 @@
 import { onMounted } from 'vue'
 import { Tooltip } from 'bootstrap'
 import 'vue3-form-wizard/dist/style.css'
+import { useNegotiationPageStore } from '../../store/negotiationPage.js'
+
+const negotiationPageStore = useNegotiationPageStore()
 
 const props = defineProps({
   payload: {
@@ -79,6 +101,14 @@ onMounted(() => {
     selector: "[data-bs-toggle='tooltip']",
   })
 })
+
+function isAttachment(value) {
+  return value instanceof Object
+}
+
+function downloadAttachment(id, name) {
+  negotiationPageStore.downloadAttachment(id, name)
+}
 </script>
 
 <style scoped>

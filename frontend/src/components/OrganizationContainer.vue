@@ -48,7 +48,7 @@ const props = defineProps({
   orgId: { type: String, default: undefined },
   org: { type: Object, default: () => ({}) },
   resourceStates: { type: Array, default: () => [] },
-  negotiationId: { type: String, default: undefined }
+  negotiationId: { type: String, default: undefined },
 })
 const emit = defineEmits(['reloadResources'])
 
@@ -101,9 +101,11 @@ const updateOrgStatus = (state, organization) => {
 
 // Update organization with new status for all represented resources
 const getRepresentedResources = (resources) =>
-  resources.filter(resource =>
-    Object.values(resource._links).some(link => link.title === 'Next Lifecycle event')
-  ).map(resource => resource.id)
+  resources
+    .filter((resource) =>
+      Object.values(resource._links).some((link) => link.title === 'Next Lifecycle event'),
+    )
+    .map((resource) => resource.id)
 
 const updateOrganization = async () => {
   const data = {
