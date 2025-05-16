@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
-import eu.bbmri_eric.negotiator.notification.email.EmailTemplateService;
+import eu.bbmri_eric.negotiator.template.TemplateService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import java.util.List;
 import org.jsoup.Jsoup;
@@ -13,13 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 @IntegrationTest(loadTestData = true)
-public class EmailTemplateServiceTest {
-  @Autowired EmailTemplateService emailTemplateService;
+public class TemplateServiceTest {
+  @Autowired
+  TemplateService templateService;
 
   @Test
   void getNotificationTemplate_existingTemplate_ok() {
-    String templateName = "footer";
-    String templateContent = emailTemplateService.getNotificationTemplate(templateName);
+    String templateName = "email-footer";
+    String templateContent = templateService.getNotificationTemplate(templateName);
     assertNotNull(templateContent);
     assertFalse(templateContent.isEmpty());
   }
@@ -29,26 +30,26 @@ public class EmailTemplateServiceTest {
     String templateName = "nonExistentTemplate";
     assertThrows(
         EntityNotFoundException.class,
-        () -> emailTemplateService.getNotificationTemplate(templateName));
+        () -> templateService.getNotificationTemplate(templateName));
   }
 
   @Test
   void updateNotificationTemplate_validTemplate_ok() {
-    String templateName = "footer";
+    String templateName = "email-footer";
     String newTemplateContent = "<html><body>Updated Template</body></html>";
     String updatedTemplate =
-        emailTemplateService.updateNotificationTemplate(templateName, newTemplateContent);
+        templateService.updateNotificationTemplate(templateName, newTemplateContent);
     assertEquals(Jsoup.parse(newTemplateContent).html(), updatedTemplate);
   }
 
   @Test
   void updateNotificationTemplate_invalidHtml_throwsUnsupportedMediaTypeException() {
-    String templateName = "footer";
+    String templateName = "email-footer";
     String invalidTemplateContent = null;
     assertThrows(
         UnsupportedMediaTypeException.class,
         () ->
-            emailTemplateService.updateNotificationTemplate(templateName, invalidTemplateContent));
+            templateService.updateNotificationTemplate(templateName, invalidTemplateContent));
   }
 
   @Test
@@ -57,7 +58,7 @@ public class EmailTemplateServiceTest {
     String newTemplateContent = "<html><body>Updated Template</body></html>";
     assertThrows(
         ForbiddenRequestException.class,
-        () -> emailTemplateService.updateNotificationTemplate(templateName, newTemplateContent));
+        () -> templateService.updateNotificationTemplate(templateName, newTemplateContent));
   }
 
   @Test
@@ -66,13 +67,13 @@ public class EmailTemplateServiceTest {
     String newTemplateContent = "<html><body>Updated Template</body></html>";
     assertThrows(
         ForbiddenRequestException.class,
-        () -> emailTemplateService.updateNotificationTemplate(templateName, newTemplateContent));
+        () -> templateService.updateNotificationTemplate(templateName, newTemplateContent));
   }
 
   @Test
   void resetNotificationTemplate_existingDefaultTemplate_ok() {
-    String templateName = "footer";
-    String defaultTemplateContent = emailTemplateService.resetNotificationTemplate(templateName);
+    String templateName = "email-footer";
+    String defaultTemplateContent = templateService.resetNotificationTemplate(templateName);
     assertNotNull(defaultTemplateContent);
     assertFalse(defaultTemplateContent.isEmpty());
   }
@@ -82,12 +83,12 @@ public class EmailTemplateServiceTest {
     String templateName = "templateWithoutDefault";
     assertThrows(
         EntityNotFoundException.class,
-        () -> emailTemplateService.resetNotificationTemplate(templateName));
+        () -> templateService.resetNotificationTemplate(templateName));
   }
 
   @Test
   void getAllNotificationTemplates_existingTemplates_ok() {
-    List<String> templates = emailTemplateService.getAllNotificationTemplates();
+    List<String> templates = templateService.getAllNotificationTemplates();
     assertNotNull(templates);
     assertFalse(templates.isEmpty());
   }

@@ -57,6 +57,7 @@ public class NegotiationServiceImpl implements NegotiationService {
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
   private NegotiationPdfService negotiationPdfService;
+  private static final String DEFAULT_PDF_TEMPLATE_NAME = "pdf-negotiation-summary";
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -367,7 +368,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       throw new ForbiddenRequestException("You are not allowed to perform this operation");
     }
     if (templateName == null) {
-      templateName = "negotiation";
+      templateName = DEFAULT_PDF_TEMPLATE_NAME;
     }
 
     return negotiationPdfService.generatePdf(negotiation, templateName);

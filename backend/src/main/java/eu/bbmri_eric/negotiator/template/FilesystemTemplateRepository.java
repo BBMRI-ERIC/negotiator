@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.template;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -17,7 +18,7 @@ import org.testcontainers.shaded.com.google.common.annotations.VisibleForTesting
 
 @CommonsLog
 @Repository
-public class FilesystemEmailTemplateRepository implements EmailTemplateRepository {
+public class FilesystemTemplateRepository implements TemplateRepository {
 
   ResourceLoader resourceLoader;
   ResourcePatternResolver resourcePatResolver;
@@ -30,7 +31,7 @@ public class FilesystemEmailTemplateRepository implements EmailTemplateRepositor
 
   private final String defaultThymeleafPrefix = "classpath:/templates/";
 
-  public FilesystemEmailTemplateRepository(
+  public FilesystemTemplateRepository(
       ResourceLoader resourceLoader, ResourcePatternResolver resourcePatResolver) {
     this.resourceLoader = resourceLoader;
     this.resourcePatResolver = resourcePatResolver;

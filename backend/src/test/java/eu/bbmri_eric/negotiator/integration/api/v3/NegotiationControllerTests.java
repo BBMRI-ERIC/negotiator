@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1696,4 +1697,31 @@ public class NegotiationControllerTests {
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1"))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testGetPdf_Ok_WhenUserIsCreatorOrAdmin() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/pdf"))
+            .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+  }
+
+  @Test
+  @WithUserDetails("SarahRepr")
+  public void testGetPdf_Forbidden_WhenUserNotCreatorOrAdmin() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/pdf"))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testGetPdf_NotFound_WhenNegotiationDoesNotExist() throws Exception {
+    mockMvc
+            .perform(MockMvcRequestBuilders.get("/v3/negotiations/non-existent-id/pdf"))
+            .andExpect(status().isNotFound());
+  }
+
 }
