@@ -91,7 +91,12 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         informationSubmissionRepository
             .findById(submissionId)
             .orElseThrow(() -> new EntityNotFoundException(submissionId));
-    submission.setPayload(informationSubmissionDTO.getPayload().toString());
+    if (Objects.nonNull(informationSubmissionDTO.getPayload())) {
+      submission.setPayload(informationSubmissionDTO.getPayload().toString());
+    }
+    if (Objects.nonNull(informationSubmissionDTO.getPayload())) {
+      submission.setSubmitted(informationSubmissionDTO.isSubmitted());
+    }
     return saveInformationSubmission(submission.getNegotiation().getId(), submission);
   }
 
