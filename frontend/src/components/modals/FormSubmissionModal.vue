@@ -22,7 +22,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
-            @click="resetForm()" 
+            @click="resetForm()"
           />
         </div>
         <div class="modal-body text-left">
@@ -409,7 +409,7 @@ async function startRequiredAccessForm() {
   const negotiationId = props.negotiationId
   const requirementId = props.requirementId
   await formsStore.submitRequiredInformation(data, negotiationId, requirementId).then((resp) => {
-    if(resp !== undefined && resp !== null) {
+    if (resp !== undefined && resp !== null) {
       emitConfirm()
       resetForm()
     }
@@ -468,7 +468,15 @@ function isSectionValid(section) {
           validationColorHighlight.value.push(ac.name)
           valid = false
         } else if (
+          ac.type === 'FILE' &&
+          (typeof negotiationCriteria.value[section.name][ac.name] !== 'object' ||
+            negotiationCriteria.value[section.name][ac.name] === null)
+        ) {
+          validationColorHighlight.value.push(ac.name)
+          valid = false
+        } else if (
           ac.type !== 'MULTIPLE_CHOICE' &&
+          ac.type !== 'FILE' &&
           (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
             negotiationCriteria.value[section.name][ac.name] === '')
         ) {
