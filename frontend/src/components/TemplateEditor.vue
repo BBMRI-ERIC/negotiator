@@ -1,7 +1,7 @@
 <template>
-  <div class="email-template-editor border">
+  <div class="template-editor border">
     <codemirror
-      v-model="emailTemplateData"
+      v-model="templateData"
       placeholder="Enter xml code here..."
       :style="{ height: '400px' }"
       :autofocus="true"
@@ -17,7 +17,7 @@ import { ref } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { vue } from '@codemirror/lang-vue'
 
-const emailTemplateData = defineModel('emailTemplateData')
+const templateData = defineModel('templateData')
 
 const extensions = ref([vue()])
 </script>

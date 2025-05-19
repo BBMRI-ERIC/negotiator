@@ -3,22 +3,22 @@ import axios from 'axios'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from './notifications'
 
-export const useEmailTemplates = defineStore('emailTemplates', () => {
+export const useTemplates = defineStore('emailTemplates', () => {
   const notifications = useNotificationsStore()
 
-  function retrieveEmailTemplates() {
+  function retrieveTemplates() {
     return axios
       .get(`${apiPaths.BASE_API_PATH}/templates`, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error getting email templates data from server', 'danger')
+        notifications.setNotification('Error getting templates data from server', 'danger')
         return null
       })
   }
 
-  function retrieveEmailTemplateByName(templateName) {
+  function retrieveTemplateByName(templateName) {
     return axios
       .get(`${apiPaths.BASE_API_PATH}/templates/${templateName}`, {
         headers: getBearerHeaders(),
@@ -28,14 +28,14 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
       })
       .catch(() => {
         notifications.setNotification(
-          'Error getting email template by name data from server',
+          'Error getting template by name data from server',
           'danger',
         )
         return null
       })
   }
 
-  function updateEmailTemplate(templateName, data) {
+  function updateTemplate(templateName, data) {
     return axios
       .put(`${apiPaths.BASE_API_PATH}/templates/${templateName}`, data, {
         headers: { ...getBearerHeaders(), 'Content-Type': 'text/plain' },
@@ -43,17 +43,17 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
       })
       .then(() => {
         notifications.setNotification(
-          'Email template was updated successfully',
+          'Template was updated successfully',
           'success',
         )
       })
       .catch(() => {
-        notifications.setNotification('Error updating email template', 'danger')
+        notifications.setNotification('Error updating template', 'danger')
         return null
       })
   }
 
-  function emailTemplateReset(templateName) {
+  function templateReset(templateName) {
     return axios
       .post(`${apiPaths.BASE_API_PATH}/templates/${templateName}/operations`, '{ "operation": "RESET" }', {
         headers: { ...getBearerHeaders(), 'Content-Type': 'application/json' },
@@ -65,15 +65,15 @@ export const useEmailTemplates = defineStore('emailTemplates', () => {
         )
       })
       .catch(() => {
-        notifications.setNotification('Error restarting email template', 'danger')
+        notifications.setNotification('Error restarting template', 'danger')
         return null
       })
   }
 
   return {
-    retrieveEmailTemplates,
-    retrieveEmailTemplateByName,
-    updateEmailTemplate,
-    emailTemplateReset,
+    retrieveTemplates: retrieveTemplates,
+    retrieveTemplateByName: retrieveTemplateByName,
+    updateTemplate: updateTemplate,
+    templateReset: templateReset,
   }
 })
