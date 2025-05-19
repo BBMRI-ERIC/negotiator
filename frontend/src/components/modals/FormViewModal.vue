@@ -22,10 +22,20 @@
         </div>
         <div class="modal-body text-left mb-3 mx-3">
           <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
+          <div v-if="!isSubmittedFormSubmitted" class="text-end mb-2">
+            <button
+              type="button"
+              class="btn btn-sm edit-button"
+              @click="$emit('editInfoSubmission')"
+            >
+              <i class="bi bi-pencil-square" />
+              Edit
+            </button>
+          </div>
           <div>
             <ul class="ps-0">
               <li
-                v-for="(element, key) in props.payload"
+                v-for="(element, key) in props.submittedForm"
                 :key="element"
                 class="list-group-item p-3"
               >
@@ -73,7 +83,7 @@ import { useNegotiationPageStore } from '../../store/negotiationPage.js'
 const negotiationPageStore = useNegotiationPageStore()
 
 const props = defineProps({
-  payload: {
+  submittedForm: {
     type: Object,
     required: true,
   },
@@ -86,6 +96,11 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: true,
+  },
+  isSubmittedFormSubmitted: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 })
 
@@ -126,5 +141,9 @@ function downloadAttachment(id, name) {
   margin-top: 0.25rem;
   font-size: 0.875em;
   color: var(--bs-form-invalid-color);
+}
+.edit-button:hover {
+  background-color: lightgray;
+  color: #212529;
 }
 </style>
