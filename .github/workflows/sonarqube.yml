@@ -1,4 +1,6 @@
 name: SonarQube
+env:
+  JAVA_VERSION: '21'
 on:
   push:
     branches:
@@ -13,11 +15,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
+          java-version: '${{ env.JAVA_VERSION }}'
+          distribution: 'temurin'
+          cache: maven
+          
       - name: Cache SonarQube packages
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
