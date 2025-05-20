@@ -76,7 +76,7 @@
           v-for="criteria in section.elements"
           :key="criteria.name"
           class="mb-4 mx-3"
-          v-on:focusout="handleFocusoutSave(index + 2)"
+          v-on:focusout="handleFocusoutSave(index + 2, criteria.type)"
         >
           <label
             class="form-label"
@@ -428,6 +428,7 @@ const humanReadableSearchParameters = ref([])
 const openModal = ref(null)
 const requestAlreadySubmittedNegotiationId = ref(null)
 const currentSectionModified = ref(false)
+const negotiationAttachments = ref([])
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -466,6 +467,7 @@ onBeforeMount(async () => {
       props.requestId,
     )
     currentStatus.value = result.status
+    negotiationAttachments.value = await negotiationPageStore.retrieveAttachmentsByNegotiationId(props.requestId)
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
     accessFormResponse = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
@@ -544,21 +546,21 @@ async function getValueSet(id) {
   })
 }
 
-async function saveDraft(step) {
+async function saveDraft(step, disableAttachmentUpload) {
   if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
-    await saveNegotiation(true, step, true)
+    await saveNegotiation(true, step, disableAttachmentUpload)
     currentSectionModified.value = false
   }
   return true
 }
 
-async function saveNegotiation(savingDraft, step, isSaveDraft) {
+async function saveNegotiation(savingDraft, step, disableAttachmentUpload) {
   if (props.isEditForm) {
     const data = {
       payload: negotiationCriteria.value,
     }
     await negotiationFormStore
-      .updateNegotiationById(props.requestId, data, isSaveDraft)
+      .updateNegotiationById(props.requestId, data, disableAttachmentUpload)
       .then(() => {
         if (!savingDraft) {
           if (currentStatus.value === 'DRAFT') {
@@ -611,7 +613,7 @@ function isAttachment(value) {
 let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
-  if (isFileExtensionsSuported(event.target.files[0])) {
+  if (isFileExtensionsSuported(event.target.files[0]) && isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) && isAttachmentPresentInNegotiation(event.target.files[0])) {
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++
@@ -754,8 +756,40 @@ function transformMessage(text) {
   }
 }
 
-async function handleFocusoutSave(step) {
-  saveDraft(step)
+async function handleFocusoutSave(step, typeOfElement) {
+  if (typeOfElement === 'FILE') {
+    return
+  }
+  saveDraft(step, false)
+}
+
+async function isSameFile(file, newFile) {
+  let isNameSame = false
+  let isSizeSame = false
+
+  if (file.name === newFile.name) {
+    isNameSame = true
+  }
+  if (file.size === newFile.size) {
+    isSizeSame = true
+  }
+  if (isNameSame && isSizeSame) {
+    return false
+  }
+  return true
+}
+
+async function isAttachmentPresentInNegotiation(newFile) {
+  negotiationAttachments.value.forEach(element => {
+    if (isSameFile(element, newFile)){
+      notificationsStore.setNotification(
+        'Attachment already exists with the same name and size, please select a different file or rename the file',
+        'danger',
+      )
+      return true
+    }
+    return false
+  });
 }
 </script>
 
