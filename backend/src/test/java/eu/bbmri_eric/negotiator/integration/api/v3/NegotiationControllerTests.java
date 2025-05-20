@@ -1729,22 +1729,23 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void testGetPdf_Ok_WithTemplateNameProvided() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf","pdf-negotiation-summary"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/pdf"))
-            .andExpect(
-                    header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-3/pdf", "pdf-negotiation-summary"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
   }
 
   @Test
   @WithUserDetails("admin")
   public void testGetPdf_BadRequest_WithTemplateNameProvided() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf","email-footer"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/pdf"))
-            .andExpect(
-                    header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf", "email-footer"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
   }
-
 }
