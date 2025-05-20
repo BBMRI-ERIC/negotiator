@@ -102,9 +102,9 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
-  async function updateNegotiationById(negotiationId, data, isSaveDraft) {
+  async function updateNegotiationById(negotiationId, data, disableAutomaticUpload) {
     data.attachments = []
-    if (!isSaveDraft) {
+    if (!disableAutomaticUpload) {
       for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
         for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
           if (criteriaValue instanceof File) {
