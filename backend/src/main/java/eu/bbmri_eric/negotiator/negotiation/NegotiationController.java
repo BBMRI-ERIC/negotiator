@@ -301,7 +301,7 @@ public class NegotiationController {
     }
     if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
+          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
     try {
       byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
