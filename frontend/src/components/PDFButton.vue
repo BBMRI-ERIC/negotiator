@@ -17,14 +17,7 @@ import { computed } from 'vue'
 import jsPDF from 'jspdf'
 import { applyPlugin } from 'jspdf-autotable'
 
-import bbmriLogo from '../assets/images/bbmri/nav-bar-bbmri.png'
-import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
-import canservLogo from '../assets/images/canserv/nav-bar-canserv.png'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
-import { useNotificationsStore } from '../store/notifications'
-import moment from 'moment'
-import { dateFormat } from '@/config/consts'
-import { transformStatus } from '../composables/utils.js'
 import { useNegotiationPageStore } from '@/store/negotiationPage.js'
 
 applyPlugin(jsPDF)
