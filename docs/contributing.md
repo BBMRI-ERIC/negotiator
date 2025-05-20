@@ -13,7 +13,7 @@ environment.
 ### Running the backend in development mode
 
 > [!Warning] Prerequisites
-> - Java 17
+> - Java 21
 > - Maven 3.9 and newer
 > - Docker Engine 27.0 and newer (Application will spin up a PostgreSQL databse using
     the [testcontainers](https://testcontainers.com) framework)
