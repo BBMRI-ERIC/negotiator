@@ -16,18 +16,19 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
   private TemplateEngine templateEngine;
+  private ObjectMapper objectMapper;
 
-  public NegotiationPdfServiceImpl(TemplateEngine templateEngine) {
+  public NegotiationPdfServiceImpl(TemplateEngine templateEngine, ObjectMapper objectMapper) {
     this.templateEngine = templateEngine;
+    this.objectMapper = objectMapper;
   }
 
   public byte[] generatePdf(Negotiation negotiation, String templateName) throws Exception {
     Context context = new Context();
     context.setVariable(
         "now", LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a")));
-    ObjectMapper mapper = new ObjectMapper();
     Map<String, Object> payload =
-        mapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
+        this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
     context.setVariable(
         "negotiationPdfData",
         Map.of(
