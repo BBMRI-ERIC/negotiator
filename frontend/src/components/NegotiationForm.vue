@@ -351,7 +351,7 @@
           <button
             v-if="isEditForm === false || currentStatus === 'DRAFT'"
             class="btn me-4"
-            @click="saveDraft(props.activeTabIndex)"
+            @click="saveDraft(props.activeTabIndex, true)"
             :disabled="currentSectionModified === false"
             :style="{
               'background-color': uiConfiguration.buttonColor,
@@ -613,7 +613,7 @@ function isAttachment(value) {
 let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
-  if (isFileExtensionsSuported(event.target.files[0]) && isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) && isAttachmentPresentInNegotiation(event.target.files[0])) {
+  if (isFileExtensionsSuported(event.target.files[0]) && !isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) && !isAttachmentPresentInNegotiation(event.target.files[0])) {
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++
@@ -680,7 +680,7 @@ function performNextStepAction(section, step) {
       notificationsStore.notification = 'Please fill out all required fields correctly'
       return false
     }
-    return saveDraft(step)
+    return saveDraft(step, false)
   }
 }
 
@@ -760,10 +760,10 @@ async function handleFocusoutSave(step, typeOfElement) {
   if (typeOfElement === 'FILE') {
     return
   }
-  saveDraft(step, false)
+  saveDraft(step, true)
 }
 
-async function isSameFile(file, newFile) {
+function isSameFile(file, newFile) {
   let isNameSame = false
   let isSizeSame = false
 
@@ -774,22 +774,23 @@ async function isSameFile(file, newFile) {
     isSizeSame = true
   }
   if (isNameSame && isSizeSame) {
-    return false
-  }
-  return true
-}
-
-async function isAttachmentPresentInNegotiation(newFile) {
-  negotiationAttachments.value.forEach(element => {
-    if (isSameFile(element, newFile)){
-      notificationsStore.setNotification(
+    notificationsStore.setNotification(
         'Attachment already exists with the same name and size, please select a different file or rename the file',
         'danger',
-      )
-      return true
+    )
+    return true
+  }
+  return false
+}
+
+function isAttachmentPresentInNegotiation(newFile) {
+  let isAttachmentPresent = false
+  negotiationAttachments.value.forEach(element => {
+    if (isSameFile(element, newFile)){
+      isAttachmentPresent = true
     }
-    return false
   });
+  return isAttachmentPresent
 }
 </script>
 
