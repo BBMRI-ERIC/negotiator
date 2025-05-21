@@ -83,8 +83,15 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
             .then((response) => {
               return response.data
             })
-            .catch(() => {
-              notifications.setNotification('There was an error saving the attachment')
+            .catch((error) => {
+              if (error.response) {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+              } else if (error.request) {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+              } else {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+              }
+              isAtachmentError = true
               return null
             })
           data.payload[sectionName][criteriaName] = attachmentsIds
@@ -123,11 +130,15 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
               .then((response) => {
                 return response.data
               })
-              .catch(() => {
-                notifications.setNotification(
-                  'There was an error updating the attachment',
-                  'danger',
-                )
+              .catch((error) => {
+                if (error.response) {
+                  notifications.setNotification(`There was an error updating the attachment, ${ error.response.data.detail }`,'danger')
+                } else if (error.request) {
+                  notifications.setNotification(`There was an error updating the attachment, ${ error.request.statusText }`,'danger')
+                } else {
+                  notifications.setNotification(`There was an error updating the attachment, ${ error.message }`,'danger')
+                }
+                isAtachmentError = true
                 return null
               })
             data.payload[sectionName][criteriaName] = attachmentsIds
