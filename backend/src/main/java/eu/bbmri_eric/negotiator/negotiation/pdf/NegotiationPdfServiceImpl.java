@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -17,6 +19,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
   private TemplateEngine templateEngine;
   private ObjectMapper objectMapper;
+
+  @Value("${negotiator.emailLogo}")
+  private String logoURL;
 
   public NegotiationPdfServiceImpl(TemplateEngine templateEngine, ObjectMapper objectMapper) {
     this.templateEngine = templateEngine;
@@ -37,6 +42,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
             "createdAt", negotiation.getCreationDate(),
             "status", negotiation.getCurrentState(),
             "payload", payload));
+    context.setVariable("logoUrl", logoURL);
     try {
       String renderedHtml = templateEngine.process(templateName, context);
       try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
