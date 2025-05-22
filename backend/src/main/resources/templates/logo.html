@@ -5,7 +5,7 @@ This is a Thymeleaf HTML template used to generate the logo for the email notifi
 <html lang="en">
 <body>
 <div th:fragment="logo" class="email-logo">
-    <img alt="BBMRI-ERIC Logo" class="logo-bbmri" th:src="@{${logoUrl}}"/>
+    <img alt="BBMRI-ERIC Logo" class="logo-bbmri" th:src="${logoUrl}"/>
 </div>
 </body>
 </html>
