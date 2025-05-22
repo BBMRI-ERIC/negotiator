@@ -9,10 +9,12 @@
     :resource-id="resourceId"
     :required-access-form-id="requiredAccessForm.id"
     :isFormEditable="isFormEditable"
+    v-model:submittedForm="submittedForm"
     @confirm="hideFormSubmissionModal"
+    @confirmUpdate="hideFormSubmissionAndOpenView"
     requirement-link=""
   />
-  <form-view-modal ref="formViewModalRef" id="formViewModal" :submittedForm="submittedForm?.payload" :isSubmittedFormSubmitted="submittedForm?.submitted" @editInfoSubmission="editInfoSubmission"/>
+  <form-view-modal ref="formViewModalRef" id="formViewModal" :submittedForm="submittedForm" :isSubmittedFormSubmitted="submittedForm?.submitted" :isAdmin="isAdmin" @editInfoSubmission="editInfoSubmission"/>
   <confirmation-modal
     id="statusUpdateModal"
     :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown'}`"
@@ -40,6 +42,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import Modal from 'bootstrap/js/dist/modal'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
+import { useFormsStore } from '../store/forms'
 import OrganizationCard from './OrganizationCard.vue'
 import FormViewModal from '@/components/modals/FormViewModal.vue'
 import FormSubmissionModal from '@/components/modals/FormSubmissionModal.vue'
@@ -50,18 +53,20 @@ const props = defineProps({
   org: { type: Object, default: () => ({}) },
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
+  isAdmin: { type: Boolean, default: false },
 })
 const emit = defineEmits(['reloadResources'])
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
+const formsStore = useFormsStore()
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 
 // Modal and Form Data
 const requirementId = ref(undefined)
 const resourceId = ref(undefined)
 const requiredAccessForm = ref({})
-const submittedForm = ref(undefined)
+const submittedForm = ref({})
 const selectedOrganization = ref(undefined)
 const orgStatus = ref(undefined)
 
@@ -73,6 +78,7 @@ const formViewModalInstance = ref(null)
 const isFormEditable = ref(false)
 
 const openModal = async (href, resId) => {
+  isFormEditable.value = false
   const requirement = await negotiationPageStore.retrieveInfoRequirement(href)
   resourceId.value = resId
   requiredAccessForm.value = requirement.requiredAccessForm
@@ -80,18 +86,26 @@ const openModal = async (href, resId) => {
   formSubmissionModalInstance.value.show()
 }
 
-const openFormModal = async (href) => {
-  const payload = await negotiationPageStore.retrieveInformationSubmission(href)
-  submittedForm.value = payload
-  formViewModalInstance.value.show()
+async function openFormModal(href) {
+ await negotiationPageStore.retrieveInformationSubmission(href).then((res) => {
+    submittedForm.value = res
+    formViewModalInstance.value.show()
+  })
 }
 
-const hideFormSubmissionModal = async () => {
+function hideFormSubmissionModal() {
   formSubmissionModalInstance.value.hide()
   emit('reloadResources')
 }
 
-const updateResourceState = async (link) => {
+function hideFormSubmissionAndOpenView(payload) {
+  submittedForm.value.payload = payload
+  formSubmissionModalInstance.value.hide()
+  emit('reloadResources')
+  formViewModalInstance.value.show()
+}
+
+async function updateResourceState(link) {
   await negotiationPageStore.updateResourceStatus(link)
   emit('reloadResources')
 }
@@ -127,143 +141,10 @@ function editInfoSubmission() {
   isFormEditable.value = true
   formViewModalInstance.value.hide()
   resourceId.value = submittedForm.value.resourceId
-  //
-  // this part needs to be changed after Radovan add form into retrieveInformationSubmission api response
-  requiredAccessForm.value = {
-    "id": 2,
-    "name": "BBMRI.de Template",
-    "sections": [
-        {
-            "id": 1,
-            "name": "project",
-            "label": "Project",
-            "description": "Provide information about your project",
-            "elements": [
-                {
-                    "id": 1,
-                    "name": "title",
-                    "label": "Title",
-                    "description": "Give a title",
-                    "type": "TEXT",
-                    "required": true
-                },
-                {
-                    "id": 2,
-                    "name": "description",
-                    "label": "Description",
-                    "description": "Give a description",
-                    "type": "TEXT_LARGE",
-                    "required": true
-                },
-                {
-                    "id": 6,
-                    "name": "objective",
-                    "label": "Study objective",
-                    "description": "Study objective or hypothesis to be tested?",
-                    "type": "TEXT",
-                    "required": true
-                },
-                {
-                    "id": 7,
-                    "name": "profit",
-                    "label": "Profit",
-                    "description": "Is it a profit or a non-profit study",
-                    "type": "BOOLEAN",
-                    "required": true
-                },
-                {
-                    "id": 8,
-                    "name": "acknowledgment",
-                    "label": "Acknowledgment",
-                    "description": "Financing/ Acknowledgement or collaboration of the collection PIs?",
-                    "type": "TEXT",
-                    "required": true
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "name": "request",
-            "label": "Request",
-            "description": "Provide information the resources you are requesting",
-            "elements": [
-                {
-                    "id": 3,
-                    "name": "description",
-                    "label": "Description",
-                    "description": "Provide a request description",
-                    "type": "TEXT_LARGE",
-                    "required": true
-                },
-                {
-                    "id": 9,
-                    "name": "diseaese-code",
-                    "label": "Disease code",
-                    "description": "What is the Disease being studied (ICD 10 code) ?",
-                    "type": "TEXT",
-                    "required": false
-                },
-                {
-                    "id": 10,
-                    "name": "collection",
-                    "label": "Collection",
-                    "description": "Is the collection to be prospective or retrospective?",
-                    "type": "TEXT",
-                    "required": false
-                },
-                {
-                    "id": 11,
-                    "name": "donors",
-                    "label": "Donors",
-                    "description": "How many different subjects (donors) would you need?",
-                    "type": "NUMBER",
-                    "required": true
-                },
-                {
-                    "id": 12,
-                    "name": "samples",
-                    "label": "Samples",
-                    "description": "What type(s) of samples and how many samples per subject are needed?",
-                    "type": "TEXT",
-                    "required": true
-                },
-                {
-                    "id": 13,
-                    "name": "specifics",
-                    "label": "Specifics",
-                    "description": "Are there any specific requirements ( e.g. volume,… )?",
-                    "type": "TEXT",
-                    "required": false
-                }
-            ]
-        },
-        {
-            "id": 3,
-            "name": "ethics-vote",
-            "label": "Ethics vote",
-            "description": "Is ethics vote present in your project?",
-            "elements": [
-                {
-                    "id": 4,
-                    "name": "ethics-vote",
-                    "label": "Ethics vote",
-                    "description": "Write the etchics vote",
-                    "type": "TEXT_LARGE",
-                    "required": true
-                },
-                {
-                    "id": 5,
-                    "name": "ethics-vote-attachment",
-                    "label": "Attachment",
-                    "description": "Upload Ethics Vote",
-                    "type": "FILE",
-                    "required": false
-                }
-            ]
-        }
-    ]
-}
   requirementId.value = submittedForm.value.requirementId
+  formsStore.retrieveInfoRequirementsById(submittedForm.value.requirementId).then((res) => {
+    requiredAccessForm.value =  res.requiredAccessForm
+  })
   formSubmissionModalInstance.value.show()
 }
 </script>

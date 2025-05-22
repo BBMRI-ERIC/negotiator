@@ -211,6 +211,7 @@
                     :negotiation-id="negotiationId"
                     :resources="resources"
                     :resource-states="resourceStates"
+                    :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
                   />
                 </div>
