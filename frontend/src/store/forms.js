@@ -90,10 +90,72 @@ export const useFormsStore = defineStore('forms', () => {
     }
   }
 
+  function retrieveInfoRequirementsById(requirementId) {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/info-requirements/${requirementId}`, { headers: getBearerHeaders()})
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting info-requirements by id request data from server', 'danger')
+        return null
+      })
+  }
+
+  async function updateInfoSubmissions(infoSubmissionsId, data) {
+    data.attachments = []
+    let isAtachmentError = false
+
+    for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
+      for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
+        if (criteriaValue instanceof File) {
+          const formData = new FormData()
+          formData.append('file', criteriaValue)
+          const uploadFileHeaders = { headers: getBearerHeaders() }
+
+          uploadFileHeaders['Content-type'] = 'multipart/form-data'
+
+          await axios
+            .post(`${apiPaths.BASE_API_PATH}/attachments`, formData, uploadFileHeaders)
+            .then((response) => {
+              data.payload[sectionName][criteriaName] = response.data
+              data.attachments.push(response.data)
+              isAtachmentError = false
+            })
+            .catch((error) => {
+              if (error.response) {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+              } else if (error.request) {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+              } else {
+                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+              }
+              isAtachmentError = true
+              return null
+            })
+        }
+      }
+    }
+    if(!isAtachmentError){
+      return axios
+        .patch(`${apiPaths.BASE_API_PATH}/info-submissions/${infoSubmissionsId}`, data, { headers: getBearerHeaders() })
+        .then((response) => {
+          return response.data
+        })
+        .catch(() => {
+          notifications.criticalError = true
+          notifications.setNotification(`Error updating info-submission: ${infoSubmissionsId}`, 'warning')
+          return null
+        })
+    }
+  }
+
   return {
     retrieveAccessFormById,
     retrieveAllAccessForms,
     retrieveDynamicAccessFormsValueSetByLink,
     submitRequiredInformation,
+    retrieveInfoRequirementsById,
+    updateInfoSubmissions,
   }
 })
