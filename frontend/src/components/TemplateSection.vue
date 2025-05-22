@@ -1,7 +1,7 @@
 <template>
   <div class="templates">
     <confirmation-modal
-      id="update-email-template-modal"
+      id="update-template-modal"
       title="Update Email Template"
       text="Are you sure you want to update the email template?"
       :message-enabled="false"
