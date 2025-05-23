@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -27,6 +29,25 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     this.objectMapper = objectMapper;
   }
 
+  private Map<String, Object> processPayload(Map<String, Object> payload) {
+    payload.replaceAll(
+        (key, value) -> {
+          if (value instanceof String str) {
+            return str.replace("\n", "<br />").replaceAll("(<br />)+$", "");
+
+          } else if (value instanceof Map<?, ?> map) {
+            return processPayload((Map<String, Object>) map);
+
+          } else if (value instanceof Iterable<?> iterable) {
+            return StreamSupport.stream(iterable.spliterator(), false)
+                .map(item -> item instanceof String s ? s.replace("\n", "<br />") : item)
+                .collect(Collectors.toList());
+          }
+          return value;
+        });
+    return payload;
+  }
+
   public byte[] generatePdf(Negotiation negotiation, String templateName) throws Exception {
     Context context = new Context();
     context.setVariable(
@@ -40,10 +61,11 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
             "id", negotiation.getId(),
             "createdAt", negotiation.getCreationDate(),
             "status", negotiation.getCurrentState(),
-            "payload", payload));
+            "payload", processPayload(payload)));
     context.setVariable("logoUrl", logoURL);
     try {
       String renderedHtml = templateEngine.process(templateName, context);
+      renderedHtml = renderedHtml.replaceAll("(<br />)+$", "");
       try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
         ITextRenderer renderer = new ITextRenderer();
         renderer.setDocumentFromString(renderedHtml);
