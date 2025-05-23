@@ -12,7 +12,7 @@
     <select
       id="recipient"
       v-model="channelId"
-      class="form-select w-50"
+      class="form-select w-50 mb-3 mt-2"
       :style="{ color: uiConfiguration.primaryTextColor }"
     >
       <option disabled selected value="">-- Select channel --</option>
