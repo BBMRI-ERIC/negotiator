@@ -14,14 +14,9 @@
 
 <script setup>
 import { computed } from 'vue'
-import jsPDF from 'jspdf'
-import { applyPlugin } from 'jspdf-autotable'
-
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useNegotiationPageStore } from '@/store/negotiationPage.js'
 import { useNotificationsStore } from '../store/notifications'
-
-applyPlugin(jsPDF)
 
 const props = defineProps({
   negotiationPdfData: {
