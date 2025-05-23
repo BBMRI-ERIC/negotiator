@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
-import eu.bbmri_eric.negotiator.notification.email.FilesystemEmailTemplateRepository;
+import eu.bbmri_eric.negotiator.template.FilesystemTemplateRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,7 +25,7 @@ import org.springframework.core.io.WritableResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 @RepositoryTest(loadTestData = true)
-public class EmailTemplateRepositoryTest {
+public class TemplateRepositoryTest {
   @Mock private ResourceLoader resourceLoader;
 
   @Mock private ResourcePatternResolver resourcePatResolver;
@@ -34,7 +34,7 @@ public class EmailTemplateRepositoryTest {
 
   @Mock private Resource resource;
 
-  @InjectMocks private FilesystemEmailTemplateRepository repository;
+  @InjectMocks private FilesystemTemplateRepository repository;
 
   private final String thymeleafPrefix = "file:/templates/";
 
