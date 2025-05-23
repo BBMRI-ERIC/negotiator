@@ -45,7 +45,9 @@ async function retrievePDF() {
     const link = document.createElement('a')
     link.href = URL.createObjectURL(pdfBlob)
     link.download = `Negotiation_${props.negotiationPdfData.id}.pdf`
+    document.body.appendChild(link);
     link.click()
+    document.body.removeChild(link);
 
     URL.revokeObjectURL(link.href)
   } catch (error) {
