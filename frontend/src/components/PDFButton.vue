@@ -19,6 +19,7 @@ import { applyPlugin } from 'jspdf-autotable'
 
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useNegotiationPageStore } from '@/store/negotiationPage.js'
+import { useNotificationsStore } from '../store/notifications'
 
 applyPlugin(jsPDF)
 
@@ -31,6 +32,7 @@ const props = defineProps({
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
+const notificationsStore = useNotificationsStore()
 
 
 const uiConfigurationTheme = computed(() => {
@@ -50,8 +52,11 @@ async function retrievePDF() {
     document.body.removeChild(link);
 
     URL.revokeObjectURL(link.href)
+
+    notificationsStore.setNotification('File successfully saved', 'success');
   } catch (error) {
     console.error('Error retrieving or saving the PDF:', error)
+    notificationsStore.setNotification('Error saving file', 'warning');
   }
 }
 
