@@ -2,7 +2,7 @@
   <div v-if="combinedItems.length" class="timeline mb-5 ps-3 position-relative">
     <div class="position-relative ms-3" style="min-height: 100%;">
       <div
-        class="timeline-line position-absolute"
+        class="timeline-line position-absolute mt-3"
         style="
           width: 2px;
           top: 0;
