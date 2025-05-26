@@ -82,6 +82,15 @@ public class InformationSubmissionController {
   }
 
   @ResponseStatus(HttpStatus.OK)
+  @PatchMapping(
+      value = "/info-submissions-isedit/{id}",
+      produces = MediaTypes.HAL_JSON_VALUE)
+  public EntityModel<SubmittedInformationDTO> updateSubmissionEditable(
+      @PathVariable Long id, @RequestBody InformationSubmissionDTO dto) {
+    return EntityModel.of(submissionService.updateSubmissionEditable(dto, id));
+  }
+
+  @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/info-submissions/{id}", produces = MediaTypes.HAL_JSON_VALUE)
   public EntityModel<SubmittedInformationDTO> getInfoSubmission(@PathVariable Long id) {
     return EntityModel.of(submissionService.findById(id));
