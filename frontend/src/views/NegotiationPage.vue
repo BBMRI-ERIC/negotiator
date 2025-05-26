@@ -82,7 +82,7 @@
                     icon="fa fa-download"
                     fixed-width
                     @click.prevent="
-                      downloadAttachment({ id: subelement.id, name: subelement.name })
+                      downloadAttachment(subelement.id, subelement.name)
                     "
                   />
                 </span>
