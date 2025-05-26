@@ -87,9 +87,16 @@ This file is a Thymeleaf HTML template used to generate the PDF summary of a neg
 
 
             <!-- Map/object check -->
-            <span th:if="${entry.value instanceof T(java.util.Map)}"
-                  th:text="'[object]'">[object]</span>
-
+            <span th:if="${entry.value instanceof T(java.util.Map)}">
+              <div class="section" style="margin-left: 1em;">
+                <div class="field" th:each="subEntry : ${entry.value}">
+                  <span class="label" th:text="${subEntry.key + ':'}">subfield-name:</span>
+                  <span th:if="${subEntry.value instanceof T(java.util.Map)}" th:text="'[object]'">[object]</span>
+                  <span th:if="${subEntry.value instanceof T(java.util.List)}" th:text="${#strings.arrayJoin(subEntry.value, ', ')}">value1, value2</span>
+                  <span th:if="${!(subEntry.value instanceof T(java.util.List)) and !(subEntry.value instanceof T(java.util.Map))}" th:utext="${subEntry.value}">simple value</span>
+                </div>
+              </div>
+            </span>
 
             <!-- Fallback for scalar types -->
             <span th:if="${!(entry.value instanceof T(java.util.List)) and !(entry.value instanceof T(java.util.Map))}"

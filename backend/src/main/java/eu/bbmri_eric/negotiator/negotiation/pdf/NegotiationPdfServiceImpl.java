@@ -35,6 +35,10 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
           if (value instanceof String str) {
             return escapeHtml(str).replaceAll("(<br />)+$", "");
           } else if (value instanceof Map<?, ?> map) {
+            if (map.isEmpty()) {
+              value = "Empty";
+              return value;
+            }
             return processPayload((Map<String, Object>) map);
 
           } else if (value instanceof Iterable<?> iterable) {
