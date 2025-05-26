@@ -1747,4 +1747,15 @@ public class NegotiationControllerTests {
                 .param("template", "email-footer"))
         .andExpect(status().isBadRequest());
   }
+
+  @Test
+  @WithUserDetails("admin")
+  public void testGetPdf_Ok_PayloadWithSpecialCharacters() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-5/pdf"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+  }
 }
