@@ -33,19 +33,37 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     payload.replaceAll(
         (key, value) -> {
           if (value instanceof String str) {
-            return str.replace("\n", "<br />").replaceAll("(<br />)+$", "");
-
+            return escapeHtml(str).replaceAll("(<br />)+$", "");
           } else if (value instanceof Map<?, ?> map) {
             return processPayload((Map<String, Object>) map);
 
           } else if (value instanceof Iterable<?> iterable) {
             return StreamSupport.stream(iterable.spliterator(), false)
-                .map(item -> item instanceof String s ? s.replace("\n", "<br />") : item)
+                .map(
+                    item -> {
+                      if (item instanceof String s) {
+                        return escapeHtml(s);
+                      }
+                      return item;
+                    })
                 .collect(Collectors.toList());
           }
           return value;
         });
     return payload;
+  }
+
+  private String escapeHtml(String input) {
+    if (input == null) {
+      return null;
+    }
+    return input
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#x27;")
+        .replace("\n", "<br />");
   }
 
   public byte[] generatePdf(Negotiation negotiation, String templateName) throws Exception {
