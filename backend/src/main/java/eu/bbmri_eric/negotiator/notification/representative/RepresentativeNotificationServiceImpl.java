@@ -29,6 +29,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
   private final NegotiationRepository negotiationRepository;
   private final NotificationRepository notificationRepository;
   private final ApplicationEventPublisher eventPublisher;
+  private static final String PENDING_REQUEST_TEMPLATE = "email-negotiation-reminder";
 
   public RepresentativeNotificationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -101,7 +102,7 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
     notifications.forEach(
         notification ->
             eventPublisher.publishEvent(
-                new NewNotificationEvent(this, notification.getId(), "negotiation-reminder")));
+                new NewNotificationEvent(this, notification.getId(), PENDING_REQUEST_TEMPLATE)));
   }
 
   private boolean organizationResourcesHadStatusUpdate(

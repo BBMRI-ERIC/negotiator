@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.integration.service;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
-import eu.bbmri_eric.negotiator.notification.email.EmailTemplateService;
+import eu.bbmri_eric.negotiator.template.TemplateService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +11,9 @@ import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest(loadTestData = true)
 @TestPropertySource(properties = "spring.thymeleaf.prefix=classpath:/templates/")
-public class EmailTemplateServiceUsesDefaultThymeleafPrefixTest {
+public class TemplateServiceUsesDefaultThymeleafPrefixTest {
 
-  @Autowired private EmailTemplateService emailTemplateService;
+  @Autowired private TemplateService templateService;
 
   @Test
   void updateNotificationTemplate_defaultTemplate_throwsForbiddenRequestException() {
@@ -22,7 +22,7 @@ public class EmailTemplateServiceUsesDefaultThymeleafPrefixTest {
 
     assertThrows(
         ForbiddenRequestException.class,
-        () -> emailTemplateService.updateNotificationTemplate(templateName, newTemplateContent));
+        () -> templateService.updateNotificationTemplate(templateName, newTemplateContent));
   }
 
   @Test
@@ -31,6 +31,6 @@ public class EmailTemplateServiceUsesDefaultThymeleafPrefixTest {
 
     assertThrows(
         ForbiddenRequestException.class,
-        () -> emailTemplateService.resetNotificationTemplate(templateName));
+        () -> templateService.resetNotificationTemplate(templateName));
   }
 }
