@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
@@ -49,7 +50,9 @@ public class TemplateServiceImpl implements TemplateService {
       throw new UnsupportedMediaTypeException("Template cannot be null.");
     }
     try {
-      return Jsoup.parse(html).html();
+      Document doc = Jsoup.parse(html);
+      doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
+      return doc.outerHtml();
     } catch (Exception e) {
       throw new UnsupportedMediaTypeException("Template is not valid HTML: " + e.getMessage());
     }
