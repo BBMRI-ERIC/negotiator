@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -76,6 +77,9 @@ public class Person {
   @Builder.Default
   private Set<Network> networks = new HashSet<>();
 
+  @Column(name = "last_login")
+  private LocalDateTime lastLogin;
+
   public void addResource(Resource resource) {
     this.resources.add(resource);
     resource.getRepresentatives().add(this);
@@ -109,5 +113,34 @@ public class Person {
   @Override
   public int hashCode() {
     return Objects.hash(subjectId);
+  }
+
+  @Override
+  public String toString() {
+    return "Person{"
+        + "id="
+        + id
+        + ", subjectId='"
+        + subjectId
+        + '\''
+        + ", admin="
+        + admin
+        + ", isServiceAccount="
+        + isServiceAccount
+        + ", name='"
+        + name
+        + '\''
+        + ", email='"
+        + email
+        + '\''
+        + ", password='"
+        + password
+        + '\''
+        + ", organization='"
+        + organization
+        + '\''
+        + ", lastLogin="
+        + lastLogin
+        + '}';
   }
 }

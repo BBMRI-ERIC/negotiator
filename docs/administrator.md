@@ -83,3 +83,13 @@ There, you can add a new webhook by providing the following information:
 > Please ensure that your webhook URL is not publicly accessible or use a firewall to restrict access to it. If you
 > would like us to implement authentication for webhooks, please let us know.
 
+
+## Email Notifications
+Admin users can update or reset notification templates via the UI in the Admin Settings -> 
+Select and Manage Email Templates section.
+A default template is provided, but you can modify it to suit your needs.
+The templates are written in HTML with [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing you to include dynamic 
+content using expressions, conditionals, and loops.
+The available variables are listed in the [Notification](notifications.md) documentation.
+
+

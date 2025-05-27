@@ -135,7 +135,6 @@ const urlIsValid = computed(() => {
 
 // This handler is triggered when the child emits the updateForm event.
 const updateForm = (updatedForm) => {
-  console.log('Updated form:', updatedForm)
   Object.assign(form, updatedForm)
 }
 

@@ -189,8 +189,9 @@ import { useNotificationsStore } from '../store/notifications'
 
 export function isFileExtensionsSuported(file) {
   const notificationsStore = useNotificationsStore()
+  const fileExtensionsArray = fileExtensions.split(', ').map(item => item.trim());
 
-  if (fileExtensions.includes(file['type'])) {
+  if (fileExtensionsArray.includes(file['type'])) {
     return true
   }
   notificationsStore.setNotification(

@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,6 +41,12 @@ public class UserResponseModel {
 
   @Schema(description = "Indicates whether the user is a network manager", example = "true")
   private boolean isNetworkManager;
+
+  @Schema(description = "Timestamp of the last successful login", example = "2021-01-01T12:00:00Z")
+  private LocalDateTime lastLogin;
+
+  @Schema(description = "Indicates whether the user is a service account", example = "false")
+  private boolean isServiceAccount;
 
   public void setId(Long id) {
     this.id = String.valueOf(id);

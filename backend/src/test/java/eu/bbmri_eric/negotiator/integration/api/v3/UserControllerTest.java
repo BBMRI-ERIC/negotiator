@@ -1,6 +1,9 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,11 +16,23 @@ import eu.bbmri_eric.negotiator.user.AssignResourceDTO;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -226,5 +241,55 @@ public class UserControllerTest {
             MockMvcRequestBuilders.delete(
                 NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId()) + "/1"))
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @WithMockUser
+  void loginEvent_triggersLastLoginUpdate() {
+    Person person =
+        personRepository.findAll().stream()
+            .filter(p -> p.getSubjectId() != null)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No person with subjectId found"));
+
+    String subjectId = person.getSubjectId();
+    ApplicationEventPublisher publisher = context;
+
+    Map<String, Object> claims = new HashMap<>();
+    claims.put(StandardClaimNames.SUB, subjectId);
+    claims.put(StandardClaimNames.EMAIL, person.getEmail());
+    claims.put(StandardClaimNames.NAME, person.getName());
+
+    OidcIdToken idToken =
+        new OidcIdToken("tokenValue", Instant.now(), Instant.now().plusSeconds(3600), claims);
+    OidcUserAuthority authority = new OidcUserAuthority(idToken);
+
+    JwtAuthenticationToken authentication =
+        new JwtAuthenticationToken(
+            Jwt.withTokenValue("tokenValue")
+                .header("alg", "none")
+                .claim(StandardClaimNames.SUB, subjectId)
+                .claim(StandardClaimNames.EMAIL, person.getEmail())
+                .claim(StandardClaimNames.NAME, person.getName())
+                .build(),
+            List.of(authority),
+            subjectId);
+
+    var event =
+        new org.springframework.security.authentication.event.AuthenticationSuccessEvent(
+            authentication);
+
+    publisher.publishEvent(event);
+
+    await()
+        .atMost(Duration.ofSeconds(2))
+        .untilAsserted(
+            () -> {
+              Person updated = personRepository.findById(person.getId()).orElseThrow();
+              assertNotNull(updated.getLastLogin(), "lastLogin should have been updated");
+              assertTrue(
+                  updated.getLastLogin().isAfter(LocalDateTime.now().minusMinutes(2)),
+                  "lastLogin should be recent");
+            });
   }
 }

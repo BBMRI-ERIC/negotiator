@@ -127,6 +127,26 @@ export const useAdminStore = defineStore('admin', () => {
     }).then(response => response.data)
   }
 
+  function retrieveUsers(page = 0, size = 10) {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/users`, {
+        headers: getBearerHeaders(),
+        params: {
+          page, // Pass the current page (0-indexed)
+          size // Pass the number of users per page
+        }
+      })
+      .then((response) => {
+        return {
+          users: response.data._embedded.users, // List of users for the current page
+          totalUsers: response.data.page.totalElements // Total count of users (for pagination)
+        }
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting users data from server')
+        return { users: [], totalUsers: 0 }
+      })
+  }
 
 
   return {
@@ -139,6 +159,7 @@ export const useAdminStore = defineStore('admin', () => {
     updateWebhook,
     deleteWebhook,
     testWebhook,
-    getWebhook
+    getWebhook,
+    retrieveUsers
   }
 })
