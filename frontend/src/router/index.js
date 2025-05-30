@@ -135,6 +135,13 @@ const router = createRouter({
       meta: { isPublic: false },
     },
     {
+      path: '/updateAccessForm/:accessFormId?',
+      name: 'update-access-Form',
+      component: CustomizeForm,
+      props: true,
+      meta: { isPublic: false },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'error-page',
       component: ErrorPage,
