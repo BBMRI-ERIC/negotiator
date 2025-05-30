@@ -1,13 +1,22 @@
 <template>
   <div>
-    <button ref="openModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackModal" />
+    <button ref="addModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackAddModal" />
     <confirmation-modal
-      id="feedbackModal"
-      :title="notificationTitle"
-      :text="notificationText"
+      id="feedbackAddModal"
+      :title="'Confirm submission'"
+      :text="'You will be redirected to the Home page. Click Confirm to proceed.'"
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
       @confirm="addAccessForm"
+    />
+    <button ref="updateModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackUpdateModal" />
+    <confirmation-modal
+      id="feedbackUpdateModal"
+      :title="'Confirm update'"
+      :text="'You will be redirected to the Home page. Click Confirm to proceed.'"
+      :message-enabled="false"
+      dismiss-button-text="Back to HomePage"
+      @confirm="updateAccessForm"
     />
     <button
       ref="openAddFormSectionModal"
@@ -15,7 +24,6 @@
       data-bs-toggle="modal"
       data-bs-target="#fromWizardTabModal"
     />
-
     <add-form-section-modal
       id="fromWizardTabModal"
       :title="'Add Section details'"
@@ -83,7 +91,6 @@
             :style="{ color: uiConfiguration?.primaryTextColor }"
           />
         </div>
-
         <draggable
           :modelValue="accessForm.sections[index].elements"
           @update:modelValue="(newValue) => (accessForm.sections[index].elements = newValue)"
@@ -93,9 +100,10 @@
               <div class="form-check form-check-inline align-middle">
                 <input
                   id="inlineCheckbox1"
-                  v-model="activeElements[index].selectedElements"
+                  @change="changeActiveElements(index,criteria, $event)"
                   :value="criteria"
                   :required="criteria.required"
+                  :checked="isElementActive(activeElements[index].selectedElements, criteria.id)"
                   class="form-check-input"
                   :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                   type="checkbox"
@@ -351,6 +359,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Tooltip } from 'bootstrap'
+import { useUserStore } from '../store/user.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import AddFormSectionModal from '@/components/modals/AddFormSectionModal.vue'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
@@ -359,25 +368,29 @@ import { useNotificationsStore } from '../store/notifications'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
+const userStore = useUserStore()
 const router = useRouter()
+const route = useRoute()
 const uiConfigurationStore = useUiConfiguration()
 const negotiationFormStore = useNegotiationFormStore()
 const notificationsStore = useNotificationsStore()
 const forceReRenderFormWizard = ref(null)
-const notificationTitle = ref('')
-const notificationText = ref('')
 const negotiationCriteria = ref({})
 const negotiationValueSets = ref({})
 const validationColorHighlight = ref([])
-const accessForm = ref({
-  id: 1,
-  name: '',
-  sections: [],
-})
+const accessForm = ref( {
+        id: 1,
+        name: "BBMRI Template",
+        sections: [
+]
+      },)
+const editAccessForm = ref({})
 const accessFormElements = ref([])
-const openModal = ref(null)
+const addModal = ref(null)
+const updateModal = ref(null)
+
 const openAddFormSectionModal = ref(null)
 let activeElements = ref([])
 const uiConfiguration = computed(() => {
@@ -385,16 +398,63 @@ const uiConfiguration = computed(() => {
 })
 
 onMounted(async () => {
+  if (Object.keys(userStore.userInfo).length === 0) {
+    await userStore.retrieveUser()
+  }
   new Tooltip(document.body, {
     selector: "[data-bs-toggle='tooltip']",
   })
   accessFormElements.value = await negotiationFormStore.retrieveFormElements()
+   // edit section
+   if (route.params.accessFormId) {
+    await  negotiationFormStore.retrieveAccessFormById(route.params.accessFormId).then((response) => {
+      editAccessForm.value = response
+      accessForm.value.id = response.id
+      accessForm.value.name = response.name
+    })
+
+    editAccessForm.value.sections.forEach(section => {
+      addFormSection(
+        section.name,
+        section.label,
+        section.description,
+        section.elements
+      )
+      activeElements.value[activeElements.value.length - 1].selectedElements = section.elements
+      });
+
+      // Sort elements on top, within each section based on whether they are in existing accessForm
+      accessForm.value.sections.forEach((section, sectionIndex) => {
+        const selectedElements = activeElements.value[sectionIndex].selectedElements;
+
+        section.elements.sort((a, b) => {
+         // Find the index of `a` and `b` in `selectedElements`
+        const aIndex = selectedElements.findIndex(item => item.id === a.id);
+        const bIndex = selectedElements.findIndex(item => item.id === b.id);
+
+        // If both are in `selectedElements`, sort by their index
+        if (aIndex !== -1 && bIndex !== -1) {
+          return aIndex - bIndex;
+        }
+
+        // If only one is in `selectedElements`, prioritize it
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+
+        // If neither is in `selectedElements`, maintain their original order
+        return 0;
+        });
+      });
+
+      forceReRenderFormWizard.value += 1
+  }
+
   forceReRenderFormWizard.value += 1
   if (accessForm.value !== undefined) {
     initNegotiationCriteria()
   }
 })
-function addFormSection(name, label, description) {
+function addFormSection(name, label, description, elements) {
   let newSection = {
     id: 1,
     name: 'project',
@@ -408,7 +468,7 @@ function addFormSection(name, label, description) {
   newSection.description = description
   newSection.elements = accessFormElements.value
   accessForm.value.sections.push(newSection)
-  activeElements.value.push({ id: accessForm.value.sections.length, selectedElements: [] })
+  activeElements.value.push({ id: accessForm.value.sections.length, selectedElements: elements || [] })
   initNegotiationCriteria()
   forceReRenderFormWizard.value += 1
 }
@@ -437,48 +497,50 @@ async function addAccessForm() {
       label: section.label,
       description: section.description,
     }
-    negotiationFormStore.addAccessFormSections(sections).then((section) => {
-      const currentSection = {
-        sectionId: section.id,
-        sectionOrder: sectionIndex,
-      }
-      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
-        postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
-          let currentElement = {
-            elementId: element.id,
-            elementOrder: elementIndex,
-            required: false,
-          }
-          negotiationFormStore.linkElementsToSectionToAccessForm(
-            accessFormId,
-            section.id,
-            currentElement,
-          )
+
+        negotiationFormStore.addAccessFormSections(sections).then((section) => {
+        const currentSection = {
+          sectionId: section.id,
+          sectionOrder: sectionIndex,
+        }
+        negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
+          postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
+            let currentElement = {
+              elementId: element.id,
+              elementOrder: elementIndex,
+              required: false,
+            }
+            negotiationFormStore.linkElementsToSectionToAccessForm(
+              accessFormId,
+              section.id,
+              currentElement,
+            )
+          })
         })
       })
-    })
   })
 
-  goBackHome()
+  goToAdminSettingsPage()
 }
 
-function goBackHome() {
+async function updateAccessForm() {
+  addAccessForm()
+}
+
+function goToAdminSettingsPage() {
   router.push({
-    name: 'home',
+    name: 'settings',
   })
 }
 
 function startModal() {
-  showNotification(
-    'Confirm submission',
-    "You will be redirected to the Home page. Click 'Confirm' to proceed.",
-  )
+  if( route.params.accessFormId) {
+    updateModal.value.click()
+  } else {
+    addModal.value.click()
+  }
 }
-function showNotification(header, body) {
-  openModal.value.click()
-  notificationTitle.value = header
-  notificationText.value = body
-}
+
 function handleFileUpload(event, section, criteria) {
   negotiationCriteria.value[section][criteria] = event.target.files[0]
 }
@@ -497,6 +559,7 @@ function initNegotiationCriteria() {
     }
   }
 }
+
 function isSectionValid(section) {
   return () => {
     let valid = true
@@ -557,9 +620,24 @@ function transformMessage(text) {
     return 'Please provide a ' + text?.toLowerCase()
   }
 }
+
 function isElementActive(selectedElements, elementId) {
-  return selectedElements.find((x) => x.id === elementId)
+  return selectedElements.find((x) => x.id === elementId) ? true : false
 }
+
+function changeActiveElements(elementIndex, element, event) {
+  if(event.target.checked) {
+    // If the checkbox is checked, add the element to activeElements
+      activeElements.value[elementIndex].selectedElements.push(element)
+  } else {
+    // If the checkbox is unchecked, remove the element from activeElements
+    const index = activeElements.value[elementIndex].selectedElements.findIndex((x) => x.id === element.id)
+    if (index !== -1) {
+      activeElements.value[elementIndex].selectedElements.splice(index, 1)
+    }
+  }
+}
+
 function sortActiveElements(referenceArray, arrayToSort, sectionIndex) {
   // Sort the arrayToSort based on the order in the referenceArray
   arrayToSort.sort((a, b) => {
