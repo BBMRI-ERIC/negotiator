@@ -167,7 +167,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error adding access form')
+        notifications.setNotification('Error adding access form', 'warning')
       })
   }
 
@@ -181,6 +181,19 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
       .catch(() => {
         notifications.setNotification('Error adding access form')
+      })
+  }
+
+  async function updateAccessFormSections(id, data) {
+    return await axios
+      .put(`${apiPaths.BASE_API_PATH}/sections/${id}`, data, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error updating access form', 'warning')
       })
   }
 
@@ -212,6 +225,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       .catch(() => {
         notifications.setNotification('Error linking elemets to specific section in an access form')
       })
+  }
 
   async function transferNegotiation(negotiationId, subjectId) {
     const response = await axios.patch(
@@ -220,6 +234,34 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       { headers: getBearerHeaders() }
     )
     return response.data
+  }
+
+  async function retrieveAccessForms() {
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/access-forms`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data._embedded
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting Form elements data from server')
+        return null
+      })
+  }
+
+  async function retrieveAccessFormById(id) {
+    return await axios
+      .get(`${apiPaths.BASE_API_PATH}/access-forms/${id}`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting access form data from server')
+        return null
+      })
   }
 
   return {
@@ -232,8 +274,11 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveFormElements,
     addAccessForm,
     addAccessFormSections,
+    updateAccessFormSections,
     linkSectionToAccessForm,
     linkElementsToSectionToAccessForm,
-    transferNegotiation
+    transferNegotiation,
+    retrieveAccessForms,
+    retrieveAccessFormById
   }
 })
