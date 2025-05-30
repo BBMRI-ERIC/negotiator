@@ -38,6 +38,8 @@
   />
   <hr />
   <email-template-section />
+  <hr />
+  <AccessFormsSection />
 </template>
 
 <script setup>
@@ -54,6 +56,7 @@ import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
+import AccessFormsSection from '@/components/AccessFormsSection.vue'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
