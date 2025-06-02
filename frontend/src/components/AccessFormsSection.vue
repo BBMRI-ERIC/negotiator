@@ -28,7 +28,7 @@
             @click="updateAccessForm(accessForm.id)"
           >
             <i class="bi bi-pencil-square"></i>
-            Update Access Form
+            Duplicate Access Form
           </button>
         </td>
       </tr>
