@@ -78,6 +78,16 @@
           Admin UI Configuration
         </router-link>
       </li>
+      <li v-if="isAdmin">
+        <router-link
+          to="/createAccessForm"
+          class="dropdown-item"
+          :style="{ color: uiConfiguration?.navbarTextColor }"
+        >
+          <i class="bi bi-file-earmark-plus" />
+          Add Access Form
+        </router-link>
+      </li>
       <li>
         <hr class="dropdown-divider" />
       </li>
