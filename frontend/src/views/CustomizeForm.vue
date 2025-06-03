@@ -73,7 +73,6 @@
         :title="section.label"
         class="form-step border rounded-2 px-2 py-3 mb-2 overflow-auto"
         :style="{ color: uiConfiguration?.primaryTextColor }"
-        :before-change="isSectionValid(section)"
       >
         <div class="d-flex me-3 justify-content-end">
           <button type="button" class="btn btn-danger btn-sm" v-on:click="removeSection(index)">
@@ -551,44 +550,6 @@ function initNegotiationCriteria() {
   }
 }
 
-function isSectionValid(section) {
-  return () => {
-    let valid = true
-    validationColorHighlight.value = []
-    section.elements.forEach((ac) => {
-      if (ac.required) {
-        if (
-          ac.type === 'MULTIPLE_CHOICE' &&
-          Object.keys(negotiationCriteria.value[section.name][ac.name]).length === 0
-        ) {
-          validationColorHighlight.value.push(ac.name)
-          valid = false
-        } else if (
-          ac.type === 'FILE' &&
-          (typeof negotiationCriteria.value[section.name][ac.name] !== 'object' ||
-            negotiationCriteria.value[section.name][ac.name] === null)
-        ) {
-          validationColorHighlight.value.push(ac.name)
-          valid = false
-        } else if (
-          ac.type !== 'MULTIPLE_CHOICE' &&
-          ac.type !== 'FILE' &&
-          (typeof negotiationCriteria.value[section.name][ac.name] !== 'string' ||
-            negotiationCriteria.value[section.name][ac.name] === '')
-        ) {
-          validationColorHighlight.value.push(ac.name)
-          valid = false
-        }
-      } else if (valid) {
-        valid = true
-      }
-    })
-    if (!valid) {
-      notificationsStore.notification = 'Please fill out all required fields correctly'
-    }
-    return valid
-  }
-}
 function uncheckRadioButton(value, sectionName, criteriaName) {
   if (negotiationCriteria.value[sectionName][criteriaName] === value) {
     negotiationCriteria.value[sectionName][criteriaName] = ''
