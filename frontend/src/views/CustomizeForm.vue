@@ -423,27 +423,18 @@ onMounted(async () => {
       activeElements.value[activeElements.value.length - 1].selectedElements = section.elements
       });
 
-      // Sort elements on top, within each section based on whether they are in existing accessForm
+      // Put elements that are selected by user first in each section
       accessForm.value.sections.forEach((section, sectionIndex) => {
+
         const selectedElements = activeElements.value[sectionIndex].selectedElements;
 
-        section.elements.sort((a, b) => {
-         // Find the index of `a` and `b` in `selectedElements`
-        const aIndex = selectedElements.findIndex(item => item.id === a.id);
-        const bIndex = selectedElements.findIndex(item => item.id === b.id);
+        const selectedIds = selectedElements.map(item => item.id);
+        const reorderedElements = [
+          ...selectedElements,
+          ...section.elements.filter(item => !selectedIds.includes(item.id)),
+        ];
 
-        // If both are in `selectedElements`, sort by their index
-        if (aIndex !== -1 && bIndex !== -1) {
-          return aIndex - bIndex;
-        }
-
-        // If only one is in `selectedElements`, prioritize it
-        if (aIndex !== -1) return -1;
-        if (bIndex !== -1) return 1;
-
-        // If neither is in `selectedElements`, maintain their original order
-        return 0;
-        });
+        section.elements = reorderedElements;
       });
 
       forceReRenderFormWizard.value += 1
