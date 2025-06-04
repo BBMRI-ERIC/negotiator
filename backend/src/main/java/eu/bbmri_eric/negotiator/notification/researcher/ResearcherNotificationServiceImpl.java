@@ -21,8 +21,8 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   private final NegotiationRepository negotiationRepository;
   private final NotificationRepository notificationRepository;
   private final ApplicationEventPublisher eventPublisher;
-  private static final String CREATE_CONFIRMATION_TEMPLATE = "negotiation-confirmation";
-  private static final String STATUS_CHANGE_TEMPLATE = "negotiation-status-change";
+  private static final String CREATE_CONFIRMATION_TEMPLATE = "email-negotiation-confirmation";
+  private static final String STATUS_CHANGE_TEMPLATE = "email-negotiation-status-change";
 
   public ResearcherNotificationServiceImpl(
       NegotiationRepository negotiationRepository,

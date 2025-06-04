@@ -1,8 +1,8 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.template;
 
 import jakarta.validation.constraints.NotNull;
 
-public class EmailTemplateOperationRequest {
+public class TemplateOperationRequest {
   public enum Operation {
     RESET
   }

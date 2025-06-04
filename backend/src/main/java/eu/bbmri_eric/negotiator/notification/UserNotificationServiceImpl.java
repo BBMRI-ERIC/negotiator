@@ -57,6 +57,8 @@ public class UserNotificationServiceImpl implements UserNotificationService {
   @Value("${negotiator.emailLogo}")
   private String logoURL;
 
+  private static final String EMAIL_TEMPLATE = "email-notification";
+
   public UserNotificationServiceImpl(
       NotificationRepository notificationRepository,
       PersonRepository personRepository,
@@ -342,7 +344,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private void sendEmail(
       @NonNull Person recipient, @NonNull List<NotificationViewDTO> notifications) {
-    sendEmail(recipient, notifications, "email-notification");
+    sendEmail(recipient, notifications, EMAIL_TEMPLATE);
   }
 
   private void sendEmail(

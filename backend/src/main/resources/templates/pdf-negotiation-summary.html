@@ -1,0 +1,109 @@
+<!--
+This file is a Thymeleaf HTML template used to generate the PDF summary of a negotiation, rendering negotiation details and payload data for PDF export.
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 2em; line-height: 1.4; }
+        h1, h2 { color: #003366; }
+        h2 { border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-top: 1.5em; }
+
+        .logo { margin-bottom: 1.5em; text-align: right; }
+        .logo-bbmri { width: 200px; height: auto; }
+        .field { margin-bottom: 0.5em; }
+        .label { font-weight: bold; }
+        .section { margin-bottom: 1em; }
+        .value { margin-left: 1em; display: inline-block; }
+        .page-break { page-break-before: always; }
+
+        .toc { margin-bottom: 2em; }
+        .toc-entry { margin-bottom: 0.5em; }
+        .toc-link { color: #003366; text-decoration: none; }
+
+        .styled-table { width: 100%; border-collapse: collapse; font-size: 12pt; }
+        .styled-table td { padding: 10px; }
+        .styled-table .label { font-weight: bold; color: #003366; width: 30%; }
+
+
+    </style>
+</head>
+<body>
+
+<div class="logo">
+    <!-- Insert logo fragment -->
+    <div th:insert="~{logo}"></div>
+</div>
+
+<h1>REQUEST SUMMARY</h1>
+<div class="section">
+    <table class="styled-table">
+        <tr>
+            <td class="label">Author:</td>
+            <td th:text="${negotiationPdfData.author.name}">AUTHOR-NAME-HERE</td>
+        </tr>
+        <tr>
+            <td class="label">Email:</td>
+            <td th:text="${negotiationPdfData.author.email}">AUTHOR-EMAIL-HERE</td>
+        </tr>
+        <tr>
+            <td class="label">Negotiation ID:</td>
+            <td th:text="${negotiationPdfData.id}">UUID-HERE</td>
+        </tr>
+        <tr>
+            <td class="label">Submitted at:</td>
+            <td th:text="${negotiationPdfData.createdAt}">May 13, 2025 - 1:26 PM</td>
+        </tr>
+        <tr>
+            <td class="label">Status:</td>
+            <td th:text="${negotiationPdfData.status}">STATUS-HERE</td>
+        </tr>
+        <tr>
+            <td class="label">Report generated at:</td>
+            <td th:text="${now}">CURRENTDATE-HERE</td>
+        </tr>
+    </table>
+</div>
+
+<div class="page-break"></div>
+<div class="toc">
+    <h2>TABLE OF CONTENTS</h2>
+    <div class="toc-entry" th:each="section, iterStat : ${negotiationPdfData.payload}">
+        <a class="toc-link" th:href="'#section-' + ${iterStat.index}" th:text="${#strings.toUpperCase(section.key)}">Section Name</a>
+    </div>
+</div>
+<div class="page-break"></div>
+
+<div th:each="section, iterStat : ${negotiationPdfData.payload}">
+    <h2 th:id="'section-' + ${iterStat.index}" th:text="${#strings.toUpperCase(section.key)}">SECTION</h2>
+    <div class="section">
+        <div class="field" th:each="entry : ${section.value}">
+            <span class="label" th:text="${entry.key + ':'}">field-name:</span>
+
+            <!-- Handle multi-choice arrays -->
+            <span th:if="${entry.value instanceof T(java.util.List)}"
+                  th:text="${#strings.arrayJoin(entry.value, ', ')}">value1, value2</span>
+
+
+            <!-- Map/object check -->
+            <span th:if="${entry.value instanceof T(java.util.Map)}">
+              <div class="section" style="margin-left: 1em;">
+                <div class="field" th:each="subEntry : ${entry.value}">
+                  <span class="label" th:text="${subEntry.key + ':'}">subfield-name:</span>
+                  <span th:if="${subEntry.value instanceof T(java.util.Map)}" th:text="'[object]'">[object]</span>
+                  <span th:if="${subEntry.value instanceof T(java.util.List)}" th:text="${#strings.arrayJoin(subEntry.value, ', ')}">value1, value2</span>
+                  <span th:if="${!(subEntry.value instanceof T(java.util.List)) and !(subEntry.value instanceof T(java.util.Map))}" th:utext="${subEntry.value}">simple value</span>
+                </div>
+              </div>
+            </span>
+
+            <!-- Fallback for scalar types -->
+            <span th:if="${!(entry.value instanceof T(java.util.List)) and !(entry.value instanceof T(java.util.Map))}"
+                  th:text="${entry.value}">simple value</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -84,12 +84,24 @@ There, you can add a new webhook by providing the following information:
 > would like us to implement authentication for webhooks, please let us know.
 
 
-## Email Notifications
-Admin users can update or reset notification templates via the UI in the Admin Settings -> 
-Select and Manage Email Templates section.
-A default template is provided, but you can modify it to suit your needs.
-The templates are written in HTML with [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing you to include dynamic 
+## Templates
+The Negotiator provides a set of templates that can be customized to suit your needs. There are three types of templates
+Email, PDF and Common templates.
+Admin users can update or reset these templates via the UI in the Admin Settings -> Templates.
+The templates are written in HTML with [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing you to include dynamic
 content using expressions, conditionals, and loops.
+
+### Email Templates
 The available variables are listed in the [Notification](notifications.md) documentation.
 
-
+### PDF Templates
+The available variables are:
+- `negotiationPdfData.author.name`: The name of the author.
+- `negotiationPdfData.author.email`: The email of the author.
+- `negotiationPdfData.id`: The ID of the negotiation.
+- `negotiationPdfData.createdAt`: The date the negotiation was created.
+- `negotiationPdfData.status`: The status of the negotiation.
+- `negotiationPdfData.payload`: The payload of the negotiation. This is in JSON format and is in the default templated 
+  looped over to generate the individual sections of the PDF.
+- `now`: The current date and time.
+- `logoUrl`: The URL of the logo.

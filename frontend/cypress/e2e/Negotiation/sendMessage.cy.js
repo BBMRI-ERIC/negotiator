@@ -13,7 +13,6 @@ describe("Test negotiation message", () => {
             // Comment section
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
-            cy.get("[resources=\"[object Object]\"] > :nth-child(3)").should("be.visible")
             cy.get(".mb-4 > .mb-3").should("be.visible")
             cy.get("#recipient").should("be.visible")
             cy.get(".btn-attachment").should("be.visible")
@@ -27,7 +26,7 @@ describe("Test negotiation message", () => {
             cy.get("[resources=\"[object Object]\"] > :nth-child(1)").should("be.visible")
             // Send message section
             cy.get(".mb-4 > .mb-3").type("Hi i want to test message functionality, have a great day.")
-            cy.get("#recipient").select("Everyone")
+            cy.get("#recipient").select("Public channel")
             cy.get('#send').click()
         })
     })

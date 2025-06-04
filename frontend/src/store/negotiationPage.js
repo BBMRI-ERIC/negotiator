@@ -319,6 +319,19 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
+  async function retrieveNegotiationPDF (id) {
+    return axios
+      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf`, {
+        headers: getBearerHeaders(),
+        responseType: 'blob',
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        console.error('Error retrieving PDF:', error);
+        throw error;
+      });
+  }
+
   async function retrieveNegotiationTimeline(negotiationId) {
     try {
       const response = await axios.get(
@@ -332,7 +345,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       return [];
     }
   }
-
 
   return {
     updateNegotiationStatus,
@@ -356,6 +368,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveAllResources,
     retrieveResourceAllStates,
     deleteNegotiation,
+    retrieveNegotiationPDF,
     retrieveNegotiationTimeline
   }
 })
