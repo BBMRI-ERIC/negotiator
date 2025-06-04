@@ -1,6 +1,10 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
+import eu.bbmri_eric.negotiator.attachment.AttachmentMergingService;
+import eu.bbmri_eric.negotiator.attachment.AttachmentService;
+import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.common.PdfMerger;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -23,8 +27,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
@@ -32,6 +39,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +53,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -67,10 +77,14 @@ public class NegotiationController {
 
   private final NegotiationTimeline timelineService;
 
+  private final AttachmentService attachmentService;
+  private final AttachmentMergingService mergingService;
+
+
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
-  private final NegotiationPdfService negotiationPdfService;
+  private static final Set<String> ALLOWED_TEMPLATES = Set.of("pdf-negotiation-summary");
 
   public NegotiationController(
       NegotiationService negotiationService,
@@ -79,6 +93,8 @@ public class NegotiationController {
       PersonService personService,
       ResourceService resourceService,
       NegotiationTimeline timelineService,
+      AttachmentService attachmentService,
+      AttachmentMergingService mergingService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler,
       NegotiationPdfService negotiationPdfService) {
@@ -88,9 +104,10 @@ public class NegotiationController {
     this.personService = personService;
     this.resourceService = resourceService;
     this.timelineService = timelineService;
+    this.attachmentService = attachmentService;
+    this.mergingService = mergingService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
-    this.negotiationPdfService = negotiationPdfService;
   }
 
   /** Create a negotiation */
@@ -304,15 +321,68 @@ public class NegotiationController {
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(summary = "Generate a PDF for a negotiation")
   @SecurityRequirement(name = "security_auth")
-  public ResponseEntity<byte[]> generateNegotiationPdf(@Valid @PathVariable String id) {
+  public ResponseEntity<byte[]> generateNegotiationPdf(
+      @Valid @PathVariable String id,
+      @RequestParam(value = "template", required = false) String templateName) throws Exception {
+
+    byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName);
+    return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
+            .body(pdfBytes);
+  }
+
+  @GetMapping(value = "/negotiations/{id}/fullpdf", produces = MediaType.APPLICATION_PDF_VALUE)
+  @Operation(summary = "Generate a PDF for a negotiation including all attachments")
+  @SecurityRequirement(name = "security_auth")
+  public ResponseEntity<byte[]> generateNegotiationPdfWithAttachments(
+          @Valid @PathVariable String id,
+          @RequestParam(value = "template", required = false) String templateName) throws Exception {
+
+
+    byte[] negotiationPdf = generateNegotiationPdfInternal(id, templateName);
+    List<String> attachmentIds =
+            attachmentService.findByNegotiation(id).stream()
+                    .map(AttachmentMetadataDTO::getId)
+                    .toList();
+
+    List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
+    List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
+    pdfsToMerge.add(negotiationPdf);
+    pdfsToMerge.addAll(attachmentPdfs);
+
+    byte[] mergedPdf = null;
+    try {
+      mergedPdf = PdfMerger.mergePdfs(pdfsToMerge);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to merge attachments to PDF", e);
+    }
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDisposition(
+            ContentDisposition.builder("attachment")
+                    .filename(String.format("%s_merged.pdf", id))
+                    .build());
+    return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
+  }
+
+
+  private byte[] generateNegotiationPdfInternal(String id, String templateName) throws Exception {
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    byte[] pdfBytes = negotiationPdfService.generatePdf(id);
-    return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_PDF)
-        .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-        .body(pdfBytes);
+    if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
+      throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
+    }
+    try {
+      byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
+      return pdfBytes;
+    } catch (Exception e) {
+      throw new ResponseStatusException(
+              HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
+    }
   }
 
   private String getUserId() {
