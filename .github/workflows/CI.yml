@@ -1,5 +1,7 @@
 ---
 name: CI build
+env:
+  JAVA_VERSION: '21'
 
 on:
   workflow_dispatch:
@@ -23,10 +25,10 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
+          java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
           cache: maven
 
@@ -82,10 +84,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
+          java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
 
       - name: Checkout Code
@@ -128,10 +130,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
+          java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
           cache: maven
 
@@ -163,10 +165,10 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
+          java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
           cache: maven
 
@@ -192,10 +194,10 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
+          java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
           cache: maven
 
@@ -711,10 +713,10 @@ jobs:
       - name: Checkout codebase
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
-          java-version: '17'
+          java-version: '${{ env.JAVA_VERSION }}'
           distribution: 'temurin'
           cache: maven
 
