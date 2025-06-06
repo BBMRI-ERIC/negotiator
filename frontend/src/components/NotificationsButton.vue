@@ -24,8 +24,9 @@
         <hr class="dropdown-divider" />
       </li>
       <li v-for="notification in getAllNotifications" :key="notification" class="dropdown-item">
-        <div class="alert mb-1" :class="returnColor(notification)" role="alert">
-          {{ notification.message }}
+        <div class="alert mb-1 d-flex" :class="returnColor(notification)" role="alert">
+          <span class="me-auto">{{ notification.message }}</span>
+          <span class="ms-3 text-muted">{{ notification.timestamp }}</span>
         </div>
       </li>
     </ul>
@@ -44,7 +45,7 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.navbar
 })
 const getAllNotifications = computed(() => {
-  return notificationsStore.allNotifications
+  return notificationsStore.allNotifications 
 })
 
 function returnColor(notification) {
