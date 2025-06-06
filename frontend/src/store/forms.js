@@ -150,6 +150,18 @@ export const useFormsStore = defineStore('forms', () => {
     }
   }
 
+  function updateInfoSubmissionsisedit(infoSubmissionsId, data) {
+    return axios
+        .patch(`${apiPaths.BASE_API_PATH}/info-submissions-isedit/${infoSubmissionsId}`, data, { headers: getBearerHeaders() })
+        .then((response) => {
+          return response.data
+      })
+        .catch(() => {
+          notifications.setNotification(`Error updating info-submission is edit: ${infoSubmissionsId}`, 'warning')
+          return null
+        })
+  }
+
   return {
     retrieveAccessFormById,
     retrieveAllAccessForms,
@@ -157,5 +169,6 @@ export const useFormsStore = defineStore('forms', () => {
     submitRequiredInformation,
     retrieveInfoRequirementsById,
     updateInfoSubmissions,
+    updateInfoSubmissionsisedit,
   }
 })

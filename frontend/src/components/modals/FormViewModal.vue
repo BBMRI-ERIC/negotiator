@@ -22,9 +22,9 @@
         </div>
         <div class="modal-body text-left mb-3 mx-3">
           <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
-          <div v-if="!isSubmittedFormSubmitted || isAdmin" class="justify-content-end align-items-center mb-2 d-flex d-row">
+          <div class="justify-content-end align-items-center mb-2 d-flex d-row">
             <button
-              v-if="!submittedForm?.submitted"
+              v-if="!submittedForm?.submitted && !isAdmin"
               type="button"
               class="btn btn-sm edit-button"
               @click="$emit('editInfoSubmission')"
@@ -144,12 +144,10 @@ function downloadAttachment(id, name) {
 
 function changeEditing() {
   const data = {
-     resourceId: props.submittedForm.resourceId,
-      payload: props.submittedForm.payload,
-      submitted: false,
+      submitted: true,
   }
-  
- formsStore.updateInfoSubmissions(props.submittedForm.id, data)
+
+ formsStore.updateInfoSubmissionsisedit(props.submittedForm.id, data)
 }
 </script>
 
