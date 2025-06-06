@@ -12,15 +12,15 @@ import java.util.stream.Collectors;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Range;
 import org.docx4j.Docx4J;
-import org.docx4j.convert.out.FOSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AttachmentMergingService {
+public class AttachmentConversion
+        Service {
     private final AttachmentService attachmentService;
 
-    public AttachmentMergingService(AttachmentService attachmentService) {
+    public AttachmentConversionService(AttachmentService attachmentService) {
         this.attachmentService = attachmentService;
     }
 
@@ -87,17 +87,15 @@ public class AttachmentMergingService {
     }
 
     private byte[] convertDocxToPdf(byte[] docxBytes) throws Exception {
-
+        if (docxBytes == null || docxBytes.length == 0) {
+            throw new IllegalArgumentException("Input DOCX bytes are null or empty");
+        }
         try (ByteArrayInputStream docxInputStream = new ByteArrayInputStream(docxBytes);
              ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
             WordprocessingMLPackage wordMLPackage = Docx4J.load(docxInputStream);
 
-            FOSettings foSettings = Docx4J.createFOSettings();
-            foSettings.setWmlPackage(wordMLPackage);
-            foSettings.setApacheFopMime("application/pdf");
-
-            Docx4J.toFO(foSettings, pdfOutputStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
+            Docx4J.toPDF(wordMLPackage, pdfOutputStream);
             return pdfOutputStream.toByteArray();
         }
     }

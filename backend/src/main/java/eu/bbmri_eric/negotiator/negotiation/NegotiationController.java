@@ -1,6 +1,6 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.attachment.AttachmentMergingService;
+import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
@@ -78,7 +78,7 @@ public class NegotiationController {
   private final NegotiationTimeline timelineService;
 
   private final AttachmentService attachmentService;
-  private final AttachmentMergingService mergingService;
+  private final AttachmentConversionService mergingService;
 
 
   private final NegotiationModelAssembler assembler;
@@ -94,7 +94,7 @@ public class NegotiationController {
       ResourceService resourceService,
       NegotiationTimeline timelineService,
       AttachmentService attachmentService,
-      AttachmentMergingService mergingService,
+      AttachmentConversionService mergingService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler,
       NegotiationPdfService negotiationPdfService) {
