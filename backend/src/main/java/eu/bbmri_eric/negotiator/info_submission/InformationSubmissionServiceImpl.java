@@ -75,7 +75,48 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     verifyAuthorization(informationSubmissionDTO);
     InformationSubmission submission =
         buildSubmissionEntity(informationSubmissionDTO, informationRequirementId, negotiationId);
-    return saveInformationSubmission(informationRequirementId, negotiationId, submission);
+    if (informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id(
+        submission.getResource().getSourceId(), negotiationId, informationRequirementId)) {
+      throw new WrongRequestException(
+          "The required information for this resource was already provided");
+    }
+    return saveInformationSubmission(negotiationId, submission);
+  }
+
+  //TODO: add patch method to update the submission field isSubmitted to false, only allowed for the admin
+  @Override
+  public SubmittedInformationDTO updateSubmissionEditable(
+      InformationSubmissionDTO informationSubmissionDTO, Long submissionId) {
+    verifyAuthorization(informationSubmissionDTO);
+    InformationSubmission submission =
+        informationSubmissionRepository
+            .findById(submissionId)
+            .orElseThrow(() -> new EntityNotFoundException(submissionId));
+    if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      throw new WrongRequestException(
+          "The information has been formally submitted and cannot be updated.");
+    }
+    submission.setSubmitted(informationSubmissionDTO.isSubmitted());
+    return saveInformationSubmission(submission.getNegotiation().getId(), submission);
+  }
+
+  @Override
+  public SubmittedInformationDTO updateSubmission(
+      InformationSubmissionDTO informationSubmissionDTO, Long submissionId) {
+    verifyAuthorization(informationSubmissionDTO);
+    InformationSubmission submission =
+        informationSubmissionRepository
+            .findById(submissionId)
+            .orElseThrow(() -> new EntityNotFoundException(submissionId));
+    if (submission.isSubmitted() && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+      throw new WrongRequestException(
+          "The information has been formally submitted and cannot be updated.");
+    }
+    if (Objects.nonNull(informationSubmissionDTO.getPayload())) {
+      submission.setPayload(informationSubmissionDTO.getPayload().toString());
+    }
+    submission.setSubmitted(informationSubmissionDTO.isSubmitted());
+    return saveInformationSubmission(submission.getNegotiation().getId(), submission);
   }
 
   @Override
@@ -127,12 +168,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   }
 
   private SubmittedInformationDTO saveInformationSubmission(
-      Long informationRequirementId, String negotiationId, InformationSubmission submission) {
-    if (informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_IdAndRequirement_Id(
-        submission.getResource().getSourceId(), negotiationId, informationRequirementId)) {
-      throw new WrongRequestException(
-          "The required information for this resource was already provided");
-    }
+      String negotiationId, InformationSubmission submission) {
     submission = informationSubmissionRepository.saveAndFlush(submission);
     applicationEventPublisher.publishEvent(new InformationSubmissionEvent(this, negotiationId));
     return modelMapper.map(submission, SubmittedInformationDTO.class);
@@ -285,6 +321,10 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
             .findById(negotiationId)
             .orElseThrow(() -> new EntityNotFoundException(negotiationId));
     return new InformationSubmission(
-        requirement, resource, negotiation, informationSubmissionDTO.getPayload().toString());
+        requirement,
+        resource,
+        negotiation,
+        informationSubmissionDTO.getPayload().toString(),
+        informationSubmissionDTO.isSubmitted());
   }
 }

@@ -22,10 +22,31 @@
         </div>
         <div class="modal-body text-left mb-3 mx-3">
           <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
+          <div class="justify-content-end align-items-center mb-2 d-flex d-row">
+            <button
+              v-if="!submittedForm?.submitted && !isAdmin"
+              type="button"
+              class="btn btn-sm edit-button"
+              @click="$emit('editInfoSubmission')"
+            >
+              <i class="bi bi-pencil-square" />
+              Edit
+            </button>
+            <div v-if="isAdmin" class="form-check form-switch">
+                <input
+                  :value="submittedForm?.submitted"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  @change="changeEditing()"
+                />
+                <label class="form-check-label" for="flexSwitchCheckDefault"> allow editing </label>
+            </div>
+          </div>
           <div>
             <ul class="ps-0">
               <li
-                v-for="(element, key) in props.payload"
+                v-for="(element, key) in props.submittedForm?.payload"
                 :key="element"
                 class="list-group-item p-3"
               >
@@ -69,11 +90,13 @@ import { onMounted } from 'vue'
 import { Tooltip } from 'bootstrap'
 import 'vue3-form-wizard/dist/style.css'
 import { useNegotiationPageStore } from '../../store/negotiationPage.js'
+import { useFormsStore } from '../../store/forms'
 
 const negotiationPageStore = useNegotiationPageStore()
+const formsStore = useFormsStore()
 
 const props = defineProps({
-  payload: {
+  submittedForm: {
     type: Object,
     required: true,
   },
@@ -86,6 +109,15 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: true,
+  },
+  isSubmittedFormSubmitted: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  isAdmin: { 
+    type: Boolean,
+    default: false 
   },
 })
 
@@ -109,6 +141,14 @@ function isAttachment(value) {
 function downloadAttachment(id, name) {
   negotiationPageStore.downloadAttachment(id, name)
 }
+
+function changeEditing() {
+  const data = {
+      submitted: true,
+  }
+
+ formsStore.updateInfoSubmissionsisedit(props.submittedForm.id, data)
+}
 </script>
 
 <style scoped>
@@ -126,5 +166,9 @@ function downloadAttachment(id, name) {
   margin-top: 0.25rem;
   font-size: 0.875em;
   color: var(--bs-form-invalid-color);
+}
+.edit-button:hover {
+  background-color: lightgray;
+  color: #212529;
 }
 </style>
