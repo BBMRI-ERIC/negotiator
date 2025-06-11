@@ -7,7 +7,7 @@
       :style="{ color: uiConfiguration?.navbarButtonOutlineColor }"
       data-bs-toggle="dropdown"
       aria-expanded="false"
-      @click="resetNotification"
+      @click="resetCurrentNotifications"
     >
       <i class="bi bi-bell" />
 
@@ -23,8 +23,12 @@
       <li>
         <hr class="dropdown-divider" />
       </li>
-      <li v-for="notification in getAllNotifications" :key="notification" class="dropdown-item">
-        <div class="alert mb-1 d-flex" :class="returnColor(notification)" role="alert">
+      <li
+        v-for="notification in getAllNotifications"
+        :key="notification"
+        class="dropdown-item py-0"
+      >
+        <div class="alert mb-1 d-flex py-2 mb-2" :class="returnColor(notification)" role="alert">
           <span class="me-auto">{{ notification.message }}</span>
           <span class="ms-3 text-muted">{{ notification.timestamp }}</span>
         </div>
@@ -45,7 +49,7 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.navbar
 })
 const getAllNotifications = computed(() => {
-  return notificationsStore.allNotifications 
+  return notificationsStore.allNotifications
 })
 
 function returnColor(notification) {
@@ -54,8 +58,8 @@ function returnColor(notification) {
   return 'alert-warning'
 }
 
-async function resetNotification() {
-  notificationsStore.resetNotification()
+async function resetCurrentNotifications() {
+  notificationsStore.resetCurrentNotifications()
 }
 </script>
 
