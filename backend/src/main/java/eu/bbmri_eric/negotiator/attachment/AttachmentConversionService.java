@@ -16,8 +16,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AttachmentConversion
-        Service {
+public class AttachmentConversionService {
     private final AttachmentService attachmentService;
 
     public AttachmentConversionService(AttachmentService attachmentService) {
