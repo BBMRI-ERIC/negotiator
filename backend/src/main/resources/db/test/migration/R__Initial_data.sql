@@ -75,14 +75,14 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#
         '{"project":{"title":"Project 4","description":"Project 4 desc"},"samples":{"sample-type":"Blood","num-of-subjects": 5,"num-of-sample": "10","volume":4},"ethics-vote":{"ethics-vote":"My ethics"}}',
         false, false, 1),
        ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108, '#1 Quality: ISO',
-        '{"project":{"title":"Yet another important project","description":"desc"},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics"}}',
+        '{"project":{"title":"Yet another important project","description":"desc with special characters: !§$%&/()=?<>|¹²³¼½¬{[]} \n","checklist":["one","two"]},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics","ethics-vote-attachment":{}}}',
         false, true, 1);
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
 values (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-1', 4),
        (101, '2024-03-11', 101, '2024-03-31', 'REPRESENTATIVE_CONTACTED', 'negotiation-3', 5),
        (101, '2024-03-11', 101, '2024-03-31', 'RESOURCE_AVAILABLE', 'negotiation-3', 5);
-
+insert into negotiation_lifecycle_record (changed_to, creation_date, negotiation_id, modified_date, created_by, modified_by) VALUES ('IN_PROGRESS', '2023-06-19 10:15:00', 'negotiation-1', '2023-06-19 10:15:00', 101, 101);
 insert into request (id, url, human_readable, discovery_service_id)
 values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
        ('request-2', 'http://discoveryservice.dev', '#1: DNA Samples', 1),

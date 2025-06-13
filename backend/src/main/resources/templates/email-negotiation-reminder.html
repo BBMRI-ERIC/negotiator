@@ -1,3 +1,6 @@
+<!--
+This is a Thymeleaf HTML template used to generate the email notification for a pending request.
+-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -68,16 +71,6 @@
             margin-bottom: 20px;
         }
 
-        .message-line {
-          margin-top: 4px;
-          margin-bottom: 4px;
-        }
-
-        .message-comment {
-           margin-top: 16px;
-           margin-bottom: 16px;
-        }
-
         .email-header {
             padding: 20px;
         }
@@ -89,29 +82,22 @@
         <div th:insert="~{logo}"></div>
     </div>
     <div class="email-content">
-        <h2 style="color: #e95713;">Request Status Update</h2>
+        <h2 style="color: #e95713;">Pending Request</h2>
         <p>
             Dear <span th:utext="${recipient.getName()}"></span>,
             <br/><br/>
-        <p>The Status of Your request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong> has
-            been changed.
+        <p>You have a pending request with ID <strong><span th:text="${negotiation}">[Request ID]</span></strong>.
             Below are the details:</p>
         <p><strong>Request Title:</strong> <span th:text="${titleForNegotiation}">[Request Title]</span></p>
         <p><strong>Request Date:</strong> <span th:text="${date}">[Request Date]</span></p>
         <span th:utext="${message}" class="message"></span>
-        <p>If you want to track the progress of your request, click the button below:</p>
+        <p>Please click the button below to respond:</p>
 
-        <div style="text-align: center; margin: 20px;">
-            <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation} + '/ROLE_RESEARCHER'}" class="button">Track
-                Your Request
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-right" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd"
-                          d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
-                </svg>
+        <div style="margin: 20px;">
+            <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation} + '/ROLE_REPRESENTATIVE'}" class="button">Respond
             </a>
         </div>
-        <div th:insert="~{footer}"></div>
+        <div th:insert="~{email-footer}"></div>
     </div>
 </div>
 </body>
