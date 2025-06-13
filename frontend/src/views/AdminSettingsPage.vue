@@ -60,6 +60,7 @@ import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import allFeatureFlags from '@/config/featureFlags.js'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
@@ -75,6 +76,9 @@ const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
 const selectedEmailId = ref(null)
+const featureFlagsAddAcessForms = !!(
+  allFeatureFlags.add_access_forms === 'true' || allFeatureFlags.add_access_forms === true
+)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
