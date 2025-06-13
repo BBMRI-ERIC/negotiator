@@ -57,7 +57,7 @@ import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
-import EmailTemplateSection from '@/components/EmailTemplateSection.vue'
+import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
 import allFeatureFlags from '@/config/featureFlags.js'
 
