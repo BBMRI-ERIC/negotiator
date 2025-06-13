@@ -355,7 +355,8 @@ public class NegotiationController {
     try {
       mergedPdf = PdfMerger.mergePdfs(pdfsToMerge);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to merge attachments to PDF", e);
+      throw new ResponseStatusException(
+              HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
     }
 
     HttpHeaders headers = new HttpHeaders();
