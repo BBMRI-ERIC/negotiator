@@ -14,7 +14,6 @@
       :buttonDismissColor="'btn-dark'"
       :buttonSaveColor="'btn-danger'"
       @dismiss="emitDismiss()"
-      @ok="emitOk()"
       @save="emitSave()"
     >
       <template #body>
