@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -79,7 +78,6 @@ public class NegotiationController {
 
   private final AttachmentService attachmentService;
   private final AttachmentConversionService mergingService;
-
 
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
@@ -323,28 +321,27 @@ public class NegotiationController {
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdf(
       @Valid @PathVariable String id,
-      @RequestParam(value = "template", required = false) String templateName) throws Exception {
+      @RequestParam(value = "template", required = false) String templateName)
+      throws Exception {
 
     byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName);
     return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_PDF)
-            .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-            .body(pdfBytes);
+        .contentType(MediaType.APPLICATION_PDF)
+        .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
+        .body(pdfBytes);
   }
 
   @GetMapping(value = "/negotiations/{id}/fullpdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(summary = "Generate a PDF for a negotiation including all attachments")
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdfWithAttachments(
-          @Valid @PathVariable String id,
-          @RequestParam(value = "template", required = false) String templateName) throws Exception {
-
+      @Valid @PathVariable String id,
+      @RequestParam(value = "template", required = false) String templateName)
+      throws Exception {
 
     byte[] negotiationPdf = generateNegotiationPdfInternal(id, templateName);
     List<String> attachmentIds =
-            attachmentService.findByNegotiation(id).stream()
-                    .map(AttachmentMetadataDTO::getId)
-                    .toList();
+        attachmentService.findByNegotiation(id).stream().map(AttachmentMetadataDTO::getId).toList();
 
     List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
     List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
@@ -355,19 +352,17 @@ public class NegotiationController {
     try {
       mergedPdf = PdfMerger.mergePdfs(pdfsToMerge);
     } catch (IOException e) {
-      throw new ResponseStatusException(
-              HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
     }
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_PDF);
     headers.setContentDisposition(
-            ContentDisposition.builder("attachment")
-                    .filename(String.format("%s_merged.pdf", id))
-                    .build());
+        ContentDisposition.builder("attachment")
+            .filename(String.format("%s_merged.pdf", id))
+            .build());
     return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
   }
-
 
   private byte[] generateNegotiationPdfInternal(String id, String templateName) throws Exception {
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
@@ -375,14 +370,14 @@ public class NegotiationController {
     }
     if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
+          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
     try {
       byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
       return pdfBytes;
     } catch (Exception e) {
       throw new ResponseStatusException(
-              HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
+          HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
     }
   }
 

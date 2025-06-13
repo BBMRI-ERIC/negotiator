@@ -1751,46 +1751,48 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void getFullPdf_Ok_WhenUserIsAdmin() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/fullpdf"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/pdf"))
-            .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/fullpdf"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
   }
 
   @Test
   @WithUserDetails("TheResearcher")
   public void getFullPdf_Ok_WhenUserIsCreator() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/fullpdf"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/pdf"))
-            .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/fullpdf"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
   }
 
   @Test
   @WithUserDetails("SarahRepr")
   public void getFullPdf_Forbidden_WhenUserNotCreatorOrAdmin() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/fullpdf"))
-            .andExpect(status().isForbidden());
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/fullpdf"))
+        .andExpect(status().isForbidden());
   }
 
   @Test
   @WithUserDetails("admin")
   public void getFullPdf_NotFound_WhenNegotiationDoesNotExist() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/non-existent-id/fullpdf"))
-            .andExpect(status().isNotFound());
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/non-existent-id/fullpdf"))
+        .andExpect(status().isNotFound());
   }
 
   @Test
   @WithUserDetails("admin")
   public void getFullPdf_Ok_WithLargePayload() throws Exception {
     mockMvc
-            .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-5/fullpdf"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType("application/pdf"))
-            .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-5/fullpdf"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
   }
-
 }
