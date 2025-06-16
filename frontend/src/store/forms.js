@@ -63,11 +63,20 @@ export const useFormsStore = defineStore('forms', () => {
             })
             .catch((error) => {
               if (error.response) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.response.data.detail}`,
+                  'danger',
+                )
               } else if (error.request) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.request.statusText}`,
+                  'danger',
+                )
               } else {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.message}`,
+                  'danger',
+                )
               }
               isAtachmentError = true
               return null
@@ -75,29 +84,37 @@ export const useFormsStore = defineStore('forms', () => {
         }
       }
     }
-    if(!isAtachmentError){
+    if (!isAtachmentError) {
       return axios
         .post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, {
           headers: getBearerHeaders(),
         })
         .then((response) => {
-          notifications.setNotification('Thank you. Your response was successfully submitted. ','success')
+          notifications.setNotification(
+            'Thank you. Your response was successfully submitted. ',
+            'success',
+          )
           return response.data.id
         })
         .catch(() => {
-          notifications.setNotification('There was an error saving the Negotiation','danger')
+          notifications.setNotification('There was an error saving the Negotiation', 'danger')
         })
     }
   }
 
   function retrieveInfoRequirementsById(requirementId) {
     return axios
-      .get(`${apiPaths.BASE_API_PATH}/info-requirements/${requirementId}`, { headers: getBearerHeaders()})
+      .get(`${apiPaths.BASE_API_PATH}/info-requirements/${requirementId}`, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error getting info-requirements by id request data from server', 'danger')
+        notifications.setNotification(
+          'Error getting info-requirements by id request data from server',
+          'danger',
+        )
         return null
       })
   }
@@ -124,11 +141,20 @@ export const useFormsStore = defineStore('forms', () => {
             })
             .catch((error) => {
               if (error.response) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.response.data.detail}`,
+                  'danger',
+                )
               } else if (error.request) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.request.statusText}`,
+                  'danger',
+                )
               } else {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.message}`,
+                  'danger',
+                )
               }
               isAtachmentError = true
               return null
@@ -136,15 +162,20 @@ export const useFormsStore = defineStore('forms', () => {
         }
       }
     }
-    if(!isAtachmentError){
+    if (!isAtachmentError) {
       return axios
-        .patch(`${apiPaths.BASE_API_PATH}/info-submissions/${infoSubmissionsId}`, data, { headers: getBearerHeaders() })
+        .patch(`${apiPaths.BASE_API_PATH}/info-submissions/${infoSubmissionsId}`, data, {
+          headers: getBearerHeaders(),
+        })
         .then((response) => {
           return response.data
         })
         .catch(() => {
           notifications.criticalError = true
-          notifications.setNotification(`Error updating info-submission: ${infoSubmissionsId}`, 'warning')
+          notifications.setNotification(
+            `Error updating info-submission: ${infoSubmissionsId}`,
+            'warning',
+          )
           return null
         })
     }
@@ -152,14 +183,19 @@ export const useFormsStore = defineStore('forms', () => {
 
   function updateInfoSubmissionsisedit(infoSubmissionsId, data) {
     return axios
-        .patch(`${apiPaths.BASE_API_PATH}/info-submissions-isedit/${infoSubmissionsId}`, data, { headers: getBearerHeaders() })
-        .then((response) => {
-          return response.data
+      .patch(`${apiPaths.BASE_API_PATH}/info-submissions/${infoSubmissionsId}`, data, {
+        headers: getBearerHeaders(),
       })
-        .catch(() => {
-          notifications.setNotification(`Error updating info-submission is edit: ${infoSubmissionsId}`, 'warning')
-          return null
-        })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification(
+          `Error updating info-submission is edit: ${infoSubmissionsId}`,
+          'warning',
+        )
+        return null
+      })
   }
 
   return {

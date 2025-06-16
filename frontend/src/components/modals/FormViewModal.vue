@@ -24,7 +24,7 @@
           <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
           <div class="justify-content-end align-items-center mb-2 d-flex d-row">
             <button
-              v-if="!submittedForm?.submitted && !isAdmin"
+              v-if="submittedForm?.submitted && !isAdmin"
               type="button"
               class="btn btn-sm edit-button"
               @click="$emit('editInfoSubmission')"
@@ -33,14 +33,15 @@
               Edit
             </button>
             <div v-if="isAdmin" class="form-check form-switch">
-                <input
-                  :value="submittedForm?.submitted"
-                  class="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  @change="changeEditing()"
-                />
-                <label class="form-check-label" for="flexSwitchCheckDefault"> allow editing </label>
+              <input
+                v-bind:checked="submittedForm?.submitted"
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                @change="changeEditing()"
+                id="flexSwitchCheckDefault"
+              />
+              <label class="form-check-label"> allow editing </label>
             </div>
           </div>
           <div>
@@ -86,7 +87,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Tooltip } from 'bootstrap'
 import 'vue3-form-wizard/dist/style.css'
 import { useNegotiationPageStore } from '../../store/negotiationPage.js'
@@ -115,9 +116,9 @@ const props = defineProps({
     required: false,
     default: false,
   },
-  isAdmin: { 
+  isAdmin: {
     type: Boolean,
-    default: false 
+    default: false,
   },
 })
 
@@ -144,10 +145,10 @@ function downloadAttachment(id, name) {
 
 function changeEditing() {
   const data = {
-      submitted: true,
+    submitted: !props.submittedForm.submitted,
   }
 
- formsStore.updateInfoSubmissionsisedit(props.submittedForm.id, data)
+  formsStore.updateInfoSubmissionsisedit(props.submittedForm.id, data)
 }
 </script>
 
