@@ -281,6 +281,11 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     Optional<Person> personOpt = personRepository.findById(personId);
     if (personOpt.isPresent()) {
       Person person = personOpt.get();
+      // If the user is an admin, they can write to any resource
+      if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        return true;
+      }
+      // Check if the person is a representative of the resource
       return person.getResources().stream()
           .anyMatch(resource -> resource.getId().equals(resourceId));
     }
