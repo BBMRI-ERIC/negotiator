@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Modal from 'bootstrap/js/dist/modal'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'

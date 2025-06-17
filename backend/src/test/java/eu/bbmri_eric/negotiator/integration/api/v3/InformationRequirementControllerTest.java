@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,7 +30,6 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,8 +41,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
 @AutoConfigureMockMvc
@@ -52,13 +48,11 @@ public class InformationRequirementControllerTest {
   private final String INFO_REQUIREMENT_ENDPOINT = "/v3/info-requirements";
   private final String INFO_SUBMISSION_ENDPOINT = "/v3/negotiations/%s/info-requirements/%s";
   private final String SUBMISSION_ENDPOINT = "/v3/info-submissions/%s";
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private InformationRequirementRepository informationRequirementRepository;
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private InformationRequirementServiceImpl informationRequirementServiceImpl;
-
 
   @Test
   @WithMockUser(roles = "ADMIN")
@@ -354,7 +348,8 @@ public class InformationRequirementControllerTest {
             .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
             .andReturn();
     Integer submissionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.id");
-    InformationSubmission submission = informationSubmissionRepository.findById(Long.valueOf(submissionId)).get();
+    InformationSubmission submission =
+        informationSubmissionRepository.findById(Long.valueOf(submissionId)).get();
     submission.setEditable(true);
     informationSubmissionRepository.saveAndFlush(submission);
     payload =
@@ -606,16 +601,17 @@ public class InformationRequirementControllerTest {
         .andDo(print())
         .andExpect(status().isBadRequest());
   }
+
   @Test
   @WithUserDetails("TheBiobanker")
   @Transactional
   void update_twiceThenSubmit_200() throws Exception {
     Negotiation negotiation = negotiationRepository.findAll().iterator().next();
     InformationRequirementDTO informationRequirementDTO =
-            informationRequirementServiceImpl.createInformationRequirement(
-                    new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
     String payload =
-            """
+        """
                                             {
                                            "sample-type": "DNA",
                                            "num-of-subjects": 10,
@@ -626,23 +622,23 @@ public class InformationRequirementControllerTest {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonPayload = mapper.readTree(payload);
     InformationSubmissionDTO submissionDTO =
-            new InformationSubmissionDTO(
-                    negotiation.getResources().iterator().next().getId(), jsonPayload, true);
+        new InformationSubmissionDTO(
+            negotiation.getResources().iterator().next().getId(), jsonPayload, true);
     MvcResult mvcResult =
-            mockMvc
-                    .perform(
-                            post(INFO_SUBMISSION_ENDPOINT.formatted(
-                                    negotiation.getId(), informationRequirementDTO.getId()))
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(new ObjectMapper().writeValueAsString(submissionDTO)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").isNumber())
-                    .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
-                    .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
-                    .andReturn();
+        mockMvc
+            .perform(
+                post(INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
+            .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
+            .andReturn();
     Integer submissionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.id");
     payload =
-            """
+        """
                                     {
                                    "sample-type": "NEW_UPDATED_VALUE",
                                    "num-of-subjects": 10,
@@ -653,12 +649,13 @@ public class InformationRequirementControllerTest {
     submissionDTO.setPayload(mapper.readTree(payload));
     submissionDTO.setEditable(false);
     mockMvc
-            .perform(
-                    patch(SUBMISSION_ENDPOINT.formatted(submissionId))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(new ObjectMapper().writeValueAsString(submissionDTO)))
-            .andDo(print())
-            .andExpect(status().isOk()).andExpect(jsonPath("$.editable").value("false"));
+        .perform(
+            patch(SUBMISSION_ENDPOINT.formatted(submissionId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.editable").value("false"));
   }
 
   @Test

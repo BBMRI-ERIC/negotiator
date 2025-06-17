@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { Tooltip } from 'bootstrap'
 import 'vue3-form-wizard/dist/style.css'
 import { useNegotiationPageStore } from '../../store/negotiationPage.js'
