@@ -1,2 +1,2 @@
 ALTER TABLE information_submission
-    ADD COLUMN submitted boolean DEFAULT false NOT NULL;
+    ADD COLUMN is_editable boolean DEFAULT false NOT NULL;

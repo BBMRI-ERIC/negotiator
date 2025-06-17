@@ -28,10 +28,10 @@ public class InformationSubmissionDTO {
   private JsonNode payload;
 
   @Schema(
-      description = "Flag indicating whether the information has already been submitted",
+      description = "Flag indicating whether the information is editable",
       example = "false",
       defaultValue = "false")
-  private boolean submitted = false;
+  private boolean editable = false;
 
   public InformationSubmissionDTO(Long resourceId, JsonNode payload) {
     this.resourceId = resourceId;

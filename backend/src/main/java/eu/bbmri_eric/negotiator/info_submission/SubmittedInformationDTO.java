@@ -37,8 +37,8 @@ public class SubmittedInformationDTO {
   private JsonNode payload;
 
   @Schema(
-      description = "Flag indicating whether the information has been formally submitted",
+      description = "Flag indicating whether the information is editable",
       example = "true",
       defaultValue = "false")
-  private boolean submitted;
+  private boolean editable;
 }

@@ -91,14 +91,14 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         informationSubmissionRepository
             .findById(submissionId)
             .orElseThrow(() -> new EntityNotFoundException(submissionId));
-    if (submission.isSubmitted() && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+    if (!submission.isEditable() && !AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
       throw new WrongRequestException(
           "The information has been formally submitted and cannot be updated.");
     }
     if (Objects.nonNull(informationSubmissionDTO.getPayload())) {
       submission.setPayload(informationSubmissionDTO.getPayload().toString());
     }
-    submission.setSubmitted(informationSubmissionDTO.isSubmitted());
+    submission.setEditable(informationSubmissionDTO.isEditable());
     return saveInformationSubmission(submission.getNegotiation().getId(), submission);
   }
 
@@ -313,6 +313,6 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         resource,
         negotiation,
         informationSubmissionDTO.getPayload().toString(),
-        informationSubmissionDTO.isSubmitted());
+        informationSubmissionDTO.isEditable());
   }
 }

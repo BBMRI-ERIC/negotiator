@@ -34,6 +34,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -46,20 +47,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class InformationRequirementControllerTest {
   private final String INFO_REQUIREMENT_ENDPOINT = "/v3/info-requirements";
   private final String INFO_SUBMISSION_ENDPOINT = "/v3/negotiations/%s/info-requirements/%s";
   private final String SUBMISSION_ENDPOINT = "/v3/info-submissions/%s";
+  @Autowired
   private MockMvc mockMvc;
   @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private InformationRequirementRepository informationRequirementRepository;
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private InformationRequirementServiceImpl informationRequirementServiceImpl;
 
-  @BeforeEach
-  void setup(WebApplicationContext wac) {
-    this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
-  }
 
   @Test
   @WithMockUser(roles = "ADMIN")
@@ -314,7 +313,7 @@ public class InformationRequirementControllerTest {
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.submitted").value("true"))
+        .andExpect(jsonPath("$.editable").value("true"))
         .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
         .andExpect(jsonPath("$.payload.sample-type").value("DNA"));
   }
@@ -350,11 +349,14 @@ public class InformationRequirementControllerTest {
                     .content(new ObjectMapper().writeValueAsString(submissionDTO)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").isNumber())
-            .andExpect(jsonPath("$.submitted").value("false"))
+            .andExpect(jsonPath("$.editable").value("false"))
             .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
             .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
             .andReturn();
     Integer submissionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.id");
+    InformationSubmission submission = informationSubmissionRepository.findById(Long.valueOf(submissionId)).get();
+    submission.setEditable(true);
+    informationSubmissionRepository.saveAndFlush(submission);
     payload =
         """
                             {
@@ -572,7 +574,7 @@ public class InformationRequirementControllerTest {
     JsonNode jsonPayload = mapper.readTree(payload);
     InformationSubmissionDTO submissionDTO =
         new InformationSubmissionDTO(
-            negotiation.getResources().iterator().next().getId(), jsonPayload, true);
+            negotiation.getResources().iterator().next().getId(), jsonPayload, false);
     MvcResult mvcResult =
         mockMvc
             .perform(
@@ -603,6 +605,60 @@ public class InformationRequirementControllerTest {
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andDo(print())
         .andExpect(status().isBadRequest());
+  }
+  @Test
+  @WithUserDetails("TheBiobanker")
+  @Transactional
+  void update_twiceThenSubmit_200() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+            informationRequirementServiceImpl.createInformationRequirement(
+                    new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+    String payload =
+            """
+                                            {
+                                           "sample-type": "DNA",
+                                           "num-of-subjects": 10,
+                                           "num-of-samples": 20,
+                                           "volume-per-sample": 5
+                                        }
+                                        """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    InformationSubmissionDTO submissionDTO =
+            new InformationSubmissionDTO(
+                    negotiation.getResources().iterator().next().getId(), jsonPayload, true);
+    MvcResult mvcResult =
+            mockMvc
+                    .perform(
+                            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                                    negotiation.getId(), informationRequirementDTO.getId()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").isNumber())
+                    .andExpect(jsonPath("$.resourceId").value(submissionDTO.getResourceId()))
+                    .andExpect(jsonPath("$.payload.sample-type").value("DNA"))
+                    .andReturn();
+    Integer submissionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.id");
+    payload =
+            """
+                                    {
+                                   "sample-type": "NEW_UPDATED_VALUE",
+                                   "num-of-subjects": 10,
+                                   "num-of-samples": 20,
+                                   "volume-per-sample": 5
+                                }
+                                """;
+    submissionDTO.setPayload(mapper.readTree(payload));
+    submissionDTO.setEditable(false);
+    mockMvc
+            .perform(
+                    patch(SUBMISSION_ENDPOINT.formatted(submissionId))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+            .andDo(print())
+            .andExpect(status().isOk()).andExpect(jsonPath("$.editable").value("false"));
   }
 
   @Test
@@ -821,7 +877,7 @@ biobank:1:collection:1,DNA,10,20,5
             .andReturn();
     Integer submissionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.id");
     submissionDTO.setPayload(null);
-    submissionDTO.setSubmitted(false);
+    submissionDTO.setEditable(false);
     mockMvc
         .perform(
             patch(SUBMISSION_ENDPOINT.formatted(submissionId))
@@ -829,6 +885,6 @@ biobank:1:collection:1,DNA,10,20,5
                 .content(new ObjectMapper().writeValueAsString(submissionDTO)))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.submitted").value("false"));
+        .andExpect(jsonPath("$.editable").value("false"));
   }
 }

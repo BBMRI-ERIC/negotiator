@@ -52,12 +52,12 @@ public class InformationSubmission {
       Resource resource,
       Negotiation negotiation,
       String payload,
-      boolean submitted) {
+      boolean editable) {
     this.requirement = requirement;
     this.resource = resource;
     this.negotiation = negotiation;
     this.payload = payload;
-    this.submitted = submitted;
+    this.editable = editable;
   }
 
   @Id
@@ -80,5 +80,6 @@ public class InformationSubmission {
   @Column(columnDefinition = "json")
   private String payload;
 
-  private boolean submitted = false;
+  @Column(name = "is_editable")
+  private boolean editable = false;
 }
