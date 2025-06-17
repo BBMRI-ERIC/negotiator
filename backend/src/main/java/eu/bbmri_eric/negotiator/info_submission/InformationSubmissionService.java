@@ -28,16 +28,6 @@ public interface InformationSubmissionService {
       InformationSubmissionDTO informationSubmissionDTO, Long submissionId);
 
   /**
-   * Update submission of required Information for the given resource in a Negotiation.
-   *
-   * @param informationSubmissionDTO a DTO containing necessary information
-   * @param submissionId id of the negotiation
-   * @return updated submitted information
-   */
-  SubmittedInformationDTO updateSubmissionEditable(
-      InformationSubmissionDTO informationSubmissionDTO, Long submissionId);
-
-  /**
    * Find an information submission by ID.
    *
    * @param id the ID of the sought submission

@@ -83,23 +83,6 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     return saveInformationSubmission(negotiationId, submission);
   }
 
-  //TODO: add patch method to update the submission field isSubmitted to false, only allowed for the admin
-  @Override
-  public SubmittedInformationDTO updateSubmissionEditable(
-      InformationSubmissionDTO informationSubmissionDTO, Long submissionId) {
-    verifyAuthorization(informationSubmissionDTO);
-    InformationSubmission submission =
-        informationSubmissionRepository
-            .findById(submissionId)
-            .orElseThrow(() -> new EntityNotFoundException(submissionId));
-    if (AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
-      throw new WrongRequestException(
-          "The information has been formally submitted and cannot be updated.");
-    }
-    submission.setSubmitted(informationSubmissionDTO.isSubmitted());
-    return saveInformationSubmission(submission.getNegotiation().getId(), submission);
-  }
-
   @Override
   public SubmittedInformationDTO updateSubmission(
       InformationSubmissionDTO informationSubmissionDTO, Long submissionId) {
