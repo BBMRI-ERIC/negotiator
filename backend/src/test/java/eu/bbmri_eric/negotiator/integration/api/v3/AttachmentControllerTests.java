@@ -3,9 +3,12 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -26,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -35,21 +39,17 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class AttachmentControllerTests {
 
   private static final String WITH_NEGOTIATIONS_ENDPOINT =
       "/v3/negotiations/negotiation-1/attachments";
   private static final String WITHOUT_NEGOTIATIONS_ENDPOINT = "/v3/attachments";
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private ModelMapper modelMapper;
   @Autowired private AttachmentController controller;
   @Autowired private AttachmentRepository repository;
-
-  @BeforeEach
-  public void before() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-  }
 
   @AfterEach
   public void after() {
@@ -136,6 +136,45 @@ public class AttachmentControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteAttachment_Ok() throws Exception {
+    // First, create an attachment to delete
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+            new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    MvcResult creationResult =
+            mockMvc
+                    .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.id").isString())
+                    .andReturn();
+
+    String attachmentId = JsonPath.read(creationResult.getResponse().getContentAsString(), "$.id");
+    assertTrue(repository.findById(attachmentId).isPresent());
+
+    // Now delete the attachment
+    mockMvc
+            .perform(delete("/v3/attachments/{id}", attachmentId))
+            .andExpect(status().isNoContent());
+
+    // Assert the attachment is no longer in the repository
+    assertFalse(repository.findById(attachmentId).isPresent());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteFakeAttachment_404() throws Exception {
+    mockMvc
+            .perform(delete("/v3/attachments/non-existent"))
+            .andExpect(status().isNotFound());
+  }
+
+
+  @Test
   public void testCreateForNegotiation_IsUnauthorized_whenNoAuth() throws Exception {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
@@ -153,7 +192,6 @@ public class AttachmentControllerTests {
     String fileName = "text.txt";
     MockMultipartFile file =
         new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     mockMvc
         .perform(
             multipart(WITHOUT_NEGOTIATIONS_ENDPOINT)

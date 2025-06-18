@@ -111,6 +111,14 @@ public class DBAttachmentService implements AttachmentService {
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
+  @Override
+  public void delete(String id) {
+    if (!attachmentRepository.existsById(id)){
+      throw new EntityNotFoundException(id);
+    }
+    attachmentRepository.deleteById(id);
+  }
+
   private Negotiation fetchNegotiation(String negotiationId) {
     return negotiationRepository
         .findById(negotiationId)
