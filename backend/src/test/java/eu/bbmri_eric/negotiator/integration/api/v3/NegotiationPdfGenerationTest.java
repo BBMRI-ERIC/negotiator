@@ -46,7 +46,9 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdf_WithoutAttachments_ReturnsBasicPdf() throws Exception {
     MvcResult result =
         mockMvc
@@ -69,14 +71,12 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdfWithAttachments_WithPdfAttachment_MergesPdfs() throws Exception {
     MockMultipartFile pdfFile =
-        new MockMultipartFile(
-            "file",
-            "test.pdf",
-            "application/pdf",
-            createSimplePdfBytes());
+        new MockMultipartFile("file", "test.pdf", "application/pdf", createSimplePdfBytes());
 
     mockMvc
         .perform(
@@ -106,7 +106,9 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdfWithAttachments_WithDocxAttachment_ConvertsAndMerges()
       throws Exception {
     MockMultipartFile docxFile =
@@ -138,12 +140,13 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdfWithAttachments_WithDocAttachment_ConvertsAndMerges()
       throws Exception {
     MockMultipartFile docFile =
-        new MockMultipartFile(
-            "file", "test.doc", "application/msword", createMinimalDocBytes());
+        new MockMultipartFile("file", "test.doc", "application/msword", createMinimalDocBytes());
 
     mockMvc
         .perform(
@@ -167,15 +170,13 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdfWithAttachments_WithMultipleAttachments_MergesAll()
       throws Exception {
     MockMultipartFile pdfFile =
-        new MockMultipartFile(
-            "file",
-            "test.pdf",
-            "application/pdf",
-            createSimplePdfBytes());
+        new MockMultipartFile("file", "test.pdf", "application/pdf", createSimplePdfBytes());
 
     MockMultipartFile docxFile =
         new MockMultipartFile(
@@ -216,14 +217,12 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testAttachmentConversionService_DirectlyTestsConversionLogic() throws Exception {
     MockMultipartFile pdfFile =
-        new MockMultipartFile(
-            "file",
-            "test.pdf",
-            "application/pdf",
-            createSimplePdfBytes());
+        new MockMultipartFile("file", "test.pdf", "application/pdf", createSimplePdfBytes());
 
     MockMultipartFile docxFile =
         new MockMultipartFile(
@@ -249,7 +248,9 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdf_WithInvalidTemplate_ReturnsBadRequest() throws Exception {
     mockMvc
         .perform(
@@ -260,7 +261,9 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 109L, authorities = {"ROLE_ADMIN"})
+  @WithMockNegotiatorUser(
+      id = 109L,
+      authorities = {"ROLE_ADMIN"})
   void testGenerateNegotiationPdf_WithValidTemplate_ReturnsOk() throws Exception {
     mockMvc
         .perform(
@@ -304,7 +307,13 @@ class NegotiationPdfGenerationTest {
 
   private byte[] createMinimalDocBytes() {
     byte[] docHeader = {
-      (byte) 0xD0, (byte) 0xCF, (byte) 0x11, (byte) 0xE0, (byte) 0xA1, (byte) 0xB1, (byte) 0x1A,
+      (byte) 0xD0,
+      (byte) 0xCF,
+      (byte) 0x11,
+      (byte) 0xE0,
+      (byte) 0xA1,
+      (byte) 0xB1,
+      (byte) 0x1A,
       (byte) 0xE1
     };
     byte[] docContent = new byte[512];
