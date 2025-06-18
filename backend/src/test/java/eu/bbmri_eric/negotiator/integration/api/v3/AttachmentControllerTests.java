@@ -197,7 +197,8 @@ public class AttachmentControllerTests {
     // Simulate another user who creates the attachment
     Person otherUser = personRepository.findByName("TheBiobanker").orElseThrow();
 
-    Attachment attachment = Attachment.builder()
+    Attachment attachment =
+        Attachment.builder()
             .name("secret.txt")
             .payload("Top secret data".getBytes())
             .size(16L)
@@ -209,8 +210,8 @@ public class AttachmentControllerTests {
     String attachmentId = attachment.getId();
     assertNotNull(attachmentId);
     mockMvc
-            .perform(delete("/attachments/{id}", attachmentId))
-            .andExpect(status().isForbidden()); // or .isNotFound() if access is hidden
+        .perform(delete("/attachments/{id}", attachmentId))
+        .andExpect(status().isForbidden()); // or .isNotFound() if access is hidden
     assertTrue(repository.findById(attachmentId).isPresent());
   }
 

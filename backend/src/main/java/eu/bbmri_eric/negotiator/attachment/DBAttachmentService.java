@@ -189,12 +189,20 @@ public class DBAttachmentService implements AttachmentService {
   private boolean isAdmin() {
     return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
   }
-  private void verifyDeleteAuthorization(String attachmentID){
-    MetadataAttachmentViewDTO attachmentViewDTO = attachmentRepository.findAllById(attachmentID).orElseThrow(() -> new EntityNotFoundException(attachmentID));
-    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin() && !attachmentViewDTO.getCreatedById().equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())){
+
+  private void verifyDeleteAuthorization(String attachmentID) {
+    MetadataAttachmentViewDTO attachmentViewDTO =
+        attachmentRepository
+            .findAllById(attachmentID)
+            .orElseThrow(() -> new EntityNotFoundException(attachmentID));
+    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !attachmentViewDTO
+            .getCreatedById()
+            .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
       throw new ForbiddenRequestException();
     }
   }
+
   private boolean isAuthorizedForAttachment(MetadataAttachmentViewDTO attachment) {
     // The administrator of the negotiator is authorized to all attachements
     if (isAdmin()) return true;
