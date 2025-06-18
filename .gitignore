@@ -1,4 +1,6 @@
 HELP.md
+/docs/node_modules
+/config
 /target
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
