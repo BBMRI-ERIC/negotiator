@@ -8,13 +8,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Range;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for converting attachments to PDF format.
+ */
 @Service
+@CommonsLog
 public class AttachmentConversionService {
   private final AttachmentService attachmentService;
 
@@ -22,6 +27,12 @@ public class AttachmentConversionService {
     this.attachmentService = attachmentService;
   }
 
+  /**
+   * Retrieves the specified attachments and converts them to PDF format.
+   *
+   * @param attachmentIds the list of attachment IDs to retrieve and convert
+   * @return a list of byte arrays, each representing a PDF file
+   */
   public List<byte[]> getAttachmentsAsPdf(List<String> attachmentIds) {
     List<AttachmentDTO> attachmentsList =
         attachmentIds.stream()
@@ -36,20 +47,25 @@ public class AttachmentConversionService {
         .map(
             attachmentDTO -> {
               try {
-                if (attachmentDTO.getContentType().equals("application/pdf")) {
+                String contentType = attachmentDTO.getContentType();
+
+                if (contentType.equals("application/pdf")) {
                   return attachmentDTO.getPayload();
-                } else if (attachmentDTO
-                    .getContentType()
-                    .equals(
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+                } else if (
+                    contentType.equals(
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // .docx
+                    ) || contentType.equals("application/x-tika-ooxml") // .docx (generic Tika type)
+                ) {
                   return convertDocxToPdf(attachmentDTO.getPayload());
-                } else if (attachmentDTO.getContentType().equals("application/msword")) {
+                } else if (contentType.equals("application/msword") // .doc 
+                  || contentType.equals("application/x-tika-msoffice")) { // .doc (generic Tika type)
                   return convertDocToPdf(attachmentDTO.getPayload());
                 } else {
+                  log.error("Unrecognized attachment content type: " + contentType);
                   return null;
                 }
               } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error converting attachment to PDF: " + e.getMessage());
                 return null;
               }
             })
