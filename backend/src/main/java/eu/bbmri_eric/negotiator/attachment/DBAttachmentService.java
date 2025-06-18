@@ -112,7 +112,7 @@ public class DBAttachmentService implements AttachmentService {
   }
 
   @Override
-  public void delete(String id) {
+  public void deleteById(String id) {
     verifyDeleteAuthorization(id);
     attachmentRepository.deleteById(id);
   }

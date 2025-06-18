@@ -113,6 +113,6 @@ public class AttachmentController {
   @Operation(summary = "Delete an attachment")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable String id) {
-    storageService.delete(id);
+    storageService.deleteById(id);
   }
 }

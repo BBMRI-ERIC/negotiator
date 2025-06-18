@@ -30,7 +30,7 @@ public interface AttachmentService {
    *
    * @param id of the attachment
    */
-  void delete(String id);
+  void deleteById(String id);
 
   AttachmentDTO findById(String id);
 }
