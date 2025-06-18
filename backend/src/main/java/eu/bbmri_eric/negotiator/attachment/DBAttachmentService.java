@@ -113,7 +113,7 @@ public class DBAttachmentService implements AttachmentService {
 
   @Override
   public void delete(String id) {
-    if (!attachmentRepository.existsById(id)){
+    if (!attachmentRepository.existsById(id)) {
       throw new EntityNotFoundException(id);
     }
     attachmentRepository.deleteById(id);

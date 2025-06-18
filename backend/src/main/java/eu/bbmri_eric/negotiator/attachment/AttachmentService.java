@@ -27,6 +27,7 @@ public interface AttachmentService {
 
   /**
    * Delete an attachment
+   *
    * @param id of the attachment
    */
   void delete(String id);

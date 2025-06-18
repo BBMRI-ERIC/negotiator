@@ -108,6 +108,7 @@ public class AttachmentController {
         .contentType(MediaType.valueOf(attachmentInfo.getContentType()))
         .body(attachmentInfo.getPayload());
   }
+
   @DeleteMapping(value = "/attachments/{id}")
   @Operation(summary = "Delete an attachment")
   @ResponseStatus(HttpStatus.NO_CONTENT)
