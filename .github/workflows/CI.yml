@@ -151,7 +151,7 @@ jobs:
           category: java
 
       - name: Update dependency graph
-        uses: advanced-security/maven-dependency-submission-action@v4
+        uses: advanced-security/maven-dependency-submission-action@v5
         with:
           directory: backend
 
@@ -177,7 +177,7 @@ jobs:
         run: mvn --quiet clean test -B --file pom.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v4
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -206,7 +206,7 @@ jobs:
         run: mvn --quiet clean verify -B -Dspring.profiles.active=test
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v4
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -251,7 +251,7 @@ jobs:
         run: sleep 30
 
       - name: Cypress run
-        uses: cypress-io/github-action@0ee1130f05f69098ab5c560bd198fecf5a14d75b #v6
+        uses: cypress-io/github-action@6c143abc292aa835d827652c2ea025d098311070 #v6
         with:
           working-directory: frontend
           browser: ${{ matrix.browser }}
@@ -277,10 +277,10 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
+        uses: docker/setup-buildx-action@18ce135bb5112fa8ce4ed6c17ab05699d7f3a5e0 # v3
 
       - name: Build and push
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
           context: backend
           tags: bbmrieric/negotiator:latest
@@ -306,10 +306,10 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
+        uses: docker/setup-buildx-action@18ce135bb5112fa8ce4ed6c17ab05699d7f3a5e0 # v3
 
       - name: Build and push
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
           context: frontend
           tags: bbmrieric/negotiator-frontend:latest
@@ -349,7 +349,7 @@ jobs:
         run: docker load --input /tmp/negotiator-frontend.tar
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@6c175e9c4083a92bbca2f9724c8a5e33bc2d97a5
+        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
         with:
           image-ref: bbmrieric/negotiator:latest
           format: sarif
@@ -358,7 +358,7 @@ jobs:
           timeout: '15m0s'
 
       - name: Run Trivy Vulnerability Scanner
-        uses: aquasecurity/trivy-action@6c175e9c4083a92bbca2f9724c8a5e33bc2d97a5
+        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
         with:
           image-ref: bbmrieric/negotiator-frontend:latest
           format: sarif
@@ -545,7 +545,7 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
+        uses: docker/setup-buildx-action@18ce135bb5112fa8ce4ed6c17ab05699d7f3a5e0 # v3
 
       - name: Login to DockerHub
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
@@ -576,7 +576,7 @@ jobs:
       
 
       - name: Build and push
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
           context: backend
           platforms: linux/amd64,linux/arm64
@@ -608,7 +608,7 @@ jobs:
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
+        uses: docker/setup-buildx-action@18ce135bb5112fa8ce4ed6c17ab05699d7f3a5e0 # v3
 
       - name: Login to DockerHub
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
@@ -641,7 +641,7 @@ jobs:
         run: cp -r .git frontend
 
       - name: Build and push
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
           context: frontend
           platforms: linux/amd64,linux/arm64
