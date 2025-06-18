@@ -204,13 +204,13 @@ public class AttachmentControllerTests {
             .size(16L)
             .contentType(MediaType.TEXT_PLAIN_VALUE)
             .build();
+    attachment = repository.saveAndFlush(attachment);
     attachment.setCreatedBy(otherUser); // inherited from AuditEntity
-
-    repository.saveAndFlush(attachment);
     String attachmentId = attachment.getId();
+    System.out.println(attachment.getCreatedBy().getName());
     assertNotNull(attachmentId);
     mockMvc
-        .perform(delete("/attachments/{id}", attachmentId))
+        .perform(delete("/v3/attachments/{id}", attachmentId))
         .andExpect(status().isForbidden()); // or .isNotFound() if access is hidden
     assertTrue(repository.findById(attachmentId).isPresent());
   }
