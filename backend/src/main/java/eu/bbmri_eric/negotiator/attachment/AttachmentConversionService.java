@@ -15,9 +15,7 @@ import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.stereotype.Service;
 
-/**
- * Service for converting attachments to PDF format.
- */
+/** Service for converting attachments to PDF format. */
 @Service
 @CommonsLog
 public class AttachmentConversionService {
@@ -51,14 +49,15 @@ public class AttachmentConversionService {
 
                 if (contentType.equals("application/pdf")) {
                   return attachmentDTO.getPayload();
-                } else if (
-                    contentType.equals(
+                } else if (contentType.equals(
                         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // .docx
-                    ) || contentType.equals("application/x-tika-ooxml") // .docx (generic Tika type)
+                        )
+                    || contentType.equals("application/x-tika-ooxml") // .docx (generic Tika type)
                 ) {
                   return convertDocxToPdf(attachmentDTO.getPayload());
-                } else if (contentType.equals("application/msword") // .doc 
-                  || contentType.equals("application/x-tika-msoffice")) { // .doc (generic Tika type)
+                } else if (contentType.equals("application/msword") // .doc
+                    || contentType.equals(
+                        "application/x-tika-msoffice")) { // .doc (generic Tika type)
                   return convertDocToPdf(attachmentDTO.getPayload());
                 } else {
                   log.error("Unrecognized attachment content type: " + contentType);
