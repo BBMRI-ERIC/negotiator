@@ -127,10 +127,10 @@ class AttachmentConversionServiceTest {
   void testGetAttachmentsAsPdf_WithMultipleAttachments_ProcessesAll() throws IOException {
     String pdfId = "pdf-1";
     String docxId = "docx-1";
-    
+
     byte[] pdfBytes = "PDF content".getBytes();
     byte[] docxBytes = loadTestDocxFile();
-    
+
     AttachmentDTO pdfAttachment =
         AttachmentDTO.builder()
             .id(pdfId)
@@ -138,7 +138,7 @@ class AttachmentConversionServiceTest {
             .contentType("application/pdf")
             .payload(pdfBytes)
             .build();
-            
+
     AttachmentDTO docxAttachment =
         AttachmentDTO.builder()
             .id(docxId)
@@ -249,7 +249,13 @@ class AttachmentConversionServiceTest {
 
   private byte[] createMinimalDocBytes() {
     byte[] docHeader = {
-      (byte) 0xD0, (byte) 0xCF, (byte) 0x11, (byte) 0xE0, (byte) 0xA1, (byte) 0xB1, (byte) 0x1A,
+      (byte) 0xD0,
+      (byte) 0xCF,
+      (byte) 0x11,
+      (byte) 0xE0,
+      (byte) 0xA1,
+      (byte) 0xB1,
+      (byte) 0x1A,
       (byte) 0xE1
     };
     byte[] docContent = new byte[512];
