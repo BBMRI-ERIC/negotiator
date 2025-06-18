@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -19,6 +20,8 @@ import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentController;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
@@ -47,6 +50,7 @@ public class AttachmentControllerTests {
   @Autowired private ModelMapper modelMapper;
   @Autowired private AttachmentController controller;
   @Autowired private AttachmentRepository repository;
+  @Autowired private PersonRepository personRepository;
 
   @AfterEach
   public void after() {
@@ -184,6 +188,30 @@ public class AttachmentControllerTests {
     assert attachment.isPresent();
     mockMvc.perform(delete("/v3/attachments/{id}", attachmentId)).andExpect(status().isNoContent());
     assertFalse(repository.findById(attachmentId).isPresent());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteAttachment_CreatedByAnotherUser_Forbidden() throws Exception {
+    // Simulate another user who creates the attachment
+    Person otherUser = personRepository.findByName("TheBiobanker").orElseThrow();
+
+    Attachment attachment = Attachment.builder()
+            .name("secret.txt")
+            .payload("Top secret data".getBytes())
+            .size(16L)
+            .contentType(MediaType.TEXT_PLAIN_VALUE)
+            .build();
+    attachment.setCreatedBy(otherUser); // inherited from AuditEntity
+
+    repository.saveAndFlush(attachment);
+    String attachmentId = attachment.getId();
+    assertNotNull(attachmentId);
+    mockMvc
+            .perform(delete("/attachments/{id}", attachmentId))
+            .andExpect(status().isForbidden()); // or .isNotFound() if access is hidden
+    assertTrue(repository.findById(attachmentId).isPresent());
   }
 
   @Test
