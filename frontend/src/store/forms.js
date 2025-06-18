@@ -181,7 +181,11 @@ export const useFormsStore = defineStore('forms', () => {
     }
   }
 
-  function updateInfoSubmissionsisedit(infoSubmissionsId, data) {
+  function updateInfoSubmissionsIsEdit(infoSubmissionsId, editableData) {
+    const data = {
+      editable: !editableData,
+    }
+    
     return axios
       .patch(`${apiPaths.BASE_API_PATH}/info-submissions/${infoSubmissionsId}`, data, {
         headers: getBearerHeaders(),
@@ -205,6 +209,6 @@ export const useFormsStore = defineStore('forms', () => {
     submitRequiredInformation,
     retrieveInfoRequirementsById,
     updateInfoSubmissions,
-    updateInfoSubmissionsisedit,
+    updateInfoSubmissionsIsEdit,
   }
 })

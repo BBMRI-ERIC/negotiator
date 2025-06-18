@@ -24,7 +24,7 @@
           <div class="fs-3 mb-4 fw-bold text-secondary text-center">Submitted Information</div>
           <div class="justify-content-end align-items-center mb-2 d-flex d-row">
             <button
-              v-if="submittedForm?.submitted && !isAdmin"
+              v-if="submittedForm?.editable && !isAdmin"
               type="button"
               class="btn btn-sm edit-button"
               @click="$emit('editInfoSubmission')"
@@ -34,7 +34,7 @@
             </button>
             <div v-if="isAdmin" class="form-check form-switch">
               <input
-                v-bind:checked="submittedForm?.submitted"
+                v-bind:checked="submittedForm?.editable"
                 class="form-check-input"
                 type="checkbox"
                 role="switch"
@@ -111,11 +111,6 @@ const props = defineProps({
     required: false,
     default: true,
   },
-  isSubmittedFormSubmitted: {
-    type: Boolean,
-    required: false,
-    default: false,
-  },
   isAdmin: {
     type: Boolean,
     default: false,
@@ -144,11 +139,7 @@ function downloadAttachment(id, name) {
 }
 
 function changeEditing() {
-  const data = {
-    submitted: !props.submittedForm.submitted,
-  }
-
-  formsStore.updateInfoSubmissionsisedit(props.submittedForm.id, data)
+  formsStore.updateInfoSubmissionsIsEdit(props.submittedForm.id, props.submittedForm.editable)
 }
 </script>
 

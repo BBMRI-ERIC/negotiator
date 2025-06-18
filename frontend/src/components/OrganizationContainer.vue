@@ -14,7 +14,13 @@
     @confirmUpdate="hideFormSubmissionAndOpenView"
     requirement-link=""
   />
-  <form-view-modal ref="formViewModalRef" id="formViewModal" :submittedForm="submittedForm" :isSubmittedFormSubmitted="submittedForm?.submitted" :isAdmin="isAdmin" @editInfoSubmission="editInfoSubmission"/>
+  <form-view-modal
+    ref="formViewModalRef"
+    id="formViewModal"
+    :submittedForm="submittedForm"
+    :isAdmin="isAdmin"
+    @editInfoSubmission="editInfoSubmission"
+  />
   <confirmation-modal
     id="statusUpdateModal"
     :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown'}`"
@@ -87,7 +93,7 @@ const openModal = async (href, resId) => {
 }
 
 async function openFormModal(href) {
- await negotiationPageStore.retrieveInformationSubmission(href).then((res) => {
+  await negotiationPageStore.retrieveInformationSubmission(href).then((res) => {
     submittedForm.value = res
     formViewModalInstance.value.show()
   })
@@ -143,7 +149,7 @@ function editInfoSubmission() {
   resourceId.value = submittedForm.value.resourceId
   requirementId.value = submittedForm.value.requirementId
   formsStore.retrieveInfoRequirementsById(submittedForm.value.requirementId).then((res) => {
-    requiredAccessForm.value =  res.requiredAccessForm
+    requiredAccessForm.value = res.requiredAccessForm
   })
   formSubmissionModalInstance.value.show()
 }
