@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,6 +98,7 @@ public class AttachmentController {
 
   @GetMapping(value = "/attachments/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Retrieve an attachment")
   public ResponseEntity<byte[]> retrieve(@PathVariable String id) {
     AttachmentDTO attachmentInfo = storageService.findById(id);
     return ResponseEntity.ok()
@@ -105,5 +107,12 @@ public class AttachmentController {
             String.format("attachment; filename=\"%s\"", attachmentInfo.getName()))
         .contentType(MediaType.valueOf(attachmentInfo.getContentType()))
         .body(attachmentInfo.getPayload());
+  }
+
+  @DeleteMapping(value = "/attachments/{id}")
+  @Operation(summary = "Delete an attachment")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable String id) {
+    storageService.deleteById(id);
   }
 }

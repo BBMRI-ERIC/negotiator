@@ -111,6 +111,12 @@ public class DBAttachmentService implements AttachmentService {
     return modelMapper.map(attachment, AttachmentMetadataDTO.class);
   }
 
+  @Override
+  public void deleteById(String id) {
+    verifyDeleteAuthorization(id);
+    attachmentRepository.deleteById(id);
+  }
+
   private Negotiation fetchNegotiation(String negotiationId) {
     return negotiationRepository
         .findById(negotiationId)
@@ -182,6 +188,19 @@ public class DBAttachmentService implements AttachmentService {
 
   private boolean isAdmin() {
     return AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin();
+  }
+
+  private void verifyDeleteAuthorization(String attachmentID) {
+    MetadataAttachmentViewDTO attachmentViewDTO =
+        attachmentRepository
+            .findAllById(attachmentID)
+            .orElseThrow(() -> new EntityNotFoundException(attachmentID));
+    if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()
+        && !attachmentViewDTO
+            .getCreatedById()
+            .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
+      throw new ForbiddenRequestException();
+    }
   }
 
   private boolean isAuthorizedForAttachment(MetadataAttachmentViewDTO attachment) {

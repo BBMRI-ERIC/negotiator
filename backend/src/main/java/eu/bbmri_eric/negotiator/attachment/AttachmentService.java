@@ -25,5 +25,12 @@ public interface AttachmentService {
 
   AttachmentMetadataDTO findByIdAndNegotiationId(String id, String negotiationId);
 
+  /**
+   * Delete an attachment
+   *
+   * @param id of the attachment
+   */
+  void deleteById(String id);
+
   AttachmentDTO findById(String id);
 }
