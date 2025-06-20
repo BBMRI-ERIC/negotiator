@@ -27,10 +27,7 @@ export const useTemplates = defineStore('emailTemplates', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification(
-          'Error getting template by name data from server',
-          'danger',
-        )
+        notifications.setNotification('Error getting template by name data from server', 'danger')
         return null
       })
   }
@@ -42,10 +39,7 @@ export const useTemplates = defineStore('emailTemplates', () => {
         responseType: 'text',
       })
       .then(() => {
-        notifications.setNotification(
-          'Template was updated successfully',
-          'success',
-        )
+        notifications.setNotification('Template was updated successfully', 'success')
       })
       .catch(() => {
         notifications.setNotification('Error updating template', 'danger')
@@ -55,14 +49,15 @@ export const useTemplates = defineStore('emailTemplates', () => {
 
   function templateReset(templateName) {
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/templates/${templateName}/operations`, '{ "operation": "RESET" }', {
-        headers: { ...getBearerHeaders(), 'Content-Type': 'application/json' },
-      })
+      .post(
+        `${apiPaths.BASE_API_PATH}/templates/${templateName}/operations`,
+        '{ "operation": "RESET" }',
+        {
+          headers: { ...getBearerHeaders(), 'Content-Type': 'application/json' },
+        },
+      )
       .then(() => {
-        notifications.setNotification(
-          'Email template was successfully reset',
-          'success',
-        )
+        notifications.setNotification('Email template was successfully reset', 'success')
       })
       .catch(() => {
         notifications.setNotification('Error restarting template', 'danger')

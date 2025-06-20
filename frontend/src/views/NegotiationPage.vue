@@ -65,10 +65,11 @@
               {{ transformDashToSpace(key).toUpperCase() }}</span
             >
             <div v-for="(subelement, subelementkey) in element" :key="subelement" class="mt-3">
-              <div class="me-2 fw-bold" :style="{ color: uiConfiguration.secondaryTextColor }"
-                   v-html="decodeHTML(subelementkey)"
-              ></div
-              >
+              <div
+                class="me-2 fw-bold"
+                :style="{ color: uiConfiguration.secondaryTextColor }"
+                v-html="decodeHTML(subelementkey)"
+              ></div>
               <span
                 v-if="isAttachment(subelement)"
                 :style="{ color: uiConfiguration.secondaryTextColor }"
@@ -495,7 +496,10 @@ async function updateNegotiation(message) {
 }
 
 function canDelete() {
-  return negotiation.value.status === 'DRAFT' && (isAdmin.value || userInfo.value.subjectId === negotiation.value.author.subjectId)
+  return (
+    negotiation.value.status === 'DRAFT' &&
+    (isAdmin.value || userInfo.value.subjectId === negotiation.value.author.subjectId)
+  )
 }
 
 async function deleteNegotiation() {
@@ -616,5 +620,4 @@ function updateNegotiationPayload() {
 .abandon-text:hover {
   color: #dc3545;
 }
-
 </style>

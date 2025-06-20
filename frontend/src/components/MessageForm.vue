@@ -80,20 +80,24 @@ const props = defineProps({
   negotiation: {
     type: Object,
     required: true,
-    default: () => ({ publicPostsEnabled: false, privatePostsEnabled: false, id: '' })
+    default: () => ({ publicPostsEnabled: false, privatePostsEnabled: false, id: '' }),
   },
   recipients: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   uiConfiguration: {
     type: Object,
     required: true,
-    default: () => ({ primaryTextColor: '#000', secondaryTextColor: '#666', buttonColor: '#007bff' })
+    default: () => ({
+      primaryTextColor: '#000',
+      secondaryTextColor: '#666',
+      buttonColor: '#007bff',
+    }),
   },
   fileExtensions: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
 })
 
@@ -116,7 +120,7 @@ const readyToSend = computed(() => {
 const selectedChannelName = computed(() => {
   if (!channelId.value) return ''
   if (channelId.value === 'public') return 'Public channel'
-  const recipient = props.recipients.find(r => r.id === channelId.value)
+  const recipient = props.recipients.find((r) => r.id === channelId.value)
   return recipient ? `Author - ${recipient.name}` : 'Author - Unknown'
 })
 
@@ -125,7 +129,7 @@ const channelVisibilityMessage = computed(() => {
   if (channelId.value === 'public') {
     return 'Visible to all authorized negotiation participants (author, representatives, administrator).'
   }
-  const recipient = props.recipients.find(r => r.id === channelId.value)
+  const recipient = props.recipients.find((r) => r.id === channelId.value)
   return recipient
     ? `Private channel between the negotiation author and ${recipient.name}.`
     : 'Private channel between the negotiation author and the selected organization.'
@@ -178,14 +182,22 @@ async function sendMessage() {
     try {
       await addAttachmentToNegotiation()
       emit('new-attachment')
-      emit('send-message', { message: message.value, channelId: channelId.value, attachment: attachment.value })
+      emit('send-message', {
+        message: message.value,
+        channelId: channelId.value,
+        attachment: attachment.value,
+      })
     } catch (error) {
       console.error('Attachment upload error:', error)
       attachmentError.value = error.message
       return
     }
-  }else {
-    emit('send-message', { message: message.value, channelId: channelId.value, attachment: attachment.value })
+  } else {
+    emit('send-message', {
+      message: message.value,
+      channelId: channelId.value,
+      attachment: attachment.value,
+    })
   }
 
   resetForm()

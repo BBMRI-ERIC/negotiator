@@ -1,11 +1,14 @@
 <template>
-  <div class="timeline-item d-flex align-items-start mb-4 position-relative" style="z-index: 1;">
+  <div class="timeline-item d-flex align-items-start mb-4 position-relative" style="z-index: 1">
     <div class="d-flex align-items-center w-100">
-      <div class="timeline-icon me-3 position-relative" style="z-index: 2; width: 24px; text-align: center; flex-shrink: 0;">
+      <div
+        class="timeline-icon me-3 position-relative"
+        style="z-index: 2; width: 24px; text-align: center; flex-shrink: 0"
+      >
         <i
           :class="item.type === 'event' ? 'bi bi-clock-history' : 'bi bi-chat-left-text'"
           class="fs-5 text-primary"
-          style="z-index: 2; position: relative;"
+          style="z-index: 2; position: relative"
         />
         <div
           class="position-absolute"
@@ -20,11 +23,11 @@
           "
         ></div>
       </div>
-      <div class="timeline-content" style="flex: 1; min-width: 0;">
+      <div class="timeline-content" style="flex: 1; min-width: 0">
         <div v-if="item.type === 'event'" :style="{ color: uiConfiguration.primaryTextColor }">
           {{ item.text }}
         </div>
-        <div v-else class="card" style="width: 100%;">
+        <div v-else class="card" style="width: 100%">
           <div class="card-header">
             <div class="mb-2">
               <span>
@@ -73,7 +76,7 @@
     <div
       v-if="item.type === 'event'"
       class="text-muted small text-end"
-      style="min-width: 140px; flex-shrink: 0;"
+      style="min-width: 140px; flex-shrink: 0"
     >
       {{ new Date(item.timestamp).toLocaleString() }}
     </div>
@@ -88,21 +91,21 @@ const props = defineProps({
   item: {
     type: Object,
     required: true,
-    default: () => ({ type: '', text: '', createdBy: { name: '' }, creationDate: '' })
+    default: () => ({ type: '', text: '', createdBy: { name: '' }, creationDate: '' }),
   },
   uiConfiguration: {
     type: Object,
     required: true,
-    default: () => ({ primaryTextColor: '#000', secondaryTextColor: '#666' })
+    default: () => ({ primaryTextColor: '#000', secondaryTextColor: '#666' }),
   },
   organizations: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   negotiation: {
     type: Object,
     required: true,
-    default: () => ({ author: { id: '' } })
+    default: () => ({ author: { id: '' } }),
   },
 })
 

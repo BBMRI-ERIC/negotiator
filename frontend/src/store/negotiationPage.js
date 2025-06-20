@@ -119,31 +119,33 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function addAttachmentToNegotiation(data) {
     try {
-      const formData = new FormData();
-      const uploadFileHeaders = { headers: getBearerHeaders() };
+      const formData = new FormData()
+      const uploadFileHeaders = { headers: getBearerHeaders() }
       if (data.organizationId != null) {
-        formData.append('organizationId', data.organizationId);
+        formData.append('organizationId', data.organizationId)
       }
-      formData.append('file', data.attachment);
-      uploadFileHeaders['Content-type'] = 'multipart/form-data';
+      formData.append('file', data.attachment)
+      uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
       const response = await axios.post(
         `${apiPaths.NEGOTIATION_PATH}/${data.negotiationId}/attachments`,
         formData,
-        uploadFileHeaders
-      );
-      return response; // Return full response object (success or failure)
+        uploadFileHeaders,
+      )
+      return response // Return full response object (success or failure)
     } catch (error) {
       // Handle network errors or Axios errors with a response
       if (error.response) {
         // API responded with an error status (e.g., 400)
-        return error.response; // Return the error response object
+        return error.response // Return the error response object
       }
       // Network error or other failure
       return {
         status: 0,
-        data: { detail: 'Network error: Failed to upload attachment. Please check your connection.' }
-      };
+        data: {
+          detail: 'Network error: Failed to upload attachment. Please check your connection.',
+        },
+      }
     }
   }
 
@@ -319,7 +321,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function retrieveNegotiationPDF (id) {
+  async function retrieveNegotiationPDF(id) {
     return axios
       .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf`, {
         headers: getBearerHeaders(),
@@ -327,22 +329,21 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
       .then((response) => response.data)
       .catch((error) => {
-        console.error('Error retrieving PDF:', error);
-        throw error;
-      });
+        console.error('Error retrieving PDF:', error)
+        throw error
+      })
   }
 
   async function retrieveNegotiationTimeline(negotiationId) {
     try {
-      const response = await axios.get(
-        `${apiPaths.NEGOTIATION_PATH}/${negotiationId}/timeline`,
-        { headers: getBearerHeaders() }
-      );
+      const response = await axios.get(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}/timeline`, {
+        headers: getBearerHeaders(),
+      })
 
-      return response.data?._embedded?.timelineEvents ?? [];
+      return response.data?._embedded?.timelineEvents ?? []
     } catch (error) {
-      console.error("Failed to retrieve timeline:", error);
-      return [];
+      console.error('Failed to retrieve timeline:', error)
+      return []
     }
   }
 
@@ -369,6 +370,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveResourceAllStates,
     deleteNegotiation,
     retrieveNegotiationPDF,
-    retrieveNegotiationTimeline
+    retrieveNegotiationTimeline,
   }
 })
