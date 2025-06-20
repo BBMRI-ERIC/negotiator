@@ -3,7 +3,8 @@ const devSettings = {
   vueTour: true,
   notifications: true,
   networks: true,
-  dev_mode: true
+  dev_mode: true,
+  add_access_forms: true,
 }
 
 const prodSettings = {
@@ -11,7 +12,8 @@ const prodSettings = {
   vueTour: 'FEATURE_FLAG_VUETOUR_PLACEHOLDER',
   notifications: 'FEATURE_FLAG_NOTIFICATIONS',
   networks: 'FEATURE_FLAG_NETWORKS',
-  dev_mode: 'DEV_MODE_PLACEHOLDER'
+  dev_mode: 'DEV_MODE_PLACEHOLDER',
+  add_access_forms: 'FEATURE_FLAG_ADD_ACCESS_FORMS_PLACEHOLDER',
 }
 
 let allFeatureFlags
