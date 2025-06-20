@@ -22,7 +22,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
-            @click="resetForm()"
+            @click="resetForm()" 
           />
         </div>
         <div class="modal-body text-left">
@@ -182,6 +182,13 @@
                 </div>
 
                 <div v-else-if="criteria.type === 'FILE'">
+                  <label
+                    v-if="isFormEditable && negotiationCriteria[section.name][criteria.name].name"
+                    class="form-label text-primary-text text-truncate w-100"
+                    :title="negotiationCriteria[section.name][criteria.name].name"
+                  >
+                    Uploaded file: {{ negotiationCriteria[section.name][criteria.name].name }}
+                  </label>
                   <input
                     :key="fileInputKey"
                     :accept="fileExtensions"
@@ -360,6 +367,11 @@ const props = defineProps({
     required: true,
     default: undefined,
   },
+  isFormEditable: {
+    type: Boolean,
+    required: false,
+    default: false,
+  }
 })
 
 const wizard = ref(null)
@@ -373,6 +385,7 @@ const negotiationValueSets = ref({})
 const validationColorHighlight = ref([])
 
 const accessForm = ref(undefined)
+const submittedForm = defineModel('submittedForm')
 
 watch(
   () => props.requiredAccessFormId,
@@ -403,17 +416,26 @@ async function getValueSet(link, id) {
 
 async function startRequiredAccessForm() {
   const data = {
-    resourceId: props.resourceId,
-    payload: negotiationCriteria.value,
-  }
-  const negotiationId = props.negotiationId
-  const requirementId = props.requirementId
-  await formsStore.submitRequiredInformation(data, negotiationId, requirementId).then((resp) => {
-    if (resp !== undefined && resp !== null) {
-      emitConfirm()
-      resetForm()
+      resourceId: props.resourceId,
+      payload: negotiationCriteria.value,
     }
-  })
+    const negotiationId = props.negotiationId
+    const requirementId = props.requirementId
+  if(props.isFormEditable){
+    await formsStore.updateInfoSubmissions(submittedForm.value.id, data).then((resp) => {
+      if(resp !== undefined && resp !== null) {
+        emitConfirmUpdate(negotiationCriteria.value)
+        resetForm()
+      }
+    })
+  } else {
+    await formsStore.submitRequiredInformation(data, negotiationId, requirementId).then((resp) => {
+      if(resp !== undefined && resp !== null) {
+        emitConfirm()
+        resetForm()
+      }
+    })
+}
 }
 
 function resetForm() {
@@ -444,12 +466,32 @@ function initNegotiationCriteria() {
     negotiationCriteria.value[section.name] = {}
     for (const criteria of section.elements) {
       if (criteria.type === 'MULTIPLE_CHOICE') {
-        negotiationCriteria.value[section.name][criteria.name] = []
+        if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
+            negotiationCriteria.value[section.name][criteria.name] =
+            submittedForm.value.payload[section.name][criteria.name]
+        } else {
+          negotiationCriteria.value[section.name][criteria.name] = []
+        }
         getValueSet(criteria._links['value-set'].href, criteria.id)
       } else if (criteria.type === 'SINGLE_CHOICE') {
+        if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
+            negotiationCriteria.value[section.name][criteria.name] =
+            submittedForm.value.payload[section.name][criteria.name]
+        }
         getValueSet(criteria._links['value-set'].href, criteria.id)
-      } else {
-        negotiationCriteria.value[section.name][criteria.name] = null
+      } else if (criteria.type === 'FILE') {
+          if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
+            negotiationCriteria.value[section.name][criteria.name] =
+            submittedForm.value.payload[section.name][criteria.name]
+          } else {
+            negotiationCriteria.value[section.name][criteria.name] = {}
+          }
+        } else {
+        if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
+          negotiationCriteria.value[section.name][criteria.name] = submittedForm.value.payload[section.name][criteria.name]
+          } else {
+            negotiationCriteria.value[section.name][criteria.name] = null
+          }
       }
     }
   }
@@ -526,11 +568,16 @@ function transformMessage(text) {
   }
 }
 
-const emit = defineEmits(['confirm'])
+const emit = defineEmits(['confirm','confirmUpdate'])
 
 function emitConfirm() {
   showNotification('Confirm submission', 'Thank you. Your response has been submitted successfully')
   emit('confirm')
+}
+
+function emitConfirmUpdate(payload) {
+  notificationsStore.setNotification('Thank you. Your response has been submitted successfully', 'success')
+  emit('confirmUpdate',payload)
 }
 </script>
 
