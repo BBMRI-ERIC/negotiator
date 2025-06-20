@@ -1,0 +1,19 @@
+# This is a comment.
+# Example of a CODEOWNERS file
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @global-owner1 and @global-owner2 will be requested for
+# review when someone opens a pull request.
+# *       @global-owner1 @global-owner2
+
+*       @konradlang
+
+# In this example, @octocat owns any file in an apps directory
+# anywhere in your repository.
+# apps/ @octocat
+
+backend/       @radovantomik @konradlang
+
+frontend/       @tmilost
