@@ -62,7 +62,7 @@ const props = defineProps({
   org: { type: Object, required: true },
   uiConfiguration: { type: Object, required: true },
   sortedStates: { type: Array, default: () => [] },
-  dropdownVisible: { type: Object, default: () => ({}) }
+  dropdownVisible: { type: Object, default: () => ({}) },
 })
 const emit = defineEmits(['toggle-dropdown', 'toggle-collapse', 'update-org-status'])
 

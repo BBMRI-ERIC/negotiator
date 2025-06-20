@@ -63,11 +63,20 @@ export const useFormsStore = defineStore('forms', () => {
             })
             .catch((error) => {
               if (error.response) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.response.data.detail}`,
+                  'danger',
+                )
               } else if (error.request) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.request.statusText}`,
+                  'danger',
+                )
               } else {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.message}`,
+                  'danger',
+                )
               }
               isAtachmentError = true
               return null
@@ -75,17 +84,20 @@ export const useFormsStore = defineStore('forms', () => {
         }
       }
     }
-    if(!isAtachmentError){
+    if (!isAtachmentError) {
       return axios
         .post(`/api/v3/negotiations/${negotiationId}/info-requirements/${requirementId}`, data, {
           headers: getBearerHeaders(),
         })
         .then((response) => {
-          notifications.setNotification('Thank you. Your response was successfully submitted. ','success')
+          notifications.setNotification(
+            'Thank you. Your response was successfully submitted. ',
+            'success',
+          )
           return response.data.id
         })
         .catch(() => {
-          notifications.setNotification('There was an error saving the Negotiation','danger')
+          notifications.setNotification('There was an error saving the Negotiation', 'danger')
         })
     }
   }
