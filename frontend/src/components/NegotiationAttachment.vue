@@ -3,8 +3,8 @@
     <div id="file-type" class="me-2">
       <i class="fs-2 bi" :class="getFileTypeIconClass(contentType)" />
     </div>
-    <div id="file-info" style="max-width: 71%;">
-      <div class="text-truncate" :title="name" >{{ name }}</div>
+    <div id="file-info" style="max-width: 71%">
+      <div class="text-truncate" :title="name">{{ name }}</div>
       <div class="text-info">
         {{ getFileTypeName(contentType) + ' ' + getHumanFileSize(size) }}
       </div>

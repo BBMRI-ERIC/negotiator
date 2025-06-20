@@ -148,7 +148,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     const response = await axios.patch(
       `${apiPaths.NEGOTIATION_PATH}/${negotiationId}`,
       { authorSubjectId: subjectId },
-      { headers: getBearerHeaders() }
+      { headers: getBearerHeaders() },
     )
     return response.data
   }
@@ -160,6 +160,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
     updateNegotiationById,
-    transferNegotiation
+    transferNegotiation,
   }
 })

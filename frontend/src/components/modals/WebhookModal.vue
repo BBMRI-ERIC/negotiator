@@ -54,11 +54,7 @@
                 role="tabpanel"
                 aria-labelledby="config-tab"
               >
-                <WebhookConfig
-                  :form="form"
-                  :urlIsValid="urlIsValid"
-                  @updateForm="updateForm"
-                />
+                <WebhookConfig :form="form" :urlIsValid="urlIsValid" @updateForm="updateForm" />
               </div>
               <div
                 class="tab-pane fade"
@@ -72,11 +68,7 @@
           </div>
           <!-- For new webhooks, just show the configuration form -->
           <div v-else>
-            <WebhookConfig
-              :form="form"
-              :urlIsValid="urlIsValid"
-              @updateForm="updateForm"
-            />
+            <WebhookConfig :form="form" :urlIsValid="urlIsValid" @updateForm="updateForm" />
           </div>
         </div>
         <div class="modal-footer justify-content-center">
@@ -88,9 +80,7 @@
           >
             {{ isNew ? 'Create' : 'Update' }}
           </button>
-          <button type="button" class="btn btn-close-custom" data-bs-dismiss="modal">
-            Close
-          </button>
+          <button type="button" class="btn btn-close-custom" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -106,7 +96,7 @@ const props = defineProps({
   shown: { type: Boolean, required: true },
   webhook: { type: Object, required: true },
   id: { type: String, default: 'editWebhookModal' },
-  fade: { type: Boolean, default: true }
+  fade: { type: Boolean, default: true },
 })
 const emit = defineEmits(['update', 'create'])
 
@@ -114,18 +104,22 @@ const emit = defineEmits(['update', 'create'])
 const form = reactive({
   url: props.webhook.url,
   sslVerification: props.webhook.sslVerification,
-  active: props.webhook.active
+  active: props.webhook.active,
 })
 
 // Determine if this is a new webhook (i.e. no ID exists)
 const isNew = computed(() => !props.webhook.id)
 
 // Update the form when the webhook prop changes.
-watch(() => props.webhook, (newWebhook) => {
-  form.url = newWebhook.url
-  form.sslVerification = newWebhook.sslVerification
-  form.active = newWebhook.active
-}, { deep: true })
+watch(
+  () => props.webhook,
+  (newWebhook) => {
+    form.url = newWebhook.url
+    form.sslVerification = newWebhook.sslVerification
+    form.active = newWebhook.active
+  },
+  { deep: true },
+)
 
 // URL validation logic.
 const urlIsValid = computed(() => {

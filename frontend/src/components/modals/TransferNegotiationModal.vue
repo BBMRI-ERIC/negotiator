@@ -3,7 +3,7 @@
     v-if="isOpen"
     class="modal fade show"
     tabindex="-1"
-    style="display: block; background-color: rgba(0, 0, 0, 0.5);"
+    style="display: block; background-color: rgba(0, 0, 0, 0.5)"
     @click="handleBackdropClick"
   >
     <div class="modal-dialog modal-dialog-centered" @click.stop>
@@ -32,9 +32,10 @@
             </output>
             <div v-else>
               <p class="mb-3">
-                You are about to transfer this negotiation to another user. Enter the Subject ID of the
-                user who will become the new owner. This action will reassign all responsibilities and
-                permissions associated with the negotiation to the specified user.
+                You are about to transfer this negotiation to another user. Enter the Subject ID of
+                the user who will become the new owner. This action will reassign all
+                responsibilities and permissions associated with the negotiation to the specified
+                user.
               </p>
               <p class="text-muted mb-3">
                 <i class="bi bi-info-circle me-1"></i>
@@ -43,8 +44,8 @@
               <div class="alert alert-warning d-flex align-items-center mb-3" role="note">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 <div>
-                  <strong>Warning:</strong> If the transfer is successful, you will lose access to this
-                  negotiation.
+                  <strong>Warning:</strong> If the transfer is successful, you will lose access to
+                  this negotiation.
                 </div>
               </div>
               <div class="mb-3">
@@ -80,7 +81,11 @@
             @click="confirm"
             :disabled="!localSubjectId.trim() || isLoading"
           >
-            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <span
+              v-if="isLoading"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            ></span>
             Confirm
           </button>
         </div>
@@ -97,15 +102,15 @@ import { useNegotiationFormStore } from '@/store/negotiationForm.js'
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    required: true
+    required: true,
   },
   subjectId: {
     type: String,
-    default: ''
+    default: '',
   },
   negotiationId: {
     type: String,
-    required: true
+    required: true,
   },
 })
 
@@ -121,9 +126,12 @@ const isSuccess = ref(false)
 const authorName = ref('')
 
 // Sync localSubjectId with props.subjectId
-watch(() => props.subjectId, (newValue) => {
-  localSubjectId.value = newValue
-})
+watch(
+  () => props.subjectId,
+  (newValue) => {
+    localSubjectId.value = newValue
+  },
+)
 
 // Sync localSubjectId back to parent
 watch(localSubjectId, (newValue) => {
@@ -164,7 +172,7 @@ async function confirm() {
   try {
     const response = await negotiationFormStore.transferNegotiation(
       props.negotiationId,
-      localSubjectId.value.trim()
+      localSubjectId.value.trim(),
     )
     isSuccess.value = true
     authorName.value = response.author?.name || 'the new owner'
