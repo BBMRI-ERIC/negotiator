@@ -1,6 +1,7 @@
 import { ref, watch, onWatcherCleanup } from 'vue'
 import { defineStore } from 'pinia'
 import moment from 'moment'
+import { MAX_QUEUE_SIZE_NOTIFICATIONS, TIME_INTERVAL_NOTIFICATIONS } from '../config/consts'
 
 export const useNotificationsStore = defineStore('notifications', () => {
   const notification = ref({})
@@ -35,7 +36,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
   watch(currentNotifications, () => {
     if (currentNotifications.value.length > 3) {
-      currentNotifications.value = currentNotifications.value.slice(0, 3)
+      currentNotifications.value = currentNotifications.value.slice(0, MAX_QUEUE_SIZE_NOTIFICATIONS)
     }
     // Clear any existing interval before creating a new one
     if (activeInterval !== null) {
@@ -49,7 +50,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
         clearInterval(activeInterval)
         activeInterval = null; // Reset the active interval variable
       }
-    }, 3000)
+    }, TIME_INTERVAL_NOTIFICATIONS)
     onWatcherCleanup(() => {
       // Clear the active interval during watcher cleanup
       if (activeInterval !== null) {
