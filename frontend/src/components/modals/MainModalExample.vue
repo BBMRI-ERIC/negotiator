@@ -41,11 +41,11 @@ defineProps({
   },
   title: {
     type: String,
-    required: true,
+    required: false,
   },
   text: {
     type: String,
-    required: true,
+    required: false,
   },
   isModalSmall: {
     type: Boolean,

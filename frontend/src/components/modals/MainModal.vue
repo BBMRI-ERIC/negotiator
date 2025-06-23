@@ -20,6 +20,7 @@
         </div>
 
         <div class="modal-body">
+          <div v-if="text" class="modal-body-text"> {{ text }} </div>
           <slot name="body" />
         </div>
         <div class="modal-footer justify-content-center">
@@ -66,11 +67,11 @@ const props = defineProps({
   },
   title: {
     type: String,
-    required: true,
+    required: false,
   },
   text: {
     type: String,
-    required: true,
+    required: false,
   },
   isModalSmall: {
     type: Boolean,
