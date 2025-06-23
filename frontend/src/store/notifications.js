@@ -29,7 +29,6 @@ export const useNotificationsStore = defineStore('notifications', () => {
     if (index > -1) {
       currentNotifications.value.splice(index, 1)
     }
-    console.log('Current notifications after removal:', currentNotifications.value)
   }
 
   let activeInterval = null; // Variable to store the active interval ID
