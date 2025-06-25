@@ -38,6 +38,10 @@
   />
   <hr />
   <email-template-section />
+  <div v-if="featureFlagsAddAcessForms">
+    <hr />
+    <AccessFormsSection />
+  </div>
 </template>
 
 <script setup>
@@ -54,6 +58,8 @@ import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
+import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import allFeatureFlags from '@/config/featureFlags.js'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
@@ -69,6 +75,9 @@ const editModal = ref(undefined)
 const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
+const featureFlagsAddAcessForms = !!(
+  allFeatureFlags.add_access_forms === 'true' || allFeatureFlags.add_access_forms === true
+)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
