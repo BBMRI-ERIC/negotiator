@@ -3,9 +3,12 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -17,39 +20,37 @@ import com.jayway.jsonpath.JsonPath;
 import eu.bbmri_eric.negotiator.attachment.Attachment;
 import eu.bbmri_eric.negotiator.attachment.AttachmentController;
 import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class AttachmentControllerTests {
 
   private static final String WITH_NEGOTIATIONS_ENDPOINT =
       "/v3/negotiations/negotiation-1/attachments";
   private static final String WITHOUT_NEGOTIATIONS_ENDPOINT = "/v3/attachments";
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
   @Autowired private WebApplicationContext context;
   @Autowired private ModelMapper modelMapper;
   @Autowired private AttachmentController controller;
   @Autowired private AttachmentRepository repository;
-
-  @BeforeEach
-  public void before() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-  }
+  @Autowired private PersonRepository personRepository;
 
   @AfterEach
   public void after() {
@@ -136,6 +137,92 @@ public class AttachmentControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteAttachment_Ok() throws Exception {
+    // First, create an attachment to delete
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    MvcResult creationResult =
+        mockMvc
+            .perform(multipart(WITHOUT_NEGOTIATIONS_ENDPOINT).file(file))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isString())
+            .andReturn();
+
+    String attachmentId = JsonPath.read(creationResult.getResponse().getContentAsString(), "$.id");
+    assertTrue(repository.findById(attachmentId).isPresent());
+
+    // Now delete the attachment
+    mockMvc.perform(delete("/v3/attachments/{id}", attachmentId)).andExpect(status().isNoContent());
+
+    // Assert the attachment is no longer in the repository
+    assertFalse(repository.findById(attachmentId).isPresent());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteNegotiationAttachment_Ok() throws Exception {
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+
+    MvcResult result =
+        mockMvc
+            .perform(multipart(WITH_NEGOTIATIONS_ENDPOINT).file(file))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isString())
+            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
+            .andExpect(jsonPath("$.size", is(data.length)))
+            .andReturn();
+
+    String attachmentId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    Optional<Attachment> attachment = repository.findById(attachmentId);
+    assert attachment.isPresent();
+    mockMvc.perform(delete("/v3/attachments/{id}", attachmentId)).andExpect(status().isNoContent());
+    assertFalse(repository.findById(attachmentId).isPresent());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteAttachment_CreatedByAnotherUser_Forbidden() throws Exception {
+    // Simulate another user who creates the attachment
+    Person otherUser = personRepository.findByName("TheBiobanker").orElseThrow();
+
+    Attachment attachment =
+        Attachment.builder()
+            .name("secret.txt")
+            .payload("Top secret data".getBytes())
+            .size(16L)
+            .contentType(MediaType.TEXT_PLAIN_VALUE)
+            .build();
+    attachment = repository.saveAndFlush(attachment);
+    attachment.setCreatedBy(otherUser); // inherited from AuditEntity
+    String attachmentId = attachment.getId();
+    System.out.println(attachment.getCreatedBy().getName());
+    assertNotNull(attachmentId);
+    mockMvc
+        .perform(delete("/v3/attachments/{id}", attachmentId))
+        .andExpect(status().isForbidden()); // or .isNotFound() if access is hidden
+    assertTrue(repository.findById(attachmentId).isPresent());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  public void test_DeleteFakeAttachment_404() throws Exception {
+    mockMvc.perform(delete("/v3/attachments/non-existent")).andExpect(status().isNotFound());
+  }
+
+  @Test
   public void testCreateForNegotiation_IsUnauthorized_whenNoAuth() throws Exception {
     byte[] data = "Hello, World!".getBytes();
     String fileName = "text.txt";
@@ -153,7 +240,6 @@ public class AttachmentControllerTests {
     String fileName = "text.txt";
     MockMultipartFile file =
         new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
-
     mockMvc
         .perform(
             multipart(WITHOUT_NEGOTIATIONS_ENDPOINT)
