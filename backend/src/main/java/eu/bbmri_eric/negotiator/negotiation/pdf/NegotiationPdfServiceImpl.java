@@ -98,11 +98,11 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
         ITextRenderer renderer = new ITextRenderer();
         URL fontUrl = getClass().getResource(fontPath);
         if (fontUrl == null) {
-          throw new FileNotFoundException(
-                  String.format("Font not found at path: %s ", fontPath));
+          throw new FileNotFoundException(String.format("Font not found at path: %s ", fontPath));
         }
-        renderer.getFontResolver().addFont(
-                fontUrl.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        renderer
+            .getFontResolver()
+            .addFont(fontUrl.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         renderer.setDocumentFromString(renderedHtml);
         renderer.layout();
         renderer.createPDF(outputStream);
