@@ -67,7 +67,7 @@ with a checklist to help you with providing a high-quality contribution.
 ## Releasing
 Currently, the project does not require a regular release schedule.
 Changelog is kept in the form of GitHub releases and their description.
-Bellow is an example of a release description, please follow this structure!
+Below is an example of a release description, please follow this structure!
 
 - **Added** for new features/additions
 - **Fixed** for bug fixes
