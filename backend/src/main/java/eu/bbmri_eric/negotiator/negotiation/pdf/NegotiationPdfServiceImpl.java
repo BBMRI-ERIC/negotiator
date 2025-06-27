@@ -2,8 +2,11 @@ package eu.bbmri_eric.negotiator.negotiation.pdf;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -20,6 +23,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
   private TemplateEngine templateEngine;
   private ObjectMapper objectMapper;
+
+  @Value("${negotiator.pdfFont}")
+  private String fontPath;
 
   @Value("${negotiator.emailLogo}")
   private String logoURL;
@@ -90,6 +96,13 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       renderedHtml = renderedHtml.replaceAll("(<br />)+$", "");
       try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
         ITextRenderer renderer = new ITextRenderer();
+        URL fontUrl = getClass().getResource(fontPath);
+        if (fontUrl == null) {
+          throw new FileNotFoundException(
+                  String.format("Font not found at path: %s ", fontPath));
+        }
+        renderer.getFontResolver().addFont(
+                fontUrl.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         renderer.setDocumentFromString(renderedHtml);
         renderer.layout();
         renderer.createPDF(outputStream);
