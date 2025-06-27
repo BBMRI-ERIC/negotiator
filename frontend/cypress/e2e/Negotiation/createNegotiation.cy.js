@@ -15,7 +15,7 @@ describe("Test create negotiation", () => {
             cy.get(".modal-content").should("be.visible")
             cy.get(".modal-body > p").should("be.visible")
 
-            cy.get(".modal-footer > .btn").should("be.visible")
+            cy.get("#newRequestModal > .modal-dialog > .modal-content > .modal-footer > .btn").should("be.visible")
 
             cy.window().then(win => {
                 cy.stub(win, "open").callsFake((url) => {
@@ -24,7 +24,7 @@ describe("Test create negotiation", () => {
                     return win.open.wrappedMethod.call(win, url, "_self")
                 }).as("open")
             })
-            cy.get(".modal-footer > .btn").click()
+            cy.get("#newRequestModal > .modal-dialog > .modal-content > .modal-footer > .btn").click()
 
             // page 1
             cy.get(".wizard-footer-right > .btn").contains("Next").click()
@@ -125,7 +125,7 @@ describe("Test create negotiation", () => {
           cy.get(".modal-content").should("be.visible")
           cy.get(".modal-body > p").should("be.visible")
 
-          cy.get(".modal-footer > .btn").should("be.visible")
+          cy.get("#newRequestModal > .modal-dialog > .modal-content > .modal-footer > .btn").should("be.visible")
 
           cy.window().then(win => {
               cy.stub(win, "open").callsFake((url) => {
@@ -134,7 +134,7 @@ describe("Test create negotiation", () => {
                   return win.open.wrappedMethod.call(win, url, "_self")
               }).as("open")
           })
-          cy.get(".modal-footer > .btn").click()
+          cy.get("#newRequestModal > .modal-dialog > .modal-content > .modal-footer > .btn").click()
 
           // page 1
           cy.get(".wizard-footer-right > .btn").contains("Next").click()

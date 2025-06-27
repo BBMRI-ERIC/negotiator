@@ -47,6 +47,19 @@ public class InformationSubmission {
     this.payload = payload;
   }
 
+  public InformationSubmission(
+      InformationRequirement requirement,
+      Resource resource,
+      Negotiation negotiation,
+      String payload,
+      boolean editable) {
+    this.requirement = requirement;
+    this.resource = resource;
+    this.negotiation = negotiation;
+    this.payload = payload;
+    this.editable = editable;
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -66,4 +79,7 @@ public class InformationSubmission {
   @Type(JsonType.class)
   @Column(columnDefinition = "json")
   private String payload;
+
+  @Column(name = "is_editable")
+  private boolean editable = false;
 }

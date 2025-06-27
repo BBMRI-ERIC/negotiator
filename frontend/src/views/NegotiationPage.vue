@@ -212,6 +212,7 @@
                     :negotiation-id="negotiationId"
                     :resources="resources"
                     :resource-states="resourceStates"
+                    :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
                   />
                 </div>
@@ -233,6 +234,7 @@
                     :negotiation-id="negotiationId"
                     :resources="resources"
                     :resource-states="resourceStates"
+                    :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
                   />
                 </div>
@@ -288,7 +290,7 @@ import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
-import { ROLES } from '@/config/consts.js' // Import the new component
+import { ROLES } from '@/config/consts.js'
 
 const props = defineProps({
   negotiationId: {
