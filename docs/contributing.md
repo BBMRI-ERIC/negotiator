@@ -65,9 +65,23 @@ a [template](https://github.com/BBMRI-ERIC/negotiator-v3/blob/master/.github/pul
 with a checklist to help you with providing a high-quality contribution.
 
 ## Releasing
+Currently, the project does not require a regular release schedule.
+Changelog is kept in the form of GitHub releases and their description.
+Bellow is an example of a release description, please follow this structure!
 
-To create a release, simply go to Releases -> Draft a new release
--> Choose new tag -> Generate release notes -> Publish release
+- **Added** for new features/additions
+- **Fixed** for bug fixes
+- **Internal**, for chores and other changes that do not impact the functionality.
+
+
+## What's New in v1.4.0
+- ✨ Added export to CSV (#52)
+- 🐛 Fixed issue with date parsing (#48)
+- 🧹 Internal refactor of logging module
+
+Thanks to alice and bob for contributions!
+To create a release, simply go to Releases → Draft a new release
+→ Choose new tag → Generate release notes → Edit to follow structure above → Publish release
 
 **Good luck and thank you! 🙇🏻‍♂️** 
 
