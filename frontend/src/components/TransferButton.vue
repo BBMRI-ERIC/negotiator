@@ -31,7 +31,7 @@ import TransferNegotiationModal from '@/components/modals/TransferNegotiationMod
 defineProps({
   negotiationId: {
     type: String,
-    required: true
+    required: true,
   },
 })
 

@@ -5,12 +5,8 @@
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <strong>Status:</strong>
-            <span v-if="delivery.httpStatusCode === 200" class="text-success">
-              200 OK
-            </span>
-            <span v-else class="text-danger">
-              {{ delivery.httpStatusCode }} Error
-            </span>
+            <span v-if="delivery.httpStatusCode === 200" class="text-success"> 200 OK </span>
+            <span v-else class="text-danger"> {{ delivery.httpStatusCode }} Error </span>
           </div>
           <small>{{ formatDate(delivery.at) }}</small>
         </div>
@@ -33,7 +29,10 @@
 
         <div v-if="delivery.errorMessage" class="mt-1">
           <small class="text-muted">
-            {{ delivery.errorMessage.length > 100 ? delivery.errorMessage.substring(0, 100) + '...' : delivery.errorMessage
+            {{
+              delivery.errorMessage.length > 100
+                ? delivery.errorMessage.substring(0, 100) + '...'
+                : delivery.errorMessage
             }}
           </small>
         </div>
@@ -51,8 +50,8 @@ import { ref } from 'vue'
 defineProps({
   deliveries: {
     type: Array,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const expandedPayloads = ref({})

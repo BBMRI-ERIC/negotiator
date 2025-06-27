@@ -3,38 +3,49 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Users</h2>
     </div>
-    <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">
-      No users found.
-    </div>
+    <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
       <table class="table table-hover">
         <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Subject ID</th>
-          <th>Last Login</th>
-          <th>Admin</th>
-          <th>Service Account</th>
-        </tr>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject ID</th>
+            <th>Last Login</th>
+            <th>Admin</th>
+            <th>Service Account</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="user in paginatedUsers" :key="user.id">
-          <td>{{ user.id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.subjectId }}</td>
-          <td>{{ formatDate(user.lastLogin) }}</td>
-          <td>{{ user.admin ? 'Yes' : 'No' }}</td>
-          <td>{{ user.serviceAccount === true || user.serviceAccount === 'true' ? 'Yes' : 'No' }}</td>
-        </tr>
+          <tr v-for="user in paginatedUsers" :key="user.id">
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.subjectId }}</td>
+            <td>{{ formatDate(user.lastLogin) }}</td>
+            <td>{{ user.admin ? 'Yes' : 'No' }}</td>
+            <td>
+              {{ user.serviceAccount === true || user.serviceAccount === 'true' ? 'Yes' : 'No' }}
+            </td>
+          </tr>
         </tbody>
       </table>
       <div class="pagination">
-        <button @click="previousPage" :disabled="currentPage === 1 || isLoading" class="page-button">‹ Prev</button>
+        <button
+          @click="previousPage"
+          :disabled="currentPage === 1 || isLoading"
+          class="page-button"
+        >
+          ‹ Prev
+        </button>
         <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages || isLoading" class="page-button">Next ›
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages || isLoading"
+          class="page-button"
+        >
+          Next ›
         </button>
         <input
           v-model.number="pageSize"
@@ -100,7 +111,7 @@ const fetchUsers = async () => {
   try {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
       currentPage.value - 1,
-      pageSize.value
+      pageSize.value,
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0
@@ -226,5 +237,4 @@ onMounted(() => {
   max-width: 200px; /* Adjust as needed for your layout */
   white-space: normal;
 }
-
 </style>
