@@ -14,8 +14,10 @@ successful transfer, you will lose access to the negotiation.
     - Find the ID on the user’s profile page.
     - Press **Enter** or click **Confirm** to submit.
 4. **Review the Outcome**:
-    - **Success**: A green message shows, e.g., “Negotiation successfully transferred to TheBiobanker! Redirecting to
-      homepage...”. After 2 seconds, you’re redirected to the homepage.
+    - **Success**: A green message shows, e.g., “Negotiation successfully transferred to John Doe!
+      Redirecting to
+      homepage...”.
+      After 2 seconds, you’re redirected to the homepage.
     - **Error**: A red error message appears, e.g., “Invalid Subject ID. Please check and try again.” Correct the ID and
       retry.
     - Common errors:
