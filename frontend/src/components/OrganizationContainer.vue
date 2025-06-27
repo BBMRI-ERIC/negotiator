@@ -8,10 +8,19 @@
     :requirement-id="requirementId"
     :resource-id="resourceId"
     :required-access-form-id="requiredAccessForm.id"
+    :isFormEditable="isFormEditable"
+    v-model:submittedForm="submittedForm"
     @confirm="hideFormSubmissionModal"
+    @confirmUpdate="hideFormSubmissionAndOpenView"
     requirement-link=""
   />
-  <form-view-modal ref="formViewModalRef" id="formViewModal" :payload="submittedForm" />
+  <form-view-modal
+    ref="formViewModalRef"
+    id="formViewModal"
+    :submittedForm="submittedForm"
+    :isAdmin="isAdmin"
+    @editInfoSubmission="editInfoSubmission"
+  />
   <confirmation-modal
     id="statusUpdateModal"
     :title="`Status update for ${selectedOrganization ? selectedOrganization.name : 'Unknown'}`"
@@ -35,10 +44,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Modal from 'bootstrap/js/dist/modal'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
+import { useFormsStore } from '../store/forms'
 import OrganizationCard from './OrganizationCard.vue'
 import FormViewModal from '@/components/modals/FormViewModal.vue'
 import FormSubmissionModal from '@/components/modals/FormSubmissionModal.vue'
@@ -49,18 +59,20 @@ const props = defineProps({
   org: { type: Object, default: () => ({}) },
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
+  isAdmin: { type: Boolean, default: false },
 })
 const emit = defineEmits(['reloadResources'])
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
+const formsStore = useFormsStore()
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 
 // Modal and Form Data
 const requirementId = ref(undefined)
 const resourceId = ref(undefined)
 const requiredAccessForm = ref({})
-const submittedForm = ref(undefined)
+const submittedForm = ref({})
 const selectedOrganization = ref(undefined)
 const orgStatus = ref(undefined)
 
@@ -69,8 +81,10 @@ const formSubmissionModalRef = ref(null)
 const formSubmissionModalInstance = ref(null)
 const formViewModalRef = ref(null)
 const formViewModalInstance = ref(null)
+const isFormEditable = ref(false)
 
 const openModal = async (href, resId) => {
+  isFormEditable.value = false
   const requirement = await negotiationPageStore.retrieveInfoRequirement(href)
   resourceId.value = resId
   requiredAccessForm.value = requirement.requiredAccessForm
@@ -78,18 +92,26 @@ const openModal = async (href, resId) => {
   formSubmissionModalInstance.value.show()
 }
 
-const openFormModal = async (href) => {
-  const payload = await negotiationPageStore.retrieveInformationSubmission(href)
-  submittedForm.value = payload.payload
-  formViewModalInstance.value.show()
+async function openFormModal(href) {
+  await negotiationPageStore.retrieveInformationSubmission(href).then((res) => {
+    submittedForm.value = res
+    formViewModalInstance.value.show()
+  })
 }
 
-const hideFormSubmissionModal = async () => {
+function hideFormSubmissionModal() {
   formSubmissionModalInstance.value.hide()
   emit('reloadResources')
 }
 
-const updateResourceState = async (link) => {
+function hideFormSubmissionAndOpenView(payload) {
+  submittedForm.value.payload = payload
+  formSubmissionModalInstance.value.hide()
+  emit('reloadResources')
+  formViewModalInstance.value.show()
+}
+
+async function updateResourceState(link) {
   await negotiationPageStore.updateResourceStatus(link)
   emit('reloadResources')
 }
@@ -121,7 +143,14 @@ onMounted(() => {
   formViewModalInstance.value = new Modal(formViewModalRef.value.$el)
 })
 
-onUnmounted(() => {
-  // Cleanup if needed
-})
+function editInfoSubmission() {
+  isFormEditable.value = true
+  formViewModalInstance.value.hide()
+  resourceId.value = submittedForm.value.resourceId
+  requirementId.value = submittedForm.value.requirementId
+  formsStore.retrieveInfoRequirementsById(submittedForm.value.requirementId).then((res) => {
+    requiredAccessForm.value = res.requiredAccessForm
+  })
+  formSubmissionModalInstance.value.show()
+}
 </script>
