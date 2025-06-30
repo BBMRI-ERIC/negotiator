@@ -1,7 +1,10 @@
 <template>
   <div>
     <div v-if="selectedChannelName" class="mt-2">
-      <span class="badge rounded-pill" :class="channelId === 'public' ? 'bg-warning' : 'bg-primary'">
+      <span
+        class="badge rounded-pill"
+        :class="channelId === 'public' ? 'bg-warning' : 'bg-primary'"
+      >
         <i :class="channelId === 'public' ? 'bi bi-globe' : 'bi bi-lock-fill'" />
         Channel: {{ selectedChannelName }}
       </span>
@@ -38,16 +41,16 @@ defineProps({
   negotiation: {
     type: Object,
     required: true,
-    default: () => ({ privatePostsEnabled: false })
+    default: () => ({ privatePostsEnabled: false }),
   },
   recipients: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   uiConfiguration: {
     type: Object,
     required: true,
-    default: () => ({ primaryTextColor: '#000' })
+    default: () => ({ primaryTextColor: '#000' }),
   },
 })
 

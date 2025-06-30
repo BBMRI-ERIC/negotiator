@@ -185,7 +185,7 @@ export const useFormsStore = defineStore('forms', () => {
     const data = {
       editable: !editableData,
     }
-    
+
     return axios
       .patch(`${apiPaths.BASE_API_PATH}/info-submissions/${infoSubmissionsId}`, data, {
         headers: getBearerHeaders(),

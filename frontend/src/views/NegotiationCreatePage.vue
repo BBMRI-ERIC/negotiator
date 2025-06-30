@@ -1,5 +1,5 @@
 <template>
-  <negotiation-form :request-id="$route.params.requestId" :step="$route.params.step"/>
+  <negotiation-form :request-id="$route.params.requestId" :step="$route.params.step" />
 </template>
 
 <script setup>

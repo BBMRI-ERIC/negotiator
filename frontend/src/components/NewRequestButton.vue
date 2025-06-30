@@ -36,7 +36,6 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.newRequestButton
 })
 
-
 async function startNewRequest() {
   if (allFeatureFlags.dev_mode === 'true' || allFeatureFlags.dev_mode === true) {
     const data = {

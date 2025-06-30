@@ -34,13 +34,13 @@ const props = defineProps({
   org: { type: Object, default: () => ({}) },
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
-  uiConfiguration: { type: Object, required: true }
+  uiConfiguration: { type: Object, required: true },
 })
 const emit = defineEmits([
   'open-form-modal',
   'open-modal',
   'update-resource-state',
-  'update-org-status'
+  'update-org-status',
 ])
 
 const dropdownVisible = reactive({})
@@ -49,7 +49,7 @@ const sanitizeId = (id) => id.replaceAll(':', '_')
 
 const toggleDropdown = (orgId) => {
   // Close other dropdowns in this card
-  Object.keys(dropdownVisible).forEach(key => {
+  Object.keys(dropdownVisible).forEach((key) => {
     if (key !== orgId) dropdownVisible[key] = false
   })
   dropdownVisible[orgId] = !dropdownVisible[orgId]
@@ -64,7 +64,7 @@ const handleUpdateOrgStatus = (state, organization, orgId) => {
 }
 
 const sortedStates = computed(() =>
-  props.resourceStates.slice().sort((a, b) => Number(a.ordinal) - Number(b.ordinal))
+  props.resourceStates.slice().sort((a, b) => Number(a.ordinal) - Number(b.ordinal)),
 )
 
 const openModal = (href, resourceId) => {

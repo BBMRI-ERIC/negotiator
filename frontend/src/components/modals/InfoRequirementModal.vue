@@ -11,7 +11,7 @@
       tabindex="-1"
       aria-labelledby="requirementModalLabel"
       aria-hidden="true"
-      style="display: block;"
+      style="display: block"
     >
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -95,13 +95,7 @@
             >
               Create
             </button>
-            <button
-              type="button"
-              class="btn btn-close-custom"
-              @click="closeModal"
-            >
-              Close
-            </button>
+            <button type="button" class="btn btn-close-custom" @click="closeModal">Close</button>
           </div>
         </div>
       </div>
@@ -115,16 +109,16 @@ import { computed, ref } from 'vue'
 defineProps({
   show: {
     type: Boolean,
-    required: true
+    required: true,
   },
   accessForms: {
     type: Array,
-    required: true
+    required: true,
   },
   resourceAllEvents: {
     type: Array,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const emit = defineEmits(['set-info-requirements', 'close-modal'])
@@ -142,7 +136,7 @@ function setInfoRequirements() {
   const data = {
     requiredAccessFormId: selectedAccessForm.value.id,
     forResourceEvent: selectedEvent.value.value,
-    viewableOnlyByAdmin: summaryOnlyForAdmin.value
+    viewableOnlyByAdmin: summaryOnlyForAdmin.value,
   }
   emit('set-info-requirements', data)
   closeModal()

@@ -30,9 +30,7 @@
             :value="true"
             v-model="localForm.sslVerification"
           />
-          <label class="form-check-label" for="sslEnabled">
-            Enabled
-          </label>
+          <label class="form-check-label" for="sslEnabled"> Enabled </label>
         </div>
         <div class="form-check form-check-inline">
           <input
@@ -43,9 +41,7 @@
             :value="false"
             v-model="localForm.sslVerification"
           />
-          <label class="form-check-label" for="sslDisabled">
-            Disabled
-          </label>
+          <label class="form-check-label" for="sslDisabled"> Disabled </label>
         </div>
       </div>
       <small class="form-text text-warning" v-if="localForm.sslVerification === false">
@@ -53,12 +49,7 @@
       </small>
     </div>
     <div class="mb-3 form-check">
-      <input
-        type="checkbox"
-        class="form-check-input"
-        id="active"
-        v-model="localForm.active"
-      />
+      <input type="checkbox" class="form-check-input" id="active" v-model="localForm.active" />
       <label class="form-check-label" for="active">
         Active - Toggle to enable or disable webhook notifications.
       </label>
@@ -71,7 +62,7 @@ import { reactive, watch } from 'vue'
 
 const props = defineProps({
   form: { type: Object, required: true },
-  urlIsValid: { type: Boolean, required: true }
+  urlIsValid: { type: Boolean, required: true },
 })
 const emit = defineEmits(['updateForm', 'submit'])
 
@@ -79,12 +70,20 @@ const emit = defineEmits(['updateForm', 'submit'])
 const localForm = reactive({ ...props.form })
 
 // When localForm changes, emit an update to inform the parent.
-watch(localForm, (newVal) => {
-  emit('updateForm', newVal)
-}, { deep: true })
+watch(
+  localForm,
+  (newVal) => {
+    emit('updateForm', newVal)
+  },
+  { deep: true },
+)
 
 // If the parent updates the form prop, update our local copy.
-watch(() => props.form, (newForm) => {
-  Object.assign(localForm, newForm)
-}, { deep: true })
+watch(
+  () => props.form,
+  (newForm) => {
+    Object.assign(localForm, newForm)
+  },
+  { deep: true },
+)
 </script>
