@@ -91,7 +91,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
               } else {
                 notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
               }
-              isAtachmentError = true
               return null
             })
           data.payload[sectionName][criteriaName] = attachmentsIds
@@ -99,14 +98,14 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
         }
       }
     }
-    return axios
-      .post(apiPaths.NEGOTIATION_PATH, data, { headers: getBearerHeaders() })
-      .then((response) => {
-        return response.data.id
-      })
-      .catch(() => {
-        notifications.setNotification('There was an error saving the Negotiation')
-      })
+      return axios
+        .post(apiPaths.NEGOTIATION_PATH, data, { headers: getBearerHeaders() })
+        .then((response) => {
+          return response.data.id
+        })
+        .catch(() => {
+          notifications.setNotification('There was an error saving the Negotiation')
+        })
   }
 
   async function updateNegotiationById(negotiationId, data, disableAutomaticUpload) {
@@ -138,7 +137,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
                 } else {
                   notifications.setNotification(`There was an error updating the attachment, ${ error.message }`,'danger')
                 }
-                isAtachmentError = true
                 return null
               })
             data.payload[sectionName][criteriaName] = attachmentsIds
