@@ -85,11 +85,20 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
             })
             .catch((error) => {
               if (error.response) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.response.data.detail }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.response.data.detail}`,
+                  'danger',
+                )
               } else if (error.request) {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.request.statusText }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.request.statusText}`,
+                  'danger',
+                )
               } else {
-                notifications.setNotification(`There was an error saving the attachment, ${ error.message }`,'danger')
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.message}`,
+                  'danger',
+                )
               }
               return null
             })
@@ -98,14 +107,14 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
         }
       }
     }
-      return axios
-        .post(apiPaths.NEGOTIATION_PATH, data, { headers: getBearerHeaders() })
-        .then((response) => {
-          return response.data.id
-        })
-        .catch(() => {
-          notifications.setNotification('There was an error saving the Negotiation')
-        })
+    return axios
+      .post(apiPaths.NEGOTIATION_PATH, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data.id
+      })
+      .catch(() => {
+        notifications.setNotification('There was an error saving the Negotiation')
+      })
   }
 
   async function updateNegotiationById(negotiationId, data, disableAutomaticUpload) {
@@ -131,11 +140,20 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
               })
               .catch((error) => {
                 if (error.response) {
-                  notifications.setNotification(`There was an error updating the attachment, ${ error.response.data.detail }`,'danger')
+                  notifications.setNotification(
+                    `There was an error updating the attachment, ${error.response.data.detail}`,
+                    'danger',
+                  )
                 } else if (error.request) {
-                  notifications.setNotification(`There was an error updating the attachment, ${ error.request.statusText }`,'danger')
+                  notifications.setNotification(
+                    `There was an error updating the attachment, ${error.request.statusText}`,
+                    'danger',
+                  )
                 } else {
-                  notifications.setNotification(`There was an error updating the attachment, ${ error.message }`,'danger')
+                  notifications.setNotification(
+                    `There was an error updating the attachment, ${error.message}`,
+                    'danger',
+                  )
                 }
                 return null
               })

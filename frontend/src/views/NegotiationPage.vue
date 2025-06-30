@@ -81,9 +81,7 @@
                     class="ms-1 cursor-pointer"
                     icon="fa fa-download"
                     fixed-width
-                    @click.prevent="
-                      downloadAttachment(subelement.id, subelement.name)
-                    "
+                    @click.prevent="downloadAttachment(subelement.id, subelement.name)"
                   />
                 </span>
                 <span v-else>

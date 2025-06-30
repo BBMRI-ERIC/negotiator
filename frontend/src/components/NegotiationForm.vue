@@ -467,7 +467,9 @@ onBeforeMount(async () => {
       props.requestId,
     )
     currentStatus.value = result.status
-    negotiationAttachments.value = await negotiationPageStore.retrieveAttachmentsByNegotiationId(props.requestId)
+    negotiationAttachments.value = await negotiationPageStore.retrieveAttachmentsByNegotiationId(
+      props.requestId,
+    )
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
     accessFormResponse = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
@@ -613,7 +615,11 @@ function isAttachment(value) {
 let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
-  if (isFileExtensionsSuported(event.target.files[0]) && !isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) && !isAttachmentPresentInNegotiation(event.target.files[0])) {
+  if (
+    isFileExtensionsSuported(event.target.files[0]) &&
+    !isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) &&
+    !isAttachmentPresentInNegotiation(event.target.files[0])
+  ) {
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++
@@ -775,8 +781,8 @@ function isSameFile(file, newFile) {
   }
   if (isNameSame && isSizeSame) {
     notificationsStore.setNotification(
-        'Attachment already exists with the same name and size, please select a different file or rename the file',
-        'danger',
+      'Attachment already exists with the same name and size, please select a different file or rename the file',
+      'danger',
     )
     return true
   }
@@ -785,11 +791,11 @@ function isSameFile(file, newFile) {
 
 function isAttachmentPresentInNegotiation(newFile) {
   let isAttachmentPresent = false
-  negotiationAttachments.value.forEach(element => {
-    if (isSameFile(element, newFile)){
+  negotiationAttachments.value.forEach((element) => {
+    if (isSameFile(element, newFile)) {
       isAttachmentPresent = true
     }
-  });
+  })
   return isAttachmentPresent
 }
 </script>
