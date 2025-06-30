@@ -20,7 +20,7 @@
         </div>
 
         <div class="modal-body">
-          <div v-if="text" class="modal-body-text"> {{ text }} </div>
+          <div v-if="text" class="modal-body-text">{{ text }}</div>
           <slot name="body" />
         </div>
         <div class="modal-footer justify-content-center">

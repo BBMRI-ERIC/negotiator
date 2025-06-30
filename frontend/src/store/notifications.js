@@ -32,7 +32,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
   }
 
-  let activeInterval = null; // Variable to store the active interval ID
+  let activeInterval = null // Variable to store the active interval ID
 
   watch(currentNotifications, () => {
     if (currentNotifications.value.length > 3) {
@@ -48,14 +48,14 @@ export const useNotificationsStore = defineStore('notifications', () => {
       } else {
         // Clear the interval when the array is empty
         clearInterval(activeInterval)
-        activeInterval = null; // Reset the active interval variable
+        activeInterval = null // Reset the active interval variable
       }
     }, TIME_INTERVAL_NOTIFICATIONS)
     onWatcherCleanup(() => {
       // Clear the active interval during watcher cleanup
       if (activeInterval !== null) {
         clearInterval(activeInterval)
-        activeInterval = null; // Reset the active interval variable
+        activeInterval = null // Reset the active interval variable
       }
     })
   })

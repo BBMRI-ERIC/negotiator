@@ -22,7 +22,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
-            @click="resetForm()" 
+            @click="resetForm()"
           />
         </div>
         <div class="modal-body text-left">
@@ -371,7 +371,7 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
-  }
+  },
 })
 
 const wizard = ref(null)
@@ -416,26 +416,26 @@ async function getValueSet(link, id) {
 
 async function startRequiredAccessForm() {
   const data = {
-      resourceId: props.resourceId,
-      payload: negotiationCriteria.value,
-    }
-    const negotiationId = props.negotiationId
-    const requirementId = props.requirementId
-  if(props.isFormEditable){
+    resourceId: props.resourceId,
+    payload: negotiationCriteria.value,
+  }
+  const negotiationId = props.negotiationId
+  const requirementId = props.requirementId
+  if (props.isFormEditable) {
     await formsStore.updateInfoSubmissions(submittedForm.value.id, data).then((resp) => {
-      if(resp !== undefined && resp !== null) {
+      if (resp !== undefined && resp !== null) {
         emitConfirmUpdate(negotiationCriteria.value)
         resetForm()
       }
     })
   } else {
     await formsStore.submitRequiredInformation(data, negotiationId, requirementId).then((resp) => {
-      if(resp !== undefined && resp !== null) {
+      if (resp !== undefined && resp !== null) {
         emitConfirm()
         resetForm()
       }
     })
-}
+  }
 }
 
 function resetForm() {
@@ -467,7 +467,7 @@ function initNegotiationCriteria() {
     for (const criteria of section.elements) {
       if (criteria.type === 'MULTIPLE_CHOICE') {
         if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
-            negotiationCriteria.value[section.name][criteria.name] =
+          negotiationCriteria.value[section.name][criteria.name] =
             submittedForm.value.payload[section.name][criteria.name]
         } else {
           negotiationCriteria.value[section.name][criteria.name] = []
@@ -475,23 +475,24 @@ function initNegotiationCriteria() {
         getValueSet(criteria._links['value-set'].href, criteria.id)
       } else if (criteria.type === 'SINGLE_CHOICE') {
         if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
-            negotiationCriteria.value[section.name][criteria.name] =
+          negotiationCriteria.value[section.name][criteria.name] =
             submittedForm.value.payload[section.name][criteria.name]
         }
         getValueSet(criteria._links['value-set'].href, criteria.id)
       } else if (criteria.type === 'FILE') {
-          if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
-            negotiationCriteria.value[section.name][criteria.name] =
-            submittedForm.value.payload[section.name][criteria.name]
-          } else {
-            negotiationCriteria.value[section.name][criteria.name] = {}
-          }
-        } else {
         if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
-          negotiationCriteria.value[section.name][criteria.name] = submittedForm.value.payload[section.name][criteria.name]
-          } else {
-            negotiationCriteria.value[section.name][criteria.name] = null
-          }
+          negotiationCriteria.value[section.name][criteria.name] =
+            submittedForm.value.payload[section.name][criteria.name]
+        } else {
+          negotiationCriteria.value[section.name][criteria.name] = {}
+        }
+      } else {
+        if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
+          negotiationCriteria.value[section.name][criteria.name] =
+            submittedForm.value.payload[section.name][criteria.name]
+        } else {
+          negotiationCriteria.value[section.name][criteria.name] = null
+        }
       }
     }
   }
@@ -568,7 +569,7 @@ function transformMessage(text) {
   }
 }
 
-const emit = defineEmits(['confirm','confirmUpdate'])
+const emit = defineEmits(['confirm', 'confirmUpdate'])
 
 function emitConfirm() {
   showNotification('Confirm submission', 'Thank you. Your response has been submitted successfully')
@@ -576,8 +577,11 @@ function emitConfirm() {
 }
 
 function emitConfirmUpdate(payload) {
-  notificationsStore.setNotification('Thank you. Your response has been submitted successfully', 'success')
-  emit('confirmUpdate',payload)
+  notificationsStore.setNotification(
+    'Thank you. Your response has been submitted successfully',
+    'success',
+  )
+  emit('confirmUpdate', payload)
 }
 </script>
 
