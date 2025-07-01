@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.notification.admin;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.event.EventListener;
@@ -15,10 +15,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @CommonsLog
 public class AdminNotificationListener {
 
-  private final UserNotificationService userNotificationService;
+  private final OldNotificationService oldNotificationService;
 
-  public AdminNotificationListener(UserNotificationService userNotificationService) {
-    this.userNotificationService = userNotificationService;
+  public AdminNotificationListener(OldNotificationService oldNotificationService) {
+    this.oldNotificationService = oldNotificationService;
   }
 
   @EventListener(value = NegotiationStateChangeEvent.class)
@@ -28,7 +28,7 @@ public class AdminNotificationListener {
   public void handleSubmittedNegotiation(NegotiationStateChangeEvent event) {
     if (event.getEvent().equals(NegotiationEvent.SUBMIT)) {
       try {
-        userNotificationService.notifyAdmins(event.getNegotiationId());
+        oldNotificationService.notifyAdmins(event.getNegotiationId());
       } catch (Exception e) {
         log.error("Error notifying admins about negotiation submission");
       }

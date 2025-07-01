@@ -4,7 +4,7 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,8 @@ public class InitializeStateForResourceAction implements Action<String, String> 
 
   @Autowired @Lazy NegotiationRepository negotiationRepository;
 
-  @Autowired @Lazy UserNotificationService userNotificationService;
+  @Autowired @Lazy
+  OldNotificationService oldNotificationService;
 
   @Override
   @Transactional
@@ -30,6 +31,6 @@ public class InitializeStateForResourceAction implements Action<String, String> 
     for (Resource resource : negotiation.getResources()) {
       negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
     }
-    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
   }
 }

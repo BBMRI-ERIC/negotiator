@@ -5,7 +5,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.post.Post;
 import java.util.List;
 
-public interface UserNotificationService {
+public interface OldNotificationService {
 
   /**
    * Returns all notifications for a given user.

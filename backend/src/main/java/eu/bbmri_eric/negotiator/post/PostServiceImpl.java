@@ -12,7 +12,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -42,7 +42,7 @@ public class PostServiceImpl implements PostService {
 
   private PersonService personService;
   private NegotiationService negotiationService;
-  private UserNotificationService userNotificationService;
+  private OldNotificationService oldNotificationService;
   private NegotiationAccessManager negotiationAccessManager;
 
   public PostServiceImpl(
@@ -53,7 +53,7 @@ public class PostServiceImpl implements PostService {
       ModelMapper modelMapper,
       PersonService personService,
       NegotiationService negotiationService,
-      UserNotificationService userNotificationService,
+      OldNotificationService oldNotificationService,
       NegotiationAccessManager negotiationAccessManager) {
     this.organizationRepository = organizationRepository;
     this.postRepository = postRepository;
@@ -62,7 +62,7 @@ public class PostServiceImpl implements PostService {
     this.modelMapper = modelMapper;
     this.personService = personService;
     this.negotiationService = negotiationService;
-    this.userNotificationService = userNotificationService;
+    this.oldNotificationService = oldNotificationService;
     this.negotiationAccessManager = negotiationAccessManager;
   }
 
@@ -90,7 +90,7 @@ public class PostServiceImpl implements PostService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
-    userNotificationService.notifyUsersAboutNewPost(postEntity);
+    oldNotificationService.notifyUsersAboutNewPost(postEntity);
     return modelMapper.map(postEntity, PostDTO.class);
   }
 

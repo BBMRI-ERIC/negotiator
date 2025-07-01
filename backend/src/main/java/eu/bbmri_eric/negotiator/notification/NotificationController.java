@@ -17,12 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "security_auth")
 public class NotificationController {
 
-  @Autowired UserNotificationService userNotificationService;
+  @Autowired
+  OldNotificationService oldNotificationService;
 
   @GetMapping(value = "/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public List<NotificationDTO> getNotificationsForUser() {
-    return userNotificationService.getNotificationsForUser(
+    return oldNotificationService.getNotificationsForUser(
         AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId());
   }
 }
