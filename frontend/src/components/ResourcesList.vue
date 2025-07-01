@@ -67,7 +67,7 @@ const numberOfResources = computed(() => {
 })
 
 function getElementIdFromResourceId(resourceId) {
-  if (typeof(resourceId) !== String) {
+  if (typeof resourceId !== String) {
     return resourceId
   } else {
     return resourceId.replaceAll(':', '_')

@@ -65,10 +65,11 @@
               {{ transformDashToSpace(key).toUpperCase() }}</span
             >
             <div v-for="(subelement, subelementkey) in element" :key="subelement" class="mt-3">
-              <div class="me-2 fw-bold" :style="{ color: uiConfiguration.secondaryTextColor }"
-                   v-html="decodeHTML(subelementkey)"
-              ></div
-              >
+              <div
+                class="me-2 fw-bold"
+                :style="{ color: uiConfiguration.secondaryTextColor }"
+                v-html="decodeHTML(subelementkey)"
+              ></div>
               <span
                 v-if="isAttachment(subelement)"
                 :style="{ color: uiConfiguration.secondaryTextColor }"
@@ -211,6 +212,7 @@
                     :negotiation-id="negotiationId"
                     :resources="resources"
                     :resource-states="resourceStates"
+                    :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
                   />
                 </div>
@@ -232,6 +234,7 @@
                     :negotiation-id="negotiationId"
                     :resources="resources"
                     :resource-states="resourceStates"
+                    :isAdmin="isAdmin"
                     @reload-resources="reloadResources()"
                   />
                 </div>
@@ -287,7 +290,7 @@ import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
-import { ROLES } from '@/config/consts.js' // Import the new component
+import { ROLES } from '@/config/consts.js'
 
 const props = defineProps({
   negotiationId: {
@@ -493,7 +496,10 @@ async function updateNegotiation(message) {
 }
 
 function canDelete() {
-  return negotiation.value.status === 'DRAFT' && (isAdmin.value || userInfo.value.subjectId === negotiation.value.author.subjectId)
+  return (
+    negotiation.value.status === 'DRAFT' &&
+    (isAdmin.value || userInfo.value.subjectId === negotiation.value.author.subjectId)
+  )
 }
 
 async function deleteNegotiation() {
@@ -614,5 +620,4 @@ function updateNegotiationPayload() {
 .abandon-text:hover {
   color: #dc3545;
 }
-
 </style>
