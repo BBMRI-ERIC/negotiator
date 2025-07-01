@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.hateoas.server.core.Relation;
 
 @Getter
 @Setter
@@ -14,11 +15,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Relation(itemRelation = "notification", collectionRelation = "notifications")
 public class NotificationDTO {
   private Long id;
   private String negotiationId;
 
   private LocalDateTime creationDate;
-
+  private String title;
   private String message;
 }

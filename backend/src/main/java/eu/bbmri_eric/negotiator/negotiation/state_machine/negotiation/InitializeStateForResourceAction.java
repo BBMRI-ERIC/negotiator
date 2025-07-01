@@ -20,8 +20,7 @@ public class InitializeStateForResourceAction implements Action<String, String> 
 
   @Autowired @Lazy NegotiationRepository negotiationRepository;
 
-  @Autowired @Lazy
-  OldNotificationService oldNotificationService;
+  @Autowired @Lazy OldNotificationService oldNotificationService;
 
   @Override
   @Transactional
