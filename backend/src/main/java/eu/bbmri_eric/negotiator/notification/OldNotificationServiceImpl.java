@@ -36,7 +36,7 @@ import org.thymeleaf.context.Context;
 @Service
 @CommonsLog
 @Transactional
-public class UserNotificationServiceImpl implements UserNotificationService {
+public class OldNotificationServiceImpl implements OldNotificationService {
 
   NotificationRepository notificationRepository;
   PersonRepository personRepository;
@@ -59,7 +59,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
   private static final String EMAIL_TEMPLATE = "email-notification";
 
-  public UserNotificationServiceImpl(
+  public OldNotificationServiceImpl(
       NotificationRepository notificationRepository,
       PersonRepository personRepository,
       ModelMapper modelMapper,

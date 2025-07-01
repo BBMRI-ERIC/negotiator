@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,15 +25,15 @@ public class ResourcePersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
   private final NegotiationRepository negotiationRepository;
-  @Lazy private final UserNotificationService userNotificationService;
+  @Lazy private final OldNotificationService oldNotificationService;
   private final ApplicationEventPublisher eventPublisher;
 
   public ResourcePersistStateChangeListener(
       NegotiationRepository negotiationRepository,
-      UserNotificationService userNotificationService,
+      OldNotificationService oldNotificationService,
       ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
-    this.userNotificationService = userNotificationService;
+    this.oldNotificationService = oldNotificationService;
     this.eventPublisher = eventPublisher;
   }
 
@@ -64,7 +64,7 @@ public class ResourcePersistStateChangeListener
   }
 
   private void notifyRequester(Negotiation negotiation, String resourceId) {
-    userNotificationService.notifyRequesterAboutStatusChange(
+    oldNotificationService.notifyRequesterAboutStatusChange(
         negotiation,
         negotiation.getResources().stream()
             .filter(resource -> resource.getSourceId().equals(resourceId))

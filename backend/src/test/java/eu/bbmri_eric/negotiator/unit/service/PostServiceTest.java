@@ -19,7 +19,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.notification.UserNotificationServiceImpl;
+import eu.bbmri_eric.negotiator.notification.OldNotificationServiceImpl;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostDTO;
@@ -86,7 +86,8 @@ public class PostServiceTest {
 
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
-  @Mock UserNotificationServiceImpl userNotificationService;
+  @Mock
+  OldNotificationServiceImpl userNotificationService;
   private AutoCloseable closeable;
 
   private Post publicPost1;

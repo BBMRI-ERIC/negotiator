@@ -29,7 +29,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.io.IOException;
@@ -62,7 +62,8 @@ public class NegotiationServiceTest {
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;
   @InjectMocks NegotiationServiceImpl negotiationService;
-  @Mock UserNotificationService userNotificationService;
+  @Mock
+  OldNotificationService oldNotificationService;
   private AutoCloseable closeable;
 
   private static Negotiation buildNegotiation() {
@@ -146,7 +147,7 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
     assertEquals(null, negotiationDTO.getStatus());
-    verify(userNotificationService, times(1)).notifyAdmins(negotiation);
+    verify(oldNotificationService, times(1)).notifyAdmins(negotiation);
   }
 
   @Test
@@ -167,7 +168,7 @@ public class NegotiationServiceTest {
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
     assertNull(negotiationDTO.getStatus());
-    verify(userNotificationService, times(0)).notifyAdmins(negotiation);
+    verify(oldNotificationService, times(0)).notifyAdmins(negotiation);
   }
 
   @Test
@@ -193,7 +194,7 @@ public class NegotiationServiceTest {
     when(modelMapper.map(negotiation, NegotiationDTO.class)).thenReturn(savedDTO);
     NegotiationDTO negotiationDTO = negotiationService.create(negotiationCreateDTO, 100L);
     assertEquals("saved", negotiationDTO.getId());
-    verify(userNotificationService, times(1)).notifyAdmins(negotiation);
+    verify(oldNotificationService, times(1)).notifyAdmins(negotiation);
   }
 
   @Test
@@ -209,7 +210,7 @@ public class NegotiationServiceTest {
     assertThrows(
         EntityNotStorableException.class,
         () -> negotiationService.create(negotiationCreateDTO, 100L));
-    verify(userNotificationService, times(0)).notifyAdmins(negotiation);
+    verify(oldNotificationService, times(0)).notifyAdmins(negotiation);
   }
 
   @Test
@@ -225,7 +226,7 @@ public class NegotiationServiceTest {
     assertThrows(
         EntityNotStorableException.class,
         () -> negotiationService.create(negotiationCreateDTO, 100L));
-    verify(userNotificationService, times(0)).notifyAdmins(negotiation);
+    verify(oldNotificationService, times(0)).notifyAdmins(negotiation);
   }
 
   @Test

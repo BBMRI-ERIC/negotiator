@@ -15,7 +15,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
@@ -35,9 +35,10 @@ import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest(loadTestData = true)
 @Transactional
-class UserNotificationServiceTest {
+class OldNotificationServiceTest {
 
-  @Autowired UserNotificationService userNotificationService;
+  @Autowired
+  OldNotificationService oldNotificationService;
   @Autowired PersonRepository personRepository;
   @Autowired NotificationRepository notificationRepository;
   @Autowired NegotiationRepository negotiationRepository;
@@ -49,7 +50,7 @@ class UserNotificationServiceTest {
 
   @Test
   void getNotifications_nonExistentUser_0() {
-    assertEquals(0, userNotificationService.getNotificationsForUser(19999L).size());
+    assertEquals(0, oldNotificationService.getNotificationsForUser(19999L).size());
   }
 
   @Test
@@ -65,7 +66,7 @@ class UserNotificationServiceTest {
             .recipient(person)
             .message("New")
             .build());
-    assertEquals(1, userNotificationService.getNotificationsForUser(person.getId()).size());
+    assertEquals(1, oldNotificationService.getNotificationsForUser(person.getId()).size());
   }
 
   @Test
@@ -73,7 +74,7 @@ class UserNotificationServiceTest {
     assertFalse(personRepository.findAllByAdminIsTrue().isEmpty());
     List<Person> admins = personRepository.findAllByAdminIsTrue();
     Negotiation negotiation = negotiationRepository.findAll().get(0);
-    userNotificationService.notifyAdmins(negotiation);
+    oldNotificationService.notifyAdmins(negotiation);
     for (Person admin : admins) {
       assertTrue(
           notificationRepository.findByRecipientId(admin.getId()).stream()
@@ -100,7 +101,7 @@ class UserNotificationServiceTest {
     for (Person rep : representatives) {
       assertTrue(notificationRepository.findByRecipientId(rep.getId()).isEmpty());
     }
-    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     for (Person rep : representatives) {
       assertFalse(notificationRepository.findByRecipientId(rep.getId()).isEmpty());
       assertTrue(
@@ -141,7 +142,7 @@ class UserNotificationServiceTest {
     assertEquals(2, negotiation.getResources().size());
     assertTrue(resource2.getRepresentatives().contains(representative));
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
-    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     assertEquals(1, notificationRepository.findByRecipientId(representative.getId()).size());
     Negotiation updatedNegotiation = negotiationRepository.findById(negotiation.getId()).get();
     assertEquals(
@@ -165,7 +166,7 @@ class UserNotificationServiceTest {
             .toList()
             .get(0);
     assertTrue(resourceWithoutReps.getRepresentatives().isEmpty());
-    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
         negotiationRepository
@@ -186,13 +187,13 @@ class UserNotificationServiceTest {
     assertTrue(
         negotiation.getResources().stream()
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
-    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
-    userNotificationService.sendEmailsForNewNotifications();
+    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    oldNotificationService.sendEmailsForNewNotifications();
     await()
         .atMost(1, TimeUnit.SECONDS)
         .until(() -> !notificationEmailRepository.findAll().isEmpty());
     int numOfEmails = notificationEmailRepository.findAll().size();
-    userNotificationService.sendEmailsForNewNotifications();
+    oldNotificationService.sendEmailsForNewNotifications();
     await()
         .atMost(2, TimeUnit.SECONDS)
         .until(() -> notificationEmailRepository.findAll().size() == numOfEmails);

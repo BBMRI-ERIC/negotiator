@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
+import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmail;
 import eu.bbmri_eric.negotiator.notification.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
@@ -34,7 +34,8 @@ public class TemplateControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired NotificationEmailRepository notificationEmailRepository;
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired UserNotificationService userNotificationService;
+  @Autowired
+  OldNotificationService oldNotificationService;
 
   private MockMvc mockMvc;
 
@@ -142,8 +143,8 @@ public class TemplateControllerTests {
     assertTrue(
         negotiation.getResources().stream()
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
-    userNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
-    userNotificationService.sendEmailsForNewNotifications();
+    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    oldNotificationService.sendEmailsForNewNotifications();
     await()
         .atMost(1, SECONDS)
         .pollInterval(100, MILLISECONDS)
