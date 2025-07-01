@@ -175,6 +175,20 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  function deleteAttachment(attachmentsId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/attachments/${attachmentsId}`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response
+      })
+      .catch(() => {
+        notifications.setNotification(`Error deleting attachment: ${attachmentsId}`, 'warning')
+        return null
+      })
+  }
+
   async function transferNegotiation(negotiationId, subjectId) {
     const response = await axios.patch(
       `${apiPaths.NEGOTIATION_PATH}/${negotiationId}`,
@@ -191,6 +205,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
     updateNegotiationById,
+    deleteAttachment,
     transferNegotiation,
   }
 })

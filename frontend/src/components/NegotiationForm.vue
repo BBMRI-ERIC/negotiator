@@ -429,6 +429,7 @@ const openModal = ref(null)
 const requestAlreadySubmittedNegotiationId = ref(null)
 const currentSectionModified = ref(false)
 const negotiationAttachments = ref([])
+const negotiationReplacedAttachmentsID = ref([])
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -564,6 +565,7 @@ async function saveNegotiation(savingDraft, step, disableAttachmentUpload) {
     await negotiationFormStore
       .updateNegotiationById(props.requestId, data, disableAttachmentUpload)
       .then(() => {
+        deleteAllReplacedAttachments()
         if (!savingDraft) {
           if (currentStatus.value === 'DRAFT') {
             negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
@@ -601,6 +603,13 @@ async function saveNegotiation(savingDraft, step, disableAttachmentUpload) {
   }
 }
 
+function deleteAllReplacedAttachments() {
+  negotiationReplacedAttachmentsID.value.forEach((id) => {
+    if (id === null) return
+    negotiationFormStore.deleteAttachment(id)
+  })
+}
+
 function startModal() {
   showNotification(
     'Confirm submission',
@@ -620,6 +629,9 @@ function handleFileUpload(event, section, criteria) {
     !isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) &&
     !isAttachmentPresentInNegotiation(event.target.files[0])
   ) {
+    negotiationReplacedAttachmentsID.value.push(
+      negotiationCriteria.value[section][criteria]?.id || null,
+    )
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++
