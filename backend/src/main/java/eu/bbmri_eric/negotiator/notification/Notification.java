@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,8 +25,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 @Builder
@@ -44,7 +45,6 @@ public class Notification extends AuditEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "negotiation_id")
-  @Nonnull
   @ToString.Exclude
   private Negotiation negotiation;
 
@@ -79,5 +79,11 @@ public class Notification extends AuditEntity {
     this.title = title;
     this.message = message;
     this.emailStatus = emailStatus;
+  }
+
+  public Notification(@Nonnull Person recipient, String title, String message) {
+    this.recipient = recipient;
+    this.title = title;
+    this.message = message;
   }
 }

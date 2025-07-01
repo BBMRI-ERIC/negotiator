@@ -62,8 +62,7 @@ public class NegotiationServiceTest {
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;
   @InjectMocks NegotiationServiceImpl negotiationService;
-  @Mock
-  OldNotificationService oldNotificationService;
+  @Mock OldNotificationService oldNotificationService;
   private AutoCloseable closeable;
 
   private static Negotiation buildNegotiation() {

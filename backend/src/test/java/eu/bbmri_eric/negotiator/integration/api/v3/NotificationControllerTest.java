@@ -1,65 +1,77 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.core.Is.is;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import org.junit.jupiter.api.BeforeEach;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class NotificationControllerTest {
 
+  public static final String USER_NOTIFICATIONS_ENDPOINT = "/v3/users/%s/notifications";
   @Autowired private WebApplicationContext context;
   @Autowired private NotificationRepository notificationRepository;
   @Autowired private PersonRepository personRepository;
   @Autowired private NegotiationRepository negotiationRepository;
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @BeforeEach
-  public void beforeEach() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  @Test
+  @WithMockNegotiatorUser(id = 101L)
+  void getUserNotifications_nonExistentUSerID_throws403() throws Exception {
+    mockMvc
+        .perform(get(USER_NOTIFICATIONS_ENDPOINT.formatted("199999")))
+        .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
-  void getNotifications_empty() throws Exception {
+  @WithMockNegotiatorUser(id = 101L)
+  void getUserNotifications_differentUserId_throws403() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/notifications"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(content().string("[]"));
+        .perform(get(USER_NOTIFICATIONS_ENDPOINT.formatted("102")))
+        .andExpect(status().isForbidden());
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
-  void getNotifications_3new_Ok() throws Exception {
-    Person person = personRepository.findByName("TheResearcher").get();
-    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    for (int i = 0; i < 3; i++) {
-      notificationRepository.save(
-          Notification.builder().recipient(person).negotiation(negotiation).build());
-    }
+  @WithMockNegotiatorUser(id = 101L)
+  void getUserNotifications_validID_ok() throws Exception {
+    Person person = personRepository.findById(101L).get();
+    notificationRepository.save(new Notification(person, "test Title", "test message"));
+    notificationRepository.save(new Notification(person, "test Title 2", "test message"));
+    notificationRepository.save(new Notification(person, "test Title 3", "test message"));
+
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/notifications"))
+        .perform(get(USER_NOTIFICATIONS_ENDPOINT.formatted("101")))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(3)));
+        .andExpect(jsonPath("$._embedded.notifications[0].message", is("test message")))
+        .andExpect(jsonPath("$._embedded.notifications[0].title", is("test Title 3")))
+        .andExpect(jsonPath("$._embedded.notifications[1].title", is("test Title 2")))
+        .andExpect(jsonPath("$._embedded.notifications[2].title", is("test Title")));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 101L)
+  void getNotification_validID_ok() throws Exception {
+    Person person = personRepository.findById(101L).get();
+    Notification notification =
+        notificationRepository.save(new Notification(person, "test Title", "test message"));
+    mockMvc
+        .perform(get("/v3/notifications/%s".formatted(notification.getId())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message", is("test message")))
+        .andExpect(jsonPath("$.title", is("test Title")));
   }
 }

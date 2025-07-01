@@ -37,8 +37,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @Transactional
 class OldNotificationServiceTest {
 
-  @Autowired
-  OldNotificationService oldNotificationService;
+  @Autowired OldNotificationService oldNotificationService;
   @Autowired PersonRepository personRepository;
   @Autowired NotificationRepository notificationRepository;
   @Autowired NegotiationRepository negotiationRepository;

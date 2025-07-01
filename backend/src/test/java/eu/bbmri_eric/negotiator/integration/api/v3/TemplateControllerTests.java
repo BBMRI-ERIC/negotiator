@@ -34,8 +34,7 @@ public class TemplateControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired NotificationEmailRepository notificationEmailRepository;
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired
-  OldNotificationService oldNotificationService;
+  @Autowired OldNotificationService oldNotificationService;
 
   private MockMvc mockMvc;
 

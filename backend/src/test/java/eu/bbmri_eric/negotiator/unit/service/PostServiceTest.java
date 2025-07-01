@@ -86,8 +86,7 @@ public class PostServiceTest {
 
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
-  @Mock
-  OldNotificationServiceImpl userNotificationService;
+  @Mock OldNotificationServiceImpl userNotificationService;
   private AutoCloseable closeable;
 
   private Post publicPost1;

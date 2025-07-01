@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 class Scheduler {
-    @Scheduled(cron = "${negotiator.email.frequency-cron-expression:0 0 * * * *}")
-    void sendOutEmails(){
-    }
+  @Scheduled(cron = "${negotiator.email.frequency-cron-expression:0 0 * * * *}")
+  void sendOutEmails() {}
 }
