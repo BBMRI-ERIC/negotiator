@@ -96,7 +96,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
                     "id", negotiation.getId(),
                     "createdAt", negotiation.getCreationDate(),
                     "status", negotiation.getCurrentState(),
-                    "payload", (Map<String, Object>) processPayload(payload)));
+                    "payload", processPayload(payload)));
 
     return context;
   }
