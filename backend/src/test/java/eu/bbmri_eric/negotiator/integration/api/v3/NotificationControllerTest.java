@@ -64,6 +64,21 @@ public class NotificationControllerTest {
 
   @Test
   @WithMockNegotiatorUser(id = 101L)
+  void getUserNotifications_withPagination_ok() throws Exception {
+    Person person = personRepository.findById(101L).get();
+    notificationRepository.save(new Notification(person, "test Title", "test message"));
+    notificationRepository.save(new Notification(person, "test Title 2", "test message"));
+    notificationRepository.save(new Notification(person, "test Title 3", "test message"));
+    mockMvc
+            .perform(get(USER_NOTIFICATIONS_ENDPOINT.formatted("101") + "?page=0&size=1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.notifications[0].message", is("test message")))
+            .andExpect(jsonPath("$._embedded.notifications[0].title", is("test Title 3")))
+            .andExpect(jsonPath("$._embedded.notifications.length()", is(1)));
+  }
+
+  @Test
+  @WithMockNegotiatorUser(id = 101L)
   void getNotification_validID_ok() throws Exception {
     Person person = personRepository.findById(101L).get();
     Notification notification =
