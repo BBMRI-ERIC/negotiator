@@ -99,7 +99,7 @@
               <div class="form-check form-check-inline align-middle">
                 <input
                   id="inlineCheckbox1"
-                  @change="changeActiveElements(index,criteria, $event)"
+                  @change="changeActiveElements(index, criteria, $event)"
                   :value="criteria"
                   :required="criteria.required"
                   :checked="isElementActive(activeElements[index].selectedElements, criteria.id)"
@@ -377,12 +377,11 @@ const forceReRenderFormWizard = ref(null)
 const negotiationCriteria = ref({})
 const negotiationValueSets = ref({})
 const validationColorHighlight = ref([])
-const accessForm = ref( {
-        id: 1,
-        name: "BBMRI Template",
-        sections: [
-]
-      },)
+const accessForm = ref({
+  id: 1,
+  name: 'BBMRI Template',
+  sections: [],
+})
 const editAccessForm = ref({})
 const accessFormElements = ref([])
 const addModal = ref(null)
@@ -402,39 +401,35 @@ onMounted(async () => {
     selector: "[data-bs-toggle='tooltip']",
   })
   accessFormElements.value = await negotiationFormStore.retrieveFormElements()
-   // edit section
-   if (route.params.accessFormId) {
-    await  negotiationFormStore.retrieveAccessFormById(route.params.accessFormId).then((response) => {
-      editAccessForm.value = response
-      accessForm.value.id = response.id
-      accessForm.value.name = response.name
+  // edit section
+  if (route.params.accessFormId) {
+    await negotiationFormStore
+      .retrieveAccessFormById(route.params.accessFormId)
+      .then((response) => {
+        editAccessForm.value = response
+        accessForm.value.id = response.id
+        accessForm.value.name = response.name
+      })
+
+    editAccessForm.value.sections.forEach((section) => {
+      addFormSection(section.name, section.label, section.description, section.elements)
+      activeElements.value[activeElements.value.length - 1].selectedElements = section.elements
     })
 
-    editAccessForm.value.sections.forEach(section => {
-      addFormSection(
-        section.name,
-        section.label,
-        section.description,
-        section.elements
-      )
-      activeElements.value[activeElements.value.length - 1].selectedElements = section.elements
-      });
+    // Put elements that are selected by user first in each section
+    accessForm.value.sections.forEach((section, sectionIndex) => {
+      const selectedElements = activeElements.value[sectionIndex].selectedElements
 
-      // Put elements that are selected by user first in each section
-      accessForm.value.sections.forEach((section, sectionIndex) => {
+      const selectedIds = selectedElements.map((item) => item.id)
+      const reorderedElements = [
+        ...selectedElements,
+        ...section.elements.filter((item) => !selectedIds.includes(item.id)),
+      ]
 
-        const selectedElements = activeElements.value[sectionIndex].selectedElements;
+      section.elements = reorderedElements
+    })
 
-        const selectedIds = selectedElements.map(item => item.id);
-        const reorderedElements = [
-          ...selectedElements,
-          ...section.elements.filter(item => !selectedIds.includes(item.id)),
-        ];
-
-        section.elements = reorderedElements;
-      });
-
-      forceReRenderFormWizard.value += 1
+    forceReRenderFormWizard.value += 1
   }
 
   forceReRenderFormWizard.value += 1
@@ -456,7 +451,10 @@ function addFormSection(name, label, description, elements) {
   newSection.description = description
   newSection.elements = accessFormElements.value
   accessForm.value.sections.push(newSection)
-  activeElements.value.push({ id: accessForm.value.sections.length, selectedElements: elements || [] })
+  activeElements.value.push({
+    id: accessForm.value.sections.length,
+    selectedElements: elements || [],
+  })
   initNegotiationCriteria()
   forceReRenderFormWizard.value += 1
 }
@@ -486,26 +484,26 @@ async function addAccessForm() {
       description: section.description,
     }
 
-        negotiationFormStore.addAccessFormSections(sections).then((section) => {
-        const currentSection = {
-          sectionId: section.id,
-          sectionOrder: sectionIndex,
-        }
-        negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
-          postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
-            let currentElement = {
-              elementId: element.id,
-              elementOrder: elementIndex,
-              required: false,
-            }
-            negotiationFormStore.linkElementsToSectionToAccessForm(
-              accessFormId,
-              section.id,
-              currentElement,
-            )
-          })
+    negotiationFormStore.addAccessFormSections(sections).then((section) => {
+      const currentSection = {
+        sectionId: section.id,
+        sectionOrder: sectionIndex,
+      }
+      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
+        postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
+          let currentElement = {
+            elementId: element.id,
+            elementOrder: elementIndex,
+            required: false,
+          }
+          negotiationFormStore.linkElementsToSectionToAccessForm(
+            accessFormId,
+            section.id,
+            currentElement,
+          )
         })
       })
+    })
   })
 
   goToAdminSettingsPage()
@@ -522,7 +520,7 @@ function goToAdminSettingsPage() {
 }
 
 function startModal() {
-  if( route.params.accessFormId) {
+  if (route.params.accessFormId) {
     updateModal.value.click()
   } else {
     addModal.value.click()
@@ -576,12 +574,14 @@ function isElementActive(selectedElements, elementId) {
 }
 
 function changeActiveElements(elementIndex, element, event) {
-  if(event.target.checked) {
+  if (event.target.checked) {
     // If the checkbox is checked, add the element to activeElements
-      activeElements.value[elementIndex].selectedElements.push(element)
+    activeElements.value[elementIndex].selectedElements.push(element)
   } else {
     // If the checkbox is unchecked, remove the element from activeElements
-    const index = activeElements.value[elementIndex].selectedElements.findIndex((x) => x.id === element.id)
+    const index = activeElements.value[elementIndex].selectedElements.findIndex(
+      (x) => x.id === element.id,
+    )
     if (index !== -1) {
       activeElements.value[elementIndex].selectedElements.splice(index, 1)
     }
