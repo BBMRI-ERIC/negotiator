@@ -152,7 +152,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     )
     return response.data
   }
-  
+
   async function retrieveFormElements() {
     return await axios
       .get(`${apiPaths.BASE_API_PATH}/elements`, {
@@ -279,6 +279,6 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     linkSectionToAccessForm,
     linkElementsToSectionToAccessForm,
     retrieveAccessForms,
-    retrieveAccessFormById
+    retrieveAccessFormById,
   }
 })

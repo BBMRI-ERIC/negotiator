@@ -1,13 +1,12 @@
 <template>
   <div class="access-forms-section">
-      <h2 class="mb-1 text-left">Access Forms</h2>
-      <div class="text-muted mb-3">
-          Manage your access forms below. You can add a new form, view all existing forms, or update them as needed:
-      </div>
-      <button class="btn btn-sm btn-outline-primary" @click="addAccessForm">Add Access Form</button>
-      <div class="text-muted my-3">
-          All Access Forms:
-      </div>
+    <h2 class="mb-1 text-left">Access Forms</h2>
+    <div class="text-muted mb-3">
+      Manage your access forms below. You can add a new form, view all existing forms, or update
+      them as needed:
+    </div>
+    <button class="btn btn-sm btn-outline-primary" @click="addAccessForm">Add Access Form</button>
+    <div class="text-muted my-3">All Access Forms:</div>
   </div>
   <table v-if="allAccessForms" class="table table-sm mt-3">
     <thead>
@@ -46,11 +45,10 @@ const negotiationFormStore = useNegotiationFormStore()
 const allAccessForms = ref(null)
 const router = useRouter()
 
-
 onMounted(() => {
   negotiationFormStore.retrieveAccessForms().then((response) => {
-  allAccessForms.value = Object.values(response)[0]
-})
+    allAccessForms.value = Object.values(response)[0]
+  })
 })
 
 function addAccessForm() {
