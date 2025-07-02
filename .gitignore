@@ -1,5 +1,6 @@
 HELP.md
 /docs/node_modules
+/docs/.vitepress/dist
 /config
 /target
 !.mvn/wrapper/maven-wrapper.jar
