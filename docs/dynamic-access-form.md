@@ -16,6 +16,16 @@ Each access form must include at least the name for identification and one secti
 
 Additional sections can be added to the access form to collect more detailed information about the request, or specific requirements.
 
+### Add Access Form Page
+
+There is a dedicated page for adding access form. You can access this page from the **User Dropdown Menu**. On this page, you can perform the following actions:
+
+- **Add a New Access Form**: Create a new access form by providing a name and defining its structure.
+- **Add Sections to an Access Form**: For each access form, you can add multiple sections to organize the data collection process.
+- **Add Elements to a Section**: Within each section, you can add various elements such as text inputs, dropdowns, checkboxes, or other input types to collect specific information.
+
+This page provides a user-friendly interface to customize and manage access forms, ensuring they meet the specific requirements of your organization.
+
 ### Access Form Validation
 
 In order to allow the definition of access forms and elements the XSD file **bbmri-eric_negotiator_access_form.xsd** is used to validate the access form setup. The XSD file is used to validate the access form setup definitions using XML, but can be transformed to validate JSON or other formats.
