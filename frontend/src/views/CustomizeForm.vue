@@ -363,7 +363,6 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import AddFormSectionModal from '@/components/modals/AddFormSectionModal.vue'
 import { FormWizard, TabContent } from 'vue3-form-wizard'
 import { useNegotiationFormStore } from '../store/negotiationForm'
-import { useNotificationsStore } from '../store/notifications'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'
@@ -374,7 +373,6 @@ const router = useRouter()
 const route = useRoute()
 const uiConfigurationStore = useUiConfiguration()
 const negotiationFormStore = useNegotiationFormStore()
-const notificationsStore = useNotificationsStore()
 const forceReRenderFormWizard = ref(null)
 const negotiationCriteria = ref({})
 const negotiationValueSets = ref({})
