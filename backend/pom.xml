@@ -22,7 +22,7 @@
         <spring-boot.version>${project.parent.version}</spring-boot.version>
         <spring.version>6.2.8</spring.version>
         <testcontainers.version>1.21.0</testcontainers.version>
-        <flyway.version>11.8.0</flyway.version>
+        <flyway.version>11.10.0</flyway.version>
         <spring.state-machine.version>4.0.0</spring.state-machine.version>
         <sonar.organization>bbmri-eric</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
