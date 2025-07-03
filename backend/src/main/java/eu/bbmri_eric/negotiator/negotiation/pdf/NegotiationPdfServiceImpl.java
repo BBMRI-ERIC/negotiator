@@ -34,18 +34,20 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   @Value("${negotiator.emailLogo}")
   private String logoURL;
 
-  private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
+  private static final DateTimeFormatter DTF =
+      DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
 
   public NegotiationPdfServiceImpl(TemplateEngine templateEngine, ObjectMapper objectMapper) {
     this.templateEngine = templateEngine;
     this.objectMapper = objectMapper;
   }
 
-  public byte[] generatePdf(Negotiation negotiation, String templateName) throws PdfGenerationException {
+  public byte[] generatePdf(Negotiation negotiation, String templateName)
+      throws PdfGenerationException {
     try {
       Context context = createContext(negotiation);
-      String renderedHtml = templateEngine.process(templateName, context)
-              .replaceAll("(<br />)+$", "");
+      String renderedHtml =
+          templateEngine.process(templateName, context).replaceAll("(<br />)+$", "");
 
       return renderPdf(renderedHtml);
     } catch (Exception e) {
@@ -63,40 +65,40 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   }
 
   private Map<String, Object> processPayload(Map<String, Object> payload) {
-    payload.replaceAll((key, value) -> {
-      if (value instanceof String str) {
-        return escapeHtml(str).replaceAll("(<br />)+$", "");
-      }
-      else if (value instanceof Map<?, ?> map) {
-        if (map.isEmpty()) {
-          return "Empty";
-        }
-        return processPayload((Map<String, Object>) map);
-      }
-      else if (value instanceof Iterable<?> iterable) {
-        return StreamSupport.stream(iterable.spliterator(), false)
+    payload.replaceAll(
+        (key, value) -> {
+          if (value instanceof String str) {
+            return escapeHtml(str).replaceAll("(<br />)+$", "");
+          } else if (value instanceof Map<?, ?> map) {
+            if (map.isEmpty()) {
+              return "Empty";
+            }
+            return processPayload((Map<String, Object>) map);
+          } else if (value instanceof Iterable<?> iterable) {
+            return StreamSupport.stream(iterable.spliterator(), false)
                 .map(item -> (item instanceof String s) ? escapeHtml(s) : item)
                 .collect(Collectors.toList());
-      }
-      return value;
-    });
+          }
+          return value;
+        });
     return payload;
   }
 
   private Context createContext(Negotiation negotiation) throws JsonProcessingException {
-    Map<String, Object> payload = this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
+    Map<String, Object> payload =
+        this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
 
     Context context = new Context();
     context.setVariable("now", LocalDateTime.now().format(DTF));
     context.setVariable("logoUrl", logoURL);
     context.setVariable(
-            "negotiationPdfData",
-            Map.of(
-                    "author", negotiation.getCreatedBy(),
-                    "id", negotiation.getId(),
-                    "createdAt", negotiation.getCreationDate(),
-                    "status", negotiation.getCurrentState(),
-                    "payload", processPayload(payload)));
+        "negotiationPdfData",
+        Map.of(
+            "author", negotiation.getCreatedBy(),
+            "id", negotiation.getId(),
+            "createdAt", negotiation.getCreationDate(),
+            "status", negotiation.getCurrentState(),
+            "payload", processPayload(payload)));
 
     return context;
   }
@@ -109,7 +111,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       ITextRenderer renderer = new ITextRenderer();
-      renderer.getFontResolver().addFont(fontUrl.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+      renderer
+          .getFontResolver()
+          .addFont(fontUrl.toString(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
       renderer.setDocumentFromString(html);
       renderer.layout();
       renderer.createPDF(outputStream);
