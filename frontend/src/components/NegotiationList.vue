@@ -171,7 +171,7 @@
               >
                 <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
                   <span>
-                    {{ fn.payload.project.title }}
+                    {{ fn.payload?.project?.title }}
                   </span>
                 </th>
                 <td>
