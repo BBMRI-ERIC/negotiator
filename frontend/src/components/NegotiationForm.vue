@@ -76,7 +76,7 @@
           v-for="criteria in section.elements"
           :key="criteria.name"
           class="mb-4 mx-3"
-          v-on:focusout="handleFocusoutSave(index + 2)"
+          v-on:focusout="handleFocusoutSave(index + 2, criteria.type)"
         >
           <label
             class="form-label"
@@ -351,7 +351,7 @@
           <button
             v-if="isEditForm === false || currentStatus === 'DRAFT'"
             class="btn me-4"
-            @click="saveDraft(props.activeTabIndex)"
+            @click="saveDraft(props.activeTabIndex, true)"
             :disabled="currentSectionModified === false"
             :style="{
               'background-color': uiConfiguration.buttonColor,
@@ -428,6 +428,8 @@ const humanReadableSearchParameters = ref([])
 const openModal = ref(null)
 const requestAlreadySubmittedNegotiationId = ref(null)
 const currentSectionModified = ref(false)
+const negotiationAttachments = ref([])
+const negotiationReplacedAttachmentsID = ref([])
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
@@ -466,6 +468,9 @@ onBeforeMount(async () => {
       props.requestId,
     )
     currentStatus.value = result.status
+    negotiationAttachments.value = await negotiationPageStore.retrieveAttachmentsByNegotiationId(
+      props.requestId,
+    )
   } else {
     result = await negotiationFormStore.retrieveRequestById(props.requestId)
     accessFormResponse = await negotiationFormStore.retrieveCombinedAccessForm(props.requestId)
@@ -544,32 +549,35 @@ async function getValueSet(id) {
   })
 }
 
-async function saveDraft(step) {
+async function saveDraft(step, disableAttachmentUpload) {
   if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
-    await saveNegotiation(true, step)
+    await saveNegotiation(true, step, disableAttachmentUpload)
     currentSectionModified.value = false
   }
   return true
 }
 
-async function saveNegotiation(savingDraft, step) {
+async function saveNegotiation(savingDraft, step, disableAttachmentUpload) {
   if (props.isEditForm) {
     const data = {
       payload: negotiationCriteria.value,
     }
-    await negotiationFormStore.updateNegotiationById(props.requestId, data).then(() => {
-      if (!savingDraft) {
-        if (currentStatus.value === 'DRAFT') {
-          negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+    await negotiationFormStore
+      .updateNegotiationById(props.requestId, data, disableAttachmentUpload)
+      .then(() => {
+        deleteAllReplacedAttachments()
+        if (!savingDraft) {
+          if (currentStatus.value === 'DRAFT') {
+            negotiationPageStore.updateNegotiationStatus(props.requestId, 'SUBMIT').then(() => {
+              backToNegotiation(props.requestId)
+            })
+          } else {
             backToNegotiation(props.requestId)
-          })
+          }
         } else {
-          backToNegotiation(props.requestId)
+          notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
         }
-      } else {
-        notificationsStore.setNotification('Negotiation saved correctly as draft', 'light')
-      }
-    })
+      })
   } else {
     if (requestAlreadySubmittedNegotiationId.value) {
       backToNegotiation(requestAlreadySubmittedNegotiationId.value)
@@ -595,6 +603,13 @@ async function saveNegotiation(savingDraft, step) {
   }
 }
 
+function deleteAllReplacedAttachments() {
+  negotiationReplacedAttachmentsID.value.forEach((id) => {
+    if (id === null) return
+    negotiationFormStore.deleteAttachment(id)
+  })
+}
+
 function startModal() {
   showNotification(
     'Confirm submission',
@@ -609,7 +624,14 @@ function isAttachment(value) {
 let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
-  if (isFileExtensionsSuported(event.target.files[0])) {
+  if (
+    isFileExtensionsSuported(event.target.files[0]) &&
+    !isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) &&
+    !isAttachmentPresentInNegotiation(event.target.files[0])
+  ) {
+    negotiationReplacedAttachmentsID.value.push(
+      negotiationCriteria.value[section][criteria]?.id || null,
+    )
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++
@@ -676,7 +698,7 @@ function performNextStepAction(section, step) {
       notificationsStore.notification = 'Please fill out all required fields correctly'
       return false
     }
-    return saveDraft(step)
+    return saveDraft(step, false)
   }
 }
 
@@ -752,8 +774,41 @@ function transformMessage(text) {
   }
 }
 
-async function handleFocusoutSave(step) {
-  saveDraft(step)
+async function handleFocusoutSave(step, typeOfElement) {
+  if (typeOfElement === 'FILE') {
+    return
+  }
+  saveDraft(step, true)
+}
+
+function isSameFile(file, newFile) {
+  let isNameSame = false
+  let isSizeSame = false
+
+  if (file.name === newFile.name) {
+    isNameSame = true
+  }
+  if (file.size === newFile.size) {
+    isSizeSame = true
+  }
+  if (isNameSame && isSizeSame) {
+    notificationsStore.setNotification(
+      'Attachment already exists with the same name and size, please select a different file or rename the file',
+      'danger',
+    )
+    return true
+  }
+  return false
+}
+
+function isAttachmentPresentInNegotiation(newFile) {
+  let isAttachmentPresent = false
+  negotiationAttachments.value.forEach((element) => {
+    if (isSameFile(element, newFile)) {
+      isAttachmentPresent = true
+    }
+  })
+  return isAttachmentPresent
 }
 </script>
 

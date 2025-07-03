@@ -83,8 +83,23 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
             .then((response) => {
               return response.data
             })
-            .catch(() => {
-              notifications.setNotification('There was an error saving the attachment')
+            .catch((error) => {
+              if (error.response) {
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.response.data.detail}`,
+                  'danger',
+                )
+              } else if (error.request) {
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.request.statusText}`,
+                  'danger',
+                )
+              } else {
+                notifications.setNotification(
+                  `There was an error saving the attachment, ${error.message}`,
+                  'danger',
+                )
+              }
               return null
             })
           data.payload[sectionName][criteriaName] = attachmentsIds
@@ -102,36 +117,52 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
-  async function updateNegotiationById(negotiationId, data) {
+  async function updateNegotiationById(negotiationId, data, disableAutomaticUpload) {
     data.attachments = []
-    for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
-      for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
-        if (criteriaValue instanceof File) {
-          const formData = new FormData()
-          formData.append('file', criteriaValue)
-          const uploadFileHeaders = { headers: getBearerHeaders() }
+    if (!disableAutomaticUpload) {
+      for (const [sectionName, criteriaList] of Object.entries(data.payload)) {
+        for (const [criteriaName, criteriaValue] of Object.entries(criteriaList)) {
+          if (criteriaValue instanceof File) {
+            const formData = new FormData()
+            formData.append('file', criteriaValue)
+            const uploadFileHeaders = { headers: getBearerHeaders() }
 
-          uploadFileHeaders['Content-type'] = 'multipart/form-data'
+            uploadFileHeaders['Content-type'] = 'multipart/form-data'
 
-          const attachmentsIds = await axios
-            .post(
-              `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
-              formData,
-              uploadFileHeaders,
-            )
-            .then((response) => {
-              return response.data
-            })
-            .catch(() => {
-              notifications.setNotification('There was an error updating the attachment', 'danger')
-              return null
-            })
-          data.payload[sectionName][criteriaName] = attachmentsIds
-          data.attachments.push(attachmentsIds)
+            const attachmentsIds = await axios
+              .post(
+                `${apiPaths.BASE_API_PATH}/negotiations/${negotiationId}/attachments`,
+                formData,
+                uploadFileHeaders,
+              )
+              .then((response) => {
+                return response.data
+              })
+              .catch((error) => {
+                if (error.response) {
+                  notifications.setNotification(
+                    `There was an error updating the attachment, ${error.response.data.detail}`,
+                    'danger',
+                  )
+                } else if (error.request) {
+                  notifications.setNotification(
+                    `There was an error updating the attachment, ${error.request.statusText}`,
+                    'danger',
+                  )
+                } else {
+                  notifications.setNotification(
+                    `There was an error updating the attachment, ${error.message}`,
+                    'danger',
+                  )
+                }
+                return null
+              })
+            data.payload[sectionName][criteriaName] = attachmentsIds
+            data.attachments.push(attachmentsIds)
+          }
         }
       }
     }
-
     return axios
       .patch(`${apiPaths.NEGOTIATION_PATH}/${negotiationId}`, data, { headers: getBearerHeaders() })
       .then((response) => {
@@ -140,6 +171,20 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       .catch(() => {
         notifications.criticalError = true
         notifications.setNotification(`Error updating Negotiation: ${negotiationId}`, 'warning')
+        return null
+      })
+  }
+
+  function deleteAttachment(attachmentsId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/attachments/${attachmentsId}`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response
+      })
+      .catch(() => {
+        notifications.setNotification(`Error deleting attachment: ${attachmentsId}`, 'warning')
         return null
       })
   }
@@ -160,6 +205,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     retrieveDynamicAccessFormsValueSetByID,
     createNegotiation,
     updateNegotiationById,
+    deleteAttachment,
     transferNegotiation,
   }
 })
