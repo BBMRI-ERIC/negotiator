@@ -36,7 +36,7 @@
     "http-server": "^14.1.1",
     "moment": "^2.29.4",
     "oidc-client-ts": "^3.1.0",
-    "pinia": "^2.3.1",
+    "pinia": "^3.0.3",
     "pinia-oidc": "^1.0.10",
     "sass-loader": "^16.0.5",
     "vue": "^3.5.17",
