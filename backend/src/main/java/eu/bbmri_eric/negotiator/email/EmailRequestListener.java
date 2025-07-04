@@ -42,14 +42,16 @@ public class EmailRequestListener {
   private String logoURL;
 
   public EmailRequestListener(
-          EmailService emailService,
-          TemplateEngine templateEngine,
-          NotificationRepository notificationRepository, PersonRepository personRepository, NegotiationRepository negotiationRepository) {
+      EmailService emailService,
+      TemplateEngine templateEngine,
+      NotificationRepository notificationRepository,
+      PersonRepository personRepository,
+      NegotiationRepository negotiationRepository) {
     this.emailService = emailService;
     this.templateEngine = templateEngine;
     this.notificationRepository = notificationRepository;
-      this.personRepository = personRepository;
-      this.negotiationRepository = negotiationRepository;
+    this.personRepository = personRepository;
+    this.negotiationRepository = negotiationRepository;
   }
 
   @EventListener(value = NewNotificationEvent.class)
@@ -66,15 +68,20 @@ public class EmailRequestListener {
   }
 
   private void sendOutEmail(Notification notification, String emailTemplateName) {
-    Person person = personRepository.findById(notification.getRecipientId()).orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
-    Negotiation negotiation = negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
+    Person person =
+        personRepository
+            .findById(notification.getRecipientId())
+            .orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
+    Negotiation negotiation =
+        negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
     Context context = getContext(notification, person, negotiation);
     String emailContent = templateEngine.process(emailTemplateName, context);
     emailService.sendEmail(person, notification.getTitle(), emailContent);
     notificationRepository.save(notification);
   }
 
-  private @NonNull Context getContext(Notification notification, Person person, Negotiation negotiation) {
+  private @NonNull Context getContext(
+      Notification notification, Person person, Negotiation negotiation) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy, HH:mm");
     Context context = new Context();
     context.setVariable("recipient", person);

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 @CommonsLog
 public class NotificationEntityListener {
-    @PostPersist
-    private void afterNewNotification(Notification notification) {
-        log.debug("New notification: " + notification.getId());
-    }
+  @PostPersist
+  private void afterNewNotification(Notification notification) {
+    log.debug("New notification: " + notification.getId());
+  }
 }

@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +18,11 @@ public interface NotificationRepository
   Page<Notification> findAllByRecipientId(Long personId, Pageable pageable);
 
   @Query(
-          value = "SELECT nt.id, nt.message, ng.id, ng.title, nt.recipient_id " +
-                  "FROM notification nt " +
-                  "JOIN negotiation ng ON nt.negotiation_id = ng.id " +
-                  "WHERE nt.recipient_id = :recipientId",
-          nativeQuery = true)
+      value =
+          "SELECT nt.id, nt.message, ng.id, ng.title, nt.recipient_id "
+              + "FROM notification nt "
+              + "JOIN negotiation ng ON nt.negotiation_id = ng.id "
+              + "WHERE nt.recipient_id = :recipientId",
+      nativeQuery = true)
   List<Object[]> findViewByRecipientId(@Param("recipientId") String recipientId);
 }

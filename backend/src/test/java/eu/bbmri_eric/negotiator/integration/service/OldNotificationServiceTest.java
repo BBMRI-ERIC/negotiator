@@ -1,10 +1,10 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
@@ -16,8 +16,6 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifec
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.OldNotificationService;
-import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
-import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostService;
 import eu.bbmri_eric.negotiator.post.PostType;
@@ -27,11 +25,9 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest(loadTestData = true)
 @Transactional
@@ -90,8 +86,7 @@ class OldNotificationServiceTest {
       assertTrue(
           notificationRepository.findByRecipientId(rep.getId()).stream()
               .anyMatch(
-                  notification ->
-                      notification.getNegotiationId().equals(negotiation.getId())));
+                  notification -> notification.getNegotiationId().equals(negotiation.getId())));
     }
   }
 

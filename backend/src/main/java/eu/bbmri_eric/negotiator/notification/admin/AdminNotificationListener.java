@@ -20,14 +20,17 @@ class AdminNotificationListener {
     this.adminNotificationService = adminNotificationService;
   }
 
-  @EventListener(value = NegotiationStateChangeEvent.class, condition = "event.changedTo.value == 'SUBMITTED'")
+  @EventListener(
+      value = NegotiationStateChangeEvent.class,
+      condition = "event.changedTo.value == 'SUBMITTED'")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Transactional(Transactional.TxType.REQUIRES_NEW)
   @Async
   void onNewNegotiation(NegotiationStateChangeEvent event) {
     if (event.getEvent().equals(NegotiationEvent.SUBMIT)) {
       try {
-        adminNotificationService.notifyAllAdmins("New Request", "A new Request has been submitted for review",event.getNegotiationId());
+        adminNotificationService.notifyAllAdmins(
+            "New Request", "A new Request has been submitted for review", event.getNegotiationId());
       } catch (Exception e) {
         log.error("Error notifying admins about negotiation submission");
       }

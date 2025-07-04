@@ -8,11 +8,11 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import eu.bbmri_eric.negotiator.email.NotificationEmail;
+import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.notification.OldNotificationService;
-import eu.bbmri_eric.negotiator.email.NotificationEmail;
-import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
 import org.jsoup.Jsoup;

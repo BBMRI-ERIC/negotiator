@@ -106,8 +106,7 @@ public class RepresentativeNotificationsTest {
             .findById(negotiationDTO.getId())
             .get()
             .getCurrentStateForResource("biobank:1:collection:2"));
-    assertEquals(
-        count, notificationRepository.findAllByRecipientId(representative.getId()).size());
+    assertEquals(count, notificationRepository.findAllByRecipientId(representative.getId()).size());
   }
 
   @Test
@@ -131,8 +130,7 @@ public class RepresentativeNotificationsTest {
             .findById(negotiationDTO.getId())
             .get()
             .getCurrentStateForResource("biobank:1:collection:2"));
-    assertEquals(
-        count, notificationRepository.findAllByRecipientId(representative.getId()).size());
+    assertEquals(count, notificationRepository.findAllByRecipientId(representative.getId()).size());
   }
 
   @Test

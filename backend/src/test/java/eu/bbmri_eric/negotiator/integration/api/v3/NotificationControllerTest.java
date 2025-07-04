@@ -70,11 +70,11 @@ public class NotificationControllerTest {
     notificationRepository.save(new Notification(101L, "test Title 2", "test message"));
     notificationRepository.save(new Notification(101L, "test Title 3", "test message"));
     mockMvc
-            .perform(get(USER_NOTIFICATIONS_ENDPOINT.formatted("101") + "?page=0&size=1"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.notifications[0].message", is("test message")))
-            .andExpect(jsonPath("$._embedded.notifications[0].title", is("test Title 3")))
-            .andExpect(jsonPath("$._embedded.notifications.length()", is(1)));
+        .perform(get(USER_NOTIFICATIONS_ENDPOINT.formatted("101") + "?page=0&size=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.notifications[0].message", is("test message")))
+        .andExpect(jsonPath("$._embedded.notifications[0].title", is("test Title 3")))
+        .andExpect(jsonPath("$._embedded.notifications.length()", is(1)));
   }
 
   @Test

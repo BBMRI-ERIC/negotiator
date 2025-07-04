@@ -1,20 +1,16 @@
 package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.email.EmailService;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.email.EmailService;
-import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -99,7 +94,6 @@ public class OldNotificationServiceImpl implements OldNotificationService {
         .map(notification -> modelMapper.map(notification, NotificationDTO.class))
         .collect(Collectors.toList());
   }
-
 
   @Override
   public void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation) {
@@ -175,8 +169,8 @@ public class OldNotificationServiceImpl implements OldNotificationService {
       if (!representative.getId().equals(post.getCreatedBy().getId())) {
         notificationRepository.save(
             Notification.builder()
-                    .negotiationId(post.getNegotiation().getId())
-                    .recipientId(representative.getId())
+                .negotiationId(post.getNegotiation().getId())
+                .recipientId(representative.getId())
                 .message(
                     "Negotiation %s had a new post by %s"
                         .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
@@ -224,15 +218,11 @@ public class OldNotificationServiceImpl implements OldNotificationService {
   private void createNewNotification(Negotiation negotiation, Person representative) {
     notificationRepository.save(
         buildNewNotification(
-            negotiation,
-            representative,
-            "New Negotiation %s ".formatted(negotiation.getId())));
+            negotiation, representative, "New Negotiation %s ".formatted(negotiation.getId())));
   }
 
   private Notification buildNewNotification(
-      Negotiation negotiation,
-      Person representative,
-      String message) {
+      Negotiation negotiation, Person representative, String message) {
     Notification newNotification =
         Notification.builder()
             .negotiationId(negotiation.getId())

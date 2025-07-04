@@ -8,7 +8,6 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
-import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.transaction.Transactional;

@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.integration.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
@@ -13,10 +12,7 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
-import eu.bbmri_eric.negotiator.notification.NotificationViewDTO;
-import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.RepositoryTest;
@@ -24,10 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.sql.DataSource;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @RepositoryTest

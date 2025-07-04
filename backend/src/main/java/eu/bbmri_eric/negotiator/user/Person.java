@@ -15,6 +15,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,12 +27,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @NoArgsConstructor(force = true)
@@ -39,105 +38,108 @@ import java.util.Set;
 @SequenceGenerator(name = "person_id_seq", initialValue = 10000)
 public class Person {
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "resource_representative_link",
-            joinColumns = @JoinColumn(name = "person_id"),
-            inverseJoinColumns = @JoinColumn(name = "resource_id"))
-    @Exclude
-    Set<Resource> resources = new HashSet<>();
-    @Column(name = "admin", nullable = false, columnDefinition = "boolean default false")
-    boolean admin;
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    boolean isServiceAccount;
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
-    private Long id;
-    @Column(unique = true)
-    @NotNull
-    private String subjectId; // OIDC subject id
-    @NotNull
-    private String name;
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+      name = "resource_representative_link",
+      joinColumns = @JoinColumn(name = "person_id"),
+      inverseJoinColumns = @JoinColumn(name = "resource_id"))
+  @Exclude
+  Set<Resource> resources = new HashSet<>();
 
-    @NotNull
-    private String email;
+  @Column(name = "admin", nullable = false, columnDefinition = "boolean default false")
+  boolean admin;
 
-    private String password; // can be null if the user is authenticated via OIDC
+  @Column(nullable = false, columnDefinition = "boolean default false")
+  boolean isServiceAccount;
 
-    private String organization;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
+  private Long id;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
-    private Set<Authority> authorities;
+  @Column(unique = true)
+  @NotNull
+  private String subjectId; // OIDC subject id
 
-    @ManyToMany(mappedBy = "managers", fetch = FetchType.EAGER)
-    @Exclude
-    @Setter(AccessLevel.NONE)
-    @Builder.Default
-    private Set<Network> networks = new HashSet<>();
+  @NotNull private String name;
 
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
+  @NotNull private String email;
 
-    public void addResource(Resource resource) {
-        this.resources.add(resource);
-        resource.getRepresentatives().add(this);
+  private String password; // can be null if the user is authenticated via OIDC
+
+  private String organization;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
+  private Set<Authority> authorities;
+
+  @ManyToMany(mappedBy = "managers", fetch = FetchType.EAGER)
+  @Exclude
+  @Setter(AccessLevel.NONE)
+  @Builder.Default
+  private Set<Network> networks = new HashSet<>();
+
+  @Column(name = "last_login")
+  private LocalDateTime lastLogin;
+
+  public void addResource(Resource resource) {
+    this.resources.add(resource);
+    resource.getRepresentatives().add(this);
+  }
+
+  /**
+   * Get Resources Represented by the user.
+   *
+   * @return an Unmodifiable set of Resources.
+   */
+  public Set<Resource> getResources() {
+    if (Objects.isNull(this.resources)) {
+      return Set.of();
     }
+    return Collections.unmodifiableSet(this.resources);
+  }
 
-    /**
-     * Get Resources Represented by the user.
-     *
-     * @return an Unmodifiable set of Resources.
-     */
-    public Set<Resource> getResources() {
-        if (Objects.isNull(this.resources)) {
-            return Set.of();
-        }
-        return Collections.unmodifiableSet(this.resources);
-    }
+  public void removeResource(Resource resource) {
+    this.resources.remove(resource);
+    resource.getRepresentatives().remove(this);
+  }
 
-    public void removeResource(Resource resource) {
-        this.resources.remove(resource);
-        resource.getRepresentatives().remove(this);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Person person)) return false;
+    return Objects.equals(subjectId, person.getSubjectId());
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Person person)) return false;
-        return Objects.equals(subjectId, person.getSubjectId());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(subjectId);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(subjectId);
-    }
-
-    @Override
-    public String toString() {
-        return "Person{"
-                + "id="
-                + id
-                + ", subjectId='"
-                + subjectId
-                + '\''
-                + ", admin="
-                + admin
-                + ", isServiceAccount="
-                + isServiceAccount
-                + ", name='"
-                + name
-                + '\''
-                + ", email='"
-                + email
-                + '\''
-                + ", password='"
-                + password
-                + '\''
-                + ", organization='"
-                + organization
-                + '\''
-                + ", lastLogin="
-                + lastLogin
-                + '}';
-    }
+  @Override
+  public String toString() {
+    return "Person{"
+        + "id="
+        + id
+        + ", subjectId='"
+        + subjectId
+        + '\''
+        + ", admin="
+        + admin
+        + ", isServiceAccount="
+        + isServiceAccount
+        + ", name='"
+        + name
+        + '\''
+        + ", email='"
+        + email
+        + '\''
+        + ", password='"
+        + password
+        + '\''
+        + ", organization='"
+        + organization
+        + '\''
+        + ", lastLogin="
+        + lastLogin
+        + '}';
+  }
 }
