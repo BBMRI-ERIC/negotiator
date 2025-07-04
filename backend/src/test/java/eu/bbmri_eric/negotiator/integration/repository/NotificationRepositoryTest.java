@@ -125,38 +125,4 @@ public class NotificationRepositoryTest {
             .resources(new HashSet<>())
             .build());
   }
-
-  private Notification saveNotification() {
-    Notification notification =
-        Notification.builder()
-            .negotiation(this.negotiation)
-            .recipient(this.person)
-            .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-            .build();
-    return notificationRepository.save(notification);
-  }
-
-  @Test
-  public void testFindByRecipientAndEmailStatus_ok() {
-    saveNotification();
-    List<NotificationViewDTO> notificationViewDTOs =
-        notificationRepository.findViewByRecipientIdAndEmailStatus(
-            this.person.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
-    NotificationViewDTO notificationViewDTO = notificationViewDTOs.get(0);
-    assertEquals(person.getId(), notificationViewDTO.getRecipient().getId());
-    assertEquals(NotificationEmailStatus.EMAIL_NOT_SENT, notificationViewDTO.getEmailStatus());
-    assertEquals(this.negotiation.getId(), notificationViewDTO.getNegotiationId());
-    assertEquals(parseTitleFromNegotiation(negotiation), notificationViewDTO.getNegotiationTitle());
-  }
-
-  private static String parseTitleFromNegotiation(Negotiation negotiation) {
-    String title;
-    try {
-      JSONObject payloadJson = new JSONObject(negotiation.getPayload());
-      title = payloadJson.getJSONObject("project").getString("title");
-    } catch (JSONException e) {
-      title = "Untitled negotiation";
-    }
-    return title;
-  }
 }

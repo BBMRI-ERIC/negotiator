@@ -33,20 +33,20 @@ public class AdminNotificationServiceTest {
         Map<Long, Integer> adminCounts = new HashMap<>();
         Map<Long, Integer> notAdminCounts = new HashMap<>();
         admins.forEach(admin -> {
-            int count = notificationRepository.findAllByRecipient_id(admin.getId()).size();
+            int count = notificationRepository.findAllByRecipientId(admin.getId()).size();
             adminCounts.put(admin.getId(), count);
         });
         notAdmins.forEach(person -> {
-            int count = notificationRepository.findAllByRecipient_id(person.getId()).size();
+            int count = notificationRepository.findAllByRecipientId(person.getId()).size();
             notAdminCounts.put(person.getId(), count);
         });
         adminNotificationService.notifyAllAdmins("Important Message", "message");
         adminCounts.forEach((id, count) -> {
-            int newCount = notificationRepository.findAllByRecipient_id(id).size();
+            int newCount = notificationRepository.findAllByRecipientId(id).size();
             assertEquals(count + 1, newCount);
         });
         notAdminCounts.forEach((id, count) -> {
-            int newCount = notificationRepository.findAllByRecipient_id(id).size();
+            int newCount = notificationRepository.findAllByRecipientId(id).size();
             assertEquals(count, newCount);
         });
     }

@@ -14,8 +14,8 @@ public class NotificationTest {
     Notification notification =
         Notification.builder()
             .id(1L)
-            .recipient(new Person())
-            .negotiation(new Negotiation())
+            .recipientId(1L)
+            .negotiationId("testId")
             .build();
     assertInstanceOf(Notification.class, notification);
   }

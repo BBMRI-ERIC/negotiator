@@ -72,7 +72,7 @@ public class RepresentativeNotificationsTest {
     negotiationRepository.saveAndFlush(negotiation);
     Person representative =
         negotiation.getResources().iterator().next().getRepresentatives().iterator().next();
-    int count = notificationRepository.findAllByRecipient_id(representative.getId()).size();
+    int count = notificationRepository.findAllByRecipientId(representative.getId()).size();
     representativeNotificationService.notifyAboutPendingNegotiations();
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
@@ -81,7 +81,7 @@ public class RepresentativeNotificationsTest {
             .get()
             .getCurrentStateForResource("biobank:1:collection:2"));
     assertEquals(
-        count + 1, notificationRepository.findAllByRecipient_id(representative.getId()).size());
+        count + 1, notificationRepository.findAllByRecipientId(representative.getId()).size());
   }
 
   @Test
@@ -99,7 +99,7 @@ public class RepresentativeNotificationsTest {
         negotiation.getResources().iterator().next().getSourceId(),
         NegotiationResourceState.RESOURCE_UNAVAILABLE);
     representativeNotificationService.notifyAboutPendingNegotiations();
-    int count = notificationRepository.findAllByRecipient_id(representative.getId()).size();
+    int count = notificationRepository.findAllByRecipientId(representative.getId()).size();
     assertEquals(
         NegotiationResourceState.RESOURCE_UNAVAILABLE,
         negotiationRepository
@@ -107,7 +107,7 @@ public class RepresentativeNotificationsTest {
             .get()
             .getCurrentStateForResource("biobank:1:collection:2"));
     assertEquals(
-        count, notificationRepository.findAllByRecipient_id(representative.getId()).size());
+        count, notificationRepository.findAllByRecipientId(representative.getId()).size());
   }
 
   @Test
@@ -124,7 +124,7 @@ public class RepresentativeNotificationsTest {
     Post post = new Post(negotiation, null, "", PostType.PUBLIC);
     postRepository.save(post);
     representativeNotificationService.notifyAboutPendingNegotiations();
-    int count = notificationRepository.findAllByRecipient_id(representative.getId()).size();
+    int count = notificationRepository.findAllByRecipientId(representative.getId()).size();
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         negotiationRepository
@@ -132,7 +132,7 @@ public class RepresentativeNotificationsTest {
             .get()
             .getCurrentStateForResource("biobank:1:collection:2"));
     assertEquals(
-        count, notificationRepository.findAllByRecipient_id(representative.getId()).size());
+        count, notificationRepository.findAllByRecipientId(representative.getId()).size());
   }
 
   @Test

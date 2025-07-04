@@ -7,26 +7,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface NotificationRepository
     extends JpaRepository<Notification, Long>, PagingAndSortingRepository<Notification, Long> {
 
   List<Notification> findByRecipientId(Long personId);
 
-  List<Notification> findByEmailStatus(NotificationEmailStatus status);
+  List<Notification> findAllByRecipientId(Long personId);
 
-  List<Notification> findAllByRecipient_id(Long personId);
-
-  Page<Notification> findAllByRecipient_id(Long personId, Pageable pageable);
+  Page<Notification> findAllByRecipientId(Long personId, Pageable pageable);
 
   @Query(
-      "SELECT new eu.bbmri_eric.negotiator.notification.NotificationViewDTO("
-          + "nt.id, nt.message, nt.emailStatus, ng.id, ng.title, p) "
-          + "FROM Notification nt "
-          + "JOIN nt.negotiation ng "
-          + "JOIN nt.recipient p "
-          + "WHERE p.id = :recipientId AND "
-          + "nt.emailStatus = :status")
-  List<NotificationViewDTO> findViewByRecipientIdAndEmailStatus(
-      Long recipientId, NotificationEmailStatus status);
+          value = "SELECT nt.id, nt.message, ng.id, ng.title, nt.recipient_id " +
+                  "FROM notification nt " +
+                  "JOIN negotiation ng ON nt.negotiation_id = ng.id " +
+                  "WHERE nt.recipient_id = :recipientId",
+          nativeQuery = true)
+  List<Object[]> findViewByRecipientId(@Param("recipientId") String recipientId);
 }

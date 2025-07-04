@@ -16,20 +16,6 @@ public interface OldNotificationService {
   List<NotificationDTO> getNotificationsForUser(Long userId);
 
   /**
-   * Notify all admins of a new negotiation.
-   *
-   * @param negotiation that was created.
-   */
-  void notifyAdmins(Negotiation negotiation);
-
-  /**
-   * Notify all admins of a new negotiation.
-   *
-   * @param negotiationId that was created.
-   */
-  void notifyAdmins(String negotiationId);
-
-  /**
    * Create notifications for all representatives of resources involved in a new negotiation.
    *
    * @param negotiation that was created.
@@ -56,7 +42,4 @@ public interface OldNotificationService {
    * @param post that was created.
    */
   void notifyUsersAboutNewPost(Post post);
-
-  /** Send out emails for all pending notifications. */
-  void sendEmailsForNewNotifications();
 }

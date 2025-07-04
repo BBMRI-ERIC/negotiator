@@ -16,7 +16,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification createNotification(Person recipient, String title, String body) {
-        Notification notification =  notificationRepository.save(new Notification(recipient, title, body));
+        Notification notification =  notificationRepository.save(new Notification(recipient.getId(), title, body));
         eventPublisher.publishEvent(new NewNotificationEvent(this, notification.getId()));
         return notification;
     }
@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Notification createNotification(Person recipient, String title, String body, String negotiationId) {
         // TODO: Fix use of Negotiation Id
-        Notification notification =  notificationRepository.save(new Notification(recipient, title, body));
+        Notification notification =  notificationRepository.save(new Notification(recipient.getId(), negotiationId, title, body));
         eventPublisher.publishEvent(new NewNotificationEvent(this, notification.getId()));
         return notification;
     }

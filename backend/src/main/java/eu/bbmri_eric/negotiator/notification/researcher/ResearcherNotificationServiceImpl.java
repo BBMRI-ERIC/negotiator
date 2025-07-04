@@ -22,7 +22,7 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
   private final NotificationRepository notificationRepository;
   private final ApplicationEventPublisher eventPublisher;
   private static final String CREATE_CONFIRMATION_TEMPLATE = "email-negotiation-confirmation";
-  private static final String STATUS_CHANGE_TEMPLATE = "email-negotiation-status-change";
+  private static final String STATUS_CHANGE_TEMPLATE = "default";
 
   public ResearcherNotificationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -89,11 +89,10 @@ public class ResearcherNotificationServiceImpl implements ResearcherNotification
 
     Notification notification =
         new Notification(
-            negotiation.getCreatedBy(),
-            negotiation,
+            negotiation.getCreatedBy().getId(),
+            negotiation.getId(),
             title,
-            message,
-            NotificationEmailStatus.EMAIL_NOT_SENT);
+            message);
 
     try {
       notification = notificationRepository.save(notification);

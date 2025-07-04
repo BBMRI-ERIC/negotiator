@@ -1,9 +1,13 @@
 package eu.bbmri_eric.negotiator.email;
 
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.time.format.DateTimeFormatter;
 import lombok.NonNull;
@@ -22,6 +26,8 @@ public class EmailRequestListener {
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
   private final NotificationRepository notificationRepository;
+  private final PersonRepository personRepository;
+  private final NegotiationRepository negotiationRepository;
 
   @Value("${negotiator.frontend-url}")
   private String frontendUrl;
@@ -36,12 +42,14 @@ public class EmailRequestListener {
   private String logoURL;
 
   public EmailRequestListener(
-      EmailService emailService,
-      TemplateEngine templateEngine,
-      NotificationRepository notificationRepository) {
+          EmailService emailService,
+          TemplateEngine templateEngine,
+          NotificationRepository notificationRepository, PersonRepository personRepository, NegotiationRepository negotiationRepository) {
     this.emailService = emailService;
     this.templateEngine = templateEngine;
     this.notificationRepository = notificationRepository;
+      this.personRepository = personRepository;
+      this.negotiationRepository = negotiationRepository;
   }
 
   @EventListener(value = NewNotificationEvent.class)
@@ -58,18 +66,18 @@ public class EmailRequestListener {
   }
 
   private void sendOutEmail(Notification notification, String emailTemplateName) {
-    Context context = getContext(notification);
+    Person person = personRepository.findById(notification.getRecipientId()).orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
+    Negotiation negotiation = negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
+    Context context = getContext(notification, person, negotiation);
     String emailContent = templateEngine.process(emailTemplateName, context);
-    emailService.sendEmail(notification.getRecipient(), notification.getTitle(), emailContent);
-    notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
+    emailService.sendEmail(person, notification.getTitle(), emailContent);
     notificationRepository.save(notification);
   }
 
-  private @NonNull Context getContext(Notification notification) {
+  private @NonNull Context getContext(Notification notification, Person person, Negotiation negotiation) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy, HH:mm");
-    Negotiation negotiation = notification.getNegotiation();
     Context context = new Context();
-    context.setVariable("recipient", notification.getRecipient());
+    context.setVariable("recipient", person);
     if (negotiation != null) {
       context.setVariable("negotiation", negotiation.getId());
       context.setVariable("titleForNegotiation", negotiation.getTitle());

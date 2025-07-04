@@ -84,7 +84,7 @@ public class EmailServiceImpl implements EmailService {
     NotificationEmail notificationEmail =
         notificationEmailRepository.save(
             NotificationEmail.builder()
-                .recipient(recipient)
+                .address(recipient.getEmail())
                 .message(mailBody)
                 .sentAt(LocalDateTime.now())
                 .build());
@@ -94,7 +94,6 @@ public class EmailServiceImpl implements EmailService {
       log.error("Failed to send email. Check SMTP configuration.");
       return;
     }
-    notificationEmail.setWasSuccessfullySent(true);
     notificationEmailRepository.save(notificationEmail);
     log.debug("Email message sent.");
   }

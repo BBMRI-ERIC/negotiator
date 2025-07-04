@@ -29,15 +29,10 @@ public class NotificationEmail {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "person_id")
-  @Nonnull
-  private Person recipient;
+  private String address;
 
   @Column(columnDefinition = "TEXT")
   private String message;
 
-  @CreatedDate private LocalDateTime sentAt;
-
-  private boolean wasSuccessfullySent = false;
+  private LocalDateTime sentAt = LocalDateTime.now();
 }

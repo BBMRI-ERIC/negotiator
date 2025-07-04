@@ -60,27 +60,11 @@ class OldNotificationServiceTest {
     Negotiation negotiation = negotiationRepository.findAll().get(0);
     notificationRepository.save(
         Notification.builder()
-            .negotiation(negotiation)
-            .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-            .recipient(person)
+            .negotiationId(negotiation.getId())
+            .recipientId(person.getId())
             .message("New")
             .build());
     assertEquals(1, oldNotificationService.getNotificationsForUser(person.getId()).size());
-  }
-
-  @Test
-  void notifyAdmins_atLeastOneAdminInDB_ok() {
-    assertFalse(personRepository.findAllByAdminIsTrue().isEmpty());
-    List<Person> admins = personRepository.findAllByAdminIsTrue();
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
-    oldNotificationService.notifyAdmins(negotiation);
-    for (Person admin : admins) {
-      assertTrue(
-          notificationRepository.findByRecipientId(admin.getId()).stream()
-              .anyMatch(
-                  notification ->
-                      notification.getNegotiation().getId().equals(negotiation.getId())));
-    }
   }
 
   @Test
@@ -107,7 +91,7 @@ class OldNotificationServiceTest {
           notificationRepository.findByRecipientId(rep.getId()).stream()
               .anyMatch(
                   notification ->
-                      notification.getNegotiation().getId().equals(negotiation.getId())));
+                      notification.getNegotiationId().equals(negotiation.getId())));
     }
   }
 
@@ -172,31 +156,6 @@ class OldNotificationServiceTest {
             .findById(negotiation.getId())
             .get()
             .getCurrentStateForResource(resourceWithoutReps.getSourceId()));
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  void notifyRepresentatives_called2Times_noNewEmailsSent() {
-    notificationEmailRepository.deleteAll();
-    assertTrue(notificationEmailRepository.findAll().isEmpty());
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
-    assertTrue(
-        negotiation.getResources().stream()
-            .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
-    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
-    oldNotificationService.sendEmailsForNewNotifications();
-    await()
-        .atMost(1, TimeUnit.SECONDS)
-        .until(() -> !notificationEmailRepository.findAll().isEmpty());
-    int numOfEmails = notificationEmailRepository.findAll().size();
-    oldNotificationService.sendEmailsForNewNotifications();
-    await()
-        .atMost(2, TimeUnit.SECONDS)
-        .until(() -> notificationEmailRepository.findAll().size() == numOfEmails);
-    assertEquals(numOfEmails, notificationEmailRepository.findAll().size());
   }
 
   @Test

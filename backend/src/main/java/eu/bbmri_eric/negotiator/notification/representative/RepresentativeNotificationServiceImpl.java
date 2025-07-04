@@ -90,13 +90,12 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
             .map(
                 rep ->
                     new Notification(
-                        rep,
-                        negotiation,
+                        rep.getId(),
+                        negotiation.getId(),
                         "Pending Request",
                         String.format(
                             "%s is waiting for your response",
-                            negotiation.getCreatedBy().getName()),
-                        NotificationEmailStatus.EMAIL_NOT_SENT))
+                            negotiation.getCreatedBy().getName())))
             .collect(Collectors.toList());
     notificationRepository.saveAll(notifications);
     notifications.forEach(

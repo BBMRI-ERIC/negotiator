@@ -54,6 +54,23 @@ This is a Thymeleaf HTML template used to generate a default email
         .email-header {
             padding: 20px;
         }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .button svg {
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
     </style>
     <title>Email notification</title>
 </head>
@@ -70,7 +87,8 @@ This is a Thymeleaf HTML template used to generate a default email
         <span th:utext="${message}" class="message"></span>
         </div>
         <div style="text-align: center; margin: 20px;">
-            <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation}}" class="button">Details
+            <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation}}" class="button">
+                Details
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                      class="bi bi-arrow-right" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"

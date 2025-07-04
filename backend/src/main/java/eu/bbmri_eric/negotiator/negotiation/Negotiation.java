@@ -100,13 +100,6 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState;
 
-  public void setAttachments(Set<Attachment> attachments) {
-    if (attachments != null) {
-      attachments.forEach(attachment -> attachment.setNegotiation(this));
-      this.attachments = attachments;
-    }
-  }
-
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
@@ -124,6 +117,13 @@ public class Negotiation extends AuditEntity {
   @JoinColumn(name = "discovery_service_id")
   @NotNull
   private DiscoveryService discoveryService;
+
+  public void setAttachments(Set<Attachment> attachments) {
+    if (attachments != null) {
+      attachments.forEach(attachment -> attachment.setNegotiation(this));
+      this.attachments = attachments;
+    }
+  }
 
   public void setCurrentState(NegotiationState negotiationState) {
     this.currentState = negotiationState;

@@ -25,6 +25,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
+/**
+ * A user notification.
+ */
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,23 +37,18 @@ import lombok.ToString;
 @Setter
 @Builder
 @Entity
-@EntityListeners(NotificationEntityListener.class)
-public class Notification extends AuditEntity {
+public class Notification {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
   @SequenceGenerator(name = "notification_id_seq", initialValue = 10000, allocationSize = 1)
   @Id
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "recipient_id")
   @Nonnull
-  @ToString.Exclude
-  private Person recipient;
+  private Long recipientId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "negotiation_id")
-  @ToString.Exclude
-  private Negotiation negotiation;
+  private String negotiationId;
 
   @Column(columnDefinition = "TEXT")
   private String title;
@@ -56,38 +56,20 @@ public class Notification extends AuditEntity {
   @Column(columnDefinition = "TEXT")
   private String message;
 
-  @Enumerated(EnumType.STRING)
-  private NotificationEmailStatus emailStatus;
+  private LocalDateTime createdAt = LocalDateTime.now();
 
-  public Notification(
-      @Nonnull Person recipient,
-      @Nonnull Negotiation negotiation,
-      String message,
-      NotificationEmailStatus emailStatus) {
-    this.recipient = recipient;
-    this.negotiation = negotiation;
-    this.message = message;
-    this.emailStatus = emailStatus;
-  }
+  private boolean read = false;
 
-  public Notification(
-      @Nonnull Person recipient,
-      @Nonnull Negotiation negotiation,
-      String title,
-      String message,
-      NotificationEmailStatus emailStatus) {
-    this.recipient = recipient;
-    this.negotiation = negotiation;
-    this.title = title;
-    this.message = message;
-    this.emailStatus = emailStatus;
-  }
-
-  public Notification(@Nonnull Person recipient, String title, String message) {
-    this.recipient = recipient;
+  public Notification(@Nonnull Long recipientId, String negotiationId, String title, String message) {
+    this.recipientId = recipientId;
+    this.negotiationId = negotiationId;
     this.title = title;
     this.message = message;
   }
 
-
+  public Notification(@Nonnull Long recipientId, String title, String message) {
+    this.recipientId = recipientId;
+    this.title = title;
+    this.message = message;
+  }
 }

@@ -141,9 +141,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     Negotiation negotiation = buildNegotiation(negotiationBody, request);
     negotiation = persistNegotiation(negotiationBody, negotiation);
     requestRepository.delete(request);
-    if (!negotiationBody.isDraft()) {
-      oldNotificationService.notifyAdmins(negotiation);
-    }
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 

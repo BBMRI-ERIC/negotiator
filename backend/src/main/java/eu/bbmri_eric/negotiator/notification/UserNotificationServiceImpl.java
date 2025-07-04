@@ -27,7 +27,7 @@ class UserNotificationServiceImpl implements UserNotificationService {
           "You are not authorized to view Notifications of this user");
     }
     return notificationRepository
-        .findAllByRecipient_id(
+        .findAllByRecipientId(
             userId,
             PageRequest.of(
                 filters.getPage(), filters.getSize(), Sort.by("creationDate").descending()))
@@ -39,8 +39,7 @@ class UserNotificationServiceImpl implements UserNotificationService {
     Notification notification =
         notificationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     if (!notification
-        .getRecipient()
-        .getId()
+        .getRecipientId()
         .equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())) {
       throw new ForbiddenRequestException("You are not authorized to view this Notification");
     }

@@ -100,40 +100,6 @@ public class OldNotificationServiceImpl implements OldNotificationService {
         .collect(Collectors.toList());
   }
 
-  @Override
-  public void notifyAdmins(Negotiation negotiation) {
-    createNotificationsForAdmins(negotiation);
-  }
-
-  private void createNotificationsForAdmins(Negotiation negotiation) {
-    List<Notification> newNotifications =
-        createNotificationsForAdmins(
-            negotiation,
-            NotificationEmailStatus.EMAIL_SENT,
-            "New Negotiation %s was added for review.".formatted(negotiation.getId()));
-    notificationRepository.saveAll(newNotifications);
-    sendNotificationsToAdmins(
-        newNotifications.stream()
-            .map(
-                (notification) ->
-                    new NotificationViewDTO(
-                        notification.getId(),
-                        notification.getMessage(),
-                        notification.getEmailStatus(),
-                        negotiation.getId(),
-                        parseTitleFromNegotiation(negotiation),
-                        notification.getRecipient()))
-            .collect(Collectors.toList()));
-  }
-
-  @Override
-  public void notifyAdmins(String negotiationId) {
-    Negotiation negotiation =
-        negotiationRepository
-            .findById(negotiationId)
-            .orElseThrow(() -> new EntityNotFoundException(negotiationId));
-    createNotificationsForAdmins(negotiation);
-  }
 
   @Override
   public void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation) {
@@ -156,9 +122,8 @@ public class OldNotificationServiceImpl implements OldNotificationService {
     log.info("Notifying researcher about status change.");
     notificationRepository.save(
         Notification.builder()
-            .negotiation(negotiation)
-            .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-            .recipient(negotiation.getCreatedBy())
+            .negotiationId(negotiation.getId())
+            .recipientId(negotiation.getCreatedBy().getId())
             .message(
                 "Negotiation %s had a change of status of %s to %s"
                     .formatted(
@@ -172,9 +137,6 @@ public class OldNotificationServiceImpl implements OldNotificationService {
   @Transactional
   public void notifyUsersAboutNewPost(Post post) {
     log.info("Notifying users about new post.");
-    if (!postAuthorIsAlsoRequester(post)) {
-      createNotificationForRequester(post);
-    }
     if (post.isPublic()
         && Objects.equals(post.getNegotiation().getCurrentState(), NegotiationState.IN_PROGRESS)) {
       createNotificationsForRepresentatives(post);
@@ -189,9 +151,8 @@ public class OldNotificationServiceImpl implements OldNotificationService {
       if (!representative.getId().equals(post.getCreatedBy().getId())) {
         notificationRepository.save(
             Notification.builder()
-                .negotiation(post.getNegotiation())
-                .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-                .recipient(representative)
+                .negotiationId(post.getNegotiation().getId())
+                .recipientId(representative.getId())
                 .message(
                     "Negotiation %s had a new post by %s"
                         .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
@@ -214,27 +175,14 @@ public class OldNotificationServiceImpl implements OldNotificationService {
       if (!representative.getId().equals(post.getCreatedBy().getId())) {
         notificationRepository.save(
             Notification.builder()
-                .negotiation(post.getNegotiation())
-                .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-                .recipient(representative)
+                    .negotiationId(post.getNegotiation().getId())
+                    .recipientId(representative.getId())
                 .message(
                     "Negotiation %s had a new post by %s"
                         .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
                 .build());
       }
     }
-  }
-
-  private void createNotificationForRequester(Post post) {
-    notificationRepository.save(
-        Notification.builder()
-            .negotiation(post.getNegotiation())
-            .emailStatus(NotificationEmailStatus.EMAIL_NOT_SENT)
-            .recipient(post.getNegotiation().getCreatedBy())
-            .message(
-                "Negotiation %s had a new post by %s"
-                    .formatted(post.getNegotiation().getId(), post.getCreatedBy().getName()))
-            .build());
   }
 
   private static boolean postAuthorIsAlsoRequester(Post post) {
@@ -248,23 +196,6 @@ public class OldNotificationServiceImpl implements OldNotificationService {
       Set<Resource> overlappingResources =
           getResourcesInNegotiationRepresentedBy(negotiation, representative);
       markReachableResources(negotiation, overlappingResources);
-    }
-  }
-
-  private List<Notification> createNotificationsForAdmins(
-      Negotiation negotiation, NotificationEmailStatus status, String notificationMessage) {
-    List<Notification> newNotifications = new ArrayList<>();
-    for (Person admin : personRepository.findAllByAdminIsTrue()) {
-      Notification newNotification =
-          buildNewNotification(negotiation, status, admin, notificationMessage);
-      newNotifications.add(newNotification);
-    }
-    return newNotifications;
-  }
-
-  private void sendNotificationsToAdmins(List<NotificationViewDTO> notifications) {
-    for (NotificationViewDTO notification : notifications) {
-      sendEmail(notification.getRecipient(), Collections.singletonList(notification));
     }
   }
 
@@ -294,52 +225,21 @@ public class OldNotificationServiceImpl implements OldNotificationService {
     notificationRepository.save(
         buildNewNotification(
             negotiation,
-            NotificationEmailStatus.EMAIL_NOT_SENT,
             representative,
             "New Negotiation %s ".formatted(negotiation.getId())));
   }
 
   private Notification buildNewNotification(
       Negotiation negotiation,
-      NotificationEmailStatus emailNotSent,
       Person representative,
       String message) {
     Notification newNotification =
         Notification.builder()
-            .negotiation(negotiation)
-            .emailStatus(emailNotSent)
-            .recipient(representative)
+            .negotiationId(negotiation.getId())
+            .recipientId(representative.getId())
             .message(message)
             .build();
-    newNotification.setModifiedDate(LocalDateTime.now());
-    newNotification.setCreationDate(LocalDateTime.now());
     return newNotification;
-  }
-
-  @Override
-  @Scheduled(cron = "${negotiator.email.frequency-cron-expression:0 0 * * * *}")
-  public void sendEmailsForNewNotifications() {
-    log.debug("Sending new email notifications.");
-    Set<Person> recipients = getPendingRecipients();
-    sendOutNotificationEmails(recipients);
-  }
-
-  private void sendOutNotificationEmails(@NonNull Set<Person> recipients) {
-    for (Person recipient : recipients) {
-      List<NotificationViewDTO> notifications = getPendingNotifications(recipient);
-      sendEmail(recipient, notifications);
-      markNotificationsAsEmailSent(notifications);
-    }
-  }
-
-  private void markNotificationsAsEmailSent(@NonNull List<NotificationViewDTO> notifications) {
-    for (NotificationViewDTO notificationView : notifications) {
-      Notification notification =
-          notificationRepository.findById(notificationView.getId()).orElseThrow();
-      notification.setEmailStatus(NotificationEmailStatus.EMAIL_SENT);
-      notification.setModifiedDate(LocalDateTime.now());
-      notificationRepository.saveAndFlush(notification);
-    }
   }
 
   private void sendEmail(
@@ -420,21 +320,10 @@ public class OldNotificationServiceImpl implements OldNotificationService {
         || message.matches("The negotiation .* is awaiting review\\.")) {
       return "ROLE_ADMIN";
     } else if (personRepository.isNegotiationCreator(
-        notification.getRecipient().getId(), notification.getNegotiationId())) {
+        notification.getRecipientId(), notification.getNegotiationId())) {
       return "ROLE_RESEARCHER";
     } else {
       return "ROLE_REPRESENTATIVE";
     }
-  }
-
-  private List<NotificationViewDTO> getPendingNotifications(@NonNull Person recipient) {
-    return notificationRepository.findViewByRecipientIdAndEmailStatus(
-        recipient.getId(), NotificationEmailStatus.EMAIL_NOT_SENT);
-  }
-
-  private Set<Person> getPendingRecipients() {
-    return notificationRepository.findByEmailStatus(NotificationEmailStatus.EMAIL_NOT_SENT).stream()
-        .map(Notification::getRecipient)
-        .collect(Collectors.toSet());
   }
 }

@@ -10,8 +10,7 @@ import lombok.Getter;
 public class NotificationViewDTO {
   private Long id;
   private String message;
-  private NotificationEmailStatus emailStatus;
   private String negotiationId;
   private String negotiationTitle;
-  private Person recipient;
+  private Long recipientId;
 }
