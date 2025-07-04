@@ -2,11 +2,12 @@ package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.common.AuditEntity;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
-import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
+import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -31,6 +32,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @Entity
+@EntityListeners(NotificationEntityListener.class)
 public class Notification extends AuditEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
   @SequenceGenerator(name = "notification_id_seq", initialValue = 10000, allocationSize = 1)
@@ -86,4 +88,6 @@ public class Notification extends AuditEntity {
     this.title = title;
     this.message = message;
   }
+
+
 }

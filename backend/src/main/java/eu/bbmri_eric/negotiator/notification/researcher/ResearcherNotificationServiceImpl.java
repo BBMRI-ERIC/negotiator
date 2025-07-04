@@ -6,7 +6,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
-import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
+import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import java.util.Objects;

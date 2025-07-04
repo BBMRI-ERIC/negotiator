@@ -16,8 +16,8 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifec
 import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.OldNotificationService;
-import eu.bbmri_eric.negotiator.notification.email.NotificationEmailRepository;
-import eu.bbmri_eric.negotiator.notification.email.NotificationEmailStatus;
+import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
+import eu.bbmri_eric.negotiator.email.NotificationEmailStatus;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostService;
 import eu.bbmri_eric.negotiator.post.PostType;

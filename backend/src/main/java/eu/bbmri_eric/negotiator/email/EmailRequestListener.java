@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.email;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
@@ -70,10 +70,12 @@ public class EmailRequestListener {
     Negotiation negotiation = notification.getNegotiation();
     Context context = new Context();
     context.setVariable("recipient", notification.getRecipient());
-    context.setVariable("negotiation", negotiation.getId());
+    if (negotiation != null) {
+      context.setVariable("negotiation", negotiation.getId());
+      context.setVariable("titleForNegotiation", negotiation.getTitle());
+      context.setVariable("date", negotiation.getCreationDate().format(formatter));
+    }
     context.setVariable("frontendUrl", frontendUrl);
-    context.setVariable("titleForNegotiation", negotiation.getTitle());
-    context.setVariable("date", negotiation.getCreationDate().format(formatter));
     context.setVariable("message", notification.getMessage());
     context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
     context.setVariable("emailHelpdeskHref", emailHelpdeskHref);

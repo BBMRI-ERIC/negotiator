@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.email;
 
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.mail.MessagingException;

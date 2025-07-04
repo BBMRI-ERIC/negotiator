@@ -25,6 +25,7 @@ public interface PersonRepository
   Optional<Person> findDetailedById(Long id);
 
   List<Person> findAllByAdminIsTrue();
+  List<Person> findAllByAdminIsFalse();
 
   boolean existsByIdAndResourcesIn(Long id, Set<Resource> resources);
 

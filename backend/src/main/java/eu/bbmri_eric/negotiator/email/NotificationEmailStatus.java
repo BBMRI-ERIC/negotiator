@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.email;
 
 public enum NotificationEmailStatus {
   EMAIL_SENT,

@@ -11,8 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.notification.OldNotificationService;
-import eu.bbmri_eric.negotiator.notification.email.NotificationEmail;
-import eu.bbmri_eric.negotiator.notification.email.NotificationEmailRepository;
+import eu.bbmri_eric.negotiator.email.NotificationEmail;
+import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
 import org.jsoup.Jsoup;
@@ -173,6 +173,6 @@ public class TemplateControllerTests {
         .andExpect(
             content()
                 .string(
-                    "[\"email-footer\",\"email-negotiation-confirmation\",\"email-negotiation-reminder\",\"email-negotiation-status-change\",\"email-notification\",\"logo\",\"pdf-negotiation-summary\"]"));
+                    "[\"default\",\"email-footer\",\"email-negotiation-confirmation\",\"email-negotiation-reminder\",\"email-negotiation-status-change\",\"email-notification\",\"logo\",\"pdf-negotiation-summary\"]"));
   }
 }

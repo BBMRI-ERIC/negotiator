@@ -82,3 +82,4 @@ reminder:
 For development, we advise to use a service called [Mailhog](https://github.com/mailhog/MailHog).
 It serves to test sending email messages and acts as a mock smtp server.
 For setup, follow the instructions mentioned in their documentation.
+

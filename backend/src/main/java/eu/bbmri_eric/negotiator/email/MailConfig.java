@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.email;
+package eu.bbmri_eric.negotiator.email;
 
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Value;
