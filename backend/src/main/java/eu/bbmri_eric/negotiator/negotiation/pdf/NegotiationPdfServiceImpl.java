@@ -56,9 +56,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   }
 
   private String escapeHtml(String input) {
-    if (input == null) {
-      return null;
-    }
     String escapedText = HtmlUtils.htmlEscape(input);
 
     return escapedText.replace("\n", "<br />");
