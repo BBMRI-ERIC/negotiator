@@ -9,12 +9,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.pdf.NegotiationPdfServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.user.Person;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +32,8 @@ public class NegotiationPdfTest {
   @Mock private TemplateEngine templateEngine;
 
   @Mock private ObjectMapper objectMapper;
+
+  @Mock private NegotiationRepository negotiationRepository; // Add this field
 
   @InjectMocks private NegotiationPdfServiceImpl negotiationPdfService;
 
@@ -54,23 +58,24 @@ public class NegotiationPdfTest {
     when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(payloadMap);
     when(templateEngine.process(anyString(), any(Context.class)))
         .thenReturn("<html><body><h1>Test</h1></body></html>");
+    when(negotiationRepository.findDetailedById("test-id")).thenReturn(Optional.of(negotiation));
   }
 
   @Test
-  void createNegotiationPdf() {
-    byte[] pdfBytes = negotiationPdfService.generatePdf(negotiation, "pdf-negotiation-summary");
+  void generatePdf_ok() {
+    byte[] pdfBytes = negotiationPdfService.generatePdf("test-id", "pdf-negotiation-summary");
 
     assertNotNull(pdfBytes);
   }
 
   @Test
-  void missingFontURL() {
+  void generatePdf_missingFontURL_throwsPdfGenerationException() {
     ReflectionTestUtils.setField(negotiationPdfService, "fontPath", "/fonts/Arial.ttf");
 
     assertThrows(
         PdfGenerationException.class,
         () -> {
-          negotiationPdfService.generatePdf(negotiation, "pdf-negotiation-summary");
+          negotiationPdfService.generatePdf("test-id", "pdf-negotiation-summary");
         });
   }
 }

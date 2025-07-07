@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
@@ -22,8 +26,11 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-@Service
+@Service(value = "DefaultNegotiationPdfService")
+@CommonsLog
+@Transactional
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
+  private NegotiationRepository negotiationRepository;
 
   private TemplateEngine templateEngine;
   private ObjectMapper objectMapper;
@@ -37,13 +44,25 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private static final DateTimeFormatter DTF =
       DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
 
-  public NegotiationPdfServiceImpl(TemplateEngine templateEngine, ObjectMapper objectMapper) {
+  private static final String DEFAULT_PDF_TEMPLATE_NAME = "pdf-negotiation-summary";
+
+  public NegotiationPdfServiceImpl(
+      NegotiationRepository negotiationRepository,
+      TemplateEngine templateEngine,
+      ObjectMapper objectMapper) {
+    this.negotiationRepository = negotiationRepository;
     this.templateEngine = templateEngine;
     this.objectMapper = objectMapper;
   }
 
-  public byte[] generatePdf(Negotiation negotiation, String templateName)
+  public byte[] generatePdf(String negotiationId, String templateName)
       throws PdfGenerationException {
+    Negotiation negotiation = findEntityById(negotiationId);
+
+    if (templateName == null) {
+      templateName = DEFAULT_PDF_TEMPLATE_NAME;
+    }
+
     try {
       Context context = createContext(negotiation);
       String renderedHtml =
@@ -53,6 +72,12 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     } catch (Exception e) {
       throw new PdfGenerationException("Error creating negotiation pdf: " + e.getMessage());
     }
+  }
+
+  private Negotiation findEntityById(String negotiationId) {
+    return negotiationRepository
+        .findDetailedById(negotiationId)
+        .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
   private String escapeHtml(String input) {
