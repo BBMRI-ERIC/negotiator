@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.notification;
 
-
 /** Service for processing notifications to admins. */
 public interface AdminNotificationService {
   /**

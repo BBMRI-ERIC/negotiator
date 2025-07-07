@@ -13,7 +13,6 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
-import eu.bbmri_eric.negotiator.notification.Notification;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
@@ -42,7 +41,6 @@ class OldNotificationServiceTest {
   @Autowired NotificationEmailRepository notificationEmailRepository;
   @Autowired PostService postService;
   @Autowired NegotiationService negotiationService;
-
 
   @Test
   @WithMockNegotiatorUser(

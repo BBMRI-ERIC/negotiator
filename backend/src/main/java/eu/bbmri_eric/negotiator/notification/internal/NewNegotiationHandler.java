@@ -9,22 +9,25 @@ import org.springframework.stereotype.Component;
 @Component
 @CommonsLog
 class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent> {
-    private final ResearcherNotificationService researcherNotificationService;
-    private final AdminNotificationService adminNotificationService;
+  private final ResearcherNotificationService researcherNotificationService;
+  private final AdminNotificationService adminNotificationService;
 
-    public NewNegotiationHandler(ResearcherNotificationService researcherNotificationService, AdminNotificationService adminNotificationService) {
-        this.researcherNotificationService = researcherNotificationService;
-        this.adminNotificationService = adminNotificationService;
-    }
+  public NewNegotiationHandler(
+      ResearcherNotificationService researcherNotificationService,
+      AdminNotificationService adminNotificationService) {
+    this.researcherNotificationService = researcherNotificationService;
+    this.adminNotificationService = adminNotificationService;
+  }
 
-    @Override
-    public Class<NewNegotiationEvent> getSupportedEventType() {
-        return NewNegotiationEvent.class;
-    }
+  @Override
+  public Class<NewNegotiationEvent> getSupportedEventType() {
+    return NewNegotiationEvent.class;
+  }
 
-    @Override
-    public void notify(NewNegotiationEvent event) {
-        researcherNotificationService.createConfirmationNotification(event.getNegotiationId());
-        adminNotificationService.notifyAllAdmins("New Request", "A new Request has been submitted for review", event.getNegotiationId());
-    }
+  @Override
+  public void notify(NewNegotiationEvent event) {
+    researcherNotificationService.createConfirmationNotification(event.getNegotiationId());
+    adminNotificationService.notifyAllAdmins(
+        "New Request", "A new Request has been submitted for review", event.getNegotiationId());
+  }
 }

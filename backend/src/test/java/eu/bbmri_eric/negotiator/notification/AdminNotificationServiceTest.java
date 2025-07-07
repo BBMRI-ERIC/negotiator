@@ -17,8 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AdminNotificationServiceTest {
   @Autowired PersonRepository personRepository;
   @Autowired NotificationRepository notificationRepository;
-  @Autowired
-  AdminNotificationService adminNotificationService;
+  @Autowired AdminNotificationService adminNotificationService;
 
   @Test
   void notifyAllAdmins_ok() {

@@ -6,14 +6,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationScheduler {
 
-    RepresentativeNotificationService representativeNotificationService;
+  RepresentativeNotificationService representativeNotificationService;
 
-    public NotificationScheduler(RepresentativeNotificationService representativeNotificationService) {
-        this.representativeNotificationService = representativeNotificationService;
-    }
+  public NotificationScheduler(
+      RepresentativeNotificationService representativeNotificationService) {
+    this.representativeNotificationService = representativeNotificationService;
+  }
 
-    @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
-    void forPendingNegotiations() {
-        representativeNotificationService.notifyAboutPendingNegotiations();
-    }
+  @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
+  void forPendingNegotiations() {
+    representativeNotificationService.notifyAboutPendingNegotiations();
+  }
 }

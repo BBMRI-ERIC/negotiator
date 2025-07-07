@@ -47,7 +47,7 @@ public class ResourcePersistStateChangeListener
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
-      negotiation.ifPresent(value -> updateStateForResource(state, value, resourceId));
+    negotiation.ifPresent(value -> updateStateForResource(state, value, resourceId));
   }
 
   @Nullable

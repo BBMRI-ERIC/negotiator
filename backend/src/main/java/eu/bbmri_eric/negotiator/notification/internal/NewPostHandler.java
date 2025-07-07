@@ -9,24 +9,23 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 @Component
 class NewPostHandler implements NotificationStrategy<NewPostEvent> {
-    private final NotificationService notificationService;
-    private final PersonService personService;
+  private final NotificationService notificationService;
+  private final PersonService personService;
 
-    NewPostHandler(NotificationService notificationService, PersonService personService) {
-        this.notificationService = notificationService;
-        this.personService = personService;
+  NewPostHandler(NotificationService notificationService, PersonService personService) {
+    this.notificationService = notificationService;
+    this.personService = personService;
+  }
+
+  @Override
+  public Class<NewPostEvent> getSupportedEventType() {
+    return NewPostEvent.class;
+  }
+
+  @Override
+  public void notify(NewPostEvent event) {
+    if (event.getOrganizationId() != null) {
+      personService.findAllByOrganizationId(event.getOrganizationId());
     }
-
-
-    @Override
-    public Class<NewPostEvent> getSupportedEventType() {
-        return NewPostEvent.class;
-    }
-
-    @Override
-    public void notify(NewPostEvent event) {
-        if (event.getOrganizationId() != null) {
-            personService.findAllByOrganizationId(event.getOrganizationId())
-        }
-    }
+  }
 }

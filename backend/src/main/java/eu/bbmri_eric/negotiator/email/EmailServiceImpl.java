@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
   JavaMailSender javaMailSender;
   NotificationEmailRepository notificationEmailRepository;
+
   @Value("${negotiator.email-address}")
   private String from;
 
