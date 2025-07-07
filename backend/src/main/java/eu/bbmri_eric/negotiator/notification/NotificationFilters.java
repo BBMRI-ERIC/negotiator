@@ -16,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Parameters to filter the Notifications")
-public class NotificationFilters implements FilterDTO {
+class NotificationFilters implements FilterDTO {
   @Schema(description = "The page number required", example = "0")
   @Min(value = 0, message = "Page number must be greater than or equal to 0")
   private int page = 0;

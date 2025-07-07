@@ -93,8 +93,7 @@ public class PostServiceImpl implements PostService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
-    applicationEventPublisher.publishEvent(new NewPostEvent(this));
-    oldNotificationService.notifyUsersAboutNewPost(postEntity);
+    applicationEventPublisher.publishEvent(new NewPostEvent(this, postEntity.getId(), negotiationId));
     return modelMapper.map(postEntity, PostDTO.class);
   }
 

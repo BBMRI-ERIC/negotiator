@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.notification.researcher.ResearcherNotificationListener;
+import eu.bbmri_eric.negotiator.notification.ResearcherNotificationListener;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

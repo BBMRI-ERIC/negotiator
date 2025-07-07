@@ -1,7 +1,6 @@
-package eu.bbmri_eric.negotiator.notification.representative;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.notification.RepresentativeNotificationService;
 import jakarta.transaction.Transactional;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;

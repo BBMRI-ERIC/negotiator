@@ -1,8 +1,8 @@
-package eu.bbmri_eric.negotiator.notification.admin;
+package eu.bbmri_eric.negotiator.notification;
 
 
 /** Service for processing notifications to admins. */
-interface AdminNotificationService {
+public interface AdminNotificationService {
   /**
    * Create a notification for each Admin.
    *

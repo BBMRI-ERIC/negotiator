@@ -18,6 +18,7 @@ public interface PersonService {
    */
   UserResponseModel findById(Long id) throws EntityNotFoundException;
 
+
   /**
    * Retrieves all UserResponseModels that match the specified filter criteria.
    *
@@ -36,7 +37,7 @@ public interface PersonService {
    * @return a page of people.
    */
   Iterable<UserResponseModel> findAll(int page, int size);
-
+  List<UserResponseModel> findAllByOrganizationId(Long id);
   /**
    * Retrieves page of people from a sorted list.
    *

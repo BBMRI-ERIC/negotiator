@@ -2,8 +2,13 @@ package eu.bbmri_eric.negotiator.governance.organization;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

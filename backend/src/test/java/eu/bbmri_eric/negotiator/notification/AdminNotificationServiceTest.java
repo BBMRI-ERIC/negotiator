@@ -1,9 +1,8 @@
-package eu.bbmri_eric.negotiator.notification.admin;
+package eu.bbmri_eric.negotiator.notification;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
@@ -18,7 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AdminNotificationServiceTest {
   @Autowired PersonRepository personRepository;
   @Autowired NotificationRepository notificationRepository;
-  @Autowired AdminNotificationService adminNotificationService;
+  @Autowired
+  AdminNotificationService adminNotificationService;
 
   @Test
   void notifyAllAdmins_ok() {

@@ -1,9 +1,8 @@
-package eu.bbmri_eric.negotiator.notification.researcher;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.notification.ResearcherNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;

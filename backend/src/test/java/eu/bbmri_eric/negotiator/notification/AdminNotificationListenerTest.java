@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.admin;
+package eu.bbmri_eric.negotiator.notification;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;

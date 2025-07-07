@@ -127,7 +127,7 @@ const urlIsValid = computed(() => {
   return pattern.test(form.url)
 })
 
-// This handler is triggered when the child emits the updateForm event.
+// This internal is triggered when the child emits the updateForm event.
 const updateForm = (updatedForm) => {
   Object.assign(form, updatedForm)
 }

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 class UserNotificationServiceImpl implements UserNotificationService {
 
-  private NotificationRepository notificationRepository;
-  private ModelMapper modelMapper;
+  private final NotificationRepository notificationRepository;
+  private final ModelMapper modelMapper;
 
   public UserNotificationServiceImpl(
       NotificationRepository notificationRepository, ModelMapper modelMapper) {

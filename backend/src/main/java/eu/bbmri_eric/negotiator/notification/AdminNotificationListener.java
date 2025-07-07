@@ -1,7 +1,6 @@
-package eu.bbmri_eric.negotiator.notification.admin;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
