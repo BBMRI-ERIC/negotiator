@@ -19,7 +19,7 @@ import org.springframework.hateoas.server.core.Relation;
 public class NotificationDTO {
   private Long id;
   private String negotiationId;
-
+  // TODO: Rename
   private LocalDateTime creationDate;
   private String title;
   private String message;

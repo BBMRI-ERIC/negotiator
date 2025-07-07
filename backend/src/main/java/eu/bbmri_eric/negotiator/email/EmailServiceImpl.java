@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
   JavaMailSender javaMailSender;
   NotificationEmailRepository notificationEmailRepository;
+  @Value("${negotiator.email-address}")
+  private String from;
 
   public EmailServiceImpl(
       @Autowired JavaMailSender javaMailSender,
@@ -43,13 +46,14 @@ public class EmailServiceImpl implements EmailService {
       @NonNull MimeMessage mimeMessage,
       @NonNull String recipientAddress,
       @NonNull String subject,
-      @NonNull String mailBody) {
+      @NonNull String mailBody,
+      @NonNull String from) {
     try {
       MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
       helper.setText(mailBody, true);
       helper.setTo(recipientAddress);
       helper.setSubject(subject);
-      helper.setFrom("BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>");
+      helper.setFrom(from);
     } catch (MessagingException e) {
       throw new NullPointerException(e.toString());
     }
@@ -73,7 +77,7 @@ public class EmailServiceImpl implements EmailService {
       return;
     }
     try {
-      mimeMessage = buildMimeMessage(mimeMessage, recipient.getEmail(), subject, mailBody);
+      mimeMessage = buildMimeMessage(mimeMessage, recipient.getEmail(), subject, mailBody, from);
     } catch (NullPointerException e) {
       log.error("Failed to send email. Check message content.");
       return;

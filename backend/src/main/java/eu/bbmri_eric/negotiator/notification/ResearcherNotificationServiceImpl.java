@@ -1,11 +1,8 @@
-package eu.bbmri_eric.negotiator.notification.researcher;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
-import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
-import eu.bbmri_eric.negotiator.notification.Notification;
-import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import java.util.Objects;

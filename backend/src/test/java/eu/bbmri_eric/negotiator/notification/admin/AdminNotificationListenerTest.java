@@ -31,7 +31,7 @@ public class AdminNotificationListenerTest {
         new NegotiationStateChangeEvent(
             this, "fakeID", NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, null);
     publisher.publishEvent(event);
-    verify(myListener, timeout(1000)).onNewNegotiation(event);
+    verify(myListener, timeout(1000)).onSubmittedNegotiation(event);
   }
 
   @Test
@@ -40,6 +40,6 @@ public class AdminNotificationListenerTest {
         new NegotiationStateChangeEvent(
             this, "fakeID", NegotiationState.APPROVED, NegotiationEvent.APPROVE, null);
     publisher.publishEvent(event);
-    verify(myListener, never()).onNewNegotiation(event);
+    verify(myListener, never()).onSubmittedNegotiation(event);
   }
 }

@@ -20,6 +20,6 @@ public class NewResourcesListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   @Transactional(Transactional.TxType.REQUIRES_NEW)
   public void onApplicationEvent(NewResourcesAddedEvent event) {
-    notificationService.notifyRepresentativesAboutNewNegotiation(event.getNegotiationId());
+    // TODO: Fix
   }
 }

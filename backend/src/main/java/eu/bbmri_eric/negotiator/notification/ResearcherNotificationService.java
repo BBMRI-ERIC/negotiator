@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.notification.researcher;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 

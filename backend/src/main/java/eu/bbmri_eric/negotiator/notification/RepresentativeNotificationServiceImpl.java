@@ -1,13 +1,10 @@
-package eu.bbmri_eric.negotiator.notification.representative;
+package eu.bbmri_eric.negotiator.notification;
 
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
-import eu.bbmri_eric.negotiator.notification.Notification;
-import eu.bbmri_eric.negotiator.notification.NotificationRepository;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.transaction.Transactional;
@@ -17,9 +14,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,7 +38,6 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
   }
 
   @Override
-  @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
   @Transactional
   public void notifyAboutPendingNegotiations() {
     log.debug("Looking for pending negotiations");
@@ -50,6 +47,86 @@ public class RepresentativeNotificationServiceImpl implements RepresentativeNoti
       Set<Person> reps = getRepresentativesToNotify(negotiation);
       notifyRepresentatives(negotiation, reps);
     }
+  }
+
+  @Override
+  public void notifyAboutANewNegotiation(String negotiationId) {
+    Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
+    if (negotiation == null) {
+      log.error("Could not find Negotiation with ID: %s for sending out Notifications".formatted(negotiationId));
+      return;
+    }
+    createNotificationsForRepresentatives(negotiation);
+    markResourcesWithoutARepresentative(negotiation);
+  }
+
+
+  private void createNotificationsForRepresentatives(Negotiation negotiation) {
+    Set<Person> representatives = getRepresentativesForNegotiation(negotiation);
+    for (Person representative : representatives) {
+      createNewNotification(negotiation, representative);
+      Set<Resource> overlappingResources =
+              getResourcesInNegotiationRepresentedBy(negotiation, representative);
+      markReachableResources(negotiation, overlappingResources);
+    }
+  }
+
+  private static Set<Resource> getResourcesInNegotiationRepresentedBy(
+          Negotiation negotiation, Person representative) {
+    Set<Resource> overlappingResources = new HashSet<>(representative.getResources());
+    overlappingResources.retainAll(negotiation.getResources());
+    return overlappingResources;
+  }
+
+  private static Set<Person> getRepresentativesForNegotiation(Negotiation negotiation) {
+    return negotiation.getResources().stream()
+            .filter(
+                    resource ->
+                            Objects.equals(
+                                    negotiation.getCurrentStateForResource(resource.getSourceId()),
+                                    NegotiationResourceState.SUBMITTED))
+            .map(Resource::getRepresentatives)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
+  }
+
+  private void markResourcesWithoutARepresentative(@NonNull Negotiation negotiation) {
+    for (Resource resourceWithoutRep :
+            negotiation.getResources().stream()
+                    .filter(resource -> resource.getRepresentatives().isEmpty())
+                    .collect(Collectors.toSet())) {
+      log.warn(
+              "Resource with ID: %s does not have a representative."
+                      .formatted(resourceWithoutRep.getSourceId()));
+      negotiation.setStateForResource(
+              resourceWithoutRep.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    }
+  }
+
+  private void markReachableResources(
+          Negotiation negotiation, @NonNull Set<Resource> overlappingResources) {
+    for (Resource resourceWithRepresentative : overlappingResources) {
+      negotiation.setStateForResource(
+              resourceWithRepresentative.getSourceId(),
+              NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    }
+  }
+
+  private void createNewNotification(Negotiation negotiation, Person representative) {
+    notificationRepository.save(
+            buildNewNotification(
+                    negotiation, representative, "New Negotiation %s ".formatted(negotiation.getId())));
+  }
+
+  private Notification buildNewNotification(
+          Negotiation negotiation, Person representative, String message) {
+    Notification newNotification =
+            Notification.builder()
+                    .negotiationId(negotiation.getId())
+                    .recipientId(representative.getId())
+                    .message(message)
+                    .build();
+    return newNotification;
   }
 
   private Set<Person> getRepresentativesToNotify(Negotiation negotiation) {

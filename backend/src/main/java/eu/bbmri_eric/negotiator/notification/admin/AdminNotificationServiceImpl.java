@@ -29,7 +29,7 @@ class AdminNotificationServiceImpl implements AdminNotificationService {
     }
     admins.forEach(
         admin -> {
-          notificationService.createNotification(admin, title, message);
+          notificationService.createNotification(admin.getId(), title, message);
         });
   }
 

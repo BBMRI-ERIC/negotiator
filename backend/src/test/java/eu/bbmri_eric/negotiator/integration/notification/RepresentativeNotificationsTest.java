@@ -21,7 +21,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.notification.NotificationRepository;
-import eu.bbmri_eric.negotiator.notification.representative.RepresentativeNotificationService;
+import eu.bbmri_eric.negotiator.notification.RepresentativeNotificationService;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostRepository;
 import eu.bbmri_eric.negotiator.post.PostType;

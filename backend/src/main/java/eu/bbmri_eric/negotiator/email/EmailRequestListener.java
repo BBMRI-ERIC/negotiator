@@ -22,7 +22,7 @@ import org.thymeleaf.context.Context;
 /** Listens for requests to send an email. */
 @Component
 @CommonsLog
-public class EmailRequestListener {
+class EmailRequestListener {
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
   private final NotificationRepository notificationRepository;
@@ -41,7 +41,7 @@ public class EmailRequestListener {
   @Value("${negotiator.emailLogo}")
   private String logoURL;
 
-  public EmailRequestListener(
+  EmailRequestListener(
       EmailService emailService,
       TemplateEngine templateEngine,
       NotificationRepository notificationRepository,
@@ -57,7 +57,7 @@ public class EmailRequestListener {
   @EventListener(value = NewNotificationEvent.class)
   @TransactionalEventListener
   @Transactional(Transactional.TxType.REQUIRES_NEW)
-  protected void handleNewNotificationEvent(NewNotificationEvent event) {
+  void onNewNotification(NewNotificationEvent event) {
     Notification notification =
         notificationRepository.findById(event.getNotificationId()).orElse(null);
     if (notification == null) {

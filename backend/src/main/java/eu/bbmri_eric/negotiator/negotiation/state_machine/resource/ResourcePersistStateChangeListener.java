@@ -47,10 +47,7 @@ public class ResourcePersistStateChangeListener
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
-    if (negotiation.isPresent()) {
-      negotiation = updateStateForResource(state, negotiation.get(), resourceId);
-      notifyRequester(negotiation.get(), resourceId);
-    }
+      negotiation.ifPresent(value -> updateStateForResource(state, value, resourceId));
   }
 
   @Nullable
@@ -61,15 +58,6 @@ public class ResourcePersistStateChangeListener
   @Nullable
   private static String parseResourceIdFromMessage(Message<String> message) {
     return message.getHeaders().get("resourceId", String.class);
-  }
-
-  private void notifyRequester(Negotiation negotiation, String resourceId) {
-    oldNotificationService.notifyRequesterAboutStatusChange(
-        negotiation,
-        negotiation.getResources().stream()
-            .filter(resource -> resource.getSourceId().equals(resourceId))
-            .findFirst()
-            .orElse(null));
   }
 
   @NonNull

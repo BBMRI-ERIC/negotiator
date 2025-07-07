@@ -43,25 +43,6 @@ class OldNotificationServiceTest {
   @Autowired PostService postService;
   @Autowired NegotiationService negotiationService;
 
-  @Test
-  void getNotifications_nonExistentUser_0() {
-    assertEquals(0, oldNotificationService.getNotificationsForUser(19999L).size());
-  }
-
-  @Test
-  void getNotifications_1_ok() {
-    Person person =
-        personRepository.save(
-            Person.builder().subjectId("823").name("John").email("test@test.com").build());
-    Negotiation negotiation = negotiationRepository.findAll().get(0);
-    notificationRepository.save(
-        Notification.builder()
-            .negotiationId(negotiation.getId())
-            .recipientId(person.getId())
-            .message("New")
-            .build());
-    assertEquals(1, oldNotificationService.getNotificationsForUser(person.getId()).size());
-  }
 
   @Test
   @WithMockNegotiatorUser(
@@ -80,7 +61,6 @@ class OldNotificationServiceTest {
     for (Person rep : representatives) {
       assertTrue(notificationRepository.findByRecipientId(rep.getId()).isEmpty());
     }
-    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     for (Person rep : representatives) {
       assertFalse(notificationRepository.findByRecipientId(rep.getId()).isEmpty());
       assertTrue(
@@ -120,7 +100,6 @@ class OldNotificationServiceTest {
     assertEquals(2, negotiation.getResources().size());
     assertTrue(resource2.getRepresentatives().contains(representative));
     assertTrue(notificationRepository.findByRecipientId(representative.getId()).isEmpty());
-    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     assertEquals(1, notificationRepository.findByRecipientId(representative.getId()).size());
     Negotiation updatedNegotiation = negotiationRepository.findById(negotiation.getId()).get();
     assertEquals(
@@ -144,7 +123,6 @@ class OldNotificationServiceTest {
             .toList()
             .get(0);
     assertTrue(resourceWithoutReps.getRepresentatives().isEmpty());
-    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_UNREACHABLE,
         negotiationRepository

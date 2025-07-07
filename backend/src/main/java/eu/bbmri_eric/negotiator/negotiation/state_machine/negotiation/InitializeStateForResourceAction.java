@@ -20,8 +20,6 @@ public class InitializeStateForResourceAction implements Action<String, String> 
 
   @Autowired @Lazy NegotiationRepository negotiationRepository;
 
-  @Autowired @Lazy OldNotificationService oldNotificationService;
-
   @Override
   @Transactional
   public void execute(StateContext<String, String> context) {
@@ -30,6 +28,6 @@ public class InitializeStateForResourceAction implements Action<String, String> 
     for (Resource resource : negotiation.getResources()) {
       negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.SUBMITTED);
     }
-    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
+    // TODO: Fix marking of reachable resources
   }
 }

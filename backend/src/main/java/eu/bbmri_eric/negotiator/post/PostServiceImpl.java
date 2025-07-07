@@ -25,6 +25,7 @@ import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -44,17 +45,18 @@ public class PostServiceImpl implements PostService {
   private NegotiationService negotiationService;
   private OldNotificationService oldNotificationService;
   private NegotiationAccessManager negotiationAccessManager;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public PostServiceImpl(
-      OrganizationRepository organizationRepository,
-      PostRepository postRepository,
-      NegotiationRepository negotiationRepository,
-      PersonRepository personRepository,
-      ModelMapper modelMapper,
-      PersonService personService,
-      NegotiationService negotiationService,
-      OldNotificationService oldNotificationService,
-      NegotiationAccessManager negotiationAccessManager) {
+          OrganizationRepository organizationRepository,
+          PostRepository postRepository,
+          NegotiationRepository negotiationRepository,
+          PersonRepository personRepository,
+          ModelMapper modelMapper,
+          PersonService personService,
+          NegotiationService negotiationService,
+          OldNotificationService oldNotificationService,
+          NegotiationAccessManager negotiationAccessManager, ApplicationEventPublisher applicationEventPublisher) {
     this.organizationRepository = organizationRepository;
     this.postRepository = postRepository;
     this.negotiationRepository = negotiationRepository;
@@ -64,6 +66,7 @@ public class PostServiceImpl implements PostService {
     this.negotiationService = negotiationService;
     this.oldNotificationService = oldNotificationService;
     this.negotiationAccessManager = negotiationAccessManager;
+      this.applicationEventPublisher = applicationEventPublisher;
   }
 
   private static Post getPostEntity(PostCreateDTO postRequest) {
@@ -90,6 +93,7 @@ public class PostServiceImpl implements PostService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
+    applicationEventPublisher.publishEvent(new NewPostEvent(this));
     oldNotificationService.notifyUsersAboutNewPost(postEntity);
     return modelMapper.map(postEntity, PostDTO.class);
   }

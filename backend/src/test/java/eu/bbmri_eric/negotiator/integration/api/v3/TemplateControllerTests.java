@@ -142,7 +142,6 @@ public class TemplateControllerTests {
     assertTrue(
         negotiation.getResources().stream()
             .anyMatch(resource -> !resource.getRepresentatives().isEmpty()));
-    oldNotificationService.notifyRepresentativesAboutNewNegotiation(negotiation);
     await()
         .atMost(1, SECONDS)
         .pollInterval(100, MILLISECONDS)

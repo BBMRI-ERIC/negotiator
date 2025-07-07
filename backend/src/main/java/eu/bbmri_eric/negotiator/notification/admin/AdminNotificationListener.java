@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.notification.admin;
 
+import eu.bbmri_eric.negotiator.negotiation.NewNegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import jakarta.transaction.Transactional;
@@ -14,26 +15,36 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @CommonsLog
 class AdminNotificationListener {
 
-  AdminNotificationService adminNotificationService;
+    AdminNotificationService adminNotificationService;
 
-  AdminNotificationListener(AdminNotificationService adminNotificationService) {
-    this.adminNotificationService = adminNotificationService;
-  }
-
-  @EventListener(
-      value = NegotiationStateChangeEvent.class,
-      condition = "event.changedTo.value == 'SUBMITTED'")
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  @Transactional(Transactional.TxType.REQUIRES_NEW)
-  @Async
-  void onNewNegotiation(NegotiationStateChangeEvent event) {
-    if (event.getEvent().equals(NegotiationEvent.SUBMIT)) {
-      try {
-        adminNotificationService.notifyAllAdmins(
-            "New Request", "A new Request has been submitted for review", event.getNegotiationId());
-      } catch (Exception e) {
-        log.error("Error notifying admins about negotiation submission");
-      }
+    AdminNotificationListener(AdminNotificationService adminNotificationService) {
+        this.adminNotificationService = adminNotificationService;
     }
-  }
+
+    @EventListener(
+            value = NegotiationStateChangeEvent.class,
+            condition = "event.changedTo.value == 'SUBMITTED'")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Async
+    void onSubmittedNegotiation(NegotiationStateChangeEvent event) {
+        notifyAdministratorsAboutANewNegotiation(event.getNegotiationId());
+    }
+
+    @EventListener(NewNegotiationEvent.class)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Async
+    void onNewNegotiation(NewNegotiationEvent event) {
+        notifyAdministratorsAboutANewNegotiation(event.getNegotiationId());
+    }
+
+    private void notifyAdministratorsAboutANewNegotiation(String negotiationId) {
+        try {
+            adminNotificationService.notifyAllAdmins(
+                    "New Request", "A new Request has been submitted for review", negotiationId);
+        } catch (Exception e) {
+            log.error("Error notifying admins about negotiation submission");
+        }
+    }
 }

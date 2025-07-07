@@ -86,7 +86,7 @@ This is a Thymeleaf HTML template used to generate a default email
         <div style="text-indent: 20px;">
         <span th:utext="${message}" class="message"></span>
         </div>
-        <div style="text-align: center; margin: 20px;">
+        <div th:if="${negotiation != null}" style="text-align: center; margin: 20px;">
             <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation}}" class="button">
                 Details
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"

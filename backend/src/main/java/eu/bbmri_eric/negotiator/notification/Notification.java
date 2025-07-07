@@ -25,7 +25,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @Entity
-public class Notification {
+class Notification {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_id_seq")
   @SequenceGenerator(name = "notification_id_seq", initialValue = 10000, allocationSize = 1)
   @Id
@@ -48,7 +48,7 @@ public class Notification {
 
   private boolean read = false;
 
-  public Notification(
+  Notification(
       @Nonnull Long recipientId, String negotiationId, String title, String message) {
     this.recipientId = recipientId;
     this.negotiationId = negotiationId;
@@ -56,7 +56,7 @@ public class Notification {
     this.message = message;
   }
 
-  public Notification(@Nonnull Long recipientId, String title, String message) {
+  Notification(@Nonnull Long recipientId, String title, String message) {
     this.recipientId = recipientId;
     this.title = title;
     this.message = message;
