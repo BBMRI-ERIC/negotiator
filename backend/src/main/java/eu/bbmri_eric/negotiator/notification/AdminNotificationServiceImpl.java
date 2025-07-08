@@ -31,5 +31,12 @@ class AdminNotificationServiceImpl implements AdminNotificationService {
   }
 
   @Override
-  public void notifyAllAdmins(String title, String message, String negotiationId) {}
+  public void notifyAllAdmins(String title, String message, String negotiationId) {
+      Set<Person> admins = new HashSet<>(personRepository.findAllByAdminIsTrue());
+      if (admins.isEmpty()) {
+          log.error("There are no admins to notify");
+      }
+      notificationService.createNotifications(
+              new NotificationCreateDTO(admins.stream().map(Person::getId).toList(), title, message, negotiationId));
+  }
 }

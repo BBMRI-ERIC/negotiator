@@ -1,5 +1,6 @@
-package eu.bbmri_eric.negotiator.notification;
+package eu.bbmri_eric.negotiator.notification.internal;
 
+import eu.bbmri_eric.negotiator.notification.RepresentativeNotificationService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
