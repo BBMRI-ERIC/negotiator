@@ -75,7 +75,7 @@ Can be passed to a docker container as:
 
 To customize a Docker deployment, you can provide variables in the format mentioned above. For a comprehensive list of
 properties you may want to modify, refer to
-the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/src/main/resources/application-prod.yaml).
+the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/backend/src/main/resources/application-prod.yaml).
 
 ### Custom properties
 
