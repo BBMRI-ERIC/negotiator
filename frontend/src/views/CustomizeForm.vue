@@ -9,14 +9,28 @@
       dismiss-button-text="Back to HomePage"
       @confirm="addAccessForm"
     />
-    <button ref="updateModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackUpdateModal" />
+    <button
+      ref="duplicateModal"
+      hidden
+      data-bs-toggle="modal"
+      data-bs-target="#feedbackDuplicateModal"
+    />
     <confirmation-modal
-      id="feedbackUpdateModal"
-      :title="'Confirm update'"
+      id="feedbackDuplicateModal"
+      :title="'Confirm Duplication'"
       :text="'You will be redirected to the Home page. Click Confirm to proceed.'"
       :message-enabled="false"
       dismiss-button-text="Back to HomePage"
-      @confirm="updateAccessForm"
+      @confirm="addAccessForm"
+    />
+    <button ref="editModal" hidden data-bs-toggle="modal" data-bs-target="#feedbackEditModal" />
+    <confirmation-modal
+      id="feedbackEditModal"
+      :title="'Confirm Editing'"
+      :text="'You will be redirected to the Home page. Click Confirm to proceed.'"
+      :message-enabled="false"
+      dismiss-button-text="Back to HomePage"
+      @confirm="editAccessForm"
     />
     <button
       ref="openAddFormSectionModal"
@@ -32,6 +46,7 @@
       @confirm="addFormSection"
     />
     <div class="new-section-button">
+      <h1>{{ `${typeAccessForm + ' Access Form'}` }}</h1>
       <label :style="{ color: uiConfiguration?.primaryTextColor }">
         This form allows for the inclusion of multiple sections to accommodate various data inputs.
         If your situation requires additional details, or if you are submitting information related
@@ -347,7 +362,7 @@
               color: '#FFFFFF',
             }"
           >
-            {{ props.isLastStep ? 'Submit request' : 'Next' }}
+            {{ props.isLastStep ? `${typeAccessForm + ' Access Form'}` : 'Next' }}
           </button>
         </div>
       </template>
@@ -368,6 +383,13 @@ import 'vue3-form-wizard/dist/style.css'
 import draggable from 'vuedraggable'
 import { useRouter, useRoute } from 'vue-router'
 
+const props = defineProps({
+  typeAccessForm: {
+    type: String,
+    default: '',
+  },
+})
+
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
@@ -382,10 +404,11 @@ const accessForm = ref({
   name: 'BBMRI Template',
   sections: [],
 })
-const editAccessForm = ref({})
+const nonEditedAccessForm = ref({})
 const accessFormElements = ref([])
 const addModal = ref(null)
-const updateModal = ref(null)
+const duplicateModal = ref(null)
+const editModal = ref(null)
 
 const openAddFormSectionModal = ref(null)
 let activeElements = ref([])
@@ -401,17 +424,17 @@ onMounted(async () => {
     selector: "[data-bs-toggle='tooltip']",
   })
   accessFormElements.value = await negotiationFormStore.retrieveFormElements()
-  // edit section
+  // edit-duplicate section
   if (route.params.accessFormId) {
     await negotiationFormStore
       .retrieveAccessFormById(route.params.accessFormId)
       .then((response) => {
-        editAccessForm.value = response
+        nonEditedAccessForm.value = response
         accessForm.value.id = response.id
         accessForm.value.name = response.name
       })
 
-    editAccessForm.value.sections.forEach((section) => {
+    nonEditedAccessForm.value.sections.forEach((section) => {
       addFormSection(section.name, section.label, section.description, section.elements)
       activeElements.value[activeElements.value.length - 1].selectedElements = section.elements
     })
@@ -496,11 +519,15 @@ async function addAccessForm() {
             elementOrder: elementIndex,
             required: false,
           }
-          negotiationFormStore.linkElementsToSectionToAccessForm(
-            accessFormId,
-            section.id,
-            currentElement,
-          )
+          try {
+            negotiationFormStore.linkElementsToSectionToAccessForm(
+              accessFormId,
+              section.id,
+              currentElement,
+            )
+          } catch (e) {
+            console.error('error linking elements to section', e)
+          }
         })
       })
     })
@@ -509,8 +536,62 @@ async function addAccessForm() {
   goToAdminSettingsPage()
 }
 
-async function updateAccessForm() {
-  addAccessForm()
+async function editAccessForm() {
+  const postAccessForm = JSON.parse(JSON.stringify(accessForm.value))
+  let accessFormId = accessForm.value.id
+
+  // unlink all sections from accessForm
+
+  nonEditedAccessForm.value.sections.forEach((section, sectionIndex) => {
+    try {
+      negotiationFormStore.unlinkSectionFromAccessForm(accessFormId, section.id)
+    } catch (e) {
+      console.error('Error unlinking access form from sections', e)
+    }
+  })
+
+  accessForm.value.sections.forEach((section, sectionIndex) => {
+    sortActiveElements(
+      accessForm.value.sections[sectionIndex].elements,
+      activeElements.value[sectionIndex].selectedElements,
+      sectionIndex,
+    )
+
+    postAccessForm.sections[sectionIndex].elements =
+      activeElements.value[sectionIndex].selectedElements
+    const sections = {
+      name: section.name,
+      label: section.label,
+      description: section.description,
+    }
+
+    negotiationFormStore.addAccessFormSections(sections).then((section) => {
+      const currentSection = {
+        sectionId: section.id,
+        sectionOrder: sectionIndex,
+      }
+      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
+        postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
+          let currentElement = {
+            elementId: element.id,
+            elementOrder: elementIndex,
+            required: false,
+          }
+          try {
+            negotiationFormStore.linkElementsToSectionToAccessForm(
+              accessFormId,
+              section.id,
+              currentElement,
+            )
+          } catch (e) {
+            console.error('error linking elements to section', e)
+          }
+        })
+      })
+    })
+  })
+
+  goToAdminSettingsPage()
 }
 
 function goToAdminSettingsPage() {
@@ -520,8 +601,10 @@ function goToAdminSettingsPage() {
 }
 
 function startModal() {
-  if (route.params.accessFormId) {
-    updateModal.value.click()
+  if (props.typeAccessForm === 'Edit') {
+    editModal.value.click()
+  } else if (props.typeAccessForm === 'Duplicate') {
+    duplicateModal.value.click()
   } else {
     addModal.value.click()
   }

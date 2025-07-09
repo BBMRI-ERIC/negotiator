@@ -206,9 +206,9 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
-  async function linkSectionToAccessForm(id, data) {
+  async function linkSectionToAccessForm(formId, data) {
     return await axios
-      .put(`${apiPaths.BASE_API_PATH}/access-forms/${id}/sections`, data, {
+      .put(`${apiPaths.BASE_API_PATH}/access-forms/${formId}/sections`, data, {
         headers: getBearerHeaders(),
       })
       .then((response) => {
@@ -216,6 +216,19 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
       .catch(() => {
         notifications.setNotification('Error linking section to access form')
+      })
+  }
+
+  function unlinkSectionFromAccessForm(formId, sectionId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/access-forms/${formId}/sections/${sectionId}`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error un-linking section from access form')
       })
   }
 
@@ -277,6 +290,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     addAccessFormSections,
     updateAccessFormSections,
     linkSectionToAccessForm,
+    unlinkSectionFromAccessForm,
     linkElementsToSectionToAccessForm,
     retrieveAccessForms,
     retrieveAccessFormById,
