@@ -53,9 +53,7 @@ class NewPostHandlerTest {
 
   @BeforeEach
   void setUp() {
-    handler =
-        new NewPostHandler(
-            notificationService, personService, negotiationRepository, personRepository);
+    handler = new NewPostHandler(notificationService, personService, negotiationRepository);
 
     // Setup common mock behavior
     lenient().when(negotiationAuthor.getId()).thenReturn(100L);

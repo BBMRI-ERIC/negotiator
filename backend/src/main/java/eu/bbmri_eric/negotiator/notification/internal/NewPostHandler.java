@@ -7,9 +7,9 @@ import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.post.NewPostEvent;
 import eu.bbmri_eric.negotiator.user.Person;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,17 +22,14 @@ class NewPostHandler implements NotificationStrategy<NewPostEvent> {
   private final NotificationService notificationService;
   private final PersonService personService;
   private final NegotiationRepository negotiationRepository;
-  private final PersonRepository personRepository;
 
   NewPostHandler(
       NotificationService notificationService,
       PersonService personService,
-      NegotiationRepository negotiationRepository,
-      PersonRepository personRepository) {
+      NegotiationRepository negotiationRepository) {
     this.notificationService = notificationService;
     this.personService = personService;
     this.negotiationRepository = negotiationRepository;
-    this.personRepository = personRepository;
   }
 
   @Override
@@ -86,10 +83,13 @@ class NewPostHandler implements NotificationStrategy<NewPostEvent> {
         personService.findAllByOrganizationId(event.getOrganizationId()).stream()
             .map(user -> Long.valueOf(user.getId()))
             .toList();
-
-    // Always exclude the post author from notifications
-    List<Long> recipientIds =
-        orgUserIds.stream().filter(userId -> !userId.equals(event.getUserId())).toList();
+    Negotiation negotiation =
+        negotiationRepository
+            .findById(event.getNegotiationId())
+            .orElseThrow(() -> new EntityNotFoundException(event.getNegotiationId()));
+    List<Long> recipientIds = new ArrayList<>(orgUserIds);
+    recipientIds.add(negotiation.getCreatedBy().getId());
+    recipientIds.remove(event.getUserId());
 
     if (!recipientIds.isEmpty()) {
       notificationService.createNotifications(
