@@ -29,8 +29,7 @@ class UserNotificationServiceImpl implements UserNotificationService {
     return notificationRepository
         .findAllByRecipientId(
             userId,
-            PageRequest.of(
-                filters.getPage(), filters.getSize(), Sort.by("creationDate").descending()))
+            PageRequest.of(filters.getPage(), filters.getSize(), Sort.by("createdAt").descending()))
         .map(notification -> modelMapper.map(notification, NotificationDTO.class));
   }
 

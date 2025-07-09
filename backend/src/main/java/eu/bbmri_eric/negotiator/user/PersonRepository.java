@@ -87,8 +87,6 @@ public interface PersonRepository
       nativeQuery = true)
   boolean isRepresentativeOfAnyResourceOfOrganization(Long personId, String organizationExternalId);
 
-  List<Person> findAllByResourcesIs(Long organizationId);
-
   @Query(
       value =
           """

@@ -4,6 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import eu.bbmri_eric.negotiator.common.LinkBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -11,10 +12,10 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NotificationModelAssembler
+class NotificationModelAssembler
     implements RepresentationModelAssembler<NotificationDTO, EntityModel<NotificationDTO>> {
   @Override
-  public EntityModel<NotificationDTO> toModel(NotificationDTO entity) {
+  public @NotNull EntityModel<NotificationDTO> toModel(@NotNull NotificationDTO entity) {
     return EntityModel.of(entity);
   }
 

@@ -1,21 +1,20 @@
 package eu.bbmri_eric.negotiator.notification.internal;
 
-import eu.bbmri_eric.negotiator.notification.RepresentativeNotificationService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationScheduler {
 
-  RepresentativeNotificationService representativeNotificationService;
+  private final ApplicationEventPublisher eventPublisher;
 
-  public NotificationScheduler(
-      RepresentativeNotificationService representativeNotificationService) {
-    this.representativeNotificationService = representativeNotificationService;
+  public NotificationScheduler(ApplicationEventPublisher eventPublisher) {
+    this.eventPublisher = eventPublisher;
   }
 
   @Scheduled(cron = "${negotiator.notification.reminder-cron-expression:0 0 6 * * *}")
   void forPendingNegotiations() {
-    representativeNotificationService.notifyAboutPendingNegotiations();
+    eventPublisher.publishEvent(new PendingNegotiationReminderEvent(this));
   }
 }

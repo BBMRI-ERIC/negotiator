@@ -18,7 +18,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -51,7 +50,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   private AttachmentRepository attachmentRepository;
   private NetworkRepository networkRepository;
   private ModelMapper modelMapper;
-  private OldNotificationService oldNotificationService;
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
@@ -63,7 +61,6 @@ public class NegotiationServiceImpl implements NegotiationService {
       AttachmentRepository attachmentRepository,
       NetworkRepository networkRepository,
       ModelMapper modelMapper,
-      OldNotificationService oldNotificationService,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
       NegotiationAccessManager negotiationAccessManager) {
@@ -73,7 +70,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.attachmentRepository = attachmentRepository;
     this.networkRepository = networkRepository;
     this.modelMapper = modelMapper;
-    this.oldNotificationService = oldNotificationService;
     this.personService = personService;
     this.eventPublisher = eventPublisher;
     this.negotiationAccessManager = negotiationAccessManager;

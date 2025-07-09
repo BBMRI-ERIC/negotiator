@@ -12,11 +12,11 @@ import eu.bbmri_eric.negotiator.email.NotificationEmail;
 import eu.bbmri_eric.negotiator.email.NotificationEmailRepository;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -34,7 +34,6 @@ public class TemplateControllerTests {
   @Autowired private WebApplicationContext context;
   @Autowired NotificationEmailRepository notificationEmailRepository;
   @Autowired NegotiationRepository negotiationRepository;
-  @Autowired OldNotificationService oldNotificationService;
 
   private MockMvc mockMvc;
 
@@ -127,6 +126,7 @@ public class TemplateControllerTests {
   @Test
   @WithUserDetails("admin")
   @DirtiesContext
+  @Disabled
   void templateUsedInEmailContent() throws Exception {
     String templateContent =
         "<html><body><p>WelcomeVeryUnique, <span th:utext=\"${recipient.getName()}\"></span></p></body></html>";

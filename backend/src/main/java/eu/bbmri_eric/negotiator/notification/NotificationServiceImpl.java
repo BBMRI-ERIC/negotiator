@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.notification;
 
+import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +33,19 @@ class NotificationServiceImpl implements NotificationService {
             id -> {
               Notification notification =
                   notificationRepository.save(
-                      new Notification(id, dto.getTitle(), dto.getBody(), dto.getNegotiationId()));
+                      new Notification(id, dto.getNegotiationId(), dto.getTitle(), dto.getBody()));
               eventPublisher.publishEvent(new NewNotificationEvent(this, notification.getId()));
               notificationDTOs.add(modelMapper.map(notification, NotificationDTO.class));
             });
     return notificationDTOs;
+  }
+
+  @Override
+  public NotificationDTO findById(@NotNull Long id) {
+    return notificationRepository
+        .findById(id)
+        .map(notification -> modelMapper.map(notification, NotificationDTO.class))
+        .orElseThrow(
+            () -> new EntityNotFoundException("Notification with id " + id + " not found"));
   }
 }

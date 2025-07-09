@@ -2,14 +2,12 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
@@ -25,15 +23,11 @@ public class ResourcePersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
   private final NegotiationRepository negotiationRepository;
-  @Lazy private final OldNotificationService oldNotificationService;
   private final ApplicationEventPublisher eventPublisher;
 
   public ResourcePersistStateChangeListener(
-      NegotiationRepository negotiationRepository,
-      OldNotificationService oldNotificationService,
-      ApplicationEventPublisher eventPublisher) {
+      NegotiationRepository negotiationRepository, ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
-    this.oldNotificationService = oldNotificationService;
     this.eventPublisher = eventPublisher;
   }
 

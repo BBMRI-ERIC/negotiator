@@ -1,8 +1,7 @@
-package eu.bbmri_eric.negotiator.unit.model;
+package eu.bbmri_eric.negotiator.notification;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import eu.bbmri_eric.negotiator.notification.Notification;
 import org.junit.jupiter.api.Test;
 
 public class NotificationTest {

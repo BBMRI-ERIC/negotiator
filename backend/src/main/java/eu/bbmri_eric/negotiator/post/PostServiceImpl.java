@@ -12,10 +12,8 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.notification.OldNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
-import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.List;
@@ -41,9 +39,7 @@ public class PostServiceImpl implements PostService {
 
   private ModelMapper modelMapper;
 
-  private PersonService personService;
   private NegotiationService negotiationService;
-  private OldNotificationService oldNotificationService;
   private NegotiationAccessManager negotiationAccessManager;
   private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -53,9 +49,7 @@ public class PostServiceImpl implements PostService {
       NegotiationRepository negotiationRepository,
       PersonRepository personRepository,
       ModelMapper modelMapper,
-      PersonService personService,
       NegotiationService negotiationService,
-      OldNotificationService oldNotificationService,
       NegotiationAccessManager negotiationAccessManager,
       ApplicationEventPublisher applicationEventPublisher) {
     this.organizationRepository = organizationRepository;
@@ -63,9 +57,7 @@ public class PostServiceImpl implements PostService {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.modelMapper = modelMapper;
-    this.personService = personService;
     this.negotiationService = negotiationService;
-    this.oldNotificationService = oldNotificationService;
     this.negotiationAccessManager = negotiationAccessManager;
     this.applicationEventPublisher = applicationEventPublisher;
   }
@@ -95,7 +87,12 @@ public class PostServiceImpl implements PostService {
       throw new EntityNotStorableException();
     }
     applicationEventPublisher.publishEvent(
-        new NewPostEvent(this, postEntity.getId(), negotiationId));
+        new NewPostEvent(
+            this,
+            postEntity.getId(),
+            negotiationId,
+            postEntity.getCreatedBy().getId(),
+            postEntity.getOrganization() != null ? postEntity.getOrganization().getId() : null));
     return modelMapper.map(postEntity, PostDTO.class);
   }
 

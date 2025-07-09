@@ -1,9 +1,11 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,6 +46,7 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -277,13 +280,20 @@ public class NegotiationLifecycleServiceImplTest {
   void createNegotiation_approve_eachResourceHasState() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    NegotiationResourceState state =
-        negotiationRepository
-            .findById(negotiationDTO.getId())
-            .get()
-            .getCurrentStateForResource("biobank:1:collection:2");
-    Assertions.assertNotNull(state);
-    assertNotEquals(NegotiationResourceState.SUBMITTED, state);
+
+    // Wait for the approval handler to set up initial resource states
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              NegotiationResourceState state =
+                  negotiationRepository
+                      .findById(negotiationDTO.getId())
+                      .get()
+                      .getCurrentStateForResource("biobank:1:collection:2");
+              Assertions.assertNotNull(state);
+              assertNotEquals(NegotiationResourceState.SUBMITTED, state);
+            });
   }
 
   @Test
@@ -321,6 +331,20 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_approvedNegotiationWrongEvent_noChange() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+
+    // Wait for the approval handler to set up initial resource states
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              Negotiation negotiation =
+                  negotiationRepository.findById(negotiationDTO.getId()).orElse(null);
+              assertNotNull(negotiation);
+              NegotiationResourceState state =
+                  negotiation.getCurrentStateForResource("biobank:1:collection:2");
+              assertNotEquals(NegotiationResourceState.SUBMITTED, state);
+            });
+
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -334,8 +358,21 @@ public class NegotiationLifecycleServiceImplTest {
   @Transactional
   void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    Negotiation before = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+
+    // Wait for the approval handler to set up initial resource states
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              Negotiation negotiation =
+                  negotiationRepository.findById(negotiationDTO.getId()).orElse(null);
+              assertNotNull(negotiation);
+              NegotiationResourceState state =
+                  negotiation.getCurrentStateForResource("biobank:1:collection:2");
+              assertNotEquals(NegotiationResourceState.SUBMITTED, state);
+            });
+
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -448,14 +485,23 @@ public class NegotiationLifecycleServiceImplTest {
   void sendEventForResource_fulfilledRequirement_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        resourceRepository.findByNegotiation(negotiationDTO.getId()).stream()
-            .filter(
-                resourceViewDTO -> resourceViewDTO.getSourceId().equals("biobank:1:collection:2"))
-            .findFirst()
-            .get()
-            .getCurrentState());
+
+    // Wait for the approval handler to set up initial resource states
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              assertEquals(
+                  NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+                  resourceRepository.findByNegotiation(negotiationDTO.getId()).stream()
+                      .filter(
+                          resourceViewDTO ->
+                              resourceViewDTO.getSourceId().equals("biobank:1:collection:2"))
+                      .findFirst()
+                      .get()
+                      .getCurrentState());
+            });
+
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     InformationRequirement requirement =
         requirementRepository.save(
@@ -495,6 +541,19 @@ public class NegotiationLifecycleServiceImplTest {
   void getPossibleEventsForResource_approvedNegotiation_Ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+
+    // Wait for the approval handler to set up initial resource states
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              Set<NegotiationResourceEvent> events =
+                  resourceLifecycleService.getPossibleEvents(
+                      negotiationDTO.getId(), "biobank:1:collection:2");
+              assertTrue(events.contains(NegotiationResourceEvent.STEP_AWAY));
+              assertTrue(events.contains(NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
+            });
+
     assertEquals(
         Set.of(
             NegotiationResourceEvent.STEP_AWAY,
@@ -519,6 +578,17 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(NegotiationState.SUBMITTED, NegotiationState.valueOf(negotiationDTO.getStatus()));
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+
+    // Wait for the approval handler to complete
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              Negotiation negotiation =
+                  negotiationRepository.findById(negotiationDTO.getId()).get();
+              assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
+            });
+
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     List<ResourceWithStatusDTO> resources =
         resourceService.findAllInNegotiation(negotiation.getId());
@@ -529,14 +599,29 @@ public class NegotiationLifecycleServiceImplTest {
             resources.stream().map(ResourceWithStatusDTO::getId).collect(Collectors.toList()),
             NegotiationResourceState.RESOURCE_MADE_AVAILABLE));
     assertEquals(2, resources.size());
-    List<ResourceViewDTO> foundResources =
-        resourceRepository.findByNegotiation(negotiation.getId());
-    foundResources.forEach(
-        resource ->
-            assertEquals(
-                NegotiationResourceState.RESOURCE_MADE_AVAILABLE, resource.getCurrentState()));
-    assertEquals(
-        NegotiationState.CONCLUDED,
-        negotiationRepository.findNegotiationStateById(negotiation.getId()).get());
+
+    // Wait for the resource state update handler to complete
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              List<ResourceViewDTO> foundResources =
+                  resourceRepository.findByNegotiation(negotiation.getId());
+              foundResources.forEach(
+                  resource ->
+                      assertEquals(
+                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+                          resource.getCurrentState()));
+            });
+
+    // Wait for the automatic negotiation closure handler to complete
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              assertEquals(
+                  NegotiationState.CONCLUDED,
+                  negotiationRepository.findNegotiationStateById(negotiation.getId()).get());
+            });
   }
 }

@@ -4,8 +4,8 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.notification.NewNotificationEvent;
-import eu.bbmri_eric.negotiator.notification.Notification;
-import eu.bbmri_eric.negotiator.notification.NotificationRepository;
+import eu.bbmri_eric.negotiator.notification.NotificationDTO;
+import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
@@ -25,7 +25,7 @@ import org.thymeleaf.context.Context;
 class EmailRequestListener {
   private final EmailService emailService;
   private final TemplateEngine templateEngine;
-  private final NotificationRepository notificationRepository;
+  private final NotificationService notificationService;
   private final PersonRepository personRepository;
   private final NegotiationRepository negotiationRepository;
 
@@ -44,12 +44,12 @@ class EmailRequestListener {
   EmailRequestListener(
       EmailService emailService,
       TemplateEngine templateEngine,
-      NotificationRepository notificationRepository,
+      NotificationService notificationService,
       PersonRepository personRepository,
       NegotiationRepository negotiationRepository) {
     this.emailService = emailService;
     this.templateEngine = templateEngine;
-    this.notificationRepository = notificationRepository;
+    this.notificationService = notificationService;
     this.personRepository = personRepository;
     this.negotiationRepository = negotiationRepository;
   }
@@ -58,8 +58,7 @@ class EmailRequestListener {
   @TransactionalEventListener
   @Transactional(Transactional.TxType.REQUIRES_NEW)
   void onNewNotification(NewNotificationEvent event) {
-    Notification notification =
-        notificationRepository.findById(event.getNotificationId()).orElse(null);
+    NotificationDTO notification = notificationService.findById(event.getNotificationId());
     if (notification == null) {
       log.error("Failed to send email for notification %s".formatted(event.getNotificationId()));
       return;
@@ -67,7 +66,7 @@ class EmailRequestListener {
     sendOutEmail(notification, event.getEmailTemplateName());
   }
 
-  private void sendOutEmail(Notification notification, String emailTemplateName) {
+  private void sendOutEmail(NotificationDTO notification, String emailTemplateName) {
     Person person =
         personRepository
             .findById(notification.getRecipientId())
@@ -77,11 +76,10 @@ class EmailRequestListener {
     Context context = getContext(notification, person, negotiation);
     String emailContent = templateEngine.process(emailTemplateName, context);
     emailService.sendEmail(person, notification.getTitle(), emailContent);
-    notificationRepository.save(notification);
   }
 
   private @NonNull Context getContext(
-      Notification notification, Person person, Negotiation negotiation) {
+      NotificationDTO notification, Person person, Negotiation negotiation) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy, HH:mm");
     Context context = new Context();
     context.setVariable("recipient", person);
