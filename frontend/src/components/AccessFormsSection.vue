@@ -21,13 +21,19 @@
         <td>{{ accessForm.id }}</td>
         <td>{{ accessForm.name }}</td>
         <td class="col-3">
-          <button
-            type="button"
-            class="btn float-end btn-sm"
-            @click="updateAccessForm(accessForm.id)"
-          >
+          <span class="mx-1">
+            <button
+              type="button"
+              class="btn float-end btn-sm"
+              @click="duplicateAccessForm(accessForm.id)"
+            >
+              <i class="bi bi-copy"></i>
+              Duplicate
+            </button>
+          </span>
+          <button type="button" class="btn float-end btn-sm" @click="editAccessForm(accessForm.id)">
             <i class="bi bi-pencil-square"></i>
-            Duplicate Access Form
+            Edit
           </button>
         </td>
       </tr>
@@ -55,7 +61,11 @@ function addAccessForm() {
   router.push('/createAccessForm/')
 }
 
-function updateAccessForm(id) {
-  router.push('/updateAccessForm/' + id)
+function editAccessForm(id) {
+  router.push('/editAccessForm/' + id)
+}
+
+function duplicateAccessForm(id) {
+  router.push('/duplicateAccessForm/' + id)
 }
 </script>
