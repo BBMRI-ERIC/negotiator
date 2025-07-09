@@ -542,7 +542,7 @@ async function editAccessForm() {
 
   // unlink all sections from accessForm
 
-  nonEditedAccessForm.value.sections.forEach((section, sectionIndex) => {
+  nonEditedAccessForm.value.sections.forEach((section) => {
     try {
       negotiationFormStore.unlinkSectionFromAccessForm(accessFormId, section.id)
     } catch (e) {
