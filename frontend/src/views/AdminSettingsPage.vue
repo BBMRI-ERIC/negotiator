@@ -1,15 +1,16 @@
 <template>
-  <div v-if="!isLoading">
-    <h1 class="mb-5 text-center">Administrator Console</h1>
-    <hr />
-    <InformationRequirementsSection
-      :resource-all-events="resourceAllEvents"
-      :info-requirements="infoRequirements"
-      :access-forms="accessForms"
-      @set-info-requirements="setInfoRequirements"
-      @add-requirement="() => {}"
-    />
-    <hr />
+  <div class="admin-settings-page">
+    <div v-if="!isLoading">
+      <h1 class="mb-5 text-center">Administrator Console</h1>
+      <hr />
+      <InformationRequirementsSection
+        :resource-all-events="resourceAllEvents"
+        :info-requirements="infoRequirements"
+        :access-forms="accessForms"
+        @set-info-requirements="setInfoRequirements"
+        @add-requirement="() => {}"
+      />
+      <hr />
     <WebhooksSection
       :webhooks="webhooks"
       @add-webhook="addWebhook"
@@ -41,6 +42,14 @@
     ref="deleteModal"
   />
   <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
+  <hr />
+  <email-template-section />
+    <email-template-section />
+    <div v-if="featureFlagsAddAcessForms">
+    <hr />
+    <AccessFormsSection />
+  </div>
+</div>
 </template>
 
 <script setup>
