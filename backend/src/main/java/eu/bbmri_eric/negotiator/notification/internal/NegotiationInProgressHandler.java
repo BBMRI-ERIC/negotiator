@@ -1,14 +1,12 @@
 package eu.bbmri_eric.negotiator.notification.internal;
 
-import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
-import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
+import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
@@ -30,19 +28,13 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
 
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
-  private final ResourceLifecycleService resourceService;
-  private final AuthenticatedUserContext authenticatedUserContext;
 
-  NegotiationInProgressHandler(
+    NegotiationInProgressHandler(
       NotificationService notificationService,
-      NegotiationRepository negotiationRepository,
-      ResourceLifecycleService resourceService,
-      AuthenticatedUserContext authenticatedUserContext) {
+      NegotiationRepository negotiationRepository) {
     this.notificationService = notificationService;
     this.negotiationRepository = negotiationRepository;
-    this.resourceService = resourceService;
-    this.authenticatedUserContext = authenticatedUserContext;
-  }
+    }
 
   @Override
   public Class<NegotiationStateChangeEvent> getSupportedEventType() {
@@ -65,32 +57,14 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
     Set<Person> contactedRepresentatives = new HashSet<>();
     for (Resource resource : negotiation.getResources()) {
       if (resource.getRepresentatives().isEmpty()) {
-        updateResourceState(
-            negotiationId, resource.getSourceId(), NegotiationResourceEvent.MARK_AS_UNREACHABLE);
+       negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
       } else {
-        updateResourceState(
-            negotiationId, resource.getSourceId(), NegotiationResourceEvent.CONTACT);
+        negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
         contactedRepresentatives.addAll(resource.getRepresentatives());
       }
     }
     if (!contactedRepresentatives.isEmpty()) {
       notifyRepresentatives(negotiationId, contactedRepresentatives);
-    }
-  }
-
-  private void updateResourceState(
-      String negotiationId, String resourceId, NegotiationResourceEvent event) {
-    try {
-      authenticatedUserContext.runAsSystemUser(
-          () -> resourceService.sendEvent(negotiationId, resourceId, event));
-    } catch (Exception e) {
-      log.error(
-          "Failed to update resource state for resource "
-              + resourceId
-              + " in negotiation "
-              + negotiationId
-              + ": "
-              + e.getMessage());
     }
   }
 

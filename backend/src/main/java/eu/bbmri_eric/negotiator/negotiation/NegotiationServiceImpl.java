@@ -132,6 +132,7 @@ public class NegotiationServiceImpl implements NegotiationService {
    *     Person that called the API)
    * @return the created Negotiation entity
    */
+  @Transactional
   public NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) {
     Request request = getRequest(negotiationBody.getRequest());
     Negotiation negotiation = buildNegotiation(negotiationBody, request);
