@@ -48,7 +48,11 @@ class NegotiationInProgressHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.IN_PROGRESS, NegotiationEvent.APPROVE, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE,
+            "Test post");
 
     Person rep1 = createPerson(1L, "rep1@test.com");
     Person rep2 = createPerson(2L, "rep2@test.com");
@@ -62,8 +66,10 @@ class NegotiationInProgressHandlerTest {
 
     handler.notify(event);
 
-    verify(negotiation).setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
-    verify(negotiation).setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    verify(negotiation)
+        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+    verify(negotiation)
+        .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_CONTACTED);
 
     ArgumentCaptor<NotificationCreateDTO> notificationCaptor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
@@ -85,7 +91,11 @@ class NegotiationInProgressHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.IN_PROGRESS, NegotiationEvent.APPROVE, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 
@@ -98,7 +108,11 @@ class NegotiationInProgressHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.IN_PROGRESS, NegotiationEvent.APPROVE, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
     when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
@@ -109,8 +123,10 @@ class NegotiationInProgressHandlerTest {
 
     handler.notify(event);
 
-    verify(negotiation).setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-    verify(negotiation).setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    verify(negotiation)
+        .setStateForResource("resource-1", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+    verify(negotiation)
+        .setStateForResource("resource-2", NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
     verify(notificationService, never()).createNotifications(any());
   }
 

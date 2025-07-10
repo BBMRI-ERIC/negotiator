@@ -29,12 +29,11 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
 
-    NegotiationInProgressHandler(
-      NotificationService notificationService,
-      NegotiationRepository negotiationRepository) {
+  NegotiationInProgressHandler(
+      NotificationService notificationService, NegotiationRepository negotiationRepository) {
     this.notificationService = notificationService;
     this.negotiationRepository = negotiationRepository;
-    }
+  }
 
   @Override
   public Class<NegotiationStateChangeEvent> getSupportedEventType() {
@@ -57,9 +56,11 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
     Set<Person> contactedRepresentatives = new HashSet<>();
     for (Resource resource : negotiation.getResources()) {
       if (resource.getRepresentatives().isEmpty()) {
-       negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
+        negotiation.setStateForResource(
+            resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
       } else {
-        negotiation.setStateForResource(resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
+        negotiation.setStateForResource(
+            resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
         contactedRepresentatives.addAll(resource.getRepresentatives());
       }
     }

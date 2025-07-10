@@ -66,7 +66,8 @@ class NewPostHandlerTest {
 
     handler.notify(event);
 
-    ArgumentCaptor<NotificationCreateDTO> captor = ArgumentCaptor.forClass(NotificationCreateDTO.class);
+    ArgumentCaptor<NotificationCreateDTO> captor =
+        ArgumentCaptor.forClass(NotificationCreateDTO.class);
     verify(notificationService).createNotifications(captor.capture());
 
     NotificationCreateDTO dto = captor.getValue();
@@ -84,7 +85,8 @@ class NewPostHandlerTest {
   }
 
   @Test
-  void notify_WithPublicPost_WhenPostAuthorIsNegotiationAuthor_ShouldExcludeAuthorFromNotifications() {
+  void
+      notify_WithPublicPost_WhenPostAuthorIsNegotiationAuthor_ShouldExcludeAuthorFromNotifications() {
     String negotiationId = "neg-123";
     Long negotiationAuthorId = 100L;
     NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, negotiationAuthorId, null);
@@ -93,7 +95,8 @@ class NewPostHandlerTest {
 
     handler.notify(event);
 
-    ArgumentCaptor<NotificationCreateDTO> captor = ArgumentCaptor.forClass(NotificationCreateDTO.class);
+    ArgumentCaptor<NotificationCreateDTO> captor =
+        ArgumentCaptor.forClass(NotificationCreateDTO.class);
     verify(notificationService).createNotifications(captor.capture());
 
     NotificationCreateDTO dto = captor.getValue();
@@ -115,7 +118,8 @@ class NewPostHandlerTest {
 
     handler.notify(event);
 
-    ArgumentCaptor<NotificationCreateDTO> captor = ArgumentCaptor.forClass(NotificationCreateDTO.class);
+    ArgumentCaptor<NotificationCreateDTO> captor =
+        ArgumentCaptor.forClass(NotificationCreateDTO.class);
     verify(notificationService).createNotifications(captor.capture());
 
     NotificationCreateDTO dto = captor.getValue();
@@ -146,7 +150,8 @@ class NewPostHandlerTest {
     String negotiationId = "neg-123";
     Long postAuthorId = 400L;
     Long organizationId = 500L;
-    NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, postAuthorId, organizationId);
+    NewPostEvent event =
+        new NewPostEvent(this, "post-1", negotiationId, postAuthorId, organizationId);
 
     UserResponseModel user1 = mock(UserResponseModel.class);
     UserResponseModel user2 = mock(UserResponseModel.class);
@@ -156,12 +161,14 @@ class NewPostHandlerTest {
     when(user2.getId()).thenReturn("300");
     when(user3.getId()).thenReturn("400");
 
-    when(personService.findAllByOrganizationId(organizationId)).thenReturn(List.of(user1, user2, user3));
+    when(personService.findAllByOrganizationId(organizationId))
+        .thenReturn(List.of(user1, user2, user3));
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
     handler.notify(event);
 
-    ArgumentCaptor<NotificationCreateDTO> captor = ArgumentCaptor.forClass(NotificationCreateDTO.class);
+    ArgumentCaptor<NotificationCreateDTO> captor =
+        ArgumentCaptor.forClass(NotificationCreateDTO.class);
     verify(notificationService).createNotifications(captor.capture());
 
     NotificationCreateDTO dto = captor.getValue();
@@ -179,7 +186,8 @@ class NewPostHandlerTest {
     String negotiationId = "neg-123";
     Long postAuthorId = 400L;
     Long organizationId = 500L;
-    NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, postAuthorId, organizationId);
+    NewPostEvent event =
+        new NewPostEvent(this, "post-1", negotiationId, postAuthorId, organizationId);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 

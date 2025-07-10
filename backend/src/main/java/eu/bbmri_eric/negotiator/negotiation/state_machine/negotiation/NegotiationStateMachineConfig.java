@@ -95,5 +95,4 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
   public Action<String, String> disablePosts() {
     return new DisablePostsAction();
   }
-
 }
