@@ -33,15 +33,14 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    log.error("called");
+    log.error("Not implemented yet " + event.getChangedTo());
     switch (event.getChangedTo()) {
       case SUBMITTED -> createConfirmationNotification(event.getNegotiationId());
-      case APPROVED, DECLINED, ABANDONED -> createStatusChangeNotification(event);
+      case IN_PROGRESS, DECLINED, ABANDONED -> createStatusChangeNotification(event);
     }
   }
 
   private void createConfirmationNotification(String negotiationId) {
-    log.error("here");
     Negotiation negotiation = negotiationRepository.findById(negotiationId).orElse(null);
     if (negotiation == null) {
       log.warn("Could not find negotiation with ID: " + negotiationId);
@@ -65,8 +64,8 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       log.warn("Could not find negotiation with ID: " + event.getNegotiationId());
       return;
     }
-
-    String title = "Negotiation Status Update";
+    log.error("got here");
+    String title = "Request Status Update";
     String message = createStatusChangeMessage(event.getChangedTo(), negotiation.getTitle());
 
     NotificationCreateDTO notification =
@@ -83,7 +82,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
 
   private String createStatusChangeMessage(NegotiationState newState, String negotiationTitle) {
     return switch (newState) {
-      case APPROVED ->
+      case IN_PROGRESS ->
           "Your negotiation request '"
               + negotiationTitle
               + "' has been approved. You can now proceed with the next steps.";
