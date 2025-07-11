@@ -86,7 +86,11 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.APPROVED, NegotiationEvent.APPROVE, "Test post");
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE,
+            "Test post");
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
@@ -100,7 +104,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("Negotiation Status Update", notification.getTitle());
+    assertEquals("Request Status Update", notification.getTitle());
     assertTrue(notification.getBody().contains("Test Negotiation"));
     assertTrue(notification.getBody().contains("has been approved"));
     assertEquals(negotiationId, notification.getNegotiationId());
@@ -126,7 +130,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("Negotiation Status Update", notification.getTitle());
+    assertEquals("Request Status Update", notification.getTitle());
     assertTrue(notification.getBody().contains("Test Negotiation"));
     assertTrue(notification.getBody().contains("has been rejected"));
     assertEquals(negotiationId, notification.getNegotiationId());
@@ -152,7 +156,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("Negotiation Status Update", notification.getTitle());
+    assertEquals("Request Status Update", notification.getTitle());
     assertTrue(notification.getBody().contains("Test Negotiation"));
     assertTrue(notification.getBody().contains("has been marked as abandoned"));
     assertEquals(negotiationId, notification.getNegotiationId());
@@ -181,17 +185,12 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
-            this,
-            negotiationId,
-            NegotiationState.IN_PROGRESS,
-            NegotiationEvent.APPROVE,
-            "Test post");
+            this, negotiationId, NegotiationState.DRAFT, NegotiationEvent.SUBMIT, "Test post");
 
     // When
     handler.notify(event);
 
     // Then
-    verify(negotiationRepository, never()).findById(any());
     verify(notificationService, never()).createNotifications(any());
   }
 
@@ -201,20 +200,22 @@ class NegotiationStatusChangeHandlerTest {
     String negotiationId = "NEG-123";
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
-    // Test message content for different states by verifying the actual notification messages
-
-    // Test APPROVED message content
-    NegotiationStateChangeEvent approvedEvent =
+    // Test IN_PROGRESS message content
+    NegotiationStateChangeEvent inProgressEvent =
         new NegotiationStateChangeEvent(
-            this, negotiationId, NegotiationState.APPROVED, NegotiationEvent.APPROVE, "Test post");
-    handler.notify(approvedEvent);
+            this,
+            negotiationId,
+            NegotiationState.IN_PROGRESS,
+            NegotiationEvent.APPROVE,
+            "Test post");
+    handler.notify(inProgressEvent);
 
     ArgumentCaptor<NotificationCreateDTO> captor =
         ArgumentCaptor.forClass(NotificationCreateDTO.class);
     verify(notificationService, times(1)).createNotifications(captor.capture());
 
     String approvedMessage = captor.getValue().getBody();
-    assertTrue(approvedMessage.contains("approved"));
+    assertTrue(approvedMessage.contains("has been approved"));
     assertTrue(approvedMessage.contains("Test Negotiation"));
 
     // Reset mocks for next test
@@ -228,7 +229,7 @@ class NegotiationStatusChangeHandlerTest {
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
     String declinedMessage = captor.getValue().getBody();
-    assertTrue(declinedMessage.contains("rejected"));
+    assertTrue(declinedMessage.contains("has been rejected"));
     assertTrue(declinedMessage.contains("Test Negotiation"));
 
     // Reset mocks for next test
@@ -242,7 +243,7 @@ class NegotiationStatusChangeHandlerTest {
 
     verify(notificationService, times(1)).createNotifications(captor.capture());
     String abandonedMessage = captor.getValue().getBody();
-    assertTrue(abandonedMessage.contains("abandoned"));
+    assertTrue(abandonedMessage.contains("has been marked as abandoned"));
     assertTrue(abandonedMessage.contains("Test Negotiation"));
   }
 }

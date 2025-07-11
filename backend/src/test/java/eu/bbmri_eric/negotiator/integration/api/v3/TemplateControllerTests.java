@@ -170,7 +170,6 @@ public class TemplateControllerTests {
         .andExpect(status().isOk())
         .andExpect(
             content()
-                .string(
-                    "[\"default\",\"email-footer\",\"email-negotiation-confirmation\",\"email-negotiation-reminder\",\"email-negotiation-status-change\",\"email-notification\",\"logo\",\"pdf-negotiation-summary\"]"));
+                .string("[\"default\",\"email-footer\",\"logo\",\"pdf-negotiation-summary\"]"));
   }
 }

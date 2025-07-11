@@ -484,7 +484,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
-            negotiation.getId(),
+            negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
   }

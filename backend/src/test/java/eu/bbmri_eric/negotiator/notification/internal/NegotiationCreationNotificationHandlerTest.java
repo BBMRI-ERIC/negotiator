@@ -81,10 +81,8 @@ class NewNegotiationHandlerTest {
     // First notification should be for researcher
     NotificationCreateDTO researcherNotification = notifications.get(0);
     assertEquals(List.of(100L), researcherNotification.getUserIds());
-    assertEquals("Negotiation Created Successfully", researcherNotification.getTitle());
-    assertEquals(
-        "Your negotiation request has been created successfully and will be reviewed by administrators.",
-        researcherNotification.getBody());
+    assertEquals(NewNegotiationHandler.TITLE, researcherNotification.getTitle());
+    assertEquals(NewNegotiationHandler.BODY, researcherNotification.getBody());
     assertEquals(negotiationId, researcherNotification.getNegotiationId());
 
     // Second notification should be for admins
@@ -177,7 +175,7 @@ class NewNegotiationHandlerTest {
     assertEquals(List.of(100L), notification.getUserIds());
     assertEquals("Negotiation Created Successfully", notification.getTitle());
     assertTrue(notification.getBody().contains("created successfully"));
-    assertTrue(notification.getBody().contains("reviewed by administrators"));
+    assertTrue(notification.getBody().contains("review by our administrators"));
     assertEquals(negotiationId, notification.getNegotiationId());
   }
 

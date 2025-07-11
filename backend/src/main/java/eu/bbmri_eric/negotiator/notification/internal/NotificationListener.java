@@ -44,16 +44,14 @@ class NotificationListener {
         handlerCache.get(event.getClass());
     if (handlers != null && !handlers.isEmpty()) {
       log.info(
-          "Found "
-              + handlers.size()
-              + " handler(s) for event: "
-              + event.getClass().getSimpleName());
+          "Found %d handler(s) for event: %s"
+              .formatted(handlers.size(), event.getClass().getSimpleName()));
       for (NotificationStrategy<? extends ApplicationEvent> handler : handlers) {
-        log.info("Executing handler: " + handler.getClass().getSimpleName());
+        log.info("Executing handler: %s".formatted(handler.getClass().getSimpleName()));
         dispatch(handler, event);
       }
     } else {
-      log.debug("No handlers found for event: " + event.getClass().getSimpleName());
+      log.debug("No handlers found for event: %s".formatted(event.getClass().getSimpleName()));
     }
   }
 
@@ -64,10 +62,8 @@ class NotificationListener {
       handler.notify((T) event);
     } catch (Exception e) {
       log.error(
-          "Failed to handle notification event: "
-              + event.getClass().getSimpleName()
-              + " with handler: "
-              + handler.getClass().getSimpleName(),
+          "Failed to handle notification event: %s with handler: %s"
+              .formatted(event.getClass().getSimpleName(), handler.getClass().getSimpleName()),
           e);
     }
   }
