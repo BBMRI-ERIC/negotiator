@@ -7,7 +7,7 @@
         color: uiConfigurationTheme.primaryTextColor,
         '--hoverColor': uiConfigurationTheme?.secondaryTextColor,
       }"
-    ><i class="bi bi-file-earmark-pdf" /> Download Merged PDF</a
+      ><i class="bi bi-file-earmark-pdf" /> Download Merged PDF</a
     >
   </div>
 </template>
@@ -21,8 +21,8 @@ import { useNotificationsStore } from '../store/notifications'
 const props = defineProps({
   negotiationPdfData: {
     type: Object,
-    default: undefined
-  }
+    default: undefined,
+  },
 })
 
 const uiConfigurationStore = useUiConfiguration()
@@ -38,23 +38,25 @@ async function retrieveMergedPDF() {
   if (!loadingPdf.value) {
     loadingPdf.value = true
     try {
-      const pdfData = await negotiationPageStore.retrieveNegotiationMergedPDF(props.negotiationPdfData.id)
+      const pdfData = await negotiationPageStore.retrieveNegotiationMergedPDF(
+        props.negotiationPdfData.id,
+      )
       const pdfBlob = new Blob([pdfData], { type: 'application/pdf' })
 
       const link = document.createElement('a')
       link.href = URL.createObjectURL(pdfBlob)
       link.download = `Negotiation_${props.negotiationPdfData.id}_merged.pdf`
-      document.body.appendChild(link);
+      document.body.appendChild(link)
       link.click()
-      document.body.removeChild(link);
+      document.body.removeChild(link)
 
       URL.revokeObjectURL(link.href)
 
-      notificationsStore.setNotification('Merged PDF successfully saved', 'success');
+      notificationsStore.setNotification('Merged PDF successfully saved', 'success')
       loadingPdf.value = false
     } catch (error) {
       console.error('Error retrieving or saving the merged PDF:', error)
-      notificationsStore.setNotification('Error saving merged PDF', 'warning');
+      notificationsStore.setNotification('Error saving merged PDF', 'warning')
       loadingPdf.value = false
     }
   }

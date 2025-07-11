@@ -332,7 +332,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function retrieveNegotiationMergedPDF (id) {
+  async function retrieveNegotiationMergedPDF(id) {
     return axios
       .get(`${apiPaths.NEGOTIATION_PATH}/${id}/fullpdf`, {
         headers: getBearerHeaders(),
@@ -340,9 +340,9 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
       .then((response) => response.data)
       .catch((error) => {
-        console.error('Error retrieving merged PDF:', error);
-        throw error;
-      });
+        console.error('Error retrieving merged PDF:', error)
+        throw error
+      })
   }
 
   async function retrieveNegotiationTimeline(negotiationId) {
