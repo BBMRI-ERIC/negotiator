@@ -269,14 +269,13 @@ class AttachmentConversionServiceTest {
 
   @Test
   void testGetAttachmentsAsPdf_WithNullAttachmentIds_ThrowsIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> 
-        conversionService.getAttachmentsAsPdf(null));
+    assertThrows(IllegalArgumentException.class, () -> conversionService.getAttachmentsAsPdf(null));
   }
 
   @Test
   void testGetAttachmentsAsPdf_WithEmptyAttachmentIds_ThrowsIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> 
-        conversionService.getAttachmentsAsPdf(List.of()));
+    assertThrows(
+        IllegalArgumentException.class, () -> conversionService.getAttachmentsAsPdf(List.of()));
   }
 
   @Test
@@ -304,7 +303,7 @@ class AttachmentConversionServiceTest {
     String validId = "valid-id";
     String failingId = "failing-id";
     byte[] pdfBytes = "PDF content".getBytes();
-    
+
     AttachmentDTO pdfAttachment =
         AttachmentDTO.builder()
             .id(validId)
@@ -338,7 +337,7 @@ class AttachmentConversionServiceTest {
   @Test
   void testGetAttachmentsAsPdf_WithNullAttachmentDTO_SkipsAttachment() {
     String attachmentId = "null-attachment";
-    
+
     when(attachmentService.findById(attachmentId)).thenReturn(null);
 
     List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(attachmentId));
@@ -519,8 +518,9 @@ class AttachmentConversionServiceTest {
     when(attachmentService.findById(emptyPayloadId)).thenReturn(emptyPayloadAttachment);
     when(attachmentService.findById(validDocxId)).thenReturn(validDocxAttachment);
 
-    List<byte[]> result = conversionService.getAttachmentsAsPdf(
-        List.of(validPdfId, nullContentTypeId, emptyPayloadId, validDocxId));
+    List<byte[]> result =
+        conversionService.getAttachmentsAsPdf(
+            List.of(validPdfId, nullContentTypeId, emptyPayloadId, validDocxId));
 
     // Should process at least the valid PDF, possibly the DOCX if conversion succeeds
     assertTrue(result.size() >= 1);
@@ -617,10 +617,54 @@ class AttachmentConversionServiceTest {
   private byte[] createValidDocBytes() {
     // Create a more complete DOC structure that might be parseable
     byte[] docHeader = {
-      (byte) 0xD0, (byte) 0xCF, (byte) 0x11, (byte) 0xE0, (byte) 0xA1, (byte) 0xB1, (byte) 0x1A, (byte) 0xE1,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x3E, 0x00, 0x03, 0x00, (byte) 0xFE, (byte) 0xFF, 0x09, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00
+      (byte) 0xD0,
+      (byte) 0xCF,
+      (byte) 0x11,
+      (byte) 0xE0,
+      (byte) 0xA1,
+      (byte) 0xB1,
+      (byte) 0x1A,
+      (byte) 0xE1,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x3E,
+      0x00,
+      0x03,
+      0x00,
+      (byte) 0xFE,
+      (byte) 0xFF,
+      0x09,
+      0x00,
+      0x06,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x10,
+      0x00,
+      0x00
     };
     byte[] docContent = new byte[2048];
     System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
