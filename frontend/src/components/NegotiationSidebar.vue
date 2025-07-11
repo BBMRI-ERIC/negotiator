@@ -70,7 +70,7 @@
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0">
         <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
-        <MergedPDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
+        <MergedPDFButton class="mt-2" :negotiation-pdf-data="negotiation" data-cy="merged-pdf-button" />
         <TransferButton
           class="mt-2"
           :negotiation-id="negotiation.id"
