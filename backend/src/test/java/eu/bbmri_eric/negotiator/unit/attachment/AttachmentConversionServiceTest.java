@@ -221,10 +221,9 @@ class AttachmentConversionServiceTest {
   }
 
   @Test
-  void testGetAttachmentsAsPdf_WithEmptyAttachmentList_ReturnsEmptyList() {
-    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of());
-
-    assertEquals(0, result.size());
+  void testGetAttachmentsAsPdf_WithEmptyAttachmentList_ThrowsIllegalArgumentException() {
+    assertThrows(IllegalArgumentException.class, () -> 
+        conversionService.getAttachmentsAsPdf(List.of()));
   }
 
   @Test
@@ -292,7 +291,12 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(validId)).thenReturn(pdfAttachment);
 
-    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(validId, null));
+    // Create list with null using Arrays.asList since List.of() doesn't accept nulls
+    List<String> attachmentIds = new java.util.ArrayList<>();
+    attachmentIds.add(validId);
+    attachmentIds.add(null);
+
+    List<byte[]> result = conversionService.getAttachmentsAsPdf(attachmentIds);
 
     assertEquals(1, result.size());
     assertEquals(pdfBytes, result.get(0));
