@@ -15,6 +15,7 @@ import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import java.io.InputStream;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -222,14 +223,14 @@ class NegotiationPdfGenerationTest {
       authorities = {"ROLE_ADMIN"})
   void testAttachmentConversionService_DirectlyTestsConversionLogic() throws Exception {
     MockMultipartFile pdfFile =
-        new MockMultipartFile("file", "test.pdf", "application/pdf", createSimplePdfBytes());
+        new MockMultipartFile("file", "test.pdf", "application/pdf", loadTestFile("test.pdf"));
 
     MockMultipartFile docxFile =
         new MockMultipartFile(
             "file",
             "test.docx",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            createMinimalDocxBytes());
+            loadTestFile("test.docx"));
 
     AttachmentMetadataDTO pdfAttachment =
         attachmentService.createForNegotiation(NEGOTIATION_1_ID, null, pdfFile);
@@ -291,6 +292,15 @@ class NegotiationPdfGenerationTest {
             + "0000000125 00000 n \n0000000284 00000 n \n0000000354 00000 n \n");
     pdf.append("trailer<</Size 6/Root 1 0 R>>\nstartxref\n408\n%%EOF");
     return pdf.toString().getBytes();
+  }
+
+  private byte[] loadTestFile(String filename) throws Exception {
+    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/" + filename)) {
+      if (inputStream == null) {
+        throw new IllegalArgumentException("Test file not found: " + filename);
+      }
+      return inputStream.readAllBytes();
+    }
   }
 
   private byte[] createMinimalDocxBytes() {
