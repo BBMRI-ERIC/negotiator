@@ -377,10 +377,7 @@ public class NegotiationController {
     }
     try {
       byte[] pdfBytes = negotiationPdfService.generatePdf(id, templateName);
-      return ResponseEntity.ok()
-          .contentType(MediaType.APPLICATION_PDF)
-          .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-          .body(pdfBytes);
+      return pdfBytes;
     } catch (Exception e) {
       throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
