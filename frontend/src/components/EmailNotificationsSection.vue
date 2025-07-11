@@ -295,7 +295,12 @@ const formatDate = (dateString) => {
 
 const getMessagePreview = (message) => {
   if (!message) return ''
-  const plainText = message.replace(/<[^>]*>/g, '')
+  let plainText = message
+  let previous
+  do {
+    previous = plainText
+    plainText = plainText.replace(/<[^>]*>/g, '')
+  } while (plainText !== previous)
   return plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText
 }
 
