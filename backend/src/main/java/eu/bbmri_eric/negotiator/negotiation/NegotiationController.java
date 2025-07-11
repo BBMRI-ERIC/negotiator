@@ -82,6 +82,8 @@ public class NegotiationController {
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
+  private final NegotiationPdfService negotiationPdfService;
+
   private static final Set<String> ALLOWED_TEMPLATES = Set.of("pdf-negotiation-summary");
 
   public NegotiationController(
@@ -106,6 +108,7 @@ public class NegotiationController {
     this.mergingService = mergingService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
+    this.negotiationPdfService = negotiationPdfService;
   }
 
   /** Create a negotiation */
@@ -373,7 +376,7 @@ public class NegotiationController {
           HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
     try {
-      byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
+      byte[] pdfBytes = negotiationPdfService.generatePdf(id, templateName);
       return pdfBytes;
     } catch (Exception e) {
       throw new ResponseStatusException(
