@@ -8,9 +8,9 @@ describe("Test create negotiation", () => {
 
     context("click on button \"New Request\" and create negotiation", () => {
         it("test create negotiation", () => {
-            cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").should("be.visible")
+            cy.get(".new-request > .btn-sm").should("be.visible")
             cy.wait(500)
-            cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").click()
+            cy.get(".new-request > .btn-sm").click()
             cy.wait(500)
             cy.get(".modal-content").should("be.visible")
             cy.get(".modal-body > p").should("be.visible")
@@ -118,9 +118,9 @@ describe("Test create negotiation", () => {
         }),
         
         it("test saving negotiation as draft by clicking on Next", () => {
-          cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").should("be.visible")
+          cy.get(".new-request > .btn-sm").should("be.visible")
           cy.wait(500)
-          cy.get(":nth-child(2) > :nth-child(1) > .btn-sm").click()
+          cy.get(".new-request > .btn-sm").click()
           cy.wait(500)
           cy.get(".modal-content").should("be.visible")
           cy.get(".modal-body > p").should("be.visible")
