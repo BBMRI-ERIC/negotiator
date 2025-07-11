@@ -60,18 +60,10 @@
         <div class="text-center col mb-2">
           <i class="bi bi-github me-1" />
           <a
-            href="https://github.com/BBMRI-ERIC/negotiator-v3-frontend"
+            href="https://github.com/BBMRI-ERIC/negotiator"
             :style="{ color: uiConfiguration?.loginLinksColor }"
-            >GitHub UI</a
+            >View Source Code</a
           >
-          <span class="ms-2">
-            <i class="bi bi-github me-1" />
-            <a
-              href="https://github.com/BBMRI-ERIC/negotiator"
-              :style="{ color: uiConfiguration?.loginLinksColor }"
-              >GitHub Application</a
-            >
-          </span>
         </div>
         <div class="text-center mt-2 mb-2">
           <a href="/api/swagger-ui/index.html" :style="{ color: uiConfiguration?.loginLinksColor }">

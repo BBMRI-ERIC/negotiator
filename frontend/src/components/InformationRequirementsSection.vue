@@ -5,11 +5,14 @@
       <button class="btn btn-success" @click="addRequirement">Add Requirement</button>
     </div>
     <div class="text-muted mb-3">
-      Information requirements ensure Representatives of Resources in a Negotiation provide additional information
-      before advancing to a chosen state. Learn more in our
-      <a href="https://bbmri-eric.github.io/negotiator/administrator#additional-information-requirements-guide"
-         target="_blank"
-         rel="noopener noreferrer">Information Requirements Documentation</a>.
+      Information requirements ensure Representatives of Resources in a Negotiation provide
+      additional information before advancing to a chosen state. Learn more in our
+      <a
+        href="https://bbmri-eric.github.io/negotiator/administrator#additional-information-requirements-guide"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Information Requirements Documentation</a
+      >.
     </div>
 
     <!-- The modal component -->
@@ -28,20 +31,20 @@
       <div v-else class="table-container">
         <table class="table table-hover">
           <thead>
-          <tr>
-            <th>ID</th>
-            <th>Access Form</th>
-            <th>Lifecycle Event</th>
-            <th>Admin Only</th>
-          </tr>
+            <tr>
+              <th>ID</th>
+              <th>Access Form</th>
+              <th>Lifecycle Event</th>
+              <th>Admin Only</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="requirement in paginatedRequirements" :key="requirement.id">
-            <td>{{ requirement.id }}</td>
-            <td>{{ requirement.requiredAccessForm.name }}</td>
-            <td>{{ getEventLabel(requirement.forResourceEvent) }}</td>
-            <td>{{ requirement.viewableOnlyByAdmin ? 'Yes' : 'No' }}</td>
-          </tr>
+            <tr v-for="requirement in paginatedRequirements" :key="requirement.id">
+              <td>{{ requirement.id }}</td>
+              <td>{{ requirement.requiredAccessForm.name }}</td>
+              <td>{{ getEventLabel(requirement.forResourceEvent) }}</td>
+              <td>{{ requirement.viewableOnlyByAdmin ? 'Yes' : 'No' }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -56,16 +59,16 @@ import InformationRequirementModal from '../components/modals/InfoRequirementMod
 const props = defineProps({
   resourceAllEvents: {
     type: Object,
-    required: true
+    required: true,
   },
   infoRequirements: {
     type: Object,
-    required: true
+    required: true,
   },
   accessForms: {
     type: Array,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const emit = defineEmits(['set-info-requirements'])
@@ -80,9 +83,8 @@ const paginatedRequirements = computed(() => {
   return props.infoRequirements?.['info-requirements']?.slice(start, end) || []
 })
 
-
 function getEventLabel(eventValue) {
-  const event = props.resourceAllEvents.find(e => e.value === eventValue)
+  const event = props.resourceAllEvents.find((e) => e.value === eventValue)
   return event ? event.label : 'Unknown'
 }
 

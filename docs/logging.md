@@ -10,7 +10,7 @@ By default, the **development** environment is configured to output logs only to
 set to **DEBUG**. For the **production** profile, the logging level is set to **INFO**.
 
 For production environments, the default configuration can be found in
-the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/src/main/resources/application-prod.yaml).
+the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/backend/src/main/resources/application-prod.yaml).
 
 The configuration uses a **SizeAndTimeBasedRollingPolicy**, which keeps the default time range (i.e., 1 day). This means
 a new log file will be created each day. If the log file reaches the maximum file size (10MB) before the day ends, a new

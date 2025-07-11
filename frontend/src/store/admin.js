@@ -91,7 +91,7 @@ export const useAdminStore = defineStore('admin', () => {
   function deleteWebhook(webhookId) {
     return axios
       .delete(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}`, {
-        headers: getBearerHeaders()
+        headers: getBearerHeaders(),
       })
       .then(() => {
         notifications.setNotification('Webhook deleted successfully')
@@ -106,25 +106,26 @@ export const useAdminStore = defineStore('admin', () => {
     return axios
       .post(
         `${apiPaths.BASE_API_PATH}/webhooks/${webhookId}/deliveries`,
-        { 'test': 'yes' },
+        { test: 'yes' },
         {
-          headers: getBearerHeaders()
-        }
+          headers: getBearerHeaders(),
+        },
       )
-      .then(response => {
+      .then((response) => {
         return response.data
       })
-      .catch(error => {
+      .catch((error) => {
         notifications.setNotification('Failed to send test delivery', 'error')
         throw error
-      });
+      })
   }
 
-
   function getWebhook(webhookId) {
-    return axios.get(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}`, {
-      headers: getBearerHeaders()
-    }).then(response => response.data)
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/webhooks/${webhookId}`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => response.data)
   }
 
   function retrieveUsers(page = 0, size = 10) {
@@ -133,13 +134,13 @@ export const useAdminStore = defineStore('admin', () => {
         headers: getBearerHeaders(),
         params: {
           page, // Pass the current page (0-indexed)
-          size // Pass the number of users per page
-        }
+          size, // Pass the number of users per page
+        },
       })
       .then((response) => {
         return {
           users: response.data._embedded.users, // List of users for the current page
-          totalUsers: response.data.page.totalElements // Total count of users (for pagination)
+          totalUsers: response.data.page.totalElements, // Total count of users (for pagination)
         }
       })
       .catch(() => {
@@ -147,7 +148,6 @@ export const useAdminStore = defineStore('admin', () => {
         return { users: [], totalUsers: 0 }
       })
   }
-
 
   return {
     retrieveResourceAllEvents,
@@ -160,6 +160,6 @@ export const useAdminStore = defineStore('admin', () => {
     deleteWebhook,
     testWebhook,
     getWebhook,
-    retrieveUsers
+    retrieveUsers,
   }
 })

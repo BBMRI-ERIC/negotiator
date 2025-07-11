@@ -4,8 +4,8 @@
       <h5 class="card-title">Requirement #{{ requirement.id }}</h5>
       <p class="card-text">
         <strong>Access Form:</strong> {{ requirement.requiredAccessForm.name }} (ID:
-        {{ requirement.requiredAccessForm.id }})<br>
-        <strong>For Event:</strong> {{ requirement.forResourceEvent }}<br>
+        {{ requirement.requiredAccessForm.id }})<br />
+        <strong>For Event:</strong> {{ requirement.forResourceEvent }}<br />
         <strong>Admin Only:</strong> {{ requirement.viewableOnlyByAdmin ? 'Yes' : 'No' }}
       </p>
     </div>
@@ -16,8 +16,8 @@
 defineProps({
   requirement: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 </script>
 

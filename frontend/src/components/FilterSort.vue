@@ -79,7 +79,9 @@
       <div id="v-step-4" class="filter-by-org" v-if="filterOrganizations.length > 0">
         <button
           class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="filtersSortData.organizations.length > 0 ? returnButtonActiveColor : returnButtonColor"
+          :style="
+            filtersSortData.organizations.length > 0 ? returnButtonActiveColor : returnButtonColor
+          "
           :class="filtersSortData.organizations.length > 0 ? 'show' : ''"
           type="button"
           data-bs-toggle="dropdown"
@@ -89,7 +91,11 @@
           Filter by Organization
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
-          <div v-for="(org, index) in filterOrganizations" :key="index" class="form-check mx-2 my-2">
+          <div
+            v-for="(org, index) in filterOrganizations"
+            :key="index"
+            class="form-check mx-2 my-2"
+          >
             <input
               v-model="filtersSortData.organizations"
               class="form-check-input"
@@ -190,7 +196,7 @@ defineProps({
   },
   filterOrganizations: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   userRole: {
     type: String,

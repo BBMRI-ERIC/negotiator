@@ -29,11 +29,9 @@
       </li>
       <li class="list-group-item p-2 d-flex justify-content-between">
         <div>
-          <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-            Status:
-          </div>
+          <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Status:</div>
           <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-          ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
+            ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
             {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
           >
         </div>
@@ -57,10 +55,7 @@
           </li>
         </ul>
       </li>
-      <li
-        v-else-if="canDelete()"
-        class="list-group-item p-2 d-flex justify-content-between"
-      >
+      <li v-else-if="canDelete()" class="list-group-item p-2 d-flex justify-content-between">
         <ul class="list-unstyled mt-1 d-flex flex-row flex-wrap">
           <li class="me-2">
             <button
@@ -92,7 +87,7 @@
           class="cursor-pointer"
           :style="{ color: uiConfiguration.primaryTextColor }"
           @click="downloadAttachmentFromLink(link.href)"
-        ><i class="bi bi-filetype-pdf" /> {{ link.title }}</a
+          ><i class="bi bi-filetype-pdf" /> {{ link.title }}</a
         >
       </li>
     </ul>
@@ -106,7 +101,13 @@ import MergedPDFButton from '@/components/MergedPDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import moment from 'moment'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
-import { getBadgeColor, getBadgeIcon, getButtonColor, getButtonIcon, transformStatus } from '../composables/utils.js'
+import {
+  getBadgeColor,
+  getBadgeIcon,
+  getButtonColor,
+  getButtonIcon,
+  transformStatus,
+} from '../composables/utils.js'
 
 useNegotiationPageStore()
 defineProps({
@@ -114,7 +115,7 @@ defineProps({
   author: { type: Object, required: true },
   possibleEvents: { type: Array, required: true },
   uiConfiguration: { type: Object, required: true },
-  canDelete: { type: Function, required: true }
+  canDelete: { type: Function, required: true },
 })
 
 const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation'])
