@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import eu.bbmri_eric.negotiator.attachment.FileTypeValidator;
 import eu.bbmri_eric.negotiator.attachment.UnsupportedFileTypeException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.Stream;
@@ -52,7 +51,8 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithValidPdfFile_PassesValidation() {
     byte[] pdfBytes = createValidPdfBytes();
-    MockMultipartFile pdfFile = new MockMultipartFile("file", "test.pdf", "application/pdf", pdfBytes);
+    MockMultipartFile pdfFile =
+        new MockMultipartFile("file", "test.pdf", "application/pdf", pdfBytes);
     Errors errors = new BeanPropertyBindingResult(pdfFile, "file");
 
     assertDoesNotThrow(() -> validator.validate(pdfFile, errors));
@@ -70,8 +70,12 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithValidDocxFile_PassesValidation() {
     byte[] docxBytes = createValidDocxBytes();
-    MockMultipartFile docxFile = new MockMultipartFile("file", "test.docx", 
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", docxBytes);
+    MockMultipartFile docxFile =
+        new MockMultipartFile(
+            "file",
+            "test.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            docxBytes);
     Errors errors = new BeanPropertyBindingResult(docxFile, "file");
 
     assertDoesNotThrow(() -> validator.validate(docxFile, errors));
@@ -80,7 +84,8 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithValidDocFile_PassesValidation() {
     byte[] docBytes = createValidDocBytes();
-    MockMultipartFile docFile = new MockMultipartFile("file", "test.doc", "application/msword", docBytes);
+    MockMultipartFile docFile =
+        new MockMultipartFile("file", "test.doc", "application/msword", docBytes);
     Errors errors = new BeanPropertyBindingResult(docFile, "file");
 
     assertDoesNotThrow(() -> validator.validate(docFile, errors));
@@ -116,7 +121,8 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithExecutableFile_ThrowsUnsupportedFileTypeException() {
     byte[] exeBytes = createExecutableBytes();
-    MockMultipartFile exeFile = new MockMultipartFile("file", "malicious.exe", "application/octet-stream", exeBytes);
+    MockMultipartFile exeFile =
+        new MockMultipartFile("file", "malicious.exe", "application/octet-stream", exeBytes);
     Errors errors = new BeanPropertyBindingResult(exeFile, "file");
 
     UnsupportedFileTypeException exception =
@@ -128,23 +134,28 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithDoubleExtensionAttack_ThrowsUnsupportedFileTypeException() {
     byte[] exeBytes = createExecutableBytes();
-    MockMultipartFile maliciousFile = new MockMultipartFile("file", "malicious.exe.pdf", "application/octet-stream", exeBytes);
+    MockMultipartFile maliciousFile =
+        new MockMultipartFile("file", "malicious.exe.pdf", "application/octet-stream", exeBytes);
     Errors errors = new BeanPropertyBindingResult(maliciousFile, "file");
 
     UnsupportedFileTypeException exception =
-        assertThrows(UnsupportedFileTypeException.class, () -> validator.validate(maliciousFile, errors));
+        assertThrows(
+            UnsupportedFileTypeException.class, () -> validator.validate(maliciousFile, errors));
     // The validation fails on the file extension check first (pdf extension)
-    assertTrue(exception.getMessage().contains("pdf") || exception.getMessage().contains("not supported"));
+    assertTrue(
+        exception.getMessage().contains("pdf") || exception.getMessage().contains("not supported"));
   }
 
   @Test
   void testValidate_WithUnsupportedMimeType_ThrowsUnsupportedFileTypeException() {
     byte[] exeBytes = createExecutableBytes();
-    MockMultipartFile executableFile = new MockMultipartFile("file", "test.pdf", "application/pdf", exeBytes);
+    MockMultipartFile executableFile =
+        new MockMultipartFile("file", "test.pdf", "application/pdf", exeBytes);
     Errors errors = new BeanPropertyBindingResult(executableFile, "file");
 
     UnsupportedFileTypeException exception =
-        assertThrows(UnsupportedFileTypeException.class, () -> validator.validate(executableFile, errors));
+        assertThrows(
+            UnsupportedFileTypeException.class, () -> validator.validate(executableFile, errors));
     // The detected MIME type will be application/octet-stream or application/x-dosexec
     assertTrue(exception.getMessage().contains("not supported"));
   }
@@ -152,11 +163,13 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithMismatchedExtensionAndMimeType_ThrowsUnsupportedFileTypeException() {
     byte[] textBytes = "This is actually text content".getBytes();
-    MockMultipartFile mismatchedFile = new MockMultipartFile("file", "fake.exe", "application/octet-stream", textBytes);
+    MockMultipartFile mismatchedFile =
+        new MockMultipartFile("file", "fake.exe", "application/octet-stream", textBytes);
     Errors errors = new BeanPropertyBindingResult(mismatchedFile, "file");
 
     UnsupportedFileTypeException exception =
-        assertThrows(UnsupportedFileTypeException.class, () -> validator.validate(mismatchedFile, errors));
+        assertThrows(
+            UnsupportedFileTypeException.class, () -> validator.validate(mismatchedFile, errors));
     assertTrue(exception.getMessage().contains("exe"));
     assertTrue(exception.getMessage().contains("not supported"));
   }
@@ -168,18 +181,21 @@ class FileTypeValidatorTest {
     Errors errors = new BeanPropertyBindingResult(nullNameFile, "file");
 
     UnsupportedFileTypeException exception =
-        assertThrows(UnsupportedFileTypeException.class, () -> validator.validate(nullNameFile, errors));
+        assertThrows(
+            UnsupportedFileTypeException.class, () -> validator.validate(nullNameFile, errors));
     assertTrue(exception.getMessage().contains("not supported"));
   }
 
   @Test
   void testValidate_WithFilenameWithoutExtension_ThrowsUnsupportedFileTypeException() {
     byte[] textBytes = "This is text content".getBytes();
-    MockMultipartFile noExtensionFile = new MockMultipartFile("file", "filename", "text/plain", textBytes);
+    MockMultipartFile noExtensionFile =
+        new MockMultipartFile("file", "filename", "text/plain", textBytes);
     Errors errors = new BeanPropertyBindingResult(noExtensionFile, "file");
 
     UnsupportedFileTypeException exception =
-        assertThrows(UnsupportedFileTypeException.class, () -> validator.validate(noExtensionFile, errors));
+        assertThrows(
+            UnsupportedFileTypeException.class, () -> validator.validate(noExtensionFile, errors));
     assertTrue(exception.getMessage().contains("not supported"));
   }
 
@@ -198,7 +214,8 @@ class FileTypeValidatorTest {
   @ValueSource(strings = {"exe", "bat", "com", "scr", "vbs", "js", "jar", "zip", "rar"})
   void testValidate_WithDisallowedExtensions_ThrowsException(String extension) {
     byte[] content = createGenericBinaryContent();
-    MockMultipartFile file = new MockMultipartFile("file", "test." + extension, "application/octet-stream", content);
+    MockMultipartFile file =
+        new MockMultipartFile("file", "test." + extension, "application/octet-stream", content);
     Errors errors = new BeanPropertyBindingResult(file, "file");
 
     UnsupportedFileTypeException exception =
@@ -209,7 +226,8 @@ class FileTypeValidatorTest {
 
   @ParameterizedTest
   @MethodSource("provideTikaDetectedTypes")
-  void testValidate_WithTikaDetectedTypes_PassesValidation(String filename, String declaredMimeType, byte[] content) {
+  void testValidate_WithTikaDetectedTypes_PassesValidation(
+      String filename, String declaredMimeType, byte[] content) {
     MockMultipartFile file = new MockMultipartFile("file", filename, declaredMimeType, content);
     Errors errors = new BeanPropertyBindingResult(file, "file");
 
@@ -219,17 +237,19 @@ class FileTypeValidatorTest {
   @Test
   void testValidate_WithIOException_ThrowsIllegalArgumentException() {
     // Create a mock file that throws IOException on getInputStream()
-    MultipartFile problematicFile = new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes()) {
-      @Override
-      public InputStream getInputStream() throws IOException {
-        throw new IOException("Simulated IO error");
-      }
-    };
-    
+    MultipartFile problematicFile =
+        new MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes()) {
+          @Override
+          public InputStream getInputStream() throws IOException {
+            throw new IOException("Simulated IO error");
+          }
+        };
+
     Errors errors = new BeanPropertyBindingResult(problematicFile, "file");
 
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> validator.validate(problematicFile, errors));
+        assertThrows(
+            IllegalArgumentException.class, () -> validator.validate(problematicFile, errors));
     assertTrue(exception.getMessage().contains("Could not read file"));
     assertTrue(exception.getCause() instanceof IOException);
   }
@@ -238,21 +258,22 @@ class FileTypeValidatorTest {
 
   private byte[] createValidPdfBytes() {
     return ("%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
-        + "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-        + "3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
-        + "xref\n0 4\n0000000000 65535 f \n0000000010 00000 n \n"
-        + "0000000053 00000 n \n0000000125 00000 n \n"
-        + "trailer<</Size 4/Root 1 0 R>>\nstartxref\n182\n%%EOF").getBytes();
+            + "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+            + "3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
+            + "xref\n0 4\n0000000000 65535 f \n0000000010 00000 n \n"
+            + "0000000053 00000 n \n0000000125 00000 n \n"
+            + "trailer<</Size 4/Root 1 0 R>>\nstartxref\n182\n%%EOF")
+        .getBytes();
   }
 
   private byte[] createValidDocxBytes() {
     // Minimal DOCX ZIP structure
     return new byte[] {
-      0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00,
-      0x00, 0x00, 0x5B, 0x43, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74, 0x5F, 0x54, 0x79, 0x70,
-      0x65, 0x73, 0x5D, 0x2E, 0x78, 0x6D, 0x6C, 0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00,
-      0x00, 0x01, 0x00, 0x01, 0x00, 0x47, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+      0x5B, 0x43, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74, 0x5F, 0x54, 0x79, 0x70, 0x65, 0x73, 0x5D,
+      0x2E, 0x78, 0x6D, 0x6C, 0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01,
+      0x00, 0x47, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
   }
 
@@ -273,27 +294,133 @@ class FileTypeValidatorTest {
 
   private byte[] createValidJpegBytes() {
     return new byte[] {
-      (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46,
-      0x00, 0x01, 0x01, 0x01, 0x00, 0x48, 0x00, 0x48, 0x00, 0x00, (byte) 0xFF, (byte) 0xD9
+      (byte) 0xFF,
+      (byte) 0xD8,
+      (byte) 0xFF,
+      (byte) 0xE0,
+      0x00,
+      0x10,
+      0x4A,
+      0x46,
+      0x49,
+      0x46,
+      0x00,
+      0x01,
+      0x01,
+      0x01,
+      0x00,
+      0x48,
+      0x00,
+      0x48,
+      0x00,
+      0x00,
+      (byte) 0xFF,
+      (byte) 0xD9
     };
   }
 
   private byte[] createValidPngBytes() {
     return new byte[] {
-      (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49,
-      0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00,
-      0x00, 0x00, 0x1F, 0x15, (byte) 0xC4, (byte) 0x89, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44,
-      0x41, 0x54, 0x78, (byte) 0xDA, 0x63, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0D,
-      0x0A, 0x2D, (byte) 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, (byte) 0xAE,
-      0x42, 0x60, (byte) 0x82
+      (byte) 0x89,
+      0x50,
+      0x4E,
+      0x47,
+      0x0D,
+      0x0A,
+      0x1A,
+      0x0A,
+      0x00,
+      0x00,
+      0x00,
+      0x0D,
+      0x49,
+      0x48,
+      0x44,
+      0x52,
+      0x00,
+      0x00,
+      0x00,
+      0x01,
+      0x00,
+      0x00,
+      0x00,
+      0x01,
+      0x08,
+      0x06,
+      0x00,
+      0x00,
+      0x00,
+      0x1F,
+      0x15,
+      (byte) 0xC4,
+      (byte) 0x89,
+      0x00,
+      0x00,
+      0x00,
+      0x0D,
+      0x49,
+      0x44,
+      0x41,
+      0x54,
+      0x78,
+      (byte) 0xDA,
+      0x63,
+      0x00,
+      0x01,
+      0x00,
+      0x00,
+      0x05,
+      0x00,
+      0x01,
+      0x0D,
+      0x0A,
+      0x2D,
+      (byte) 0xB4,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x49,
+      0x45,
+      0x4E,
+      0x44,
+      (byte) 0xAE,
+      0x42,
+      0x60,
+      (byte) 0x82
     };
   }
 
   private byte[] createExecutableBytes() {
     return new byte[] {
-      0x4D, 0x5A, (byte) 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
-      (byte) 0xFF, (byte) 0xFF, 0x00, 0x00, (byte) 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x40, 0x00, 0x00, 0x00
+      0x4D,
+      0x5A,
+      (byte) 0x90,
+      0x00,
+      0x03,
+      0x00,
+      0x00,
+      0x00,
+      0x04,
+      0x00,
+      0x00,
+      0x00,
+      (byte) 0xFF,
+      (byte) 0xFF,
+      0x00,
+      0x00,
+      (byte) 0xB8,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x40,
+      0x00,
+      0x00,
+      0x00
     };
   }
 
@@ -355,9 +482,11 @@ class FileTypeValidatorTest {
   private static Stream<Arguments> provideTikaDetectedTypes() {
     return Stream.of(
         Arguments.of("test.doc", "application/msword", createStaticValidDocBytes()),
-        Arguments.of("test.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", createStaticValidDocxBytes()),
-        Arguments.of("test.pdf", "application/pdf", createStaticValidPdfBytes())
-    );
+        Arguments.of(
+            "test.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            createStaticValidDocxBytes()),
+        Arguments.of("test.pdf", "application/pdf", createStaticValidPdfBytes()));
   }
 
   private static byte[] createStaticValidDocBytes() {
@@ -376,20 +505,21 @@ class FileTypeValidatorTest {
 
   private static byte[] createStaticValidDocxBytes() {
     return new byte[] {
-      0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00,
-      0x00, 0x00, 0x5B, 0x43, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74, 0x5F, 0x54, 0x79, 0x70,
-      0x65, 0x73, 0x5D, 0x2E, 0x78, 0x6D, 0x6C, 0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00,
-      0x00, 0x01, 0x00, 0x01, 0x00, 0x47, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+      0x5B, 0x43, 0x6F, 0x6E, 0x74, 0x65, 0x6E, 0x74, 0x5F, 0x54, 0x79, 0x70, 0x65, 0x73, 0x5D,
+      0x2E, 0x78, 0x6D, 0x6C, 0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01,
+      0x00, 0x47, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
   }
 
   private static byte[] createStaticValidPdfBytes() {
     return ("%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
-        + "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-        + "3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
-        + "xref\n0 4\n0000000000 65535 f \n0000000010 00000 n \n"
-        + "0000000053 00000 n \n0000000125 00000 n \n"
-        + "trailer<</Size 4/Root 1 0 R>>\nstartxref\n182\n%%EOF").getBytes();
+            + "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+            + "3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
+            + "xref\n0 4\n0000000000 65535 f \n0000000010 00000 n \n"
+            + "0000000053 00000 n \n0000000125 00000 n \n"
+            + "trailer<</Size 4/Root 1 0 R>>\nstartxref\n182\n%%EOF")
+        .getBytes();
   }
 }
