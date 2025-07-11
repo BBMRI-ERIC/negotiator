@@ -41,4 +41,7 @@ public class NotificationDTO {
       description = "Message content of the notification",
       example = "A new negotiation request has been submitted for your review.")
   private String message;
+
+  @Schema(description = "Whether the notification has been read", example = "false")
+  private boolean read;
 }

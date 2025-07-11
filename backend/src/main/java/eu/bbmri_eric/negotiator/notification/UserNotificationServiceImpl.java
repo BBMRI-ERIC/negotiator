@@ -3,6 +3,9 @@ package eu.bbmri_eric.negotiator.notification;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -43,5 +46,30 @@ class UserNotificationServiceImpl implements UserNotificationService {
       throw new ForbiddenRequestException("You are not authorized to view this Notification");
     }
     return modelMapper.map(notification, NotificationDTO.class);
+  }
+
+  @Override
+  public List<NotificationDTO> updateNotifications(@NotNull List<NotificationUpdateDTO> updates) {
+    Long currentUserId = AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId();
+    List<NotificationDTO> updatedNotifications = new ArrayList<>();
+
+    for (NotificationUpdateDTO update : updates) {
+      Notification notification =
+          notificationRepository
+              .findById(update.getId())
+              .orElseThrow(
+                  () ->
+                      new EntityNotFoundException(
+                          "Notification with id " + update.getId() + " not found"));
+      if (!notification.getRecipientId().equals(currentUserId)) {
+        throw new ForbiddenRequestException(
+            "User is not authorized to update notification with id " + update.getId());
+      }
+      notification.setRead(update.getRead());
+      Notification savedNotification = notificationRepository.save(notification);
+      updatedNotifications.add(modelMapper.map(savedNotification, NotificationDTO.class));
+    }
+
+    return updatedNotifications;
   }
 }

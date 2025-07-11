@@ -1,5 +1,8 @@
 package eu.bbmri_eric.negotiator.notification;
 
+import jakarta.annotation.Nonnull;
+import java.util.List;
+
 /** Service interface for managing user notifications. */
 interface UserNotificationService {
 
@@ -19,4 +22,12 @@ interface UserNotificationService {
    * @return a list containing the matching {@link NotificationDTO}, if found
    */
   NotificationDTO getById(Long id);
+
+  /**
+   * Updates the read status of multiple notifications.
+   *
+   * @param updates list of notification updates containing id and read status
+   * @return list of updated NotificationDTO objects
+   */
+  List<NotificationDTO> updateNotifications(@Nonnull List<NotificationUpdateDTO> updates);
 }
