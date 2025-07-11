@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 class NegotiationSubmissionHandler implements NotificationStrategy<NegotiationStateChangeEvent> {
 
+  public static final String TITLE = "New Request";
+  public static final String BODY = "A new Request has been submitted for review";
   private final NotificationService notificationService;
   private final PersonRepository personRepository;
 
@@ -44,11 +46,7 @@ class NegotiationSubmissionHandler implements NotificationStrategy<NegotiationSt
 
     if (!adminIds.isEmpty()) {
       NotificationCreateDTO notification =
-          new NotificationCreateDTO(
-              adminIds,
-              "New Request",
-              "A new Request has been submitted for review",
-              negotiationId);
+          new NotificationCreateDTO(adminIds, TITLE, BODY, negotiationId);
 
       notificationService.createNotifications(notification);
       log.info(

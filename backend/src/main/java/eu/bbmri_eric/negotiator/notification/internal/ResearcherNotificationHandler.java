@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 class NegotiationStatusChangeHandler implements NotificationStrategy<NegotiationStateChangeEvent> {
 
+  public static final String TITLE = "Negotiation Submission Confirmed";
+  public static final String BODY =
+      "Your negotiation request has been successfully submitted and is now under review. You will be notified of any updates.";
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
 
@@ -33,7 +36,6 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
   @Override
   @Transactional
   public void notify(NegotiationStateChangeEvent event) {
-    log.error("Not implemented yet " + event.getChangedTo());
     switch (event.getChangedTo()) {
       case SUBMITTED -> createConfirmationNotification(event.getNegotiationId());
       case IN_PROGRESS, DECLINED, ABANDONED -> createStatusChangeNotification(event);
@@ -49,10 +51,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
 
     NotificationCreateDTO notification =
         new NotificationCreateDTO(
-            List.of(negotiation.getCreatedBy().getId()),
-            "Negotiation Submission Confirmed",
-            "Your negotiation request has been successfully submitted and is now under review. You will be notified of any updates.",
-            negotiationId);
+            List.of(negotiation.getCreatedBy().getId()), TITLE, BODY, negotiationId);
 
     notificationService.createNotifications(notification);
     log.info("Sent confirmation notification to researcher for negotiation: " + negotiationId);
@@ -64,7 +63,6 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       log.warn("Could not find negotiation with ID: " + event.getNegotiationId());
       return;
     }
-    log.error("got here");
     String title = "Request Status Update";
     String message = createStatusChangeMessage(event.getChangedTo(), negotiation.getTitle());
 

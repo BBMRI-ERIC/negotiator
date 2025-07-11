@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResourceStateChangeHandler implements NotificationStrategy<ResourceStateChangeEvent> {
 
+  public static final String TITLE = "Request Status update";
+  public static final String BODY =
+      "Resource %s had a change of status in your request %s, from %s to %s";
   private final NegotiationRepository negotiationRepository;
   private final NotificationService notificationService;
 
@@ -37,13 +40,12 @@ public class ResourceStateChangeHandler implements NotificationStrategy<Resource
     notificationService.createNotifications(
         new NotificationCreateDTO(
             List.of(negotiation.getCreatedBy().getId()),
-            "Request Status update",
-            "Resource %s had a change of status in your request %s, from %s to %s"
-                .formatted(
-                    event.getResourceId(),
-                    negotiation.getTitle(),
-                    event.getFromState().getLabel(),
-                    event.getToState().getLabel()),
+            TITLE,
+            BODY.formatted(
+                event.getResourceId(),
+                negotiation.getTitle(),
+                event.getFromState().getLabel(),
+                event.getToState().getLabel()),
             event.getNegotiationId()));
   }
 }

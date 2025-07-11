@@ -22,6 +22,9 @@ import org.springframework.stereotype.Component;
 class PendingNegotiationReminderHandler
     implements NotificationStrategy<PendingNegotiationReminderEvent> {
 
+  public static final String TITLE = "Pending Negotiation Reminder";
+  public static final String BODY =
+      "You have a pending negotiation request that requires your attention. Please review and respond to: ";
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
 
@@ -77,11 +80,7 @@ class PendingNegotiationReminderHandler
 
     NotificationCreateDTO notification =
         new NotificationCreateDTO(
-            representativeIds,
-            "Pending Negotiation Reminder",
-            "You have a pending negotiation request that requires your attention. Please review and respond to: "
-                + negotiation.getTitle(),
-            negotiation.getId());
+            representativeIds, TITLE, BODY + negotiation.getTitle(), negotiation.getId());
 
     notificationService.createNotifications(notification);
     log.info(

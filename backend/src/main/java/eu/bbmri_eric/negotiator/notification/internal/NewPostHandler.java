@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 @Component
 class NewPostHandler implements NotificationStrategy<NewPostEvent> {
+  public static final String TITLE = "New Post Notification";
+  public static final String BODY = "A new post has been created in negotiation ";
   private final NotificationService notificationService;
   private final PersonService personService;
   private final NegotiationRepository negotiationRepository;
@@ -71,8 +73,8 @@ class NewPostHandler implements NotificationStrategy<NewPostEvent> {
       notificationService.createNotifications(
           new NotificationCreateDTO(
               recipients.stream().map(Person::getId).toList(),
-              "New Post Notification",
-              "A new post has been created in negotiation " + event.getNegotiationId(),
+              TITLE,
+              BODY + event.getNegotiationId(),
               event.getNegotiationId()));
     }
   }
@@ -94,10 +96,7 @@ class NewPostHandler implements NotificationStrategy<NewPostEvent> {
     if (!recipientIds.isEmpty()) {
       notificationService.createNotifications(
           new NotificationCreateDTO(
-              recipientIds,
-              "New Post Notification",
-              "A new post has been created in negotiation " + event.getNegotiationId(),
-              event.getNegotiationId()));
+              recipientIds, TITLE, BODY + event.getNegotiationId(), event.getNegotiationId()));
     }
   }
 }

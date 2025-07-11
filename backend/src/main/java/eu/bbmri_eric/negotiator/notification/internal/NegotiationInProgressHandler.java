@@ -26,6 +26,9 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 class NegotiationInProgressHandler implements NotificationStrategy<NegotiationStateChangeEvent> {
 
+  public static final String BODY =
+      "A new negotiation request requires your attention. Please review the details and respond accordingly.";
+  public static final String TITLE = "New Negotiation Request";
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
 
@@ -75,11 +78,7 @@ class NegotiationInProgressHandler implements NotificationStrategy<NegotiationSt
 
     if (!representativeIds.isEmpty()) {
       NotificationCreateDTO notification =
-          new NotificationCreateDTO(
-              representativeIds,
-              "New Negotiation Request",
-              "A new negotiation request requires your attention. Please review the details and respond accordingly.",
-              negotiationId);
+          new NotificationCreateDTO(representativeIds, TITLE, BODY, negotiationId);
 
       notificationService.createNotifications(notification);
       log.info(

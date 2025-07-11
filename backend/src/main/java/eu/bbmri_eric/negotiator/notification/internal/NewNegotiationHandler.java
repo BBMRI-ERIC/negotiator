@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 @Component
 @CommonsLog
 class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent> {
+  public static final String TITLE = "Negotiation Created Successfully";
+  public static final String BODY =
+      "Your negotiation request has been created successfully and is now under review by our administrators. You will be notified of any changes/";
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
   private final PersonRepository personRepository;
@@ -49,10 +52,7 @@ class NewNegotiationHandler implements NotificationStrategy<NewNegotiationEvent>
 
     NotificationCreateDTO notification =
         new NotificationCreateDTO(
-            List.of(negotiation.getCreatedBy().getId()),
-            "Negotiation Created Successfully",
-            "Your negotiation request has been created successfully and will be reviewed by administrators.",
-            negotiationId);
+            List.of(negotiation.getCreatedBy().getId()), TITLE, BODY, negotiationId);
 
     notificationService.createNotifications(notification);
     log.info(
