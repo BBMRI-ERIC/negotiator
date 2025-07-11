@@ -197,9 +197,6 @@ const dropdownVisible = ref(false)
 const router = useRouter()
 const roles = ref([])
 const featureFlagsFAQ = !!(allFeatureFlags.faqPage === 'true' || allFeatureFlags.faqPage === true)
-const featureFlagsNotifications = !!(
-  allFeatureFlags.notifications === 'true' || allFeatureFlags.notifications === true
-)
 const backendEnvironment = ref('')
 const showNetworksTab = ref(false)
 const networks = ref([])

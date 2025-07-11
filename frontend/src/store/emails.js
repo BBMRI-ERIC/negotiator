@@ -31,7 +31,7 @@ export const useEmailStore = defineStore('emails', () => {
   const fetchNotificationEmailById = async (id) => {
     try {
       const response = await axios.get(`${apiPaths.BASE_API_PATH}/emails/${id}`, {
-        headers: getBearerHeaders()
+        headers: getBearerHeaders(),
       })
       return response.data
     } catch (error) {
@@ -43,6 +43,6 @@ export const useEmailStore = defineStore('emails', () => {
 
   return {
     fetchNotificationEmails,
-    fetchNotificationEmailById
+    fetchNotificationEmailById,
   }
 })

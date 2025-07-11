@@ -38,10 +38,7 @@
     @confirm="confirmDeleteWebhook"
     ref="deleteModal"
   />
-  <EmailDetailModal
-    id="emailDetailModal"
-    :email-id="selectedEmailId"
-  />
+  <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
   <hr />
   <email-template-section />
 </template>

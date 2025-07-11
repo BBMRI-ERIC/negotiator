@@ -79,9 +79,7 @@
             <i class="bi bi-chevron-left"></i>
           </button>
 
-          <small class="text-muted">
-            Page {{ currentPage + 1 }} of {{ totalPages }}
-          </small>
+          <small class="text-muted"> Page {{ currentPage + 1 }} of {{ totalPages }} </small>
 
           <button
             @click.stop="changePage(currentPage + 1)"
@@ -250,29 +248,17 @@ async function markAsReadAndNavigate(notification) {
   // Navigate to negotiation
   router.push(`/negotiations/${notification.negotiationId}`)
 }
-
-async function markAsRead(notificationId) {
-  if (!userStore.userInfo?.id) return
-
-  // Optimistically update the UI
-  notificationsStore.markNotificationAsRead(notificationId)
-
-  // Send update to backend
-  const updates = [{ id: notificationId, read: true }]
-  await apiCallsStore.updateNotifications(userStore.userInfo.id, updates)
-}
-
 async function markAllAsRead() {
   if (!userStore.userInfo?.id) return
 
-  const unreadNotifications = userNotifications.value.filter(notif => !notif.read)
+  const unreadNotifications = userNotifications.value.filter((notif) => !notif.read)
   if (unreadNotifications.length === 0) return
 
   // Optimistically update the UI
   notificationsStore.markAllNotificationsAsRead()
 
   // Send updates to backend
-  const updates = unreadNotifications.map(notif => ({ id: notif.id, read: true }))
+  const updates = unreadNotifications.map((notif) => ({ id: notif.id, read: true }))
   await apiCallsStore.updateNotifications(userStore.userInfo.id, updates)
 
   // Close dropdown

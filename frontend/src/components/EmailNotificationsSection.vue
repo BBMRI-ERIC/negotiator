@@ -36,12 +36,7 @@
         />
       </div>
       <div class="col-md-2 d-flex align-items-end">
-        <button
-          class="btn btn-outline-secondary w-100"
-          @click="clearFilters"
-        >
-          Clear Filters
-        </button>
+        <button class="btn btn-outline-secondary w-100" @click="clearFilters">Clear Filters</button>
       </div>
     </div>
 
@@ -94,10 +89,7 @@
               </div>
             </td>
             <td>
-              <button
-                class="btn btn-sm btn-primary"
-                @click.stop="viewEmailDetails(email)"
-              >
+              <button class="btn btn-sm btn-primary" @click.stop="viewEmailDetails(email)">
                 View Details
               </button>
             </td>
@@ -114,7 +106,9 @@
         >
           ‹ Prev
         </button>
-        <span class="page-info">Page {{ pagination.number + 1 }} of {{ pagination.totalPages }}</span>
+        <span class="page-info"
+          >Page {{ pagination.number + 1 }} of {{ pagination.totalPages }}</span
+        >
         <button
           @click="goToPage(pagination.number + 1)"
           :disabled="pagination.number >= pagination.totalPages - 1"
@@ -141,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
 
 const emit = defineEmits(['view-email'])
@@ -166,22 +160,21 @@ const loading = ref(false)
 const filters = ref({
   address: '',
   sentAfter: '',
-  sentBefore: ''
+  sentBefore: '',
 })
 
 const pagination = ref({
   number: 0,
   size: 20,
   totalElements: 0,
-  totalPages: 0
+  totalPages: 0,
 })
 
 const sort = ref({
   field: 'sentAt',
-  direction: 'desc'
+  direction: 'desc',
 })
-
-const visiblePages = computed(() => {
+computed(() => {
   const total = pagination.value.totalPages
   const current = pagination.value.number
   const delta = 2
@@ -209,9 +202,8 @@ const visiblePages = computed(() => {
     rangeWithDots.push(total - 1)
   }
 
-  return rangeWithDots.filter(page => page !== '...')
+  return rangeWithDots.filter((page) => page !== '...')
 })
-
 const debouncedFilter = debounce(() => {
   applyFilters()
 }, 500)
@@ -222,7 +214,7 @@ const fetchEmails = async () => {
     const params = {
       page: pagination.value.number,
       size: pagination.value.size,
-      sort: `${sort.value.field},${sort.value.direction}`
+      sort: `${sort.value.field},${sort.value.direction}`,
     }
 
     if (filters.value.address) {
@@ -242,7 +234,7 @@ const fetchEmails = async () => {
       number: response.page.number,
       size: response.page.size,
       totalElements: response.page.totalElements,
-      totalPages: response.page.totalPages
+      totalPages: response.page.totalPages,
     }
   } catch (error) {
     console.error('Error fetching emails:', error)
@@ -267,9 +259,7 @@ const getSortIcon = (field) => {
   if (sort.value.field !== field) {
     return 'fas fa-sort text-muted'
   }
-  return sort.value.direction === 'asc'
-    ? 'fas fa-sort-up text-dark'
-    : 'fas fa-sort-down text-dark'
+  return sort.value.direction === 'asc' ? 'fas fa-sort-up text-dark' : 'fas fa-sort-down text-dark'
 }
 
 const goToPage = (page) => {
@@ -293,7 +283,7 @@ const clearFilters = () => {
   filters.value = {
     address: '',
     sentAfter: '',
-    sentBefore: ''
+    sentBefore: '',
   }
   pagination.value.number = 0
   fetchEmails()

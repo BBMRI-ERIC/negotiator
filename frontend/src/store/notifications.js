@@ -33,10 +33,10 @@ export const useNotificationsStore = defineStore('notifications', () => {
   // New function to set user notifications from API with pagination info
   function setUserNotifications(notifications) {
     if (notifications && notifications._embedded && notifications._embedded.notifications) {
-      userNotifications.value = notifications._embedded.notifications.map(notif => ({
+      userNotifications.value = notifications._embedded.notifications.map((notif) => ({
         ...notif,
         timestamp: moment(notif.createdAt).format('MMM DD, HH:mm'),
-        formattedCreatedAt: moment(notif.createdAt).fromNow()
+        formattedCreatedAt: moment(notif.createdAt).fromNow(),
       }))
       updateUnreadCount()
 
@@ -61,11 +61,11 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   function updateUnreadCount() {
-    unreadCount.value = userNotifications.value.filter(notif => !notif.read).length
+    unreadCount.value = userNotifications.value.filter((notif) => !notif.read).length
   }
 
   function markNotificationAsRead(notificationId) {
-    const notification = userNotifications.value.find(notif => notif.id === notificationId)
+    const notification = userNotifications.value.find((notif) => notif.id === notificationId)
     if (notification) {
       notification.read = true
       updateUnreadCount()
@@ -73,7 +73,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   }
 
   function markAllNotificationsAsRead() {
-    userNotifications.value.forEach(notif => {
+    userNotifications.value.forEach((notif) => {
       notif.read = true
     })
     updateUnreadCount()

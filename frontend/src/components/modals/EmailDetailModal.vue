@@ -9,9 +9,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="emailDetailModalLabel">
-            Email Notification Details
-          </h5>
+          <h5 class="modal-title" id="emailDetailModalLabel">Email Notification Details</h5>
           <button
             type="button"
             class="btn-close"
@@ -85,20 +83,12 @@
                 aria-labelledby="rendered-tab"
               >
                 <div class="email-content-container">
-                  <div
-                    class="email-content"
-                    v-html="sanitizedContent"
-                  ></div>
+                  <div class="email-content" v-html="sanitizedContent"></div>
                 </div>
               </div>
 
               <!-- HTML source view -->
-              <div
-                class="tab-pane fade"
-                id="source"
-                role="tabpanel"
-                aria-labelledby="source-tab"
-              >
+              <div class="tab-pane fade" id="source" role="tabpanel" aria-labelledby="source-tab">
                 <div class="position-relative">
                   <button
                     class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-2 me-2"
@@ -119,13 +109,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -139,12 +123,12 @@ import { useEmailStore } from '@/store/emails.js'
 const props = defineProps({
   id: {
     type: String,
-    default: 'emailDetailModal'
+    default: 'emailDetailModal',
   },
   emailId: {
     type: [Number, String],
-    default: null
-  }
+    default: null,
+  },
 })
 
 const emailStore = useEmailStore()
@@ -168,7 +152,7 @@ const formatDate = (dateString) => {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    timeZoneName: 'short'
+    timeZoneName: 'short',
   })
 }
 
@@ -204,13 +188,17 @@ const fetchEmailDetails = async (id) => {
 }
 
 // Watch for emailId changes to fetch new email details
-watch(() => props.emailId, (newId) => {
-  if (newId) {
-    fetchEmailDetails(newId)
-  } else {
-    email.value = null
-  }
-}, { immediate: true })
+watch(
+  () => props.emailId,
+  (newId) => {
+    if (newId) {
+      fetchEmailDetails(newId)
+    } else {
+      email.value = null
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>
@@ -224,7 +212,8 @@ watch(() => props.emailId, (newId) => {
 }
 
 .email-content {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
   color: #333;
 }

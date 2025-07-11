@@ -54,8 +54,8 @@ export const useApiCallsStore = defineStore('apiCalls', () => {
         headers: getBearerHeaders(),
         params: {
           page,
-          size
-        }
+          size,
+        },
       })
       .then((response) => {
         return response.data
@@ -64,7 +64,7 @@ export const useApiCallsStore = defineStore('apiCalls', () => {
         notifications.setNotification('Failed to fetch notifications', 'danger')
         console.error('Error fetching notifications:', error)
         console.error('Request URL:', `${apiPaths.USER_NOTIFICATIONS_PATH}/${userId}/notifications`)
-        console.error('Request params:', { page, size})
+        console.error('Request params:', { page, size })
         return null
       })
   }
