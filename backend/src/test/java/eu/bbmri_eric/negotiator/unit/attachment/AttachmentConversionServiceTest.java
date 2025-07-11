@@ -222,8 +222,8 @@ class AttachmentConversionServiceTest {
 
   @Test
   void testGetAttachmentsAsPdf_WithEmptyAttachmentList_ThrowsIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> 
-        conversionService.getAttachmentsAsPdf(List.of()));
+    assertThrows(
+        IllegalArgumentException.class, () -> conversionService.getAttachmentsAsPdf(List.of()));
   }
 
   @Test
