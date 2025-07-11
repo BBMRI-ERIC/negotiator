@@ -75,6 +75,7 @@
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0">
         <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
+        <MergedPDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
         <TransferButton
           class="mt-2"
           :negotiation-id="negotiation.id"
@@ -101,6 +102,7 @@
 <script setup>
 import { dateFormat } from '@/config/consts'
 import PDFButton from '@/components/PDFButton.vue'
+import MergedPDFButton from '@/components/MergedPDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import moment from 'moment'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
