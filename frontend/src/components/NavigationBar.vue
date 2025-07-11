@@ -141,7 +141,7 @@
           <div class="spinner-grow spinner-grow-sm" role="status" />
           {{ returnCurrentMode }}
         </div>
-        <NotificationsButton v-if="featureFlagsNotifications" class="me-3" />
+        <NotificationsButton class="me-3" />
         <span
           v-if="oidcIsAuthenticated"
           :style="{ color: uiConfiguration?.navbarWelcomeTextColor }"

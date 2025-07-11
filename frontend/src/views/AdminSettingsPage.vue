@@ -18,6 +18,8 @@
       @test-webhook="testWebhook"
     />
     <hr />
+    <EmailNotificationsSection @view-email="viewEmailDetails" />
+    <hr />
     <UserListSection :users="users" />
   </div>
   <LoadingIndicator v-else />
@@ -36,6 +38,10 @@
     @confirm="confirmDeleteWebhook"
     ref="deleteModal"
   />
+  <EmailDetailModal
+    id="emailDetailModal"
+    :email-id="selectedEmailId"
+  />
   <hr />
   <email-template-section />
 </template>
@@ -47,12 +53,14 @@ import { useAdminStore } from '../store/admin.js'
 import { useFormsStore } from '../store/forms.js'
 import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
 import WebhooksSection from '@/components/WebhooksSection.vue'
+import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
 import UserListSection from '@/components/UserListSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
+import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 
 const userStore = useUserStore()
@@ -69,6 +77,7 @@ const editModal = ref(undefined)
 const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
+const selectedEmailId = ref(null)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -189,6 +198,12 @@ const testWebhook = async (webhook) => {
       testInProgress: false,
     }
   }
+}
+
+const viewEmailDetails = (email) => {
+  selectedEmailId.value = email.id
+  const emailModal = new Modal(document.querySelector('#emailDetailModal'))
+  emailModal.show()
 }
 </script>
 
