@@ -13,6 +13,7 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateLifecycleDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
 import eu.bbmri_eric.negotiator.negotiation.mappers.NegotiationModelAssembler;
+import eu.bbmri_eric.negotiator.negotiation.pdf.NegotiationPdfService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationEvent;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationLifecycleService;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
@@ -71,6 +72,8 @@ public class NegotiationController {
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
+  private final NegotiationPdfService negotiationPdfService;
+
   private static final Set<String> ALLOWED_TEMPLATES = Set.of("pdf-negotiation-summary");
 
   public NegotiationController(
@@ -81,7 +84,8 @@ public class NegotiationController {
       ResourceService resourceService,
       NegotiationTimeline timelineService,
       NegotiationModelAssembler assembler,
-      ResourceWithStatusAssembler resourceWithStatusAssembler) {
+      ResourceWithStatusAssembler resourceWithStatusAssembler,
+      NegotiationPdfService negotiationPdfService) {
     this.negotiationService = negotiationService;
     this.negotiationLifecycleService = negotiationLifecycleService;
     this.resourceLifecycleService = resourceLifecycleService;
@@ -90,6 +94,7 @@ public class NegotiationController {
     this.timelineService = timelineService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
+    this.negotiationPdfService = negotiationPdfService;
   }
 
   /** Create a negotiation */
@@ -315,7 +320,7 @@ public class NegotiationController {
           HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
     try {
-      byte[] pdfBytes = negotiationService.generatePdf(id, templateName);
+      byte[] pdfBytes = negotiationPdfService.generatePdf(id, templateName);
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_PDF)
           .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
