@@ -21,7 +21,8 @@ import org.springframework.stereotype.Service;
 @CommonsLog
 public class AttachmentConversionService {
   private static final String CONTENT_TYPE_PDF = "application/pdf";
-  private static final String CONTENT_TYPE_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  private static final String CONTENT_TYPE_DOCX =
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   private static final String CONTENT_TYPE_TIKA_OOXML = "application/x-tika-ooxml";
   private static final String CONTENT_TYPE_DOC = "application/msword";
   private static final String CONTENT_TYPE_TIKA_MSOFFICE = "application/x-tika-msoffice";
@@ -45,19 +46,20 @@ public class AttachmentConversionService {
       throw new IllegalArgumentException("Attachment IDs list cannot be null or empty");
     }
 
-    log.debug("Converting {"+ attachmentIds.size() +"} attachments to PDF");
-    
+    log.debug("Converting {" + attachmentIds.size() + "} attachments to PDF");
+
     List<AttachmentDTO> attachmentsList =
         attachmentIds.stream()
             .filter(Objects::nonNull)
-            .map(id -> {
-              try {
-                return attachmentService.findById(id);
-              } catch (Exception e) {
-                log.error("Failed to retrieve attachment with ID: {}" + id, e);
-                return null;
-              }
-            })
+            .map(
+                id -> {
+                  try {
+                    return attachmentService.findById(id);
+                  } catch (Exception e) {
+                    log.error("Failed to retrieve attachment with ID: {}" + id, e);
+                    return null;
+                  }
+                })
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
 
@@ -92,7 +94,8 @@ public class AttachmentConversionService {
       }
 
       if (payload == null || payload.length == 0) {
-        log.error("Payload is null or empty for attachment with content type: {" + contentType + "}");
+        log.error(
+            "Payload is null or empty for attachment with content type: {" + contentType + "}");
         return null;
       }
 
@@ -149,7 +152,7 @@ public class AttachmentConversionService {
           }
         }
       }
-      
+
       pdfDoc.close();
       byte[] result = pdfOutputStream.toByteArray();
       log.debug("Successfully converted DOC to PDF, output size: {" + result.length + "} bytes");
@@ -165,9 +168,9 @@ public class AttachmentConversionService {
     if (docxBytes == null || docxBytes.length == 0) {
       throw new IllegalArgumentException("Input DOCX bytes are null or empty");
     }
-    
-    log.debug("Converting DOCX to PDF, input size: {"+docxBytes.length+"} bytes");
-    
+
+    log.debug("Converting DOCX to PDF, input size: {" + docxBytes.length + "} bytes");
+
     try (ByteArrayInputStream docxInputStream = new ByteArrayInputStream(docxBytes);
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
