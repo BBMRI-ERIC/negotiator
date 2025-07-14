@@ -348,7 +348,7 @@ public class NegotiationController {
 
     List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
     pdfsToMerge.add(negotiationPdf);
-    
+
     if (!attachmentIds.isEmpty()) {
       List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
       pdfsToMerge.addAll(attachmentPdfs);
