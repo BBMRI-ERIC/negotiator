@@ -126,7 +126,7 @@ public class AttachmentConversionService {
       throw new IllegalArgumentException("Input DOC bytes are null or empty");
     }
 
-    log.debug("Converting DOC to PDF, input size: {" + docBytes.length + "} bytes");
+    log.debug("Converting DOC to PDF, input size: " + docBytes.length);
     Document pdfDoc = null;
 
     try (ByteArrayInputStream docInputStream = new ByteArrayInputStream(docBytes);
@@ -155,7 +155,7 @@ public class AttachmentConversionService {
 
       pdfDoc.close();
       byte[] result = pdfOutputStream.toByteArray();
-      log.debug("Successfully converted DOC to PDF, output size: {" + result.length + "} bytes");
+      log.debug("Successfully converted DOC to PDF, output size: " + result.length);
       return result;
     } finally {
       if (pdfDoc != null && pdfDoc.isOpen()) {
@@ -169,7 +169,7 @@ public class AttachmentConversionService {
       throw new IllegalArgumentException("Input DOCX bytes are null or empty");
     }
 
-    log.debug("Converting DOCX to PDF, input size: {" + docxBytes.length + "} bytes");
+    log.debug("Converting DOCX to PDF, input size: " + docxBytes.length);
 
     try (ByteArrayInputStream docxInputStream = new ByteArrayInputStream(docxBytes);
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
