@@ -9,36 +9,44 @@ import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
+/** Utility class for merging multiple PDF documents into a single PDF. */
 @CommonsLog
 public class PdfMerger {
+  /**
+   * Merges a list of PDF documents represented as byte arrays into a single PDF.
+   *
+   * @param pdfBytesList List of PDF documents as byte arrays.
+   * @return The merged PDF as a byte array.
+   * @throws IOException if an I/O error occurs during merging.
+   */
   public static byte[] mergePdfs(List<byte[]> pdfBytesList) throws IOException {
-    PDDocument mergedPdf = new PDDocument();
 
-    try {
+    try (PDDocument mergedPdf = new PDDocument()) {
       for (byte[] pdfBytes : pdfBytesList) {
         if (pdfBytes == null || pdfBytes.length == 0) {
           continue;
         }
-        PDDocument doc = new PDDocument();
-        try {
-          doc = Loader.loadPDF(pdfBytes);
+
+        // Load the PDF bytes into the PDDocument using try-with-resources
+        try (PDDocument doc = Loader.loadPDF(pdfBytes)) {
           mergeDocument(mergedPdf, doc);
         } catch (IOException e) {
           log.error("Failed to merge PDF document: " + e.getMessage(), e);
-          doc.addPage(new PDPage());
-          doc.getDocumentInformation().setTitle("Error Document");
-          doc.getDocumentInformation().setSubject("An error occurred while merging PDF documents.");
-          mergeDocument(mergedPdf, doc);
-        } finally {
-          doc.close();
+          // Create an error document and merge it
+          try (PDDocument errorDoc = new PDDocument()) {
+            errorDoc.addPage(new PDPage());
+            errorDoc.getDocumentInformation().setTitle("Error Document");
+            errorDoc
+                .getDocumentInformation()
+                .setSubject("An error occurred while merging PDF documents.");
+            mergeDocument(mergedPdf, errorDoc);
+          }
         }
       }
 
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       mergedPdf.save(outputStream);
       return outputStream.toByteArray();
-    } finally {
-      mergedPdf.close();
     }
   }
 
