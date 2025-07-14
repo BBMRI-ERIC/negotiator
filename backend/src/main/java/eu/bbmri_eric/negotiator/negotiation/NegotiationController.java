@@ -323,7 +323,7 @@ public class NegotiationController {
   @Operation(summary = "Generate a PDF for a negotiation")
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdf(
-      @Valid @PathVariable String id,
+      @PathVariable String id,
       @RequestParam(value = "template", required = false) String templateName)
       throws Exception {
 
@@ -338,7 +338,7 @@ public class NegotiationController {
   @Operation(summary = "Generate a PDF for a negotiation including all attachments")
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdfWithAttachments(
-      @Valid @PathVariable String id,
+      @PathVariable String id,
       @RequestParam(value = "template", required = false) String templateName)
       throws Exception {
 
