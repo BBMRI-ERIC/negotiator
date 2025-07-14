@@ -346,10 +346,13 @@ public class NegotiationController {
     List<String> attachmentIds =
         attachmentService.findByNegotiation(id).stream().map(AttachmentMetadataDTO::getId).toList();
 
-    List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
     List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
     pdfsToMerge.add(negotiationPdf);
-    pdfsToMerge.addAll(attachmentPdfs);
+    
+    if (!attachmentIds.isEmpty()) {
+      List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
+      pdfsToMerge.addAll(attachmentPdfs);
+    }
 
     byte[] mergedPdf = null;
     try {
