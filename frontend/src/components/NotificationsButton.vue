@@ -151,21 +151,15 @@ async function fetchNotifications(page = 0) {
   }
 
   if (userStore.userInfo?.id) {
-    console.log('Fetching notifications for user:', userStore.userInfo.id, 'page:', page)
     notificationsStore.isLoading = true
     try {
       const response = await apiCallsStore.fetchUserNotifications(userStore.userInfo.id, page)
-      console.log('Notifications response:', response)
       if (response) {
         notificationsStore.setUserNotifications(response)
       }
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
     } finally {
       notificationsStore.isLoading = false
     }
-  } else {
-    console.error('No user ID available for fetching notifications')
   }
 }
 

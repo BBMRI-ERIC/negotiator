@@ -111,11 +111,31 @@ public class NotificationEmailControllerTest {
     notificationEmailRepository.save(recentEmail);
 
     String filterDate = LocalDateTime.now().minusDays(2).toString();
+    String futureDate = LocalDateTime.now().plusDays(2).toString();
 
     mockMvc
         .perform(get(EMAILS_ENDPOINT + "?sentAfter=" + filterDate))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.notificationEmails.length()", is(1)))
         .andExpect(jsonPath("$._embedded.notificationEmails[0].address", is("recent@example.com")));
+    mockMvc
+        .perform(get(EMAILS_ENDPOINT + "?sentBefore=" + filterDate))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.notificationEmails.length()", is(1)))
+        .andExpect(jsonPath("$._embedded.notificationEmails[0].address", is("old@example.com")));
+    mockMvc
+        .perform(
+            get(
+                EMAILS_ENDPOINT
+                    + "?sort=sentAt,desc&sentAfter=%s&sentBefore=%s"
+                        .formatted(filterDate, futureDate)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.notificationEmails.length()", is(1)))
+        .andExpect(jsonPath("$._embedded.notificationEmails[0].address", is("recent@example.com")));
+    mockMvc
+        .perform(get(EMAILS_ENDPOINT + "?sentAfter=%s".formatted(futureDate)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.page.totalElements", is(0)));
   }
 
   @Test

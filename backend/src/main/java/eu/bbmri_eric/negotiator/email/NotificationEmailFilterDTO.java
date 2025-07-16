@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.email;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,12 +36,12 @@ public class NotificationEmailFilterDTO implements FilterDTO {
   @Schema(
       description = "Filter emails sent after this date (ISO format)",
       example = "2024-01-01T00:00:00")
-  private String sentAfter;
+  private LocalDateTime sentAfter;
 
   @Schema(
       description = "Filter emails sent before this date (ISO format)",
       example = "2024-12-31T23:59:59")
-  private String sentBefore;
+  private LocalDateTime sentBefore;
 
   @Schema(
       description = "Sort criteria (property,direction)",

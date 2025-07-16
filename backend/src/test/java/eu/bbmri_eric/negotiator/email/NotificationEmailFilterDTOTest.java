@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.email;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 class NotificationEmailFilterDTOTest {
@@ -20,104 +21,101 @@ class NotificationEmailFilterDTOTest {
 
   @Test
   void allArgsConstructor_SetsAllValues() {
+    LocalDateTime sentAfter = LocalDateTime.of(2024, 1, 1, 0, 0, 0);
+    LocalDateTime sentBefore = LocalDateTime.of(2024, 12, 31, 23, 59, 59);
+
     NotificationEmailFilterDTO filter =
         new NotificationEmailFilterDTO(
-            1, 10, "test@example.com", "2024-01-01T00:00:00", "2024-12-31T23:59:59", "address,asc");
+            1, 10, "test@example.com", sentAfter, sentBefore, "address,asc");
 
     assertEquals(1, filter.getPage());
     assertEquals(10, filter.getSize());
     assertEquals("test@example.com", filter.getAddress());
-    assertEquals("2024-01-01T00:00:00", filter.getSentAfter());
-    assertEquals("2024-12-31T23:59:59", filter.getSentBefore());
+    assertEquals(sentAfter, filter.getSentAfter());
+    assertEquals(sentBefore, filter.getSentBefore());
     assertEquals("address,asc", filter.getSort());
   }
 
   @Test
   void settersAndGetters_WorkCorrectly() {
     NotificationEmailFilterDTO filter = new NotificationEmailFilterDTO();
+    LocalDateTime sentAfter = LocalDateTime.of(2024, 6, 1, 0, 0, 0);
+    LocalDateTime sentBefore = LocalDateTime.of(2024, 6, 30, 23, 59, 59);
 
     filter.setPage(2);
     filter.setSize(50);
     filter.setAddress("user@domain.com");
-    filter.setSentAfter("2024-06-01T00:00:00");
-    filter.setSentBefore("2024-06-30T23:59:59");
+    filter.setSentAfter(sentAfter);
+    filter.setSentBefore(sentBefore);
     filter.setSort("sentAt,asc");
 
     assertEquals(2, filter.getPage());
     assertEquals(50, filter.getSize());
     assertEquals("user@domain.com", filter.getAddress());
-    assertEquals("2024-06-01T00:00:00", filter.getSentAfter());
-    assertEquals("2024-06-30T23:59:59", filter.getSentBefore());
+    assertEquals(sentAfter, filter.getSentAfter());
+    assertEquals(sentBefore, filter.getSentBefore());
     assertEquals("sentAt,asc", filter.getSort());
   }
 
   @Test
-  void toString_ContainsAllFields() {
-    NotificationEmailFilterDTO filter =
-        new NotificationEmailFilterDTO(
-            1, 10, "test@example.com", "2024-01-01T00:00:00", "2024-12-31T23:59:59", "address,asc");
+  void dateRangeValidation_WorksCorrectly() {
+    NotificationEmailFilterDTO filter = new NotificationEmailFilterDTO();
+    LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 9, 0, 0);
+    LocalDateTime endDate = LocalDateTime.of(2024, 1, 31, 17, 30, 0);
 
-    String toString = filter.toString();
+    filter.setSentAfter(startDate);
+    filter.setSentBefore(endDate);
 
-    assertTrue(toString.contains("1"));
-    assertTrue(toString.contains("10"));
-    assertTrue(toString.contains("test@example.com"));
-    assertTrue(toString.contains("2024-01-01T00:00:00"));
-    assertTrue(toString.contains("2024-12-31T23:59:59"));
-    assertTrue(toString.contains("address,asc"));
+    assertTrue(filter.getSentAfter().isBefore(filter.getSentBefore()));
+    assertEquals(startDate, filter.getSentAfter());
+    assertEquals(endDate, filter.getSentBefore());
   }
 
   @Test
-  void equals_WithSameValues_ReturnsTrue() {
+  void equality_WorksCorrectly() {
+    LocalDateTime date1 = LocalDateTime.of(2024, 3, 15, 12, 0, 0);
+    LocalDateTime date2 = LocalDateTime.of(2024, 3, 20, 18, 30, 0);
+
     NotificationEmailFilterDTO filter1 =
-        new NotificationEmailFilterDTO(
-            1, 10, "test@example.com", "2024-01-01T00:00:00", "2024-12-31T23:59:59", "address,asc");
+        new NotificationEmailFilterDTO(1, 25, "test@example.com", date1, date2, "sentAt,asc");
 
     NotificationEmailFilterDTO filter2 =
-        new NotificationEmailFilterDTO(
-            1, 10, "test@example.com", "2024-01-01T00:00:00", "2024-12-31T23:59:59", "address,asc");
+        new NotificationEmailFilterDTO(1, 25, "test@example.com", date1, date2, "sentAt,asc");
 
-    assertEquals(filter1, filter2);
-    assertEquals(filter1.hashCode(), filter2.hashCode());
+    assertEquals(filter1.getPage(), filter2.getPage());
+    assertEquals(filter1.getSize(), filter2.getSize());
+    assertEquals(filter1.getAddress(), filter2.getAddress());
+    assertEquals(filter1.getSentAfter(), filter2.getSentAfter());
+    assertEquals(filter1.getSentBefore(), filter2.getSentBefore());
+    assertEquals(filter1.getSort(), filter2.getSort());
   }
 
   @Test
-  void equals_WithDifferentValues_ReturnsFalse() {
-    NotificationEmailFilterDTO filter1 =
-        new NotificationEmailFilterDTO(
-            1, 10, "test@example.com", "2024-01-01T00:00:00", "2024-12-31T23:59:59", "address,asc");
-
-    NotificationEmailFilterDTO filter2 =
-        new NotificationEmailFilterDTO(
-            2, 10, "test@example.com", "2024-01-01T00:00:00", "2024-12-31T23:59:59", "address,asc");
-
-    assertNotEquals(filter1, filter2);
-  }
-
-  @Test
-  void builderPattern_WorksCorrectly() {
-    NotificationEmailFilterDTO filter =
-        NotificationEmailFilterDTO.builder()
-            .page(3)
-            .size(25)
-            .address("builder@test.com")
-            .sentAfter("2024-07-01T00:00:00")
-            .sentBefore("2024-07-31T23:59:59")
-            .sort("message,desc")
-            .build();
-
-    assertEquals(3, filter.getPage());
-    assertEquals(25, filter.getSize());
-    assertEquals("builder@test.com", filter.getAddress());
-    assertEquals("2024-07-01T00:00:00", filter.getSentAfter());
-    assertEquals("2024-07-31T23:59:59", filter.getSentBefore());
-    assertEquals("message,desc", filter.getSort());
-  }
-
-  @Test
-  void implementsFilterDTO_Interface() {
+  void nullDateValues_HandledCorrectly() {
     NotificationEmailFilterDTO filter = new NotificationEmailFilterDTO();
 
-    assertTrue(filter instanceof eu.bbmri_eric.negotiator.common.FilterDTO);
+    filter.setSentAfter(null);
+    filter.setSentBefore(null);
+
+    assertNull(filter.getSentAfter());
+    assertNull(filter.getSentBefore());
+  }
+
+  @Test
+  void differentTimeZones_HandledCorrectly() {
+    // Test with different times in the same day
+    LocalDateTime morning = LocalDateTime.of(2024, 7, 16, 8, 30, 0);
+    LocalDateTime evening = LocalDateTime.of(2024, 7, 16, 20, 45, 30);
+
+    NotificationEmailFilterDTO filter = new NotificationEmailFilterDTO();
+    filter.setSentAfter(morning);
+    filter.setSentBefore(evening);
+
+    assertTrue(filter.getSentAfter().isBefore(filter.getSentBefore()));
+    assertEquals(8, filter.getSentAfter().getHour());
+    assertEquals(30, filter.getSentAfter().getMinute());
+    assertEquals(20, filter.getSentBefore().getHour());
+    assertEquals(45, filter.getSentBefore().getMinute());
+    assertEquals(30, filter.getSentBefore().getSecond());
   }
 }

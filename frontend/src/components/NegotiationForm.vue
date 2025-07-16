@@ -581,15 +581,18 @@ async function saveDraftSilently(step) {
       request: props.requestId,
       payload: negotiationCriteria.value,
     }
-    await negotiationFormStore.createNegotiation(data).then((negotiationId) => {
-      if (negotiationId) {
-        router.replace(`/edit/requests/${negotiationId}/${step}`)
-        // Don't show notification for auto-save
-      }
-    }).catch(() => {
-      // Only show notification on error
-      notificationsStore.setNotification('Failed to auto-save changes', 'danger')
-    })
+    await negotiationFormStore
+      .createNegotiation(data)
+      .then((negotiationId) => {
+        if (negotiationId) {
+          router.replace(`/edit/requests/${negotiationId}/${step}`)
+          // Don't show notification for auto-save
+        }
+      })
+      .catch(() => {
+        // Only show notification on error
+        notificationsStore.setNotification('Failed to auto-save changes', 'danger')
+      })
   }
 }
 

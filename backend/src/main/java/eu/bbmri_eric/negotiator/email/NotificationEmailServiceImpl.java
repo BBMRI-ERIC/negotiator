@@ -29,8 +29,8 @@ public class NotificationEmailServiceImpl implements NotificationEmailService {
   public Page<NotificationEmailDTO> findAllWithFilters(NotificationEmailFilterDTO filters) {
     Pageable pageable = createPageable(filters.getPage(), filters.getSize(), filters.getSort());
 
-    LocalDateTime sentAfter = parseDateTime(filters.getSentAfter());
-    LocalDateTime sentBefore = parseDateTime(filters.getSentBefore());
+    LocalDateTime sentAfter = filters.getSentAfter();
+    LocalDateTime sentBefore = filters.getSentBefore();
 
     Specification<NotificationEmail> spec =
         NotificationEmailSpecification.withFilters(filters.getAddress(), sentAfter, sentBefore);

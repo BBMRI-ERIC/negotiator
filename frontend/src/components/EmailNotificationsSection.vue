@@ -221,10 +221,14 @@ const fetchEmails = async () => {
       params.address = filters.value.address
     }
     if (filters.value.sentAfter) {
-      params.sentAfter = new Date(filters.value.sentAfter).toISOString()
+      // Convert to LocalDateTime format: YYYY-MM-DDTHH:MM:SS
+      const afterDate = new Date(filters.value.sentAfter)
+      params.sentAfter = formatForJavaLocalDateTime(afterDate)
     }
     if (filters.value.sentBefore) {
-      params.sentBefore = new Date(filters.value.sentBefore).toISOString()
+      // Convert to LocalDateTime format: YYYY-MM-DDTHH:MM:SS
+      const beforeDate = new Date(filters.value.sentBefore)
+      params.sentBefore = formatForJavaLocalDateTime(beforeDate)
     }
 
     const response = await emailStore.fetchNotificationEmails(params)
@@ -308,7 +312,48 @@ const viewEmailDetails = (email) => {
   emit('view-email', email)
 }
 
+// Helper function to format current datetime for input field
+const getCurrentDateTimeForInput = () => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+// Helper function to format yesterday at 00:00 for input field
+const getYesterdayStartForInput = () => {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  yesterday.setHours(0, 0, 0, 0)
+
+  const year = yesterday.getFullYear()
+  const month = String(yesterday.getMonth() + 1).padStart(2, '0')
+  const day = String(yesterday.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T00:00`
+}
+
+// Helper function to format date for Java LocalDateTime
+const formatForJavaLocalDateTime = (date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+}
+
 onMounted(() => {
+  // Set sentAfter to yesterday at 00:00 by default
+  filters.value.sentAfter = getYesterdayStartForInput()
+  // Set sentBefore to current date/time by default
+  filters.value.sentBefore = getCurrentDateTimeForInput()
   fetchEmails()
 })
 </script>
