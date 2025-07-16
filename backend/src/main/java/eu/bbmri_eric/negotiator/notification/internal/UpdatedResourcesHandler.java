@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @CommonsLog
-public class UpdatedResourcesHandler implements NotificationStrategy<NewResourcesAddedEvent> {
+class UpdatedResourcesHandler implements NotificationStrategy<NewResourcesAddedEvent> {
 
   private final ResourceNotificationService resourceNotificationService;
 
-  public UpdatedResourcesHandler(ResourceNotificationService resourceNotificationService) {
+  UpdatedResourcesHandler(ResourceNotificationService resourceNotificationService) {
     this.resourceNotificationService = resourceNotificationService;
   }
 

@@ -1,17 +1,40 @@
-# Notification service
+# Notification Service
 
-The negotiator features a notification service for notifying representatives,
-admins and researchers about various events tied to a Negotiation.
+The negotiator features a comprehensive notification service for notifying users about various events tied to negotiations. The system is built using a strategy pattern with event-driven architecture to ensure extensibility and maintainability.
 
-## Implementation
+## Architecture Overview
 
-Currently, it's implemented
-using [SpringMail](https://docs.spring.io/spring-boot/docs/2.0.0.M3/reference/html/boot-features-email.html).
+The notification system consists of several key components:
 
-## Configuration
+### Core Components
 
-To configure the Spring Mail, set the following environment variables or update the
-properties file for the appropriate profile:
+1. **NotificationListener** - A generic event listener that receives Spring Application Events and dispatches them to appropriate handlers
+2. **NotificationStrategy** - An interface that defines how specific events should be handled
+3. **NotificationService** - The service responsible for creating and managing in-app notifications
+### Notifications vs Emails
+
+The system handles two types of communications:
+
+- **Notifications** - In-app notifications stored in the database that users can view within the negotiator interface
+- **Emails** - Email notifications sent to users' email addresses for important events
+
+Both are triggered by the same events but serve different purposes.
+Notifications provide an audit trail and in-app alerts, while emails ensure users are notified even when not actively using the platform.
+
+### Event Flow
+
+1. Business events (e.g., negotiation state changes, new posts) are published as Spring Application Events
+2. The `NotificationListener` receives these events asynchronously via `@TransactionalEventListener`
+3. The listener dispatches events to registered `NotificationStrategy` implementations
+4. Each strategy handles its specific event type and creates appropriate notifications and/or emails
+
+## Email Implementation
+
+Email delivery is implemented using [SpringMail](https://docs.spring.io/spring-boot/docs/2.0.0.M3/reference/html/boot-features-email.html).
+
+### Configuration
+
+To configure Spring Mail, set the following environment variables or update the properties file for the appropriate profile:
 
 ```
 SPRING_MAIL_HOST="smtp.example"
@@ -20,66 +43,64 @@ SPRING_MAIL_USERNAME="user"
 SPRING_MAIL_PASSWORD="pass"
 ```
 
-### Email template
-Templates ensure consistent and automated communications for various functions. 
-We are using [Thymeleaf](https://www.thymeleaf.org/) as the template engine, which allows us to create dynamic and customizable email content.
+### Email Templates
 
-#### Template location
-The email template is stored in the `src/main/resources/templates/` directory. It is written in HTML with Thymeleaf syntax, allowing you to include dynamic content using expressions, conditionals, and loops.
+Email templates use [Thymeleaf](https://www.thymeleaf.org/) as the template engine for dynamic content.
+Templates can be managed through the negotiator's admin interface.
 
-#### Editing the template
- - To edit the template, open the `email-notification.html` file.
- - Make the necessary changes to the template. You can use Thymeleaf syntax to include dynamic variables, iterate over data collections, or conditionally display content.
- - Save the changes to the file.
- - The template is now ready to be used in the email service.
+## Developer Guide: Extending the Notification System
 
-##### Upload new template to a docker container
-To upload a new template to a docker container, you can use the following command:
-```bash
-docker cp src/main/resources/templates/email-notification.html negotiator:/app/src/main/resources/templates/email-notification.html
-```
-Or when using docker-compose mount the volume to the container:
-```yaml 
-volumes:
-  - ./src/main/resources/templates/email-notification.html:/app/src/main/resources/templates/email-notification.html
-```
-  
+### Adding New Event Types and Handlers
 
-#### Template variables
-The email template uses variables to include dynamic content. These variables are replaced with actual values when the email is sent. The following variables are available in the template:
- - `recipient`: The name of the recipient.
- - `frontendUrl`: The URL of the frontend application.
- - `negotiations`: List of negotiation Ids.
- - `roleForNegotiation`: List of roles for each negotiation.
- - `titleForNegotiation`: List of titles for each negotiation.
- - `notificationsForNegotiation`: List of notifications for each negotiation.
- - `emailYoursSincerelyText`: The text for the "Yours sincerely" section.
- - `emailHelpdeskHref`: The URL for the helpdesk.
+To add support for new events:
 
-#### Updating Templates at Runtime
-
-The Negotiator provides an [REST](REST.md) endpoint to update the email template at runtime. This is only enabled when the spring.thymeleaf.prefix is set in the `application.yml` file e.g.:
-
-```yaml
-spring:
-  thymeleaf:
-    prefix: file:resources/templates/
+#### 1. Create an Event Class
+```java
+public class MyCustomEvent extends ApplicationEvent {
+    private final String negotiationId;
+    
+    public MyCustomEvent(Object source, String negotiationId) {
+        super(source);
+        this.negotiationId = negotiationId;
+    }
+    // Getters...
+}
 ```
 
-Email templates used for system notifications can be managed via the admin UI. Admin users can update existing templates or reset them to default without restarting the application. No new templates can be added or deleted.
+#### 2. Implement a Notification Strategy
+```java
+@Component
+public class MyCustomEventHandler implements NotificationStrategy<MyCustomEvent> {
+    private final NotificationService notificationService;
 
-### Email reminder
-Automates the sending of emails based on schedules. The email reminder service is implemented using [Spring's Task Execution and Scheduling](https://spring.io/guides/gs/scheduling-tasks/). 
-The reminder service is configured in the `application-prod.yml` file.
-```yaml
-reminder:
-  trigger-duration-days: "P7D"
-  cron-schedule-expression: "0 0 0 * * TUE"
+    @Override
+    public Class<MyCustomEvent> getSupportedEventType() {
+        return MyCustomEvent.class;
+    }
+
+    @Override
+    @Transactional
+    public void notify(MyCustomEvent event) {
+        // Create notifications and/or trigger emails
+        NotificationCreateDTO notification = new NotificationCreateDTO(
+            userIds, "Title", "Body", event.getNegotiationId()
+        );
+        notificationService.createNotifications(notification);
+    }
+}
 ```
 
-## Development
+#### 3. Publish the Event
+```java
+@Service
+public class MyBusinessService {
+    private final ApplicationEventPublisher eventPublisher;
 
-For development, we advise to use a service called [Mailhog](https://github.com/mailhog/MailHog).
-It serves to test sending email messages and acts as a mock smtp server.
-For setup, follow the instructions mentioned in their documentation.
+    public void performBusinessAction(String negotiationId) {
+        // Business logic...
+        eventPublisher.publishEvent(new MyCustomEvent(this, negotiationId));
+    }
+}
+```
 
+The `NotificationListener` will automatically discover and register new handlers, dispatching events to appropriate strategies.
