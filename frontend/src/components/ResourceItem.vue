@@ -1,146 +1,251 @@
 <template>
-  <div class="card-body">
-    <div class="form-check d-flex flex-column">
-      <div class="d-flex flex-row align-items-center flex-wrap">
-        <div class="me-3 mb-2">
-          <label
-            class="form-check-label text-truncate"
-            :style="{ color: uiConfiguration.primaryTextColor, maxWidth: '300px' }"
-            :title="resource.name"
-            :for="sanitizeId(resource.sourceId)"
-          >
-            <i class="bi bi-box-seam" />
-            {{ resource.name }}
-          </label>
-          <span class="badge rounded-pill bg-status-badge ms-2">
-            {{ getStatusForResource() }}
-          </span>
+  <div class="accordion-item" :class="{ 'resource-withdrawn': resource.withdrawn, 'org-withdrawn': organizationWithdrawn }">
+    <h2 class="accordion-header" :id="'heading_' + resource.id">
+      <button
+        :class="[
+          'accordion-button',
+          'collapsed',
+          { 'gray-text': resource.withdrawn || organizationWithdrawn },
+          { 'withdrawn-resource': resource.withdrawn },
+          { 'org-withdrawn-resource': organizationWithdrawn }
+        ]"
+        type="button"
+        data-bs-toggle="collapse"
+        :data-bs-target="'#collapse_' + resource.id"
+        aria-expanded="false"
+        :aria-controls="'collapse_' + resource.id"
+      >
+        {{ resource.name }} ({{ resource.sourceId }})
+
+        <!-- Organization withdrawn notice -->
+        <span v-if="organizationWithdrawn && !resource.withdrawn" class="ms-2 text-muted small">
+          (Organization withdrawn)
+        </span>
+
+        <!-- Resource Status Icon -->
+        <i
+          v-if="organizationWithdrawn"
+          class="bi bi-building-x text-warning ms-1"
+          title="This resource's organization is withdrawn"
+        ></i>
+        <i
+          v-else-if="resource.withdrawn === true"
+          class="bi bi-x-octagon-fill text-warning ms-1"
+          title="This resource is no longer active and cannot be a part of any request."
+        ></i>
+        <i
+          v-else-if="resource.representatives.length > 0 && resource.withdrawn === false"
+          class="bi bi-check-circle-fill text-success ms-1"
+          title="This resource has representatives"
+        ></i>
+        <i
+          v-else-if="resource.representatives.length === 0 && resource.withdrawn === false"
+          class="bi bi-exclamation-triangle-fill text-warning ms-1"
+          title="This resource has no representatives"
+        ></i>
+      </button>
+    </h2>
+
+    <!-- Resource Body -->
+    <div
+      :id="'collapse_' + resource.id"
+      class="accordion-collapse collapse"
+      :aria-labelledby="'heading_' + resource.id"
+    >
+      <div class="accordion-body" :class="{ 'withdrawn-content': resource.withdrawn || organizationWithdrawn }">
+
+        <!-- Withdrawn notices -->
+        <div v-if="organizationWithdrawn && !resource.withdrawn" class="alert alert-info mb-3" role="alert">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          This resource is part of a withdrawn organization and cannot participate in new negotiations.
         </div>
-        <!-- Resource URI if available -->
-        <div v-if="resource.uri" class="me-3 mb-2">
-          <a :href="resource.uri" target="_blank" class="text-decoration-none">
-            <i class="bi bi-box-arrow-up-right" /> View Details
-          </a>
+
+        <div v-if="resource.withdrawn" class="alert alert-warning mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          This resource is withdrawn and no longer active.
         </div>
-        <div class="d-flex flex-wrap">
-          <div class="me-3 mb-2">
-            <span :style="{ color: uiConfiguration.primaryTextColor, opacity: 0.7 }">
-              {{ resource.sourceId }}
-              <!-- CopyTextButton component assumed to be globally registered or imported -->
-              <CopyTextButton :text="resource.sourceId" />
-            </span>
-          </div>
-          <!-- Resource Lifecycle Links -->
-          <div v-if="getLifecycleLinks(resource._links).length" class="me-3 mb-2">
-            Update status:
-            <div
-              v-for="(link, index) in getLifecycleLinks(resource._links)"
-              :key="index"
-              class="lifecycle-links d-inline-block ms-2"
+
+        <p :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }">{{ resource.description }}</p>
+        <ul class="list-unstyled p-2">
+          <li v-if="resource.withdrawn === true">
+            <i class="bi bi-activity"></i>
+            <span class="text-warning">Withdrawn, no longer active</span>
+          </li>
+          <li v-else-if="organizationWithdrawn">
+            <i class="bi bi-building-x"></i>
+            <span class="text-warning">Organization withdrawn</span>
+          </li>
+          <li>
+            <i class="bi bi-envelope p-2"></i>
+            <a
+              :href="'mailto:' + resource.contactEmail"
+              :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }"
             >
-              <a class="lifecycle-text cursor-pointer" @click="onUpdateResourceState(link.href)">
-                <i class="bi bi-patch-check" /> {{ link.name }}
-              </a>
-            </div>
-          </div>
+              {{ resource.contactEmail }}
+            </a>
+          </li>
+          <li>
+            <i class="bi bi-globe p-2"></i>
+            <a
+              :href="resource.uri"
+              target="_blank"
+              :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }"
+            >
+              {{ resource.uri }}
+            </a>
+          </li>
+        </ul>
+        <h6 :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }">Representatives:</h6>
+        <ul>
+          <li
+            v-for="rep in resource.representatives"
+            :key="rep"
+            :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }"
+          >
+            <i class="bi bi-person"></i> {{ rep }}
+          </li>
+        </ul>
+        <!-- Warning if no representatives -->
+        <div
+          v-if="resource.representatives.length === 0 && !resource.withdrawn && !organizationWithdrawn"
+          class="text-warning mt-2"
+        >
+          <i class="bi bi-exclamation-triangle"></i> This resource has no representatives.
         </div>
-      </div>
-      <!-- Submitted Requirements (Green) -->
-      <div v-for="(link, index) in getSubmissionLinks" :key="index" class="mt-1">
-        <a class="submission-text cursor-pointer" @click.prevent="onOpenFormModal(link.href)">
-          <i class="bi bi-check-circle" /> {{ link.name }} submitted
-        </a>
-      </div>
-      <!-- Missing Requirements (Red) -->
-      <div v-for="(link, index) in getRequirementLinks" :key="index" class="mt-1">
-        <a class="requirement-text cursor-pointer" @click="onOpenModal(link.href, resource.id)">
-          <i class="bi bi-exclamation-circle-fill" /> {{ link.title }} required
-        </a>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { transformStatus } from '../composables/utils.js'
-import CopyTextButton from '@/components/CopyTextButton.vue'
-
-const props = defineProps({
-  resource: { type: Object, required: true },
-  uiConfiguration: { type: Object, required: true },
+defineProps({
+  resource: {
+    type: Object,
+    required: true,
+  },
+  organizationWithdrawn: {
+    type: Boolean,
+    default: false,
+  },
 })
-const emit = defineEmits(['open-form-modal', 'open-modal', 'update-resource-state'])
-
-const sanitizeId = (id) => id.replaceAll(':', '_')
-
-const getStatusForResource = () => {
-  return props.resource.currentState ? transformStatus(props.resource.currentState) : ''
-}
-
-const getSubmissionLinks = computed(() => {
-  return Object.entries(props.resource._links)
-    .filter(([key]) => key.startsWith('submission-'))
-    .map(([, value]) => value)
-})
-
-const getRequirementLinks = computed(() => {
-  return Object.entries(props.resource._links)
-    .filter(([key]) => key.startsWith('requirement-'))
-    .map(([, value]) => value)
-})
-
-const getLifecycleLinks = (links) =>
-  Object.values(links).filter((link) => link.title === 'Next Lifecycle event')
-
-const onOpenModal = (href, resourceId) => {
-  emit('open-modal', href, resourceId)
-}
-
-const onOpenFormModal = (href) => {
-  emit('open-form-modal', href)
-}
-
-const onUpdateResourceState = (link) => {
-  emit('update-resource-state', link)
-}
 </script>
 
 <style scoped>
-/* Text truncation */
-.text-truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
-  vertical-align: middle;
+.gray-text {
+  color: gray;
 }
 
-/* Badge styling */
-.bg-status-badge {
-  background-color: #f0f0f0;
-  color: #333;
+.accordion-item {
+  border: 1px solid #dee2e6;
+  margin-bottom: 0.5rem;
 }
 
-/* Requirement (missing) - red text */
-.requirement-text {
-  color: red;
-  opacity: 0.8;
+.accordion-button {
+  background-color: #f8f9fa;
+  border: none;
+  padding: 1rem;
+  text-align: left;
+  width: 100%;
+  position: relative;
 }
 
-/* Submission (submitted) - green text */
-.submission-text {
-  color: green;
-  font-weight: bold;
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
 }
 
-/* Resource link */
-.resource-link {
-  color: var(--bs-link-color);
+.accordion-button.collapsed {
+  background-color: #ffffff;
+}
+
+.accordion-body {
+  padding: 1rem;
+  background-color: #ffffff;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.list-unstyled {
+  list-style: none;
+  padding-left: 0;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+
+.ms-1 {
+  margin-left: 0.25rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.accordion-body a {
+  color: #0366d6;
   text-decoration: none;
 }
 
-.resource-link:hover {
+.accordion-body a:hover {
   text-decoration: underline;
+}
+
+.accordion-body li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.accordion-body h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.accordion-body p {
+  margin-bottom: 1rem;
+  color: #6c757d;
+}
+
+.resource-withdrawn {
+  background-color: #fff8f0;
+  border-color: #ffc107;
+}
+
+.org-withdrawn {
+  background-color: #f8f9fa;
+  border-color: #6c757d;
+}
+
+.withdrawn-resource {
+  background-color: #fff3cd !important;
+  color: #664d03;
+}
+
+.org-withdrawn-resource {
+  background-color: #e9ecef !important;
+  color: #495057;
+}
+
+.withdrawn-content {
+  background-color: #fafafa;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+.small {
+  font-size: 0.875rem;
 }
 </style>
