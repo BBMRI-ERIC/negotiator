@@ -100,7 +100,7 @@
             <NetworkStatsCard
               label="Ignored Negotiations"
               :value="stats.numberOfIgnoredNegotiations"
-              tooltip="Negotiations which involved at least one Resource in you Network and none responded"
+              tooltip="Negotiations which involved at least one Resource in your Network and none responded"
               :clickable="true"
               @click="$emit('setNegotiationIds', stats.negotiationIds['Ignored'])"
             />
