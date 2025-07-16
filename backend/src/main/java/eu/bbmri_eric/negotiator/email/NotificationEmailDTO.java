@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.email;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,4 +32,19 @@ public class NotificationEmailDTO {
 
   @Schema(description = "Date and time when the email was sent", example = "2024-07-11T10:30:00")
   private LocalDateTime sentAt;
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    NotificationEmailDTO that = (NotificationEmailDTO) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(address, that.address)
+        && Objects.equals(message, that.message)
+        && Objects.equals(sentAt, that.sentAt);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, address, message, sentAt);
+  }
 }

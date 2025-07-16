@@ -4,6 +4,12 @@ import jakarta.annotation.Nonnull;
 import java.util.List;
 
 public interface NotificationService {
+  /**
+   * Create a notification for user(s)
+   *
+   * @param notificationRequest a DTO containing all necessary details
+   * @return created notifications
+   */
   List<NotificationDTO> createNotifications(@Nonnull NotificationCreateDTO notificationRequest);
 
   /**

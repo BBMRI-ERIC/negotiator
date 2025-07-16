@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,4 +30,19 @@ public class NotificationEmail {
   private String message;
 
   private LocalDateTime sentAt = LocalDateTime.now();
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    NotificationEmail that = (NotificationEmail) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(address, that.address)
+        && Objects.equals(message, that.message)
+        && Objects.equals(sentAt, that.sentAt);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, address, message, sentAt);
+  }
 }

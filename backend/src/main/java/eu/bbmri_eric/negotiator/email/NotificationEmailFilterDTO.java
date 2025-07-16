@@ -3,7 +3,9 @@ package eu.bbmri_eric.negotiator.email;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @Schema(description = "Filter and pagination parameters for notification emails")
+@Builder
 public class NotificationEmailFilterDTO implements FilterDTO {
 
   @Min(value = 0, message = "Page number must be greater than or equal to 0")
@@ -44,4 +47,21 @@ public class NotificationEmailFilterDTO implements FilterDTO {
       example = "sentAt,desc",
       defaultValue = "sentAt,desc")
   private String sort = "sentAt,desc";
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    NotificationEmailFilterDTO that = (NotificationEmailFilterDTO) o;
+    return page == that.page
+        && size == that.size
+        && Objects.equals(address, that.address)
+        && Objects.equals(sentAfter, that.sentAfter)
+        && Objects.equals(sentBefore, that.sentBefore)
+        && Objects.equals(sort, that.sort);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(page, size, address, sentAfter, sentBefore, sort);
+  }
 }
