@@ -119,6 +119,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
   id: {
@@ -138,9 +139,28 @@ const loading = ref(false)
 const sanitizedContent = computed(() => {
   if (!email.value?.message) return ''
 
-  // Use a simple approach - for now just return the content
-  // The vue-dompurify-html package will handle sanitization at the template level
-  return email.value.message
+  // Sanitize HTML content to prevent XSS attacks
+  return DOMPurify.sanitize(email.value.message, {
+    // Allow safe HTML tags for email content
+    ALLOWED_TAGS: [
+      'p', 'br', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'strong', 'b', 'em', 'i', 'u', 'ul', 'ol', 'li', 'a', 'img',
+      'table', 'thead', 'tbody', 'tr', 'td', 'th', 'blockquote',
+      'pre', 'code', 'hr', 'small', 'sub', 'sup'
+    ],
+    // Allow safe attributes
+    ALLOWED_ATTR: [
+      'href', 'title', 'alt', 'src', 'width', 'height', 'style',
+      'class', 'id', 'target', 'rel'
+    ],
+    // Only allow safe protocols for links and images
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    // Clean up HTML structure
+    KEEP_CONTENT: true,
+    // Remove scripts and other dangerous content
+    FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+  })
 })
 
 const formatDate = (dateString) => {
