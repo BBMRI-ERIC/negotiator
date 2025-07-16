@@ -163,7 +163,7 @@ onMounted(async () => {
 // Watch for tab changes and update URL
 watch(currentTab, async (newTab) => {
   // Update URL without triggering navigation
-  await router.push({
+  await router.replace({
     query: { ...route.query, tab: newTab }
   })
 
