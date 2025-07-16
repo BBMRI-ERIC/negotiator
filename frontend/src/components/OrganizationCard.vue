@@ -1,7 +1,10 @@
 <template>
   <div class="card mb-3 position-relative" :class="{ 'withdrawn-card': isWithdrawn }">
     <!-- Organization Header -->
-    <div class="card-header d-flex justify-content-between align-items-center" :class="{ 'withdrawn-header': isWithdrawn }">
+    <div
+      class="card-header d-flex justify-content-between align-items-center"
+      :class="{ 'withdrawn-header': isWithdrawn }"
+    >
       <h5 class="mb-0" :class="{ 'text-muted': isWithdrawn }">
         {{ organization.name }} ({{ organization.externalId }})
         <span v-if="isWithdrawn" class="withdrawn-badge">
@@ -69,7 +72,10 @@
               :aria-controls="'collapseResources_' + organization.id"
             >
               Resources ({{ organization.resources.length }})
-              <span v-if="activeResourcesCount < organization.resources.length" class="ms-2 text-muted small">
+              <span
+                v-if="activeResourcesCount < organization.resources.length"
+                class="ms-2 text-muted small"
+              >
                 {{ activeResourcesCount }} active, {{ withdrawnResourcesCount }} withdrawn
               </span>
             </button>
@@ -111,11 +117,11 @@ const props = defineProps({
 })
 
 const activeResourcesCount = computed(() => {
-  return props.organization.resources.filter(resource => !resource.withdrawn).length
+  return props.organization.resources.filter((resource) => !resource.withdrawn).length
 })
 
 const withdrawnResourcesCount = computed(() => {
-  return props.organization.resources.filter(resource => resource.withdrawn).length
+  return props.organization.resources.filter((resource) => resource.withdrawn).length
 })
 
 // Helper function to check if all resources have representatives
