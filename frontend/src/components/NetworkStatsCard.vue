@@ -9,11 +9,7 @@
   >
     <div class="stat-label">
       <span>{{ label }}</span>
-      <i
-        v-if="tooltip"
-        class="bi bi-info-circle small-icon"
-        :title="tooltip"
-      />
+      <i v-if="tooltip" class="bi bi-info-circle small-icon" :title="tooltip" />
     </div>
     <h5 :class="{ 'text-muted': muted }">{{ value }}</h5>
   </div>
