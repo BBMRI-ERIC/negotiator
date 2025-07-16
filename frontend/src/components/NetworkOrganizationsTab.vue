@@ -59,7 +59,7 @@
 
       <!-- Empty state -->
       <div v-if="organizations.length === 0" class="text-center p-4">
-        <i class="bi bi-building text-muted" style="font-size: 3rem"></i>
+        <i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
         <p class="text-muted mt-2">No organizations found in this network.</p>
       </div>
     </template>
@@ -82,11 +82,11 @@ const props = defineProps({
 })
 
 const activeOrganizations = computed(() => {
-  return props.organizations.filter((org) => !org.withdrawn)
+  return props.organizations.filter(org => !org.withdrawn)
 })
 
 const withdrawnOrganizations = computed(() => {
-  return props.organizations.filter((org) => org.withdrawn)
+  return props.organizations.filter(org => org.withdrawn)
 })
 
 const totalResources = computed(() => {
@@ -96,7 +96,7 @@ const totalResources = computed(() => {
 const activeResources = computed(() => {
   return props.organizations.reduce((sum, org) => {
     if (org.withdrawn) return sum
-    return sum + org.resources.filter((resource) => !resource.withdrawn).length
+    return sum + org.resources.filter(resource => !resource.withdrawn).length
   }, 0)
 })
 
