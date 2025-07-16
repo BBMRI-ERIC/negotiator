@@ -208,7 +208,6 @@ watch(
 
 // Initial load - only load essential data for overview tab
 loadNetworkInfo(props.networkId)
-loadStats(props.networkId)
 
 async function loadOrganizations(networkId) {
   if (organizationsLoading.value) return
