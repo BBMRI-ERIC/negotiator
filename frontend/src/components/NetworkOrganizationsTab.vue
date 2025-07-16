@@ -29,7 +29,7 @@
           Active Organizations ({{ activeOrganizations.length }})
         </h5>
         <div class="organizations-section">
-          <OrganizationCard
+          <OrganizationListItem
             v-for="organization in activeOrganizations"
             :key="organization.id"
             :organization="organization"
@@ -48,11 +48,10 @@
           These organizations are no longer active and cannot participate in new negotiations.
         </div>
         <div class="organizations-section">
-          <OrganizationCard
+          <OrganizationListItem
             v-for="organization in withdrawnOrganizations"
             :key="organization.id"
             :organization="organization"
-            :is-withdrawn="true"
           />
         </div>
       </div>
@@ -68,7 +67,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import OrganizationCard from './OrganizationCard.vue'
+import OrganizationListItem from './OrganizationListItem.vue'
 
 const props = defineProps({
   organizations: {
