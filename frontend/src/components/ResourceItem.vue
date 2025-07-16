@@ -1,5 +1,8 @@
 <template>
-  <div class="accordion-item" :class="{ 'resource-withdrawn': resource.withdrawn, 'org-withdrawn': organizationWithdrawn }">
+  <div
+    class="accordion-item"
+    :class="{ 'resource-withdrawn': resource.withdrawn, 'org-withdrawn': organizationWithdrawn }"
+  >
     <h2 class="accordion-header" :id="'heading_' + resource.id">
       <button
         :class="[
@@ -7,7 +10,7 @@
           'collapsed',
           { 'gray-text': resource.withdrawn || organizationWithdrawn },
           { 'withdrawn-resource': resource.withdrawn },
-          { 'org-withdrawn-resource': organizationWithdrawn }
+          { 'org-withdrawn-resource': organizationWithdrawn },
         ]"
         type="button"
         data-bs-toggle="collapse"
@@ -52,12 +55,19 @@
       class="accordion-collapse collapse"
       :aria-labelledby="'heading_' + resource.id"
     >
-      <div class="accordion-body" :class="{ 'withdrawn-content': resource.withdrawn || organizationWithdrawn }">
-
+      <div
+        class="accordion-body"
+        :class="{ 'withdrawn-content': resource.withdrawn || organizationWithdrawn }"
+      >
         <!-- Withdrawn notices -->
-        <div v-if="organizationWithdrawn && !resource.withdrawn" class="alert alert-info mb-3" role="alert">
+        <div
+          v-if="organizationWithdrawn && !resource.withdrawn"
+          class="alert alert-info mb-3"
+          role="alert"
+        >
           <i class="bi bi-info-circle-fill me-2"></i>
-          This resource is part of a withdrawn organization and cannot participate in new negotiations.
+          This resource is part of a withdrawn organization and cannot participate in new
+          negotiations.
         </div>
 
         <div v-if="resource.withdrawn" class="alert alert-warning mb-3" role="alert">
@@ -65,7 +75,9 @@
           This resource is withdrawn and no longer active.
         </div>
 
-        <p :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }">{{ resource.description }}</p>
+        <p :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }">
+          {{ resource.description }}
+        </p>
         <ul class="list-unstyled p-2">
           <li v-if="resource.withdrawn === true">
             <i class="bi bi-activity"></i>
@@ -95,7 +107,9 @@
             </a>
           </li>
         </ul>
-        <h6 :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }">Representatives:</h6>
+        <h6 :class="{ 'text-muted': resource.withdrawn || organizationWithdrawn }">
+          Representatives:
+        </h6>
         <ul>
           <li
             v-for="rep in resource.representatives"
@@ -107,7 +121,9 @@
         </ul>
         <!-- Warning if no representatives -->
         <div
-          v-if="resource.representatives.length === 0 && !resource.withdrawn && !organizationWithdrawn"
+          v-if="
+            resource.representatives.length === 0 && !resource.withdrawn && !organizationWithdrawn
+          "
           class="text-warning mt-2"
         >
           <i class="bi bi-exclamation-triangle"></i> This resource has no representatives.

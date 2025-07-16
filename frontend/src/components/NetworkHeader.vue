@@ -14,9 +14,7 @@
         </li>
         <li>
           <i class="bi bi-envelope" />
-          <a :href="'mailto:' + network.contactEmail" class="ms-2">{{
-            network.contactEmail
-          }}</a>
+          <a :href="'mailto:' + network.contactEmail" class="ms-2">{{ network.contactEmail }}</a>
         </li>
         <li>
           <i class="bi bi-clipboard" />
@@ -66,6 +64,7 @@ import { computed } from 'vue'
 import externalLinks from '@/config/externalLinks'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
+// eslint-disable-next-line no-unused-vars
 const props = defineProps({
   network: {
     type: Object,
