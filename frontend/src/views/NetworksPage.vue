@@ -164,7 +164,7 @@ onMounted(async () => {
 watch(currentTab, async (newTab) => {
   // Update URL without triggering navigation
   await router.replace({
-    query: { ...route.query, tab: newTab }
+    query: { ...route.query, tab: newTab },
   })
 
   // Load data lazily
@@ -176,11 +176,14 @@ watch(currentTab, async (newTab) => {
 })
 
 // Watch route query changes (e.g., browser back/forward)
-watch(() => route.query.tab, (newTab) => {
-  if (newTab && newTab !== currentTab.value) {
-    currentTab.value = newTab
-  }
-})
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab && newTab !== currentTab.value) {
+      currentTab.value = newTab
+    }
+  },
+)
 
 watch(
   endDate,
@@ -231,10 +234,7 @@ async function loadNegotiationsData() {
 
   negotiationsLoading.value = true
   try {
-    await Promise.all([
-      loadNegotiationStates(),
-      retrieveLatestNegotiations(0)
-    ])
+    await Promise.all([loadNegotiationStates(), retrieveLatestNegotiations(0)])
     negotiationsLoaded.value = true
   } catch (error) {
     console.error('Error loading negotiations data:', error)
