@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,5 +22,18 @@ public class OrganizationWithResourcesDTO extends OrganizationDTO {
 
   public void addResource(ResourceWithRepsDTO resource) {
     resources.add(resource);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    OrganizationWithResourcesDTO that = (OrganizationWithResourcesDTO) o;
+    return Objects.equals(resources, that.resources);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), resources);
   }
 }
