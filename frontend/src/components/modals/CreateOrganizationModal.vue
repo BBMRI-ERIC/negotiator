@@ -10,7 +10,12 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" :id="`${modalId}Label`">Create New Organization</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="handleSubmit">
@@ -64,7 +69,9 @@
                 :class="{ 'is-invalid': errors.contactEmail }"
                 placeholder="contact@example.com"
               />
-              <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
+              <div v-if="errors.contactEmail" class="invalid-feedback">
+                {{ errors.contactEmail }}
+              </div>
             </div>
 
             <div class="mb-3">
@@ -89,7 +96,11 @@
             @click="handleSubmit"
             :disabled="isSubmitting"
           >
-            <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <span
+              v-if="isSubmitting"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            ></span>
             {{ isSubmitting ? 'Creating...' : 'Create Organization' }}
           </button>
         </div>
@@ -104,12 +115,12 @@ import { ref, reactive, watch } from 'vue'
 const props = defineProps({
   modalId: {
     type: String,
-    required: true
+    required: true,
   },
   shown: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['create', 'close'])
@@ -123,15 +134,18 @@ const formData = reactive({
   description: '',
   contactEmail: '',
   uri: '',
-  withdrawn: false
+  withdrawn: false,
 })
 
 // Reset form when modal is closed
-watch(() => props.shown, (newShown) => {
-  if (!newShown) {
-    resetForm()
-  }
-})
+watch(
+  () => props.shown,
+  (newShown) => {
+    if (!newShown) {
+      resetForm()
+    }
+  },
+)
 
 const resetForm = () => {
   formData.name = ''
@@ -184,7 +198,7 @@ const handleSubmit = async () => {
       description: formData.description?.trim() || null,
       contactEmail: formData.contactEmail?.trim() || null,
       uri: formData.uri?.trim() || null,
-      withdrawn: formData.withdrawn
+      withdrawn: formData.withdrawn,
     }
 
     emit('create', createData)

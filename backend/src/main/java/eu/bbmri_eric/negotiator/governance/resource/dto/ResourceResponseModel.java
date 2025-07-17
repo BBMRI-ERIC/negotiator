@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
-import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import lombok.Getter;
@@ -38,8 +37,6 @@ public class ResourceResponseModel {
   @Schema(description = "URI of the resource", example = "https://resource.org")
   private String uri;
 
-  private OrganizationDTO organization;
-
   public ResourceResponseModel(Long id, String sourceId, String name) {
     this.id = id;
     this.sourceId = sourceId;
@@ -63,8 +60,7 @@ public class ResourceResponseModel {
       String description,
       String contactEmail,
       boolean withdrawn,
-      String uri,
-      OrganizationDTO organization) {
+      String uri) {
     this.id = id;
     this.sourceId = sourceId;
     this.name = name;
@@ -72,7 +68,6 @@ public class ResourceResponseModel {
     this.contactEmail = contactEmail;
     this.withdrawn = withdrawn;
     this.uri = uri;
-    this.organization = organization;
   }
 
   @Override
@@ -85,13 +80,11 @@ public class ResourceResponseModel {
         && Objects.equals(name, that.name)
         && Objects.equals(description, that.description)
         && Objects.equals(contactEmail, that.contactEmail)
-        && Objects.equals(uri, that.uri)
-        && Objects.equals(organization, that.organization);
+        && Objects.equals(uri, that.uri);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        id, sourceId, name, description, contactEmail, withdrawn, uri, organization);
+    return Objects.hash(id, sourceId, name, description, contactEmail, withdrawn, uri);
   }
 }

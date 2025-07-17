@@ -241,7 +241,7 @@ public class OrganizationControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$._embedded").exists())
-            .andExpect(jsonPath("$._embedded.length()", is(1)))
+        .andExpect(jsonPath("$._embedded.length()", is(1)))
         .andExpect(jsonPath("$.page").exists());
   }
 
@@ -271,7 +271,9 @@ public class OrganizationControllerTest {
   @WithUserDetails("admin")
   void getOrganizations_combinedFilters_ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?name=Biobank&withdrawn=false&page=0&size=10"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                ORGANIZATIONS_ENDPOINT + "?name=Biobank&withdrawn=false&page=0&size=10"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$._embedded").exists())
@@ -303,5 +305,47 @@ public class OrganizationControllerTest {
         .andExpect(jsonPath("$._embedded").exists())
         .andExpect(jsonPath("$.page").exists())
         .andExpect(jsonPath("$.page.totalElements").isNumber());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizationById_withResourceExpansion_ok() throws Exception {
+    // Get the first organization from the repository
+    Optional<Organization> firstOrg = organizationRepository.findAll().stream().findFirst();
+    assert firstOrg.isPresent();
+    Long orgId = firstOrg.get().getId();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "/" + orgId + "?expand=resources"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.id", is(orgId.intValue())))
+        .andExpect(jsonPath("$.name").exists())
+        .andExpect(jsonPath("$.externalId").exists())
+        .andExpect(jsonPath("$.description").exists())
+        .andExpect(jsonPath("$.resources").exists())
+        .andExpect(jsonPath("$.resources").isArray())
+        .andExpect(jsonPath("$._links.self").exists());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizationById_withoutResourceExpansion_ok() throws Exception {
+    // Get the first organization from the repository
+    Optional<Organization> firstOrg = organizationRepository.findAll().stream().findFirst();
+    assert firstOrg.isPresent();
+    Long orgId = firstOrg.get().getId();
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "/" + orgId))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.id", is(orgId.intValue())))
+        .andExpect(jsonPath("$.name").exists())
+        .andExpect(jsonPath("$.externalId").exists())
+        .andExpect(jsonPath("$.description").exists())
+        .andExpect(jsonPath("$.resources").doesNotExist())
+        .andExpect(jsonPath("$._links.self").exists());
   }
 }

@@ -25,7 +25,7 @@ public class OrganizationModelAssembler
     return EntityModel.of(entity)
         .add(
             WebMvcLinkBuilder.linkTo(
-                    methodOn(OrganizationController.class).findById(entity.getId()))
+                    methodOn(OrganizationController.class).findById(entity.getId(), null))
                 .withSelfRel(),
             linkTo(OrganizationController.class).withRel("organizations"));
   }

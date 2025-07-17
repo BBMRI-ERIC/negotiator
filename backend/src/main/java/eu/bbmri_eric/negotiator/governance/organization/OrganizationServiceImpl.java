@@ -2,8 +2,10 @@ package eu.bbmri_eric.negotiator.governance.organization;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.organization.dto.OrganizationFilterDTO;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
@@ -11,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @CommonsLog
@@ -26,10 +27,14 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public OrganizationDTO findOrganizationById(Long id) {
-    return modelMapper.map(
-        organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        OrganizationDTO.class);
+  @Transactional
+  public OrganizationDTO findOrganizationById(Long id, String expand) {
+    Organization organization =
+        organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    if (Objects.equals(expand, "resources")) {
+      return modelMapper.map(organization, OrganizationWithResourcesDTO.class);
+    }
+    return modelMapper.map(organization, OrganizationDTO.class);
   }
 
   @Override

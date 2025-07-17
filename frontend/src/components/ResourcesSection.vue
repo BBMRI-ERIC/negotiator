@@ -43,13 +43,11 @@
               <td>{{ resource.name }}</td>
               <td>{{ resource.sourceId }}</td>
               <td>
-                <span
-                  :class="resource.withdrawn ? 'badge bg-danger' : 'badge bg-success'"
-                >
+                <span :class="resource.withdrawn ? 'badge bg-danger' : 'badge bg-success'">
                   {{ resource.withdrawn ? 'Withdrawn' : 'Active' }}
                 </span>
               </td>
-              <td> {{ resource.organization.name }}</td>
+              <td>{{ resource.organization.name }}</td>
               <td>
                 <button
                   class="btn btn-sm btn-outline-primary"
@@ -65,11 +63,7 @@
 
         <!-- Pagination -->
         <div class="pagination">
-          <button
-            @click="previousPage"
-            :disabled="pageNumber === 0 || loading"
-            class="page-button"
-          >
+          <button @click="previousPage" :disabled="pageNumber === 0 || loading" class="page-button">
             ‹ Prev
           </button>
           <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
@@ -146,7 +140,11 @@ onMounted(() => {
 async function loadResources(name = '') {
   loading.value = true
   try {
-    const response = await adminStore.retrieveResourcesPaginated(name, pageNumber.value, pageSize.value)
+    const response = await adminStore.retrieveResourcesPaginated(
+      name,
+      pageNumber.value,
+      pageSize.value,
+    )
     resources.value = response?._embedded?.resources ?? []
     pageLinks.value = response._links || {}
     pageNumber.value = response.page?.number ?? 0
@@ -216,7 +214,7 @@ const handleResourceUpdate = async ({ resourceId, updateData }) => {
     loading.value = true
 
     // Call the update method from the store
-    const updatedResource = await adminStore.updateResource(resourceId, updateData)
+    await adminStore.updateResource(resourceId, updateData)
 
     // Update the local resources array with the updated data
     const index = resources.value.findIndex((res) => res.id === resourceId)
