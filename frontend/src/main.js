@@ -13,7 +13,7 @@ import Vue3Tour from 'vue3-tour'
 import 'vue3-tour/dist/vue3-tour.css'
 import { useOidcStore } from './store/oidc'
 import { piniaOidcCreateRouterMiddleware } from 'pinia-oidc'
-import VueDOMPurifyHTML from 'vue-dompurify-html';
+import VueDOMPurifyHTML from 'vue-dompurify-html'
 import('./assets/scss/theme.scss')
 
 library.add(faSpinner)
@@ -35,11 +35,10 @@ app.use(router)
 app.use(pinia)
 app.use(Vue3Tour)
 app.use(VueDOMPurifyHTML, {
-    default: {
-          USE_PROFILES: { html: false },
-      },
+  default: {
+    USE_PROFILES: { html: false },
   },
-)
+})
 
 router.beforeEach(piniaOidcCreateRouterMiddleware(useOidcStore()))
 

@@ -23,7 +23,9 @@
         >
           Test
         </button>
-        <button class="btn btn-primary btn-sm me-2" @click.stop="$emit('edit', webhook)">Edit</button>
+        <button class="btn btn-primary btn-sm me-2" @click.stop="$emit('edit', webhook)">
+          Edit
+        </button>
         <button class="btn btn-danger btn-sm" @click.stop="$emit('delete', webhook)">Delete</button>
       </div>
     </div>
@@ -34,8 +36,8 @@
 defineProps({
   webhook: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const getStatusIcon = (webhook) => {
@@ -82,5 +84,4 @@ const getLastDeliveryStatus = (webhook) => {
     transform: rotate(360deg);
   }
 }
-
 </style>

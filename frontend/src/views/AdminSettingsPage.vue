@@ -80,7 +80,7 @@ onMounted(async () => {
     resourceAllEvents.value = await adminStore.retrieveResourceAllEvents()
     infoRequirements.value = await adminStore.retrieveInfoRequirements()
     accessForms.value = await formsStore.retrieveAllAccessForms()
-    users.value = await adminStore.retrieveUsers() || []
+    users.value = (await adminStore.retrieveUsers()) || []
     const freshWebhooks = await adminStore.retrieveWebhooks()
     webhooks.value = freshWebhooks || []
   } catch (error) {
@@ -130,7 +130,7 @@ const confirmDeleteWebhook = async () => {
   try {
     isLoading.value = true
     await adminStore.deleteWebhook(webhookToDelete.value.id)
-    webhooks.value = await adminStore.retrieveWebhooks() || []
+    webhooks.value = (await adminStore.retrieveWebhooks()) || []
     notifications.setNotification('Webhook deleted successfully')
   } catch (error) {
     console.error('Error deleting webhook:', error)

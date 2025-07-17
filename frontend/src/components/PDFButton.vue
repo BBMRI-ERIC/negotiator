@@ -7,7 +7,7 @@
         color: uiConfigurationTheme.primaryTextColor,
         '--hoverColor': uiConfigurationTheme?.secondaryTextColor,
       }"
-    ><i class="bi bi-filetype-pdf" /> Download PDF</a
+      ><i class="bi bi-filetype-pdf" /> Download PDF</a
     >
   </div>
 </template>
@@ -21,8 +21,8 @@ import { useNotificationsStore } from '../store/notifications'
 const props = defineProps({
   negotiationPdfData: {
     type: Object,
-    default: undefined
-  }
+    default: undefined,
+  },
 })
 
 const uiConfigurationStore = useUiConfiguration()
@@ -44,17 +44,17 @@ async function retrievePDF() {
       const link = document.createElement('a')
       link.href = URL.createObjectURL(pdfBlob)
       link.download = `Negotiation_${props.negotiationPdfData.id}.pdf`
-      document.body.appendChild(link);
+      document.body.appendChild(link)
       link.click()
-      document.body.removeChild(link);
+      document.body.removeChild(link)
 
       URL.revokeObjectURL(link.href)
 
-      notificationsStore.setNotification('File successfully saved', 'success');
+      notificationsStore.setNotification('File successfully saved', 'success')
       loadingPdf.value = false
     } catch (error) {
       console.error('Error retrieving or saving the PDF:', error)
-      notificationsStore.setNotification('Error saving file', 'warning');
+      notificationsStore.setNotification('Error saving file', 'warning')
       loadingPdf.value = false
     }
   }

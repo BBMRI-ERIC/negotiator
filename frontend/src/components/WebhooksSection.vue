@@ -5,10 +5,14 @@
       <button class="btn btn-success" @click="addWebhook">Add Webhook</button>
     </div>
     <div class="text-muted mb-3">
-      Webhooks allow external services to be notified when certain events happen. When the specified events occur, we
-      send a POST request to each URL provided. Learn more in our
-      <a href="https://bbmri-eric.github.io/negotiator/administrator#webhooks" target="_blank"
-         rel="noopener noreferrer">Webhooks Documentation</a>.
+      Webhooks allow external services to be notified when certain events happen. When the specified
+      events occur, we send a POST request to each URL provided. Learn more in our
+      <a
+        href="https://bbmri-eric.github.io/negotiator/administrator#webhooks"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Webhooks Documentation</a
+      >.
     </div>
 
     <div class="container mt-4">
@@ -32,8 +36,8 @@ const emit = defineEmits(['add-webhook', 'edit-webhook', 'delete-webhook'])
 defineProps({
   webhooks: {
     type: Array,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const addWebhook = () => {

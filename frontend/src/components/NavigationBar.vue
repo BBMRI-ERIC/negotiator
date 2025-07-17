@@ -65,10 +65,10 @@
             <a
               id="networksDropdown"
               :style="{
-      color: $route.path.startsWith('/networks')
-        ? uiConfiguration?.navbarActiveTextColor
-        : uiConfiguration?.navbarTextColor,
-    }"
+                color: $route.path.startsWith('/networks')
+                  ? uiConfiguration?.navbarActiveTextColor
+                  : uiConfiguration?.navbarTextColor,
+              }"
               class="nav-link active nav-option dropdown-toggle"
               href="#"
               role="button"
@@ -87,16 +87,13 @@
           </li>
 
           <!-- Single network display as clickable -->
-          <li
-            v-else-if="showNetworksTab && networks.length === 1"
-            class="nav-item"
-          >
+          <li v-else-if="showNetworksTab && networks.length === 1" class="nav-item">
             <a
               :style="{
-      color: $route.path.startsWith('/networks')
-        ? uiConfiguration?.navbarActiveTextColor
-        : uiConfiguration?.navbarTextColor,
-    }"
+                color: $route.path.startsWith('/networks')
+                  ? uiConfiguration?.navbarActiveTextColor
+                  : uiConfiguration?.navbarTextColor,
+              }"
               class="nav-link active nav-option"
               href="#"
               @click="selectNetwork(networks[0].id)"
