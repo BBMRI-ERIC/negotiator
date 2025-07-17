@@ -207,6 +207,31 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
+  function retrieveOrganizationsPaginated(page = 0, size = 20) {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting organizations data from server')
+        return { _embedded: { organizations: [] }, page: { number: 0, totalPages: 0, totalElements: 0 }, _links: {} }
+      })
+  }
+
+  function updateOrganization(id, data) {
+    return axios
+      .put(`${apiPaths.BASE_API_PATH}/organizations/${id}`, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Organization updated successfully')
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error updating organization', 'error')
+        throw new Error('Failed to update organization')
+      })
+  }
+
   return {
     retrieveResourceAllEvents,
     setInfoRequirements,
@@ -223,5 +248,7 @@ export const useAdminStore = defineStore('admin', () => {
     retrieveResourcesPaginated,
     fetchResourcesPage,
     updateResource,
+    retrieveOrganizationsPaginated,
+    updateOrganization,
   }
 })

@@ -11,5 +11,5 @@ public interface OrganizationService {
 
   Iterable<OrganizationDTO> addOrganizations(Iterable<OrganizationCreateDTO> organizations);
 
-  OrganizationDTO updateOrganizationById(Long id, OrganizationCreateDTO organization);
+  OrganizationDTO updateOrganizationById(Long id, OrganizationUpdateDTO organization);
 }

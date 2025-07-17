@@ -13,6 +13,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,13 +63,14 @@ public class OrganizationController {
         organizationService.addOrganizations(organizations));
   }
 
-  @PutMapping(
+  @PatchMapping(
       value = "/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaTypes.HAL_JSON_VALUE)
   @Operation(summary = "Updates an organization by id")
   public EntityModel<OrganizationDTO> updateById(
-      @PathVariable("id") Long id, @Valid @RequestBody OrganizationCreateDTO organization) {
+      @PathVariable("id") Long id, @RequestBody @Valid OrganizationUpdateDTO organization) {
+    System.out.println("here");
     return organizationModelAssembler.toModel(
         organizationService.updateOrganizationById(id, organization));
   }
