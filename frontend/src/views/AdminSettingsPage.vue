@@ -21,6 +21,10 @@
     <EmailNotificationsSection @view-email="viewEmailDetails" />
     <hr />
     <UserListSection :users="users" />
+    <hr />
+    <div class="mt-4">
+      <ResourcesSection />
+    </div>
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -52,6 +56,7 @@ import InformationRequirementsSection from '@/components/InformationRequirements
 import WebhooksSection from '@/components/WebhooksSection.vue'
 import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
 import UserListSection from '@/components/UserListSection.vue'
+import ResourcesSection from '@/components/ResourcesSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
