@@ -33,7 +33,6 @@
             <tr>
               <th>Resource Name</th>
               <th>Resource ID</th>
-              <th>Organization</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -42,7 +41,6 @@
             <tr v-for="resource in resources" :key="resource.id">
               <td>{{ resource.name }}</td>
               <td>{{ resource.sourceId }}</td>
-              <td>{{ resource.organization?.name || 'Unknown Organization' }}</td>
               <td>
                 <span
                   :class="resource.withdrawn ? 'badge bg-danger' : 'badge bg-success'"
