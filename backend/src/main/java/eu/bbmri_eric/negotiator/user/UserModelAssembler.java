@@ -90,13 +90,36 @@ public class UserModelAssembler
     return links;
   }
 
-  public PagedModel<EntityModel<UserResponseModel>> toPagedModel(Page<UserResponseModel> page) {
-    List<Link> links = getLinks(page);
-    return PagedModel.of(
-        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
-        new PagedModel.PageMetadata(
-            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
-        links);
+  @NonNull
+  private static List<Link> getLinks(Page<UserResponseModel> page, UserFilterDTO filters) {
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("filter", null);
+    List<Link> links = new ArrayList<>();
+    if (page.hasPrevious()) {
+      links.add(
+          linkTo(methodOn(UserController.class).listUsers(filters))
+              .withRel(IanaLinkRelations.PREVIOUS)
+              .expand(parameters));
+    }
+    if (page.hasNext()) {
+      links.add(
+          linkTo(methodOn(UserController.class).listUsers(filters))
+              .withRel(IanaLinkRelations.NEXT)
+              .expand(parameters));
+    }
+    links.add(
+        linkTo(methodOn(UserController.class).listUsers(filters))
+            .withRel("first")
+            .expand(parameters));
+    links.add(
+        linkTo(methodOn(UserController.class).listUsers(filters))
+            .withRel(IanaLinkRelations.CURRENT)
+            .expand());
+    links.add(
+        linkTo(methodOn(UserController.class).listUsers(filters))
+            .withRel(IanaLinkRelations.LAST)
+            .expand(parameters));
+    return links;
   }
 
   public PagedModel<EntityModel<UserResponseModel>> toPagedModel(UserResponseModel entity) {
@@ -111,41 +134,13 @@ public class UserModelAssembler
             page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()));
   }
 
-  @NonNull
-  private static List<Link> getLinks(Page<UserResponseModel> page) {
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("filter", null);
-    List<Link> links = new ArrayList<>();
-    if (page.hasPrevious()) {
-      links.add(
-          linkTo(
-                  methodOn(UserController.class)
-                      .listUsers(null, page.getNumber() - 1, page.getSize()))
-              .withRel(IanaLinkRelations.PREVIOUS)
-              .expand(parameters));
-    }
-    if (page.hasNext()) {
-      links.add(
-          linkTo(
-                  methodOn(UserController.class)
-                      .listUsers(null, page.getNumber() + 1, page.getSize()))
-              .withRel(IanaLinkRelations.NEXT)
-              .expand(parameters));
-    }
-    links.add(
-        linkTo(methodOn(UserController.class).listUsers(null, 0, page.getSize()))
-            .withRel("first")
-            .expand(parameters));
-    links.add(
-        linkTo(methodOn(UserController.class).listUsers(null, page.getNumber(), page.getSize()))
-            .withRel(IanaLinkRelations.CURRENT)
-            .expand());
-    links.add(
-        linkTo(
-                methodOn(UserController.class)
-                    .listUsers(null, page.getTotalPages() - 1, page.getSize()))
-            .withRel(IanaLinkRelations.LAST)
-            .expand(parameters));
-    return links;
+  public PagedModel<EntityModel<UserResponseModel>> toPagedModel(
+      Page<UserResponseModel> page, UserFilterDTO filters) {
+    List<Link> links = getLinks(page, filters);
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+        new PagedModel.PageMetadata(
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
+        links);
   }
 }

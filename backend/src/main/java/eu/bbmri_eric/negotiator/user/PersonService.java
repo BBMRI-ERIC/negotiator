@@ -1,8 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.UnsupportedFilterException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongSortingPropertyException;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.util.List;
 import java.util.Set;
@@ -19,24 +17,31 @@ public interface PersonService {
   UserResponseModel findById(Long id) throws EntityNotFoundException;
 
   /**
-   * Retrieves all UserResponseModels that match the specified filter criteria.
-   *
-   * @param property the property to filter on
-   * @param matchedValue the value that must be matched
-   * @return an Iterable of UserResponseModel objects that match the filter criteria
-   */
-  Iterable<UserResponseModel> findAllByFilter(
-      String property, String matchedValue, int page, int size) throws UnsupportedFilterException;
-
-  /**
    * Retrieves a page of people.
    *
-   * @param page the page to retrieve.
-   * @param size the size of the page.
    * @return a page of people.
    */
-  Iterable<UserResponseModel> findAll(int page, int size);
+  Iterable<UserResponseModel> findAllByFilters(UserFilterDTO filters);
 
+  //  /**
+  //   * Retrieves a page of people.
+  //   *
+  //   * @param page the page to retrieve.
+  //   * @param size the size of the page.
+  //   * @return a page of people.
+  //   */
+  //  Iterable<UserResponseModel> findAll(int page, int size);
+  //
+  //  /**
+  //   * Retrieves page of people from a sorted list.
+  //   *
+  //   * @param page the page to retrieve.
+  //   * @param size the size of the page.
+  //   * @param sort the property to sort by.
+  //   * @return a page of people.
+  //   */
+  //  Iterable<UserResponseModel> findAll(int page, int size, String sort)
+  //      throws WrongSortingPropertyException;
   List<UserResponseModel> findAllByOrganizationId(Long id);
 
   /**
