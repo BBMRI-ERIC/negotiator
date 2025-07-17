@@ -81,7 +81,8 @@ public class ResourceControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is(resource.getId().intValue())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())));
+        .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())))
+    .andExpect(jsonPath("$.organization.name", is(resource.getOrganization().getName())));
   }
 
   @Test

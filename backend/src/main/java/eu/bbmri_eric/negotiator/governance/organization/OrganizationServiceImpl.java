@@ -4,12 +4,15 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@CommonsLog
 public class OrganizationServiceImpl implements OrganizationService {
   OrganizationRepository organizationRepository;
   ModelMapper modelMapper;
@@ -58,11 +61,16 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public OrganizationDTO updateOrganizationById(Long id, OrganizationCreateDTO organization) {
-    Organization org =
+  @Transactional
+  public OrganizationDTO updateOrganizationById(Long id, OrganizationUpdateDTO updateDTO) {
+    Organization organization =
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    modelMapper.map(organization, org);
-    Organization updatedOrganization = organizationRepository.save(org);
-    return modelMapper.map(updatedOrganization, OrganizationDTO.class);
+    System.out.println(updateDTO.toString());
+    modelMapper.getConfiguration().setSkipNullEnabled(true);
+    modelMapper.typeMap(OrganizationUpdateDTO.class, Organization.class)
+        .addMappings(mapper -> mapper.skip(Organization::setId));
+    modelMapper.map(updateDTO, organization);
+    organization = organizationRepository.save(organization);
+    return modelMapper.map(organization, OrganizationDTO.class);
   }
 }

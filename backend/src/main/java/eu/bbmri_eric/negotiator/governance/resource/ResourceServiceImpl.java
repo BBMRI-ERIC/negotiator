@@ -250,3 +250,4 @@ public class ResourceServiceImpl implements ResourceService {
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 }
+

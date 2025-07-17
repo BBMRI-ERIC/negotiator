@@ -1,22 +1,11 @@
 <template>
-  <div class="resources-section">
+  <div class="organizations-section">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-left">Resources</h2>
+      <h2 class="text-left">Organizations</h2>
     </div>
 
-    <!-- Search Input -->
-    <div class="search-container mb-3">
-      <input
-        v-model="searchQuery"
-        type="text"
-        class="form-control search-input"
-        placeholder="Search by resource name..."
-        @input="debouncedSearch"
-      />
-    </div>
-
-    <div v-if="resources.length === 0 && !loading" class="text-muted mb-3">
-      {{ searchQuery ? 'No resources found matching your search.' : 'No resources found.' }}
+    <div v-if="organizations.length === 0 && !loading" class="text-muted mb-3">
+      No organizations found.
     </div>
 
     <div v-else class="table-container">
@@ -31,29 +20,29 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Resource Name</th>
-              <th>Resource ID</th>
+              <th>Organization Name</th>
+              <th>External ID</th>
+              <th>Contact Email</th>
               <th>Status</th>
-              <th>Organization</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="resource in resources" :key="resource.id">
-              <td>{{ resource.name }}</td>
-              <td>{{ resource.sourceId }}</td>
+            <tr v-for="organization in organizations" :key="organization.id">
+              <td>{{ organization.name }}</td>
+              <td>{{ organization.externalId }}</td>
+              <td>{{ organization.contactEmail || 'N/A' }}</td>
               <td>
                 <span
-                  :class="resource.withdrawn ? 'badge bg-danger' : 'badge bg-success'"
+                  :class="organization.withdrawn ? 'badge bg-danger' : 'badge bg-success'"
                 >
-                  {{ resource.withdrawn ? 'Withdrawn' : 'Active' }}
+                  {{ organization.withdrawn ? 'Withdrawn' : 'Active' }}
                 </span>
               </td>
-              <td> {{ resource.organization.name }}</td>
               <td>
                 <button
                   class="btn btn-sm btn-outline-primary"
-                  @click="editResource(resource)"
+                  @click="editOrganization(organization)"
                   :disabled="loading"
                 >
                   <i class="bi bi-pencil"></i> Edit
@@ -93,12 +82,12 @@
       </div>
     </div>
 
-    <!-- Edit Resource Modal -->
-    <EditResourceModal
-      modal-id="editResourceModal"
-      :resource="selectedResource"
+    <!-- Edit Organization Modal -->
+    <EditOrganizationModal
+      modal-id="editOrganizationModal"
+      :organization="selectedOrganization"
       :shown="showEditModal"
-      @update="handleResourceUpdate"
+      @update="handleOrganizationUpdate"
       @close="closeEditModal"
     />
   </div>
@@ -108,53 +97,36 @@
 import { onMounted, ref } from 'vue'
 import { Modal } from 'bootstrap'
 import { useAdminStore } from '@/store/admin'
-import EditResourceModal from '@/components/modals/EditResourceModal.vue'
+import EditOrganizationModal from '@/components/modals/EditOrganizationModal.vue'
 
 const adminStore = useAdminStore()
 
-const resources = ref([])
+const organizations = ref([])
 const loading = ref(true)
 const pageNumber = ref(0)
 const totalPages = ref(0)
 const totalElements = ref(0)
 const pageLinks = ref({})
-const searchQuery = ref('')
 const pageSize = ref(20)
-const selectedResource = ref(null)
+const selectedOrganization = ref(null)
 const showEditModal = ref(false)
 
-// Debounce timeout reference
-let searchTimeout = null
-
-const debouncedSearch = () => {
-  // Clear previous timeout
-  if (searchTimeout) {
-    clearTimeout(searchTimeout)
-  }
-
-  // Set new timeout for 500ms delay
-  searchTimeout = setTimeout(() => {
-    pageNumber.value = 0
-    loadResources(searchQuery.value)
-  }, 500)
-}
-
 onMounted(() => {
-  loadResources()
+  loadOrganizations()
 })
 
-async function loadResources(name = '') {
+async function loadOrganizations() {
   loading.value = true
   try {
-    const response = await adminStore.retrieveResourcesPaginated(name, pageNumber.value, pageSize.value)
-    resources.value = response?._embedded?.resources ?? []
+    const response = await adminStore.retrieveOrganizationsPaginated(pageNumber.value, pageSize.value)
+    organizations.value = response?._embedded?.organizations ?? []
     pageLinks.value = response._links || {}
     pageNumber.value = response.page?.number ?? 0
     totalPages.value = response.page?.totalPages ?? 0
     totalElements.value = response.page?.totalElements ?? 0
   } catch (error) {
-    console.error('Error loading resources:', error)
-    resources.value = []
+    console.error('Error loading organizations:', error)
+    organizations.value = []
   } finally {
     loading.value = false
   }
@@ -163,14 +135,14 @@ async function loadResources(name = '') {
 const previousPage = () => {
   if (pageNumber.value > 0) {
     pageNumber.value -= 1
-    loadResources(searchQuery.value)
+    loadOrganizations()
   }
 }
 
 const nextPage = () => {
   if (pageNumber.value < totalPages.value - 1) {
     pageNumber.value += 1
-    loadResources(searchQuery.value)
+    loadOrganizations()
   }
 }
 
@@ -182,15 +154,15 @@ const resetPage = () => {
     pageSize.value = 100
   }
   pageNumber.value = 0
-  loadResources(searchQuery.value)
+  loadOrganizations()
 }
 
-const editResource = (resource) => {
-  selectedResource.value = { ...resource }
+const editOrganization = (organization) => {
+  selectedOrganization.value = { ...organization }
   showEditModal.value = true
 
   // Use Bootstrap modal to show the modal
-  const modalElement = document.getElementById('editResourceModal')
+  const modalElement = document.getElementById('editOrganizationModal')
   if (modalElement) {
     const modal = new Modal(modalElement)
     modal.show()
@@ -199,10 +171,10 @@ const editResource = (resource) => {
 
 const closeEditModal = () => {
   showEditModal.value = false
-  selectedResource.value = null
+  selectedOrganization.value = null
 
   // Hide the Bootstrap modal
-  const modalElement = document.getElementById('editResourceModal')
+  const modalElement = document.getElementById('editOrganizationModal')
   if (modalElement) {
     const modal = Modal.getInstance(modalElement)
     if (modal) {
@@ -211,23 +183,33 @@ const closeEditModal = () => {
   }
 }
 
-const handleResourceUpdate = async ({ resourceId, updateData }) => {
+const handleOrganizationUpdate = async ({ organizationId, updateData }) => {
   try {
     loading.value = true
 
-    // Call the update method from the store
-    const updatedResource = await adminStore.updateResource(resourceId, updateData)
+    console.log('Frontend: Updating organization with ID:', organizationId)
+    console.log('Frontend: Update data being sent:', JSON.stringify(updateData, null, 2))
 
-    // Update the local resources array with the updated data
-    const index = resources.value.findIndex((res) => res.id === resourceId)
+    // Call the update method from the store
+    const updatedOrganization = await adminStore.updateOrganization(organizationId, updateData)
+
+    console.log('Frontend: Update successful, response:', updatedOrganization)
+
+    // Update the local organizations array with the updated data
+    const index = organizations.value.findIndex((org) => org.id === organizationId)
     if (index !== -1) {
-      // Merge the update data with the existing resource
-      resources.value[index] = { ...resources.value[index], ...updateData }
+      // Merge the update data with the existing organization
+      organizations.value[index] = { ...organizations.value[index], ...updateData }
     }
 
     closeEditModal()
   } catch (error) {
-    console.error('Error updating resource:', error)
+    console.error('Frontend: Error updating organization:', error)
+    console.error('Frontend: Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    })
   } finally {
     loading.value = false
   }
@@ -235,7 +217,7 @@ const handleResourceUpdate = async ({ resourceId, updateData }) => {
 </script>
 
 <style scoped>
-.resources-section {
+.organizations-section {
   background: #ffffff;
 }
 
@@ -243,22 +225,6 @@ const handleResourceUpdate = async ({ resourceId, updateData }) => {
   font-size: 1rem;
   color: #6c757d;
   margin-bottom: 1rem;
-}
-
-.search-container {
-  max-width: 400px;
-}
-
-.search-input {
-  font-size: 0.95rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e8ecef;
-  border-radius: 0.375rem;
-}
-
-.search-input:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
 .table-container {

@@ -25,6 +25,10 @@
     <div class="mt-4">
       <ResourcesSection />
     </div>
+    <hr />
+    <div class="mt-4">
+      <OrganizationsSection />
+    </div>
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -57,6 +61,7 @@ import WebhooksSection from '@/components/WebhooksSection.vue'
 import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
 import UserListSection from '@/components/UserListSection.vue'
 import ResourcesSection from '@/components/ResourcesSection.vue'
+import OrganizationsSection from '@/components/OrganizationsSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
