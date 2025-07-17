@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
-import com.github.dockerjava.api.exception.InternalServerErrorException;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
@@ -250,4 +249,3 @@ public class ResourceServiceImpl implements ResourceService {
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 }
-
