@@ -4,8 +4,19 @@
       <h2 class="text-left">Organizations</h2>
     </div>
 
+    <!-- Search Input -->
+    <div class="search-container mb-3">
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="form-control search-input"
+        placeholder="Search by organization name..."
+        @input="debouncedSearch"
+      />
+    </div>
+
     <div v-if="organizations.length === 0 && !loading" class="text-muted mb-3">
-      No organizations found.
+      {{ searchQuery ? 'No organizations found matching your search.' : 'No organizations found.' }}
     </div>
 
     <div v-else class="table-container">
@@ -110,15 +121,32 @@ const pageLinks = ref({})
 const pageSize = ref(20)
 const selectedOrganization = ref(null)
 const showEditModal = ref(false)
+const searchQuery = ref('')
+
+// Debounce timeout reference
+let searchTimeout = null
+
+const debouncedSearch = () => {
+  // Clear previous timeout
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+
+  // Set new timeout for 500ms delay
+  searchTimeout = setTimeout(() => {
+    pageNumber.value = 0
+    loadOrganizations(searchQuery.value)
+  }, 500)
+}
 
 onMounted(() => {
   loadOrganizations()
 })
 
-async function loadOrganizations() {
+async function loadOrganizations(name = '') {
   loading.value = true
   try {
-    const response = await adminStore.retrieveOrganizationsPaginated(pageNumber.value, pageSize.value)
+    const response = await adminStore.retrieveOrganizationsPaginated(pageNumber.value, pageSize.value, name)
     organizations.value = response?._embedded?.organizations ?? []
     pageLinks.value = response._links || {}
     pageNumber.value = response.page?.number ?? 0
@@ -135,14 +163,14 @@ async function loadOrganizations() {
 const previousPage = () => {
   if (pageNumber.value > 0) {
     pageNumber.value -= 1
-    loadOrganizations()
+    loadOrganizations(searchQuery.value)
   }
 }
 
 const nextPage = () => {
   if (pageNumber.value < totalPages.value - 1) {
     pageNumber.value += 1
-    loadOrganizations()
+    loadOrganizations(searchQuery.value)
   }
 }
 
@@ -154,7 +182,7 @@ const resetPage = () => {
     pageSize.value = 100
   }
   pageNumber.value = 0
-  loadOrganizations()
+  loadOrganizations(searchQuery.value)
 }
 
 const editOrganization = (organization) => {
@@ -322,5 +350,21 @@ const handleOrganizationUpdate = async ({ organizationId, updateData }) => {
 .btn-outline-primary:hover {
   background-color: #0d6efd;
   color: #ffffff;
+}
+
+.search-container {
+  max-width: 400px;
+}
+
+.search-input {
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e8ecef;
+  border-radius: 0.375rem;
+}
+
+.search-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 </style>

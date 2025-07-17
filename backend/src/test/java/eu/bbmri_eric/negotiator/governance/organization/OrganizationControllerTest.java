@@ -271,7 +271,7 @@ public class OrganizationControllerTest {
   @WithUserDetails("admin")
   void getOrganizations_combinedFilters_ok() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?name=Biobank #1&withdrawn=false&page=0&size=10"))
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?name=Biobank&withdrawn=false&page=0&size=10"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
         .andExpect(jsonPath("$._embedded").exists())

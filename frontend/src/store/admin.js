@@ -207,9 +207,16 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
-  function retrieveOrganizationsPaginated(page = 0, size = 20) {
+  function retrieveOrganizationsPaginated(page = 0, size = 20, name = '') {
+    let url = `${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`
+
+    // Only add name parameter if it's a non-empty string after trimming
+    if (name && name.trim()) {
+      url += `&name=${encodeURIComponent(name.trim())}`
+    }
+
     return axios
-      .get(`${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`, { headers: getBearerHeaders() })
+      .get(url, { headers: getBearerHeaders() })
       .then((response) => {
         return response.data
       })
@@ -221,7 +228,7 @@ export const useAdminStore = defineStore('admin', () => {
 
   function updateOrganization(id, data) {
     return axios
-      .put(`${apiPaths.BASE_API_PATH}/organizations/${id}`, data, { headers: getBearerHeaders() })
+      .patch(`${apiPaths.BASE_API_PATH}/organizations/${id}`, data, { headers: getBearerHeaders() })
       .then((response) => {
         notifications.setNotification('Organization updated successfully')
         return response.data
