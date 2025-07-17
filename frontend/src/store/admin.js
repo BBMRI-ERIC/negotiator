@@ -239,6 +239,23 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
+  function createOrganization(data) {
+    // The API expects an array of organizations, so wrap the single organization in an array
+    const organizationsArray = [data]
+
+    return axios
+      .post(`${apiPaths.BASE_API_PATH}/organizations`, organizationsArray, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Organization created successfully')
+        // The API returns a collection, so extract the first (and only) organization
+        return response.data._embedded?.organizations?.[0] || response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Error creating organization', 'error')
+        throw error
+      })
+  }
+
   return {
     retrieveResourceAllEvents,
     setInfoRequirements,
@@ -257,5 +274,6 @@ export const useAdminStore = defineStore('admin', () => {
     updateResource,
     retrieveOrganizationsPaginated,
     updateOrganization,
+    createOrganization,
   }
 })
