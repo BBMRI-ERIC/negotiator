@@ -174,36 +174,7 @@ const sort = ref({
   field: 'sentAt',
   direction: 'desc',
 })
-computed(() => {
-  const total = pagination.value.totalPages
-  const current = pagination.value.number
-  const delta = 2
-
-  const range = []
-  const rangeWithDots = []
-
-  for (let i = Math.max(0, current - delta); i <= Math.min(total - 1, current + delta); i++) {
-    range.push(i)
-  }
-
-  if (range[0] > 1) {
-    rangeWithDots.push(0)
-    if (range[0] > 2) rangeWithDots.push('...')
-  } else if (range[0] === 1) {
-    rangeWithDots.push(0)
-  }
-
-  rangeWithDots.push(...range)
-
-  if (range[range.length - 1] < total - 2) {
-    rangeWithDots.push('...')
-    rangeWithDots.push(total - 1)
-  } else if (range[range.length - 1] === total - 2) {
-    rangeWithDots.push(total - 1)
-  }
-
-  return rangeWithDots.filter((page) => page !== '...')
-})
+// Removed unused computed property
 const debouncedFilter = debounce(() => {
   applyFilters()
 }, 500)
