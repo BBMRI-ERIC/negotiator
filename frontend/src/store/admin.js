@@ -153,6 +153,60 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
+  function retrieveResources() {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/resources`, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data._embedded?.resources || []
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting resources data from server')
+        return []
+      })
+  }
+
+  function retrieveResourcesPaginated(name = '', page = 0, size = 20) {
+    let url = `${apiPaths.BASE_API_PATH}/resources?page=${page}&size=${size}`
+    if (name) {
+      url += `&name=${name}`
+    }
+
+    return axios
+      .get(url, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting resources data from server')
+        return { _embedded: { resources: [] }, page: { number: 0, totalPages: 0, totalElements: 0 }, _links: {} }
+      })
+  }
+
+  function fetchResourcesPage(url) {
+    return axios
+      .get(url, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error fetching resources page')
+        return { _embedded: { resources: [] }, page: { number: 0, totalPages: 0, totalElements: 0 }, _links: {} }
+      })
+  }
+
+  function updateResource(id, data) {
+    return axios
+      .patch(`${apiPaths.BASE_API_PATH}/resources/${id}`, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Resource updated successfully')
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error updating resource', 'error')
+        throw new Error('Failed to update resource')
+      })
+  }
+
   return {
     retrieveResourceAllEvents,
     setInfoRequirements,
@@ -165,5 +219,9 @@ export const useAdminStore = defineStore('admin', () => {
     testWebhook,
     getWebhook,
     retrieveUsers,
+    retrieveResources,
+    retrieveResourcesPaginated,
+    fetchResourcesPage,
+    updateResource,
   }
 })
