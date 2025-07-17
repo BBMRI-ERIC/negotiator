@@ -2,11 +2,7 @@
   <div class="organizations-section">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Organizations</h2>
-      <button
-        class="btn btn-primary"
-        @click="openCreateModal"
-        :disabled="loading"
-      >
+      <button class="btn btn-primary" @click="openCreateModal" :disabled="loading">
         <i class="bi bi-plus-circle me-2"></i>
         Create Organization
       </button>
@@ -52,9 +48,7 @@
               <td>{{ organization.externalId }}</td>
               <td>{{ organization.contactEmail || 'N/A' }}</td>
               <td>
-                <span
-                  :class="organization.withdrawn ? 'badge bg-danger' : 'badge bg-success'"
-                >
+                <span :class="organization.withdrawn ? 'badge bg-danger' : 'badge bg-success'">
                   {{ organization.withdrawn ? 'Withdrawn' : 'Active' }}
                 </span>
               </td>
@@ -73,11 +67,7 @@
 
         <!-- Pagination -->
         <div class="pagination">
-          <button
-            @click="previousPage"
-            :disabled="pageNumber === 0 || loading"
-            class="page-button"
-          >
+          <button @click="previousPage" :disabled="pageNumber === 0 || loading" class="page-button">
             ‹ Prev
           </button>
           <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
@@ -164,7 +154,11 @@ onMounted(() => {
 async function loadOrganizations(name = '') {
   loading.value = true
   try {
-    const response = await adminStore.retrieveOrganizationsPaginated(pageNumber.value, pageSize.value, name)
+    const response = await adminStore.retrieveOrganizationsPaginated(
+      pageNumber.value,
+      pageSize.value,
+      name,
+    )
     organizations.value = response?._embedded?.organizations ?? []
     pageLinks.value = response._links || {}
     pageNumber.value = response.page?.number ?? 0
@@ -254,7 +248,7 @@ const handleOrganizationUpdate = async ({ organizationId, updateData }) => {
     console.error('Frontend: Error details:', {
       message: error.message,
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
     })
   } finally {
     loading.value = false
@@ -289,7 +283,10 @@ const handleOrganizationCreate = async (newOrganization) => {
   try {
     loading.value = true
 
-    console.log('Frontend: Creating new organization with data:', JSON.stringify(newOrganization, null, 2))
+    console.log(
+      'Frontend: Creating new organization with data:',
+      JSON.stringify(newOrganization, null, 2),
+    )
 
     // Call the create method from the store
     const createdOrganization = await adminStore.createOrganization(newOrganization)
@@ -305,7 +302,7 @@ const handleOrganizationCreate = async (newOrganization) => {
     console.error('Frontend: Error details:', {
       message: error.message,
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
     })
   } finally {
     loading.value = false

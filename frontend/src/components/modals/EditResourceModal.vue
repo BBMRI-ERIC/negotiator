@@ -10,7 +10,12 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" :id="`${modalId}Label`">Edit Resource</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="handleSubmit">
@@ -50,7 +55,9 @@
                 :class="{ 'is-invalid': errors.contactEmail }"
                 placeholder="contact@example.com"
               />
-              <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
+              <div v-if="errors.contactEmail" class="invalid-feedback">
+                {{ errors.contactEmail }}
+              </div>
             </div>
 
             <div class="mb-3">
@@ -86,12 +93,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            @click="handleSubmit"
-            :disabled="saving"
-          >
+          <button type="button" class="btn btn-primary" @click="handleSubmit" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status">
               <span class="visually-hidden">Loading...</span>
             </span>
@@ -110,16 +112,16 @@ const props = defineProps({
   modalId: {
     type: String,
     required: true,
-    default: 'editResourceModal'
+    default: 'editResourceModal',
   },
   resource: {
     type: Object,
-    default: null
+    default: null,
   },
   shown: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update', 'close'])
@@ -129,26 +131,30 @@ const formData = ref({
   description: '',
   contactEmail: '',
   uri: '',
-  withdrawn: false
+  withdrawn: false,
 })
 
 const errors = ref({})
 const saving = ref(false)
 
 // Watch for resource changes to populate form
-watch(() => props.resource, (newResource) => {
-  if (newResource) {
-    formData.value = {
-      name: newResource.name || '',
-      description: newResource.description || '',
-      contactEmail: newResource.contactEmail || '',
-      uri: newResource.uri || '',
-      withdrawn: newResource.withdrawn || false
+watch(
+  () => props.resource,
+  (newResource) => {
+    if (newResource) {
+      formData.value = {
+        name: newResource.name || '',
+        description: newResource.description || '',
+        contactEmail: newResource.contactEmail || '',
+        uri: newResource.uri || '',
+        withdrawn: newResource.withdrawn || false,
+      }
+      // Clear any previous errors
+      errors.value = {}
     }
-    // Clear any previous errors
-    errors.value = {}
-  }
-}, { immediate: true })
+  },
+  { immediate: true },
+)
 
 const validateForm = () => {
   errors.value = {}

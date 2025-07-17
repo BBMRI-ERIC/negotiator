@@ -178,7 +178,11 @@ export const useAdminStore = defineStore('admin', () => {
       })
       .catch(() => {
         notifications.setNotification('Error getting resources data from server')
-        return { _embedded: { resources: [] }, page: { number: 0, totalPages: 0, totalElements: 0 }, _links: {} }
+        return {
+          _embedded: { resources: [] },
+          page: { number: 0, totalPages: 0, totalElements: 0 },
+          _links: {},
+        }
       })
   }
 
@@ -190,7 +194,11 @@ export const useAdminStore = defineStore('admin', () => {
       })
       .catch(() => {
         notifications.setNotification('Error fetching resources page')
-        return { _embedded: { resources: [] }, page: { number: 0, totalPages: 0, totalElements: 0 }, _links: {} }
+        return {
+          _embedded: { resources: [] },
+          page: { number: 0, totalPages: 0, totalElements: 0 },
+          _links: {},
+        }
       })
   }
 
@@ -222,7 +230,11 @@ export const useAdminStore = defineStore('admin', () => {
       })
       .catch(() => {
         notifications.setNotification('Error getting organizations data from server')
-        return { _embedded: { organizations: [] }, page: { number: 0, totalPages: 0, totalElements: 0 }, _links: {} }
+        return {
+          _embedded: { organizations: [] },
+          page: { number: 0, totalPages: 0, totalElements: 0 },
+          _links: {},
+        }
       })
   }
 
@@ -244,7 +256,9 @@ export const useAdminStore = defineStore('admin', () => {
     const organizationsArray = [data]
 
     return axios
-      .post(`${apiPaths.BASE_API_PATH}/organizations`, organizationsArray, { headers: getBearerHeaders() })
+      .post(`${apiPaths.BASE_API_PATH}/organizations`, organizationsArray, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         notifications.setNotification('Organization created successfully')
         // The API returns a collection, so extract the first (and only) organization
