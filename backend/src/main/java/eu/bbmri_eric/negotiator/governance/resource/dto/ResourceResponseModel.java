@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 import lombok.Getter;
@@ -37,6 +38,8 @@ public class ResourceResponseModel {
   @Schema(description = "URI of the resource", example = "https://resource.org")
   private String uri;
 
+  private OrganizationDTO organization;
+
   public ResourceResponseModel(Long id, String sourceId, String name) {
     this.id = id;
     this.sourceId = sourceId;
@@ -53,21 +56,26 @@ public class ResourceResponseModel {
     this.uri = uri;
   }
 
+  public ResourceResponseModel(Long id, String sourceId, String name, String description, String contactEmail, boolean withdrawn, String uri, OrganizationDTO organization) {
+    this.id = id;
+    this.sourceId = sourceId;
+    this.name = name;
+    this.description = description;
+    this.contactEmail = contactEmail;
+    this.withdrawn = withdrawn;
+    this.uri = uri;
+    this.organization = organization;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     ResourceResponseModel that = (ResourceResponseModel) o;
-    return Objects.equals(id, that.id)
-        && Objects.equals(sourceId, that.sourceId)
-        && Objects.equals(name, that.name)
-        && Objects.equals(description, that.description)
-        && Objects.equals(contactEmail, that.contactEmail)
-        && Objects.equals(withdrawn, that.withdrawn)
-        && Objects.equals(uri, that.uri);
+    return withdrawn == that.withdrawn && Objects.equals(id, that.id) && Objects.equals(sourceId, that.sourceId) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(contactEmail, that.contactEmail) && Objects.equals(uri, that.uri) && Objects.equals(organization, that.organization);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, sourceId, name, description, contactEmail, withdrawn, uri);
+    return Objects.hash(id, sourceId, name, description, contactEmail, withdrawn, uri, organization);
   }
 }
