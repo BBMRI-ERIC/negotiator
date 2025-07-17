@@ -2,6 +2,14 @@
   <div class="organizations-section">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Organizations</h2>
+      <button
+        class="btn btn-primary"
+        @click="openCreateModal"
+        :disabled="loading"
+      >
+        <i class="bi bi-plus-circle me-2"></i>
+        Create Organization
+      </button>
     </div>
 
     <!-- Search Input -->
@@ -101,6 +109,14 @@
       @update="handleOrganizationUpdate"
       @close="closeEditModal"
     />
+
+    <!-- Create Organization Modal -->
+    <CreateOrganizationModal
+      modal-id="createOrganizationModal"
+      :shown="showCreateModal"
+      @create="handleOrganizationCreate"
+      @close="closeCreateModal"
+    />
   </div>
 </template>
 
@@ -109,6 +125,7 @@ import { onMounted, ref } from 'vue'
 import { Modal } from 'bootstrap'
 import { useAdminStore } from '@/store/admin'
 import EditOrganizationModal from '@/components/modals/EditOrganizationModal.vue'
+import CreateOrganizationModal from '@/components/modals/CreateOrganizationModal.vue'
 
 const adminStore = useAdminStore()
 
@@ -121,6 +138,7 @@ const pageLinks = ref({})
 const pageSize = ref(20)
 const selectedOrganization = ref(null)
 const showEditModal = ref(false)
+const showCreateModal = ref(false)
 const searchQuery = ref('')
 
 // Debounce timeout reference
@@ -233,6 +251,57 @@ const handleOrganizationUpdate = async ({ organizationId, updateData }) => {
     closeEditModal()
   } catch (error) {
     console.error('Frontend: Error updating organization:', error)
+    console.error('Frontend: Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const openCreateModal = () => {
+  showCreateModal.value = true
+
+  // Use Bootstrap modal to show the modal
+  const modalElement = document.getElementById('createOrganizationModal')
+  if (modalElement) {
+    const modal = new Modal(modalElement)
+    modal.show()
+  }
+}
+
+const closeCreateModal = () => {
+  showCreateModal.value = false
+
+  // Hide the Bootstrap modal
+  const modalElement = document.getElementById('createOrganizationModal')
+  if (modalElement) {
+    const modal = Modal.getInstance(modalElement)
+    if (modal) {
+      modal.hide()
+    }
+  }
+}
+
+const handleOrganizationCreate = async (newOrganization) => {
+  try {
+    loading.value = true
+
+    console.log('Frontend: Creating new organization with data:', JSON.stringify(newOrganization, null, 2))
+
+    // Call the create method from the store
+    const createdOrganization = await adminStore.createOrganization(newOrganization)
+
+    console.log('Frontend: Organization created successfully, response:', createdOrganization)
+
+    // Add the new organization to the local organizations array
+    organizations.value.push(createdOrganization)
+
+    closeCreateModal()
+  } catch (error) {
+    console.error('Frontend: Error creating organization:', error)
     console.error('Frontend: Error details:', {
       message: error.message,
       response: error.response?.data,
