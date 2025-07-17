@@ -3,10 +3,10 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import eu.bbmri_eric.negotiator.governance.resource.ResourceController;
+import eu.bbmri_eric.negotiator.common.LinkBuilder;
+import eu.bbmri_eric.negotiator.governance.organization.dto.OrganizationFilterDTO;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
@@ -38,14 +38,20 @@ public class OrganizationModelAssembler
       entityModels.add(toModel(organizationDTO));
     }
     return CollectionModel.of(entityModels)
-        .add(linkTo(ResourceController.class).withRel("organizations"));
+        .add(linkTo(OrganizationController.class).withRel("organizations"));
   }
 
-  public PagedModel<EntityModel<OrganizationDTO>> toPagedModel(Page<OrganizationDTO> page) {
-    return PagedModel.of(
-        page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+  public PagedModel<EntityModel<OrganizationDTO>> toPagedModel(
+      Page<OrganizationDTO> page, OrganizationFilterDTO filters) {
+    PagedModel.PageMetadata pageMetadata =
         new PagedModel.PageMetadata(
-            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages()),
-        new ArrayList<>());
+            page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages());
+    return PagedModel.of(
+        page.getContent().stream().map(this::toModel).toList(),
+        pageMetadata,
+        LinkBuilder.getPageLinks(
+            linkTo(methodOn(OrganizationController.class).list(null)).toUri(),
+            filters,
+            pageMetadata));
   }
 }

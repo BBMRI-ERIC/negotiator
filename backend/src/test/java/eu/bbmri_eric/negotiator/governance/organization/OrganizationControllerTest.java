@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.governance.organization;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,7 +11,6 @@ import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import java.util.Arrays;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,18 +22,17 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @IntegrationTest(loadTestData = true)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 public class OrganizationControllerTest {
 
   private static final String ORGANIZATIONS_ENDPOINT = "/v3/organizations";
 
   @Autowired private OrganizationRepository organizationRepository;
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void postOrganizations() throws Exception {
     OrganizationCreateDTO organizationDTO1 =
         OrganizationCreateDTO.builder()
@@ -111,14 +108,15 @@ public class OrganizationControllerTest {
 
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void updateOrganization_validInput_ok() throws Exception {
     Optional<Organization> firstOrg = organizationRepository.findAll().stream().findFirst();
     Long orgId = firstOrg.get().getId();
 
     OrganizationUpdateDTO updateDTO =
-            OrganizationUpdateDTO.builder()
+        OrganizationUpdateDTO.builder()
             .name("Updated Organization Name")
-                    .externalId("idk")
+            .externalId("idk")
             .description("Updated organization description")
             .contactEmail("updated@test.org")
             .uri("https://updated-organization.org")
@@ -153,6 +151,7 @@ public class OrganizationControllerTest {
 
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void addOrganization_isWithdrawn() throws Exception {
     OrganizationCreateDTO organizationDTO =
         OrganizationCreateDTO.builder()
@@ -199,6 +198,7 @@ public class OrganizationControllerTest {
 
   @Test
   @WithUserDetails("admin")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   void updateOrganization_partialUpdate_ok() throws Exception {
     Optional<Organization> firstOrg = organizationRepository.findAll().stream().findFirst();
     Long orgId = firstOrg.get().getId();
@@ -208,7 +208,7 @@ public class OrganizationControllerTest {
     String originalContactEmail = firstOrg.get().getContactEmail();
 
     OrganizationUpdateDTO partialUpdateDTO =
-            OrganizationUpdateDTO.builder()
+        OrganizationUpdateDTO.builder()
             .name("Partially Updated Organization")
             .uri("https://partially-updated.org")
             .build();
@@ -231,5 +231,77 @@ public class OrganizationControllerTest {
     assertEquals(originalExternalId, updatedOrg.get().getExternalId());
     assertEquals(originalDescription, updatedOrg.get().getDescription());
     assertEquals(originalContactEmail, updatedOrg.get().getContactEmail());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_filterByName_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?name=Biobank #1"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded").exists())
+            .andExpect(jsonPath("$._embedded.length()", is(1)))
+        .andExpect(jsonPath("$.page").exists());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_filterByExternalId_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?externalId=biobank"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded").exists())
+        .andExpect(jsonPath("$.page").exists());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_filterByWithdrawnStatus_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?withdrawn=false"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded").exists())
+        .andExpect(jsonPath("$.page").exists());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_combinedFilters_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?name=Biobank #1&withdrawn=false&page=0&size=10"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded").exists())
+        .andExpect(jsonPath("$.page").exists())
+        .andExpect(jsonPath("$.page.size", is(10)))
+        .andExpect(jsonPath("$.page.number", is(0)));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_pagination_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT + "?page=0&size=5"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded").exists())
+        .andExpect(jsonPath("$.page").exists())
+        .andExpect(jsonPath("$.page.size", is(5)))
+        .andExpect(jsonPath("$.page.number", is(0)));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void getOrganizations_noFilters_returnsAll() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(ORGANIZATIONS_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$._embedded").exists())
+        .andExpect(jsonPath("$.page").exists())
+        .andExpect(jsonPath("$.page.totalElements").isNumber());
   }
 }

@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
@@ -82,7 +81,7 @@ public class ResourceControllerTests {
         .andExpect(jsonPath("$.id", is(resource.getId().intValue())))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())))
-    .andExpect(jsonPath("$.organization.name", is(resource.getOrganization().getName())));
+        .andExpect(jsonPath("$.organization.name", is(resource.getOrganization().getName())));
   }
 
   @Test
@@ -559,13 +558,14 @@ public class ResourceControllerTests {
     Long resourceId = 4L;
     Resource existingResource = repository.findById(resourceId).orElseThrow();
 
-    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder()
-        .name("Updated Resource Name")
-        .description("Updated description for testing")
-        .contactEmail("updated@test.com")
-        .uri("https://updated-resource.test.com")
-        .withdrawn(false)
-        .build();
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder()
+            .name("Updated Resource Name")
+            .description("Updated description for testing")
+            .contactEmail("updated@test.com")
+            .uri("https://updated-resource.test.com")
+            .withdrawn(false)
+            .build();
 
     String requestBody = TestUtils.jsonFromRequest(updateDTO);
 
@@ -601,10 +601,8 @@ public class ResourceControllerTests {
     String originalDescription = existingResource.getDescription();
 
     // Only update name and withdrawn status
-    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder()
-        .name("Partially Updated Resource")
-        .withdrawn(true)
-        .build();
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().name("Partially Updated Resource").withdrawn(true).build();
 
     String requestBody = TestUtils.jsonFromRequest(updateDTO);
 
@@ -635,9 +633,8 @@ public class ResourceControllerTests {
     boolean originalWithdrawnStatus = existingResource.isWithdrawn();
 
     // Toggle withdrawn status
-    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder()
-        .withdrawn(!originalWithdrawnStatus)
-        .build();
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().withdrawn(!originalWithdrawnStatus).build();
 
     String requestBody = TestUtils.jsonFromRequest(updateDTO);
 
@@ -659,9 +656,7 @@ public class ResourceControllerTests {
   void updateResource_nonExistentId_notFound() throws Exception {
     Long nonExistentId = 99999L;
 
-    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder()
-        .name("This should not work")
-        .build();
+    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder().name("This should not work").build();
 
     String requestBody = TestUtils.jsonFromRequest(updateDTO);
 
@@ -679,9 +674,8 @@ public class ResourceControllerTests {
     // Regular users should not be able to update resources
     Long resourceId = 4L;
 
-    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder()
-        .name("Unauthorized update attempt")
-        .build();
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().name("Unauthorized update attempt").build();
 
     String requestBody = TestUtils.jsonFromRequest(updateDTO);
 

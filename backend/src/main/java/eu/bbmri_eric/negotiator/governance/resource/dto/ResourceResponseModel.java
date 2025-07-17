@@ -56,7 +56,15 @@ public class ResourceResponseModel {
     this.uri = uri;
   }
 
-  public ResourceResponseModel(Long id, String sourceId, String name, String description, String contactEmail, boolean withdrawn, String uri, OrganizationDTO organization) {
+  public ResourceResponseModel(
+      Long id,
+      String sourceId,
+      String name,
+      String description,
+      String contactEmail,
+      boolean withdrawn,
+      String uri,
+      OrganizationDTO organization) {
     this.id = id;
     this.sourceId = sourceId;
     this.name = name;
@@ -71,11 +79,19 @@ public class ResourceResponseModel {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     ResourceResponseModel that = (ResourceResponseModel) o;
-    return withdrawn == that.withdrawn && Objects.equals(id, that.id) && Objects.equals(sourceId, that.sourceId) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(contactEmail, that.contactEmail) && Objects.equals(uri, that.uri) && Objects.equals(organization, that.organization);
+    return withdrawn == that.withdrawn
+        && Objects.equals(id, that.id)
+        && Objects.equals(sourceId, that.sourceId)
+        && Objects.equals(name, that.name)
+        && Objects.equals(description, that.description)
+        && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(uri, that.uri)
+        && Objects.equals(organization, that.organization);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, sourceId, name, description, contactEmail, withdrawn, uri, organization);
+    return Objects.hash(
+        id, sourceId, name, description, contactEmail, withdrawn, uri, organization);
   }
 }
