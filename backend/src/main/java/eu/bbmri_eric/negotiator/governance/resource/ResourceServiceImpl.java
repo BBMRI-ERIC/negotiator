@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource;
 
+import com.github.dockerjava.api.exception.InternalServerErrorException;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
@@ -190,11 +191,13 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource) {
-    Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    modelMapper.map(resource, res);
-    Resource updatedResource = repository.save(res);
-    return modelMapper.map(updatedResource, ResourceResponseModel.class);
+  @Transactional
+  public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO updateDTO) {
+    Resource resource = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    modelMapper.getConfiguration().setSkipNullEnabled(true);
+    modelMapper.map(updateDTO, resource);
+    resource = repository.saveAndFlush(resource);
+    return modelMapper.map(resource, ResourceResponseModel.class);
   }
 
   @Override
