@@ -550,12 +550,14 @@ async function getValueSet(id) {
   })
 }
 
-const debouncedSave = debounce(async (step) => {
-  if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
-    await saveDraftSilently(step)
-    currentSectionModified.value = false
-  }
-}, 1000) // Wait 1 second after user stops typing
+const debouncedSave = ref(
+  debounce(async (step) => {
+    if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
+      await saveDraftSilently(step)
+      currentSectionModified.value = false
+    }
+  }, 1000) // Wait 1 second after user stops typing
+)
 
 async function saveDraftSilently(step) {
   if (props.isEditForm) {
