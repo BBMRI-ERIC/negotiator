@@ -1,15 +1,16 @@
 package eu.bbmri_eric.negotiator.user;
 
+import static eu.bbmri_eric.negotiator.common.LinkBuilder.createBaseUriBuilder;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import eu.bbmri_eric.negotiator.common.FilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationController;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRole;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
@@ -90,35 +91,27 @@ public class UserModelAssembler
     return links;
   }
 
-  @NonNull
-  private static List<Link> getLinks(Page<UserResponseModel> page, UserFilterDTO filters) {
-    Map<String, Object> parameters = new HashMap<>();
-    parameters.put("filter", null);
+  public static @NonNull List<Link> getPageLinks(
+      URI baseUri, FilterDTO filterDTO, PagedModel.PageMetadata pageMetadata) {
     List<Link> links = new ArrayList<>();
-    if (page.hasPrevious()) {
+
+    links.add(Link.of(createBaseUriBuilder(baseUri, filterDTO)).withRel(IanaLinkRelations.CURRENT));
+    final int currentPage = filterDTO.getPage();
+    if (pageMetadata.getNumber() > 0) {
+      filterDTO.setPage(0);
+      links.add(Link.of(createBaseUriBuilder(baseUri, filterDTO)).withRel(IanaLinkRelations.FIRST));
+      filterDTO.setPage(currentPage - 1);
       links.add(
-          linkTo(methodOn(UserController.class).listUsers(filters))
-              .withRel(IanaLinkRelations.PREVIOUS)
-              .expand(parameters));
+          Link.of(createBaseUriBuilder(baseUri, filterDTO)).withRel(IanaLinkRelations.PREVIOUS));
     }
-    if (page.hasNext()) {
-      links.add(
-          linkTo(methodOn(UserController.class).listUsers(filters))
-              .withRel(IanaLinkRelations.NEXT)
-              .expand(parameters));
+
+    if (pageMetadata.getNumber() < pageMetadata.getTotalPages() - 1) {
+      filterDTO.setPage(currentPage + 1);
+      links.add(Link.of(createBaseUriBuilder(baseUri, filterDTO)).withRel(IanaLinkRelations.NEXT));
+      filterDTO.setPage((int) pageMetadata.getTotalPages() - 1);
+      links.add(Link.of(createBaseUriBuilder(baseUri, filterDTO)).withRel(IanaLinkRelations.LAST));
     }
-    links.add(
-        linkTo(methodOn(UserController.class).listUsers(filters))
-            .withRel("first")
-            .expand(parameters));
-    links.add(
-        linkTo(methodOn(UserController.class).listUsers(filters))
-            .withRel(IanaLinkRelations.CURRENT)
-            .expand());
-    links.add(
-        linkTo(methodOn(UserController.class).listUsers(filters))
-            .withRel(IanaLinkRelations.LAST)
-            .expand(parameters));
+
     return links;
   }
 
@@ -135,8 +128,19 @@ public class UserModelAssembler
   }
 
   public PagedModel<EntityModel<UserResponseModel>> toPagedModel(
-      Page<UserResponseModel> page, UserFilterDTO filters) {
-    List<Link> links = getLinks(page, filters);
+      @NonNull Page<UserResponseModel> page, UserFilterDTO filters) {
+
+    List<Link> links = new ArrayList<>();
+    if (page.hasContent()) {
+      PagedModel.PageMetadata pageMetadata =
+          new PagedModel.PageMetadata(
+              page.getSize(), page.getNumber(), page.getTotalElements(), page.getTotalPages());
+      links =
+          getPageLinks(
+              linkTo(methodOn(UserController.class).listUsers(filters)).toUri(),
+              filters,
+              pageMetadata);
+    }
     return PagedModel.of(
         page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
         new PagedModel.PageMetadata(

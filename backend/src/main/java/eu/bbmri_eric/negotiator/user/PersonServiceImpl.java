@@ -55,6 +55,10 @@ public class PersonServiceImpl implements PersonService {
 
   @Override
   public Iterable<UserResponseModel> findAllByFilters(UserFilterDTO filtersDTO) {
+    if (filtersDTO.getPage() < 0)
+      throw new IllegalArgumentException("Page must be greater than 0.");
+    if (filtersDTO.getSize() < 1)
+      throw new IllegalArgumentException("Size must be greater than 0.");
     Specification<Person> filtersSpec = PersonSpecifications.fromUserFilters(filtersDTO);
     Pageable pageable =
         PageRequest.of(
@@ -64,9 +68,15 @@ public class PersonServiceImpl implements PersonService {
                 new Sort.Order(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name())
                     .ignoreCase()));
 
-    return personRepository
-        .findAll(filtersSpec, pageable)
-        .map(person -> modelMapper.map(person, UserResponseModel.class));
+    Page<UserResponseModel> result =
+        personRepository
+            .findAll(filtersSpec, pageable)
+            .map(person -> modelMapper.map(person, UserResponseModel.class));
+
+    if (filtersDTO.getPage() > result.getTotalPages())
+      throw new IllegalArgumentException(
+          "For the given size the page must be less than/equal to " + result.getTotalPages() + ".");
+    return result;
   }
 
   @Override
