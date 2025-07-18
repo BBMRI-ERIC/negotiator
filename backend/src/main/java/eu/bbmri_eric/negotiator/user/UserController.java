@@ -51,7 +51,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(
       summary = "List all users",
-      description = "For filtering use for example: ?email=example@email.com")
+      description = "For filtering use for example: ?name=John&email=example@email.com")
   public PagedModel<EntityModel<UserResponseModel>> listUsers(
       @Valid @Nullable @ParameterObject UserFilterDTO filters) {
     if (AuthenticatedUserContext.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")

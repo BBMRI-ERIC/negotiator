@@ -121,6 +121,46 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void getUsers_validRequest_customPagination() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("page", "1").param("size", "3"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.users").isArray())
+        .andExpect(jsonPath("$._embedded.users").isNotEmpty())
+        .andExpect(jsonPath("$.page.totalElements", is(personRepository.findAll().size())))
+        .andExpect(jsonPath("$.page.number", is(1)))
+        .andExpect(jsonPath("$._embedded.users.length()", is(3)));
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void getUsers_validRequest_customSorting() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
+                .param("sortBy", "name")
+                .param("sortOrder", "ASC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.users").isArray())
+        .andExpect(jsonPath("$._embedded.users").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.users.length()", is(personRepository.findAll().size())))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("admin")));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
+                .param("sortBy", "name")
+                .param("sortOrder", "DESC"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.users").isArray())
+        .andExpect(jsonPath("$._embedded.users").isNotEmpty())
+        .andExpect(jsonPath("$._embedded.users.length()", is(personRepository.findAll().size())))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("TheResearcher")));
+  }
+
+  @Test
   @WithMockUser("TheResearcher")
   void getUsers_validRequest_Forbidden() throws Exception {
     mockMvc

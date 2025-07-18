@@ -56,12 +56,13 @@ public class PersonServiceImpl implements PersonService {
   @Override
   public Iterable<UserResponseModel> findAllByFilters(UserFilterDTO filtersDTO) {
     Specification<Person> filtersSpec = PersonSpecifications.fromUserFilters(filtersDTO);
-
     Pageable pageable =
         PageRequest.of(
             filtersDTO.getPage(),
             filtersDTO.getSize(),
-            Sort.by(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name()));
+            Sort.by(
+                new Sort.Order(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name())
+                    .ignoreCase()));
 
     return personRepository
         .findAll(filtersSpec, pageable)
