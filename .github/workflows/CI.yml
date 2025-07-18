@@ -196,6 +196,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20.12.2'
+          cache: 'yarn'
+          cache-dependency-path: 'frontend/yarn.lock'
+
+      - name: Install dependencies
+        run: yarn --cwd frontend install
+
       - name: Download artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -223,7 +233,6 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@6c143abc292aa835d827652c2ea025d098311070 #v6
         with:
-          install: yarn install
           working-directory: frontend
           browser: ${{ matrix.browser }}
 
