@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
 
 const emit = defineEmits(['view-email'])

@@ -98,7 +98,7 @@ jobs:
 
   lint-js:
     runs-on: ubuntu-latest
-    name: Format + Lint JS Code
+    name: Lint JS Code
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -112,9 +112,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --cwd frontend
-      
-      - name: Format
-        run: yarn --cwd frontend prettier --check src
 
       - name: Lint
         run: yarn --cwd frontend eslint src

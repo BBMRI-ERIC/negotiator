@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @IntegrationTest(loadTestData = true)
@@ -30,7 +31,7 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_noFilters_ok() throws Exception {
     NotificationEmail email1 = createTestEmail("user1@example.com", "Test message 1");
     NotificationEmail email2 = createTestEmail("user2@example.com", "Test message 2");
@@ -49,7 +50,7 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_withAddressFilter_ok() throws Exception {
     NotificationEmail email1 = createTestEmail("test@example.com", "Test message 1");
     NotificationEmail email2 = createTestEmail("other@domain.com", "Test message 2");
@@ -64,7 +65,7 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_withPagination_ok() throws Exception {
     for (int i = 0; i < 25; i++) {
       NotificationEmail email = createTestEmail("user" + i + "@example.com", "Test message " + i);
@@ -80,7 +81,7 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_withSorting_ok() throws Exception {
     NotificationEmail email1 =
         createTestEmailWithTime("user1@example.com", "Message 1", LocalDateTime.now().minusDays(2));
@@ -97,7 +98,7 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_withDateFilter_ok() throws Exception {
     LocalDateTime pastDate = LocalDateTime.now().minusDays(5);
     LocalDateTime recentDate = LocalDateTime.now().minusDays(1);
@@ -139,7 +140,7 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getEmailById_validId_ok() throws Exception {
     NotificationEmail email = createTestEmail("test@example.com", "Test message");
     NotificationEmail savedEmail = notificationEmailRepository.save(email);
@@ -153,19 +154,19 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getEmailById_nonExistentId_throws404() throws Exception {
     mockMvc.perform(get(EMAIL_BY_ID_ENDPOINT.formatted("99999"))).andExpect(status().isNotFound());
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_invalidPageParams_throws400() throws Exception {
     mockMvc.perform(get(EMAILS_ENDPOINT + "?page=-1")).andExpect(status().isBadRequest());
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 101L)
+  @WithMockUser(roles = "ADMIN")
   void getAllEmails_invalidSizeParams_throws400() throws Exception {
     mockMvc.perform(get(EMAILS_ENDPOINT + "?size=0")).andExpect(status().isBadRequest());
   }
@@ -176,8 +177,9 @@ public class NotificationEmailControllerTest {
   }
 
   @Test
-  void getEmailById_unauthenticated_throws401() throws Exception {
-    mockMvc.perform(get(EMAIL_BY_ID_ENDPOINT.formatted("1"))).andExpect(status().isUnauthorized());
+  @WithMockUser
+  void getEmailById_unauthorized_throws403() throws Exception {
+    mockMvc.perform(get(EMAIL_BY_ID_ENDPOINT.formatted("1"))).andExpect(status().isForbidden());
   }
 
   private NotificationEmail createTestEmail(String address, String message) {
