@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 @CommonsLog
 @Tag(name = "Notification Emails", description = "Endpoint for managing notification emails")
 @SecurityRequirement(name = "security_auth")
-public class NotificationEmailController {
+class NotificationEmailController {
 
   private final NotificationEmailService notificationEmailService;
   private final NotificationEmailModelAssembler modelAssembler;
 
-  public NotificationEmailController(
+  NotificationEmailController(
       NotificationEmailService notificationEmailService,
       NotificationEmailModelAssembler modelAssembler) {
     this.notificationEmailService = notificationEmailService;
@@ -42,7 +42,7 @@ public class NotificationEmailController {
       description =
           "Retrieve all notification emails with optional filtering by email address and sent date range. "
               + "Supports pagination and sorting.")
-  public PagedModel<EntityModel<NotificationEmailDTO>> getAllNotificationEmails(
+  PagedModel<EntityModel<NotificationEmailDTO>> getAllNotificationEmails(
       @Valid @ParameterObject NotificationEmailFilterDTO filters) {
     Page<NotificationEmailDTO> emailPage = notificationEmailService.findAllWithFilters(filters);
     return modelAssembler.toPagedModel(emailPage, filters);
@@ -53,7 +53,7 @@ public class NotificationEmailController {
   @Operation(
       summary = "Get notification email by ID",
       description = "Retrieve a specific notification email by its ID.")
-  public EntityModel<NotificationEmailDTO> getNotificationEmail(
+  EntityModel<NotificationEmailDTO> getNotificationEmail(
       @Parameter(description = "Notification email ID", example = "1") @PathVariable Long id) {
 
     NotificationEmailDTO dto = notificationEmailService.findById(id);
