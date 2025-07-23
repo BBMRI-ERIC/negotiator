@@ -182,6 +182,7 @@ public class AttachmentConversionService {
 
       Docx4J.toPDF(wordMLPackage, pdfOutputStream);
       byte[] result = pdfOutputStream.toByteArray();
+      log.debug("Successfully converted DOCX to PDF, output size: " + result.length);
       return result;
     }
   }

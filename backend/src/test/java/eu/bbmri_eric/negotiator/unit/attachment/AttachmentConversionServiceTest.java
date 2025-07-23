@@ -572,109 +572,6 @@ class AttachmentConversionServiceTest {
     assertEquals(0, result.size());
   }
 
-  private byte[] loadTestDocxFile() throws IOException {
-    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.docx")) {
-      if (inputStream == null) {
-        return createMinimalDocxBytes();
-      }
-      return inputStream.readAllBytes();
-    }
-  }
-
-  private byte[] loadTestDocFile() throws IOException {
-    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.doc")) {
-      if (inputStream == null) {
-        return createMinimalDocBytes();
-      }
-      return inputStream.readAllBytes();
-    }
-  }
-
-  private byte[] createMinimalDocxBytes() {
-    String minimalDocx =
-        "PK\u0003\u0004\u0014\u0000\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000"
-            + "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
-            + "\u0019\u0000\u0000\u0000[Content_Types].xmlPK\u0003\u0004\u0014\u0000"
-            + "\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
-            + "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000"
-            + "_rels/.relsPK\u0005\u0006\u0000\u0000\u0000\u0000\u0002\u0000\u0002\u0000"
-            + "^\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000";
-    return minimalDocx.getBytes();
-  }
-
-  private byte[] createMinimalDocBytes() {
-    byte[] docHeader = {
-      (byte) 0xD0,
-      (byte) 0xCF,
-      (byte) 0x11,
-      (byte) 0xE0,
-      (byte) 0xA1,
-      (byte) 0xB1,
-      (byte) 0x1A,
-      (byte) 0xE1
-    };
-    byte[] docContent = new byte[512];
-    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
-    return docContent;
-  }
-
-  private byte[] createValidDocBytes() {
-    // Create a more complete DOC structure that might be parseable
-    byte[] docHeader = {
-      (byte) 0xD0,
-      (byte) 0xCF,
-      (byte) 0x11,
-      (byte) 0xE0,
-      (byte) 0xA1,
-      (byte) 0xB1,
-      (byte) 0x1A,
-      (byte) 0xE1,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x3E,
-      0x00,
-      0x03,
-      0x00,
-      (byte) 0xFE,
-      (byte) 0xFF,
-      0x09,
-      0x00,
-      0x06,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x10,
-      0x00,
-      0x00
-    };
-    byte[] docContent = new byte[2048];
-    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
-    return docContent;
-  }
-
   @Test
   void testConvertSingleAttachmentToPdf_WithNullAttachmentDTO_ReturnsNull() {
     // Test lines 83-84: log.warn("Attachment DTO is null, skipping conversion"); return null;
@@ -793,79 +690,107 @@ class AttachmentConversionServiceTest {
     assertEquals(0, result.size());
   }
 
-  @Test
-  void testConvertDocToPdf_WithEmptyDocContent_CreatesEmptyPdf() {
-    // Test lines 133-134, 136-138, 140-142, 149, 151, 156-159, 162
-    // This test uses a valid DOC structure that has no paragraphs
-    String attachmentId = "empty-doc-content";
-
-    // Create a valid DOC structure with empty content
-    byte[] emptyDocBytes = createValidEmptyDocBytes();
-
-    AttachmentDTO attachment =
-        AttachmentDTO.builder()
-            .id(attachmentId)
-            .name("empty.doc")
-            .contentType("application/msword")
-            .payload(emptyDocBytes)
-            .build();
-
-    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
-
-    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(attachmentId));
-
-    // The result will depend on whether the DOC can be parsed
-    // If parsing fails, the attachment will be skipped (size 0)
-    // If parsing succeeds, it will create a PDF (size 1)
-    assertTrue(result.size() >= 0);
+  private byte[] loadTestDocxFile() throws IOException {
+    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.docx")) {
+      if (inputStream == null) {
+        return createMinimalDocxBytes();
+      }
+      return inputStream.readAllBytes();
+    }
   }
 
-  @Test
-  void testConvertDocToPdf_WithValidDocContent_ProcessesParagraphs() {
-    // Test lines 133-134, 136-138, 140-142, 149, 151, 156-159
-    // This test covers the successful DOC to PDF conversion path
-    String attachmentId = "valid-doc-content";
-
-    // Use the existing method that creates a more complete DOC structure
-    byte[] validDocBytes = createValidDocBytes();
-
-    AttachmentDTO attachment =
-        AttachmentDTO.builder()
-            .id(attachmentId)
-            .name("valid.doc")
-            .contentType("application/msword")
-            .payload(validDocBytes)
-            .build();
-
-    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
-
-    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(attachmentId));
-
-    // The result will depend on whether the DOC can be parsed
-    // This tests the conversion logic paths
-    assertTrue(result.size() >= 0);
+  private byte[] loadTestDocFile() throws IOException {
+    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.doc")) {
+      if (inputStream == null) {
+        return createMinimalDocBytes();
+      }
+      return inputStream.readAllBytes();
+    }
   }
 
-  @Test
-  void testConvertDocToPdf_WithTikaMsofficeContentType_CallsConvertDocToPdf() {
-    // Test line 113: return convertDocToPdf(payload);
-    String attachmentId = "tika-msoffice-doc";
-    byte[] docBytes = createValidDocBytes();
+  private byte[] createMinimalDocxBytes() {
+    String minimalDocx =
+        "PK\u0003\u0004\u0014\u0000\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000"
+            + "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+            + "\u0019\u0000\u0000\u0000[Content_Types].xmlPK\u0003\u0004\u0014\u0000"
+            + "\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+            + "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u000b\u0000\u0000\u0000"
+            + "_rels/.relsPK\u0005\u0006\u0000\u0000\u0000\u0000\u0002\u0000\u0002\u0000"
+            + "^\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000";
+    return minimalDocx.getBytes();
+  }
 
-    AttachmentDTO attachment =
-        AttachmentDTO.builder()
-            .id(attachmentId)
-            .name("test.doc")
-            .contentType("application/x-tika-msoffice") // This triggers line 113
-            .payload(docBytes)
-            .build();
+  private byte[] createMinimalDocBytes() {
+    byte[] docHeader = {
+      (byte) 0xD0,
+      (byte) 0xCF,
+      (byte) 0x11,
+      (byte) 0xE0,
+      (byte) 0xA1,
+      (byte) 0xB1,
+      (byte) 0x1A,
+      (byte) 0xE1
+    };
+    byte[] docContent = new byte[512];
+    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
+    return docContent;
+  }
 
-    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
-
-    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(attachmentId));
-
-    // Should attempt to convert the DOC file
-    assertTrue(result.size() >= 0);
+  private byte[] createValidDocBytes() {
+    // Create a more complete DOC structure that might be parseable
+    byte[] docHeader = {
+      (byte) 0xD0,
+      (byte) 0xCF,
+      (byte) 0x11,
+      (byte) 0xE0,
+      (byte) 0xA1,
+      (byte) 0xB1,
+      (byte) 0x1A,
+      (byte) 0xE1,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x3E,
+      0x00,
+      0x03,
+      0x00,
+      (byte) 0xFE,
+      (byte) 0xFF,
+      0x09,
+      0x00,
+      0x06,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x10,
+      0x00,
+      0x00
+    };
+    byte[] docContent = new byte[2048];
+    System.arraycopy(docHeader, 0, docContent, 0, docHeader.length);
+    return docContent;
   }
 
   private byte[] createValidEmptyDocBytes() {
