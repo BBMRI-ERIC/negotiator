@@ -7,14 +7,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @CommonsLog
 public class TemplateServiceImpl implements TemplateService {
   private TemplateRepository templateRepository;
+  private SpringTemplateEngine templateEngine;
 
-  public TemplateServiceImpl(TemplateRepository templateRepository) {
+  public TemplateServiceImpl(
+      TemplateRepository templateRepository, SpringTemplateEngine templateEngine) {
     this.templateRepository = templateRepository;
+    this.templateEngine = templateEngine;
   }
 
   @Override
@@ -35,6 +39,7 @@ public class TemplateServiceImpl implements TemplateService {
     log.debug("Updating notification template.");
     String validatedTemplate = validateHtml(template);
     templateRepository.save(templateName, validatedTemplate);
+    templateEngine.clearTemplateCacheFor(templateName);
     return templateRepository.load(templateName);
   }
 
