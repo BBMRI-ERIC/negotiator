@@ -15,8 +15,8 @@ public class TemplateServiceImpl implements TemplateService {
   private TemplateRepository templateRepository;
   private SpringTemplateEngine templateEngine;
 
-  public TemplateServiceImpl(TemplateRepository templateRepository,
-                             SpringTemplateEngine templateEngine) {
+  public TemplateServiceImpl(
+      TemplateRepository templateRepository, SpringTemplateEngine templateEngine) {
     this.templateRepository = templateRepository;
     this.templateEngine = templateEngine;
   }
