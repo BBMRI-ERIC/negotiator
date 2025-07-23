@@ -39,7 +39,7 @@ public class TemplateServiceImpl implements TemplateService {
     log.debug("Updating notification template.");
     String validatedTemplate = validateHtml(template);
     templateRepository.save(templateName, validatedTemplate);
-    templateEngine.clearTemplateCache();
+    templateEngine.clearTemplateCacheFor(templateName);
     return templateRepository.load(templateName);
   }
 
