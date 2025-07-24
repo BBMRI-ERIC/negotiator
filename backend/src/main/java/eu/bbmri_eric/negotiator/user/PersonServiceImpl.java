@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,24 +30,26 @@ import org.springframework.stereotype.Service;
 @CommonsLog
 public class PersonServiceImpl implements PersonService {
 
-  @Autowired NetworkRepository networkRepository;
-
-  public PersonServiceImpl(
-      PersonRepository personRepository,
-      ResourceRepository resourceRepository,
-      ModelMapper modelMapper,
-      ApplicationEventPublisher eventPublisher) {
-    this.personRepository = personRepository;
-    this.resourceRepository = resourceRepository;
-    this.modelMapper = modelMapper;
-    this.eventPublisher = eventPublisher;
-  }
+  private final NetworkRepository networkRepository;
 
   private final PersonRepository personRepository;
 
   private final ResourceRepository resourceRepository;
   private final ModelMapper modelMapper;
   private final ApplicationEventPublisher eventPublisher;
+
+  public PersonServiceImpl(
+      NetworkRepository networkRepository,
+      PersonRepository personRepository,
+      ResourceRepository resourceRepository,
+      ModelMapper modelMapper,
+      ApplicationEventPublisher eventPublisher) {
+    this.networkRepository = networkRepository;
+    this.personRepository = personRepository;
+    this.resourceRepository = resourceRepository;
+    this.modelMapper = modelMapper;
+    this.eventPublisher = eventPublisher;
+  }
 
   public UserResponseModel findById(Long id) {
     return modelMapper.map(getRepresentative(id), UserResponseModel.class);
@@ -93,6 +94,13 @@ public class PersonServiceImpl implements PersonService {
       throw new IllegalArgumentException(
           "For the given size the page must be less than/equal to " + result.getTotalPages() + ".");
     return result;
+  }
+
+  @Override
+  public List<UserResponseModel> findAllByOrganizationId(Long id) {
+    return personRepository.findAllByOrganizationId(id).stream()
+        .map(person -> modelMapper.map(person, UserResponseModel.class))
+        .toList();
   }
 
   @Override

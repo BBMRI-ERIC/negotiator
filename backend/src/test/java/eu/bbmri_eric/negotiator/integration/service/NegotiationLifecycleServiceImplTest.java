@@ -1,9 +1,9 @@
 package eu.bbmri_eric.negotiator.integration.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,6 +44,7 @@ import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -57,9 +58,11 @@ import org.springframework.statemachine.StateMachineException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @IntegrationTest(loadTestData = true)
 @RecordApplicationEvents
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NegotiationLifecycleServiceImplTest {
 
   @Autowired NegotiationLifecycleServiceImpl negotiationLifecycleService;
@@ -70,14 +73,15 @@ public class NegotiationLifecycleServiceImplTest {
   @Autowired PostRepository postRepository;
   @Autowired InformationRequirementRepository requirementRepository;
   @Autowired AccessFormRepository accessFormRepository;
+  @Autowired ApplicationEvents events;
+  @Autowired ResourceService resourceService;
   @Autowired private InformationSubmissionRepository informationSubmissionRepository;
   @Autowired private ResourceRepository resourceRepository;
-  @Autowired ApplicationEvents events;
   @Autowired private DiscoveryServiceRepository discoveryServiceRepository;
-  @Autowired ResourceService resourceService;
   @Autowired private ModelMapper modelMapper;
+  @Autowired private TransactionTemplate transactionTemplate;
 
-  private void checkNegotiationResourceRecordPresenceWithAssignedState(
+  void checkNegotiationResourceRecordPresenceWithAssignedState(
       String negotiationId, NegotiationResourceState negotiationResourceState) {
     Negotiation negotiation = negotiationRepository.findDetailedById(negotiationId).get();
     Set<NegotiationResourceLifecycleRecord> records =
@@ -179,7 +183,7 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationDTO.getId(), NegotiationEvent.ABANDON, "Not acceptable"));
   }
 
-  private NegotiationDTO saveNegotiation() throws IOException {
+  NegotiationDTO saveNegotiation() throws IOException {
     return saveNegotiation(false);
   }
 
@@ -273,17 +277,24 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(id = 109L, authorities = "ROLE_ADMIN")
-  @Transactional
-  void createNegotiation_approve_eachResourceHasState() throws IOException {
+  void createNegotiation_approve_eachResourceHasState() throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    NegotiationResourceState state =
-        negotiationRepository
-            .findById(negotiationDTO.getId())
-            .get()
-            .getCurrentStateForResource("biobank:1:collection:2");
-    Assertions.assertNotNull(state);
-    assertNotEquals(NegotiationResourceState.SUBMITTED, state);
+    NegotiationState state =
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    assertEquals(NegotiationState.IN_PROGRESS, state);
+    Thread.sleep(1000);
+    transactionTemplate.executeWithoutResult(
+        status -> {
+          Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
+          negotiation
+              .getResources()
+              .forEach(
+                  resource -> {
+                    assertEquals(
+                        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
+                        negotiation.getCurrentStateForResource(resource.getSourceId()));
+                  });
+        });
   }
 
   @Test
@@ -302,25 +313,28 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  @Transactional
-  void sendEventForResource_approvedNegotiation_Ok() throws IOException {
+  void sendEventForResource_approvedNegotiation_Ok() throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Thread.sleep(1000);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
             negotiationDTO.getId(), "biobank:1:collection:2", NegotiationResourceEvent.CONTACT));
-
-    checkNegotiationResourceRecordPresenceWithAssignedState(
-        negotiationDTO.getId(), NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED"));
+    transactionTemplate.executeWithoutResult(
+        status ->
+            checkNegotiationResourceRecordPresenceWithAssignedState(
+                negotiationDTO.getId(),
+                NegotiationResourceState.valueOf("REPRESENTATIVE_CONTACTED")));
   }
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  @Transactional
-  void sendEventForResource_approvedNegotiationWrongEvent_noChange() throws IOException {
+  void sendEventForResource_approvedNegotiationWrongEvent_noChange()
+      throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Thread.sleep(1000);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -331,11 +345,12 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  @Transactional
-  void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok() throws IOException {
+  void sendEventForResource_approvedNegotiationMultipleCorrectEvents_ok()
+      throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
-    Negotiation before = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
-    negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    NegotiationState state =
+        negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Thread.sleep(1000);
     assertEquals(
         NegotiationResourceState.REPRESENTATIVE_CONTACTED,
         resourceLifecycleService.sendEvent(
@@ -352,10 +367,14 @@ public class NegotiationLifecycleServiceImplTest {
             negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.MARK_AS_AVAILABLE));
-    Negotiation negotiation = negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
-    Set<NegotiationResourceLifecycleRecord> records =
-        negotiation.getNegotiationResourceLifecycleRecords();
-    assertEquals(4, records.size());
+    transactionTemplate.executeWithoutResult(
+        status -> {
+          Negotiation negotiation =
+              negotiationRepository.findDetailedById(negotiationDTO.getId()).get();
+          Set<NegotiationResourceLifecycleRecord> records =
+              negotiation.getNegotiationResourceLifecycleRecords();
+          assertEquals(4, records.size());
+        });
   }
 
   @Test
@@ -444,18 +463,9 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  @Transactional
   void sendEventForResource_fulfilledRequirement_ok() throws IOException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
-    assertEquals(
-        NegotiationResourceState.REPRESENTATIVE_CONTACTED,
-        resourceRepository.findByNegotiation(negotiationDTO.getId()).stream()
-            .filter(
-                resourceViewDTO -> resourceViewDTO.getSourceId().equals("biobank:1:collection:2"))
-            .findFirst()
-            .get()
-            .getCurrentState());
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
     InformationRequirement requirement =
         requirementRepository.save(
@@ -474,7 +484,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
-            negotiation.getId(),
+            negotiationDTO.getId(),
             "biobank:1:collection:2",
             NegotiationResourceEvent.MARK_AS_CHECKING_AVAILABILITY));
   }
@@ -491,10 +501,11 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  @Transactional
-  void getPossibleEventsForResource_approvedNegotiation_Ok() throws IOException {
+  void getPossibleEventsForResource_approvedNegotiation_Ok()
+      throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+    Thread.sleep(1000);
     assertEquals(
         Set.of(
             NegotiationResourceEvent.STEP_AWAY,
@@ -519,6 +530,17 @@ public class NegotiationLifecycleServiceImplTest {
     NegotiationDTO negotiationDTO = saveNegotiation();
     assertEquals(NegotiationState.SUBMITTED, NegotiationState.valueOf(negotiationDTO.getStatus()));
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
+
+    // Wait for the approval handler to complete
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              Negotiation negotiation =
+                  negotiationRepository.findById(negotiationDTO.getId()).get();
+              assertEquals(NegotiationState.IN_PROGRESS, negotiation.getCurrentState());
+            });
+
     Negotiation negotiation = negotiationRepository.findById(negotiationDTO.getId()).get();
     List<ResourceWithStatusDTO> resources =
         resourceService.findAllInNegotiation(negotiation.getId());
@@ -529,14 +551,29 @@ public class NegotiationLifecycleServiceImplTest {
             resources.stream().map(ResourceWithStatusDTO::getId).collect(Collectors.toList()),
             NegotiationResourceState.RESOURCE_MADE_AVAILABLE));
     assertEquals(2, resources.size());
-    List<ResourceViewDTO> foundResources =
-        resourceRepository.findByNegotiation(negotiation.getId());
-    foundResources.forEach(
-        resource ->
-            assertEquals(
-                NegotiationResourceState.RESOURCE_MADE_AVAILABLE, resource.getCurrentState()));
-    assertEquals(
-        NegotiationState.CONCLUDED,
-        negotiationRepository.findNegotiationStateById(negotiation.getId()).get());
+
+    // Wait for the resource state update handler to complete
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              List<ResourceViewDTO> foundResources =
+                  resourceRepository.findByNegotiation(negotiation.getId());
+              foundResources.forEach(
+                  resource ->
+                      assertEquals(
+                          NegotiationResourceState.RESOURCE_MADE_AVAILABLE,
+                          resource.getCurrentState()));
+            });
+
+    // Wait for the automatic negotiation closure handler to complete
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              assertEquals(
+                  NegotiationState.CONCLUDED,
+                  negotiationRepository.findNegotiationStateById(negotiation.getId()).get());
+            });
   }
 }

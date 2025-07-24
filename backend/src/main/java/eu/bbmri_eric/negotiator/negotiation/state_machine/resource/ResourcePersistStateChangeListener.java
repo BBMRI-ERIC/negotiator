@@ -2,14 +2,12 @@ package eu.bbmri_eric.negotiator.negotiation.state_machine.resource;
 
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import jakarta.transaction.Transactional;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
@@ -25,15 +23,11 @@ public class ResourcePersistStateChangeListener
     implements PersistStateMachineHandler.PersistStateChangeListener {
 
   private final NegotiationRepository negotiationRepository;
-  @Lazy private final UserNotificationService userNotificationService;
   private final ApplicationEventPublisher eventPublisher;
 
   public ResourcePersistStateChangeListener(
-      NegotiationRepository negotiationRepository,
-      UserNotificationService userNotificationService,
-      ApplicationEventPublisher eventPublisher) {
+      NegotiationRepository negotiationRepository, ApplicationEventPublisher eventPublisher) {
     this.negotiationRepository = negotiationRepository;
-    this.userNotificationService = userNotificationService;
     this.eventPublisher = eventPublisher;
   }
 
@@ -47,10 +41,7 @@ public class ResourcePersistStateChangeListener
     String negotiationId = parseNegotiationIdFromMessage(message);
     String resourceId = parseResourceIdFromMessage(message);
     Optional<Negotiation> negotiation = getNegotiation(negotiationId);
-    if (negotiation.isPresent()) {
-      negotiation = updateStateForResource(state, negotiation.get(), resourceId);
-      notifyRequester(negotiation.get(), resourceId);
-    }
+    negotiation.ifPresent(value -> updateStateForResource(state, value, resourceId));
   }
 
   @Nullable
@@ -61,15 +52,6 @@ public class ResourcePersistStateChangeListener
   @Nullable
   private static String parseResourceIdFromMessage(Message<String> message) {
     return message.getHeaders().get("resourceId", String.class);
-  }
-
-  private void notifyRequester(Negotiation negotiation, String resourceId) {
-    userNotificationService.notifyRequesterAboutStatusChange(
-        negotiation,
-        negotiation.getResources().stream()
-            .filter(resource -> resource.getSourceId().equals(resourceId))
-            .findFirst()
-            .orElse(null));
   }
 
   @NonNull

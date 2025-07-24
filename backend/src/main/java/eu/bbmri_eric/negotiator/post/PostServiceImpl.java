@@ -12,10 +12,8 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
-import eu.bbmri_eric.negotiator.user.PersonService;
 import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +23,7 @@ import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -40,10 +39,9 @@ public class PostServiceImpl implements PostService {
 
   private ModelMapper modelMapper;
 
-  private PersonService personService;
   private NegotiationService negotiationService;
-  private UserNotificationService userNotificationService;
   private NegotiationAccessManager negotiationAccessManager;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public PostServiceImpl(
       OrganizationRepository organizationRepository,
@@ -51,19 +49,17 @@ public class PostServiceImpl implements PostService {
       NegotiationRepository negotiationRepository,
       PersonRepository personRepository,
       ModelMapper modelMapper,
-      PersonService personService,
       NegotiationService negotiationService,
-      UserNotificationService userNotificationService,
-      NegotiationAccessManager negotiationAccessManager) {
+      NegotiationAccessManager negotiationAccessManager,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.organizationRepository = organizationRepository;
     this.postRepository = postRepository;
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.modelMapper = modelMapper;
-    this.personService = personService;
     this.negotiationService = negotiationService;
-    this.userNotificationService = userNotificationService;
     this.negotiationAccessManager = negotiationAccessManager;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   private static Post getPostEntity(PostCreateDTO postRequest) {
@@ -90,7 +86,13 @@ public class PostServiceImpl implements PostService {
     } catch (DataIntegrityViolationException ex) {
       throw new EntityNotStorableException();
     }
-    userNotificationService.notifyUsersAboutNewPost(postEntity);
+    applicationEventPublisher.publishEvent(
+        new NewPostEvent(
+            this,
+            postEntity.getId(),
+            negotiationId,
+            postEntity.getCreatedBy().getId(),
+            postEntity.getOrganization() != null ? postEntity.getOrganization().getId() : null));
     return modelMapper.map(postEntity, PostDTO.class);
   }
 

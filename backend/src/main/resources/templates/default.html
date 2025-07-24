@@ -1,0 +1,135 @@
+<!--
+This is a Thymeleaf HTML template used to generate a default email
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset styles for email compatibility */
+        body, table, td, p, div {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.4;
+            color: #3c3c3d;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        .logo-bbmri {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Button styling using table for email compatibility */
+        .button {
+            display: inline-block;
+            background-color: #e95713;
+            color: #ffffff;
+            padding: 14px 28px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            border: 2px solid #e95713;
+        }
+
+        /* Outlook specific fixes */
+        .ExternalClass {
+            width: 100%;
+        }
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        /* Mobile responsiveness using media queries supported by most clients */
+        @media only screen and (max-width: 600px) {
+            .logo-bbmri {
+                max-width: 150px !important;
+            }
+
+            .button {
+                padding: 12px 24px !important;
+                font-size: 14px !important;
+            }
+        }
+    </style>
+    <!--[if mso]>
+    <style type="text/css">
+        .header-gradient {
+            background-color: #e95713 !important;
+        }
+        .button {
+            border: none !important;
+        }
+    </style>
+    <![endif]-->
+    <title>Email notification</title>
+</head>
+<body>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f9fa; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e9ecef; max-width: 600px;">
+                    <!-- Header with brand gradient -->
+                    <tr>
+                        <td class="header-gradient" style="background: linear-gradient(135deg, #e95713 0%, #003674 100%); background-color: #e95713; padding: 30px 40px; text-align: center;">
+                            <div th:insert="~{logo}"></div>
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px; background-color: #ffffff;">
+                            <p style="margin: 0 0 20px 0; font-size: 18px; font-weight: bold; color: #003674; font-family: Arial, Helvetica, sans-serif;">
+                                Dear <span th:utext="${recipient.getName()}"></span>,
+                            </p>
+                            <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #e95713; margin: 20px 0; font-size: 16px; line-height: 1.4; font-family: Arial, Helvetica, sans-serif;">
+                                <span th:utext="${message}"></span>
+                            </div>
+                            <div th:if="${negotiation != null}" style="text-align: center; margin: 30px 0;">
+                                <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                    <tr>
+                                        <td style="background-color: #e95713; border: 2px solid #e95713;">
+                                            <a th:href="@{${frontendUrl} + '/negotiations/' + ${negotiation}}" style="display: block; padding: 14px 28px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; font-family: Arial, Helvetica, sans-serif;">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td>
+                            <div th:insert="~{email-footer}"></div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -8,6 +8,7 @@ const apiPaths = {
   NEGOTIATION_PATH: `${BASE_API_PATH}/negotiations`,
   USER_PATH: `${BASE_API_PATH}/userinfo`,
   USER_RESOURCES_PATH: `${BASE_API_PATH}/users/resources`,
+  USER_NOTIFICATIONS_PATH: `${BASE_API_PATH}/users`,
   ATTACHMENTS_PATH: `${BASE_API_PATH}/attachments`,
   BACKEND_ACTUATOR_INFO_PATH: '/api/actuator/info',
   VALUE_SETS: `${BASE_API_PATH}/value-sets`,
