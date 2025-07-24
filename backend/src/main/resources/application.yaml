@@ -83,6 +83,16 @@ spring:
   profiles:
     default: prod
 negotiator:
+  events:
+    async:
+      core-pool-size: 2
+      max-pool-size: 10
+      queue-capacity: 100
+      keep-alive-seconds: 60
+      thread-name-prefix: "async-event-"
+      wait-for-tasks-to-complete-on-shutdown: true
+      await-termination-seconds: 30
+  email-address: "BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>"
   frontend-url: ""
   emailYoursSincerelyText: "The BBMRI-ERIC Team"
   emailHelpdeskHref: "mailto:negotiator@helpdesk.bbmri-eric.eu"
