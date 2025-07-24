@@ -41,7 +41,7 @@ Make sure your networking configuration is properly adjusted, especially when us
 For WSL debugging you can use the following command to run the backend in debug mode:
 
 ```shell
-# This script is used to perform remote debugging a Spring Boot application in debug mode in WSL or Linux environment
+# This script is used to perform remote debugging of a Spring Boot application in debug mode in WSL or Linux environment
 mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ```
 
