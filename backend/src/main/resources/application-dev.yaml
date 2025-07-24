@@ -14,10 +14,6 @@ spring:
     port: 1025
     username: "user"
     password: "pass"
-  # enable remote debugging:
-  devtools:
-    restart:
-      enabled: true
   datasource:
     url: jdbc:tc:postgres:///negotiator
     username: negotiator
