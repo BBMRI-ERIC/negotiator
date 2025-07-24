@@ -149,6 +149,123 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
+  function retrieveResources() {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/resources`, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data._embedded?.resources || []
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting resources data from server')
+        return []
+      })
+  }
+
+  function retrieveResourcesPaginated(name = '', page = 0, size = 20) {
+    let url = `${apiPaths.BASE_API_PATH}/resources?page=${page}&size=${size}`
+    if (name) {
+      url += `&name=${name}`
+    }
+
+    return axios
+      .get(url, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting resources data from server')
+        return {
+          _embedded: { resources: [] },
+          page: { number: 0, totalPages: 0, totalElements: 0 },
+          _links: {},
+        }
+      })
+  }
+
+  function fetchResourcesPage(url) {
+    return axios
+      .get(url, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error fetching resources page')
+        return {
+          _embedded: { resources: [] },
+          page: { number: 0, totalPages: 0, totalElements: 0 },
+          _links: {},
+        }
+      })
+  }
+
+  function updateResource(id, data) {
+    return axios
+      .patch(`${apiPaths.BASE_API_PATH}/resources/${id}`, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Resource updated successfully')
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error updating resource', 'error')
+        throw new Error('Failed to update resource')
+      })
+  }
+
+  function retrieveOrganizationsPaginated(page = 0, size = 20, name = '') {
+    let url = `${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`
+
+    // Only add name parameter if it's a non-empty string after trimming
+    if (name && name.trim()) {
+      url += `&name=${encodeURIComponent(name.trim())}`
+    }
+
+    return axios
+      .get(url, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting organizations data from server')
+        return {
+          _embedded: { organizations: [] },
+          page: { number: 0, totalPages: 0, totalElements: 0 },
+          _links: {},
+        }
+      })
+  }
+
+  function updateOrganization(id, data) {
+    return axios
+      .patch(`${apiPaths.BASE_API_PATH}/organizations/${id}`, data, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Organization updated successfully')
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error updating organization', 'error')
+        throw new Error('Failed to update organization')
+      })
+  }
+
+  function createOrganization(data) {
+    // The API expects an array of organizations, so wrap the single organization in an array
+    const organizationsArray = [data]
+
+    return axios
+      .post(`${apiPaths.BASE_API_PATH}/organizations`, organizationsArray, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        notifications.setNotification('Organization created successfully')
+        // The API returns a collection, so extract the first (and only) organization
+        return response.data._embedded?.organizations?.[0] || response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Error creating organization', 'error')
+        throw error
+      })
+  }
+
   return {
     retrieveResourceAllEvents,
     setInfoRequirements,
@@ -161,5 +278,12 @@ export const useAdminStore = defineStore('admin', () => {
     testWebhook,
     getWebhook,
     retrieveUsers,
+    retrieveResources,
+    retrieveResourcesPaginated,
+    fetchResourcesPage,
+    updateResource,
+    retrieveOrganizationsPaginated,
+    updateOrganization,
+    createOrganization,
   }
 })

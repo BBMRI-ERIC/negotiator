@@ -1,5 +1,5 @@
 <template>
-  <div v-if="uiConfiguration?.isButtonVisible && uiConfiguration?.buttonText">
+  <div v-if="uiConfiguration?.isButtonVisible && uiConfiguration?.buttonText" class="new-request">
     <button
       ref="openModal"
       class="btn btn-sm sm my-2 float-end"

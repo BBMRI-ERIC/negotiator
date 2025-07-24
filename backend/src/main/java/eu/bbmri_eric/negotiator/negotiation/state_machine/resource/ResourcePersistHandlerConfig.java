@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.recipes.persist.PersistStateMachineHandler;
 
-/** Persist handler configuration for the Resource StateMachine. */
+/** Persist internal configuration for the Resource StateMachine. */
 @Configuration
 public class ResourcePersistHandlerConfig {
   @Autowired

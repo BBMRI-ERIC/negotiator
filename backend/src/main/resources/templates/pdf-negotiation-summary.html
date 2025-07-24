@@ -6,66 +6,223 @@ This file is a Thymeleaf HTML template used to generate the PDF summary of a neg
 <head>
     <meta charset="UTF-8" />
     <style>
-        @font-face {
-            font-family: "Open Sans";
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            margin: 0;
+            padding: 2.5em;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #ffffff;
         }
 
-        body { font-family: "Open Sans", sans-serif; font-size: 12px; margin: 2em; line-height: 1.4; }
-        h1, h2 { color: #003366; }
-        h2 { border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-top: 1.5em; }
+        .header-section {
+            margin-bottom: 3em;
+            padding-bottom: 1.5em;
+            border-bottom: 3px solid #003366;
+            overflow: hidden;
+        }
 
-        .logo { margin-bottom: 1.5em; text-align: right; }
-        .logo-bbmri { width: 200px; height: auto; }
-        .field { margin-bottom: 0.5em; }
-        .label { font-weight: bold; }
-        .section { margin-bottom: 1em; }
-        .value { margin-left: 1em; display: inline-block; }
-        .page-break { page-break-before: always; }
+        .header-content {
+            float: left;
+            width: 60%;
+        }
 
-        .toc { margin-bottom: 2em; }
-        .toc-entry { margin-bottom: 0.5em; }
-        .toc-link { color: #003366; text-decoration: none; }
+        .logo {
+            float: right;
+            width: 35%;
+            text-align: right;
+        }
 
-        .styled-table { width: 100%; border-collapse: collapse; font-size: 12pt; }
-        .styled-table td { padding: 10px; }
-        .styled-table .label { font-weight: bold; color: #003366; width: 30%; }
+        .logo-bbmri {
+            width: 180px;
+            height: auto;
+        }
 
+        h1 {
+            color: #003366;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0 0 0.5em 0;
+        }
 
+        h2 {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 2.5em 0 1em 0;
+            padding: 0.75em 1.25em;
+            background-color: #003366;
+            border-radius: 8px;
+            border-left: 5px solid #ffa500;
+        }
+
+        .section {
+            margin-bottom: 2.5em;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 1.5em;
+            border: 1px solid #e8ecef;
+        }
+
+        .summary-section {
+            background-color: #f8f9fa;
+            border: 2px solid #003366;
+            margin-bottom: 3em;
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            background: white;
+        }
+
+        .styled-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #e8ecef;
+            vertical-align: top;
+        }
+
+        .styled-table .label {
+            font-weight: bold;
+            color: #003366;
+            width: 35%;
+            background-color: #f0f6ff;
+            border-right: 3px solid #003366;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .styled-table .value {
+            color: #2c3e50;
+            font-weight: normal;
+        }
+
+        .field {
+            margin-bottom: 1em;
+            padding: 0.75em;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #003366;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #003366;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 0.25em;
+            display: block;
+        }
+
+        .value {
+            color: #2c3e50;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .toc {
+            margin-bottom: 3em;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 2em;
+            border: 1px solid #e8ecef;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .toc-entry {
+            margin-bottom: 0.75em;
+            padding: 0.75em 1.25em;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #003366;
+        }
+
+        .toc-link {
+            color: #003366;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .nested-section {
+            margin-left: 1.5em;
+            margin-top: 1em;
+            padding-left: 1em;
+            border-left: 2px solid #dee2e6;
+        }
+
+        .nested-field {
+            background: #ffffff;
+            border-left-color: #ffa500;
+            margin-bottom: 0.5em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4em 0.8em;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .text-center { text-align: center; }
+        .text-muted { color: #6c757d; }
+        .font-weight-bold { font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="logo">
-    <!-- Insert logo fragment -->
-    <div th:insert="~{logo}"></div>
+<div class="header-section">
+    <div class="header-content">
+        <h1>REQUEST SUMMARY</h1>
+        <p class="text-muted">Negotiation Details and Submission Data</p>
+    </div>
+    <div class="logo">
+        <div th:insert="~{logo}"></div>
+    </div>
 </div>
 
-<h1>REQUEST SUMMARY</h1>
-<div class="section">
+<div class="summary-section section">
     <table class="styled-table">
         <tr>
             <td class="label">Author:</td>
-            <td th:text="${negotiationPdfData.author.name}">AUTHOR-NAME-HERE</td>
+            <td class="value" th:text="${negotiationPdfData.author.name}">AUTHOR-NAME-HERE</td>
         </tr>
         <tr>
             <td class="label">Email:</td>
-            <td th:text="${negotiationPdfData.author.email}">AUTHOR-EMAIL-HERE</td>
+            <td class="value" th:text="${negotiationPdfData.author.email}">AUTHOR-EMAIL-HERE</td>
         </tr>
         <tr>
             <td class="label">Negotiation ID:</td>
-            <td th:text="${negotiationPdfData.id}">UUID-HERE</td>
+            <td class="value font-weight-bold" th:text="${negotiationPdfData.id}">UUID-HERE</td>
         </tr>
         <tr>
             <td class="label">Submitted at:</td>
-            <td th:text="${negotiationPdfData.createdAt}">May 13, 2025 - 1:26 PM</td>
+            <td class="value" th:text="${negotiationPdfData.createdAt}">May 13, 2025 - 1:26 PM</td>
         </tr>
         <tr>
             <td class="label">Status:</td>
-            <td th:text="${negotiationPdfData.status}">STATUS-HERE</td>
+            <td class="value">
+                <span class="status-badge" th:text="${negotiationPdfData.status}">STATUS-HERE</span>
+            </td>
         </tr>
         <tr>
             <td class="label">Report generated at:</td>
-            <td th:text="${now}">CURRENTDATE-HERE</td>
+            <td class="value text-muted" th:text="${now}">CURRENTDATE-HERE</td>
         </tr>
     </table>
 </div>
@@ -83,28 +240,25 @@ This file is a Thymeleaf HTML template used to generate the PDF summary of a neg
     <h2 th:id="'section-' + ${iterStat.index}" th:text="${#strings.toUpperCase(section.key)}">SECTION</h2>
     <div class="section">
         <div class="field" th:each="entry : ${section.value}">
-            <span class="label" th:text="${entry.key + ':'}">field-name:</span>
+            <span class="label" th:text="${entry.key}">field-name</span>
+            <div class="value">
+                <span th:if="${entry.value instanceof T(java.util.List)}"
+                      th:text="${#strings.arrayJoin(entry.value, ', ')}">value1, value2</span>
 
-            <!-- Handle multi-choice arrays -->
-            <span th:if="${entry.value instanceof T(java.util.List)}"
-                  th:text="${#strings.arrayJoin(entry.value, ', ')}">value1, value2</span>
-
-
-            <!-- Map/object check -->
-            <span th:if="${entry.value instanceof T(java.util.Map)}">
-              <div class="section" style="margin-left: 1em;">
-                <div class="field" th:each="subEntry : ${entry.value}">
-                  <span class="label" th:text="${subEntry.key + ':'}">subfield-name:</span>
-                  <span th:if="${subEntry.value instanceof T(java.util.Map)}" th:text="'[object]'">[object]</span>
-                  <span th:if="${subEntry.value instanceof T(java.util.List)}" th:text="${#strings.arrayJoin(subEntry.value, ', ')}">value1, value2</span>
-                  <span th:if="${!(subEntry.value instanceof T(java.util.List)) and !(subEntry.value instanceof T(java.util.Map))}" th:utext="${subEntry.value}">simple value</span>
+                <div th:if="${entry.value instanceof T(java.util.Map)}" class="nested-section">
+                    <div class="nested-field field" th:each="subEntry : ${entry.value}">
+                        <span class="label" th:text="${subEntry.key}">subfield-name</span>
+                        <div class="value">
+                            <span th:if="${subEntry.value instanceof T(java.util.Map)}" th:text="'[Complex Object]'">[Complex Object]</span>
+                            <span th:if="${subEntry.value instanceof T(java.util.List)}" th:text="${#strings.arrayJoin(subEntry.value, ', ')}">value1, value2</span>
+                            <span th:if="${!(subEntry.value instanceof T(java.util.List)) and !(subEntry.value instanceof T(java.util.Map))}" th:utext="${subEntry.value}">simple value</span>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </span>
 
-            <!-- Fallback for scalar types -->
-            <span th:if="${!(entry.value instanceof T(java.util.List)) and !(entry.value instanceof T(java.util.Map))}"
-                  th:text="${entry.value}">simple value</span>
+                <span th:if="${!(entry.value instanceof T(java.util.List)) and !(entry.value instanceof T(java.util.Map))}"
+                      th:utext="${entry.value}">simple value</span>
+            </div>
         </div>
     </div>
 </div>

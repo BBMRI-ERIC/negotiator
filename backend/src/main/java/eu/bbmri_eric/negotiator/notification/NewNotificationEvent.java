@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class NewNotificationEvent extends ApplicationEvent {
   private final Long notificationId;
-  private String emailTemplateName = "";
+  private String emailTemplateName = "default";
 
   public NewNotificationEvent(Object source, Long notificationId, String emailTemplateName) {
     super(source);
