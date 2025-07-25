@@ -18,7 +18,6 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -51,7 +50,6 @@ public class NegotiationServiceImpl implements NegotiationService {
   private AttachmentRepository attachmentRepository;
   private NetworkRepository networkRepository;
   private ModelMapper modelMapper;
-  private UserNotificationService userNotificationService;
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
@@ -63,7 +61,6 @@ public class NegotiationServiceImpl implements NegotiationService {
       AttachmentRepository attachmentRepository,
       NetworkRepository networkRepository,
       ModelMapper modelMapper,
-      UserNotificationService userNotificationService,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
       NegotiationAccessManager negotiationAccessManager) {
@@ -73,7 +70,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     this.attachmentRepository = attachmentRepository;
     this.networkRepository = networkRepository;
     this.modelMapper = modelMapper;
-    this.userNotificationService = userNotificationService;
     this.personService = personService;
     this.eventPublisher = eventPublisher;
     this.negotiationAccessManager = negotiationAccessManager;
@@ -136,14 +132,12 @@ public class NegotiationServiceImpl implements NegotiationService {
    *     Person that called the API)
    * @return the created Negotiation entity
    */
+  @Transactional
   public NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) {
     Request request = getRequest(negotiationBody.getRequest());
     Negotiation negotiation = buildNegotiation(negotiationBody, request);
     negotiation = persistNegotiation(negotiationBody, negotiation);
     requestRepository.delete(request);
-    if (!negotiationBody.isDraft()) {
-      userNotificationService.notifyAdmins(negotiation);
-    }
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 
@@ -191,7 +185,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
-      log.error("Transferring Negotiation");
+      log.info("Transferring Negotiation");
       Person person =
           personRepository
               .findBySubjectId(updateDTO.getAuthorSubjectId())

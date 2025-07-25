@@ -380,6 +380,7 @@
 
 <script setup>
 import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
+import { debounce } from 'lodash-es'
 import { Tooltip } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
@@ -547,6 +548,54 @@ async function getValueSet(id) {
   await negotiationFormStore.retrieveDynamicAccessFormsValueSetByID(id).then((res) => {
     negotiationValueSets.value[id] = res
   })
+}
+
+const debouncedSave = ref(
+  debounce(async (step) => {
+    if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
+      await saveDraftSilently(step)
+      currentSectionModified.value = false
+    }
+  }, 1000) // Wait 1 second after user stops typing
+)
+
+async function saveDraftSilently(step) {
+  if (props.isEditForm) {
+    const data = {
+      payload: negotiationCriteria.value,
+    }
+    await negotiationFormStore
+      .updateNegotiationById(props.requestId, data, true)
+      .then(() => {
+        deleteAllReplacedAttachments()
+        // Don't show notification for auto-save
+      })
+      .catch(() => {
+        // Only show notification on error
+        notificationsStore.setNotification('Failed to auto-save changes', 'danger')
+      })
+  } else {
+    if (requestAlreadySubmittedNegotiationId.value) {
+      return
+    }
+    const data = {
+      draft: true,
+      request: props.requestId,
+      payload: negotiationCriteria.value,
+    }
+    await negotiationFormStore
+      .createNegotiation(data)
+      .then((negotiationId) => {
+        if (negotiationId) {
+          router.replace(`/edit/requests/${negotiationId}/${step}`)
+          // Don't show notification for auto-save
+        }
+      })
+      .catch(() => {
+        // Only show notification on error
+        notificationsStore.setNotification('Failed to auto-save changes', 'danger')
+      })
+  }
 }
 
 async function saveDraft(step, disableAttachmentUpload) {
@@ -778,7 +827,8 @@ async function handleFocusoutSave(step, typeOfElement) {
   if (typeOfElement === 'FILE') {
     return
   }
-  saveDraft(step, true)
+  // Use debounced save instead of immediate save
+  debouncedSave(step)
 }
 
 function isSameFile(file, newFile) {

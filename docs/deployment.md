@@ -91,6 +91,7 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE`   | Claim value for biobanker users.                  | `""`                                                                         |
 | `NEGOTIATOR_NOTIFICATION_REMINDERCRONEXPRESSION` | Cron expression for reminder notifications.       | `"0 0 6 * * *"`                                                              |
 | `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`       | Cron expression for email frequency.              | `"0 0 * * * *"`                                                              |
+| `NEGOTIATOR_EMAILADDRESS`                          | Email address from which emails are sent          | "BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>"                              |
 
 ## Life science Login Integration
 

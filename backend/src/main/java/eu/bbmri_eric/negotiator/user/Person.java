@@ -38,14 +38,6 @@ import lombok.ToString.Exclude;
 @SequenceGenerator(name = "person_id_seq", initialValue = 10000)
 public class Person {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
-  private Long id;
-
-  @Column(unique = true)
-  @NotNull
-  private String subjectId; // OIDC subject id
-
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "resource_representative_link",
@@ -59,6 +51,14 @@ public class Person {
 
   @Column(nullable = false, columnDefinition = "boolean default false")
   boolean isServiceAccount;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
+  private Long id;
+
+  @Column(unique = true)
+  @NotNull
+  private String subjectId; // OIDC subject id
 
   @NotNull private String name;
 
@@ -105,8 +105,7 @@ public class Person {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || !(o instanceof Person)) return false;
-    Person person = (Person) o;
+    if (!(o instanceof Person person)) return false;
     return Objects.equals(subjectId, person.getSubjectId());
   }
 

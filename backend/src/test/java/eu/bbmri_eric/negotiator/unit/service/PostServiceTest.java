@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
@@ -19,7 +18,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationService;
-import eu.bbmri_eric.negotiator.notification.UserNotificationServiceImpl;
 import eu.bbmri_eric.negotiator.post.Post;
 import eu.bbmri_eric.negotiator.post.PostCreateDTO;
 import eu.bbmri_eric.negotiator.post.PostDTO;
@@ -45,6 +43,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -79,14 +78,13 @@ public class PostServiceTest {
   @Mock NegotiationRepository negotiationRepository;
   @Mock OrganizationRepository organizationRepository;
   @Mock PersonRepository personRepository;
-
+  @Mock ApplicationEventPublisher applicationEventPublisher;
   @Mock PersonService personService;
   @Mock NegotiationService negotiationService;
   @Mock NegotiationAccessManager negotiationAccessManager;
 
   @Mock ModelMapper modelMapper;
   @InjectMocks PostServiceImpl postService;
-  @Mock UserNotificationServiceImpl userNotificationService;
   private AutoCloseable closeable;
 
   private Post publicPost1;
@@ -329,7 +327,6 @@ public class PostServiceTest {
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), privateResToOrg1.getText());
     assertEquals(returnedPostDTO.getType(), PostType.PRIVATE);
-    verify(userNotificationService).notifyUsersAboutNewPost(any());
   }
 
   @Test
@@ -379,7 +376,6 @@ public class PostServiceTest {
     PostDTO returnedPostDTO = postService.create(postCreateDTO, negotiation.getId());
     assertEquals(returnedPostDTO.getText(), publicPost1.getText());
     assertEquals(returnedPostDTO.getType(), PostType.PUBLIC);
-    verify(userNotificationService).notifyUsersAboutNewPost(any());
   }
 
   @Test

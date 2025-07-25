@@ -1,62 +1,33 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.negotiation.Negotiation;
-import eu.bbmri_eric.negotiator.post.Post;
+import jakarta.annotation.Nonnull;
 import java.util.List;
 
-public interface UserNotificationService {
+/** Service interface for managing user notifications. */
+interface UserNotificationService {
 
   /**
-   * Returns all notifications for a given user.
+   * Retrieves all notifications associated with the specified user ID.
    *
-   * @param userId the id of the user.
-   * @return a list of notifications.
+   * @param userId the ID of the user whose notifications are to be retrieved
+   * @param filters filters for notifications
+   * @return a list of {@link NotificationDTO} objects for the given user
    */
-  List<NotificationDTO> getNotificationsForUser(Long userId);
+  Iterable<NotificationDTO> getAllByUserId(Long userId, NotificationFilters filters);
 
   /**
-   * Notify all admins of a new negotiation.
+   * Retrieves notifications by a specific notification ID.
    *
-   * @param negotiation that was created.
+   * @param id the ID of the notification
+   * @return a list containing the matching {@link NotificationDTO}, if found
    */
-  void notifyAdmins(Negotiation negotiation);
+  NotificationDTO getById(Long id);
 
   /**
-   * Notify all admins of a new negotiation.
+   * Updates the read status of multiple notifications.
    *
-   * @param negotiationId that was created.
+   * @param updates list of notification updates containing id and read status
+   * @return list of updated NotificationDTO objects
    */
-  void notifyAdmins(String negotiationId);
-
-  /**
-   * Create notifications for all representatives of resources involved in a new negotiation.
-   *
-   * @param negotiation that was created.
-   */
-  void notifyRepresentativesAboutNewNegotiation(Negotiation negotiation);
-
-  /**
-   * Create notifications for all representatives of resources involved in a new negotiation.
-   *
-   * @param negotiationId that was created.
-   */
-  void notifyRepresentativesAboutNewNegotiation(String negotiationId);
-
-  /**
-   * Create a notification of a resource status change for the author of the request.
-   *
-   * @param negotiation that was updated.
-   */
-  void notifyRequesterAboutStatusChange(Negotiation negotiation, Resource resource);
-
-  /**
-   * Create notifications for all relevant Users about a new Post.
-   *
-   * @param post that was created.
-   */
-  void notifyUsersAboutNewPost(Post post);
-
-  /** Send out emails for all pending notifications. */
-  void sendEmailsForNewNotifications();
+  List<NotificationDTO> updateNotifications(@Nonnull List<NotificationUpdateDTO> updates);
 }

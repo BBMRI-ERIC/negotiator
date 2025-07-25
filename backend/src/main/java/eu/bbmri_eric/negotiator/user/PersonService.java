@@ -37,6 +37,8 @@ public interface PersonService {
    */
   Iterable<UserResponseModel> findAll(int page, int size);
 
+  List<UserResponseModel> findAllByOrganizationId(Long id);
+
   /**
    * Retrieves page of people from a sorted list.
    *

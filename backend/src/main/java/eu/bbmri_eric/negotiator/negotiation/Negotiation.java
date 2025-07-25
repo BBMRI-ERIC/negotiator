@@ -100,13 +100,6 @@ public class Negotiation extends AuditEntity {
   @Enumerated(EnumType.STRING)
   private NegotiationState currentState;
 
-  public void setAttachments(Set<Attachment> attachments) {
-    if (attachments != null) {
-      attachments.forEach(attachment -> attachment.setNegotiation(this));
-      this.attachments = attachments;
-    }
-  }
-
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
   @JoinColumn(name = "negotiation_id", referencedColumnName = "id")
   @Setter(AccessLevel.NONE)
@@ -125,6 +118,13 @@ public class Negotiation extends AuditEntity {
   @NotNull
   private DiscoveryService discoveryService;
 
+  public void setAttachments(Set<Attachment> attachments) {
+    if (attachments != null) {
+      attachments.forEach(attachment -> attachment.setNegotiation(this));
+      this.attachments = attachments;
+    }
+  }
+
   public void setCurrentState(NegotiationState negotiationState) {
     this.currentState = negotiationState;
     this.lifecycleHistory.add(NegotiationLifecycleRecord.builder().changedTo(currentState).build());
@@ -134,13 +134,20 @@ public class Negotiation extends AuditEntity {
    * Gets the current state for a liked Resource.
    *
    * @param resourceId the source/external ID of the Resource. Not the internal ID!
+   * @return current state of the resource, null if the resource has no state
+   * @throws java.lang.IllegalArgumentException if the resource is not part of the Negotiation
    */
   public NegotiationResourceState getCurrentStateForResource(String resourceId) {
-    return this.resourcesLink.stream()
-        .filter(link -> link.getResource().getSourceId().equals(resourceId))
-        .findFirst()
-        .orElseThrow(IllegalArgumentException::new)
-        .getCurrentState();
+    NegotiationResourceLink resourceLink =
+        this.resourcesLink.stream()
+            .filter(link -> link.getResource().getSourceId().equals(resourceId))
+            .findFirst()
+            .orElse(null);
+    if (resourceLink != null) {
+      return resourceLink.getCurrentState();
+    }
+    throw new IllegalArgumentException(
+        "Resource %s is not part of this negotiation".formatted(resourceId));
   }
 
   /**
