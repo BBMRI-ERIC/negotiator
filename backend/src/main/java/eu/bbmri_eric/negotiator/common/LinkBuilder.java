@@ -56,7 +56,7 @@ public class LinkBuilder {
         .toString();
   }
 
-  protected static MultiValueMap<String, String> getQueryParams(Object filterDTO) {
+  protected static MultiValueMap<String, String> getQueryParams(FilterDTO filterDTO) {
     MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
     Field[] fields = filterDTO.getClass().getDeclaredFields();
 
