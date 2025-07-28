@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongSortingPropertyException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,35 +78,10 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public Iterable<UserResponseModel> findAll(int page, int size) {
-    if (page < 0) throw new IllegalArgumentException("Page must be greater than 0.");
-    if (size < 1) throw new IllegalArgumentException("Size must be greater than 0.");
-    Page<UserResponseModel> result =
-        personRepository
-            .findAll(PageRequest.of(page, size))
-            .map(person -> modelMapper.map(person, UserResponseModel.class));
-    if (page > result.getTotalPages())
-      throw new IllegalArgumentException(
-          "For the given size the page must be less than/equal to " + result.getTotalPages() + ".");
-    return result;
-  }
-
-  @Override
   public List<UserResponseModel> findAllByOrganizationId(Long id) {
     return personRepository.findAllByOrganizationId(id).stream()
         .map(person -> modelMapper.map(person, UserResponseModel.class))
         .toList();
-  }
-
-  @Override
-  public Iterable<UserResponseModel> findAll(int page, int size, String sortProperty) {
-    try {
-      return personRepository
-          .findAll(PageRequest.of(page, size, Sort.by(sortProperty)))
-          .map(person -> modelMapper.map(person, UserResponseModel.class));
-    } catch (PropertyReferenceException e) {
-      throw new WrongSortingPropertyException(sortProperty, "name, id, email, organization");
-    }
   }
 
   @Override

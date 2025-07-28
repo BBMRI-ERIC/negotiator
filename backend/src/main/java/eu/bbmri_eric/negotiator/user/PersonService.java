@@ -19,41 +19,18 @@ public interface PersonService {
   /**
    * Retrieves a page of people.
    *
+   * @param filters a UserFilterDTO with filters to apply and paging and sorting information
    * @return a page of people.
    */
   Iterable<UserResponseModel> findAllByFilters(UserFilterDTO filters);
 
-  //  /**
-  //   * Retrieves a page of people.
-  //   *
-  //   * @param page the page to retrieve.
-  //   * @param size the size of the page.
-  //   * @return a page of people.
-  //   */
-  //  Iterable<UserResponseModel> findAll(int page, int size);
-  //
-  //  /**
-  //   * Retrieves page of people from a sorted list.
-  //   *
-  //   * @param page the page to retrieve.
-  //   * @param size the size of the page.
-  //   * @param sort the property to sort by.
-  //   * @return a page of people.
-  //   */
-  //  Iterable<UserResponseModel> findAll(int page, int size, String sort)
-  //      throws WrongSortingPropertyException;
-  List<UserResponseModel> findAllByOrganizationId(Long id);
-
   /**
-   * Retrieves page of people from a sorted list.
+   * Retrieves a page of people filterer by the Organization they belong to
    *
-   * @param page the page to retrieve.
-   * @param size the size of the page.
-   * @param sort the property to sort by.
-   * @return a page of people.
+   * @param id The id of the Organization
+   * @return a page of people
    */
-  Iterable<UserResponseModel> findAll(int page, int size, String sort)
-      throws WrongSortingPropertyException;
+  List<UserResponseModel> findAllByOrganizationId(Long id);
 
   /**
    * Checks if the person with the specified id represents any of the resources in the list.
