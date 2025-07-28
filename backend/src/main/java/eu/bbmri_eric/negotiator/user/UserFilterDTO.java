@@ -17,6 +17,9 @@ import org.springframework.data.domain.Sort;
 @Builder
 @Schema(description = "Parameters to filter the users")
 public class UserFilterDTO implements FilterDTO {
+  @Schema(description = "The ID of the user")
+  String id;
+
   @Schema(description = "The name of the user")
   String name;
 

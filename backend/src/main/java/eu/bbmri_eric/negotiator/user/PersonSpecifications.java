@@ -7,6 +7,10 @@ public class PersonSpecifications {
 
   public static Specification<Person> fromUserFilters(UserFilterDTO filtersDTO) {
     Specification<Person> specs = null;
+    if (filtersDTO.getId() != null) {
+      specs = initOrAnd(specs, propertyEquals("id", filtersDTO.getId()));
+    }
+
     if (filtersDTO.getName() != null) {
       specs = initOrAnd(specs, nameContains(filtersDTO.getName()));
     }
