@@ -5,6 +5,12 @@
     </div>
     <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
+      <UserFilterSort
+        v-model:filtersSortData="userFiltersSortData"
+        :sort-by-fields="userSortByFields"
+        :user-role="ROLES.ADMINISTRATOR"
+        @filters-sort-data="fetchUsers"
+      />
       <table class="table table-hover">
         <thead>
           <tr>
@@ -63,6 +69,8 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
+import UserFilterSort from './UserFilterSort.vue'
+import { ROLES } from '@/config/consts'
 
 const users = ref([])
 const currentPage = ref(1)
@@ -70,6 +78,20 @@ const pageSize = ref(10)
 const totalUsers = ref(0)
 const isLoading = ref(false)
 const adminStore = useAdminStore()
+
+const userSortByFields = ref([
+  { value: "id", label: 'ID' },
+  { value: 'subjectId', label: 'Subject Id' },
+  { value: 'name', label: 'Name' },
+  { value: 'email', label: 'Email' },
+  { value: 'lastLogin', label: 'Last Login' }
+])
+
+const userFiltersSortData = ref({
+  sortBy: 'lastLogin',
+  sortDirection: 'DESC',
+})
+
 
 const formatDate = (dateString) => {
   if (!dateString) return '-'
@@ -112,6 +134,8 @@ const fetchUsers = async () => {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
       currentPage.value - 1,
       pageSize.value,
+      userFiltersSortData.value.sortBy,
+      userFiltersSortData.value.sortDirection,
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0
