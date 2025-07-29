@@ -12,15 +12,15 @@ public class PersonSpecifications {
     }
 
     if (filtersDTO.getName() != null) {
-      specs = initOrAnd(specs, nameContains(filtersDTO.getName()));
+      specs = initOrAnd(specs, propertyContains("name", filtersDTO.getName()));
     }
 
     if (filtersDTO.getEmail() != null) {
-      specs = initOrAnd(specs, propertyEquals("email", filtersDTO.getEmail()));
+      specs = initOrAnd(specs, propertyContains("email", filtersDTO.getEmail()));
     }
 
     if (filtersDTO.getSubjectId() != null) {
-      specs = initOrAnd(specs, propertyEquals("subjectId", filtersDTO.getSubjectId()));
+      specs = initOrAnd(specs, propertyContains("subjectId", filtersDTO.getSubjectId()));
     }
 
     if (filtersDTO.getIsAdmin() != null) {
@@ -39,11 +39,6 @@ public class PersonSpecifications {
     }
   }
 
-  public static Specification<Person> nameContains(String substring) {
-    return (root, query, criteriaBuilder) ->
-        criteriaBuilder.like(root.get("name"), "%" + substring + "%");
-  }
-
   public static Specification<Person> isAdmin(Boolean isAdmin) {
     return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("admin"), isAdmin);
   }
@@ -51,5 +46,11 @@ public class PersonSpecifications {
   public static Specification<Person> propertyEquals(String property, String matchedString) {
     return (root, query, criteriaBuilder) ->
         criteriaBuilder.equal(root.get(property), matchedString);
+  }
+
+  public static Specification<Person> propertyContains(String property, String substring) {
+    return (root, query, criteriaBuilder) ->
+        criteriaBuilder.like(
+            criteriaBuilder.lower(root.get(property)), "%" + substring.toLowerCase() + "%");
   }
 }

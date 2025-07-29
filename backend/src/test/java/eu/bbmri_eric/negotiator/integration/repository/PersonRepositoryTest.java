@@ -137,7 +137,10 @@ public class PersonRepositoryTest {
   @Test
   void findAll_filterWithSpecificationNameContains_ok() {
     Person person = savePerson("a-test", "AAAA");
-    assertTrue(personRepository.findAll(PersonSpecifications.nameContains("AA")).contains(person));
+    assertTrue(
+        personRepository
+            .findAll(PersonSpecifications.propertyContains("name", "AA"))
+            .contains(person));
     assertFalse(
         personRepository
             .findAll(PersonSpecifications.propertyEquals("name", "AA"))
