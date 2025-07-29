@@ -1,7 +1,7 @@
 <template>
   <div class="container d-flex flex-row flex-wrap justify-content-between">
     <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
-      <div class="sort-by">
+      <div>
         <button
           class="btn dropdown-toggle custom-button-hover"
           :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
@@ -45,22 +45,27 @@
         <i v-if="filtersSortData.sortOrder === 'ASC'" class="bi bi-sort-up" />
       </button>
 
-      <div class="row align-items-center ms-1">
-        <input
-          type="hidden"
-          class="form-control"
-        />
-        <div v-for="field in filtersFields" :key="field.name" class="col-auto">
-          <div class="input-group">
-            <span class="input-group-text">{{ field.label  }}</span>
-            <input
-              :id="field.name"
-              v-model="filtersSortData[field.name]"
-              type="text"
-              class="form-control"
-              @input="debouncedFilter"
-            />
-          </div>
+      <div class="d-flex flex-row align-items-center ms-1">
+        <div v-for="field in filtersFields" :key="field.name" class="mx-1">
+          <TextFilter 
+            v-if="field.type == 'text' || field.type == 'email'"
+            :name="field.name"
+            :label="field.label"
+            :type="field.type"
+            v-model:value="filtersSortData[field.name]"
+            @input="debouncedFilter">
+          </TextFilter>
+          <OptionsFilter v-else-if="field.type === 'radio' || field.type === 'checkbox'" 
+            :name="field.name"
+            :label="field.label"
+            :type="field.type"
+            :options="field.options"
+            :button-style="returnButtonActiveColor"
+            :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+            @change="emitFilterSortData"
+            v-model:value="filtersSortData[field.name]"
+          >
+          </OptionsFilter>
         </div>
       </div>
     </div>
@@ -83,6 +88,8 @@ import { computed } from 'vue'
 import { ROLES } from '@/config/consts'
 // import { useRouter } from 'vue-router'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import TextFilter from './filters/TextFilter.vue'
+import OptionsFilter from './filters/OptionsFilter.vue'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()

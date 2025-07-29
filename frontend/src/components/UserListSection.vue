@@ -94,13 +94,16 @@ const sortByFields = ref({
 
 const filtersFields = ref([
   { name: 'name', label: 'Name', type: 'text', default: '' },
-  { name: 'email', label: 'Email', type: 'text', default: '' },
+  { name: 'email', label: 'Email', type: 'email', default: '' },
   { name: 'subjectId', label: 'Subject ID', type: 'text', default: '' },
+  { name: 'isAdmin', label: 'Is Admin', type: 'radio', options: [{ value: true, label: "True" }, { value: false, label: "False" }], default: ''}
 ])
 
 const filtersSortData = ref({
   name: '',
   email: '',
+  subjectId: '',
+  isAdmin: '',
   sortBy: 'lastLogin',
   sortOrder: 'DESC',
 })

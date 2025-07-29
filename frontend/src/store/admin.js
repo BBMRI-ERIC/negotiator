@@ -143,7 +143,7 @@ export const useAdminStore = defineStore('admin', () => {
       })
       .then((response) => {
         return {
-          users: response.data._embedded.users, // List of users for the current page
+          users: response.data.page.totalElements > 0 ? response.data._embedded.users : [],
           totalUsers: response.data.page.totalElements, // Total count of users (for pagination)
         }
       })
