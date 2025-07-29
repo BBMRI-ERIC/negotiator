@@ -66,6 +66,19 @@
             v-model:value="filtersSortData[field.name]"
           >
           </OptionsFilter>
+          <DateRangeFilter
+            v-if="field.type == 'date-range'"
+            :name="field.name"
+            :label="field.label"
+            :button-style="filtersSortData[field.name].start !== '' || filtersSortData[field.name].end !== ''
+              ? returnButtonActiveColor
+              : returnButtonColor"
+            v-model:start="filtersSortData[field.name].start"
+            v-model:end="filtersSortData[field.name].end"
+            @startChanged="emitFilterSortData"
+            @endChanged="emitFilterSortData"
+          >
+          </DateRangeFilter>
         </div>
       </div>
     </div>
@@ -90,6 +103,7 @@ import { ROLES } from '@/config/consts'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import TextFilter from './filters/TextFilter.vue'
 import OptionsFilter from './filters/OptionsFilter.vue'
+import DateRangeFilter from './filters/DateRangeFilter.vue'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()

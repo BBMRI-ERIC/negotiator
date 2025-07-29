@@ -96,7 +96,8 @@ const filtersFields = ref([
   { name: 'name', label: 'Name', type: 'text', default: '' },
   { name: 'email', label: 'Email', type: 'email', default: '' },
   { name: 'subjectId', label: 'Subject ID', type: 'text', default: '' },
-  { name: 'isAdmin', label: 'Is Admin', type: 'radio', options: [{ value: true, label: "True" }, { value: false, label: "False" }], default: ''}
+  { name: 'isAdmin', label: 'Is Admin', type: 'radio', options: [{ value: true, label: "True" }, { value: false, label: "False" }], default: ''},
+  { name: 'lastLogin', label: 'Last Login', type: 'date-range', default: { start: '', end: '' } }
 ])
 
 const filtersSortData = ref({
@@ -104,6 +105,10 @@ const filtersSortData = ref({
   email: '',
   subjectId: '',
   isAdmin: '',
+  lastLogin: {
+    start: '', 
+    end: ''
+  },
   sortBy: 'lastLogin',
   sortOrder: 'DESC',
 })
@@ -146,11 +151,23 @@ const resetPage = () => {
 
 const fetchUsers = async () => {
   isLoading.value = true
+
+  const data = {
+    name: filtersSortData.value.name,
+    email: filtersSortData.value.email,
+    subjectId: filtersSortData.value.subjectId,
+    isAdmin: filtersSortData.value.isAdmin,
+    lastLoginAfter: filtersSortData.value.lastLogin.start,
+    lastLoginBefore: filtersSortData.value.lastLogin.end,
+    sortBy: 'lastLogin',
+    sortOrder: 'DESC',
+  }
+
   try {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
       currentPage.value - 1,
       pageSize.value,
-      filtersSortData.value
+      data
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0
