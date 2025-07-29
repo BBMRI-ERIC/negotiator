@@ -131,6 +131,7 @@ export const useAdminStore = defineStore('admin', () => {
   function retrieveUsers(page = 0, size = 10, filtersSortData) {
     // add filtersSortData in case they are valued
     const params = Object.fromEntries(
+      // eslint-disable-next-line
       Object.entries(filtersSortData).filter(([_, value]) => value !== '')
     );
     params.page = page
