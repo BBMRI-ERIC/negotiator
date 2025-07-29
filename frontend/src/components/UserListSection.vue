@@ -3,14 +3,15 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Users</h2>
     </div>
+    <UserFilterSort
+      v-model:filtersSortData="filtersSortData"
+      :filters-fields="filtersFields"
+      :sort-by-fields="sortByFields"
+      :user-role="ROLES.ADMINISTRATOR"
+      @filters-sort-data="fetchUsers"
+    />
     <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
-      <UserFilterSort
-        v-model:filtersSortData="userFiltersSortData"
-        :sort-by-fields="userSortByFields"
-        :user-role="ROLES.ADMINISTRATOR"
-        @filters-sort-data="fetchUsers"
-      />
       <table class="table table-hover">
         <thead>
           <tr>
@@ -79,17 +80,29 @@ const totalUsers = ref(0)
 const isLoading = ref(false)
 const adminStore = useAdminStore()
 
-const userSortByFields = ref([
-  { value: "id", label: 'ID' },
-  { value: 'subjectId', label: 'Subject Id' },
-  { value: 'name', label: 'Name' },
-  { value: 'email', label: 'Email' },
-  { value: 'lastLogin', label: 'Last Login' }
+const sortByFields = ref({
+  defaultField: 'lastLogin',
+  defaultDirection: 'DESC',
+  fields: [
+    { value: 'id', label: 'ID' },
+    { value: 'name', label: 'Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'subjectId', label: 'Subject Id' },
+    { value: 'lastLogin', label: 'Last Login' }
+  ]}
+)
+
+const filtersFields = ref([
+  { name: 'name', label: 'Name', type: 'text', default: '' },
+  { name: 'email', label: 'Email', type: 'text', default: '' },
+  { name: 'subjectId', label: 'Subject ID', type: 'text', default: '' },
 ])
 
-const userFiltersSortData = ref({
+const filtersSortData = ref({
+  name: '',
+  email: '',
   sortBy: 'lastLogin',
-  sortDirection: 'DESC',
+  sortOrder: 'DESC',
 })
 
 
@@ -134,8 +147,7 @@ const fetchUsers = async () => {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
       currentPage.value - 1,
       pageSize.value,
-      userFiltersSortData.value.sortBy,
-      userFiltersSortData.value.sortDirection,
+      filtersSortData.value
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0

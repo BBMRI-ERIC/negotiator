@@ -3,7 +3,7 @@
     <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
       <div class="sort-by">
         <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
+          class="btn dropdown-toggle custom-button-hover"
           :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
           :class="filtersSortData.sortBy !== '' ? 'show' : ''"
           type="button"
@@ -14,7 +14,7 @@
           Sort by
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
-          <div v-for="(sort, index) in sortByFields" :key="index" class="form-check mx-2 my-2">
+          <div v-for="(sort, index) in sortByFields.fields" :key="index" class="form-check mx-2 my-2">
             <input
               :id="index"
               v-model="filtersSortData.sortBy"
@@ -36,140 +36,39 @@
       </div>
 
       <button
-        class="btn btn-sm custom-button-hover"
+        class="btn custom-button-hover"
         :style="returnButtonColor"
         type="button"
         @click="changeSortDirection()"
       >
-        <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
-        <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
+        <i v-if="filtersSortData.sortOrder === 'DESC'" class="bi bi-sort-down" />
+        <i v-if="filtersSortData.sortOrder === 'ASC'" class="bi bi-sort-up" />
       </button>
 
-      <!-- <div id="v-step-3" class="filter-by-status">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor"
-          :class="filtersSortData.status.length > 0 ? 'show' : ''"
-          type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
-        >
-          Filter by status
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
-          <div v-for="(status, index) in filtersStatus" :key="index" class="form-check mx-2 my-2">
+      <div class="row align-items-center ms-1">
+        <input
+          type="hidden"
+          class="form-control"
+        />
+        <div v-for="field in filtersFields" :key="field.name" class="col-auto">
+          <div class="input-group">
+            <span class="input-group-text">{{ field.label  }}</span>
             <input
-              v-model="filtersSortData.status"
-              class="form-check-input"
-              type="checkbox"
-              :value="status.value"
-              @change="emitFilterSortData"
+              :id="field.name"
+              v-model="filtersSortData[field.name]"
+              type="text"
+              class="form-control"
+              @input="debouncedFilter"
             />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
-              {{ status.label }}
-            </label>
           </div>
-        </ul>
+        </div>
       </div>
-
-      <div id="v-step-4" class="filter-by-org" v-if="filterOrganizations.length > 0">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="
-            filtersSortData.organizations.length > 0 ? returnButtonActiveColor : returnButtonColor
-          "
-          :class="filtersSortData.organizations.length > 0 ? 'show' : ''"
-          type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
-        >
-          Filter by Organization
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
-          <div
-            v-for="(org, index) in filterOrganizations"
-            :key="index"
-            class="form-check mx-2 my-2"
-          >
-            <input
-              v-model="filtersSortData.organizations"
-              class="form-check-input"
-              type="checkbox"
-              :value="org.id"
-              @change="emitFilterSortData"
-            />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
-              {{ org.name }}
-            </label>
-          </div>
-        </ul>
-      </div>
-
-      <div class="filter-by-date">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="
-            filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
-              ? returnButtonActiveColor
-              : returnButtonColor
-          "
-          :class="
-            filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
-              ? 'btn-primary show'
-              : ''
-          "
-          type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
-        >
-          Filter by date
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-          <div
-            class="mx-2 my-2 dropdown-contents"
-            :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-          >
-            <div class="d-flex align-items-center mb-2">
-              <label class="pe-2 w-25" for="startDate">Start:</label>
-              <input
-                id="startDate"
-                v-model="filtersSortData.dateStart"
-                class="form-control form-control-sm"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-                type="date"
-                @input="emitFilterSortData"
-              />
-            </div>
-            <div class="d-flex align-items-center">
-              <label for="endDate" class="pe-3 w-25">End:</label>
-              <input
-                id="endDate"
-                v-model="filtersSortData.dateEnd"
-                class="form-control form-control-sm"
-                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-                type="date"
-                @input="emitFilterSortData"
-              />
-            </div>
-          </div>
-        </ul>
-      </div> -->
     </div>
-
     <div class="my-2 ms-auto">
       <button
         type="button"
         :style="returnClearButtonColor"
-        class="btn btn-sm custom-button-hover"
+        class="btn custom-button-hover"
         @click="clearAllFilters()"
       >
         <i class="bi bi-x-circle" />
@@ -182,22 +81,19 @@
 <script setup>
 import { computed } from 'vue'
 import { ROLES } from '@/config/consts'
-import { useRouter } from 'vue-router'
+// import { useRouter } from 'vue-router'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
-const router = useRouter()
+// const router = useRouter()
 
-defineProps({
-  // filtersStatus: {
-  //   type: Array,
-  //   default: () => [],
-  // },
-  // filterOrganizations: {
-  //   type: Array,
-  //   default: () => [],
-  // },
+const props = defineProps({
+  filtersFields: {
+    type: Array,
+    required: true,
+    default: () => []
+  },
   userRole: {
     type: String,
     required: true,
@@ -225,6 +121,7 @@ const returnButtonActiveColor = computed(() => {
     color: '#FFFFFF',
   }
 })
+
 const returnButtonColor = computed(() => {
   return {
     'border-color': uiConfiguration.value?.filtersSortButtonColor,
@@ -243,6 +140,23 @@ const returnClearButtonColor = computed(() => {
   }
 })
 
+// Simple debounce function to replace lodash
+const debounce = (func, wait) => {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
+
+const debouncedFilter = debounce(() => {
+  emitFilterSortData()
+}, 500)
+
 function emitFilterSortData() {
   emit('filtersSortData', filtersSortData.value)
 }
@@ -257,15 +171,14 @@ function changeSortDirection() {
 }
 
 function clearAllFilters() {
-  // filtersSortData.value.status = []
-  // filtersSortData.value.organizations = []
-  // filtersSortData.value.dateStart = ''
-  // filtersSortData.value.dateEnd = ''
-  filtersSortData.value.sortBy = 'creationDate'
-  filtersSortData.value.sortDirection = 'DESC'
+  props.filtersFields.forEach((filterDefinition) => {
+    filtersSortData.value[filterDefinition.name] = filterDefinition.default
+  }) 
+  filtersSortData.value.sortBy = props.sortByFields.defaultField
+  filtersSortData.value.sortDirection = props.sortByFields.defaultDirection
 
   emit('filtersSortData', filtersSortData.value)
-  router.push({ query: {} })
+  // router.push({ query: {} })
 }
 
 function isChecked(value) {

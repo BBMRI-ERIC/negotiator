@@ -128,16 +128,17 @@ export const useAdminStore = defineStore('admin', () => {
       .then((response) => response.data)
   }
 
-  function retrieveUsers(page = 0, size = 10, sortBy = 'lastLogin', sortOrder = 'DESC') {
+  function retrieveUsers(page = 0, size = 10, filtersSortData) {
+    // add filtersSortData in case they are valued
+    const params = Object.fromEntries(
+      Object.entries(filtersSortData).filter(([_, value]) => value !== '')
+    );
+    params.page = page
+    params.size = size
     return axios
       .get(`${apiPaths.BASE_API_PATH}/users`, {
         headers: getBearerHeaders(),
-        params: {
-          page, // Pass the current page (0-indexed)
-          size, // Pass the number of users per page
-          sortBy,
-          sortOrder,
-        },
+        params: params,
       })
       .then((response) => {
         return {
