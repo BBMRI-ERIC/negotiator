@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
+import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
 
 /** This class provides specifications for querying the Person entity. */
@@ -27,6 +28,13 @@ public class PersonSpecifications {
       specs = initOrAnd(specs, isAdmin(filtersDTO.getIsAdmin()));
     }
 
+    if (filtersDTO.getLastLoginAfter() != null || filtersDTO.getLastLoginBefore() != null) {
+      specs =
+          initOrAnd(
+              specs,
+              createdBetween(filtersDTO.getLastLoginAfter(), filtersDTO.getLastLoginBefore()));
+    }
+
     return specs;
   }
 
@@ -52,5 +60,26 @@ public class PersonSpecifications {
     return (root, query, criteriaBuilder) ->
         criteriaBuilder.like(
             criteriaBuilder.lower(root.get(property)), "%" + substring.toLowerCase() + "%");
+  }
+
+  /**
+   * Condition to filter by lastLoginDate. Both lower and upper bound date may be avoided
+   *
+   * @param after the LocalDate after which the Person logged in last time was created
+   * @param before the LocalDate before which the Person logged in last time was created
+   * @return a Specification to add as part of a query to filter Persons
+   */
+  public static Specification<Person> createdBetween(LocalDate after, LocalDate before) {
+    return (root, query, criteriaBuilder) -> {
+      if (after == null && before == null) { // return void condition
+        return criteriaBuilder.conjunction();
+      } else if (after != null && before != null) {
+        return criteriaBuilder.between(root.get("lastLogin"), after, before);
+      } else if (after != null) {
+        return criteriaBuilder.greaterThan(root.get("lastLogin"), after);
+      } else {
+        return criteriaBuilder.lessThan(root.get("lastLogin"), before);
+      }
+    };
   }
 }

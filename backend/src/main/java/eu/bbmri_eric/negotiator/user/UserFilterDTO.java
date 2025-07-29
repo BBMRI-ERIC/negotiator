@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.user;
 import eu.bbmri_eric.negotiator.common.FilterDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,6 +32,14 @@ public class UserFilterDTO implements FilterDTO {
 
   @Schema(description = "Whether the user is admin or not")
   Boolean isAdmin;
+
+  @Schema(description = "The date after which the last login was performed", example = "2024-11-18")
+  LocalDate lastLoginAfter;
+
+  @Schema(
+      description = "The date before which the last login was performed",
+      example = "2024-11-18")
+  LocalDate lastLoginBefore;
 
   @Schema(
       description = "The field to use to sort the results",
