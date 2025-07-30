@@ -9,6 +9,9 @@
       class="form-control"
       @input="emitInput"
     />
+    <button class="input-group-text" @click="resetValue">
+        <i class="bi bi-x"></i>
+    </button>
   </div>
 </template>
 
@@ -44,4 +47,13 @@ function emitInput() {
   emit('input', value.value)
 }
 
+function resetValue() {
+  value.value = ''
+  emitInput()
+}
+
 </script>
+
+<style scoped>
+
+</style>
