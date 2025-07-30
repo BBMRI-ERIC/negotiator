@@ -78,6 +78,7 @@
           :button-style="filtersSortData[field.name] !== '' 
             ? returnButtonActiveColor 
             : returnButtonColor"
+          :clear-button-style="returnClearButtonColor"
           :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
           @change="emitFilterSortData"
           v-model:value="filtersSortData[field.name]"

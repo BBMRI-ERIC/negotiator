@@ -26,7 +26,16 @@
           {{ option.label }}
         </label>
       </div>
-    </ul>
+       <button
+          type="button"
+          :style="clearButtonStyle"
+          class="btn custom-button-hover mt-1 ms-2"
+          @click="clearValue"
+        >
+          <i class="bi bi-x-circle" />
+          Clear
+        </button>
+    </ul>    
   </div>
 </template>
 
@@ -65,11 +74,26 @@ defineProps({
     type: Object,
     required: false,
     default: () => {}
-  }  
+  },
+  clearButtonStyle: {
+    type: Object,
+    required: false,
+    default: () => ({
+      'border-color': '#dc3545',
+      '--hovercolor': '#dc3545',
+      'background-color': '#FFFFFF',
+      'color': '#dc3545'
+    })
+  }
 })
 
 function emitChange() {
   emit('change', value.value)
+}
+
+function clearValue() {
+  value.value = ''
+  emitChange()
 }
 
 </script>
