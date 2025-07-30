@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Users</h2>
     </div>
-    <UserFilterSort
+    <AdminSettingsFilterSort
       v-model:filtersSortData="filtersSortData"
       :filters-fields="filtersFields"
       :sort-by-fields="sortByFields"
@@ -70,7 +70,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
-import UserFilterSort from './UserFilterSort.vue'
+import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { ROLES } from '@/config/consts'
 
 const users = ref([])

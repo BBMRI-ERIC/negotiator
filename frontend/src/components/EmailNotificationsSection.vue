@@ -3,14 +3,14 @@
     <h3 class="mb-4">Email Notifications</h3>
 
     <!-- Filters -->
-    <UserFilterSort
+    <AdminSettingsFilterSort
       v-model:filtersSortData="filtersSortData"
       :sort-by-fields="sortByFields"
       :filters-fields="filtersFields"
       :user-role="ROLES.ADMINISTRATOR"
       @filters-sort-data="applyFilters"
     >
-    </UserFilterSort>
+    </AdminSettingsFilterSort>
 
     <!-- Loading indicator -->
     <div v-if="loading" class="text-center py-4">
@@ -109,8 +109,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
-import UserFilterSort from './UserFilterSort.vue'
 import { ROLES } from '@/config/consts'
+import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 
 
 const emit = defineEmits(['view-email'])

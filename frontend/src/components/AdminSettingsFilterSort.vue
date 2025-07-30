@@ -60,46 +60,42 @@
     </div>
 
     <div class="row row-cols-auto gap-2 ms-1 my-2">
-      <!-- <div class="col-12 d-flex flex-row align-items-center"> -->
-        <div v-for="field in filtersFields" :key="field.name" class="col mx-1">
-          <TextFilter 
-            v-if="field.type == 'text' || field.type == 'email'"
-            :name="field.name"
-            :label="field.label"
-            :type="field.type"
-            :placeholder="field.placeholder"
-            v-model:value="filtersSortData[field.name]"
-            @input="debouncedFilter">
-          </TextFilter>
-          <OptionsFilter v-else-if="field.type === 'radio' || field.type === 'checkbox'" 
-            :name="field.name"
-            :label="field.label"
-            :type="field.type"
-            :options="field.options"
-            :button-style="filtersSortData[field.name] !== '' 
-              ? returnButtonActiveColor 
-              : returnButtonColor"
-            :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            @change="emitFilterSortData"
-            v-model:value="filtersSortData[field.name]"
-          >
-          </OptionsFilter>
-          <DateRangeFilter
-            v-if="field.type == 'date-range'"
-            :name="field.name"
-            :label="field.label"
-            :button-style="filtersSortData[field.name].start !== '' || filtersSortData[field.name].end !== ''
-              ? returnButtonActiveColor
-              : returnButtonColor"
-            :type="field.inputType"
-            v-model:start="filtersSortData[field.name].start"
-            v-model:end="filtersSortData[field.name].end"
-            @startChanged="emitFilterSortData"
-            @endChanged="emitFilterSortData"
-          >
-          </DateRangeFilter>
-        </div>
-      <!-- </div> -->
+      <div v-for="field in filtersFields" :key="field.name" class="col mx-1">
+        <TextFilter 
+          v-if="field.type == 'text' || field.type == 'email'"
+          :name="field.name"
+          :label="field.label"
+          :type="field.type"
+          :placeholder="field.placeholder"
+          v-model:value="filtersSortData[field.name]"
+          @input="debouncedFilter"
+        />
+        <OptionsFilter v-else-if="field.type === 'radio' || field.type === 'checkbox'" 
+          :name="field.name"
+          :label="field.label"
+          :type="field.type"
+          :options="field.options"
+          :button-style="filtersSortData[field.name] !== '' 
+            ? returnButtonActiveColor 
+            : returnButtonColor"
+          :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+          @change="emitFilterSortData"
+          v-model:value="filtersSortData[field.name]"
+        />
+        <DateRangeFilter
+          v-if="field.type == 'date-range'"
+          :name="field.name"
+          :label="field.label"
+          :button-style="filtersSortData[field.name].start !== '' || filtersSortData[field.name].end !== ''
+            ? returnButtonActiveColor
+            : returnButtonColor"
+          :type="field.inputType"
+          v-model:start="filtersSortData[field.name].start"
+          v-model:end="filtersSortData[field.name].end"
+          @startChanged="emitFilterSortData"
+          @endChanged="emitFilterSortData"
+        />
+      </div>
     </div>
   </div>
 </template>
