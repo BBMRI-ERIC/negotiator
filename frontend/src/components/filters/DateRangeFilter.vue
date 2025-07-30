@@ -16,34 +16,27 @@
         class="mx-2 my-2 dropdown-contents"
         :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
       >
-        <div class="d-flex align-items-center mb-2">
-          <label class="pe-2 w-25" for="startDate">Start:</label>
-          <input
-            id="startDate"
-            v-model="start"
-            class="form-control form-control-sm"
-            :style="inputStyle"
-            :type="type"
-            @input="emitStartChange"
-          />
-        </div>
-        <div class="d-flex align-items-center">
-          <label for="endDate" class="pe-3 w-25">End:</label>
-          <input
-            id="endDate"
-            v-model="end"
-            class="form-control form-control-sm"
-            :style="inputStyle"
-            :type="type"
-            @input="emitEndChange"
-          />
-        </div>
+        <TextFilter
+          v-model:value="start"
+          label="Start"
+          :type="type"
+          @input="emitStartChange"
+        />
+        <TextFilter
+          v-model:value="end"
+          class="mt-2"
+          label="End"
+          :type="type"
+          @input="emitEndChange"
+        />
       </div>
     </ul>
   </div>
 </template>
 
 <script setup>
+import TextFilter from './TextFilter.vue'
+
 const start = defineModel("start")
 const end = defineModel("end")
 
