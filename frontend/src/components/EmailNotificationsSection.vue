@@ -9,8 +9,7 @@
       :filters-fields="filtersFields"
       :user-role="ROLES.ADMINISTRATOR"
       @filters-sort-data="applyFilters"
-    >
-    </AdminSettingsFilterSort>
+    />
 
     <!-- Loading indicator -->
     <div v-if="loading" class="text-center py-4">
@@ -117,8 +116,11 @@ const emit = defineEmits(['view-email'])
 
 const emailStore = useEmailStore()
 
+const emails = ref([])
+const loading = ref(false)
+
 const sortByFields = ref({
-  defaultField: 'sentAt',
+  defaultField: 'address',
   defaultOrder: 'DESC',
   fields: [
     { value: 'address', label: 'Email Address' },
@@ -140,9 +142,6 @@ const filtersSortData = ref({
   sortBy: sortByFields.value.defaultField,
   sortOrder: sortByFields.value.defaultOrder
 })
-
-const emails = ref([])
-const loading = ref(false)
 
 const pagination = ref({
   number: 0,
@@ -280,7 +279,6 @@ const formatForJavaLocalDateTime = (date) => {
 }
 
 onMounted(() => {
-  console.log("mounting emails")
   // Set sentAfter to yesterday at 00:00 by default
   filtersSortData.value.sentAt.start = getYesterdayStartForInput()
   // Set sentBefore to current date/time by default

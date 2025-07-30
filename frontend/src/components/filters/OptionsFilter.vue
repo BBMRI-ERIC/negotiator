@@ -26,15 +26,15 @@
           {{ option.label }}
         </label>
       </div>
-       <button
-          type="button"
-          :style="clearButtonStyle"
-          class="btn custom-button-hover mt-1 ms-2"
-          @click="clearValue"
-        >
-          <i class="bi bi-x-circle" />
-          Clear
-        </button>
+      <button
+        type="button"
+        :style="clearButtonStyle"
+        class="btn custom-button-hover mt-1 ms-2"
+        @click="clearValue"
+      >
+        <i class="bi bi-x-circle" />
+        Clear
+      </button>
     </ul>    
   </div>
 </template>

@@ -93,9 +93,9 @@ const sortByFields = ref({
 )
 
 const filtersFields = ref([
-  { name: 'name', label: 'Name', type: 'text', default: '' },
-  { name: 'email', label: 'Email', type: 'email', default: '' },
-  { name: 'subjectId', label: 'Subject ID', type: 'text', default: '' },
+  { name: 'name', label: 'Name', type: 'text', default: '', placeholder: 'Enter the Name' },
+  { name: 'email', label: 'Email', type: 'email', default: '', placeholder: 'Enter the Email' },
+  { name: 'subjectId', label: 'Subject ID', type: 'text', default: '', placeholder: 'Enter the Subject Id'},
   { name: 'isAdmin', label: 'Is Admin', type: 'radio', options: [{ value: true, label: "True" }, { value: false, label: "False" }], default: ''},
   { name: 'lastLogin', label: 'Last Login', type: 'date-range', default: { start: '', end: '' } }
 ])
@@ -109,8 +109,8 @@ const filtersSortData = ref({
     start: '', 
     end: ''
   },
-  sortBy: 'lastLogin',
-  sortOrder: 'DESC',
+  sortBy: sortByFields.value.defaultField,
+  sortOrder: sortByFields.value.defaultOrder,
 })
 
 

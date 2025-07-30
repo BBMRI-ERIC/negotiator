@@ -29,6 +29,15 @@
           :type="type"
           @input="emitEndChange"
         />
+        <button
+          type="button"
+          :style="clearButtonStyle"
+          class="btn custom-button-hover mt-2"
+          @click="clearAll"
+        >
+          <i class="bi bi-x-circle" />
+          Clear
+        </button>
       </div>
     </ul>
   </div>
@@ -72,7 +81,16 @@ defineProps({
     required: false,
     default: () => {}
   },
-  
+  clearButtonStyle: {
+    type: Object,
+    required: false,
+    default: () => ({
+      'border-color': '#dc3545',
+      '--hovercolor': '#dc3545',
+      'background-color': '#FFFFFF',
+      'color': '#dc3545'
+    })
+  }
 })
 
 function emitStartChange() {
@@ -80,6 +98,13 @@ function emitStartChange() {
 }
 
 function emitEndChange() {
+  emit('endChanged', end.value)
+}
+
+function clearAll() {
+  start.value = ''
+  end.value = ''
+  emit('startChanged', start.value)
   emit('endChanged', end.value)
 }
 
