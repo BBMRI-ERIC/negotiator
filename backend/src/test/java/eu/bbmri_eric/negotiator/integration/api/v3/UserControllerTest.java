@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -240,6 +241,50 @@ public class UserControllerTest {
         .andExpect(jsonPath("$._embedded.users[0].name", is("admin")))
         .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1")))
         .andExpect(jsonPath("$._embedded.users[0].email", is("admin@negotiator.dev")));
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void findUsers_byLastLogin_authorized_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
+                .param("lastLoginAfter", "2025-07-29")
+                .param("sortBy", "lastLogin")
+                .param("sortOrder", "ASC"))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath(
+                "$._embedded.users.length()",
+                not(0))) // at least the one in the initial data, plus the ones logged in during the
+        // test
+        .andExpect(jsonPath("$._embedded.users[0].id", is("101")))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("admin")))
+        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1")))
+        .andExpect(jsonPath("$._embedded.users[0].email", is("admin@negotiator.dev")));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("lastLoginBefore", "2025-01-01"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
+        .andExpect(jsonPath("$._embedded.users[0].id", is("104")))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("researcher")))
+        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("4")))
+        .andExpect(jsonPath("$._embedded.users[0].email", is("researcher@negotiator.dev")));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
+                .param("lastLoginBefore", "2025-04-01")
+                .param("lastLoginAfter", "2025-02-09")
+                .param("sortBy", "lastLogin")
+                .param("sortOrder", "ASC"))
+        .andExpect(jsonPath("$._embedded.users.length()", is(2)))
+        .andExpect(jsonPath("$._embedded.users[0].id", is("109")))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("TheBiobanker")))
+        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1001@bbmri.eu")))
+        .andExpect(jsonPath("$._embedded.users[0].email", is("taylor.biobanker@gmail.com")));
   }
 
   @Test

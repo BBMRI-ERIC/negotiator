@@ -1,18 +1,18 @@
 insert into discovery_service (url, name)
 values ('http://discoveryservice.dev','Biobank Directory');
 
-insert into person (id, email, name, subject_id, password, organization, admin)
+insert into person (id, email, name, subject_id, password, organization, admin, last_login)
 values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7YnvewDm3Gm/puTWGFniJvWen93C/f/6Bqey',
-        'BBMRI', true),
+        'BBMRI', true, '2025-07-30'),
        (102, 'directory@negotiator.dev', 'directory', '2',
-        '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', false),
+        '$2a$10$iHi5bQ8nTRRF1bkiJfygkONgmABH1xNpLy2MZrHdusP.7.Rjpwk.i', 'BBMRI', false, '2025-01-01'),
        (103, 'perun@negotiator.dev', 'perun', '3', '$2a$10$RCBPPd3suXNB4vLSowDdUe5umkyZaDJCt.8DtG3xVidUhxWe2Woci',
-        'BBMRI', false),
+        'BBMRI', false, null),
        (104, 'researcher@negotiator.dev', 'researcher', '4',
-        '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', false),
-       (105, 'sarah.representative@gmail.com', 'SarahRepr', '5', null, 'Test Biobank', false),
-       (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false),
-       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false);
+        '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', false, '2023-02-15'),
+       (105, 'sarah.representative@gmail.com', 'SarahRepr', '5', null, 'Test Biobank', false, '2025-03-30'),
+       (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false, '2025-04-20'),
+       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false, '2025-02-10');
 
 insert into authorities (person_id, authority)
 values (101, 'ADMIN'),  -- still needed for data sources tests
