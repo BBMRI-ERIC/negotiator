@@ -20,7 +20,7 @@
     <hr />
     <EmailNotificationsSection @view-email="viewEmailDetails" />
     <hr />
-    <UserListSection :users="users" />
+    <UserListSection />
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -68,7 +68,6 @@ const notifications = useNotificationsStore()
 const resourceAllEvents = ref({})
 const infoRequirements = ref([])
 const accessForms = ref([])
-const users = ref([])
 const isLoading = ref(true)
 const editModal = ref(undefined)
 const selectedWebhook = ref({})
@@ -86,7 +85,6 @@ onMounted(async () => {
     resourceAllEvents.value = await adminStore.retrieveResourceAllEvents()
     infoRequirements.value = await adminStore.retrieveInfoRequirements()
     accessForms.value = await formsStore.retrieveAllAccessForms()
-    users.value = (await adminStore.retrieveUsers()) || []
     const freshWebhooks = await adminStore.retrieveWebhooks()
     webhooks.value = freshWebhooks || []
   } catch (error) {

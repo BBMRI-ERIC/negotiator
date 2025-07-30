@@ -3,42 +3,13 @@
     <h3 class="mb-4">Email Notifications</h3>
 
     <!-- Filters -->
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <label for="addressFilter" class="form-label">Filter by Email Address</label>
-        <input
-          id="addressFilter"
-          v-model="filters.address"
-          type="text"
-          class="form-control"
-          placeholder="Enter email address..."
-          @input="debouncedFilter"
-        />
-      </div>
-      <div class="col-md-3">
-        <label for="sentAfter" class="form-label">Sent After</label>
-        <input
-          id="sentAfter"
-          v-model="filters.sentAfter"
-          type="datetime-local"
-          class="form-control"
-          @change="applyFilters"
-        />
-      </div>
-      <div class="col-md-3">
-        <label for="sentBefore" class="form-label">Sent Before</label>
-        <input
-          id="sentBefore"
-          v-model="filters.sentBefore"
-          type="datetime-local"
-          class="form-control"
-          @change="applyFilters"
-        />
-      </div>
-      <div class="col-md-2 d-flex align-items-end">
-        <button class="btn btn-outline-secondary w-100" @click="clearFilters">Clear Filters</button>
-      </div>
-    </div>
+    <AdminSettingsFilterSort
+      v-model:filtersSortData="filtersSortData"
+      :sort-by-fields="sortByFields"
+      :filters-fields="filtersFields"
+      :user-role="ROLES.ADMINISTRATOR"
+      @filters-sort-data="applyFilters"
+    />
 
     <!-- Loading indicator -->
     <div v-if="loading" class="text-center py-4">
@@ -137,30 +108,39 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
+import { ROLES } from '@/config/consts'
+import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
+
 
 const emit = defineEmits(['view-email'])
 
 const emailStore = useEmailStore()
 
-// Simple debounce function to replace lodash
-const debounce = (func, wait) => {
-  let timeout
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout)
-      func(...args)
-    }
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
-}
-
 const emails = ref([])
 const loading = ref(false)
-const filters = ref({
+
+const sortByFields = ref({
+  defaultField: 'address',
+  defaultOrder: 'DESC',
+  fields: [
+    { value: 'address', label: 'Email Address' },
+    { value: 'sentAt', label: 'Sent At' }
+  ]}
+)
+
+const filtersFields = ref([
+  { name: 'address', label: 'Email Address', type: 'text', default: '', placeholder: "Enter email address"},
+  { name: 'sentAt', label: 'Sent At', type: 'date-range', inputType: 'datetime-local', default: { start: '', end: '' } }
+])
+
+const filtersSortData = ref({
   address: '',
-  sentAfter: '',
-  sentBefore: '',
+  sentAt: {
+    start: '', 
+    end: ''
+  },
+  sortBy: sortByFields.value.defaultField,
+  sortOrder: sortByFields.value.defaultOrder
 })
 
 const pagination = ref({
@@ -170,35 +150,26 @@ const pagination = ref({
   totalPages: 0,
 })
 
-const sort = ref({
-  field: 'sentAt',
-  direction: 'desc',
-})
-// Removed unused computed property
-const debouncedFilter = debounce(() => {
-  applyFilters()
-}, 500)
-
 const fetchEmails = async () => {
   loading.value = true
   try {
     const params = {
       page: pagination.value.number,
       size: pagination.value.size,
-      sort: `${sort.value.field},${sort.value.direction}`,
+      sort:`${filtersSortData.value.sortBy},${filtersSortData.value.sortOrder}`,
     }
 
-    if (filters.value.address) {
-      params.address = filters.value.address
+    if (filtersSortData.value.address) {
+      params.address = filtersSortData.value.address
     }
-    if (filters.value.sentAfter) {
+    if (filtersSortData.value.sentAt.start) {
       // Convert to LocalDateTime format: YYYY-MM-DDTHH:MM:SS
-      const afterDate = new Date(filters.value.sentAfter)
+      const afterDate = new Date(filtersSortData.value.sentAt.start)
       params.sentAfter = formatForJavaLocalDateTime(afterDate)
     }
-    if (filters.value.sentBefore) {
+    if (filtersSortData.value.sentAt.end) {
       // Convert to LocalDateTime format: YYYY-MM-DDTHH:MM:SS
-      const beforeDate = new Date(filters.value.sentBefore)
+      const beforeDate = new Date(filtersSortData.value.sentAt.end)
       params.sentBefore = formatForJavaLocalDateTime(beforeDate)
     }
 
@@ -220,21 +191,21 @@ const fetchEmails = async () => {
 }
 
 const sortBy = (field) => {
-  if (sort.value.field === field) {
-    sort.value.direction = sort.value.direction === 'asc' ? 'desc' : 'asc'
+  if (filtersSortData.value.sortBy === field) {
+    filtersSortData.value.sortOrder = filtersSortData.value.sortOrder === 'ASC' ? 'DESC' : 'ASC'
   } else {
-    sort.value.field = field
-    sort.value.direction = 'asc'
+    filtersSortData.value.sortBy = field
+    filtersSortData.value.sortOrder = 'ASC'
   }
   pagination.value.number = 0
   fetchEmails()
 }
 
 const getSortIcon = (field) => {
-  if (sort.value.field !== field) {
+  if (filtersSortData.value.sortBy !== field) {
     return 'fas fa-sort text-muted'
   }
-  return sort.value.direction === 'asc' ? 'fas fa-sort-up text-dark' : 'fas fa-sort-down text-dark'
+  return filtersSortData.value.sortOrder === 'ASC' ? 'fas fa-sort-up text-dark' : 'fas fa-sort-down text-dark'
 }
 
 const goToPage = (page) => {
@@ -250,16 +221,6 @@ const changePageSize = () => {
 }
 
 const applyFilters = () => {
-  pagination.value.number = 0
-  fetchEmails()
-}
-
-const clearFilters = () => {
-  filters.value = {
-    address: '',
-    sentAfter: '',
-    sentBefore: '',
-  }
   pagination.value.number = 0
   fetchEmails()
 }
@@ -319,9 +280,9 @@ const formatForJavaLocalDateTime = (date) => {
 
 onMounted(() => {
   // Set sentAfter to yesterday at 00:00 by default
-  filters.value.sentAfter = getYesterdayStartForInput()
+  filtersSortData.value.sentAt.start = getYesterdayStartForInput()
   // Set sentBefore to current date/time by default
-  filters.value.sentBefore = getCurrentDateTimeForInput()
+  filtersSortData.value.sentAt.end = getCurrentDateTimeForInput()
   fetchEmails()
 })
 </script>
