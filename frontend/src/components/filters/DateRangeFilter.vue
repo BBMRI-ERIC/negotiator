@@ -23,7 +23,7 @@
             v-model="start"
             class="form-control form-control-sm"
             :style="inputStyle"
-            type="date"
+            :type="type"
             @input="emitStartChange"
           />
         </div>
@@ -34,7 +34,7 @@
             v-model="end"
             class="form-control form-control-sm"
             :style="inputStyle"
-            type="date"
+            :type="type"
             @input="emitEndChange"
           />
         </div>
@@ -57,6 +57,12 @@ defineProps({
   label: {
     type: String,
     required: true
+  },
+  type: {
+    type: String,
+    required: false,
+    default: 'date',
+    validator: (prop) => ['date', 'datetime', 'date-local', 'datetime-local'].includes(prop)
   },
   buttonStyle: {
     type: Object,

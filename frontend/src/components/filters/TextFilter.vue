@@ -5,6 +5,7 @@
       :id="name"
       v-model="value"
       :type="type"
+      :placeholder="placeholder"
       class="form-control"
       @input="emitInput"
     />
@@ -31,6 +32,11 @@ defineProps({
     required: false,
     default: 'text',
     validator: (prop) => ['test', 'email'].includes(prop)
+  },
+  placeholder: {
+    type: String,
+    required: false,
+    default: ''
   }
 })
 

@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row gap-2 my-2 mx-auto mx-md-0 mb-3">
       <div class="col d-flex flex-row">
-        <div class="dropdown">
+        <div v-if="sortByFields" class="dropdown">
           <button
             class="btn dropdown-toggle custom-button-hover mx-2"
             :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
@@ -37,6 +37,7 @@
         </div>
 
         <button
+          v-if="sortByFields"
           class="btn custom-button-hover"
           :style="returnButtonColor"
           type="button"
@@ -66,6 +67,7 @@
             :name="field.name"
             :label="field.label"
             :type="field.type"
+            :placeholder="field.placeholder"
             v-model:value="filtersSortData[field.name]"
             @input="debouncedFilter">
           </TextFilter>
@@ -89,6 +91,7 @@
             :button-style="filtersSortData[field.name].start !== '' || filtersSortData[field.name].end !== ''
               ? returnButtonActiveColor
               : returnButtonColor"
+            :type="field.inputType"
             v-model:start="filtersSortData[field.name].start"
             v-model:end="filtersSortData[field.name].end"
             @startChanged="emitFilterSortData"
@@ -128,8 +131,7 @@ const props = defineProps({
   },
   sortByFields: {
     type: Array,
-    required: true,
-    default: () => []
+    required: false
   }
 })
 
