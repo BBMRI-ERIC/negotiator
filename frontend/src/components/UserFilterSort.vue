@@ -1,52 +1,66 @@
 <template>
-  <div class="container d-flex flex-row flex-wrap justify-content-between">
-    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
-      <div>
+  <div class="container">
+    <div class="row gap-2 my-2 mx-auto mx-md-0 mb-3">
+      <div class="col d-flex flex-row">
+        <div class="dropdown">
+          <button
+            class="btn dropdown-toggle custom-button-hover mx-2"
+            :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
+            :class="filtersSortData.sortBy !== '' ? 'show' : ''"
+            type="button"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            aria-expanded="false"
+          >
+            Sort by
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
+            <div v-for="(sort, index) in sortByFields.fields" :key="index" class="form-check mx-2 my-2">
+              <input
+                :id="index"
+                v-model="filtersSortData.sortBy"
+                class="form-check-input"
+                type="radio"
+                name="sort"
+                :value="sort.value"
+                :checked="isChecked(sort.value)"
+                @change="emitFilterSortData"
+              />
+              <label
+                class="form-check-label"
+                :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
+              >
+                {{ sort.label }}
+              </label>
+            </div>
+          </ul>
+        </div>
+
         <button
-          class="btn dropdown-toggle custom-button-hover"
-          :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
-          :class="filtersSortData.sortBy !== '' ? 'show' : ''"
+          class="btn custom-button-hover"
+          :style="returnButtonColor"
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          @click="changeSortDirection()"
         >
-          Sort by
+          <i v-if="filtersSortData.sortOrder === 'DESC'" class="bi bi-sort-down" />
+          <i v-if="filtersSortData.sortOrder === 'ASC'" class="bi bi-sort-up" />
         </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
-          <div v-for="(sort, index) in sortByFields.fields" :key="index" class="form-check mx-2 my-2">
-            <input
-              :id="index"
-              v-model="filtersSortData.sortBy"
-              class="form-check-input"
-              type="radio"
-              name="sort"
-              :value="sort.value"
-              :checked="isChecked(sort.value)"
-              @change="emitFilterSortData"
-            />
-            <label
-              class="form-check-label"
-              :style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
-            >
-              {{ sort.label }}
-            </label>
-          </div>
-        </ul>
+
+        <button
+          type="button"
+          :style="returnClearButtonColor"
+          class="btn custom-button-hover ms-auto"
+          @click="clearAllFilters()"
+        >
+          <i class="bi bi-x-circle" />
+          Clear all filters
+        </button>
       </div>
+    </div>
 
-      <button
-        class="btn custom-button-hover"
-        :style="returnButtonColor"
-        type="button"
-        @click="changeSortDirection()"
-      >
-        <i v-if="filtersSortData.sortOrder === 'DESC'" class="bi bi-sort-down" />
-        <i v-if="filtersSortData.sortOrder === 'ASC'" class="bi bi-sort-up" />
-      </button>
-
-      <div class="d-flex flex-row align-items-center ms-1">
-        <div v-for="field in filtersFields" :key="field.name" class="mx-1">
+    <div class="row row-cols-auto gap-2 ms-1 my-2">
+      <!-- <div class="col-12 d-flex flex-row align-items-center"> -->
+        <div v-for="field in filtersFields" :key="field.name" class="col mx-1">
           <TextFilter 
             v-if="field.type == 'text' || field.type == 'email'"
             :name="field.name"
@@ -60,7 +74,9 @@
             :label="field.label"
             :type="field.type"
             :options="field.options"
-            :button-style="returnButtonActiveColor"
+            :button-style="filtersSortData[field.name] !== '' 
+              ? returnButtonActiveColor 
+              : returnButtonColor"
             :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
             @change="emitFilterSortData"
             v-model:value="filtersSortData[field.name]"
@@ -80,18 +96,7 @@
           >
           </DateRangeFilter>
         </div>
-      </div>
-    </div>
-    <div class="my-2 ms-auto">
-      <button
-        type="button"
-        :style="returnClearButtonColor"
-        class="btn custom-button-hover"
-        @click="clearAllFilters()"
-      >
-        <i class="bi bi-x-circle" />
-        Clear all filters
-      </button>
+      <!-- </div> -->
     </div>
   </div>
 </template>
@@ -183,10 +188,11 @@ function emitFilterSortData() {
 }
 
 function changeSortDirection() {
-  if (filtersSortData.value.sortDirection === 'DESC') {
-    filtersSortData.value.sortDirection = 'ASC'
+  console.log(filtersSortData.value.sortOrder)
+  if (filtersSortData.value.sortOrder === 'DESC') {
+    filtersSortData.value.sortOrder = 'ASC'
   } else {
-    filtersSortData.value.sortDirection = 'DESC'
+    filtersSortData.value.sortOrder = 'DESC'
   }
   emit('filtersSortData', filtersSortData.value)
 }
@@ -196,7 +202,7 @@ function clearAllFilters() {
     filtersSortData.value[filterDefinition.name] = filterDefinition.default
   }) 
   filtersSortData.value.sortBy = props.sortByFields.defaultField
-  filtersSortData.value.sortDirection = props.sortByFields.defaultDirection
+  filtersSortData.value.sortOrder = props.sortByFields.defaultOrder
 
   emit('filtersSortData', filtersSortData.value)
   // router.push({ query: {} })

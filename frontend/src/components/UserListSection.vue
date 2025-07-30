@@ -82,7 +82,7 @@ const adminStore = useAdminStore()
 
 const sortByFields = ref({
   defaultField: 'lastLogin',
-  defaultDirection: 'DESC',
+  defaultOrder: 'DESC',
   fields: [
     { value: 'id', label: 'ID' },
     { value: 'name', label: 'Name' },
@@ -159,8 +159,8 @@ const fetchUsers = async () => {
     isAdmin: filtersSortData.value.isAdmin,
     lastLoginAfter: filtersSortData.value.lastLogin.start,
     lastLoginBefore: filtersSortData.value.lastLogin.end,
-    sortBy: 'lastLogin',
-    sortOrder: 'DESC',
+    sortBy: filtersSortData.value.sortBy,
+    sortOrder: filtersSortData.value.sortOrder,
   }
 
   try {
