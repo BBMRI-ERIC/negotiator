@@ -1,8 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.UnsupportedFilterException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongSortingPropertyException;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.util.List;
 import java.util.Set;
@@ -19,36 +17,20 @@ public interface PersonService {
   UserResponseModel findById(Long id) throws EntityNotFoundException;
 
   /**
-   * Retrieves all UserResponseModels that match the specified filter criteria.
-   *
-   * @param property the property to filter on
-   * @param matchedValue the value that must be matched
-   * @return an Iterable of UserResponseModel objects that match the filter criteria
-   */
-  Iterable<UserResponseModel> findAllByFilter(
-      String property, String matchedValue, int page, int size) throws UnsupportedFilterException;
-
-  /**
    * Retrieves a page of people.
    *
-   * @param page the page to retrieve.
-   * @param size the size of the page.
+   * @param filters a UserFilterDTO with filters to apply and paging and sorting information
    * @return a page of people.
    */
-  Iterable<UserResponseModel> findAll(int page, int size);
-
-  List<UserResponseModel> findAllByOrganizationId(Long id);
+  Iterable<UserResponseModel> findAllByFilters(UserFilterDTO filters);
 
   /**
-   * Retrieves page of people from a sorted list.
+   * Retrieves a page of people filterer by the Organization they belong to
    *
-   * @param page the page to retrieve.
-   * @param size the size of the page.
-   * @param sort the property to sort by.
-   * @return a page of people.
+   * @param id The id of the Organization
+   * @return a page of people
    */
-  Iterable<UserResponseModel> findAll(int page, int size, String sort)
-      throws WrongSortingPropertyException;
+  List<UserResponseModel> findAllByOrganizationId(Long id);
 
   /**
    * Checks if the person with the specified id represents any of the resources in the list.

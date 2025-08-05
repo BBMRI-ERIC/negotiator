@@ -3,6 +3,13 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Users</h2>
     </div>
+    <AdminSettingsFilterSort
+      v-model:filtersSortData="filtersSortData"
+      :filters-fields="filtersFields"
+      :sort-by-fields="sortByFields"
+      :user-role="ROLES.ADMINISTRATOR"
+      @filters-sort-data="fetchUsers"
+    />
     <div v-if="users.length === 0 && !isLoading" class="text-muted mb-3">No users found.</div>
     <div v-else class="table-container">
       <table class="table table-hover">
@@ -63,6 +70,8 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
+import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
+import { ROLES } from '@/config/consts'
 
 const users = ref([])
 const currentPage = ref(1)
@@ -70,6 +79,40 @@ const pageSize = ref(10)
 const totalUsers = ref(0)
 const isLoading = ref(false)
 const adminStore = useAdminStore()
+
+const sortByFields = ref({
+  defaultField: 'lastLogin',
+  defaultOrder: 'DESC',
+  fields: [
+    { value: 'id', label: 'ID' },
+    { value: 'name', label: 'Name' },
+    { value: 'email', label: 'Email' },
+    { value: 'subjectId', label: 'Subject Id' },
+    { value: 'lastLogin', label: 'Last Login' }
+  ]}
+)
+
+const filtersFields = ref([
+  { name: 'name', label: 'Name', type: 'text', default: '', placeholder: 'Enter the Name' },
+  { name: 'email', label: 'Email', type: 'email', default: '', placeholder: 'Enter the Email' },
+  { name: 'subjectId', label: 'Subject ID', type: 'text', default: '', placeholder: 'Enter the Subject Id'},
+  { name: 'isAdmin', label: 'Is Admin', type: 'radio', options: [{ value: true, label: "True" }, { value: false, label: "False" }], default: ''},
+  { name: 'lastLogin', label: 'Last Login', type: 'date-range', default: { start: '', end: '' } }
+])
+
+const filtersSortData = ref({
+  name: '',
+  email: '',
+  subjectId: '',
+  isAdmin: '',
+  lastLogin: {
+    start: '', 
+    end: ''
+  },
+  sortBy: sortByFields.value.defaultField,
+  sortOrder: sortByFields.value.defaultOrder,
+})
+
 
 const formatDate = (dateString) => {
   if (!dateString) return '-'
@@ -108,10 +151,23 @@ const resetPage = () => {
 
 const fetchUsers = async () => {
   isLoading.value = true
+
+  const data = {
+    name: filtersSortData.value.name,
+    email: filtersSortData.value.email,
+    subjectId: filtersSortData.value.subjectId,
+    isAdmin: filtersSortData.value.isAdmin,
+    lastLoginAfter: filtersSortData.value.lastLogin.start,
+    lastLoginBefore: filtersSortData.value.lastLogin.end,
+    sortBy: filtersSortData.value.sortBy,
+    sortOrder: filtersSortData.value.sortOrder,
+  }
+
   try {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
       currentPage.value - 1,
       pageSize.value,
+      data
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0

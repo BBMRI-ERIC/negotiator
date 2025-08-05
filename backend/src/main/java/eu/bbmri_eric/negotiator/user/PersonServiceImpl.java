@@ -1,17 +1,13 @@
 package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.UnsupportedFilterException;
 import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongSortingPropertyException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import jakarta.transaction.Transactional;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,41 +52,26 @@ public class PersonServiceImpl implements PersonService {
   }
 
   @Override
-  public Iterable<UserResponseModel> findAllByFilter(
-      String property, String matchedValue, int page, int size) {
-    if (page < 0) throw new IllegalArgumentException("Page must be greater than 0.");
-    if (size < 1) throw new IllegalArgumentException("Size must be greater than 0.");
-    if (Arrays.stream(UserResponseModel.class.getDeclaredFields())
-        .anyMatch(field -> field.getName().equals(property))) {
-      Page<UserResponseModel> result =
-          personRepository
-              .findAll(
-                  PersonSpecifications.propertyEquals(property, matchedValue),
-                  PageRequest.of(page, size))
-              .map(person -> modelMapper.map(person, UserResponseModel.class));
-      if (page > result.getTotalPages())
-        throw new IllegalArgumentException(
-            "For the given size the page must be less than/equal to "
-                + result.getTotalPages()
-                + ".");
-      return result;
-    } else
-      throw new UnsupportedFilterException(
-          property,
-          Arrays.stream(UserResponseModel.class.getFields())
-              .map(Field::getName)
-              .toArray(String[]::new));
-  }
+  public Iterable<UserResponseModel> findAllByFilters(UserFilterDTO filtersDTO) {
+    if (filtersDTO.getPage() < 0)
+      throw new IllegalArgumentException("Page must be greater than 0.");
+    if (filtersDTO.getSize() < 1)
+      throw new IllegalArgumentException("Size must be greater than 0.");
+    Specification<Person> filtersSpec = PersonSpecifications.fromUserFilters(filtersDTO);
+    Pageable pageable =
+        PageRequest.of(
+            filtersDTO.getPage(),
+            filtersDTO.getSize(),
+            Sort.by(
+                new Sort.Order(filtersDTO.getSortOrder(), filtersDTO.getSortBy().name())
+                    .ignoreCase()));
 
-  @Override
-  public Iterable<UserResponseModel> findAll(int page, int size) {
-    if (page < 0) throw new IllegalArgumentException("Page must be greater than 0.");
-    if (size < 1) throw new IllegalArgumentException("Size must be greater than 0.");
     Page<UserResponseModel> result =
         personRepository
-            .findAll(PageRequest.of(page, size))
+            .findAll(filtersSpec, pageable)
             .map(person -> modelMapper.map(person, UserResponseModel.class));
-    if (page > result.getTotalPages())
+
+    if (filtersDTO.getPage() > result.getTotalPages())
       throw new IllegalArgumentException(
           "For the given size the page must be less than/equal to " + result.getTotalPages() + ".");
     return result;
@@ -101,17 +82,6 @@ public class PersonServiceImpl implements PersonService {
     return personRepository.findAllByOrganizationId(id).stream()
         .map(person -> modelMapper.map(person, UserResponseModel.class))
         .toList();
-  }
-
-  @Override
-  public Iterable<UserResponseModel> findAll(int page, int size, String sortProperty) {
-    try {
-      return personRepository
-          .findAll(PageRequest.of(page, size, Sort.by(sortProperty)))
-          .map(person -> modelMapper.map(person, UserResponseModel.class));
-    } catch (PropertyReferenceException e) {
-      throw new WrongSortingPropertyException(sortProperty, "name, id, email, organization");
-    }
   }
 
   @Override

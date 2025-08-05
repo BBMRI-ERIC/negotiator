@@ -10,10 +10,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +22,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,17 +51,13 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(
       summary = "List all users",
-      description = "For filtering use for example: ?email=example@email.com")
+      description = "For filtering use for example: ?name=John&email=example@email.com")
   public PagedModel<EntityModel<UserResponseModel>> listUsers(
-      @RequestParam(required = false) Map<String, String> filterProperty,
-      @RequestParam(required = false, defaultValue = "0") int page,
-      @RequestParam(required = false, defaultValue = "50") int size) {
+      @Valid @Nullable @ParameterObject UserFilterDTO filters) {
     if (AuthenticatedUserContext.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")
         || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
-      if (Objects.nonNull(filterProperty) && !filterProperty.isEmpty()) {
-        return filteredPageModel(filterProperty, page, size);
-      }
-      return assembler.toPagedModel((Page<UserResponseModel>) personService.findAll(page, size));
+      return assembler.toPagedModel(
+          (Page<UserResponseModel>) personService.findAllByFilters(filters), filters);
     } else {
       return assembler.toPagedModel(
           personService.findById(
@@ -74,23 +71,6 @@ public class UserController {
     return assembler.toModel(
         personService.findById(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId()),
         AuthenticatedUserContext.getRoles());
-  }
-
-  private PagedModel<EntityModel<UserResponseModel>> filteredPageModel(
-      Map<String, String> filterProperty, int page, int size) {
-    filterProperty.remove("page");
-    filterProperty.remove("size");
-    if (filterProperty.isEmpty()) {
-      return assembler.toPagedModel((Page<UserResponseModel>) personService.findAll(page, size));
-    } else {
-      Iterable<UserResponseModel> users =
-          personService.findAllByFilter(
-              filterProperty.keySet().iterator().next(),
-              filterProperty.values().iterator().next(),
-              page,
-              size);
-      return assembler.toPagedModel((Page<UserResponseModel>) users);
-    }
   }
 
   /**

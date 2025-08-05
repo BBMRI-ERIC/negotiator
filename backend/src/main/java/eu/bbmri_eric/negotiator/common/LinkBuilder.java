@@ -49,14 +49,14 @@ public class LinkBuilder {
     return links;
   }
 
-  private static String createBaseUriBuilder(URI baseUri, FilterDTO filterDTO) {
+  public static String createBaseUriBuilder(URI baseUri, FilterDTO filterDTO) {
     return UriComponentsBuilder.fromUri(baseUri)
         .queryParams(getQueryParams(filterDTO))
         .build()
         .toString();
   }
 
-  private static MultiValueMap<String, String> getQueryParams(Object filterDTO) {
+  protected static MultiValueMap<String, String> getQueryParams(FilterDTO filterDTO) {
     MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
     Field[] fields = filterDTO.getClass().getDeclaredFields();
 
