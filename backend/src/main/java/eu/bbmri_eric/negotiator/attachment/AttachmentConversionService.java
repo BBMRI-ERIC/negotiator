@@ -46,7 +46,7 @@ public class AttachmentConversionService {
       throw new IllegalArgumentException("Attachment IDs list cannot be null or empty");
     }
 
-    log.debug("Converting {" + attachmentIds.size() + "} attachments to PDF");
+    log.debug("Converting attachments to PDF: " + attachmentIds.size() );
 
     List<AttachmentDTO> attachmentsList =
         attachmentIds.stream()
@@ -56,7 +56,7 @@ public class AttachmentConversionService {
                   try {
                     return attachmentService.findById(id);
                   } catch (Exception e) {
-                    log.error("Failed to retrieve attachment with ID: {}" + id, e);
+                    log.error("Failed to retrieve attachment with ID: " + id, e);
                     return null;
                   }
                 })
@@ -94,12 +94,11 @@ public class AttachmentConversionService {
       }
 
       if (payload == null || payload.length == 0) {
-        log.error(
-            "Payload is null or empty for attachment with content type: {" + contentType + "}");
+        log.error("Payload is null or empty for attachment with content type: " + contentType);
         return null;
       }
 
-      log.debug("Converting attachment with content type: {" + contentType + "}");
+      log.debug("Converting attachment with content type: " + contentType);
 
       switch (contentType) {
         case CONTENT_TYPE_PDF:
@@ -112,11 +111,11 @@ public class AttachmentConversionService {
         case CONTENT_TYPE_TIKA_MSOFFICE:
           return convertDocToPdf(payload);
         default:
-          log.error("Unrecognized attachment content type: {" + contentType + "}");
+          log.error("Unrecognized attachment content type:" + contentType );
           return null;
       }
     } catch (Exception e) {
-      log.error("Error converting attachment to PDF: {" + e.getMessage() + "}", e);
+      log.error("Error converting attachment to PDF: " + e.getMessage());
       return null;
     }
   }
@@ -135,7 +134,7 @@ public class AttachmentConversionService {
 
       Range range = doc.getRange();
       int paragraphCount = range.numParagraphs();
-      log.debug("Processing {" + paragraphCount + "} paragraphs from DOC");
+      log.debug("Processing paragraphs from DOC:" + paragraphCount);
 
       pdfDoc = new Document();
       PdfWriter.getInstance(pdfDoc, pdfOutputStream);
@@ -176,9 +175,7 @@ public class AttachmentConversionService {
 
       WordprocessingMLPackage wordMLPackage = Docx4J.load(docxInputStream);
 
-      if (wordMLPackage == null) {
-        throw new IllegalStateException("Failed to load DOCX package");
-      }
+
 
       Docx4J.toPDF(wordMLPackage, pdfOutputStream);
       byte[] result = pdfOutputStream.toByteArray();
