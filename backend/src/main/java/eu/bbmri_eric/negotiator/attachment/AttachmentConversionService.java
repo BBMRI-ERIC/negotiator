@@ -46,7 +46,7 @@ public class AttachmentConversionService {
       throw new IllegalArgumentException("Attachment IDs list cannot be null or empty");
     }
 
-    log.debug("Converting attachments to PDF: " + attachmentIds.size() );
+    log.debug("Converting attachments to PDF: " + attachmentIds.size());
 
     List<AttachmentDTO> attachmentsList =
         attachmentIds.stream()
@@ -111,7 +111,7 @@ public class AttachmentConversionService {
         case CONTENT_TYPE_TIKA_MSOFFICE:
           return convertDocToPdf(payload);
         default:
-          log.error("Unrecognized attachment content type:" + contentType );
+          log.error("Unrecognized attachment content type:" + contentType);
           return null;
       }
     } catch (Exception e) {
@@ -174,8 +174,6 @@ public class AttachmentConversionService {
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
       WordprocessingMLPackage wordMLPackage = Docx4J.load(docxInputStream);
-
-
 
       Docx4J.toPDF(wordMLPackage, pdfOutputStream);
       byte[] result = pdfOutputStream.toByteArray();
