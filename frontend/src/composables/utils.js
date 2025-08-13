@@ -200,3 +200,59 @@ export function isFileExtensionsSuported(file) {
   )
   return false
 }
+
+/**
+ * Formats a UTC timestamp to local timezone with relative time (e.g., "2 hours ago")
+ * @param {string} utcTimestamp - UTC timestamp from the server
+ * @returns {string} Formatted relative time in user's local timezone
+ */
+export function formatTimestampToLocal(utcTimestamp) {
+  if (!utcTimestamp) return ''
+
+  // Parse UTC timestamp and convert to local timezone
+  const utcDate = new Date(utcTimestamp)
+  const now = new Date()
+
+  // Calculate the difference in milliseconds
+  const diffMs = now - utcDate
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  // Return relative time based on the difference
+  if (diffMinutes < 1) {
+    return 'Just now'
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
+  } else if (diffDays < 7) {
+    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+  } else {
+    // For older timestamps, show the actual date in local timezone
+    return utcDate.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: utcDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    })
+  }
+}
+
+/**
+ * Formats a UTC timestamp to a readable local date and time
+ * @param {string} utcTimestamp - UTC timestamp from the server
+ * @returns {string} Formatted date and time in user's local timezone
+ */
+export function formatTimestampToLocalDateTime(utcTimestamp) {
+  if (!utcTimestamp) return ''
+
+  const utcDate = new Date(utcTimestamp)
+  return utcDate.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+}
