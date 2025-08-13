@@ -31,7 +31,7 @@
                     </div>
                     <div class="mb-2">
                       <strong>Sent At:</strong>
-                      <span class="ms-2">{{ formatDate(email.sentAt) }}</span>
+                      <span class="ms-2">{{ formatTimestamp(email.sentAt) }}</span>
                     </div>
                     <div>
                       <strong>Email ID:</strong>
@@ -120,6 +120,8 @@
 import { ref, computed, watch } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
 import DOMPurify from 'dompurify'
+import { formatTimestampToLocalDateTime } from '@/composables/utils.js'
+import { formatTimestamp } from '@/composables/utils'
 
 const props = defineProps({
   id: {
@@ -201,19 +203,6 @@ const sanitizedContent = computed(() => {
     FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
   })
 })
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZoneName: 'short',
-  })
-}
 
 const copyToClipboard = async () => {
   try {

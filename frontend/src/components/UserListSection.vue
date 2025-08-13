@@ -30,7 +30,7 @@
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.subjectId }}</td>
-            <td>{{ formatDate(user.lastLogin) }}</td>
+            <td>{{ formatTimestamp(user.lastLogin) }}</td>
             <td>{{ user.admin ? 'Yes' : 'No' }}</td>
             <td>
               {{ user.serviceAccount === true || user.serviceAccount === 'true' ? 'Yes' : 'No' }}
@@ -72,6 +72,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useAdminStore } from '@/store/admin.js'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { ROLES } from '@/config/consts'
+import { formatTimestamp } from '@/composables/utils.js'
 
 const users = ref([])
 const currentPage = ref(1)
@@ -112,12 +113,6 @@ const filtersSortData = ref({
   sortBy: sortByFields.value.defaultField,
   sortOrder: sortByFields.value.defaultOrder,
 })
-
-
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleString()
-}
 
 const totalPages = computed(() => {
   return Math.ceil(totalUsers.value / pageSize.value) || 1
