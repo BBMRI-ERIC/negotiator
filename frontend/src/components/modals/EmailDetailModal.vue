@@ -120,7 +120,6 @@
 import { ref, computed, watch } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
 import DOMPurify from 'dompurify'
-import { formatTimestampToLocalDateTime } from '@/composables/utils.js'
 import { formatTimestamp } from '@/composables/utils'
 
 const props = defineProps({
