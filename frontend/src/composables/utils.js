@@ -244,5 +244,5 @@ export function formatTimestampToLocalDateTime(utcTimestamp) {
  */
 export function formatTimestamp(timestamp, format = 'MMM D, YYYY HH:mm') {
   if (!timestamp) return '-'
-  return moment(timestamp).format(format) + ' UTC'
+  return moment.utc(timestamp).format(format) + ' UTC'
 }
