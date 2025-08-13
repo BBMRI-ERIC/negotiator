@@ -208,18 +208,12 @@ export function isFileExtensionsSuported(file) {
  */
 export function formatTimestampToLocal(utcTimestamp) {
   if (!utcTimestamp) return ''
-
-  // Parse UTC timestamp and convert to local timezone
   const utcDate = new Date(utcTimestamp)
   const now = new Date()
-
-  // Calculate the difference in milliseconds
   const diffMs = now - utcDate
   const diffMinutes = Math.floor(diffMs / (1000 * 60))
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  // Return relative time based on the difference
   if (diffMinutes < 1) {
     return 'Just now'
   } else if (diffMinutes < 60) {
@@ -229,7 +223,6 @@ export function formatTimestampToLocal(utcTimestamp) {
   } else if (diffDays < 7) {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
   } else {
-    // For older timestamps, show the actual date in local timezone
     return utcDate.toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
