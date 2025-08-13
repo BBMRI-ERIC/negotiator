@@ -24,6 +24,7 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationRe
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.ResourceLifecycleService;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -320,11 +321,18 @@ public class NegotiationController {
   }
 
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-  @Operation(summary = "Generate a PDF for a negotiation")
+  @Operation(
+      summary = "Generate a PDF for a negotiation",
+      description =
+          "This endpoint creates a PDF from the negotiation data. A specific template can be applied to generate the PDF.")
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdf(
       @PathVariable String id,
-      @RequestParam(value = "template", required = false) String templateName)
+      @Parameter(
+              description =
+                  "Specific template to be used for generation, identified by the template name. If omitted the default template is used.")
+          @RequestParam(value = "template", required = false)
+          String templateName)
       throws Exception {
 
     byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName);
@@ -335,11 +343,19 @@ public class NegotiationController {
   }
 
   @GetMapping(value = "/negotiations/{id}/fullpdf", produces = MediaType.APPLICATION_PDF_VALUE)
-  @Operation(summary = "Generate a PDF for a negotiation including all attachments")
+  @Operation(
+      summary =
+          "Generate a PDF for a negotiation including all attachments. converted to PDF format, if the source document format is supported for conversion.",
+      description =
+          "This endpoint creates a merged PDF including all attached documents if the source document format is supported for conversion to PDF. A specific template can be applied to generate the PDF.")
   @SecurityRequirement(name = "security_auth")
   public ResponseEntity<byte[]> generateNegotiationPdfWithAttachments(
       @PathVariable String id,
-      @RequestParam(value = "template", required = false) String templateName)
+      @Parameter(
+              description =
+                  "Specific template to be used for generation, identified by the template name. If omitted the default template is used.")
+          @RequestParam(value = "template", required = false)
+          String templateName)
       throws Exception {
 
     byte[] negotiationPdf = generateNegotiationPdfInternal(id, templateName);
