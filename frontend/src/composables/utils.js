@@ -186,6 +186,7 @@ export function generatePieChartBackgroundColorArray(labelsArray) {
 
 import fileExtensions from '@/config/uploadFileExtensions.js'
 import { useNotificationsStore } from '../store/notifications'
+import moment from 'moment'
 
 export function isFileExtensionsSuported(file) {
   const notificationsStore = useNotificationsStore()
@@ -208,26 +209,11 @@ export function isFileExtensionsSuported(file) {
  */
 export function formatTimestampToLocal(utcTimestamp) {
   if (!utcTimestamp) return ''
-  const utcDate = new Date(utcTimestamp)
-  const now = new Date()
-  const diffMs = now - utcDate
-  const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  if (diffMinutes < 1) {
-    return 'Just now'
-  } else if (diffMinutes < 60) {
-    return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`
-  } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+  const isLocalDev = import.meta.env.DEV === true || window.location.hostname === 'localhost'
+  if (isLocalDev) {
+    return moment(utcTimestamp).fromNow()
   } else {
-    return utcDate.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: utcDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-    })
+    return moment.utc(utcTimestamp).local().fromNow()
   }
 }
 
@@ -238,7 +224,6 @@ export function formatTimestampToLocal(utcTimestamp) {
  */
 export function formatTimestampToLocalDateTime(utcTimestamp) {
   if (!utcTimestamp) return ''
-
   const utcDate = new Date(utcTimestamp)
   return utcDate.toLocaleDateString(undefined, {
     year: 'numeric',
