@@ -78,7 +78,7 @@
       class="text-muted small text-end"
       style="min-width: 140px; flex-shrink: 0"
     >
-      {{ formatTimestampToLocalDateTime(item.timestamp) }}
+      {{ printDate(item.timestamp) }}
     </div>
   </div>
 </template>
@@ -90,7 +90,7 @@ const props = defineProps({
   item: {
     type: Object,
     required: true,
-    default: () => ({ type: '', text: '', createdBy: { name: '' }, creationDate: '' }),
+    default: () => ({ type: '', text: '', createdBy: { name: '' }, timestamp: '' }),
   },
   uiConfiguration: {
     type: Object,
