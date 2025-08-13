@@ -1,5 +1,5 @@
 ---
-description: 'VueJS 3 development standards and best practices with Composition API and TypeScript'
+description: 'VueJS 3 development standards and best practices with Composition API'
 applyTo: '**/*.vue, **/*.ts, **/*.js, **/*.scss'
 ---
 
@@ -9,7 +9,6 @@ Instructions for building high-quality VueJS 3 applications with the Composition
 
 ## Project Context
 - Vue 3.x with Composition API as default
-- TypeScript for type safety
 - Single File Components (`.vue`) with `<script setup>` syntax
 - Modern build tooling (Vite recommended)
 - Pinia for application state management
@@ -26,7 +25,7 @@ Instructions for building high-quality VueJS 3 applications with the Composition
 
 ### TypeScript Integration
 - Enable `strict` mode in `tsconfig.json` for maximum type safety
-- Use `defineComponent` or `<script setup lang="ts">` with `defineProps` and `defineEmits`
+- Use `defineComponent` or `<script setup>` with `defineProps` and `defineEmits`
 - Leverage `PropType<T>` for typed props and default values
 - Use interfaces or type aliases for complex prop and state shapes
 - Define types for event handlers, refs, and `useRoute`/`useRouter` hooks
