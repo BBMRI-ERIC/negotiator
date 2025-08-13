@@ -186,6 +186,7 @@ export function generatePieChartBackgroundColorArray(labelsArray) {
 
 import fileExtensions from '@/config/uploadFileExtensions.js'
 import { useNotificationsStore } from '../store/notifications'
+import moment from 'moment'
 
 export function isFileExtensionsSuported(file) {
   const notificationsStore = useNotificationsStore()
@@ -199,4 +200,37 @@ export function isFileExtensionsSuported(file) {
     'danger',
   )
   return false
+}
+
+/**
+ * Formats a UTC timestamp to local timezone with relative time (e.g., "2 hours ago")
+ * @param {string} utcTimestamp - UTC timestamp from the server
+ * @returns {string} Formatted relative time in user's local timezone
+ */
+export function formatTimestampToLocal(utcTimestamp) {
+  if (!utcTimestamp) return ''
+  const isLocalDev = import.meta.env.DEV === true || window.location.hostname === 'localhost'
+  if (isLocalDev) {
+    return moment(utcTimestamp).fromNow()
+  } else {
+    return moment.utc(utcTimestamp).local().fromNow()
+  }
+}
+
+/**
+ * Formats a UTC timestamp to a readable local date and time
+ * @param {string} utcTimestamp - UTC timestamp from the server
+ * @returns {string} Formatted date and time in user's local timezone
+ */
+export function formatTimestampToLocalDateTime(utcTimestamp) {
+  if (!utcTimestamp) return ''
+  const utcDate = new Date(utcTimestamp)
+  return utcDate.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
 }
