@@ -45,16 +45,16 @@ const combinedItems = computed(() => {
   const events = props.timelineEvents.map((event) => ({
     ...event,
     type: 'event',
-    timestamp: new Date(event.timestamp).getTime(),
+    createdAt: new Date(event.timestamp).getTime(),
     id: `event-${event.id || event.timestamp}`,
   }))
   const postsMapped = posts.value.map((post) => ({
     ...post,
     type: 'post',
-    timestamp: new Date(post.creationDate).getTime(),
+    createdAt: new Date(post.creationDate).getTime(),
     id: `post-${post.id}`,
   }))
-  return [...events, ...postsMapped].sort((a, b) => a.timestamp - b.timestamp)
+  return [...events, ...postsMapped].sort((a, b) => a.createdAt - b.createdAt)
 })
 
 onBeforeMount(() => {
