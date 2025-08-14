@@ -92,7 +92,10 @@ public class PersistStateChangeListener
   private void updateNegotiationStatus(State<String, String> state, Negotiation negotiation) {
     if (Objects.nonNull(negotiation)) {
       negotiation.setCurrentState(NegotiationState.valueOf(state.getId()));
-      negotiationRepository.save(negotiation);
+      if (negotiation.getCurrentState().equals(NegotiationState.SUBMITTED)) {
+        negotiation.setCreationDate(LocalDateTime.now());
+      }
+      negotiationRepository.saveAndFlush(negotiation);
     }
   }
 

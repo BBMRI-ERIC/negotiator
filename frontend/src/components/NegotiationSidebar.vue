@@ -99,11 +99,9 @@
 </template>
 
 <script setup>
-import { dateFormat } from '@/config/consts'
 import PDFButton from '@/components/PDFButton.vue'
 import MergedPDFButton from '@/components/MergedPDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
-import moment from 'moment'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import {
   getBadgeColor,
@@ -111,6 +109,7 @@ import {
   getButtonColor,
   getButtonIcon,
   transformStatus,
+  formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
 
 useNegotiationPageStore()
@@ -125,7 +124,7 @@ defineProps({
 const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation'])
 
 function printDate(date) {
-  return moment(date).format(dateFormat)
+  return formatTimestampToLocalDateTime(date)
 }
 
 function assignStatus(status) {

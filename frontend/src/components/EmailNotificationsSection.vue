@@ -53,7 +53,7 @@
             @click="viewEmailDetails(email)"
           >
             <td>{{ email.address }}</td>
-            <td>{{ formatDate(email.sentAt) }}</td>
+            <td>{{ formatTimestamp(email.sentAt) }}</td>
             <td>
               <div class="message-preview">
                 {{ getMessagePreview(email.message) }}
@@ -110,6 +110,7 @@ import { ref, onMounted } from 'vue'
 import { useEmailStore } from '@/store/emails.js'
 import { ROLES } from '@/config/consts'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
+import { formatTimestamp } from '@/composables/utils.js'
 
 
 const emit = defineEmits(['view-email'])
@@ -225,10 +226,6 @@ const applyFilters = () => {
   fetchEmails()
 }
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString()
-}
-
 const getMessagePreview = (message) => {
   if (!message) return ''
   const parser = new DOMParser()
@@ -303,10 +300,6 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.pagination-info {
-  min-width: 200px;
-}
-
 .btn-link {
   border: none !important;
   text-decoration: none !important;
@@ -320,6 +313,32 @@ onMounted(() => {
   margin-top: 1rem;
 }
 
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead th {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6c757d;
+  padding: 1rem;
+  border-bottom: 2px solid #e8ecef;
+  cursor: pointer;
+}
+
+.table tbody td {
+  font-size: 0.95rem;
+  color: #6c757d;
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #e8ecef;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
 .pagination {
   display: flex;
   justify-content: flex-end;

@@ -240,9 +240,8 @@
 import { computed, onBeforeMount } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import { ROLES } from '@/config/consts'
-import moment from 'moment'
 import { useRouter } from 'vue-router'
-import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
+import { getBadgeColor, getBadgeIcon, transformStatus, formatTimestampToLocalDateTime } from '../composables/utils.js'
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
@@ -296,7 +295,7 @@ function setSavedNegotiationsView(view) {
 }
 
 function formatDate(date) {
-  return moment(date).format('YYYY/MM/DD HH:mm')
+  return formatTimestampToLocalDateTime(date)
 }
 
 function changeSortDirection(sortBy) {

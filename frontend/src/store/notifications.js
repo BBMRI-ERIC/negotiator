@@ -2,6 +2,7 @@ import { ref, watch, onWatcherCleanup } from 'vue'
 import { defineStore } from 'pinia'
 import moment from 'moment'
 import { MAX_QUEUE_SIZE_NOTIFICATIONS, TIME_INTERVAL_NOTIFICATIONS } from '../config/consts'
+import { formatTimestampToLocal, formatTimestampToLocalDateTime } from '../composables/utils'
 
 export const useNotificationsStore = defineStore('notifications', () => {
   const notification = ref({})
@@ -35,8 +36,8 @@ export const useNotificationsStore = defineStore('notifications', () => {
     if (notifications && notifications._embedded && notifications._embedded.notifications) {
       userNotifications.value = notifications._embedded.notifications.map((notif) => ({
         ...notif,
-        timestamp: moment(notif.createdAt).format('MMM DD, HH:mm'),
-        formattedCreatedAt: moment(notif.createdAt).fromNow(),
+        timestamp: formatTimestampToLocalDateTime(notif.createdAt),
+        formattedCreatedAt: formatTimestampToLocal(notif.createdAt),
       }))
       updateUnreadCount()
 
