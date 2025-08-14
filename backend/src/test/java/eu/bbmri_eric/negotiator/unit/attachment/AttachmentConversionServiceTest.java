@@ -71,6 +71,26 @@ class AttachmentConversionServiceTest {
   }
 
   @Test
+  void testGetAttachmentsAsPdf_WithDocAttachment() throws IOException {
+    String attachmentId = "doc-attachment-1";
+    byte[] docBytes = loadTestDocFile();
+    AttachmentDTO docAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test.doc")
+            .contentType("application/msword")
+            .payload(docBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
+
+    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(attachmentId));
+
+    // The minimal DOC file created for testing is invalid and should be skipped
+    assertEquals(0, result.size());
+  }
+
+  @Test
   void testGetAttachmentsAsPdf_WithDocAttachment_SkipsInvalidDoc() throws IOException {
     String attachmentId = "doc-attachment-1";
     byte[] docBytes = loadTestDocFile();
@@ -129,6 +149,26 @@ class AttachmentConversionServiceTest {
 
     // The minimal DOC file created for testing is invalid and should be skipped
     assertEquals(0, result.size());
+  }
+
+  @Test
+  void testGetAttachmentsAsPdf_WithTikaDocType() throws IOException {
+    String attachmentId = "tika-doc-attachment-1";
+    byte[] docBytes = loadTestDocFileValid();
+    AttachmentDTO docAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test-valid.doc")
+            .contentType("application/x-tika-msoffice")
+            .payload(docBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
+
+    List<byte[]> result = conversionService.getAttachmentsAsPdf(List.of(attachmentId));
+
+    // The minimal DOC file created for testing is valid
+    assertEquals(1, result.size());
   }
 
   @Test
@@ -729,6 +769,16 @@ class AttachmentConversionServiceTest {
     try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.docx")) {
       if (inputStream == null) {
         return createMinimalDocxBytes();
+      }
+      return inputStream.readAllBytes();
+    }
+  }
+
+  private byte[] loadTestDocFileValid() throws IOException {
+    try (InputStream inputStream =
+        getClass().getResourceAsStream("/test-documents/test-valid.doc")) {
+      if (inputStream == null) {
+        return createMinimalDocBytes();
       }
       return inputStream.readAllBytes();
     }
