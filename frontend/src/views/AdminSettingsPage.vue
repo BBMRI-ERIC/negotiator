@@ -11,45 +11,40 @@
         @add-requirement="() => {}"
       />
       <hr />
-    <WebhooksSection
-      :webhooks="webhooks"
-      @add-webhook="addWebhook"
-      @edit-webhook="editWebhook"
-      @delete-webhook="deleteWebhook"
-      @test-webhook="testWebhook"
+      <WebhooksSection
+        :webhooks="webhooks"
+        @add-webhook="addWebhook"
+        @edit-webhook="editWebhook"
+        @delete-webhook="deleteWebhook"
+        @test-webhook="testWebhook"
+      />
+      <hr />
+      <EmailNotificationsSection @view-email="viewEmailDetails" />
+      <hr />
+      <UserListSection />
+    </div>
+    <LoadingIndicator v-else />
+    <WebhookModal
+      id="webhookmodal"
+      :shown="shown"
+      :webhook="selectedWebhook"
+      @update="handleWebhookUpdate"
+      @create="handleNewWebhook"
     />
-    <hr />
-    <EmailNotificationsSection @view-email="viewEmailDetails" />
-    <hr />
-    <UserListSection />
+    <confirmation-modal
+      id="delete-webhookmodal"
+      title="Delete Webhook"
+      text="Are you sure you want to delete this webhook?"
+      :message-enabled="false"
+      @confirm="confirmDeleteWebhook"
+      ref="deleteModal"
+    />
+    <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
     <email-template-section />
-  </div>
-  <LoadingIndicator v-else />
-  <WebhookModal
-    id="webhookmodal"
-    :shown="shown"
-    :webhook="selectedWebhook"
-    @update="handleWebhookUpdate"
-    @create="handleNewWebhook"
-  />
-  <confirmation-modal
-    id="delete-webhookmodal"
-    title="Delete Webhook"
-    text="Are you sure you want to delete this webhook?"
-    :message-enabled="false"
-    @confirm="confirmDeleteWebhook"
-    ref="deleteModal"
-  />
-  <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
-  <hr />
-  <email-template-section />
-    <email-template-section />
-    <div v-if="featureFlagsAddAcessForms">
     <hr />
     <AccessFormsSection />
   </div>
-</div>
 </template>
 
 <script setup>
