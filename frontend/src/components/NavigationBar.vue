@@ -141,7 +141,7 @@
           <div class="spinner-grow spinner-grow-sm" role="status" />
           {{ returnCurrentMode }}
         </div>
-        <NotificationsButton v-if="featureFlagsNotifications" class="me-3" />
+        <NotificationsButton class="me-3" />
         <span
           v-if="oidcIsAuthenticated"
           :style="{ color: uiConfiguration?.navbarWelcomeTextColor }"
@@ -197,9 +197,6 @@ const dropdownVisible = ref(false)
 const router = useRouter()
 const roles = ref([])
 const featureFlagsFAQ = !!(allFeatureFlags.faqPage === 'true' || allFeatureFlags.faqPage === true)
-const featureFlagsNotifications = !!(
-  allFeatureFlags.notifications === 'true' || allFeatureFlags.notifications === true
-)
 const backendEnvironment = ref('')
 const showNetworksTab = ref(false)
 const networks = ref([])

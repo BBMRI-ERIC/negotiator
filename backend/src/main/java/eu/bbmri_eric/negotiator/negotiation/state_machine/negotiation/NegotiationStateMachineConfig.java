@@ -47,7 +47,6 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
         .event(NegotiationEvent.APPROVE.name())
         .secured("ROLE_ADMIN", SecurityRule.ComparisonType.ALL)
         .action(enablePrivatePosts())
-        .action(initializeStateForResources())
         .and()
         .withExternal()
         .source(NegotiationState.SUBMITTED.name())
@@ -95,10 +94,5 @@ public class NegotiationStateMachineConfig extends StateMachineConfigurerAdapter
   @Bean
   public Action<String, String> disablePosts() {
     return new DisablePostsAction();
-  }
-
-  @Bean
-  public Action<String, String> initializeStateForResources() {
-    return new InitializeStateForResourceAction();
   }
 }

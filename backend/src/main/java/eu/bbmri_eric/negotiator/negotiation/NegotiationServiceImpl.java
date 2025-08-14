@@ -15,11 +15,9 @@ import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationFilterDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
-import eu.bbmri_eric.negotiator.negotiation.pdf.NegotiationPdfService;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
-import eu.bbmri_eric.negotiator.notification.UserNotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -52,12 +50,9 @@ public class NegotiationServiceImpl implements NegotiationService {
   private AttachmentRepository attachmentRepository;
   private NetworkRepository networkRepository;
   private ModelMapper modelMapper;
-  private UserNotificationService userNotificationService;
   private PersonService personService;
   private ApplicationEventPublisher eventPublisher;
   private NegotiationAccessManager negotiationAccessManager;
-  private NegotiationPdfService negotiationPdfService;
-  private static final String DEFAULT_PDF_TEMPLATE_NAME = "pdf-negotiation-summary";
 
   public NegotiationServiceImpl(
       NegotiationRepository negotiationRepository,
@@ -66,22 +61,18 @@ public class NegotiationServiceImpl implements NegotiationService {
       AttachmentRepository attachmentRepository,
       NetworkRepository networkRepository,
       ModelMapper modelMapper,
-      UserNotificationService userNotificationService,
       PersonService personService,
       ApplicationEventPublisher eventPublisher,
-      NegotiationAccessManager negotiationAccessManager,
-      NegotiationPdfService negotiationPdfService) {
+      NegotiationAccessManager negotiationAccessManager) {
     this.negotiationRepository = negotiationRepository;
     this.personRepository = personRepository;
     this.requestRepository = requestRepository;
     this.attachmentRepository = attachmentRepository;
     this.networkRepository = networkRepository;
     this.modelMapper = modelMapper;
-    this.userNotificationService = userNotificationService;
     this.personService = personService;
     this.eventPublisher = eventPublisher;
     this.negotiationAccessManager = negotiationAccessManager;
-    this.negotiationPdfService = negotiationPdfService;
   }
 
   @Override
@@ -141,14 +132,12 @@ public class NegotiationServiceImpl implements NegotiationService {
    *     Person that called the API)
    * @return the created Negotiation entity
    */
+  @Transactional
   public NegotiationDTO create(NegotiationCreateDTO negotiationBody, Long creatorId) {
     Request request = getRequest(negotiationBody.getRequest());
     Negotiation negotiation = buildNegotiation(negotiationBody, request);
     negotiation = persistNegotiation(negotiationBody, negotiation);
     requestRepository.delete(request);
-    if (!negotiationBody.isDraft()) {
-      userNotificationService.notifyAdmins(negotiation);
-    }
     return modelMapper.map(negotiation, NegotiationDTO.class);
   }
 
@@ -196,7 +185,7 @@ public class NegotiationServiceImpl implements NegotiationService {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
-      log.error("Transferring Negotiation");
+      log.info("Transferring Negotiation");
       Person person =
           personRepository
               .findBySubjectId(updateDTO.getAuthorSubjectId())
@@ -359,19 +348,6 @@ public class NegotiationServiceImpl implements NegotiationService {
         .stream()
         .map(negotiation -> modelMapper.map(negotiation, NegotiationDTO.class))
         .collect(Collectors.toList());
-  }
-
-  @Override
-  public byte[] generatePdf(String negotiationId, @Nullable String templateName) throws Exception {
-    Negotiation negotiation = findEntityById(negotiationId, true);
-    if (!isAuthorizedForNegotiation(negotiationId)) {
-      throw new ForbiddenRequestException("You are not allowed to perform this operation");
-    }
-    if (templateName == null) {
-      templateName = DEFAULT_PDF_TEMPLATE_NAME;
-    }
-
-    return negotiationPdfService.generatePdf(negotiation, templateName);
   }
 
   public void deleteNegotiation(String negotiationId) {

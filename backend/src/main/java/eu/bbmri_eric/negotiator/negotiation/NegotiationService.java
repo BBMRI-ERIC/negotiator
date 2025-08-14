@@ -159,12 +159,4 @@ public interface NegotiationService {
    * @param negotiationId the id of the negotiation to delete
    */
   void deleteNegotiation(String negotiationId);
-
-  /**
-   * Generates a PDF document for the given negotiation.
-   *
-   * @param negotiationId the id of the negotiation
-   * @param templateName the name of the template to use for generating the PDF
-   */
-  byte[] generatePdf(String negotiationId, String templateName) throws Exception;
 }

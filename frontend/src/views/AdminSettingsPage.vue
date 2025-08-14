@@ -38,10 +38,31 @@
       ref="deleteModal"
     />
     <hr />
-    <email-template-section />
+    <EmailNotificationsSection @view-email="viewEmailDetails" />
     <hr />
-    <AccessFormsSection />
+    <UserListSection />
   </div>
+  <LoadingIndicator v-else />
+  <WebhookModal
+    id="webhookmodal"
+    :shown="shown"
+    :webhook="selectedWebhook"
+    @update="handleWebhookUpdate"
+    @create="handleNewWebhook"
+  />
+  <confirmation-modal
+    id="delete-webhookmodal"
+    title="Delete Webhook"
+    text="Are you sure you want to delete this webhook?"
+    :message-enabled="false"
+    @confirm="confirmDeleteWebhook"
+    ref="deleteModal"
+  />
+  <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
+  <hr />
+  <email-template-section />
+  <hr />
+  <AccessFormsSection />
 </template>
 
 <script setup>
@@ -51,12 +72,14 @@ import { useAdminStore } from '../store/admin.js'
 import { useFormsStore } from '../store/forms.js'
 import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
 import WebhooksSection from '@/components/WebhooksSection.vue'
+import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
 import UserListSection from '@/components/UserListSection.vue'
 import LoadingIndicator from '@/components/LoadingIndicator.vue'
 import { Modal } from 'bootstrap'
 import { useNotificationsStore } from '@/store/notifications.js'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
+import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
 
@@ -68,12 +91,12 @@ const notifications = useNotificationsStore()
 const resourceAllEvents = ref({})
 const infoRequirements = ref([])
 const accessForms = ref([])
-const users = ref([])
 const isLoading = ref(true)
 const editModal = ref(undefined)
 const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
+const selectedEmailId = ref(null)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -85,7 +108,6 @@ onMounted(async () => {
     resourceAllEvents.value = await adminStore.retrieveResourceAllEvents()
     infoRequirements.value = await adminStore.retrieveInfoRequirements()
     accessForms.value = await formsStore.retrieveAllAccessForms()
-    users.value = (await adminStore.retrieveUsers()) || []
     const freshWebhooks = await adminStore.retrieveWebhooks()
     webhooks.value = freshWebhooks || []
   } catch (error) {
@@ -194,6 +216,12 @@ const testWebhook = async (webhook) => {
       testInProgress: false,
     }
   }
+}
+
+const viewEmailDetails = (email) => {
+  selectedEmailId.value = email.id
+  const emailModal = new Modal(document.querySelector('#emailDetailModal'))
+  emailModal.show()
 }
 </script>
 

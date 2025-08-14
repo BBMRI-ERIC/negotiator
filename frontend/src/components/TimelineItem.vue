@@ -78,20 +78,19 @@
       class="text-muted small text-end"
       style="min-width: 140px; flex-shrink: 0"
     >
-      {{ new Date(item.timestamp).toLocaleString() }}
+      {{ printDate(item.timestamp) }}
     </div>
   </div>
 </template>
 
 <script setup>
-import moment from 'moment'
-import { dateFormat } from '@/config/consts'
+import { formatTimestampToLocalDateTime } from '@/composables/utils'
 
 const props = defineProps({
   item: {
     type: Object,
     required: true,
-    default: () => ({ type: '', text: '', createdBy: { name: '' }, creationDate: '' }),
+    default: () => ({ type: '', text: '', createdBy: { name: '' }, timestamp: '' }),
   },
   uiConfiguration: {
     type: Object,
@@ -159,7 +158,7 @@ function getBadgeTooltip(badge) {
 }
 
 function printDate(date) {
-  return date ? moment(date).format(dateFormat) : 'Unknown date'
+  return date ? formatTimestampToLocalDateTime(date) : 'Unknown date'
 }
 
 function formatText(text) {

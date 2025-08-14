@@ -34,7 +34,7 @@ spring:
           introspection-uri: "http://localhost:4011/connect/introspect"
   thymeleaf:
     cache: false
-    prefix: "file:./config/templates/"
+    prefix: classpath:/templates/
 springdoc:
   oAuthFlow:
     authorizationUrl: "http://localhost:4011/connect/authorize"
