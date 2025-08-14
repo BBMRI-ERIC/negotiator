@@ -220,17 +220,29 @@ export function formatTimestampToLocal(utcTimestamp) {
 /**
  * Formats a UTC timestamp to a readable local date and time
  * @param {string} utcTimestamp - UTC timestamp from the server
- * @returns {string} Formatted date and time in user's local timezone
+ * @returns {string} Formatted date and time in user's local timezone (European format)
  */
 export function formatTimestampToLocalDateTime(utcTimestamp) {
   if (!utcTimestamp) return ''
-  const utcDate = new Date(utcTimestamp)
-  return utcDate.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
+  const isLocalDev = import.meta.env.DEV === true || window.location.hostname === 'localhost'
+
+  let localMoment
+  if (isLocalDev) {
+    localMoment = moment(utcTimestamp)
+  } else {
+    localMoment = moment.utc(utcTimestamp).local()
+  }
+
+  return localMoment.format('DD.MM.YYYY HH:mm')
+}
+
+/**
+ * Formats a timestamp using moment.js without localization or timezone conversion
+ * @param {string} timestamp - Timestamp to format
+ * @param {string} format - Moment.js format string (default: 'MMM D, YYYY HH:mm')
+ * @returns {string} Formatted timestamp without localization
+ */
+export function formatTimestamp(timestamp, format = 'MMM D, YYYY HH:mm') {
+  if (!timestamp) return '-'
+  return moment.utc(timestamp).format(format) + ' UTC'
 }
