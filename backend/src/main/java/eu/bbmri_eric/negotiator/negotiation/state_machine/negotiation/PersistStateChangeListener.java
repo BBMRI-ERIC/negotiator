@@ -95,7 +95,7 @@ public class PersistStateChangeListener
       if (negotiation.getCurrentState().equals(NegotiationState.SUBMITTED)) {
         negotiation.setCreationDate(LocalDateTime.now());
       }
-      negotiationRepository.save(negotiation);
+      negotiationRepository.saveAndFlush(negotiation);
     }
   }
 
