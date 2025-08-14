@@ -19,7 +19,9 @@
         @test-webhook="testWebhook"
       />
       <hr />
-      <UserListSection :users="users" />
+      <EmailNotificationsSection @view-email="viewEmailDetails" />
+      <hr />
+      <UserListSection />
     </div>
     <LoadingIndicator v-else />
     <WebhookModal
@@ -37,32 +39,12 @@
       @confirm="confirmDeleteWebhook"
       ref="deleteModal"
     />
+    <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
-    <EmailNotificationsSection @view-email="viewEmailDetails" />
+    <email-template-section />
     <hr />
-    <UserListSection />
+    <AccessFormsSection />
   </div>
-  <LoadingIndicator v-else />
-  <WebhookModal
-    id="webhookmodal"
-    :shown="shown"
-    :webhook="selectedWebhook"
-    @update="handleWebhookUpdate"
-    @create="handleNewWebhook"
-  />
-  <confirmation-modal
-    id="delete-webhookmodal"
-    title="Delete Webhook"
-    text="Are you sure you want to delete this webhook?"
-    :message-enabled="false"
-    @confirm="confirmDeleteWebhook"
-    ref="deleteModal"
-  />
-  <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
-  <hr />
-  <email-template-section />
-  <hr />
-  <AccessFormsSection />
 </template>
 
 <script setup>
