@@ -135,6 +135,7 @@ public class PersonServiceImpl implements PersonService {
       eventPublisher.publishEvent(
           new FirstRepresentativeEvent(this, resource.getId(), resource.getSourceId()));
     }
+    eventPublisher.publishEvent(new RepresentativeAddedEvent(this, resourceId, representativeId));
     representative.addResource(resource);
     personRepository.save(representative);
   }
