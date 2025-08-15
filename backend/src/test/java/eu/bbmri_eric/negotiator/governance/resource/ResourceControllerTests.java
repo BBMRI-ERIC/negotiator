@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.integration.api.v3;
+package eu.bbmri_eric.negotiator.governance.resource;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,9 +16,8 @@ import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
-import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceFilterDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirement;
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementCreateDTO;
@@ -26,6 +25,7 @@ import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementRepositor
 import eu.bbmri_eric.negotiator.info_requirement.InformationRequirementService;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmission;
 import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionRepository;
+import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceEvent;
@@ -80,7 +80,8 @@ public class ResourceControllerTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", is(resource.getId().intValue())))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())));
+        .andExpect(jsonPath("$.sourceId", is(resource.getSourceId())))
+        .andExpect(jsonPath("$.organization.name", is(resource.getOrganization().getName())));
   }
 
   @Test
@@ -305,10 +306,13 @@ public class ResourceControllerTests {
   @Test
   @WithMockUser
   void getResources_filterByName_ok() throws Exception {
+    ResourceFilterDTO filters = new ResourceFilterDTO();
+    filters.setName("test");
+    int count = repository.findAll(ResourceSpecificationBuilder.build(filters)).size();
     mockMvc
         .perform(MockMvcRequestBuilders.get(RESOURCES_ENDPOINT + "?name=test"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.page.totalElements", is(7)));
+        .andExpect(jsonPath("$.page.totalElements", is(count)));
   }
 
   @Test
@@ -545,5 +549,141 @@ public class ResourceControllerTests {
     Optional<Resource> updatedResource = repository.findById(resource1.get().getId());
     assertEquals(updatedResourceDTO.getName(), updatedResource.get().getName());
     assertEquals(updatedResourceDTO.getDescription(), updatedResource.get().getDescription());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void updateResource_validUpdate_ok() throws Exception {
+    // Use existing resource from test data
+    Long resourceId = 4L;
+    Resource existingResource = repository.findById(resourceId).orElseThrow();
+
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder()
+            .name("Updated Resource Name")
+            .description("Updated description for testing")
+            .contactEmail("updated@test.com")
+            .uri("https://updated-resource.test.com")
+            .withdrawn(false)
+            .build();
+
+    String requestBody = TestUtils.jsonFromRequest(updateDTO);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_ENDPOINT + "/" + resourceId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())))
+        .andExpect(jsonPath("$.description", is(updateDTO.getDescription())))
+        .andExpect(jsonPath("$.contactEmail", is(updateDTO.getContactEmail())))
+        .andExpect(jsonPath("$.uri", is(updateDTO.getUri())))
+        .andExpect(jsonPath("$.withdrawn", is(updateDTO.isWithdrawn())));
+
+    // Verify the resource was actually updated in the database
+    Resource updatedResource = repository.findById(resourceId).orElseThrow();
+    assertEquals(updateDTO.getName(), updatedResource.getName());
+    assertEquals(updateDTO.getDescription(), updatedResource.getDescription());
+    assertEquals(updateDTO.getContactEmail(), updatedResource.getContactEmail());
+    assertEquals(updateDTO.getUri(), updatedResource.getUri());
+    assertEquals(updateDTO.isWithdrawn(), updatedResource.isWithdrawn());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void updateResource_partialUpdate_ok() throws Exception {
+    // Use existing resource from test data
+    Long resourceId = 5L;
+    Resource existingResource = repository.findById(resourceId).orElseThrow();
+    String originalName = existingResource.getName();
+    String originalDescription = existingResource.getDescription();
+
+    // Only update name and withdrawn status
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().name("Partially Updated Resource").withdrawn(true).build();
+
+    String requestBody = TestUtils.jsonFromRequest(updateDTO);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_ENDPOINT + "/" + resourceId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType("application/hal+json"))
+        .andExpect(jsonPath("$.name", is(updateDTO.getName())))
+        .andExpect(jsonPath("$.withdrawn", is(updateDTO.isWithdrawn())));
+
+    // Verify the resource was updated correctly
+    Resource updatedResource = repository.findById(resourceId).orElseThrow();
+    assertEquals(updateDTO.getName(), updatedResource.getName());
+    assertEquals(updateDTO.isWithdrawn(), updatedResource.isWithdrawn());
+    // Verify unchanged fields remain the same
+    assertEquals(originalDescription, updatedResource.getDescription());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void updateResource_withdrawnStatusToggle_ok() throws Exception {
+    // Use existing resource from test data
+    Long resourceId = 6L;
+    Resource existingResource = repository.findById(resourceId).orElseThrow();
+    boolean originalWithdrawnStatus = existingResource.isWithdrawn();
+
+    // Toggle withdrawn status
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().withdrawn(!originalWithdrawnStatus).build();
+
+    String requestBody = TestUtils.jsonFromRequest(updateDTO);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_ENDPOINT + "/" + resourceId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.withdrawn", is(!originalWithdrawnStatus)));
+
+    // Verify the status was toggled
+    Resource updatedResource = repository.findById(resourceId).orElseThrow();
+    assertEquals(!originalWithdrawnStatus, updatedResource.isWithdrawn());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  void updateResource_nonExistentId_notFound() throws Exception {
+    Long nonExistentId = 99999L;
+
+    ResourceUpdateDTO updateDTO = ResourceUpdateDTO.builder().name("This should not work").build();
+
+    String requestBody = TestUtils.jsonFromRequest(updateDTO);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_ENDPOINT + "/" + nonExistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser("researcher")
+  void updateResource_asNonAdmin_forbidden() throws Exception {
+    // Regular users should not be able to update resources
+    Long resourceId = 4L;
+
+    ResourceUpdateDTO updateDTO =
+        ResourceUpdateDTO.builder().name("Unauthorized update attempt").build();
+
+    String requestBody = TestUtils.jsonFromRequest(updateDTO);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(RESOURCES_ENDPOINT + "/" + resourceId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isForbidden());
   }
 }
