@@ -8,7 +8,8 @@ describe("Test negotiation pdf download", () => {
         cy.get("tbody > tr > td ").contains("UNDER REVIEW").parent().parent().find(":nth-child(6)").click()
     })
 
-    context("check if you can download negotiation pdf", () => {
+    // Download of merged pdf
+    context("check if you can download negotiation pdf is working", () => {
         it("test if download pdf button is working", () => {
 
             cy.get(".pdf-button").should("be.visible")
@@ -16,6 +17,18 @@ describe("Test negotiation pdf download", () => {
             cy.get(".pdf-button").click()
 
             cy.get('.col-12 > .alert').should("be.visible").contains("File successfully saved")
+        })
+    })
+
+    // Download of negotiation pdf
+    context("check if you can download merged negotiation pdf is working", () => {
+        it("test if download merged pdf button is working", () => {
+
+            cy.get(".merged-pdf-button").should("be.visible")
+
+            cy.get(".merged-pdf-button").click()
+
+            cy.get('.col-12 > .alert').should("be.visible").contains("Merged PDF successfully saved")
         })
     })
 })

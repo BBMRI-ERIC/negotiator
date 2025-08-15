@@ -23,7 +23,9 @@ public class FileTypeValidator implements Validator {
           "image/png",
           "image/jpeg",
           "application/msword", // .doc
+          "application/x-tika-msoffice", // .doc (generic Tikatype)
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+          "application/x-tika-ooxml", // .docx (generic Tika type)
           "text/plain", // .txt
           "text/csv", // .csv
           "application/vnd.ms-excel", // .xls (Excel 97-2003)
