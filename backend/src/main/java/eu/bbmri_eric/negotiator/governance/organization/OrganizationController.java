@@ -71,7 +71,6 @@ public class OrganizationController {
   @Operation(summary = "Updates an organization by id")
   public EntityModel<OrganizationDTO> updateById(
       @PathVariable("id") Long id, @RequestBody @Valid OrganizationUpdateDTO organization) {
-    System.out.println("here");
     return organizationModelAssembler.toModel(
         organizationService.updateOrganizationById(id, organization));
   }

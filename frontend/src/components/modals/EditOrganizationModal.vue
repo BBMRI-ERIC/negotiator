@@ -529,11 +529,11 @@ const handleSubmit = async () => {
       withdrawn: formData.value.withdrawn,
     }
 
-    const updatedOrganization = await organizationsStore.updateOrganization(
-      props.organization.id,
-      updateData,
-    )
-    emit('update', updatedOrganization)
+    // Emit the organizationId and updateData that the parent expects
+    emit('update', {
+      organizationId: props.organization.id,
+      updateData: updateData
+    })
   } catch (error) {
     console.error('Error updating organization:', error)
   } finally {

@@ -21,6 +21,8 @@
     <EmailNotificationsSection @view-email="viewEmailDetails" />
     <hr />
     <UserListSection />
+    <hr />
+    <OrganizationsSection/>
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -59,6 +61,7 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
+import OrganizationsSection from '@/components/OrganizationsSection.vue'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
