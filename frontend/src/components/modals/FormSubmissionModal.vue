@@ -319,7 +319,7 @@ import 'vue3-form-wizard/dist/style.css'
 import { useFormsStore } from '../../store/forms'
 import { useNotificationsStore } from '../../store/notifications'
 import fileExtensions from '@/config/uploadFileExtensions.js'
-import { isFileExtensionsSuported } from '../../composables/utils.js'
+import { isFileExtensionsSupported } from '../../composables/utils.js'
 
 const props = defineProps({
   id: {
@@ -449,7 +449,7 @@ function isAttachment(value) {
 let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
-  if (isFileExtensionsSuported(event.target.files[0])) {
+  if (isFileExtensionsSupported(event.target.files[0])) {
     negotiationCriteria.value[section][criteria] = event.target.files[0]
   } else {
     fileInputKey.value++

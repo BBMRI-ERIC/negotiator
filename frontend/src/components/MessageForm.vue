@@ -78,7 +78,7 @@
 import { computed, ref } from 'vue'
 import NegotiationAttachment from './NegotiationAttachment.vue'
 import ChannelSelector from './ChannelSelector.vue'
-import { isFileExtensionsSuported } from '../composables/utils.js'
+import { isFileExtensionsSupported } from '../composables/utils.js'
 
 const props = defineProps({
   negotiation: {
@@ -160,7 +160,7 @@ function resetAttachment() {
 
 function showAttachment(event) {
   const file = event.target.files[0]
-  if (isFileExtensionsSuported(file)) {
+  if (isFileExtensionsSupported(file)) {
     attachment.value = file
     attachmentError.value = ''
   } else {
