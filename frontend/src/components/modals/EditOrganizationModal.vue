@@ -181,7 +181,7 @@
                 <p class="text-muted mt-2">Loading organization resources...</p>
               </div>
               <ResourcesManagement
-                v-else-if="organizationWithResources"
+                v-else-if="organizationWithResources && props.organization"
                 :organization-id="props.organization.id"
                 :organization="organizationWithResources"
                 @resource-added="handleResourceAdded"
@@ -331,7 +331,7 @@ const isValidUrl = (url) => {
 }
 
 const handleSubmit = async () => {
-  if (!validateForm()) {
+  if (!validateForm() || !props.organization) {
     return
   }
 
@@ -341,9 +341,9 @@ const handleSubmit = async () => {
     const updateData = {
       name: formData.value.name.trim(),
       externalId: formData.value.externalId.trim(),
-      description: formData.value.description?.trim() || null,
-      contactEmail: formData.value.contactEmail?.trim() || null,
-      uri: formData.value.uri?.trim() || null,
+      description: formData.value.description?.trim() || '',
+      contactEmail: formData.value.contactEmail?.trim() || '',
+      uri: formData.value.uri?.trim() || '',
       withdrawn: formData.value.withdrawn,
     }
 

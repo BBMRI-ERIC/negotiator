@@ -215,12 +215,22 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
-  function retrieveOrganizationsPaginated(page = 0, size = 20, name = '') {
+  function retrieveOrganizationsPaginated(page = 0, size = 20, filters = {}) {
     let url = `${apiPaths.BASE_API_PATH}/organizations?page=${page}&size=${size}`
 
-    // Only add name parameter if it's a non-empty string after trimming
-    if (name && name.trim()) {
-      url += `&name=${encodeURIComponent(name.trim())}`
+    // Add name filter if provided
+    if (filters.name && filters.name.trim()) {
+      url += `&name=${encodeURIComponent(filters.name.trim())}`
+    }
+
+    // Add externalId filter if provided
+    if (filters.externalId && filters.externalId.trim()) {
+      url += `&externalId=${encodeURIComponent(filters.externalId.trim())}`
+    }
+
+    // Add withdrawn filter if provided
+    if (typeof filters.withdrawn === 'boolean') {
+      url += `&withdrawn=${filters.withdrawn}`
     }
 
     return axios

@@ -8,19 +8,66 @@
       </button>
     </div>
 
-    <!-- Search Input -->
-    <div class="search-container mb-3">
-      <input
-        v-model="searchQuery"
-        type="text"
-        class="form-control search-input"
-        placeholder="Search by organization name..."
-        @input="debouncedSearch"
-      />
+    <!-- Filters Section -->
+    <div class="filters-container mb-4">
+      <div class="row g-3">
+        <!-- Status Filter -->
+        <div class="col-md-3">
+          <label for="statusFilter" class="form-label">Status</label>
+          <select
+            id="statusFilter"
+            v-model="filters.statusFilter"
+            class="form-select"
+            @change="applyFilters"
+          >
+            <option value="active">Active Only</option>
+            <option value="withdrawn">Withdrawn Only</option>
+            <option value="all">All Organizations</option>
+          </select>
+        </div>
+
+        <!-- Name Search -->
+        <div class="col-md-4">
+          <label for="nameSearch" class="form-label">Organization Name</label>
+          <input
+            id="nameSearch"
+            v-model="filters.name"
+            type="text"
+            class="form-control"
+            placeholder="Search by name..."
+            @input="debouncedSearch"
+          />
+        </div>
+
+        <!-- External ID Search -->
+        <div class="col-md-4">
+          <label for="externalIdSearch" class="form-label">External ID</label>
+          <input
+            id="externalIdSearch"
+            v-model="filters.externalId"
+            type="text"
+            class="form-control"
+            placeholder="Search by external ID..."
+            @input="debouncedSearch"
+          />
+        </div>
+
+        <!-- Clear Filters Button -->
+        <div class="col-md-1 d-flex align-items-end">
+          <button
+            class="btn btn-outline-secondary"
+            @click="clearFilters"
+            :disabled="loading"
+            title="Clear all filters"
+          >
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-if="organizations.length === 0 && !loading" class="text-muted mb-3">
-      {{ searchQuery ? 'No organizations found matching your search.' : 'No organizations found.' }}
+      {{ getNoResultsMessage() }}
     </div>
 
     <div v-else class="table-container">
@@ -129,7 +176,13 @@ const pageSize = ref(20)
 const selectedOrganization = ref(null)
 const showEditModal = ref(false)
 const showCreateModal = ref(false)
-const searchQuery = ref('')
+
+// Filters state - default to showing only active organizations
+const filters = ref({
+  statusFilter: 'active',
+  name: '',
+  externalId: '',
+})
 
 // Debounce timeout reference
 let searchTimeout = null
@@ -143,7 +196,7 @@ const debouncedSearch = () => {
   // Set new timeout for 500ms delay
   searchTimeout = setTimeout(() => {
     pageNumber.value = 0
-    loadOrganizations(searchQuery.value)
+    loadOrganizations()
   }, 500)
 }
 
@@ -151,13 +204,34 @@ onMounted(() => {
   loadOrganizations()
 })
 
-async function loadOrganizations(name = '') {
+async function loadOrganizations() {
   loading.value = true
   try {
+    // Build filters object for the API
+    const apiFilters = {}
+
+    // Add name filter if provided
+    if (filters.value.name && filters.value.name.trim()) {
+      apiFilters.name = filters.value.name.trim()
+    }
+
+    // Add externalId filter if provided
+    if (filters.value.externalId && filters.value.externalId.trim()) {
+      apiFilters.externalId = filters.value.externalId.trim()
+    }
+
+    // Add withdrawn filter based on status selection
+    if (filters.value.statusFilter === 'active') {
+      apiFilters.withdrawn = false
+    } else if (filters.value.statusFilter === 'withdrawn') {
+      apiFilters.withdrawn = true
+    }
+    // For 'all' status, don't add withdrawn filter
+
     const response = await adminStore.retrieveOrganizationsPaginated(
       pageNumber.value,
       pageSize.value,
-      name,
+      apiFilters
     )
     organizations.value = response?._embedded?.organizations ?? []
     pageLinks.value = response._links || {}
@@ -175,14 +249,14 @@ async function loadOrganizations(name = '') {
 const previousPage = () => {
   if (pageNumber.value > 0) {
     pageNumber.value -= 1
-    loadOrganizations(searchQuery.value)
+    loadOrganizations()
   }
 }
 
 const nextPage = () => {
   if (pageNumber.value < totalPages.value - 1) {
     pageNumber.value += 1
-    loadOrganizations(searchQuery.value)
+    loadOrganizations()
   }
 }
 
@@ -194,7 +268,7 @@ const resetPage = () => {
     pageSize.value = 100
   }
   pageNumber.value = 0
-  loadOrganizations(searchQuery.value)
+  loadOrganizations()
 }
 
 const editOrganization = (organization) => {
@@ -235,12 +309,8 @@ const handleOrganizationUpdate = async ({ organizationId, updateData }) => {
 
     console.log('Frontend: Update successful, response:', updatedOrganization)
 
-    // Update the local organizations array with the updated data
-    const index = organizations.value.findIndex((org) => org.id === organizationId)
-    if (index !== -1) {
-      // Merge the update data with the existing organization
-      organizations.value[index] = { ...organizations.value[index], ...updateData }
-    }
+    // Reload organizations to ensure we get the latest data and respect current filters
+    await loadOrganizations()
 
     closeEditModal()
   } catch (error) {
@@ -293,8 +363,8 @@ const handleOrganizationCreate = async (newOrganization) => {
 
     console.log('Frontend: Organization created successfully, response:', createdOrganization)
 
-    // Add the new organization to the local organizations array
-    organizations.value.push(createdOrganization)
+    // Reload organizations to ensure we get the latest data and respect current filters
+    await loadOrganizations()
 
     closeCreateModal()
   } catch (error) {
@@ -307,6 +377,41 @@ const handleOrganizationCreate = async (newOrganization) => {
   } finally {
     loading.value = false
   }
+}
+
+const clearFilters = () => {
+  filters.value = {
+    statusFilter: 'active', // Reset to show active organizations by default
+    name: '',
+    externalId: '',
+  }
+  pageNumber.value = 0
+  loadOrganizations()
+}
+
+const applyFilters = () => {
+  pageNumber.value = 0
+  loadOrganizations()
+}
+
+const getNoResultsMessage = () => {
+  if (loading.value) {
+    return 'Loading organizations...'
+  }
+
+  const hasSearchFilters = filters.value.name || filters.value.externalId
+
+  if (hasSearchFilters) {
+    return 'No organizations found matching your search criteria.'
+  }
+
+  if (filters.value.statusFilter === 'withdrawn') {
+    return 'No withdrawn organizations found.'
+  } else if (filters.value.statusFilter === 'active') {
+    return 'No active organizations found.'
+  }
+
+  return 'No organizations found.'
 }
 </script>
 
@@ -418,19 +523,33 @@ const handleOrganizationCreate = async (newOrganization) => {
   color: #ffffff;
 }
 
-.search-container {
-  max-width: 400px;
-}
-
-.search-input {
-  font-size: 0.95rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e8ecef;
+.filters-container {
+  background-color: #f8f9fa;
+  padding: 1rem;
   border-radius: 0.375rem;
+  border: 1px solid #e8ecef;
 }
 
-.search-input:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+.filters-container .form-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.filters-container .form-select,
+.filters-container .form-control {
+  height: calc(2.25rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.filters-container .btn {
+  height: calc(2.25rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.filters-container .row {
+  margin-right: 0;
+  margin-left: 0;
 }
 </style>
