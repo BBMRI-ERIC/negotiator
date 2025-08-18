@@ -53,6 +53,9 @@
           </button>
         </span>
         <div class="d-flex align-items-center">
+          <div v-if="props.uploadError" class="text-danger me-2">
+            {{ props.uploadError }}
+          </div>
           <button type="button" class="btn btn-attachment ms-2 border rounded">
             <input
               :key="fileInputKey"
@@ -65,7 +68,7 @@
             <i class="bi bi-paperclip" />
           </button>
           <small v-if="props.isUploading" class="text-muted ms-2 d-flex align-items-center">
-            <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
             {{ attachment ? `Uploading ${attachment.name}...` : 'Uploading...' }}
           </small>
         </div>
@@ -107,9 +110,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  uploadError: {
+    type: String,
+    default: '',
+  },
 })
 
-const emit = defineEmits(['new-attachment', 'send-message'])
+const emit = defineEmits(['new-attachment', 'send-message', 'clear-upload-error'])
 
 const message = ref('')
 const channelId = ref('')
@@ -159,6 +166,9 @@ function resetAttachment() {
 }
 
 function showAttachment(event) {
+  // Clear any previous upload errors when selecting a new file
+  emit('clear-upload-error')
+
   const file = event.target.files[0]
   if (isFileExtensionsSupported(file)) {
     attachment.value = file

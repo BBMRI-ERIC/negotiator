@@ -12,8 +12,10 @@
       :ui-configuration="uiConfiguration"
       :file-extensions="fileExtensions"
       :is-uploading="isUploading"
+      :upload-error="uploadError"
       @new-attachment="handleNewAttachment"
       @send-message="handleSendMessage"
+      @clear-upload-error="uploadError = ''"
     />
   </div>
 </template>
@@ -41,6 +43,7 @@ const emit = defineEmits(['new_attachment'])
 
 const posts = ref([])
 const isUploading = ref(false)
+const uploadError = ref('')
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 
 const combinedItems = computed(() => {
@@ -71,7 +74,8 @@ async function retrievePostsByNegotiationId() {
 
 async function handleSendMessage({ message, channelId, attachment }) {
   try {
-    // Set loading state if there's an attachment
+    uploadError.value = ''
+
     if (attachment) {
       isUploading.value = true
     }
@@ -85,7 +89,7 @@ async function handleSendMessage({ message, channelId, attachment }) {
       }
       await negotiationPageStore.addMessageToNegotiation(data).then((post) => {
         if (post) {
-          retrievePostsByNegotiationId() // Reload posts after successful message post
+          retrievePostsByNegotiationId()
         }
       })
     }
@@ -96,17 +100,26 @@ async function handleSendMessage({ message, channelId, attachment }) {
         negotiationId: props.negotiation.id,
         attachment,
       }
-      await negotiationPageStore.addAttachmentToNegotiation(attachmentData).then(() => {
-        retrievePostsByNegotiationId() // Reload posts after successful attachment post
-        // Emit event to parent to refresh attachments list
+      const response = await negotiationPageStore.addAttachmentToNegotiation(attachmentData)
+
+      if (response && response.status >= 400) {
+        uploadError.value = response.data?.detail ||
+                           response.data?.message ||
+                           `Upload failed with status ${response.status}`
+      } else {
+        retrievePostsByNegotiationId()
         emit('new_attachment')
-      })
+      }
     }
   } catch (error) {
     console.error('Error sending message or attachment:', error)
-    // Error handling could be improved here with user notification
+
+    if (attachment) {
+      uploadError.value = error.response?.data?.detail ||
+                         error.response?.data?.message ||
+                         'Failed to upload attachment. Please try again.'
+    }
   } finally {
-    // Always reset loading state
     isUploading.value = false
   }
 }
