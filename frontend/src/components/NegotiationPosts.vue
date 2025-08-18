@@ -11,6 +11,7 @@
       :recipients="recipients"
       :ui-configuration="uiConfiguration"
       :file-extensions="fileExtensions"
+      :is-uploading="isUploading"
       @new-attachment="handleNewAttachment"
       @send-message="handleSendMessage"
     />
@@ -39,6 +40,7 @@ const props = defineProps({
 const emit = defineEmits(['new_attachment'])
 
 const posts = ref([])
+const isUploading = ref(false)
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 
 const combinedItems = computed(() => {
@@ -68,28 +70,44 @@ async function retrievePostsByNegotiationId() {
 }
 
 async function handleSendMessage({ message, channelId, attachment }) {
-  if (message) {
-    const data = {
-      organizationId: channelId !== 'public' ? channelId : null,
-      text: message,
-      negotiationId: props.negotiation.id,
-      type: channelId === 'public' ? 'PUBLIC' : 'PRIVATE',
+  try {
+    // Set loading state if there's an attachment
+    if (attachment) {
+      isUploading.value = true
     }
-    await negotiationPageStore.addMessageToNegotiation(data).then((post) => {
-      if (post) {
-        retrievePostsByNegotiationId() // Reload posts after successful message post
+
+    if (message) {
+      const data = {
+        organizationId: channelId !== 'public' ? channelId : null,
+        text: message,
+        negotiationId: props.negotiation.id,
+        type: channelId === 'public' ? 'PUBLIC' : 'PRIVATE',
       }
-    })
-  }
-  if (attachment) {
-    const attachmentData = {
-      organizationId: channelId !== 'public' ? channelId : null,
-      negotiationId: props.negotiation.id,
-      attachment,
+      await negotiationPageStore.addMessageToNegotiation(data).then((post) => {
+        if (post) {
+          retrievePostsByNegotiationId() // Reload posts after successful message post
+        }
+      })
     }
-    await negotiationPageStore.addAttachmentToNegotiation(attachmentData).then(() => {
-      retrievePostsByNegotiationId() // Reload posts after successful attachment post
-    })
+
+    if (attachment) {
+      const attachmentData = {
+        organizationId: channelId !== 'public' ? channelId : null,
+        negotiationId: props.negotiation.id,
+        attachment,
+      }
+      await negotiationPageStore.addAttachmentToNegotiation(attachmentData).then(() => {
+        retrievePostsByNegotiationId() // Reload posts after successful attachment post
+        // Emit event to parent to refresh attachments list
+        emit('new_attachment')
+      })
+    }
+  } catch (error) {
+    console.error('Error sending message or attachment:', error)
+    // Error handling could be improved here with user notification
+  } finally {
+    // Always reset loading state
+    isUploading.value = false
   }
 }
 

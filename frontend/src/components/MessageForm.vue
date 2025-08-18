@@ -14,6 +14,7 @@
         v-model="message"
         class="form-control mb-3"
         :style="{ color: uiConfiguration.secondaryTextColor }"
+        :disabled="props.isUploading"
       />
       <NegotiationAttachment
         v-if="attachment"
@@ -51,17 +52,23 @@
             Send message
           </button>
         </span>
-        <button type="button" class="btn btn-attachment ms-2 border rounded">
-          <input
-            :key="fileInputKey"
-            id="attachment"
-            class="form-control"
-            type="file"
-            :accept="fileExtensions"
-            @change="showAttachment"
-          />
-          <i class="bi bi-paperclip" />
-        </button>
+        <div class="d-flex align-items-center">
+          <button type="button" class="btn btn-attachment ms-2 border rounded">
+            <input
+              :key="fileInputKey"
+              id="attachment"
+              class="form-control"
+              type="file"
+              :accept="fileExtensions"
+              @change="showAttachment"
+            />
+            <i class="bi bi-paperclip" />
+          </button>
+          <small v-if="props.isUploading" class="text-muted ms-2 d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
+            {{ attachment ? `Uploading ${attachment.name}...` : 'Uploading...' }}
+          </small>
+        </div>
       </div>
     </form>
   </div>
@@ -72,9 +79,6 @@ import { computed, ref } from 'vue'
 import NegotiationAttachment from './NegotiationAttachment.vue'
 import ChannelSelector from './ChannelSelector.vue'
 import { isFileExtensionsSuported } from '../composables/utils.js'
-import { useNegotiationPageStore } from '../store/negotiationPage.js'
-
-const negotiationPageStore = useNegotiationPageStore()
 
 const props = defineProps({
   negotiation: {
@@ -99,6 +103,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  isUploading: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['new-attachment', 'send-message'])
@@ -113,7 +121,8 @@ const readyToSend = computed(() => {
   return (
     (message.value !== '' || attachment.value !== undefined) &&
     channelId.value !== '' &&
-    (props.negotiation.publicPostsEnabled || props.negotiation.privatePostsEnabled)
+    (props.negotiation.publicPostsEnabled || props.negotiation.privatePostsEnabled) &&
+    !props.isUploading
   )
 })
 
@@ -135,21 +144,6 @@ const channelVisibilityMessage = computed(() => {
     : 'Private channel between the negotiation author and the selected organization.'
 })
 
-async function addAttachmentToNegotiation() {
-  const data = {
-    organizationId: channelId.value !== 'public' ? channelId.value : null,
-    negotiationId: props.negotiation.id,
-    attachment: attachment.value,
-  }
-  const response = await negotiationPageStore.addAttachmentToNegotiation(data)
-  if (response && response.status >= 200 && response.status < 300) {
-    console.log(`Successfully uploaded file: ${attachment.value.name}`)
-    return response
-  } else {
-    const errorData = response && response.data ? response.data : {}
-    throw new Error(errorData.detail || 'Failed to upload attachment. Please try again.')
-  }
-}
 function resetForm() {
   message.value = ''
   channelId.value = ''
@@ -178,26 +172,17 @@ function showAttachment(event) {
 async function sendMessage() {
   if (!readyToSend.value) return
   attachmentError.value = ''
+
+  // Always emit the send-message event - let parent handle attachment upload
+  emit('send-message', {
+    message: message.value,
+    channelId: channelId.value,
+    attachment: attachment.value,
+  })
+
+  // Only emit new-attachment if there's an attachment (for UI refresh)
   if (attachment.value) {
-    try {
-      await addAttachmentToNegotiation()
-      emit('new-attachment')
-      emit('send-message', {
-        message: message.value,
-        channelId: channelId.value,
-        attachment: attachment.value,
-      })
-    } catch (error) {
-      console.error('Attachment upload error:', error)
-      attachmentError.value = error.message
-      return
-    }
-  } else {
-    emit('send-message', {
-      message: message.value,
-      channelId: channelId.value,
-      attachment: attachment.value,
-    })
+    emit('new-attachment')
   }
 
   resetForm()

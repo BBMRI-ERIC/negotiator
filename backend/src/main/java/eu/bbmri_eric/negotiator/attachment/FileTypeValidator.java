@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 /** Validates file type based on decoded MIME type and file extension. */
 @Component
 @CommonsLog
-public class FileTypeValidator implements Validator {
+class FileTypeValidator implements Validator {
 
   private static final Tika tika = new Tika();
 
@@ -24,10 +24,13 @@ public class FileTypeValidator implements Validator {
           "image/jpeg",
           "application/msword", // .doc
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+          "application/x-tika-ooxml", // Generic OOXML detected by Tika (covers .docx, .xlsx)
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+          "application/vnd.ms-excel", // .xls (Excel 97-2003)
+          "application/x-tika-msoffice", // Generic MS Office detected by Tika (covers .doc, .xls)
           "text/plain", // .txt
           "text/csv", // .csv
-          "application/vnd.ms-excel", // .xls (Excel 97-2003)
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
+          "application/csv" // Alternative CSV MIME type
           );
 
   private static final List<String> ALLOWED_EXTENSIONS =
