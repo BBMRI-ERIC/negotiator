@@ -15,7 +15,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -376,7 +375,8 @@ public class NegotiatorExceptionHandler {
     problemDetail.setType(
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
     problemDetail.setTitle("Internal Server Error");
-    problemDetail.setDetail(ex.getMessage() != null ? ex.getMessage() : "A null pointer exception occurred");
+    problemDetail.setDetail(
+        ex.getMessage() != null ? ex.getMessage() : "A null pointer exception occurred");
     return problemDetail;
   }
 
