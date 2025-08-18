@@ -11,8 +11,11 @@
       :recipients="recipients"
       :ui-configuration="uiConfiguration"
       :file-extensions="fileExtensions"
+      :is-uploading="isUploading"
+      :upload-error="uploadError"
       @new-attachment="handleNewAttachment"
       @send-message="handleSendMessage"
+      @clear-upload-error="uploadError = ''"
     />
   </div>
 </template>
@@ -39,6 +42,8 @@ const props = defineProps({
 const emit = defineEmits(['new_attachment'])
 
 const posts = ref([])
+const isUploading = ref(false)
+const uploadError = ref('')
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration?.theme)
 
 const combinedItems = computed(() => {
@@ -68,28 +73,54 @@ async function retrievePostsByNegotiationId() {
 }
 
 async function handleSendMessage({ message, channelId, attachment }) {
-  if (message) {
-    const data = {
-      organizationId: channelId !== 'public' ? channelId : null,
-      text: message,
-      negotiationId: props.negotiation.id,
-      type: channelId === 'public' ? 'PUBLIC' : 'PRIVATE',
+  try {
+    uploadError.value = ''
+
+    if (attachment) {
+      isUploading.value = true
     }
-    await negotiationPageStore.addMessageToNegotiation(data).then((post) => {
-      if (post) {
-        retrievePostsByNegotiationId() // Reload posts after successful message post
+
+    if (message) {
+      const data = {
+        organizationId: channelId !== 'public' ? channelId : null,
+        text: message,
+        negotiationId: props.negotiation.id,
+        type: channelId === 'public' ? 'PUBLIC' : 'PRIVATE',
       }
-    })
-  }
-  if (attachment) {
-    const attachmentData = {
-      organizationId: channelId !== 'public' ? channelId : null,
-      negotiationId: props.negotiation.id,
-      attachment,
+      await negotiationPageStore.addMessageToNegotiation(data).then((post) => {
+        if (post) {
+          retrievePostsByNegotiationId()
+        }
+      })
     }
-    await negotiationPageStore.addAttachmentToNegotiation(attachmentData).then(() => {
-      retrievePostsByNegotiationId() // Reload posts after successful attachment post
-    })
+
+    if (attachment) {
+      const attachmentData = {
+        organizationId: channelId !== 'public' ? channelId : null,
+        negotiationId: props.negotiation.id,
+        attachment,
+      }
+      const response = await negotiationPageStore.addAttachmentToNegotiation(attachmentData)
+
+      if (response && response.status >= 400) {
+        uploadError.value = response.data?.detail ||
+                           response.data?.message ||
+                           `Upload failed with status ${response.status}`
+      } else {
+        retrievePostsByNegotiationId()
+        emit('new_attachment')
+      }
+    }
+  } catch (error) {
+    console.error('Error sending message or attachment:', error)
+
+    if (attachment) {
+      uploadError.value = error.response?.data?.detail ||
+                         error.response?.data?.message ||
+                         'Failed to upload attachment. Please try again.'
+    }
+  } finally {
+    isUploading.value = false
   }
 }
 

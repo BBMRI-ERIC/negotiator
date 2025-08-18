@@ -161,21 +161,19 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
   }
 
   function downloadAttachment(id, name) {
-    axios
+    return axios
       .get(`${apiPaths.ATTACHMENTS_PATH}/${id}`, {
         headers: getBearerHeaders(),
         responseType: 'blob',
       })
       .then((response) => {
         const href = window.URL.createObjectURL(response.data)
-
         const anchorElement = document.createElement('a')
         anchorElement.href = href
         anchorElement.download = name
 
         document.body.appendChild(anchorElement)
         anchorElement.click()
-
         document.body.removeChild(anchorElement)
         window.URL.revokeObjectURL(href)
       })

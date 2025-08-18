@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 /** Validates file type based on decoded MIME type and file extension. */
 @Component
 @CommonsLog
-public class FileTypeValidator implements Validator {
+class FileTypeValidator implements Validator {
 
   private static final Tika tika = new Tika();
 
@@ -22,16 +22,19 @@ public class FileTypeValidator implements Validator {
           "application/pdf",
           "image/png",
           "image/jpeg",
-          "application/msword", // .doc
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-          "text/plain", // .txt
-          "text/csv", // .csv
-          "application/vnd.ms-excel", // .xls (Excel 97-2003)
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
-          );
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/x-tika-ooxml",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel",
+          "application/x-tika-msoffice",
+          "text/plain",
+          "text/csv",
+          "application/csv");
 
   private static final List<String> ALLOWED_EXTENSIONS =
       List.of("pdf", "png", "jpeg", "jpg", "doc", "docx", "txt", "csv", "xls", "xlsx");
+  private static final List<String> OFFICE_EXTENSIONS = List.of("docx", "doc", "xlsx");
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -48,7 +51,7 @@ public class FileTypeValidator implements Validator {
     validateFileExtension(originalFilename);
 
     try (InputStream inputStream = file.getInputStream()) {
-      validateMimeType(inputStream);
+      validateMimeType(inputStream, originalFilename);
     } catch (IOException e) {
       throw new IllegalArgumentException("Could not read file: " + originalFilename, e);
     }
@@ -75,17 +78,37 @@ public class FileTypeValidator implements Validator {
    * Validates the MIME type by analyzing the file's input stream.
    *
    * @param inputStream the input stream of the file
+   * @param originalFilename the original file name for additional context
    * @throws IOException if an I/O error occurs reading the stream
    */
-  private void validateMimeType(InputStream inputStream) throws IOException {
+  private void validateMimeType(InputStream inputStream, String originalFilename)
+      throws IOException {
     String detectedType = tika.detect(inputStream);
-    log.debug("Detected MIME type: " + detectedType);
+    log.debug("Detected MIME type: " + detectedType + " for file: " + originalFilename);
+    if ("application/zip".equals(detectedType) && isOfficeFile(originalFilename)) {
+      log.debug(
+          "File detected as ZIP but has Office extension - accepting as valid Office document: "
+              + originalFilename);
+      return;
+    }
+
     if (!ALLOWED_MIME_TYPES.contains(detectedType)) {
       throw new UnsupportedFileTypeException(
           "File type '"
               + detectedType
               + "' is not supported. Try more conventional file formats such as PDF, JPEG or CSV");
     }
+  }
+
+  /**
+   * Checks if the file has an Office document extension.
+   *
+   * @param filename the file name to check
+   * @return true if the file has an Office extension
+   */
+  private boolean isOfficeFile(String filename) {
+    String extension = getFileExtension(filename);
+    return OFFICE_EXTENSIONS.contains(extension);
   }
 
   /**
