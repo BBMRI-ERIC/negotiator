@@ -103,9 +103,10 @@ async function handleSendMessage({ message, channelId, attachment }) {
       const response = await negotiationPageStore.addAttachmentToNegotiation(attachmentData)
 
       if (response && response.status >= 400) {
-        uploadError.value = response.data?.detail ||
-                           response.data?.message ||
-                           `Upload failed with status ${response.status}`
+        uploadError.value =
+          response.data?.detail ||
+          response.data?.message ||
+          `Upload failed with status ${response.status}`
       } else {
         retrievePostsByNegotiationId()
         emit('new_attachment')
@@ -115,9 +116,10 @@ async function handleSendMessage({ message, channelId, attachment }) {
     console.error('Error sending message or attachment:', error)
 
     if (attachment) {
-      uploadError.value = error.response?.data?.detail ||
-                         error.response?.data?.message ||
-                         'Failed to upload attachment. Please try again.'
+      uploadError.value =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        'Failed to upload attachment. Please try again.'
     }
   } finally {
     isUploading.value = false
