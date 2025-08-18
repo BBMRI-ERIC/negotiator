@@ -90,8 +90,7 @@ class FileTypeValidatorTest {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             createRealisticDocxContent());
 
-    assertThrows(
-        UnsupportedFileTypeException.class, () -> fileTypeValidator.validate(file, errors));
+    assertDoesNotThrow(() -> fileTypeValidator.validate(file, errors));
   }
 
   @Test
@@ -104,8 +103,7 @@ class FileTypeValidatorTest {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             createRealisticXlsxContent());
 
-    assertThrows(
-        UnsupportedFileTypeException.class, () -> fileTypeValidator.validate(file, errors));
+    assertDoesNotThrow(() -> fileTypeValidator.validate(file, errors));
   }
 
   @Test
@@ -335,6 +333,523 @@ class FileTypeValidatorTest {
   private byte[] createXlsMockContent() {
     return new byte[] {
       (byte) 0xD0, (byte) 0xCF, 0x11, (byte) 0xE0, (byte) 0xA1, (byte) 0xB1, 0x1A, (byte) 0xE1
+    };
+  }
+
+  @Test
+  @DisplayName("Should correctly identify DOCX as Office document, not ZIP")
+  void shouldCorrectlyIdentifyDocxAsOfficeDocumentNotZip() {
+    // Create a realistic DOCX file structure with ZIP header but Office content
+    byte[] docxContent = createRealisticDocxWithZipStructure();
+    MockMultipartFile docxFile =
+        new MockMultipartFile(
+            "file",
+            "document.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            docxContent);
+
+    // Should not throw exception - Tika should detect this as Office document, not ZIP
+    assertDoesNotThrow(() -> fileTypeValidator.validate(docxFile, errors));
+  }
+
+  @Test
+  @DisplayName("Should correctly identify DOC as Office document, not ZIP")
+  void shouldCorrectlyIdentifyDocAsOfficeDocumentNotZip() {
+    // Create a realistic DOC file with compound document structure
+    byte[] docContent = createRealisticDocWithCompoundStructure();
+    MockMultipartFile docFile =
+        new MockMultipartFile("file", "document.doc", "application/msword", docContent);
+
+    // Should not throw exception - Tika should detect this as Office document
+    assertDoesNotThrow(() -> fileTypeValidator.validate(docFile, errors));
+  }
+
+  @Test
+  @DisplayName("Should accept files with Office extensions even when detected as ZIP")
+  void shouldAcceptFilesWithOfficeExtensionsEvenWhenDetectedAsZip() {
+    byte[] zipContent = createPlainZipContent();
+
+    MockMultipartFile fileWithDocxExtension =
+        new MockMultipartFile("file", "document.docx", "application/zip", zipContent);
+    assertDoesNotThrow(() -> fileTypeValidator.validate(fileWithDocxExtension, errors));
+  }
+
+  @Test
+  @DisplayName("Should handle DOCX with minimal Office document structure")
+  void shouldHandleDocxWithMinimalOfficeStructure() {
+    byte[] minimalDocxContent = createMinimalValidDocxContent();
+    MockMultipartFile docxFile =
+        new MockMultipartFile(
+            "file",
+            "minimal.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            minimalDocxContent);
+
+    assertDoesNotThrow(() -> fileTypeValidator.validate(docxFile, errors));
+  }
+
+  @Test
+  @DisplayName("Should handle XLSX with minimal Office document structure")
+  void shouldHandleXlsxWithMinimalOfficeStructure() {
+    // Create minimal but valid XLSX structure that Tika can identify
+    byte[] minimalXlsxContent = createMinimalValidXlsxContent();
+    MockMultipartFile xlsxFile =
+        new MockMultipartFile(
+            "file",
+            "minimal.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            minimalXlsxContent);
+
+    assertDoesNotThrow(() -> fileTypeValidator.validate(xlsxFile, errors));
+  }
+
+  @Test
+  @DisplayName("Should detect Tika generic OOXML classification for Office documents")
+  void shouldDetectTikaGenericOoxmlClassification() {
+    // Test case where Tika detects as generic OOXML instead of specific Office type
+    byte[] ooxmlContent = createRealisticDocxWithZipStructure();
+    MockMultipartFile ooxmlFile =
+        new MockMultipartFile(
+            "file",
+            "document.docx",
+            "application/x-tika-ooxml", // Tika's generic OOXML detection
+            ooxmlContent);
+
+    assertDoesNotThrow(() -> fileTypeValidator.validate(ooxmlFile, errors));
+  }
+
+  @Test
+  @DisplayName("Should detect Tika generic MS Office classification for legacy Office documents")
+  void shouldDetectTikaGenericMsOfficeClassification() {
+    // Test case where Tika detects as generic MS Office instead of specific type
+    byte[] msOfficeContent = createRealisticDocWithCompoundStructure();
+    MockMultipartFile msOfficeFile =
+        new MockMultipartFile(
+            "file",
+            "document.doc",
+            "application/x-tika-msoffice", // Tika's generic MS Office detection
+            msOfficeContent);
+
+    assertDoesNotThrow(() -> fileTypeValidator.validate(msOfficeFile, errors));
+  }
+
+  private byte[] createRealisticDocxWithZipStructure() {
+    // Create a DOCX-like structure with proper ZIP header and Office document markers
+    // This mimics the actual structure of a DOCX file (ZIP container with Office XML)
+    return new byte[] {
+      // ZIP file signature
+      0x50,
+      0x4B,
+      0x03,
+      0x04,
+      // ZIP version
+      0x14,
+      0x00,
+      0x00,
+      0x00,
+      // Compression method, flags, etc.
+      0x08,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      // Filename length
+      0x13,
+      0x00,
+      0x00,
+      0x00,
+      // Office document marker - [Content_Types].xml file
+      0x5B,
+      0x43,
+      0x6F,
+      0x6E,
+      0x74,
+      0x65,
+      0x6E,
+      0x74,
+      0x5F,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x73,
+      0x5D,
+      0x2E,
+      0x78,
+      0x6D,
+      0x6C,
+      // Add some XML content that identifies this as an Office document
+      0x3C,
+      0x3F,
+      0x78,
+      0x6D,
+      0x6C,
+      0x20,
+      0x76,
+      0x65,
+      0x72,
+      0x73,
+      0x69,
+      0x6F,
+      0x6E,
+      0x3D,
+      0x22,
+      0x31,
+      0x2E,
+      0x30,
+      0x22,
+      // More Office-specific markers
+      0x20,
+      0x65,
+      0x6E,
+      0x63,
+      0x6F,
+      0x64,
+      0x69,
+      0x6E,
+      0x67,
+      0x3D,
+      0x22,
+      0x55,
+      0x54,
+      0x46,
+      0x2D,
+      0x38,
+      0x22,
+      0x3F,
+      0x3E
+    };
+  }
+
+  private byte[] createRealisticDocWithCompoundStructure() {
+    // Create a DOC-like structure with compound document header
+    return new byte[] {
+      // Compound Document signature (OLE2 signature)
+      (byte) 0xD0,
+      (byte) 0xCF,
+      0x11,
+      (byte) 0xE0,
+      (byte) 0xA1,
+      (byte) 0xB1,
+      0x1A,
+      (byte) 0xE1,
+      // Add more compound document structure
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      // Minor version, major version, byte order identifier
+      0x3E,
+      0x00,
+      0x03,
+      0x00,
+      (byte) 0xFE,
+      (byte) 0xFF,
+      // Sector size, mini sector size
+      0x09,
+      0x00,
+      0x06,
+      0x00,
+      // Additional compound document markers that identify this as MS Office
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x10,
+      0x00,
+      0x00
+    };
+  }
+
+  private byte[] createPlainZipContent() {
+    // Create a plain ZIP file without Office document markers
+    return new byte[] {
+      // ZIP file signature
+      0x50,
+      0x4B,
+      0x03,
+      0x04,
+      // ZIP version and other headers
+      0x14,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      // Generic filename (not Office-related)
+      0x08,
+      0x00,
+      0x00,
+      0x00,
+      0x74,
+      0x65,
+      0x73,
+      0x74,
+      0x2E,
+      0x74,
+      0x78,
+      0x74, // "test.txt"
+      // Generic content
+      0x74,
+      0x65,
+      0x73,
+      0x74,
+      0x20,
+      0x63,
+      0x6F,
+      0x6E,
+      0x74,
+      0x65,
+      0x6E,
+      0x74 // "test content"
+    };
+  }
+
+  private byte[] createMinimalValidDocxContent() {
+    // Minimal DOCX structure that Tika can identify as Office document
+    return new byte[] {
+      // ZIP signature
+      0x50,
+      0x4B,
+      0x03,
+      0x04,
+      0x14,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      // Content_Types file (essential for Office document identification)
+      0x13,
+      0x00,
+      0x00,
+      0x00,
+      0x5B,
+      0x43,
+      0x6F,
+      0x6E,
+      0x74,
+      0x65,
+      0x6E,
+      0x74,
+      0x5F,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x73,
+      0x5D,
+      0x2E,
+      0x78,
+      0x6D,
+      0x6C,
+      // Minimal XML content with Office namespace
+      0x3C,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x73,
+      0x3E,
+      0x3C,
+      0x4F,
+      0x76,
+      0x65,
+      0x72,
+      0x72,
+      0x69,
+      0x64,
+      0x65,
+      0x20,
+      0x43,
+      0x6F,
+      0x6E,
+      0x74,
+      0x65,
+      0x6E,
+      0x74,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x3D,
+      0x22,
+      0x61,
+      0x70,
+      0x70,
+      0x6C,
+      0x69,
+      0x63,
+      0x61,
+      0x74,
+      0x69,
+      0x6F,
+      0x6E,
+      0x2F,
+      0x78,
+      0x6C,
+      0x73,
+      0x78,
+      0x22,
+      0x3E
+    };
+  }
+
+  private byte[] createMinimalValidXlsxContent() {
+    // Minimal XLSX structure that Tika can identify as Office document
+    return new byte[] {
+      // ZIP signature
+      0x50,
+      0x4B,
+      0x03,
+      0x04,
+      0x14,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      // Content_Types file
+      0x13,
+      0x00,
+      0x00,
+      0x00,
+      0x5B,
+      0x43,
+      0x6F,
+      0x6E,
+      0x74,
+      0x65,
+      0x6E,
+      0x74,
+      0x5F,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x73,
+      0x5D,
+      0x2E,
+      0x78,
+      0x6D,
+      0x6C,
+      // Minimal XML with Excel-specific content type
+      0x3C,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x73,
+      0x3E,
+      0x3C,
+      0x4F,
+      0x76,
+      0x65,
+      0x72,
+      0x72,
+      0x69,
+      0x64,
+      0x65,
+      0x20,
+      0x43,
+      0x6F,
+      0x6E,
+      0x74,
+      0x65,
+      0x6E,
+      0x74,
+      0x54,
+      0x79,
+      0x70,
+      0x65,
+      0x3D,
+      0x22,
+      0x61,
+      0x70,
+      0x70,
+      0x6C,
+      0x69,
+      0x63,
+      0x61,
+      0x74,
+      0x69,
+      0x6F,
+      0x6E,
+      0x2F,
+      0x78,
+      0x6C,
+      0x73,
+      0x78,
+      0x22,
+      0x3E
     };
   }
 }
