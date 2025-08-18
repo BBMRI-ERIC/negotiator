@@ -3,6 +3,7 @@ package eu.bbmri_eric.negotiator.governance.organization;
 import eu.bbmri_eric.negotiator.governance.organization.dto.OrganizationFilterDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -49,9 +50,10 @@ public class OrganizationController {
 
   @GetMapping("/{id}")
   @Operation(summary = "Get organization by id")
+  @SecurityRequirement(name = "security_auth")
   public EntityModel<OrganizationDTO> findById(
       @PathVariable("id") Long id,
-      @Schema(description = "resource expansion", example = "resource") String expand) {
+      @Schema(description = "resource expansion", example = "resources") String expand) {
     return organizationModelAssembler.toModel(organizationService.findOrganizationById(id, expand));
   }
 

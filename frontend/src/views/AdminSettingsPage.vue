@@ -22,7 +22,7 @@
     <hr />
     <UserListSection />
     <hr />
-    <OrganizationsSection/>
+    <email-template-section />
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -41,8 +41,6 @@
     ref="deleteModal"
   />
   <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
-  <hr />
-  <email-template-section />
 </template>
 
 <script setup>
@@ -61,7 +59,6 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
-import OrganizationsSection from '@/components/OrganizationsSection.vue'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()

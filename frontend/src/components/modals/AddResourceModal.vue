@@ -4,18 +4,18 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
-            <i class="bi bi-pencil text-primary me-2"></i>
-            Edit Resource
+            <i class="bi bi-plus-circle text-primary me-2"></i>
+            Add New Resource
           </h5>
           <button type="button" class="btn-close" @click="$emit('close')" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted">Edit Resource functionality will be implemented here.</p>
-          <p class="text-muted">Resource: <strong>{{ resource?.name }}</strong></p>
+          <p class="text-muted">Add Resource functionality will be implemented here.</p>
+          <p class="text-muted">This modal will contain the resource creation form.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="$emit('close')">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="handleSave">Update Resource</button>
+          <button type="button" class="btn btn-primary" @click="handleSave">Save Resource</button>
         </div>
       </div>
     </div>
@@ -25,17 +25,17 @@
 
 <script setup>
 const props = defineProps({
-  resource: {
-    type: Object,
+  organizationId: {
+    type: [String, Number],
     required: true,
   },
 })
 
-const emit = defineEmits(['resource-updated', 'close'])
+const emit = defineEmits(['resource-added', 'close'])
 
 const handleSave = () => {
   // Placeholder implementation
-  emit('resource-updated')
+  emit('resource-added')
 }
 </script>
 
