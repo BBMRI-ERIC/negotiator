@@ -42,8 +42,10 @@
     <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
     <email-template-section />
+    <div v-if="featureFlagsAddAcessForms">
     <hr />
-    <AccessFormsSection />
+      <AccessFormsSection />
+    </div>
   </div>
 </template>
 
