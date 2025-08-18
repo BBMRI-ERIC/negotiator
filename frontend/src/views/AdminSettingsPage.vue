@@ -43,7 +43,7 @@
     <hr />
     <email-template-section />
     <div v-if="featureFlagsAddAcessForms">
-    <hr />
+      <hr />
       <AccessFormsSection />
     </div>
   </div>
