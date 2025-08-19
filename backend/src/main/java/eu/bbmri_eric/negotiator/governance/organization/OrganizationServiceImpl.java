@@ -34,9 +34,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     Organization organization =
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     if (Objects.equals(expand, "resources")) {
-        if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()){
-            throw new ForbiddenRequestException("Only Administrators can view this attribute");
-        }
+      if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        throw new ForbiddenRequestException("Only Administrators can view this attribute");
+      }
       return modelMapper.map(organization, OrganizationWithResourcesDTO.class);
     }
     return modelMapper.map(organization, OrganizationDTO.class);

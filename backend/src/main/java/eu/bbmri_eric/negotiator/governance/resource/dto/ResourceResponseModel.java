@@ -53,33 +53,16 @@ public class ResourceResponseModel {
     this.uri = uri;
   }
 
-  public ResourceResponseModel(
-      Long id,
-      String sourceId,
-      String name,
-      String description,
-      String contactEmail,
-      boolean withdrawn,
-      String uri) {
-    this.id = id;
-    this.sourceId = sourceId;
-    this.name = name;
-    this.description = description;
-    this.contactEmail = contactEmail;
-    this.withdrawn = withdrawn;
-    this.uri = uri;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     ResourceResponseModel that = (ResourceResponseModel) o;
-    return withdrawn == that.withdrawn
-        && Objects.equals(id, that.id)
+    return Objects.equals(id, that.id)
         && Objects.equals(sourceId, that.sourceId)
         && Objects.equals(name, that.name)
         && Objects.equals(description, that.description)
         && Objects.equals(contactEmail, that.contactEmail)
+        && Objects.equals(withdrawn, that.withdrawn)
         && Objects.equals(uri, that.uri);
   }
 
