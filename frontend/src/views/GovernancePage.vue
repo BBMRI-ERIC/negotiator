@@ -7,14 +7,14 @@
       <ul class="nav nav-tabs mb-4" id="governanceTab" role="tablist">
         <li class="nav-item" role="presentation">
           <button
-            class="nav-link active"
+            class="nav-link"
+            :class="{ active: activeTab === 'organizations' }"
             id="organizations-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#organizations"
+            @click="setActiveTab('organizations')"
             type="button"
             role="tab"
             aria-controls="organizations"
-            aria-selected="true"
+            :aria-selected="activeTab === 'organizations'"
           >
             <i class="bi bi-building me-2"></i>
             Organizations
@@ -23,13 +23,13 @@
         <li class="nav-item" role="presentation">
           <button
             class="nav-link"
+            :class="{ active: activeTab === 'resources' }"
             id="resources-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#resources"
+            @click="setActiveTab('resources')"
             type="button"
             role="tab"
             aria-controls="resources"
-            aria-selected="false"
+            :aria-selected="activeTab === 'resources'"
           >
             <i class="bi bi-database me-2"></i>
             Resources
@@ -38,13 +38,13 @@
         <li class="nav-item" role="presentation">
           <button
             class="nav-link"
+            :class="{ active: activeTab === 'networks' }"
             id="networks-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#networks"
+            @click="setActiveTab('networks')"
             type="button"
             role="tab"
             aria-controls="networks"
-            aria-selected="false"
+            :aria-selected="activeTab === 'networks'"
           >
             <i class="bi bi-diagram-3 me-2"></i>
             Networks
@@ -56,7 +56,8 @@
       <div class="tab-content" id="governanceTabContent">
         <!-- Organizations Tab -->
         <div
-          class="tab-pane fade show active"
+          class="tab-pane fade"
+          :class="{ 'show active': activeTab === 'organizations' }"
           id="organizations"
           role="tabpanel"
           aria-labelledby="organizations-tab"
@@ -67,26 +68,18 @@
         <!-- Resources Tab -->
         <div
           class="tab-pane fade"
+          :class="{ 'show active': activeTab === 'resources' }"
           id="resources"
           role="tabpanel"
           aria-labelledby="resources-tab"
         >
-          <div class="placeholder-content">
-            <div class="placeholder-icon">
-              <i class="bi bi-database"></i>
-            </div>
-            <h4 class="placeholder-title">Resources Management</h4>
-            <p class="placeholder-description">Manage resources that belong to organizations</p>
-            <div class="alert alert-info">
-              <i class="bi bi-info-circle me-2"></i>
-              Resources functionality will be implemented here
-            </div>
-          </div>
+          <ResourcesSection />
         </div>
 
         <!-- Networks Tab -->
         <div
           class="tab-pane fade"
+          :class="{ 'show active': activeTab === 'networks' }"
           id="networks"
           role="tabpanel"
           aria-labelledby="networks-tab"
@@ -109,16 +102,55 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user.js'
-import OrganizationsSection from '@/components/OrganizationsSection.vue'
+import ResourcesSection from '@/components/governance/ResourcesSection.vue'
+import OrganizationsSection from '@/components/governance/OrganizationsSection.vue'
 
 const userStore = useUserStore()
+const route = useRoute()
+const router = useRouter()
+
+const activeTab = ref('organizations')
+
+// Watch for route changes to update active tab
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && ['organizations', 'resources', 'networks'].includes(newTab)) {
+    activeTab.value = newTab
+  }
+}, { immediate: true })
+
+// Function to set active tab and update URL
+const setActiveTab = (tab) => {
+  activeTab.value = tab
+
+  // Update URL with query parameter
+  router.push({
+    path: route.path,
+    query: { ...route.query, tab }
+  })
+}
 
 onMounted(async () => {
   // Ensure user data is loaded for admin verification
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
+  }
+
+  // Set initial tab from URL or default to organizations
+  const urlTab = route.query.tab
+  if (urlTab && ['organizations', 'resources', 'networks'].includes(urlTab)) {
+    activeTab.value = urlTab
+  } else {
+    activeTab.value = 'organizations'
+    // Update URL to reflect default tab
+    if (!urlTab) {
+      router.replace({
+        path: route.path,
+        query: { ...route.query, tab: 'organizations' }
+      })
+    }
   }
 })
 </script>

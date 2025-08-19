@@ -4,19 +4,51 @@
       <h2 class="text-left">Resources</h2>
     </div>
 
-    <!-- Search Input -->
-    <div class="search-container mb-3">
-      <input
-        v-model="searchQuery"
-        type="text"
-        class="form-control search-input"
-        placeholder="Search by resource name..."
-        @input="debouncedSearch"
-      />
+    <!-- Filters Section -->
+    <div class="filters-container mb-4">
+      <div class="row g-3">
+        <!-- Name Search -->
+        <div class="col-md-6">
+          <label for="nameSearch" class="form-label">Resource Name</label>
+          <input
+            id="nameSearch"
+            v-model="filters.name"
+            type="text"
+            class="form-control"
+            placeholder="Search by name..."
+            @input="debouncedSearch"
+          />
+        </div>
+
+        <!-- Source ID Search -->
+        <div class="col-md-5">
+          <label for="sourceIdSearch" class="form-label">Source ID</label>
+          <input
+            id="sourceIdSearch"
+            v-model="filters.sourceId"
+            type="text"
+            class="form-control"
+            placeholder="Search by source ID..."
+            @input="debouncedSearch"
+          />
+        </div>
+
+        <!-- Clear Filters Button -->
+        <div class="col-md-1 d-flex align-items-end">
+          <button
+            class="btn btn-outline-secondary"
+            @click="clearFilters"
+            :disabled="loading"
+            title="Clear all filters"
+          >
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-if="resources.length === 0 && !loading" class="text-muted mb-3">
-      {{ searchQuery ? 'No resources found matching your search.' : 'No resources found.' }}
+      {{ getNoResultsMessage() }}
     </div>
 
     <div v-else class="table-container">
@@ -32,9 +64,10 @@
           <thead>
             <tr>
               <th>Resource Name</th>
-              <th>Resource ID</th>
-              <th>Status</th>
+              <th>Source ID</th>
               <th>Organization</th>
+              <th>Contact Email</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -43,11 +76,17 @@
               <td>{{ resource.name }}</td>
               <td>{{ resource.sourceId }}</td>
               <td>
+                <div v-if="resource.organization">
+                  {{ resource.organization.name }}
+                </div>
+                <span v-else class="text-muted">N/A</span>
+              </td>
+              <td>{{ resource.contactEmail || 'N/A' }}</td>
+              <td>
                 <span :class="resource.withdrawn ? 'badge bg-danger' : 'badge bg-success'">
                   {{ resource.withdrawn ? 'Withdrawn' : 'Active' }}
                 </span>
               </td>
-              <td>{{ resource.organization.name }}</td>
               <td>
                 <button
                   class="btn btn-sm btn-outline-primary"
@@ -102,7 +141,7 @@
 import { onMounted, ref } from 'vue'
 import { Modal } from 'bootstrap'
 import { useAdminStore } from '@/store/admin'
-import EditResourceModal from '@/components/modals/EditResourceModal.vue'
+import EditResourceModal from '@/components/governance/EditResourceModal.vue'
 
 const adminStore = useAdminStore()
 
@@ -112,10 +151,15 @@ const pageNumber = ref(0)
 const totalPages = ref(0)
 const totalElements = ref(0)
 const pageLinks = ref({})
-const searchQuery = ref('')
 const pageSize = ref(20)
 const selectedResource = ref(null)
 const showEditModal = ref(false)
+
+// Filters state - only using filters supported by ResourceFilterDTO
+const filters = ref({
+  name: '',
+  sourceId: '',
+})
 
 // Debounce timeout reference
 let searchTimeout = null
@@ -129,7 +173,7 @@ const debouncedSearch = () => {
   // Set new timeout for 500ms delay
   searchTimeout = setTimeout(() => {
     pageNumber.value = 0
-    loadResources(searchQuery.value)
+    loadResources()
   }, 500)
 }
 
@@ -137,13 +181,26 @@ onMounted(() => {
   loadResources()
 })
 
-async function loadResources(name = '') {
+async function loadResources() {
   loading.value = true
   try {
+    // Build filters object for the API - only use supported filters
+    const apiFilters = {}
+
+    // Add name filter if provided
+    if (filters.value.name && filters.value.name.trim()) {
+      apiFilters.name = filters.value.name.trim()
+    }
+
+    // Add sourceId filter if provided
+    if (filters.value.sourceId && filters.value.sourceId.trim()) {
+      apiFilters.sourceId = filters.value.sourceId.trim()
+    }
+
     const response = await adminStore.retrieveResourcesPaginated(
-      name,
       pageNumber.value,
       pageSize.value,
+      apiFilters
     )
     resources.value = response?._embedded?.resources ?? []
     pageLinks.value = response._links || {}
@@ -161,14 +218,14 @@ async function loadResources(name = '') {
 const previousPage = () => {
   if (pageNumber.value > 0) {
     pageNumber.value -= 1
-    loadResources(searchQuery.value)
+    loadResources()
   }
 }
 
 const nextPage = () => {
   if (pageNumber.value < totalPages.value - 1) {
     pageNumber.value += 1
-    loadResources(searchQuery.value)
+    loadResources()
   }
 }
 
@@ -180,7 +237,30 @@ const resetPage = () => {
     pageSize.value = 100
   }
   pageNumber.value = 0
-  loadResources(searchQuery.value)
+  loadResources()
+}
+
+const clearFilters = () => {
+  filters.value = {
+    name: '',
+    sourceId: '',
+  }
+  pageNumber.value = 0
+  loadResources()
+}
+
+const getNoResultsMessage = () => {
+  if (loading.value) {
+    return 'Loading resources...'
+  }
+
+  const hasSearchFilters = filters.value.name || filters.value.sourceId
+
+  if (hasSearchFilters) {
+    return 'No resources found matching your search criteria.'
+  }
+
+  return 'No resources found.'
 }
 
 const editResource = (resource) => {
@@ -213,19 +293,25 @@ const handleResourceUpdate = async ({ resourceId, updateData }) => {
   try {
     loading.value = true
 
-    // Call the update method from the store
-    await adminStore.updateResource(resourceId, updateData)
+    console.log('Frontend: Updating resource with ID:', resourceId)
+    console.log('Frontend: Update data being sent:', JSON.stringify(updateData, null, 2))
 
-    // Update the local resources array with the updated data
-    const index = resources.value.findIndex((res) => res.id === resourceId)
-    if (index !== -1) {
-      // Merge the update data with the existing resource
-      resources.value[index] = { ...resources.value[index], ...updateData }
-    }
+    // Call the update method from the store
+    const updatedResource = await adminStore.updateResource(resourceId, updateData)
+
+    console.log('Frontend: Update successful, response:', updatedResource)
+
+    // Reload resources to ensure we get the latest data and respect current filters
+    await loadResources()
 
     closeEditModal()
   } catch (error) {
-    console.error('Error updating resource:', error)
+    console.error('Frontend: Error updating resource:', error)
+    console.error('Frontend: Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    })
   } finally {
     loading.value = false
   }
@@ -241,22 +327,6 @@ const handleResourceUpdate = async ({ resourceId, updateData }) => {
   font-size: 1rem;
   color: #6c757d;
   margin-bottom: 1rem;
-}
-
-.search-container {
-  max-width: 400px;
-}
-
-.search-input {
-  font-size: 0.95rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e8ecef;
-  border-radius: 0.375rem;
-}
-
-.search-input:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
 .table-container {
@@ -333,26 +403,69 @@ const handleResourceUpdate = async ({ resourceId, updateData }) => {
   width: 80px;
   border: 1px solid #e8ecef;
   border-radius: 0.375rem;
+}
+
+.filters-container {
+  background-color: #f8f9fa;
+  border: 1px solid #e8ecef;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
   font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
 }
 
-.spinner-border {
-  color: #0d6efd;
-}
-
-.badge {
-  font-size: 0.8rem;
-  padding: 0.375rem 0.75rem;
+.form-control {
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid #e8ecef;
   border-radius: 0.375rem;
 }
 
-.btn-outline-primary {
-  color: #0d6efd;
+.form-control:focus {
   border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
-.btn-outline-primary:hover {
-  background-color: #0d6efd;
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+  background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+  color: #ffffff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-secondary:disabled {
+  color: #6c757d;
+  background-color: transparent;
+  border-color: #6c757d;
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+}
+
+.bg-success {
+  background-color: #198754 !important;
+  color: #ffffff;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
   color: #ffffff;
 }
 </style>

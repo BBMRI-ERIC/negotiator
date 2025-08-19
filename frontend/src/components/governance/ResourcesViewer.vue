@@ -1,31 +1,29 @@
 <template>
   <div class="resources-viewer">
     <!-- Header with Search and Filters -->
-    <br>
-    <div class="resources-header">
-
+    <div class="resources-header mb-3">
       <!-- Search and Filters Row -->
-      <div class="row mb-3">
+      <div class="row g-2">
         <div class="col-md-6">
           <div class="position-relative">
             <input
               v-model="searchQuery"
               type="text"
-              class="form-control search-input"
+              class="form-control form-control-sm search-input"
               placeholder="Search resources by name, source ID, or description..."
             />
             <i class="bi bi-search search-icon"></i>
           </div>
         </div>
         <div class="col-md-3">
-          <select v-model="statusFilter" class="form-select">
+          <select v-model="statusFilter" class="form-select form-select-sm">
             <option value="">All Statuses</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
         </div>
         <div class="col-md-3">
-          <select v-model="sortBy" class="form-select">
+          <select v-model="sortBy" class="form-select form-select-sm">
             <option value="name">Sort by Name</option>
             <option value="sourceId">Sort by Source ID</option>
             <option value="description">Sort by Description</option>
@@ -35,21 +33,21 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-5">
+    <div v-if="loading" class="text-center py-4">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading resources...</span>
       </div>
-      <p class="text-muted mt-2">Loading resources...</p>
+      <p class="text-muted mt-2 mb-0">Loading resources...</p>
     </div>
 
     <!-- Empty State -->
     <div v-else-if="filteredResources.length === 0" class="empty-state">
-      <div class="text-center py-5">
-        <i class="bi bi-database text-muted" style="font-size: 3rem;"></i>
-        <h6 class="text-muted mt-3">
+      <div class="text-center py-4">
+        <i class="bi bi-database text-muted" style="font-size: 2.5rem;"></i>
+        <h6 class="text-muted mt-2 mb-1">
           {{ searchQuery || statusFilter ? 'No resources found matching your criteria' : 'No resources available' }}
         </h6>
-        <p class="text-muted">
+        <p class="text-muted small mb-0">
           {{ searchQuery || statusFilter ? 'Try adjusting your search terms or filters' : 'This organization has no resources' }}
         </p>
       </div>
@@ -58,7 +56,7 @@
     <!-- Resources Table -->
     <div v-else class="resources-table-container">
       <div class="table-responsive">
-        <table class="table table-hover resources-table">
+        <table class="table table-hover resources-table mb-0">
           <thead class="table-light">
             <tr>
               <th @click="sortColumn('name')" class="sortable">
@@ -84,26 +82,26 @@
               :key="resource.id"
               class="resource-row"
             >
-              <td>
+              <td class="py-2">
                 <div class="fw-medium">{{ resource.name }}</div>
                 <small class="text-muted">ID: {{ resource.id }}</small>
               </td>
-              <td>
+              <td class="py-2">
                 <code class="source-id">{{ resource.sourceId }}</code>
               </td>
-              <td>
+              <td class="py-2">
                 <div class="description-cell">
                   {{ truncateText(resource.description, 80) }}
                 </div>
               </td>
-              <td>
-                <div v-if="resource.contactEmail">
+              <td class="py-2">
+                <div v-if="resource.contactEmail" class="small">
                   <i class="bi bi-envelope me-1"></i>
                   {{ resource.contactEmail }}
                 </div>
                 <span v-else class="text-muted">-</span>
               </td>
-              <td>
+              <td class="py-2">
                 <span :class="getStatusBadgeClass(resource)">
                   {{ getStatusText(resource) }}
                 </span>
@@ -112,16 +110,18 @@
           </tbody>
         </table>
       </div>
+    </div>
 
-      <!-- Results Summary -->
-      <div class="d-flex justify-content-between align-items-center mt-3">
-        <div class="text-muted">
+    <!-- Results Summary moved to bottom -->
+    <div v-if="!loading && filteredResources.length > 0" class="results-summary mt-3 pt-2 border-top">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
           Showing {{ filteredResources.length }} of {{ allResources.length }} resources
           <span v-if="searchQuery || statusFilter" class="text-info">
             (filtered)
           </span>
         </div>
-        <div v-if="searchQuery" class="text-muted">
+        <div v-if="searchQuery" class="text-muted small">
           <i class="bi bi-search me-1"></i>
           Searching for: "{{ searchQuery }}"
         </div>

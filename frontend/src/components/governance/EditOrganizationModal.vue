@@ -216,7 +216,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useOrganizationsStore } from '@/store/organizations'
-import ResourcesViewer from '@/components/ResourcesViewer.vue'
+import ResourcesViewer from '@/components/governance/ResourcesViewer.vue'
 
 const props = defineProps({
   modalId: {
@@ -289,6 +289,7 @@ const loadOrganizationWithResources = async (organizationId) => {
   } finally {
     loadingResources.value = false
   }
+  console.log(resourcesCount)
 }
 
 const validateForm = () => {

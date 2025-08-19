@@ -161,9 +161,8 @@
 import { onMounted, ref } from 'vue'
 import { Modal } from 'bootstrap'
 import { useAdminStore } from '@/store/admin'
-import EditOrganizationModal from '@/components/modals/EditOrganizationModal.vue'
-import CreateOrganizationModal from '@/components/modals/CreateOrganizationModal.vue'
-
+import CreateOrganizationModal from '@/components/governance/CreateOrganizationModal.vue'
+import EditOrganizationModal from '@/components/governance/EditOrganizationModal.vue'
 const adminStore = useAdminStore()
 
 const organizations = ref([])

@@ -18,6 +18,20 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
+  function getResourceWithRepresentatives(id) {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/resources/${id}?expand=representatives`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Error fetching resource details with representatives')
+        throw error
+      })
+  }
+
   function getAllResources(filters = null) {
     const params = filters ? new URLSearchParams(filters).toString() : ''
     const url = params
@@ -63,10 +77,45 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
+  function addRepresentativeToResource(userId, resourceId) {
+    return axios
+      .patch(
+        `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
+        { id: resourceId },
+        { headers: getBearerHeaders() }
+      )
+      .then((response) => {
+        notifications.setNotification('Representative added successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Error adding representative to resource')
+        throw error
+      })
+  }
+
+  function removeRepresentativeFromResource(userId, resourceId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        notifications.setNotification('Representative removed successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        notifications.setNotification('Error removing representative from resource')
+        throw error
+      })
+  }
+
   return {
     getResourceById,
+    getResourceWithRepresentatives,
     getAllResources,
     createResources,
     updateResource,
+    addRepresentativeToResource,
+    removeRepresentativeFromResource,
   }
 })

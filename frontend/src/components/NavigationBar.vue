@@ -26,21 +26,6 @@
               Review requests
             </router-link>
           </li>
-          <li v-if="isAdmin" class="nav-item">
-            <router-link
-              :style="{
-                color:
-                  $route.path === '/governance'
-                    ? uiConfiguration?.navbarActiveTextColor
-                    : uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
-              to="/governance"
-            >
-              <i class="bi bi-building" />
-              Governance
-            </router-link>
-          </li>
           <li v-if="isResearcher" class="nav-item">
             <router-link
               :style="{

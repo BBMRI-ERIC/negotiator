@@ -165,10 +165,17 @@ export const useAdminStore = defineStore('admin', () => {
       })
   }
 
-  function retrieveResourcesPaginated(name = '', page = 0, size = 20) {
+  function retrieveResourcesPaginated(page = 0, size = 20, filters = {}) {
     let url = `${apiPaths.BASE_API_PATH}/resources?page=${page}&size=${size}`
-    if (name) {
-      url += `&name=${name}`
+
+    // Add name filter if provided
+    if (filters.name && filters.name.trim()) {
+      url += `&name=${encodeURIComponent(filters.name.trim())}`
+    }
+
+    // Add sourceId filter if provided
+    if (filters.sourceId && filters.sourceId.trim()) {
+      url += `&sourceId=${encodeURIComponent(filters.sourceId.trim())}`
     }
 
     return axios
