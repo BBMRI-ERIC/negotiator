@@ -23,21 +23,6 @@
         <li class="nav-item" role="presentation">
           <button
             class="nav-link"
-            :class="{ active: activeTab === 'resources' }"
-            id="resources-tab"
-            @click="setActiveTab('resources')"
-            type="button"
-            role="tab"
-            aria-controls="resources"
-            :aria-selected="activeTab === 'resources'"
-          >
-            <i class="bi bi-database me-2"></i>
-            Resources
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button
-            class="nav-link"
             :class="{ active: activeTab === 'networks' }"
             id="networks-tab"
             @click="setActiveTab('networks')"
@@ -63,17 +48,6 @@
           aria-labelledby="organizations-tab"
         >
           <OrganizationsSection />
-        </div>
-
-        <!-- Resources Tab -->
-        <div
-          class="tab-pane fade"
-          :class="{ 'show active': activeTab === 'resources' }"
-          id="resources"
-          role="tabpanel"
-          aria-labelledby="resources-tab"
-        >
-          <ResourcesSection />
         </div>
 
         <!-- Networks Tab -->
@@ -105,7 +79,6 @@
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user.js'
-import ResourcesSection from '@/components/governance/ResourcesSection.vue'
 import OrganizationsSection from '@/components/governance/OrganizationsSection.vue'
 
 const userStore = useUserStore()
@@ -116,7 +89,7 @@ const activeTab = ref('organizations')
 
 // Watch for route changes to update active tab
 watch(() => route.query.tab, (newTab) => {
-  if (newTab && ['organizations', 'resources', 'networks'].includes(newTab)) {
+  if (newTab && ['organizations', 'networks'].includes(newTab)) {
     activeTab.value = newTab
   }
 }, { immediate: true })
@@ -140,7 +113,7 @@ onMounted(async () => {
 
   // Set initial tab from URL or default to organizations
   const urlTab = route.query.tab
-  if (urlTab && ['organizations', 'resources', 'networks'].includes(urlTab)) {
+  if (urlTab && ['organizations', 'networks'].includes(urlTab)) {
     activeTab.value = urlTab
   } else {
     activeTab.value = 'organizations'
