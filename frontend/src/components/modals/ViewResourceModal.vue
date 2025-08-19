@@ -48,14 +48,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  resource: {
-    type: Object,
-    required: true,
-  },
-})
 
-const emit = defineEmits(['close'])
 
 const getStatusBadgeClass = (resource) => {
   const baseClass = 'badge '

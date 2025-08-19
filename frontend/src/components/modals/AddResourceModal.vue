@@ -24,12 +24,6 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  organizationId: {
-    type: [String, Number],
-    required: true,
-  },
-})
 
 const emit = defineEmits(['resource-added', 'close'])
 
