@@ -32,6 +32,10 @@ if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
     siteId: matomo.matomoId,
   })
 }
+
+if (i18nConfig.locale === 'I18N_LOCALE_PLACEHOLDER') {
+  i18nConfig.locale = 'en'
+}
 const i18n = createI18n(i18nConfig)
 
 app.use(i18n)
