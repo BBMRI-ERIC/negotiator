@@ -5,6 +5,7 @@ describe("Test access forms settings", () => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
         cy.visit("http://localhost:8080/settings")
+        cy.wait(300)
     })
 
     context("check if access form settings section is visible", () => {
