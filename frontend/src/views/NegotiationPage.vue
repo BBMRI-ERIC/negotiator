@@ -114,6 +114,7 @@
               :name="attachment.name"
               :size="attachment.size"
               :content-type="attachment.contentType"
+              :is-downloading="downloadingAttachments.has(attachment.id)"
               @download="downloadAttachment(attachment.id, attachment.name)"
             />
           </li>
@@ -304,6 +305,7 @@ const representedResourcesIds = ref([])
 const possibleEvents = ref([])
 const selectedStatus = ref(undefined)
 const attachments = ref([])
+const downloadingAttachments = ref(new Set())
 const isAddResourcesButtonVisible = ref(false)
 const resourceStates = ref([])
 const userStore = useUserStore()
@@ -526,8 +528,15 @@ async function reloadStates() {
   possibleEvents.value = await negotiationPageStore.retrievePossibleEvents(props.negotiationId)
 }
 
-function downloadAttachment(id, name) {
-  negotiationPageStore.downloadAttachment(id, name)
+async function downloadAttachment(id, name) {
+  try {
+    downloadingAttachments.value.add(id)
+    await negotiationPageStore.downloadAttachment(id, name)
+  } catch (error) {
+    console.error('Download failed:', error)
+  } finally {
+    downloadingAttachments.value.delete(id)
+  }
 }
 
 function downloadAttachmentFromLink(href) {

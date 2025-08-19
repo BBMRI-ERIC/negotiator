@@ -392,7 +392,7 @@ import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import 'vue3-form-wizard/dist/style.css'
 import fileExtensions from '@/config/uploadFileExtensions.js'
-import { isFileExtensionsSuported } from '../composables/utils.js'
+import { isFileExtensionsSupported } from '../composables/utils.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationFormStore = useNegotiationFormStore()
@@ -674,7 +674,7 @@ let fileInputKey = ref(0)
 
 function handleFileUpload(event, section, criteria) {
   if (
-    isFileExtensionsSuported(event.target.files[0]) &&
+    isFileExtensionsSupported(event.target.files[0]) &&
     !isSameFile(negotiationCriteria.value[section][criteria], event.target.files[0]) &&
     !isAttachmentPresentInNegotiation(event.target.files[0])
   ) {

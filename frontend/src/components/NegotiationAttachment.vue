@@ -12,8 +12,9 @@
     <div v-if="!downloadable" id="file-reset" class="ms-auto">
       <button type="button" class="btn-close" @click.prevent="$emit('removed')" />
     </div>
-    <div v-if="downloadable" class="ms-auto align-self-center pe-2 cursor-pointer">
-      <i class="bi bi-download" @click="$emit('download')" />
+    <div v-if="downloadable" class="ms-auto align-self-center pe-2 d-flex align-items-center">
+      <div v-if="isDownloading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+      <i class="bi bi-download cursor-pointer" :class="{ 'text-muted': isDownloading }" @click="!isDownloading && $emit('download')" />
     </div>
   </div>
 </template>
@@ -33,10 +34,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  // Array of possible recipients for messages.
   size: {
     type: Number,
     required: true,
+  },
+  isDownloading: {
+    type: Boolean,
+    default: false,
   },
 })
 

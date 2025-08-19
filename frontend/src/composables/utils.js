@@ -188,7 +188,7 @@ import fileExtensions from '@/config/uploadFileExtensions.js'
 import { useNotificationsStore } from '../store/notifications'
 import moment from 'moment'
 
-export function isFileExtensionsSuported(file) {
+export function isFileExtensionsSupported(file) {
   const notificationsStore = useNotificationsStore()
   const fileExtensionsArray = fileExtensions.split(', ').map((item) => item.trim())
 

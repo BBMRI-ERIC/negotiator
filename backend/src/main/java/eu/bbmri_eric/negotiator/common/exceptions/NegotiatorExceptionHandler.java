@@ -15,7 +15,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.LazyInitializationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -350,17 +349,35 @@ public class NegotiatorExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler(DataIntegrityViolationException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public final ResponseEntity<HttpErrorResponseModel> handleDataIntegrityViolationException(
-      DataIntegrityViolationException ex) {
-    HttpErrorResponseModel errorResponse =
-        HttpErrorResponseModel.builder()
-            .title("Data integrity violation error")
-            .detail(ex.getMessage())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .build();
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  @ExceptionHandler(NullPointerException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal Server Error - Null Pointer Exception",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                        {
+                          "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+                          "title": "Internal Server Error",
+                          "status": 500,
+                          "detail": "A null pointer exception occurred",
+                          "instance": "/api/your-endpoint"
+                        }
+                        """)))
+  public final ProblemDetail handleNullPointerException(NullPointerException ex) {
+    log.error("NullPointerException occurred: ", ex);
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
+    problemDetail.setTitle("Internal Server Error");
+    problemDetail.setDetail(
+        ex.getMessage() != null ? ex.getMessage() : "A null pointer exception occurred");
+    return problemDetail;
   }
 
   @ExceptionHandler(StateMachineException.class)
