@@ -180,13 +180,10 @@
                 </div>
                 <p class="text-muted mt-2">Loading organization resources...</p>
               </div>
-              <ResourcesManagement
+              <ResourcesViewer
                 v-else-if="organizationWithResources && props.organization"
-                :organization-id="props.organization.id"
                 :organization="organizationWithResources"
-                @resource-added="handleResourceAdded"
-                @resource-updated="handleResourceUpdated"
-                @resource-deleted="handleResourceDeleted"
+                :loading="loadingResources"
               />
               <div v-else class="text-center py-5">
                 <div class="text-muted">
@@ -219,7 +216,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useOrganizationsStore } from '@/store/organizations'
-import ResourcesManagement from '@/components/ResourcesManagement.vue'
+import ResourcesViewer from '@/components/ResourcesViewer.vue'
 
 const props = defineProps({
   modalId: {
@@ -361,18 +358,6 @@ const handleSubmit = async () => {
 const loadResources = () => {
   // This will be called when the resources tab is clicked
   // The ResourcesManagement component will handle the actual loading
-}
-
-const handleResourceAdded = () => {
-  resourcesCount.value += 1
-}
-
-const handleResourceUpdated = () => {
-  // Could emit an event to refresh organization data if needed
-}
-
-const handleResourceDeleted = () => {
-  resourcesCount.value = Math.max(0, resourcesCount.value - 1)
 }
 </script>
 

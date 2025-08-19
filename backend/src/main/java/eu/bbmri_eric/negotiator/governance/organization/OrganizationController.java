@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v3/organizations")
 @Tag(name = "Organizations", description = "Retrieve connected organizations")
+@SecurityRequirement(name = "security_auth")
 public class OrganizationController {
   private final OrganizationService organizationService;
 
@@ -50,7 +51,6 @@ public class OrganizationController {
 
   @GetMapping("/{id}")
   @Operation(summary = "Get organization by id")
-  @SecurityRequirement(name = "security_auth")
   public EntityModel<OrganizationDTO> findById(
       @PathVariable("id") Long id,
       @Schema(description = "resource expansion", example = "resources") String expand) {
