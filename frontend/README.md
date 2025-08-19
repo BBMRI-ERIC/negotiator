@@ -81,6 +81,18 @@ matomoId: "MATOMO_SITE_ID_PLACEHOLDER"
 For more details, see
 the [Matomo Configuration Reference](https://matomo.org/faq/new-to-piwik/how-do-i-install-the-matomo-tracking-code-on-websites-that-use-vue-js/).
 
+### The i18n configuration involves two variables:
+
+```sh
+locale: "I18N_LOCALE_PLACEHOLDER",
+fallbackLocale: "I18N_FALLBACKLOCALE_PLACEHOLDER"
+```
+example 
+```sh
+locale: "en-bbmri",
+fallbackLocale: "en"
+```
+
 ## Configuration for Feature Flags
 
 The feature flags configuration file is located at:
