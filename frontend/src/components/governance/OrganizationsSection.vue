@@ -13,6 +13,7 @@
       @update-filters="updateFilters"
       @clear-filters="clearFilters"
       @debounced-search="debouncedSearch"
+      @apply-filters="applyFilters"
     />
 
     <OrganizationsList
@@ -120,6 +121,7 @@ const {
   updatePageSize,
   updateFilters,
   clearFilters,
+  applyFilters,
   debouncedSearch,
   reloadResourcesForOrganization
 } = organizations

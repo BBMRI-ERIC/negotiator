@@ -6,7 +6,7 @@
         <label for="statusFilter" class="form-label">Status</label>
         <select
           id="statusFilter"
-          :model-value="filters.statusFilter"
+          v-model="localFilters.statusFilter"
           class="form-select"
           @change="handleStatusChange"
         >
@@ -21,7 +21,7 @@
         <label for="nameSearch" class="form-label">Search Organizations</label>
         <input
           id="nameSearch"
-          :model-value="filters.name"
+          v-model="localFilters.name"
           type="text"
           class="form-control"
           placeholder="Search by name or external ID..."
@@ -34,7 +34,7 @@
         <label for="resourceSearch" class="form-label">Search Resources</label>
         <input
           id="resourceSearch"
-          :model-value="filters.resourceName"
+          v-model="localFilters.resourceName"
           type="text"
           class="form-control"
           placeholder="Search by resource name..."
@@ -58,7 +58,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { ref, watch } from 'vue'
+
+const props = defineProps({
   filters: {
     type: Object,
     required: true
@@ -69,19 +71,29 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['updateFilters', 'clearFilters', 'debouncedSearch'])
+const emit = defineEmits(['updateFilters', 'clearFilters', 'debouncedSearch', 'applyFilters'])
 
-const handleStatusChange = (event) => {
-  emit('updateFilters', { statusFilter: event.target.value })
+// Create local reactive copy of filters
+const localFilters = ref({ ...props.filters })
+
+// Watch for external filter changes (e.g., from clear filters)
+watch(() => props.filters, (newFilters) => {
+  localFilters.value = { ...newFilters }
+}, { deep: true })
+
+const handleStatusChange = () => {
+  emit('updateFilters', { statusFilter: localFilters.value.statusFilter })
+  // Status filter should trigger immediate load, not debounced search
+  emit('applyFilters')
 }
 
-const handleNameInput = (event) => {
-  emit('updateFilters', { name: event.target.value })
+const handleNameInput = () => {
+  emit('updateFilters', { name: localFilters.value.name })
   emit('debouncedSearch')
 }
 
-const handleResourceInput = (event) => {
-  emit('updateFilters', { resourceName: event.target.value })
+const handleResourceInput = () => {
+  emit('updateFilters', { resourceName: localFilters.value.resourceName })
   emit('debouncedSearch')
 }
 </script>
