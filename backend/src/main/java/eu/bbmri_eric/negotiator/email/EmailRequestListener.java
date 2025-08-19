@@ -71,8 +71,10 @@ class EmailRequestListener {
         personRepository
             .findById(notification.getRecipientId())
             .orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
-    Negotiation negotiation =
-        negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
+    Negotiation negotiation = null;
+    if (notification.getNegotiationId() != null) {
+      negotiation = negotiationRepository.findById(notification.getNegotiationId()).orElse(null);
+    }
     Context context = getContext(notification, person, negotiation);
     String emailContent = templateEngine.process(emailTemplateName, context);
     emailService.sendEmail(person, notification.getTitle(), emailContent);

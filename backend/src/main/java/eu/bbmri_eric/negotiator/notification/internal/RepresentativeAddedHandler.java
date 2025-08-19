@@ -9,6 +9,9 @@ import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.RepresentativeAddedEvent;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.stereotype.Component;
 
@@ -55,6 +58,18 @@ class RepresentativeAddedHandler implements NotificationStrategy<RepresentativeA
               + representative.getName()
               + " about being assigned as a representative for resource: "
               + resource.getSourceId());
+    } else {
+      List<String> missing =
+          Stream.of(
+                  representative == null ? "representative" : null,
+                  resource == null ? "resource" : null)
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList());
+
+      String loggingMsg =
+          "Failed to notify representative since " + String.join(" and ", missing) + " not found.";
+
+      log.warn(loggingMsg);
     }
   }
 }
