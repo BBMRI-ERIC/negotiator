@@ -16,6 +16,7 @@
           :key="resource.id"
           :resource="resource"
           @edit-resource="$emit('editResource', $event)"
+          @representatives-updated="$emit('representativesUpdated', $event)"
         />
         <!-- Add Resources Button at bottom -->
         <div class="add-resources-container">
@@ -65,7 +66,7 @@ defineProps({
   }
 })
 
-defineEmits(['editResource', 'addResources'])
+defineEmits(['editResource', 'addResources', 'representativesUpdated'])
 </script>
 
 <style scoped>

@@ -77,7 +77,7 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
-  function addRepresentativeToResource(userId, resourceId) {
+  function addRepresentativeToResource(userId, resourceId, silent = false) {
     return axios
       .patch(
         `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
@@ -85,26 +85,34 @@ export const useResourcesStore = defineStore('resources', () => {
         { headers: getBearerHeaders() }
       )
       .then((response) => {
-        notifications.setNotification('Representative added successfully', 'success')
+        if (!silent) {
+          notifications.setNotification('Representative added successfully', 'success')
+        }
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Error adding representative to resource')
+        if (!silent) {
+          notifications.setNotification('Error adding representative to resource')
+        }
         throw error
       })
   }
 
-  function removeRepresentativeFromResource(userId, resourceId) {
+  function removeRepresentativeFromResource(userId, resourceId, silent = false) {
     return axios
       .delete(`${apiPaths.BASE_API_PATH}/users/${userId}/resources/${resourceId}`, {
         headers: getBearerHeaders(),
       })
       .then((response) => {
-        notifications.setNotification('Representative removed successfully', 'success')
+        if (!silent) {
+          notifications.setNotification('Representative removed successfully', 'success')
+        }
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Error removing representative from resource')
+        if (!silent) {
+          notifications.setNotification('Error removing representative from resource')
+        }
         throw error
       })
   }

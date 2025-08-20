@@ -28,6 +28,7 @@
       @edit-organization="modals.openEditModal"
       @edit-resource="modals.openEditResourceModal"
       @add-resources="handleAddResources"
+      @representatives-updated="handleRepresentativesUpdated"
     />
 
     <OrganizationsPagination
@@ -172,6 +173,25 @@ const handleResourceUpdate = (updatedResourceData) => {
     reloadResourcesForOrganization,
     closeEditResourceModal: modals.closeEditResourceModal
   })
+}
+
+const handleRepresentativesUpdated = (eventData) => {
+  const { resourceId } = eventData
+  if (resourceId) {
+    const resource = Object.values(organizationResources.value)
+      .flat()
+      .find(r => r.id === resourceId)
+
+    if (resource) {
+      const organizationId = organizationsList.value.find(org =>
+        organizationResources.value[org.id]?.some(r => r.id === resourceId)
+      )?.id
+
+      if (organizationId) {
+        reloadResourcesForOrganization(organizationId)
+      }
+    }
+  }
 }
 </script>
 

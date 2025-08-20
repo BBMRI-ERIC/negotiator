@@ -9,6 +9,15 @@
     </div>
     <div class="resource-actions">
       <button
+        class="btn btn-sm btn-outline-primary me-2"
+        data-bs-toggle="modal"
+        :data-bs-target="`#resourceRepresentativesModal-${resource.id}`"
+        title="Manage Representatives"
+        @click="prepareModal"
+      >
+        <i class="bi bi-people"></i>
+      </button>
+      <button
         class="btn btn-sm btn-outline-secondary"
         @click="$emit('editResource', resource)"
         title="Edit Resource"
@@ -17,17 +26,37 @@
       </button>
     </div>
   </div>
+
+  <!-- Resource Representatives Modal -->
+  <ResourceRepresentativesModal
+    :modal-id="`resourceRepresentativesModal-${resource.id}`"
+    :resource="selectedResource"
+    @representatives-updated="handleRepresentativesUpdated"
+  />
 </template>
 
 <script setup>
-defineProps({
+import { ref } from 'vue'
+import ResourceRepresentativesModal from '../modals/ResourceRepresentativesModal.vue'
+
+const props = defineProps({
   resource: {
     type: Object,
     required: true
   }
 })
 
-defineEmits(['editResource'])
+const emit = defineEmits(['editResource', 'representativesUpdated'])
+
+const selectedResource = ref(null)
+
+const prepareModal = () => {
+  selectedResource.value = props.resource
+}
+
+const handleRepresentativesUpdated = (data) => {
+  emit('representativesUpdated', data)
+}
 </script>
 
 <style scoped>

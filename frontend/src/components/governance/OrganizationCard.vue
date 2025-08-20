@@ -54,6 +54,7 @@
       :loading="resourcesLoading"
       @edit-resource="$emit('editResource', $event)"
       @add-resources="$emit('addResources')"
+      @representatives-updated="$emit('representativesUpdated', $event)"
     />
   </div>
 </template>
@@ -80,7 +81,7 @@ defineProps({
   }
 })
 
-defineEmits(['toggleExpanded', 'editOrganization', 'editResource', 'addResources'])
+defineEmits(['toggleExpanded', 'editOrganization', 'editResource', 'addResources', 'representativesUpdated'])
 </script>
 
 <style scoped>

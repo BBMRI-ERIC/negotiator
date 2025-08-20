@@ -29,19 +29,6 @@
         />
       </div>
 
-      <!-- Resource Search -->
-      <div class="col-md-4">
-        <label for="resourceSearch" class="form-label">Search Resources</label>
-        <input
-          id="resourceSearch"
-          v-model="localFilters.resourceName"
-          type="text"
-          class="form-control"
-          placeholder="Search by resource name..."
-          @input="handleResourceInput"
-        />
-      </div>
-
       <!-- Clear Filters Button -->
       <div class="col-md-1 d-flex align-items-end">
         <button
@@ -89,11 +76,6 @@ const handleStatusChange = () => {
 
 const handleNameInput = () => {
   emit('updateFilters', { name: localFilters.value.name })
-  emit('debouncedSearch')
-}
-
-const handleResourceInput = () => {
-  emit('updateFilters', { resourceName: localFilters.value.resourceName })
   emit('debouncedSearch')
 }
 </script>

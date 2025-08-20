@@ -31,6 +31,7 @@
       @edit-organization="$emit('editOrganization', organization)"
       @edit-resource="$emit('editResource', $event)"
       @add-resources="$emit('addResources', organization.id)"
+      @representatives-updated="$emit('representativesUpdated', $event)"
     />
   </div>
 </template>
@@ -69,7 +70,7 @@ defineProps({
   }
 })
 
-defineEmits(['toggleOrganization', 'editOrganization', 'editResource', 'addResources'])
+defineEmits(['toggleOrganization', 'editOrganization', 'editResource', 'addResources', 'representativesUpdated'])
 </script>
 
 <style scoped>
