@@ -9,16 +9,8 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <!-- Modal Header -->
-        <div class="modal-header border-bottom">
-          <div class="d-flex align-items-center">
-            <i class="bi bi-plus-circle text-success me-3" style="font-size: 1.5rem;"></i>
-            <div>
-              <h4 class="modal-title mb-0" :id="`${modalId}Label`">
-                Create Resource
-              </h4>
-              <small class="text-muted">{{ organizationName || 'Add new resource' }}</small>
-            </div>
-          </div>
+        <div class="modal-header">
+          <h5 class="modal-title" :id="`${modalId}Label`">Create Resource</h5>
           <button
             type="button"
             class="btn-close"
@@ -31,171 +23,135 @@
         <!-- Modal Body -->
         <div class="modal-body">
           <form @submit.prevent="handleSubmit" novalidate>
-            <!-- Basic Information -->
-            <div class="mb-4">
-              <h6 class="text-uppercase text-muted fw-bold mb-3">Basic Information</h6>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="resourceName" class="form-label fw-medium">
-                      Name <span class="text-danger">*</span>
-                    </label>
-                    <input
-                      id="resourceName"
-                      v-model="formData.name"
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.name }"
-                      placeholder="Enter resource name"
-                      required
-                    />
-                    <div v-if="errors.name" class="invalid-feedback">{{ errors.name }}</div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="sourceId" class="form-label fw-medium">
-                      Source ID <span class="text-danger">*</span>
-                    </label>
-                    <input
-                      id="sourceId"
-                      v-model="formData.sourceId"
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.sourceId }"
-                      placeholder="Enter source identifier"
-                      required
-                    />
-                    <div v-if="errors.sourceId" class="invalid-feedback">{{ errors.sourceId }}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="resourceDescription" class="form-label fw-medium">
-                  Description <span class="text-danger">*</span>
-                </label>
-                <textarea
-                  id="resourceDescription"
-                  v-model="formData.description"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.description }"
-                  rows="3"
-                  placeholder="Enter resource description"
-                  required
-                ></textarea>
-                <div v-if="errors.description" class="invalid-feedback">{{ errors.description }}</div>
-              </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="mb-4">
-              <h6 class="text-uppercase text-muted fw-bold mb-3">Contact Information</h6>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="contactEmail" class="form-label fw-medium">Contact Email</label>
-                    <input
-                      id="contactEmail"
-                      v-model="formData.contactEmail"
-                      type="email"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.contactEmail }"
-                      placeholder="contact@example.com"
-                    />
-                    <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="resourceUri" class="form-label fw-medium">Resource URI</label>
-                    <input
-                      id="resourceUri"
-                      v-model="formData.uri"
-                      type="url"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.uri }"
-                      placeholder="https://example.com"
-                    />
-                    <div v-if="errors.uri" class="invalid-feedback">{{ errors.uri }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Configuration -->
-            <div class="mb-4">
-              <h6 class="text-uppercase text-muted fw-bold mb-3">Configuration</h6>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="accessForm" class="form-label fw-medium">
-                      Access Form <span class="text-danger">*</span>
-                    </label>
-                    <select
-                      id="accessForm"
-                      v-model="formData.accessFormId"
-                      class="form-select"
-                      :class="{ 'is-invalid': errors.accessFormId }"
-                      required
-                    >
-                      <option value="">Select an access form</option>
-                      <option
-                        v-for="form in accessForms"
-                        :key="form.id"
-                        :value="form.id"
-                      >
-                        {{ form.name }}
-                      </option>
-                    </select>
-                    <div v-if="errors.accessFormId" class="invalid-feedback">{{ errors.accessFormId }}</div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label for="discoveryService" class="form-label fw-medium">
-                      Discovery Service ID <span class="text-danger">*</span>
-                    </label>
-                    <input
-                      id="discoveryService"
-                      v-model="formData.discoveryServiceId"
-                      type="number"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.discoveryServiceId }"
-                      placeholder="Enter discovery service ID"
-                      required
-                      min="1"
-                    />
-                    <div v-if="errors.discoveryServiceId" class="invalid-feedback">{{ errors.discoveryServiceId }}</div>
-                    <small class="form-text text-muted">Numeric ID of the discovery service</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Organization Info (Read-only) -->
             <div class="mb-3">
-              <label class="form-label fw-medium">Organization</label>
-              <div class="form-control-plaintext bg-light p-3 rounded">
+              <label for="resourceName" class="form-label">
+                Name <span class="text-danger">*</span>
+              </label>
+              <input
+                id="resourceName"
+                v-model="formData.name"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.name }"
+                placeholder="Enter resource name"
+                required
+              />
+              <div v-if="errors.name" class="invalid-feedback">{{ errors.name }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="sourceId" class="form-label">
+                Source ID <span class="text-danger">*</span>
+              </label>
+              <input
+                id="sourceId"
+                v-model="formData.sourceId"
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': errors.sourceId }"
+                placeholder="Enter source identifier"
+                required
+              />
+              <div v-if="errors.sourceId" class="invalid-feedback">{{ errors.sourceId }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="resourceDescription" class="form-label">
+                Description <span class="text-danger">*</span>
+              </label>
+              <textarea
+                id="resourceDescription"
+                v-model="formData.description"
+                class="form-control"
+                :class="{ 'is-invalid': errors.description }"
+                rows="3"
+                placeholder="Enter resource description"
+                required
+              ></textarea>
+              <div v-if="errors.description" class="invalid-feedback">{{ errors.description }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="accessForm" class="form-label">
+                Access Form <span class="text-danger">*</span>
+              </label>
+              <select
+                id="accessForm"
+                v-model="formData.accessFormId"
+                class="form-select"
+                :class="{ 'is-invalid': errors.accessFormId }"
+                required
+              >
+                <option value="">Select an access form</option>
+                <option
+                  v-for="form in accessForms"
+                  :key="form.id"
+                  :value="form.id"
+                >
+                  {{ form.name }}
+                </option>
+              </select>
+              <div v-if="errors.accessFormId" class="invalid-feedback">{{ errors.accessFormId }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="discoveryService" class="form-label">
+                Discovery Service ID <span class="text-danger">*</span>
+              </label>
+              <input
+                id="discoveryService"
+                v-model="formData.discoveryServiceId"
+                type="number"
+                class="form-control"
+                :class="{ 'is-invalid': errors.discoveryServiceId }"
+                placeholder="Enter discovery service ID"
+                required
+                min="1"
+              />
+              <div v-if="errors.discoveryServiceId" class="invalid-feedback">{{ errors.discoveryServiceId }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="contactEmail" class="form-label">Contact Email</label>
+              <input
+                id="contactEmail"
+                v-model="formData.contactEmail"
+                type="email"
+                class="form-control"
+                :class="{ 'is-invalid': errors.contactEmail }"
+                placeholder="contact@example.com"
+              />
+              <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="resourceUri" class="form-label">Resource URI</label>
+              <input
+                id="resourceUri"
+                v-model="formData.uri"
+                type="url"
+                class="form-control"
+                :class="{ 'is-invalid': errors.uri }"
+                placeholder="https://example.com"
+              />
+              <div v-if="errors.uri" class="invalid-feedback">{{ errors.uri }}</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Organization</label>
+              <div class="form-control-plaintext bg-light p-2 rounded border">
                 <div class="fw-medium">{{ organizationName }}</div>
                 <small class="text-muted">ID: {{ organizationId }}</small>
               </div>
-              <small class="form-text text-muted">This resource will be assigned to this organization</small>
             </div>
           </form>
         </div>
 
         <!-- Modal Footer -->
-        <div class="modal-footer border-top">
+        <div class="modal-footer">
           <button
             type="button"
-            class="btn btn-outline-secondary"
+            class="btn btn-secondary"
             data-bs-dismiss="modal"
             @click="handleClose"
             :disabled="submitting"
@@ -204,7 +160,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-success"
+            class="btn btn-primary"
             @click="handleSubmit"
             :disabled="submitting || !isFormValid"
           >
@@ -214,7 +170,6 @@
               role="status"
               aria-hidden="true"
             ></span>
-            <i v-else class="bi bi-plus-circle me-2"></i>
             {{ submitting ? 'Creating...' : 'Create Resource' }}
           </button>
         </div>
@@ -271,12 +226,16 @@ const accessForms = ref([])
 
 // Computed properties
 const isFormValid = computed(() => {
-  return formData.value.name &&
-         formData.value.description &&
-         formData.value.sourceId &&
-         formData.value.accessFormId &&
-         formData.value.discoveryServiceId &&
-         Object.keys(errors.value).length === 0
+  // Check required fields with proper validation for each type
+  const hasName = formData.value.name?.trim().length > 0
+  const hasDescription = formData.value.description?.trim().length > 0
+  const hasSourceId = formData.value.sourceId?.trim().length > 0
+  const hasAccessForm = formData.value.accessFormId && formData.value.accessFormId !== ''
+  const hasDiscoveryService = formData.value.discoveryServiceId &&
+    formData.value.discoveryServiceId !== '' &&
+    !isNaN(Number(formData.value.discoveryServiceId))
+
+  return hasName && hasDescription && hasSourceId && hasAccessForm && hasDiscoveryService
 })
 
 // Watch for organization ID changes
@@ -425,62 +384,37 @@ watch(() => props.shown, (isShown) => {
 </script>
 
 <style scoped>
-.modal-content {
-  border: none;
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.2);
-}
-
 .modal-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.modal-body {
-  padding: 2rem;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.modal-footer {
-  padding: 1.5rem 2rem;
-  background: #f8f9fa;
+.modal-title {
+  color: #495057;
+  font-weight: 600;
 }
 
 .form-label {
+  font-weight: 500;
   color: #495057;
-  margin-bottom: 0.5rem;
 }
 
-.form-control, .form-select {
-  border: 1px solid #ced4da;
-  padding: 0.625rem 0.75rem;
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
-.form-control:focus, .form-select:focus {
-  border-color: #198754;
-  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
 }
 
-.text-danger {
-  color: #dc3545 !important;
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
 }
 
-.bg-light {
-  background-color: #f8f9fa !important;
-}
-
-h6.text-uppercase {
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 0.5rem;
-}
-
-.form-control-plaintext {
-  border: 1px solid #e9ecef;
-}
-
-.btn-success:disabled {
-  opacity: 0.65;
+.invalid-feedback {
+  display: block;
 }
 </style>

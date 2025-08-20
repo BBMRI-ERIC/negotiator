@@ -3,7 +3,6 @@
     <OrganizationsSectionHeader
       :loading="organizationsLoading || operationsLoading"
       :all-expanded="allExpanded"
-      @toggle-expand-all="toggleExpandAll"
       @create-organization="modals.openCreateModal"
     />
 
@@ -115,7 +114,6 @@ const {
   getNoResultsMessage,
   sortedResourcesForOrganization,
   toggleOrganization,
-  toggleExpandAll,
   loadOrganizations,
   previousPage,
   nextPage,

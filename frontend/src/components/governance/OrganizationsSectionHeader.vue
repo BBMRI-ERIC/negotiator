@@ -6,14 +6,6 @@
     </h2>
     <div class="actions-group">
       <button
-        class="btn btn-outline-primary me-2"
-        @click="$emit('toggleExpandAll')"
-        :disabled="loading"
-      >
-        <i :class="allExpanded ? 'bi bi-dash-square' : 'bi bi-plus-square'" class="me-2"></i>
-        {{ allExpanded ? 'Collapse All' : 'Expand All' }}
-      </button>
-      <button
         class="btn btn-primary"
         @click="$emit('createOrganization')"
         :disabled="loading"
@@ -30,14 +22,10 @@ defineProps({
   loading: {
     type: Boolean,
     required: true
-  },
-  allExpanded: {
-    type: Boolean,
-    required: true
   }
 })
 
-defineEmits(['toggleExpandAll', 'createOrganization'])
+defineEmits(['createOrganization'])
 </script>
 
 <style scoped>

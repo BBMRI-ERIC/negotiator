@@ -8,6 +8,11 @@
       <span class="resource-id">{{ resource.sourceId || resource.id }}</span>
     </div>
     <div class="resource-actions">
+      <i
+        v-if="hasNoRepresentatives"
+        class="bi bi-exclamation-triangle-fill warning-icon"
+        title="No representatives assigned"
+      ></i>
       <button
         class="btn btn-sm btn-outline-primary me-2"
         data-bs-toggle="modal"
@@ -36,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ResourceRepresentativesModal from '../modals/ResourceRepresentativesModal.vue'
 
 const props = defineProps({
@@ -49,6 +54,10 @@ const props = defineProps({
 const emit = defineEmits(['editResource', 'representativesUpdated'])
 
 const selectedResource = ref(null)
+
+const hasNoRepresentatives = computed(() => {
+  return !props.resource.representatives || props.resource.representatives.length === 0
+})
 
 const prepareModal = () => {
   selectedResource.value = props.resource
@@ -98,5 +107,18 @@ const handleRepresentativesUpdated = (data) => {
 .resource-id {
   font-size: 0.875rem;
   color: #6c757d;
+}
+
+.warning-icon {
+  color: #dc3545;
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-right: 0.5rem;
+  cursor: help;
+}
+
+.resource-actions {
+  display: flex;
+  align-items: center;
 }
 </style>
