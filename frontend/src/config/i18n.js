@@ -1,6 +1,6 @@
 export default {
-  locale: 'I18N_LOCALE_PLACEHOLDER',
-  fallbackLocale: 'I18N_FALLBACKLOCALE_PLACEHOLDER',
+  locale: 'en-canSERV',
+  fallbackLocale: 'en',
   messages: {
     en: {
       navbar: {
