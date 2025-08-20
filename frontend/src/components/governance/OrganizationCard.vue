@@ -7,7 +7,9 @@
     <div
       class="organization-header"
       @click="$emit('toggleExpanded')"
+      @keydown="handleKeyDown"
       role="button"
+      tabindex="0"
       :aria-expanded="isExpanded"
       :aria-controls="`resources-${organization.id}`"
     >
@@ -81,7 +83,15 @@ defineProps({
   }
 })
 
-defineEmits(['toggleExpanded', 'editOrganization', 'editResource', 'addResources', 'representativesUpdated'])
+const emit = defineEmits(['toggleExpanded', 'editOrganization', 'editResource', 'addResources', 'representativesUpdated'])
+
+// Keyboard event handler for accessibility
+function handleKeyDown(event) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    emit('toggleExpanded')
+  }
+}
 </script>
 
 <style scoped>
