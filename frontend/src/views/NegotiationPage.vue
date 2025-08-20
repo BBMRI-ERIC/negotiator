@@ -168,9 +168,11 @@
                     :style="{ color: uiConfiguration.primaryTextColor }"
                   >
                     <i class="bi bi-buildings mx-2" />
-                    ORGANIZATIONS ({{ Object.keys(organizationsById).length }}) |
+                    {{ $t('negotiationPage.organisations') }} ({{
+                      Object.keys(organizationsById).length
+                    }}) |
                     <i class="bi bi-box-seam" />
-                    RESOURCES ({{ numberOfResources }})
+                    {{ $t('negotiationPage.resources') }} ({{ numberOfResources }})
                   </span>
                 </div>
                 <add-resources-button

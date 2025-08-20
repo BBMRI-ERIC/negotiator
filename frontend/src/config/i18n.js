@@ -10,12 +10,18 @@ export default {
         FAQ: 'Support',
         doc: 'Documentation',
       },
+      negotiationPage: {
+        resources: 'RESOURCES',
+        organisations: 'ORGANIZATIONS',
+      },
     },
     'en-canSERV': {
       navbar: {
-        admin: 'Review requests',
-        researcher: 'Service',
         biobanker: 'Your organisation',
+      },
+      negotiationPage: {
+        resources: 'Service',
+        organisations: 'Service provider',
       },
     },
   },
