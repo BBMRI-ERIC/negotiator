@@ -550,7 +550,7 @@ async function getValueSet(id) {
   })
 }
 
-const debouncedSave = ref(
+const debouncedSave = (
   debounce(async (step) => {
     if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
       await saveDraftSilently(step)

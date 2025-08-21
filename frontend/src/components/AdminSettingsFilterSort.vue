@@ -15,7 +15,11 @@
             Sort by {{ currentSortBy }}
           </button>
           <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
-            <div v-for="(sort, index) in sortByFields.fields" :key="index" class="form-check mx-2 my-2">
+            <div
+              v-for="(sort, index) in sortByFields.fields"
+              :key="index"
+              class="form-check mx-2 my-2"
+            >
               <input
                 :id="index"
                 v-model="filtersSortData.sortBy"
@@ -60,7 +64,7 @@
 
     <div class="row row-cols-auto gap-2 ms-1 my-2">
       <div v-for="field in filtersFields" :key="field.name" class="col mx-1">
-        <TextFilter 
+        <TextFilter
           v-if="field.type == 'text' || field.type == 'email'"
           :name="field.name"
           :label="field.label"
@@ -69,14 +73,13 @@
           v-model:value="filtersSortData[field.name]"
           @input="debouncedFilter"
         />
-        <OptionsFilter v-else-if="field.type === 'radio' || field.type === 'checkbox'" 
+        <OptionsFilter
+          v-else-if="field.type === 'radio' || field.type === 'checkbox'"
           :name="field.name"
           :label="field.label"
           :type="field.type"
           :options="field.options"
-          :button-style="filtersSortData[field.name] !== '' 
-            ? buttonActiveStyle 
-            : buttonStyle"
+          :button-style="filtersSortData[field.name] !== '' ? buttonActiveStyle : buttonStyle"
           :clear-button-style="clearButtonStyle"
           :label-style="{ color: uiConfiguration?.filtersSortDropdownTextColor }"
           @change="emitFilterSortData"
@@ -86,9 +89,11 @@
           v-if="field.type == 'date-range'"
           :name="field.name"
           :label="field.label"
-          :button-style="filtersSortData[field.name].start !== '' || filtersSortData[field.name].end !== ''
-            ? buttonActiveStyle
-            : buttonStyle"
+          :button-style="
+            filtersSortData[field.name].start !== '' || filtersSortData[field.name].end !== ''
+              ? buttonActiveStyle
+              : buttonStyle
+          "
           :type="field.inputType"
           v-model:start="filtersSortData[field.name].start"
           v-model:end="filtersSortData[field.name].end"
@@ -115,7 +120,7 @@ const props = defineProps({
   filtersFields: {
     type: Array,
     required: true,
-    default: () => []
+    default: () => [],
   },
   userRole: {
     type: String,
@@ -125,8 +130,8 @@ const props = defineProps({
   },
   sortByFields: {
     type: Array,
-    required: false
-  }
+    required: false,
+  },
 })
 
 const emit = defineEmits(['filtersSortData'])
@@ -163,11 +168,13 @@ const clearButtonStyle = computed(() => {
 })
 
 const currentSortBy = computed(() => {
-  const field = props.sortByFields.fields.find(field => field.value === filtersSortData.value.sortBy)
+  const field = props.sortByFields.fields.find(
+    (field) => field.value === filtersSortData.value.sortBy,
+  )
   if (field) {
-    return field.label 
+    return field.label
   }
-  return '' 
+  return ''
 })
 
 // Simple debounce function to replace lodash
@@ -203,7 +210,7 @@ function changeSortDirection() {
 function clearAllFilters() {
   props.filtersFields.forEach((filterDefinition) => {
     filtersSortData.value[filterDefinition.name] = filterDefinition.default
-  }) 
+  })
   filtersSortData.value.sortBy = props.sortByFields.defaultField
   filtersSortData.value.sortOrder = props.sortByFields.defaultOrder
 
