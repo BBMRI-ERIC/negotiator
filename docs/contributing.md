@@ -45,7 +45,7 @@ For WSL debugging you can use the following command to run the backend in debug 
 mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 ```
 
-Additionally enable restart in your IDE, so that it can pick up the changes you make to the code in application-dev.yaml: 
+Additionally, enable restart in your IDE so that it can pick up the changes you make in application-dev.yaml: 
 
 ```yaml
 spring:
