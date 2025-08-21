@@ -46,7 +46,8 @@ public class EmailServiceImpl implements EmailService {
     this.notificationEmailRepository =
         Objects.requireNonNull(
             notificationEmailRepository, "NotificationEmailRepository must not be null");
-    this.emailContextBuilder = emailContextBuilder;
+    this.emailContextBuilder =
+        Objects.requireNonNull(emailContextBuilder, "EmailContextBuilder must not be null");
   }
 
   @Override
