@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @CommonsLog
-public class NotificationEmailServiceImpl implements NotificationEmailService {
+class NotificationEmailServiceImpl implements NotificationEmailService {
 
   private final NotificationEmailRepository notificationEmailRepository;
   private final ModelMapper modelMapper;
