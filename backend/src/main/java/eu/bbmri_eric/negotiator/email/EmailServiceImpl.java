@@ -6,12 +6,9 @@ import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -20,86 +17,130 @@ import org.springframework.stereotype.Service;
 @CommonsLog
 @Service
 public class EmailServiceImpl implements EmailService {
-  JavaMailSender javaMailSender;
-  NotificationEmailRepository notificationEmailRepository;
+
+  private static final String EMAIL_REGEX_PATTERN =
+      "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX_PATTERN);
+  private static final String UTF_8_ENCODING = "utf-8";
+
+  private static final String ERROR_INVALID_EMAIL = "Email address must not be null or empty";
+  private static final String ERROR_INVALID_SUBJECT = "Subject must not be null or empty";
+  private static final String ERROR_INVALID_BODY = "Mail body must not be null";
+  private static final String ERROR_EMAIL_FORMAT = "Invalid email address format: ";
+  private static final String ERROR_BUILD_MESSAGE = "Failed to build email message";
+  private static final String ERROR_SMTP_CONFIG =
+      "Failed to send email due to SMTP configuration issues";
+
+  private final JavaMailSender javaMailSender;
+  private final NotificationEmailRepository notificationEmailRepository;
+  private final EmailContextBuilder emailContextBuilder;
 
   @Value("${negotiator.email-address}")
-  private String from;
+  private String fromAddress;
 
-  public EmailServiceImpl(
-      @Autowired JavaMailSender javaMailSender,
-      @Autowired NotificationEmailRepository notificationEmailRepository) {
-    this.javaMailSender = javaMailSender;
-    this.notificationEmailRepository = notificationEmailRepository;
-  }
-
-  private static SimpleMailMessage buildMessage(
-      @NonNull String recipientAddress, @NonNull String subject, @NonNull String mailBody) {
-    SimpleMailMessage message = new SimpleMailMessage();
-    message.setFrom("noreply@bbmri-eric.eu");
-    message.setTo(recipientAddress);
-    message.setSubject(subject);
-    message.setText(mailBody);
-    return message;
-  }
-
-  private static MimeMessage buildMimeMessage(
-      @NonNull MimeMessage mimeMessage,
-      @NonNull String recipientAddress,
-      @NonNull String subject,
-      @NonNull String mailBody,
-      @NonNull String from) {
-    try {
-      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-      helper.setText(mailBody, true);
-      helper.setTo(recipientAddress);
-      helper.setSubject(subject);
-      helper.setFrom(from);
-    } catch (MessagingException e) {
-      throw new NullPointerException(e.toString());
-    }
-    return mimeMessage;
-  }
-
-  private static boolean isValidEmailAddress(String recipientAddress) {
-    if (Objects.isNull(recipientAddress)) {
-      return false;
-    }
-    String regexPattern = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
-    return Pattern.compile(regexPattern).matcher(recipientAddress).matches();
+  EmailServiceImpl(
+      JavaMailSender javaMailSender,
+      NotificationEmailRepository notificationEmailRepository,
+      EmailContextBuilder emailContextBuilder) {
+    this.javaMailSender = Objects.requireNonNull(javaMailSender, "JavaMailSender must not be null");
+    this.notificationEmailRepository =
+        Objects.requireNonNull(
+            notificationEmailRepository, "NotificationEmailRepository must not be null");
+    this.emailContextBuilder = emailContextBuilder;
   }
 
   @Override
   @Async
   public void sendEmail(Person recipient, String subject, String mailBody) {
-    MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-    if (!isValidEmailAddress(recipient.getEmail())) {
-      log.error("Failed to send email. Invalid recipient email address.");
-      return;
-    }
+    Objects.requireNonNull(recipient, "Recipient must not be null");
+    var recipientEmail = recipient.getEmail();
     try {
-      mimeMessage = buildMimeMessage(mimeMessage, recipient.getEmail(), subject, mailBody, from);
-    } catch (NullPointerException e) {
-      log.error("Failed to send email. Check message content.");
-      return;
-    } catch (RuntimeException e) {
-      log.error("Failed to send email.");
-      return;
+      processEmailDelivery(recipientEmail, subject, mailBody);
+    } catch (Exception e) {
+      log.error("Failed to send email to person " + recipient.getId() + ": " + e.getMessage());
     }
-    NotificationEmail notificationEmail =
-        notificationEmailRepository.save(
-            NotificationEmail.builder()
-                .address(recipient.getEmail())
-                .message(mailBody)
-                .sentAt(LocalDateTime.now())
-                .build());
+  }
+
+  @Override
+  @Async
+  public void sendEmail(String emailAddress, String subject, String message) {
+    validateEmailParameters(emailAddress, subject, message);
+    processEmailDelivery(emailAddress, subject, message);
+  }
+
+  private void processEmailDelivery(String emailAddress, String subject, String message) {
+    if (!isValidEmailAddress(emailAddress)) {
+      var errorMessage = ERROR_EMAIL_FORMAT + emailAddress;
+      log.error("Failed to send email. Invalid recipient email address: " + emailAddress);
+      throw new IllegalArgumentException(errorMessage);
+    }
+    String emailBody =
+        emailContextBuilder.buildEmailContent(
+            "default", "Madame or Sir", message, null, null, null);
+    var mimeMessage = buildMimeMessage(emailAddress, subject, emailBody);
+    var notificationEmail = createNotificationRecord(emailAddress, emailBody);
+    deliverMimeMessage(mimeMessage, emailAddress);
+    updateNotificationRecord(notificationEmail);
+    log.debug("Email message sent successfully to " + emailAddress);
+  }
+
+  private void validateEmailParameters(String emailAddress, String subject, String mailBody) {
+    if (Objects.isNull(emailAddress) || emailAddress.trim().isEmpty()) {
+      throw new IllegalArgumentException(ERROR_INVALID_EMAIL);
+    }
+    if (Objects.isNull(subject) || subject.trim().isEmpty()) {
+      throw new IllegalArgumentException(ERROR_INVALID_SUBJECT);
+    }
+    if (Objects.isNull(mailBody)) {
+      throw new IllegalArgumentException(ERROR_INVALID_BODY);
+    }
+  }
+
+  private MimeMessage buildMimeMessage(String emailAddress, String subject, String mailBody) {
+    var mimeMessage = javaMailSender.createMimeMessage();
+
+    try {
+      var helper = new MimeMessageHelper(mimeMessage, UTF_8_ENCODING);
+      helper.setText(mailBody, true);
+      helper.setTo(emailAddress);
+      helper.setSubject(subject);
+      helper.setFrom(fromAddress);
+      return mimeMessage;
+    } catch (MessagingException e) {
+      log.error("Failed to configure email message: " + e.getMessage());
+      throw new RuntimeException(ERROR_BUILD_MESSAGE, e);
+    }
+  }
+
+  private NotificationEmail createNotificationRecord(String emailAddress, String mailBody) {
+    return notificationEmailRepository.save(
+        NotificationEmail.builder()
+            .address(emailAddress)
+            .message(mailBody)
+            .sentAt(LocalDateTime.now())
+            .build());
+  }
+
+  private void deliverMimeMessage(MimeMessage mimeMessage, String emailAddress) {
     try {
       javaMailSender.send(mimeMessage);
     } catch (MailSendException e) {
-      log.error("Failed to send email. Check SMTP configuration.");
-      return;
+      log.error(
+          "Failed to send email to "
+              + emailAddress
+              + ". SMTP configuration error: "
+              + e.getMessage());
+      throw new RuntimeException(ERROR_SMTP_CONFIG, e);
     }
+  }
+
+  private void updateNotificationRecord(NotificationEmail notificationEmail) {
     notificationEmailRepository.save(notificationEmail);
-    log.debug("Email message sent.");
+  }
+
+  private static boolean isValidEmailAddress(String emailAddress) {
+    return Objects.nonNull(emailAddress)
+        && !emailAddress.trim().isEmpty()
+        && EMAIL_PATTERN.matcher(emailAddress).matches();
   }
 }

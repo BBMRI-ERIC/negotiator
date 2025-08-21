@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceNotificationServiceTest {
@@ -29,12 +30,15 @@ class ResourceNotificationServiceTest {
   @Mock private Resource resource1;
   @Mock private Resource resource2;
   @Mock private Resource resource3;
+  @Mock private ApplicationEventPublisher applicationEventPublisher;
 
   private ResourceNotificationService service;
 
   @BeforeEach
   void setUp() {
-    service = new ResourceNotificationService(notificationService, negotiationRepository);
+    service =
+        new ResourceNotificationService(
+            notificationService, negotiationRepository, applicationEventPublisher);
   }
 
   @Test
