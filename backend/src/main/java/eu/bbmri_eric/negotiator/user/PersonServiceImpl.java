@@ -137,6 +137,7 @@ public class PersonServiceImpl implements PersonService {
     }
     representative.addResource(resource);
     personRepository.save(representative);
+    eventPublisher.publishEvent(new RepresentativeAddedEvent(this, resourceId, representativeId));
   }
 
   @Override
