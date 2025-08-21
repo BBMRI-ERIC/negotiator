@@ -40,6 +40,13 @@ class EmailServiceImplTest {
     emailService =
         new EmailServiceImpl(javaMailSender, notificationEmailRepository, emailContextBuilder);
     ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
+
+    // Use lenient stubbing to avoid unnecessary stubbing exceptions for tests that don't use it
+    lenient()
+        .when(
+            emailContextBuilder.buildEmailContent(
+                anyString(), anyString(), anyString(), any(), any(), any()))
+        .thenReturn(VALID_MAIL_BODY);
   }
 
   @Test
@@ -54,6 +61,13 @@ class EmailServiceImplTest {
     assertThrows(
         NullPointerException.class,
         () -> new EmailServiceImpl(javaMailSender, null, emailContextBuilder));
+  }
+
+  @Test
+  void constructor_WithNullEmailContextBuilder_ThrowsNullPointerException() {
+    assertThrows(
+        NullPointerException.class,
+        () -> new EmailServiceImpl(javaMailSender, notificationEmailRepository, null));
   }
 
   @Test
