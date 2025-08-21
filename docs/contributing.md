@@ -36,8 +36,23 @@ mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev
 #### WSL
 
 The current development environment setup is problematic with the WSL.
-Make sure your networking configuration is properly adjusted,
-especially when using an OIDC provider or a UI client.
+Make sure your networking configuration is properly adjusted, especially when using an OIDC provider or a UI client.
+
+For WSL debugging you can use the following command to run the backend in debug mode:
+
+```shell
+# This script is used to perform remote debugging of a Spring Boot application in debug mode in a WSL or Linux environment
+mvn clean spring-boot:test-run -Dspring-boot.run.profiles=dev -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+```
+
+Additionally, enable restart in your IDE so that it can pick up the changes you make in application-dev.yaml: 
+
+```yaml
+spring:
+  devtools:
+    restart:
+      enabled: true
+```
 
 ## Code style
 
