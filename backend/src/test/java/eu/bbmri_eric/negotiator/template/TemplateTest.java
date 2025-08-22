@@ -21,7 +21,7 @@ class TemplateTest {
 
     assertEquals(1L, entity.getId());
     assertEquals("test-template", entity.getName());
-    assertEquals("<html><body>Test template</body></html>", entity.getHtml());
+    assertEquals("<html><body>Test template</body></html>", entity.getContent());
     assertEquals(now, entity.getUpdatedAt());
   }
 
@@ -31,7 +31,7 @@ class TemplateTest {
 
     assertNull(entity.getId());
     assertNull(entity.getName());
-    assertNull(entity.getHtml());
+    assertNull(entity.getContent());
     assertNull(entity.getUpdatedAt());
   }
 
@@ -44,7 +44,7 @@ class TemplateTest {
 
     assertEquals(1L, entity.getId());
     assertEquals("test-template", entity.getName());
-    assertEquals("<html><body>Test template</body></html>", entity.getHtml());
+    assertEquals("<html><body>Test template</body></html>", entity.getContent());
     assertEquals(now, entity.getUpdatedAt());
   }
 
@@ -55,12 +55,12 @@ class TemplateTest {
 
     entity.setId(1L);
     entity.setName("test-template");
-    entity.setHtml("<html><body>Test template</body></html>");
+    entity.setContent("<html><body>Test template</body></html>");
     entity.setUpdatedAt(now);
 
     assertEquals(1L, entity.getId());
     assertEquals("test-template", entity.getName());
-    assertEquals("<html><body>Test template</body></html>", entity.getHtml());
+    assertEquals("<html><body>Test template</body></html>", entity.getContent());
     assertEquals(now, entity.getUpdatedAt());
   }
 

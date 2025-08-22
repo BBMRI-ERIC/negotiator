@@ -38,7 +38,7 @@ class DatabaseTemplateResolver extends AbstractConfigurableTemplateResolver {
     // Try to find the template in the database
     return templateRepository
         .findByName(template)
-        .map(dbTemplate -> (ITemplateResource) new StringTemplateResource(dbTemplate.getHtml()))
+        .map(dbTemplate -> (ITemplateResource) new StringTemplateResource(dbTemplate.getContent()))
         .orElse(null); // Template not found - let other resolvers try
   }
 }
