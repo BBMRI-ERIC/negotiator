@@ -42,7 +42,7 @@ class Template {
 
   @NotBlank(message = "HTML content cannot be blank")
   @Column(columnDefinition = "TEXT", nullable = false)
-  private String html;
+  private String content;
 
   @UpdateTimestamp
   @Column(name = "updated_at", nullable = false)
@@ -55,13 +55,13 @@ class Template {
     Template template = (Template) o;
     return Objects.equals(id, template.id)
         && Objects.equals(name, template.name)
-        && Objects.equals(html, template.html)
+        && Objects.equals(content, template.content)
         && Objects.equals(updatedAt, template.updatedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, html, updatedAt);
+    return Objects.hash(id, name, content, updatedAt);
   }
 
   @Override

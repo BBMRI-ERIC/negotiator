@@ -37,8 +37,8 @@ class ThymeleafLoaderTest {
     assertTrue(templateNames.contains("pdf_negotiation_summary"));
 
     for (Template template : loadedTemplates) {
-      assertNotNull(template.getHtml());
-      assertFalse(template.getHtml().trim().isEmpty());
+      assertNotNull(template.getContent());
+      assertFalse(template.getContent().trim().isEmpty());
       assertNotNull(template.getUpdatedAt());
     }
   }
@@ -73,7 +73,8 @@ class ThymeleafLoaderTest {
 
     var emailBodyTemplate = templateRepository.findByName("email_body");
     assertTrue(emailBodyTemplate.isPresent());
-    assertEquals("<html><body>Existing content</body></html>", emailBodyTemplate.get().getHtml());
+    assertEquals(
+        "<html><body>Existing content</body></html>", emailBodyTemplate.get().getContent());
   }
 
   @Test
