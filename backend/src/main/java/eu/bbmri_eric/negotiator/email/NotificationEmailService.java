@@ -2,7 +2,7 @@ package eu.bbmri_eric.negotiator.email;
 
 import org.springframework.data.domain.Page;
 
-public interface NotificationEmailService {
+interface NotificationEmailService {
 
   /**
    * Retrieves all notification emails with optional filtering, pagination and sorting.
