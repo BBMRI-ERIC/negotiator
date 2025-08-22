@@ -1,36 +1,38 @@
 package eu.bbmri_eric.negotiator.template;
 
-import java.util.ArrayList;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-public interface TemplateRepository {
-
-  /**
-   * Get all notification templates.
-   *
-   * @return the templates.
-   */
-  ArrayList<String> listAll();
-
-  /**
-   * Get a notification template.
-   *
-   * @param templateName the name of the template.
-   * @return the template.
-   */
-  String load(String templateName);
+/**
+ * Repository interface for managing Template entities in the database. Provides CRUD operations and
+ * query capabilities for database-stored templates.
+ */
+@Repository
+interface TemplateRepository
+    extends JpaRepository<Template, Long>, JpaSpecificationExecutor<Template> {
 
   /**
-   * Update a notification template.
+   * Find a template by its name.
    *
-   * @param templateName the name of the template.
-   * @param template the new template.
+   * @param name the name of the template
+   * @return Optional containing the template if found, empty otherwise
    */
-  void save(String templateName, String template);
+  Optional<Template> findByName(String name);
 
   /**
-   * Reset a notification template.
+   * Check if a template with the given name exists.
    *
-   * @param templateName the name of the template.
+   * @param name the name of the template
+   * @return true if template exists, false otherwise
    */
-  void reset(String templateName);
+  boolean existsByName(String name);
+
+  /**
+   * Delete a template by its name.
+   *
+   * @param name the name of the template to delete
+   */
+  void deleteByName(String name);
 }
