@@ -171,6 +171,10 @@
           >
             UI: <span class="pe-2">{{ gitTag }}</span
             >Application: <span>{{ backendVersion }}</span>
+            <ReleaseNotificationIcon
+              class="ms-2"
+              modal-id="footerReleaseModal"
+            />
           </div>
         </div>
       </div>
@@ -187,6 +191,7 @@ import workProgrammeLogo from '../assets/images/work-programme.png'
 import { useActuatorInfoStore } from '../store/actuatorInfo.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import CopyrightText from '../components/CopyrightText.vue'
+import ReleaseNotificationIcon from '../components/ReleaseNotificationIcon.vue'
 
 const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
