@@ -52,7 +52,6 @@ final class EmailContextBuilder {
       context.setVariable("titleForNegotiation", negotiationTitle);
       context.setVariable("date", negotiationCreationDate.format(DATE_TIME_FORMATTER));
     }
-
     context.setVariable("frontendUrl", frontendUrl);
     context.setVariable("emailYoursSincerelyText", emailYoursSincerelyText);
     context.setVariable("emailHelpdeskHref", emailHelpdeskHref);
