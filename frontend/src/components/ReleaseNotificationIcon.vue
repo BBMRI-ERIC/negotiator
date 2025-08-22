@@ -1,5 +1,5 @@
 <template>
-  <div v-if="hasNewRelease" class="release-notification">
+  <div v-if="isAdmin && hasNewRelease" class="release-notification">
     <button
       type="button"
       class="btn btn-link p-0 release-trigger"
@@ -15,6 +15,7 @@
 import { computed } from 'vue'
 import { useReleasesStore } from '../store/releases.js'
 import Modal from 'bootstrap/js/dist/modal'
+import { ROLES } from '@/config/consts.js'
 
 const releasesStore = useReleasesStore()
 
@@ -28,6 +29,9 @@ function showModal() {
     modal.show()
   }
 }
+const isAdmin = computed(() => {
+  return roles.value.includes(ROLES.ADMINISTRATOR)
+})
 </script>
 
 <style scoped>
