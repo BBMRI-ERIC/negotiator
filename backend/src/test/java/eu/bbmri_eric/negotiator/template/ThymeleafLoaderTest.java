@@ -60,7 +60,7 @@ class ThymeleafLoaderTest {
     var existingTemplate =
         Template.builder()
             .name("email_body")
-            .html("<html><body>Existing content</body></html>")
+            .content("<html><body>Existing content</body></html>")
             .build();
     templateRepository.save(existingTemplate);
 

@@ -51,7 +51,7 @@ class DatabaseTemplateLoader implements CommandLineRunner {
       try {
         var htmlContent = loadTemplateContent(templateResource);
 
-        var template = Template.builder().name(templateName).html(htmlContent).build();
+        var template = Template.builder().name(templateName).content(htmlContent).build();
         templateRepository.save(template);
         logger.info(
             "Successfully imported template '{}' into database from '{}'",

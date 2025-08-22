@@ -15,7 +15,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template")
-            .html("<html><body>Test template</body></html>")
+            .content("<html><body>Test template</body></html>")
             .updatedAt(now)
             .build();
 
@@ -72,7 +72,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template")
-            .html("<html><body>Test</body></html>")
+            .content("<html><body>Test</body></html>")
             .updatedAt(now)
             .build();
 
@@ -80,7 +80,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template")
-            .html("<html><body>Test</body></html>")
+            .content("<html><body>Test</body></html>")
             .updatedAt(now)
             .build();
 
@@ -95,7 +95,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template-1")
-            .html("<html><body>Test 1</body></html>")
+            .content("<html><body>Test 1</body></html>")
             .updatedAt(now)
             .build();
 
@@ -103,7 +103,7 @@ class TemplateTest {
         Template.builder()
             .id(2L)
             .name("test-template-2")
-            .html("<html><body>Test 2</body></html>")
+            .content("<html><body>Test 2</body></html>")
             .updatedAt(now)
             .build();
 
@@ -118,7 +118,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template")
-            .html("<html><body>Test</body></html>")
+            .content("<html><body>Test</body></html>")
             .updatedAt(now)
             .build();
 
@@ -126,7 +126,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template")
-            .html("<html><body>Test</body></html>")
+            .content("<html><body>Test</body></html>")
             .updatedAt(now)
             .build();
 
@@ -141,7 +141,7 @@ class TemplateTest {
         Template.builder()
             .id(1L)
             .name("test-template")
-            .html("<html><body>Test</body></html>")
+            .content("<html><body>Test</body></html>")
             .updatedAt(now)
             .build();
 
