@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import org.hibernate.annotations.UpdateTimestamp;
  * sending notifications and generating PDFs.
  */
 @Entity
+@Table(name = "template")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
