@@ -221,6 +221,12 @@
                   </p>
                 </div>
 
+                <div v-else-if="criteria.type === 'INFORMATION-HARDCODED'">
+                  <p v-if="criteria.description" class="text-muted">
+                    {{ criteria.value }}
+                  </p>
+                </div>
+
                 <input
                   v-else
                   v-model="negotiationCriteria[section.name][criteria.name]"
@@ -393,6 +399,7 @@ watch(
     if (props.requiredAccessFormId !== undefined) {
       accessForm.value = await loadAccessForm(props.requiredAccessFormId)
       if (accessForm.value !== undefined) {
+        addCostEstimationToAccessForm()
         initNegotiationCriteria()
       }
     }
@@ -461,9 +468,60 @@ function showNotification(header, body) {
   notificationText.value = body
 }
 
+function addCostEstimationToAccessForm() {
+  // take object from information_submission table and display it in the form for canServ purpose
+  if (submittedForm.value.payload['cost-estimation']) {
+    accessForm.value.sections.push({
+      name: 'cost-estimation',
+      label: 'Cost Estimation',
+      description: 'Please provide cost estimation details',
+      elements: [],
+    })
+    addHardcodedSectionFields()
+  }
+}
+
+async function addHardcodedSectionFields() {
+  var costEstimationElements = []
+  var allElements = await formsStore.retrieveAllElements()
+
+  var allElementsNameDiscriptionPair = {}
+  allElements.forEach((element) => {
+    allElementsNameDiscriptionPair[element.name] = element.description
+  })
+
+  // take object from information_submission table and display it in the form for canServ purpose
+  if (submittedForm.value.payload['cost-estimation']) {
+    for (var key in submittedForm.value.payload['cost-estimation']) {
+      if (submittedForm.value.payload['cost-estimation'].hasOwnProperty(key)) {
+        costEstimationElements.push({
+          id: key || '',
+          name: key || '',
+          label: key || '',
+          value: submittedForm.value.payload['cost-estimation'][key] || '',
+          description: allElementsNameDiscriptionPair[key] || '',
+          type: 'INFORMATION-HARDCODED',
+          required: false,
+        })
+      }
+    }
+
+    accessForm.value.sections[accessForm.value.sections.length - 1].elements =
+      costEstimationElements
+  }
+}
+
 function initNegotiationCriteria() {
   for (const section of accessForm.value.sections) {
     negotiationCriteria.value[section.name] = {}
+    if (section.name === 'cost-estimation') {
+      // Initialize cost estimation section if it exists in the submitted form because it will be overridden when data is updated
+      if (props.isFormEditable && submittedForm.value.payload[section.name]) {
+        negotiationCriteria.value[section.name] = submittedForm.value.payload['cost-estimation']
+      } else {
+        negotiationCriteria.value[section.name] = []
+      }
+    }
     for (const criteria of section.elements) {
       if (criteria.type === 'MULTIPLE_CHOICE') {
         if (props.isFormEditable && submittedForm.value.payload[section.name][criteria.name]) {
