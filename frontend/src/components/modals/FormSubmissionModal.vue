@@ -493,7 +493,7 @@ async function addHardcodedSectionFields() {
   // take object from information_submission table and display it in the form for canServ purpose
   if (submittedForm.value.payload['cost-estimation']) {
     for (var key in submittedForm.value.payload['cost-estimation']) {
-      if (submittedForm.value.payload['cost-estimation'].hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(submittedForm.value.payload['cost-estimation'],key)) {
         costEstimationElements.push({
           id: key || '',
           name: key || '',
