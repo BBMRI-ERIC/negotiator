@@ -78,6 +78,16 @@
           Admin UI Configuration
         </router-link>
       </li>
+      <li v-if="isAdmin">
+        <router-link
+          to="/governance"
+          class="dropdown-item"
+          :style="{ color: uiConfiguration?.navbarTextColor }"
+        >
+          <i class="bi bi-building" />
+          Governance
+        </router-link>
+      </li>
       <li>
         <hr class="dropdown-divider" />
       </li>

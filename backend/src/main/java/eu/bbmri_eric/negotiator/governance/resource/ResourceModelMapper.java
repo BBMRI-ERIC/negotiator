@@ -2,11 +2,7 @@ package eu.bbmri_eric.negotiator.governance.resource;
 
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
-import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.annotation.PostConstruct;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.context.annotation.Configuration;
@@ -35,18 +31,10 @@ public class ResourceModelMapper {
     resourceToDTOTypeMap.addMappings(
         mapper -> mapper.map(Resource::getSourceId, ResourceDTO::setId));
     resourceToDTOTypeMap.addMappings(mapper -> mapper.map(Resource::getName, ResourceDTO::setName));
-    Converter<Set<Person>, Set<String>> resourceToResourceModelConverter =
-        q -> convertRepsToNames(q.getSource());
     TypeMap<Resource, ResourceWithRepsDTO> withResourcesDTOTypeMap =
         modelMapper.createTypeMap(Resource.class, ResourceWithRepsDTO.class);
     withResourcesDTOTypeMap.addMappings(
         mapper ->
-            mapper
-                .using(resourceToResourceModelConverter)
-                .map(Resource::getRepresentatives, ResourceWithRepsDTO::setRepresentatives));
-  }
-
-  private Set<String> convertRepsToNames(Set<Person> source) {
-    return source.stream().map(Person::getName).collect(Collectors.toSet());
+            mapper.map(Resource::getRepresentatives, ResourceWithRepsDTO::setRepresentatives));
   }
 }

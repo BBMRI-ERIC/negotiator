@@ -1,15 +1,23 @@
 package eu.bbmri_eric.negotiator.governance.organization;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
+import eu.bbmri_eric.negotiator.governance.organization.dto.OrganizationFilterDTO;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@CommonsLog
 public class OrganizationServiceImpl implements OrganizationService {
   OrganizationRepository organizationRepository;
   ModelMapper modelMapper;
@@ -21,10 +29,17 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public OrganizationDTO findOrganizationById(Long id) {
-    return modelMapper.map(
-        organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        OrganizationDTO.class);
+  @Transactional
+  public OrganizationDTO findOrganizationById(Long id, String expand) {
+    Organization organization =
+        organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    if (Objects.equals(expand, "resources")) {
+      if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
+        throw new ForbiddenRequestException("Only Administrators can view this attribute");
+      }
+      return modelMapper.map(organization, OrganizationWithResourcesDTO.class);
+    }
+    return modelMapper.map(organization, OrganizationDTO.class);
   }
 
   @Override
@@ -37,9 +52,11 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public Iterable<OrganizationDTO> findAllOrganizations(Pageable pageable) {
+  public Iterable<OrganizationDTO> findAllOrganizations(OrganizationFilterDTO filters) {
+    Specification<Organization> spec = OrganizationSpecificationBuilder.build(filters);
+    Pageable pageable = PageRequest.of(filters.getPage(), filters.getSize());
     return organizationRepository
-        .findAll(pageable)
+        .findAll(spec, pageable)
         .map(organization -> modelMapper.map(organization, OrganizationDTO.class));
   }
 
@@ -58,11 +75,17 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public OrganizationDTO updateOrganizationById(Long id, OrganizationCreateDTO organization) {
-    Organization org =
+  @Transactional
+  public OrganizationDTO updateOrganizationById(Long id, OrganizationUpdateDTO updateDTO) {
+    Organization organization =
         organizationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    modelMapper.map(organization, org);
-    Organization updatedOrganization = organizationRepository.save(org);
-    return modelMapper.map(updatedOrganization, OrganizationDTO.class);
+    System.out.println(updateDTO.toString());
+    modelMapper.getConfiguration().setSkipNullEnabled(true);
+    modelMapper
+        .typeMap(OrganizationUpdateDTO.class, Organization.class)
+        .addMappings(mapper -> mapper.skip(Organization::setId));
+    modelMapper.map(updateDTO, organization);
+    organization = organizationRepository.save(organization);
+    return modelMapper.map(organization, OrganizationDTO.class);
   }
 }

@@ -17,6 +17,7 @@ import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceCreateDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceUpdateDTO;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithOrgDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationAccessManager;
@@ -84,7 +85,7 @@ public class ResourceServiceImpl implements ResourceService {
   public ResourceResponseModel findById(Long id) {
     return modelMapper.map(
         repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        ResourceResponseModel.class);
+        ResourceWithOrgDTO.class);
   }
 
   @Override
@@ -93,7 +94,7 @@ public class ResourceServiceImpl implements ResourceService {
     Pageable pageable = PageRequest.of(filters.getPage(), filters.getSize());
     return repository
         .findAll(spec, pageable)
-        .map(resource -> modelMapper.map(resource, ResourceResponseModel.class));
+        .map(resource -> modelMapper.map(resource, ResourceWithOrgDTO.class));
   }
 
   @Override
@@ -190,11 +191,13 @@ public class ResourceServiceImpl implements ResourceService {
   }
 
   @Override
-  public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO resource) {
-    Resource res = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-    modelMapper.map(resource, res);
-    Resource updatedResource = repository.save(res);
-    return modelMapper.map(updatedResource, ResourceResponseModel.class);
+  @Transactional
+  public ResourceResponseModel updateResourceById(Long id, ResourceUpdateDTO updateDTO) {
+    Resource resource = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    modelMapper.getConfiguration().setSkipNullEnabled(true);
+    modelMapper.map(updateDTO, resource);
+    resource = repository.saveAndFlush(resource);
+    return modelMapper.map(resource, ResourceWithOrgDTO.class);
   }
 
   @Override

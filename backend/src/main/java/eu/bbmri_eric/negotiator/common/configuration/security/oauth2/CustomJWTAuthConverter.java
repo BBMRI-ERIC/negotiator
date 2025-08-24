@@ -76,6 +76,9 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
             .map(existing -> updatePersonIfNecessary(existing, claims))
             .orElseGet(() -> saveNewUserAsPerson(claims));
     Collection<GrantedAuthority> authorities = parseUserAuthorities(claims);
+    if (!person.getResources().isEmpty()) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
+    }
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities);
   }
 

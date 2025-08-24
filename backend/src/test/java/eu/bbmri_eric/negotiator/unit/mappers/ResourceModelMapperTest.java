@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.unit.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.governance.organization.Organization;
@@ -111,6 +112,7 @@ public class ResourceModelMapperTest {
     assertEquals(resource.getSourceId(), dto.getSourceId());
     assertEquals(resource.getContactEmail(), dto.getContactEmail());
     assertEquals(resource.getUri(), dto.getUri());
-    assertEquals(Set.of("Sarah Rep", "Adam Rep", "John Rep"), dto.getRepresentatives());
+    assertEquals(3, dto.getRepresentatives().size());
+    assertTrue(dto.getRepresentatives().stream().anyMatch(r -> r.getId().equals(1L)));
   }
 }

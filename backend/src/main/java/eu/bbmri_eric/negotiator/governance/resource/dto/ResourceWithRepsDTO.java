@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.resource.dto;
 
+import eu.bbmri_eric.negotiator.user.UserDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Set;
 import lombok.Getter;
@@ -9,7 +10,8 @@ import lombok.Setter;
 @Setter
 public class ResourceWithRepsDTO extends ResourceResponseModel {
   @Schema(
-      description = "Names of representatives",
-      example = "[\"Sarah Rep\", \"Adam Rep\", \"John Rep\"]")
-  private Set<String> representatives;
+      description = "Representatives of this resource with their basic information",
+      example =
+          "[{\"id\": \"123\", \"name\": \"Sarah Rep\", \"email\": \"sarah@example.com\"}, {\"id\": \"456\", \"name\": \"Adam Rep\", \"email\": \"adam@example.com\"}]")
+  private Set<UserDTO> representatives;
 }
