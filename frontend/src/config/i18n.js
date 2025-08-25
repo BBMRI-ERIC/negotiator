@@ -1,6 +1,6 @@
 export default {
-  locale: 'en-canSERV',
-  fallbackLocale: 'en',
+  locale: 'I18N_LOCALE_PLACEHOLDER',
+  fallbackLocale: 'I18N_FALLBACKLOCALE_PLACEHOLDER',
   messages: {
     en: {
       navbar: {
@@ -11,8 +11,8 @@ export default {
         doc: 'Documentation',
       },
       negotiationPage: {
-        resources: 'RESOURCES',
-        organisations: 'ORGANIZATIONS',
+        resources: 'RESOURCE | RESOURCES',
+        organisations: 'ORGANIZATION | ORGANIZATIONS',
       },
     },
     'en-canSERV': {
@@ -20,8 +20,8 @@ export default {
         biobanker: 'Your organisation',
       },
       negotiationPage: {
-        resources: 'Service',
-        organisations: 'Service provider',
+        resources: 'Service | Services',
+        organisations: 'Service provider | Service providers',
       },
     },
   },

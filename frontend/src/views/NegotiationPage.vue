@@ -168,11 +168,14 @@
                     :style="{ color: uiConfiguration.primaryTextColor }"
                   >
                     <i class="bi bi-buildings mx-2" />
-                    {{ $t('negotiationPage.organisations') }} ({{
-                      Object.keys(organizationsById).length
-                    }}) |
+                    {{
+                      $t('negotiationPage.organisations', Object.keys(organizationsById).length)
+                    }}
+                    ({{ Object.keys(organizationsById).length }}) |
                     <i class="bi bi-box-seam" />
-                    {{ $t('negotiationPage.resources') }} ({{ numberOfResources }})
+                    {{ $t('negotiationPage.resources', numberOfResources) }} ({{
+                      numberOfResources
+                    }})
                   </span>
                 </div>
                 <add-resources-button
@@ -201,7 +204,18 @@
                   class="me-2 fw-bold"
                   :style="{ color: uiConfiguration.secondaryTextColor }"
                 >
-                  Involved Organizations/Resources
+                  Involved
+                  {{
+                    $t(
+                      'negotiationPage.organisations',
+                      Object.entries(representedOrganizationsById).length,
+                    )
+                  }}/{{
+                    $t(
+                      'negotiationPage.resources',
+                      Object.entries(representedOrganizationsById).length,
+                    )
+                  }}
                 </label>
                 <div
                   v-for="[orgId, org] in Object.entries(representedOrganizationsById)"
