@@ -96,14 +96,14 @@ This is a Thymeleaf HTML template used to generate a default email
                     <!-- Header with brand gradient -->
                     <tr>
                         <td class="header-gradient" style="background: linear-gradient(135deg, #e95713 0%, #003674 100%); background-color: #e95713; padding: 30px 40px; text-align: center;">
-                            <div th:insert="~{logo}"></div>
+                            <div th:insert="~{LOGO}"></div>
                         </td>
                     </tr>
                     <!-- Content -->
                     <tr>
                         <td style="padding: 40px; background-color: #ffffff;">
                             <p style="margin: 0 0 20px 0; font-size: 18px; font-weight: bold; color: #003674; font-family: Arial, Helvetica, sans-serif;">
-                                Dear <span th:utext="${recipient.getName()}"></span>,
+                                Dear <span th:utext="${recipient}"></span>,
                             </p>
                             <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #e95713; margin: 20px 0; font-size: 16px; line-height: 1.4; font-family: Arial, Helvetica, sans-serif;">
                                 <span th:utext="${message}"></span>
@@ -124,7 +124,7 @@ This is a Thymeleaf HTML template used to generate a default email
                     <!-- Footer -->
                     <tr>
                         <td>
-                            <div th:insert="~{email-footer}"></div>
+                            <div th:insert="~{EMAIL_FOOTER}"></div>
                         </td>
                     </tr>
                 </table>
