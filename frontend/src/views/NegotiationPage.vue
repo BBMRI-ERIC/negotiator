@@ -301,11 +301,11 @@ import OrganizationContainer from '@/components/OrganizationContainer.vue'
 import { getBadgeColor, getBadgeIcon, transformStatus } from '../composables/utils.js'
 import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
-import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
+import { useUserStore } from '@/store/user.js'
 
 const props = defineProps({
   negotiationId: {
@@ -313,7 +313,7 @@ const props = defineProps({
     default: undefined,
   },
 })
-
+const userStore = useUserStore()
 const uiConfigurationStore = useUiConfiguration()
 const negotiation = ref(undefined)
 const resources = ref([])
