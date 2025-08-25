@@ -60,13 +60,6 @@ const allTemplates = defineModel('alllTemplates')
 
 const templateStore = useTemplates()
 const openModalResetTemplate = ref(false)
-
-const emailTemplates = computed(() =>
-  allTemplates.value.filter((template) => template.startsWith('EMAIL-')),
-)
-const pdfTemplates = computed(() =>
-  allTemplates.value.filter((template) => template.startsWith('PDF-')),
-)
 const otherTemplates = computed(() =>
   allTemplates.value.filter(
     (template) => !template.startsWith('EMAIL-') && !template.startsWith('PDF-'),
