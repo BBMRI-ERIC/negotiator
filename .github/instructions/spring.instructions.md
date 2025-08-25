@@ -41,7 +41,7 @@ applyTo: '**/*.java, **/*.kt'
 
 ### Logging
 
-- Use SLF4J for all logging (`private static final Logger logger = LoggerFactory.getLogger(MyClass.class);`).
+- Use SLF4J for all logging (`@Commonslog`).
 - Do not use concrete implementations (Logback, Log4j2) or `System.out.println()` directly.
 - Use parameterized logging: `logger.info("User {} logged in", userId);`.
 

@@ -96,7 +96,7 @@ This is a Thymeleaf HTML template used to generate a default email
                     <!-- Header with brand gradient -->
                     <tr>
                         <td class="header-gradient" style="background: linear-gradient(135deg, #e95713 0%, #003674 100%); background-color: #e95713; padding: 30px 40px; text-align: center;">
-                            <div th:insert="~{logo}"></div>
+                            <div th:insert="~{LOGO}"></div>
                         </td>
                     </tr>
                     <!-- Content -->
@@ -124,7 +124,7 @@ This is a Thymeleaf HTML template used to generate a default email
                     <!-- Footer -->
                     <tr>
                         <td>
-                            <div th:insert="~{email-footer}"></div>
+                            <div th:insert="~{EMAIL_FOOTER}"></div>
                         </td>
                     </tr>
                 </table>

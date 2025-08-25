@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -73,8 +71,6 @@ public class NegotiationController {
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
   private final NegotiationPdfService negotiationPdfService;
-
-  private static final Set<String> ALLOWED_TEMPLATES = Set.of("pdf-negotiation-summary");
 
   public NegotiationController(
       NegotiationService negotiationService,
@@ -308,19 +304,12 @@ public class NegotiationController {
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(summary = "Generate a PDF for a negotiation")
   @SecurityRequirement(name = "security_auth")
-  public ResponseEntity<byte[]> generateNegotiationPdf(
-      @Valid @PathVariable String id,
-      @RequestParam(value = "template", required = false) String templateName) {
-
+  public ResponseEntity<byte[]> generateNegotiationPdf(@Valid @PathVariable String id) {
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-    if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
-    }
     try {
-      byte[] pdfBytes = negotiationPdfService.generatePdf(id, templateName);
+      byte[] pdfBytes = negotiationPdfService.generatePdf(id);
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_PDF)
           .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")

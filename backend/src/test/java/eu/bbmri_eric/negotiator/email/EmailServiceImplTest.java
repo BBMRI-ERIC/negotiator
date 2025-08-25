@@ -38,7 +38,7 @@ class EmailServiceImplTest {
   @BeforeEach
   void setUp() {
     emailService =
-        new EmailServiceImpl(javaMailSender, notificationEmailRepository, emailContextBuilder);
+        new EmailServiceImpl(javaMailSender, notificationEmailRepository);
     ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
 
     // Use lenient stubbing to avoid unnecessary stubbing exceptions for tests that don't use it
@@ -53,21 +53,21 @@ class EmailServiceImplTest {
   void constructor_WithNullJavaMailSender_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
-        () -> new EmailServiceImpl(null, notificationEmailRepository, emailContextBuilder));
+        () -> new EmailServiceImpl(null, notificationEmailRepository));
   }
 
   @Test
   void constructor_WithNullRepository_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
-        () -> new EmailServiceImpl(javaMailSender, null, emailContextBuilder));
+        () -> new EmailServiceImpl(javaMailSender, null));
   }
 
   @Test
   void constructor_WithNullEmailContextBuilder_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
-        () -> new EmailServiceImpl(javaMailSender, notificationEmailRepository, null));
+        () -> new EmailServiceImpl(javaMailSender, notificationEmailRepository));
   }
 
   @Test
@@ -337,7 +337,7 @@ class EmailServiceImplTest {
   }
 
   @Test
-  void processEmailDelivery_CallsMethodsInCorrectOrder() {
+  void deliverEmail_CallsMethodsInCorrectOrder() {
     when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
 
     var notificationEmail =

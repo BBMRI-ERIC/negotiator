@@ -28,11 +28,4 @@ interface TemplateRepository
    * @return true if template exists, false otherwise
    */
   boolean existsByName(String name);
-
-  /**
-   * Delete a template by its name.
-   *
-   * @param name the name of the template to delete
-   */
-  void deleteByName(String name);
 }

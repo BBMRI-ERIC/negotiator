@@ -192,7 +192,7 @@ This file is a Thymeleaf HTML template used to generate the PDF summary of a neg
         <p class="text-muted">Negotiation Details and Submission Data</p>
     </div>
     <div class="logo">
-        <div th:insert="~{logo}"></div>
+        <div th:insert="~{LOGO}"></div>
     </div>
 </div>
 
@@ -200,24 +200,24 @@ This file is a Thymeleaf HTML template used to generate the PDF summary of a neg
     <table class="styled-table">
         <tr>
             <td class="label">Author:</td>
-            <td class="value" th:text="${negotiationPdfData.author.name}">AUTHOR-NAME-HERE</td>
+            <td class="value" th:text="${authorName}">AUTHOR-NAME-HERE</td>
         </tr>
         <tr>
             <td class="label">Email:</td>
-            <td class="value" th:text="${negotiationPdfData.author.email}">AUTHOR-EMAIL-HERE</td>
+            <td class="value" th:text="${authorEmail}">AUTHOR-EMAIL-HERE</td>
         </tr>
         <tr>
             <td class="label">Negotiation ID:</td>
-            <td class="value font-weight-bold" th:text="${negotiationPdfData.id}">UUID-HERE</td>
+            <td class="value font-weight-bold" th:text="${negotiationId}">UUID-HERE</td>
         </tr>
         <tr>
             <td class="label">Submitted at:</td>
-            <td class="value" th:text="${negotiationPdfData.createdAt}">May 13, 2025 - 1:26 PM</td>
+            <td class="value" th:text="${negotiationCreatedAt}">May 13, 2025 - 1:26 PM</td>
         </tr>
         <tr>
             <td class="label">Status:</td>
             <td class="value">
-                <span class="status-badge" th:text="${negotiationPdfData.status}">STATUS-HERE</span>
+                <span class="status-badge" th:text="${negotiationStatus}">STATUS-HERE</span>
             </td>
         </tr>
         <tr>
@@ -230,13 +230,13 @@ This file is a Thymeleaf HTML template used to generate the PDF summary of a neg
 <div class="page-break"></div>
 <div class="toc">
     <h2>TABLE OF CONTENTS</h2>
-    <div class="toc-entry" th:each="section, iterStat : ${negotiationPdfData.payload}">
+    <div class="toc-entry" th:each="section, iterStat : ${negotiationPayload}">
         <a class="toc-link" th:href="'#section-' + ${iterStat.index}" th:text="${#strings.toUpperCase(section.key)}">Section Name</a>
     </div>
 </div>
 <div class="page-break"></div>
 
-<div th:each="section, iterStat : ${negotiationPdfData.payload}">
+<div th:each="section, iterStat : ${negotiationPayload}">
     <h2 th:id="'section-' + ${iterStat.index}" th:text="${#strings.toUpperCase(section.key)}">SECTION</h2>
     <div class="section">
         <div class="field" th:each="entry : ${section.value}">

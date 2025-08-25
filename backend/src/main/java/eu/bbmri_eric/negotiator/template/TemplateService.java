@@ -9,7 +9,7 @@ public interface TemplateService {
    *
    * @return the templates.
    */
-  List<String> getAllNotificationTemplates();
+  List<String> getAll();
 
   /**
    * Get a notification template.
@@ -17,7 +17,7 @@ public interface TemplateService {
    * @param templateName the name of the template.
    * @return the template.
    */
-  String getNotificationTemplate(String templateName);
+  String getByName(String templateName);
 
   /**
    * Update a notification template.
@@ -25,12 +25,12 @@ public interface TemplateService {
    * @param templateName the name of the template.
    * @param template the new template.
    */
-  String updateNotificationTemplate(String templateName, String template);
+  String updateTemplate(String templateName, String template);
 
   /**
    * Reset a notification template.
    *
    * @param templateName the name of the template.
    */
-  String resetNotificationTemplate(String templateName);
+  String resetTemplate(String templateName);
 }

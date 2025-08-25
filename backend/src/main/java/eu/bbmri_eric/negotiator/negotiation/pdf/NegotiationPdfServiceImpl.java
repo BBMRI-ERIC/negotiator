@@ -1,8 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation.pdf;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
@@ -10,64 +7,48 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.HtmlUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service(value = "DefaultNegotiationPdfService")
 @CommonsLog
-@Transactional
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
-  private NegotiationRepository negotiationRepository;
-
-  private TemplateEngine templateEngine;
-  private ObjectMapper objectMapper;
+  private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
+  private final NegotiationRepository negotiationRepository;
+  private final TemplateEngine templateEngine;
+  private final PdfContextBuilder pdfContextBuilder;
 
   @Value("${negotiator.pdfFont}")
   private String fontPath;
 
-  @Value("${negotiator.emailLogo}")
-  private String logoURL;
-
-  private static final DateTimeFormatter DTF =
-      DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
-
-  private static final String DEFAULT_PDF_TEMPLATE_NAME = "pdf-negotiation-summary";
-
   public NegotiationPdfServiceImpl(
       NegotiationRepository negotiationRepository,
       TemplateEngine templateEngine,
-      ObjectMapper objectMapper) {
+      PdfContextBuilder pdfContextBuilder) {
     this.negotiationRepository = negotiationRepository;
     this.templateEngine = templateEngine;
-    this.objectMapper = objectMapper;
+    this.pdfContextBuilder = pdfContextBuilder;
   }
 
-  public byte[] generatePdf(String negotiationId, String templateName)
-      throws PdfGenerationException {
+  @Override
+  @Transactional
+  public byte[] generatePdf(String negotiationId) throws PdfGenerationException {
     Negotiation negotiation = findEntityById(negotiationId);
-
-    if (templateName == null) {
-      templateName = DEFAULT_PDF_TEMPLATE_NAME;
-    }
-
     try {
-      Context context = createContext(negotiation);
+      Context context = pdfContextBuilder.createContext(negotiation);
       String renderedHtml =
-          templateEngine.process(templateName, context).replaceAll("(<br />)+$", "");
-
+          templateEngine.process(DEFAULT_PDF_TEMPLATE_NAME, context).replaceAll("(<br />)+$", "");
       return renderPdf(renderedHtml);
     } catch (Exception e) {
       throw new PdfGenerationException("Error creating negotiation pdf: " + e.getMessage());
@@ -80,55 +61,10 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
   }
 
-  private String escapeHtml(String input) {
-    String escapedText = HtmlUtils.htmlEscape(input);
-
-    return escapedText.replace("\n", "<br />");
-  }
-
-  private Map<String, Object> processPayload(Map<String, Object> payload) {
-    payload.replaceAll(
-        (key, value) -> {
-          if (value instanceof String str) {
-            return escapeHtml(str).replaceAll("(<br />)+$", "");
-          } else if (value instanceof Map<?, ?> map) {
-            if (map.isEmpty()) {
-              return "Empty";
-            }
-            return processPayload((Map<String, Object>) map);
-          } else if (value instanceof Iterable<?> iterable) {
-            return StreamSupport.stream(iterable.spliterator(), false)
-                .map(item -> (item instanceof String s) ? escapeHtml(s) : item)
-                .collect(Collectors.toList());
-          }
-          return value;
-        });
-    return payload;
-  }
-
-  private Context createContext(Negotiation negotiation) throws JsonProcessingException {
-    Map<String, Object> payload =
-        this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
-
-    Context context = new Context();
-    context.setVariable("now", LocalDateTime.now().format(DTF));
-    context.setVariable("logoUrl", logoURL);
-    context.setVariable(
-        "negotiationPdfData",
-        Map.of(
-            "author", negotiation.getCreatedBy(),
-            "id", negotiation.getId(),
-            "createdAt", negotiation.getCreationDate(),
-            "status", negotiation.getCurrentState(),
-            "payload", processPayload(payload)));
-
-    return context;
-  }
-
   private byte[] renderPdf(String html) throws IOException {
-    URL fontUrl = getClass().getResource(fontPath);
+    URL fontUrl = resolveFontUrl();
     if (fontUrl == null) {
-      throw new FileNotFoundException("PDF font not found on classpath: " + fontPath);
+      throw new FileNotFoundException("PDF font not found: " + fontPath);
     }
 
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -142,5 +78,52 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
       return outputStream.toByteArray();
     }
+  }
+
+  /**
+   * Resolves the font URL from the configured font path. Supports both classpath resources and file
+   * system paths.
+   *
+   * @return URL to the font file, or null if not found
+   * @throws IOException if there's an error accessing the font file
+   */
+  private URL resolveFontUrl() throws IOException {
+    if (fontPath == null || fontPath.trim().isEmpty()) {
+      throw new IllegalArgumentException("Font path is not configured");
+    }
+
+    // First, try to load as a classpath resource
+    URL classpathUrl = getClass().getResource(fontPath);
+    if (classpathUrl != null) {
+      log.debug("Font loaded from classpath: " + fontPath);
+      return classpathUrl;
+    }
+
+    // If not found on classpath, try as a file system path
+    Path filePath = Paths.get(fontPath);
+    File fontFile = filePath.toFile();
+
+    if (fontFile.exists() && fontFile.isFile()) {
+      try {
+        URL fileUrl = fontFile.toURI().toURL();
+        log.debug("Font loaded from file system: " + fontPath);
+        return fileUrl;
+      } catch (MalformedURLException e) {
+        throw new IOException("Invalid font file path: " + fontPath, e);
+      }
+    }
+
+    // Try relative to classpath root if path doesn't start with '/'
+    if (!fontPath.startsWith("/")) {
+      String classpathPath = "/" + fontPath;
+      classpathUrl = getClass().getResource(classpathPath);
+      if (classpathUrl != null) {
+        log.debug("Font loaded from classpath with leading slash: " + classpathPath);
+        return classpathUrl;
+      }
+    }
+
+    log.error("Font not found at path: " + fontPath);
+    return null;
   }
 }
