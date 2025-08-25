@@ -470,7 +470,7 @@ function showNotification(header, body) {
 
 function addCostEstimationToAccessForm() {
   // take object from information_submission table and display it in the form for canServ purpose
-  if (submittedForm.value.payload['cost-estimation']) {
+  if (submittedForm.value.payload && Object.prototype.hasOwnProperty.call(submittedForm.value.payload,'cost-estimation')) {
     accessForm.value.sections.push({
       name: 'cost-estimation',
       label: 'Cost Estimation',
