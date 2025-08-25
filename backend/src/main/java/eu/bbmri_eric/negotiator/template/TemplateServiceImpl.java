@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class TemplateServiceImpl implements TemplateService {
+class TemplateServiceImpl implements TemplateService {
 
   private static final Logger logger = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
   private final TemplateRepository templateRepository;
 
-  public TemplateServiceImpl(TemplateRepository templateRepository) {
+  TemplateServiceImpl(TemplateRepository templateRepository) {
     this.templateRepository = templateRepository;
   }
 

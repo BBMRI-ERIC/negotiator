@@ -2,8 +2,7 @@ package eu.bbmri_eric.negotiator.template;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -17,9 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
  * functionality.
  */
 @Component
+@CommonsLog
 class DatabaseTemplateLoader implements CommandLineRunner {
-
-  private static final Logger logger = LoggerFactory.getLogger(DatabaseTemplateLoader.class);
 
   private final TemplateRepository templateRepository;
   private final PathMatchingResourcePatternResolver resourceResolver;
@@ -32,7 +30,7 @@ class DatabaseTemplateLoader implements CommandLineRunner {
   @Override
   @Transactional
   public void run(String... args) throws Exception {
-    logger.info("Starting database template loading process...");
+    log.info("Starting database template loading process...");
 
     var templateResources = loadTemplateResources();
 
@@ -43,7 +41,8 @@ class DatabaseTemplateLoader implements CommandLineRunner {
       var templateName = extractTemplateName(templateResource.getFilename());
 
       if (templateRepository.existsByName(templateName)) {
-        logger.debug("Template '{}' already exists in database, skipping import", templateName);
+        log.debug(
+            "Template '%s' already exists in database, skipping import".formatted(templateName));
         skippedCount++;
         continue;
       }
@@ -53,25 +52,23 @@ class DatabaseTemplateLoader implements CommandLineRunner {
 
         var template = Template.builder().name(templateName).content(htmlContent).build();
         templateRepository.save(template);
-        logger.info(
-            "Successfully imported template '{}' into database from '{}'",
-            templateName,
-            templateResource.getFilename());
+        log.info(
+            "Successfully imported template '%s' into database from '%s'"
+                .formatted(templateName, templateResource.getFilename()));
         importedCount++;
       } catch (IOException e) {
-        logger.error(
-            "Failed to load template file '{}': {}",
-            templateResource.getFilename(),
-            e.getMessage());
+        log.error(
+            "Failed to load template file '%s': %s"
+                .formatted(templateResource.getFilename(), e.getMessage()));
       } catch (Exception e) {
-        logger.error("Failed to save template '{}' to database: {}", templateName, e.getMessage());
+        log.error(
+            "Failed to save template '%s' to database: %s".formatted(templateName, e.getMessage()));
       }
     }
 
-    logger.info(
-        "Database template loading completed. Imported: {}, Skipped: {}",
-        importedCount,
-        skippedCount);
+    log.info(
+        "Database template loading completed. Imported: %d, Skipped: %d"
+            .formatted(importedCount, skippedCount));
   }
 
   /**
@@ -82,7 +79,8 @@ class DatabaseTemplateLoader implements CommandLineRunner {
    */
   private Resource[] loadTemplateResources() throws IOException {
     var templateResources = resourceResolver.getResources("classpath:/templates/*.html");
-    logger.debug("Found {} template files in classpath:/templates/", templateResources.length);
+    log.debug(
+        "Found %d template files in classpath:/templates/".formatted(templateResources.length));
     return templateResources;
   }
 

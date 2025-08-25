@@ -19,7 +19,7 @@ public class TemplateController {
 
   TemplateService templateService;
 
-  public TemplateController(TemplateService templateService) {
+  TemplateController(TemplateService templateService) {
     this.templateService = templateService;
   }
 
