@@ -81,7 +81,9 @@ function openUpdateTemplateModal() {
   updateTemplateModal.value.show()
 }
 
-function updateTemplate() {
-  templateStore.updateTemplate(templateName.value, templateData.value)
+async function updateTemplate() {
+  await templateStore.updateTemplate(templateName.value, templateData.value).then(() => {
+    returnToTemplateTable()
+  })
 }
 </script>
