@@ -95,7 +95,8 @@ export default defineConfig({
                     {text: 'Logging', link: '/logging'},
                     {text: 'Lifecycle', link: '/lifecycle'},
                     {text: 'Dynamic Access Form', link: '/dynamic-access-form'},
-                    {text: 'Database Migration', link: '/database_migration'}
+                    {text: 'Database Migration', link: '/database_migration'},
+                    {text: 'Internationalization', link: '/internationalization'}
                 ]
             }
         ],

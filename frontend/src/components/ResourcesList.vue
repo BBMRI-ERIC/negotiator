@@ -2,7 +2,7 @@
   <div>
     <span class="fs-5 fw-bold mt-3" :style="{ color: uiConfiguration?.primaryTextColor }">
       <i class="bi bi-card-list" />
-      RESOURCES ({{ numberOfResources }})
+      {{ $t('negotiationPage.resources') }} ({{ numberOfResources }})
     </span>
     <div>
       <div v-for="[orgId, org] in Object.entries(organizationsById)" :key="orgId" class="card my-2">
