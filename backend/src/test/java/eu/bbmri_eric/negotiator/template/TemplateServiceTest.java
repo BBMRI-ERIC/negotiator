@@ -19,18 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TemplateServiceTest {
 
-  @Autowired
-  private TemplateService templateService;
+  @Autowired private TemplateService templateService;
 
-  @Autowired
-  private TemplateRepository templateRepository;
+  @Autowired private TemplateRepository templateRepository;
 
   @BeforeEach
   void setUp() {
     templateRepository.deleteAll();
-    var simpleTemplate = Template.builder()
-        .name("TEST_SIMPLE")
-        .content("""
+    var simpleTemplate =
+        Template.builder()
+            .name("TEST_SIMPLE")
+            .content(
+                """
             <!DOCTYPE html>
             <html xmlns:th="http://www.thymeleaf.org">
             <head>
@@ -41,11 +41,13 @@ public class TemplateServiceTest {
                 <p>Welcome to our application.</p>
             </body>
             </html>""")
-        .build();
+            .build();
 
-    var complexTemplate = Template.builder()
-        .name("TEST_COMPLEX")
-        .content("""
+    var complexTemplate =
+        Template.builder()
+            .name("TEST_COMPLEX")
+            .content(
+                """
             <!DOCTYPE html>
             <html xmlns:th="http://www.thymeleaf.org">
             <head>
@@ -57,26 +59,26 @@ public class TemplateServiceTest {
                     <p>Name: <span th:text="${user.name}">John Doe</span></p>
                     <p>Email: <span th:text="${user.email}">john@example.com</span></p>
                     <p>Age: <span th:text="${user.age}">25</span></p>
-                    
+
                     <div th:if="${user.isActive}">
                         <p>Status: Active User</p>
                     </div>
                     <div th:unless="${user.isActive}">
                         <p>Status: Inactive User</p>
                     </div>
-                    
+
                     <div th:if="${items != null and !items.isEmpty()}">
                         <h3>Items:</h3>
                         <ul>
                             <li th:each="item : ${items}" th:text="${item}">Item</li>
                         </ul>
                     </div>
-                    
+
                     <p>Generated on: <span th:text="${#dates.format(currentDate, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</span></p>
                 </div>
             </body>
             </html>""")
-        .build();
+            .build();
 
     templateRepository.save(simpleTemplate);
     templateRepository.save(complexTemplate);
@@ -98,21 +100,18 @@ public class TemplateServiceTest {
   @Test
   @DisplayName("Should process template with complex object variables")
   void shouldProcessTemplateWithComplexVariables() {
-    Map<String, Object> user = Map.of(
-        "name", "John Smith",
-        "email", "john.smith@example.com",
-        "age", 30,
-        "isActive", true
-    );
+    Map<String, Object> user =
+        Map.of(
+            "name", "John Smith", "email", "john.smith@example.com", "age", 30, "isActive", true);
 
     var items = List.of("Item 1", "Item 2", "Item 3");
     var currentDate = new Date();
 
-    Map<String, Object> variables = Map.of(
-        "user", user,
-        "items", items,
-        "currentDate", currentDate
-    );
+    Map<String, Object> variables =
+        Map.of(
+            "user", user,
+            "items", items,
+            "currentDate", currentDate);
 
     var result = templateService.processTemplate(variables, "TEST_COMPLEX");
 
@@ -132,12 +131,8 @@ public class TemplateServiceTest {
   @Test
   @DisplayName("Should process template with inactive user")
   void shouldProcessTemplateWithInactiveUser() {
-    Map<String, Object> user = Map.of(
-        "name", "Jane Doe",
-        "email", "jane@example.com",
-        "age", 25,
-        "isActive", false
-    );
+    Map<String, Object> user =
+        Map.of("name", "Jane Doe", "email", "jane@example.com", "age", 25, "isActive", false);
 
     Map<String, Object> variables = Map.of("user", user);
 
@@ -172,18 +167,11 @@ public class TemplateServiceTest {
   @Test
   @DisplayName("Should process template with empty items list")
   void shouldProcessTemplateWithEmptyItems() {
-    Map<String, Object> user = Map.of(
-        "name", "Test User",
-        "email", "test@example.com",
-        "age", 20,
-        "isActive", true
-    );
+    Map<String, Object> user =
+        Map.of("name", "Test User", "email", "test@example.com", "age", 20, "isActive", true);
 
-    Map<String, Object> variables = Map.of(
-        "user", user,
-        "items", List.<String>of(),
-        "currentDate", new Date()
-    );
+    Map<String, Object> variables =
+        Map.of("user", user, "items", List.<String>of(), "currentDate", new Date());
 
     var result = templateService.processTemplate(variables, "TEST_COMPLEX");
 
@@ -244,19 +232,24 @@ public class TemplateServiceTest {
   @Test
   @DisplayName("Should process template with nested object properties")
   void shouldProcessTemplateWithNestedObjectProperties() {
-    Map<String, Object> address = Map.of(
-        "street", "123 Main St",
-        "city", "Springfield",
-        "zipCode", "12345"
-    );
+    Map<String, Object> address =
+        Map.of(
+            "street", "123 Main St",
+            "city", "Springfield",
+            "zipCode", "12345");
 
-    Map<String, Object> user = Map.of(
-        "name", "John Doe",
-        "email", "john@example.com",
-        "age", 28,
-        "isActive", true,
-        "address", address
-    );
+    Map<String, Object> user =
+        Map.of(
+            "name",
+            "John Doe",
+            "email",
+            "john@example.com",
+            "age",
+            28,
+            "isActive",
+            true,
+            "address",
+            address);
 
     Map<String, Object> variables = Map.of("user", user);
 
