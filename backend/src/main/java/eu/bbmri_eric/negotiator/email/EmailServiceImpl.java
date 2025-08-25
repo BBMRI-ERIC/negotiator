@@ -3,30 +3,26 @@ package eu.bbmri_eric.negotiator.email;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.validation.constraints.Email;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @CommonsLog
 @Service
 public class EmailServiceImpl implements EmailService {
-
-  private static final String EMAIL_REGEX_PATTERN =
-      "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
-  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX_PATTERN);
   private static final String UTF_8_ENCODING = "utf-8";
 
-  private static final String ERROR_INVALID_EMAIL = "Email address must not be null or empty";
+  private static final String ERROR_INVALID_EMAIL =
+      "Email address must not be empty and must be valid";
   private static final String ERROR_INVALID_SUBJECT = "Subject must not be null or empty";
   private static final String ERROR_INVALID_BODY = "Mail body must not be null";
-  private static final String ERROR_EMAIL_FORMAT = "Invalid email address format: ";
   private static final String ERROR_BUILD_MESSAGE = "Failed to build email message";
   private static final String ERROR_SMTP_CONFIG =
       "Failed to send email due to SMTP configuration issues";
@@ -46,20 +42,21 @@ public class EmailServiceImpl implements EmailService {
   }
 
   @Override
-  public void sendEmail(Person recipient, String subject, String mailBody) {
+  public void sendEmail(Person recipient, String subject, String content) {
     Objects.requireNonNull(recipient, "Recipient must not be null");
+    validateEmailParameters(recipient.getEmail(), subject, content);
     var recipientEmail = recipient.getEmail();
     try {
-      deliverEmail(recipientEmail, subject, mailBody);
+      deliverEmail(recipientEmail, subject, content);
     } catch (Exception e) {
       log.error("Failed to send email to person " + recipient.getId() + ": " + e.getMessage());
     }
   }
 
   @Override
-  public void sendEmail(String emailAddress, String subject, String message) {
-    validateEmailParameters(emailAddress, subject, message);
-    deliverEmail(emailAddress, subject, message);
+  public void sendEmail(String emailAddress, String subject, String content) {
+    validateEmailParameters(emailAddress, subject, content);
+    deliverEmail(emailAddress, subject, content);
   }
 
   private void deliverEmail(String recipientAddress, String subject, String content) {
@@ -77,8 +74,12 @@ public class EmailServiceImpl implements EmailService {
     recordEmailNotification(recipientAddress, content);
   }
 
-  private void validateEmailParameters(String emailAddress, String subject, String mailBody) {
-    if (Objects.isNull(emailAddress) || emailAddress.trim().isEmpty()) {
+  private void validateEmailParameters(
+      @Email String emailAddress, String subject, String mailBody) {
+    EmailValidator emailValidator = EmailValidator.getInstance();
+    if (Objects.isNull(emailAddress)
+        || emailAddress.trim().isEmpty()
+        || !emailValidator.isValid(emailAddress)) {
       throw new IllegalArgumentException(ERROR_INVALID_EMAIL);
     }
     if (Objects.isNull(subject) || subject.trim().isEmpty()) {

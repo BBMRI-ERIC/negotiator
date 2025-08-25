@@ -37,8 +37,7 @@ class EmailServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    emailService =
-        new EmailServiceImpl(javaMailSender, notificationEmailRepository);
+    emailService = new EmailServiceImpl(javaMailSender, notificationEmailRepository);
     ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
 
     // Use lenient stubbing to avoid unnecessary stubbing exceptions for tests that don't use it
@@ -52,22 +51,12 @@ class EmailServiceImplTest {
   @Test
   void constructor_WithNullJavaMailSender_ThrowsNullPointerException() {
     assertThrows(
-        NullPointerException.class,
-        () -> new EmailServiceImpl(null, notificationEmailRepository));
+        NullPointerException.class, () -> new EmailServiceImpl(null, notificationEmailRepository));
   }
 
   @Test
   void constructor_WithNullRepository_ThrowsNullPointerException() {
-    assertThrows(
-        NullPointerException.class,
-        () -> new EmailServiceImpl(javaMailSender, null));
-  }
-
-  @Test
-  void constructor_WithNullEmailContextBuilder_ThrowsNullPointerException() {
-    assertThrows(
-        NullPointerException.class,
-        () -> new EmailServiceImpl(javaMailSender, notificationEmailRepository));
+    assertThrows(NullPointerException.class, () -> new EmailServiceImpl(javaMailSender, null));
   }
 
   @Test
@@ -88,7 +77,7 @@ class EmailServiceImplTest {
 
     verify(javaMailSender).createMimeMessage();
     verify(javaMailSender).send(mimeMessage);
-    verify(notificationEmailRepository, times(2)).save(any(NotificationEmail.class));
+    verify(notificationEmailRepository, times(1)).save(any(NotificationEmail.class));
   }
 
   @Test
@@ -111,7 +100,7 @@ class EmailServiceImplTest {
 
     verify(javaMailSender).createMimeMessage();
     verify(javaMailSender).send(mimeMessage);
-    verify(notificationEmailRepository, times(2)).save(any(NotificationEmail.class));
+    verify(notificationEmailRepository, times(1)).save(any(NotificationEmail.class));
   }
 
   @Test
@@ -121,7 +110,7 @@ class EmailServiceImplTest {
             IllegalArgumentException.class,
             () -> emailService.sendEmail((String) null, VALID_SUBJECT, VALID_MAIL_BODY));
 
-    assertEquals("Email address must not be null or empty", exception.getMessage());
+    assertEquals("Email address must not be empty and must be valid", exception.getMessage());
   }
 
   @Test
@@ -131,7 +120,7 @@ class EmailServiceImplTest {
             IllegalArgumentException.class,
             () -> emailService.sendEmail("", VALID_SUBJECT, VALID_MAIL_BODY));
 
-    assertEquals("Email address must not be null or empty", exception.getMessage());
+    assertEquals("Email address must not be empty and must be valid", exception.getMessage());
   }
 
   @Test
@@ -141,7 +130,7 @@ class EmailServiceImplTest {
             IllegalArgumentException.class,
             () -> emailService.sendEmail("   ", VALID_SUBJECT, VALID_MAIL_BODY));
 
-    assertEquals("Email address must not be null or empty", exception.getMessage());
+    assertEquals("Email address must not be empty and must be valid", exception.getMessage());
   }
 
   @Test
@@ -187,13 +176,11 @@ class EmailServiceImplTest {
   @Test
   void sendEmail_WithInvalidEmailFormat_ThrowsIllegalArgumentException() {
     var invalidEmail = "invalid-email-format";
-
     var exception =
         assertThrows(
             IllegalArgumentException.class,
             () -> emailService.sendEmail(invalidEmail, VALID_SUBJECT, VALID_MAIL_BODY));
-
-    assertEquals("Invalid email address format: " + invalidEmail, exception.getMessage());
+    assertEquals("Email address must not be empty and must be valid", exception.getMessage());
   }
 
   @Test
@@ -204,10 +191,12 @@ class EmailServiceImplTest {
   }
 
   @Test
-  void sendEmail_WithPersonHavingInvalidEmail_DoesNotThrowException() {
+  void sendEmail_WithPersonHavingInvalidEmail_throwsException() {
     var person = Person.builder().id(1L).email("invalid-email").name("Test User").build();
 
-    assertDoesNotThrow(() -> emailService.sendEmail(person, VALID_SUBJECT, VALID_MAIL_BODY));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> emailService.sendEmail(person, VALID_SUBJECT, VALID_MAIL_BODY));
 
     verifyNoInteractions(javaMailSender);
   }
@@ -238,10 +227,6 @@ class EmailServiceImplTest {
             .message(VALID_MAIL_BODY)
             .sentAt(LocalDateTime.now())
             .build();
-
-    when(notificationEmailRepository.save(any(NotificationEmail.class)))
-        .thenReturn(notificationEmail);
-
     doThrow(new MailSendException("SMTP server error")).when(javaMailSender).send(mimeMessage);
 
     var exception =
@@ -270,7 +255,7 @@ class EmailServiceImplTest {
     emailService.sendEmail(VALID_EMAIL, VALID_SUBJECT, VALID_MAIL_BODY);
 
     var captor = ArgumentCaptor.forClass(NotificationEmail.class);
-    verify(notificationEmailRepository, times(2)).save(captor.capture());
+    verify(notificationEmailRepository, times(1)).save(captor.capture());
 
     var capturedEmail = captor.getAllValues().getFirst();
     assertEquals(VALID_EMAIL, capturedEmail.getAddress());
@@ -320,7 +305,6 @@ class EmailServiceImplTest {
 
   @Test
   void sendEmail_WithEmailsFailingAtMimeLevel_ThrowsRuntimeException() {
-    when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
 
     // These email formats pass our basic regex but fail at MIME processing level
     String[] problematicEmails = {
@@ -354,7 +338,6 @@ class EmailServiceImplTest {
 
     var inOrder = inOrder(javaMailSender, notificationEmailRepository);
     inOrder.verify(javaMailSender).createMimeMessage();
-    inOrder.verify(notificationEmailRepository).save(any(NotificationEmail.class));
     inOrder.verify(javaMailSender).send(mimeMessage);
     inOrder.verify(notificationEmailRepository).save(any(NotificationEmail.class));
   }

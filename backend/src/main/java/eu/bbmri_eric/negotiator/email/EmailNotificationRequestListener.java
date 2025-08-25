@@ -36,7 +36,6 @@ class EmailNotificationRequestListener {
     this.emailContextBuilder = emailContextBuilder;
   }
 
-
   @TransactionalEventListener
   @Async
   void onNewNotification(NewNotificationEvent event) {
