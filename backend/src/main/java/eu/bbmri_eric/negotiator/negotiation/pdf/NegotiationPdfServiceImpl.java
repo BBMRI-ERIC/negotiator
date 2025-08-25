@@ -46,7 +46,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
               .replaceAll("(<br />)+$", "");
       return renderPdf(renderedHtml);
     } catch (Exception e) {
-      throw new RuntimeException("Error creating negotiation pdf: " + e.getMessage());
+      throw new PdfGenerationException("Error creating negotiation pdf: " + e.getMessage());
     }
   }
 
