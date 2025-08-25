@@ -3,19 +3,25 @@ package eu.bbmri_eric.negotiator.template;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @CommonsLog
 class TemplateServiceImpl implements TemplateService {
 
   private final TemplateRepository templateRepository;
+  private final TemplateEngine templateEngine;
 
-  TemplateServiceImpl(TemplateRepository templateRepository) {
+  TemplateServiceImpl(TemplateRepository templateRepository, TemplateEngine templateEngine) {
     this.templateRepository = templateRepository;
+    this.templateEngine = templateEngine;
   }
 
   @Override
@@ -67,6 +73,36 @@ class TemplateServiceImpl implements TemplateService {
     } catch (IOException e) {
       log.error("Failed to load original content for template '%s': %s".formatted(templateName, e.getMessage()));
       return existingTemplate.get().getContent();
+    }
+  }
+
+  @Override
+  public String processTemplate(Map<String, Object> variables, String templateName) {
+    if (templateName == null || templateName.isBlank()) {
+      throw new IllegalArgumentException("Template name cannot be null or blank");
+    }
+
+    var template = templateRepository.findByName(templateName);
+    if (template.isEmpty()) {
+      log.error("Template '%s' not found".formatted(templateName));
+      throw new IllegalArgumentException("Template '%s' not found".formatted(templateName));
+    }
+
+    try {
+      var context = new Context();
+      if (variables != null && !variables.isEmpty()) {
+        context.setVariables(variables);
+      }
+
+      var processedTemplate = templateEngine.process(templateName, context);
+      log.debug("Successfully processed template '%s' with %d variables".formatted(
+          templateName, variables != null ? variables.size() : 0));
+
+      return processedTemplate;
+
+    } catch (Exception e) {
+      log.error("Failed to process template '%s': %s".formatted(templateName, e.getMessage()), e);
+      throw new RuntimeException("Failed to process template '%s'".formatted(templateName), e);
     }
   }
 

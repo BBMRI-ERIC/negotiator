@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.template;
 
 import java.util.List;
+import java.util.Map;
 
 interface TemplateService {
 
@@ -33,4 +34,13 @@ interface TemplateService {
    * @param templateName the name of the template.
    */
   String resetTemplate(String templateName);
+
+  /**
+   * Process a template with variables.
+   *
+   * @param variables the variables to substitute in the template.
+   * @param templateName the name of the template.
+   * @return the processed template string.
+   */
+  String processTemplate(Map<String, Object> variables, String templateName);
 }
