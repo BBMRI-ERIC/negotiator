@@ -1,12 +1,13 @@
 package eu.bbmri_eric.negotiator.negotiation.pdf;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.template.TemplateService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -14,12 +15,12 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
-import org.thymeleaf.context.Context;
 
 @Component
 @CommonsLog
 public class PdfContextBuilder {
   private final ObjectMapper objectMapper;
+  private final TemplateService templateService;
 
   @Value("${negotiator.emailLogo}")
   private String logoURL;
@@ -27,31 +28,35 @@ public class PdfContextBuilder {
   private static final DateTimeFormatter DTF =
       DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
 
-  public PdfContextBuilder(ObjectMapper objectMapper) {
+  public PdfContextBuilder(ObjectMapper objectMapper, TemplateService templateService) {
     this.objectMapper = objectMapper;
+    this.templateService = templateService;
   }
 
   @Transactional
-  public Context createContext(Negotiation negotiation) throws JsonProcessingException {
+  public String createPdfContent(Negotiation negotiation, String templateName) {
     try {
       Map<String, Object> payload =
           this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
-      Context context = new Context();
-      context.setVariable("now", LocalDateTime.now().format(DTF));
-      context.setVariable("logoUrl", logoURL);
-      context.setVariable("authorName", negotiation.getCreatedBy().getName());
-      context.setVariable("authorEmail", negotiation.getCreatedBy().getEmail());
-      context.setVariable("negotiationId", negotiation.getId());
-      context.setVariable("negotiationCreatedAt", negotiation.getCreationDate());
-      context.setVariable("negotiationStatus", negotiation.getCurrentState());
-      context.setVariable("negotiationPayload", processPayload(payload));
-      return context;
+
+      Map<String, Object> variables = new HashMap<>();
+      variables.put("now", LocalDateTime.now().format(DTF));
+      variables.put("logoUrl", logoURL);
+      variables.put("authorName", negotiation.getCreatedBy().getName());
+      variables.put("authorEmail", negotiation.getCreatedBy().getEmail());
+      variables.put("negotiationId", negotiation.getId());
+      variables.put("negotiationCreatedAt", negotiation.getCreationDate());
+      variables.put("negotiationStatus", negotiation.getCurrentState());
+      variables.put("negotiationPayload", processPayload(payload));
+
+      return templateService.processTemplate(variables, templateName);
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.error("Failed to create PDF content for negotiation " + negotiation.getId(), e);
+      return "";
     }
-    return new Context();
   }
 
+  @SuppressWarnings("unchecked")
   private Map<String, Object> processPayload(Map<String, Object> payload) {
     payload.replaceAll(
         (key, value) -> {

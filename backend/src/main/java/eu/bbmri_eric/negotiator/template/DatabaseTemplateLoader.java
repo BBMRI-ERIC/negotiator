@@ -85,17 +85,17 @@ class DatabaseTemplateLoader implements CommandLineRunner {
   }
 
   /**
-   * Extracts template name from filename by removing the .html extension and converting to
-   * lowercase for consistency.
+   * Extracts template name from filename by removing the .html extension while preserving
+   * the original case.
    *
    * @param filename the template filename (e.g., "EMAIL_BODY.html")
-   * @return the template name (e.g., "email_body")
+   * @return the template name (e.g., "EMAIL_BODY")
    */
   private String extractTemplateName(String filename) {
     if (filename == null) {
       throw new IllegalArgumentException("Template filename cannot be null");
     }
-    return filename.replaceFirst("\\.html$", "").toLowerCase();
+    return filename.replaceFirst("\\.html$", "");
   }
 
   /**

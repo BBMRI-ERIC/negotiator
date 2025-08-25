@@ -17,8 +17,6 @@ import java.nio.file.Paths;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service(value = "DefaultNegotiationPdfService")
@@ -26,7 +24,6 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
   private final NegotiationRepository negotiationRepository;
-  private final TemplateEngine templateEngine;
   private final PdfContextBuilder pdfContextBuilder;
 
   @Value("${negotiator.pdfFont}")
@@ -34,10 +31,8 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
   public NegotiationPdfServiceImpl(
       NegotiationRepository negotiationRepository,
-      TemplateEngine templateEngine,
       PdfContextBuilder pdfContextBuilder) {
     this.negotiationRepository = negotiationRepository;
-    this.templateEngine = templateEngine;
     this.pdfContextBuilder = pdfContextBuilder;
   }
 
@@ -46,12 +41,11 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   public byte[] generatePdf(String negotiationId) throws PdfGenerationException {
     Negotiation negotiation = findEntityById(negotiationId);
     try {
-      Context context = pdfContextBuilder.createContext(negotiation);
-      String renderedHtml =
-          templateEngine.process(DEFAULT_PDF_TEMPLATE_NAME, context).replaceAll("(<br />)+$", "");
+      String renderedHtml = pdfContextBuilder.createPdfContent(negotiation, DEFAULT_PDF_TEMPLATE_NAME)
+          .replaceAll("(<br />)+$", "");
       return renderPdf(renderedHtml);
     } catch (Exception e) {
-      throw new PdfGenerationException("Error creating negotiation pdf: " + e.getMessage());
+      throw new RuntimeException("Error creating negotiation pdf: " + e.getMessage());
     }
   }
 
