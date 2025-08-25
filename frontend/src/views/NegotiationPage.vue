@@ -324,7 +324,7 @@ const attachments = ref([])
 const downloadingAttachments = ref(new Set())
 const isAddResourcesButtonVisible = ref(false)
 const resourceStates = ref([])
-const userStore = useUserStore()
+
 const negotiationPageStore = useNegotiationPageStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
