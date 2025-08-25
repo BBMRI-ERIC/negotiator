@@ -16,7 +16,8 @@ import { computed } from 'vue'
 import { useReleasesStore } from '../store/releases.js'
 import Modal from 'bootstrap/js/dist/modal'
 import { ROLES } from '@/config/consts.js'
-
+import { useUserStore } from '@/store/user.js'
+const userStore = useUserStore()
 const releasesStore = useReleasesStore()
 
 const hasNewRelease = computed(() => releasesStore.hasNewRelease)
@@ -29,8 +30,11 @@ function showModal() {
     modal.show()
   }
 }
+const userInfo = computed(() => {
+  return userStore.userInfo
+})
 const isAdmin = computed(() => {
-  return roles.value.includes(ROLES.ADMINISTRATOR)
+  return userInfo.value?.roles?.includes(ROLES.ADMINISTRATOR) ?? false
 })
 </script>
 
