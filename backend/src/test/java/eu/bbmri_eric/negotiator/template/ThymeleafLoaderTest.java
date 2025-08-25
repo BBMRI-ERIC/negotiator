@@ -31,10 +31,10 @@ class ThymeleafLoaderTest {
 
     var templateNames = loadedTemplates.stream().map(Template::getName).toList();
 
-    assertTrue(templateNames.contains("email"));
-    assertTrue(templateNames.contains("email_footer"));
-    assertTrue(templateNames.contains("logo"));
-    assertTrue(templateNames.contains("pdf_negotiation_summary"));
+    assertTrue(templateNames.contains("EMAIL"));
+    assertTrue(templateNames.contains("EMAIL_FOOTER"));
+    assertTrue(templateNames.contains("LOGO"));
+    assertTrue(templateNames.contains("PDF_NEGOTIATION_SUMMARY"));
 
     for (Template template : loadedTemplates) {
       assertNotNull(template.getContent());
