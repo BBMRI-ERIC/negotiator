@@ -7,7 +7,6 @@ public interface NegotiationPdfService {
    *
    * @param negotiationId the id of the negotiation
    * @return a byte array representing the PDF document
-   * @throws Exception if an error occurs during PDF generation
    */
-  byte[] generatePdf(String negotiationId) throws Exception;
+  byte[] generatePdf(String negotiationId);
 }

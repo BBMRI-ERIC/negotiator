@@ -26,7 +26,6 @@ class EmailServiceImplTest {
   @Mock private NotificationEmailRepository notificationEmailRepository;
 
   @Mock private MimeMessage mimeMessage;
-  @Mock private EmailContextBuilder emailContextBuilder;
 
   private EmailServiceImpl emailService;
 
@@ -39,13 +38,6 @@ class EmailServiceImplTest {
   void setUp() {
     emailService = new EmailServiceImpl(javaMailSender, notificationEmailRepository);
     ReflectionTestUtils.setField(emailService, "fromAddress", FROM_ADDRESS);
-
-    // Use lenient stubbing to avoid unnecessary stubbing exceptions for tests that don't use it
-    lenient()
-        .when(
-            emailContextBuilder.buildEmailContent(
-                anyString(), anyString(), anyString(), any(), any(), any()))
-        .thenReturn(VALID_MAIL_BODY);
   }
 
   @Test

@@ -3,7 +3,7 @@ package eu.bbmri_eric.negotiator.template;
 import java.util.List;
 import java.util.Map;
 
-interface TemplateService {
+public interface TemplateService {
 
   /**
    * Get all notification templates.
