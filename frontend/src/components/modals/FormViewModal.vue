@@ -8,7 +8,7 @@
   >
     <div
       class="modal-dialog modal-dialog-centered"
-      :class="isModalSmall === true ? 'modal-m' : 'modal-xl'"
+      :class="isModalSmall === true ? 'modal-sm' : 'modal-md'"
     >
       <div class="modal-content">
         <div class="modal-header">
@@ -104,7 +104,7 @@ const props = defineProps({
   isModalSmall: {
     type: Boolean,
     required: false,
-    default: true,
+    default: false,
   },
   isXButtondisplayed: {
     type: Boolean,

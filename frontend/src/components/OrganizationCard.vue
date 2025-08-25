@@ -19,6 +19,7 @@
         @open-form-modal="openFormModal"
         @open-modal="openModal"
         @update-resource-state="updateResourceState"
+        @editInfoSubmission="editInfoSubmission"
       />
     </div>
   </div>
@@ -41,6 +42,7 @@ const emit = defineEmits([
   'open-modal',
   'update-resource-state',
   'update-org-status',
+  'edit-info-submission',
 ])
 
 const dropdownVisible = reactive({})
@@ -77,6 +79,10 @@ const openFormModal = (href) => {
 
 const updateResourceState = (link) => {
   emit('update-resource-state', link)
+}
+
+function editInfoSubmission(href) {
+  emit('edit-info-submission', href)
 }
 </script>
 
