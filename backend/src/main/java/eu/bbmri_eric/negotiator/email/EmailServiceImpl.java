@@ -33,56 +33,48 @@ public class EmailServiceImpl implements EmailService {
 
   private final JavaMailSender javaMailSender;
   private final NotificationEmailRepository notificationEmailRepository;
-  private final EmailContextBuilder emailContextBuilder;
 
   @Value("${negotiator.email-address}")
   private String fromAddress;
 
   EmailServiceImpl(
-      JavaMailSender javaMailSender,
-      NotificationEmailRepository notificationEmailRepository,
-      EmailContextBuilder emailContextBuilder) {
+      JavaMailSender javaMailSender, NotificationEmailRepository notificationEmailRepository) {
     this.javaMailSender = Objects.requireNonNull(javaMailSender, "JavaMailSender must not be null");
     this.notificationEmailRepository =
         Objects.requireNonNull(
             notificationEmailRepository, "NotificationEmailRepository must not be null");
-    this.emailContextBuilder =
-        Objects.requireNonNull(emailContextBuilder, "EmailContextBuilder must not be null");
   }
 
   @Override
-  @Async
   public void sendEmail(Person recipient, String subject, String mailBody) {
     Objects.requireNonNull(recipient, "Recipient must not be null");
     var recipientEmail = recipient.getEmail();
     try {
-      processEmailDelivery(recipientEmail, subject, mailBody);
+      deliverEmail(recipientEmail, subject, mailBody);
     } catch (Exception e) {
       log.error("Failed to send email to person " + recipient.getId() + ": " + e.getMessage());
     }
   }
 
   @Override
-  @Async
   public void sendEmail(String emailAddress, String subject, String message) {
     validateEmailParameters(emailAddress, subject, message);
-    processEmailDelivery(emailAddress, subject, message);
+    deliverEmail(emailAddress, subject, message);
   }
 
-  private void processEmailDelivery(String emailAddress, String subject, String message) {
-    if (!isValidEmailAddress(emailAddress)) {
-      var errorMessage = ERROR_EMAIL_FORMAT + emailAddress;
-      log.error("Failed to send email. Invalid recipient email address: " + emailAddress);
-      throw new IllegalArgumentException(errorMessage);
+  private void deliverEmail(String recipientAddress, String subject, String content) {
+    var mimeMessage = buildMimeMessage(recipientAddress, subject, content);
+    try {
+      javaMailSender.send(mimeMessage);
+    } catch (MailSendException e) {
+      log.error(
+          "Failed to send email to "
+              + recipientAddress
+              + ". SMTP configuration error: "
+              + e.getMessage());
+      throw new RuntimeException(ERROR_SMTP_CONFIG, e);
     }
-    String emailBody =
-        emailContextBuilder.buildEmailContent(
-            "default", "Madame or Sir", message, null, null, null);
-    var mimeMessage = buildMimeMessage(emailAddress, subject, emailBody);
-    var notificationEmail = createNotificationRecord(emailAddress, emailBody);
-    deliverMimeMessage(mimeMessage, emailAddress);
-    updateNotificationRecord(notificationEmail);
-    log.debug("Email message sent successfully to " + emailAddress);
+    recordEmailNotification(recipientAddress, content);
   }
 
   private void validateEmailParameters(String emailAddress, String subject, String mailBody) {
@@ -99,7 +91,6 @@ public class EmailServiceImpl implements EmailService {
 
   private MimeMessage buildMimeMessage(String emailAddress, String subject, String mailBody) {
     var mimeMessage = javaMailSender.createMimeMessage();
-
     try {
       var helper = new MimeMessageHelper(mimeMessage, UTF_8_ENCODING);
       helper.setText(mailBody, true);
@@ -113,35 +104,12 @@ public class EmailServiceImpl implements EmailService {
     }
   }
 
-  private NotificationEmail createNotificationRecord(String emailAddress, String mailBody) {
-    return notificationEmailRepository.save(
+  private void recordEmailNotification(String emailAddress, String mailBody) {
+    notificationEmailRepository.save(
         NotificationEmail.builder()
             .address(emailAddress)
             .message(mailBody)
             .sentAt(LocalDateTime.now())
             .build());
-  }
-
-  private void deliverMimeMessage(MimeMessage mimeMessage, String emailAddress) {
-    try {
-      javaMailSender.send(mimeMessage);
-    } catch (MailSendException e) {
-      log.error(
-          "Failed to send email to "
-              + emailAddress
-              + ". SMTP configuration error: "
-              + e.getMessage());
-      throw new RuntimeException(ERROR_SMTP_CONFIG, e);
-    }
-  }
-
-  private void updateNotificationRecord(NotificationEmail notificationEmail) {
-    notificationEmailRepository.save(notificationEmail);
-  }
-
-  private static boolean isValidEmailAddress(String emailAddress) {
-    return Objects.nonNull(emailAddress)
-        && !emailAddress.trim().isEmpty()
-        && EMAIL_PATTERN.matcher(emailAddress).matches();
   }
 }

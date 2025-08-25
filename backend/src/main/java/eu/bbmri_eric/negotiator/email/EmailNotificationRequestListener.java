@@ -8,23 +8,22 @@ import eu.bbmri_eric.negotiator.notification.NotificationDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
-import jakarta.transaction.Transactional;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-/** Listens for requests to send an email. */
+/** Listens for requests to send an email notification to a user. */
 @Component
 @CommonsLog
-class EmailRequestListener {
+class EmailNotificationRequestListener {
   private final EmailService emailService;
   private final NotificationService notificationService;
   private final PersonRepository personRepository;
   private final NegotiationRepository negotiationRepository;
   private final EmailContextBuilder emailContextBuilder;
 
-  EmailRequestListener(
+  EmailNotificationRequestListener(
       EmailService emailService,
       NotificationService notificationService,
       PersonRepository personRepository,
@@ -37,9 +36,9 @@ class EmailRequestListener {
     this.emailContextBuilder = emailContextBuilder;
   }
 
-  @EventListener(value = NewNotificationEvent.class)
+
   @TransactionalEventListener
-  @Transactional(Transactional.TxType.REQUIRES_NEW)
+  @Async
   void onNewNotification(NewNotificationEvent event) {
     NotificationDTO notification = notificationService.findById(event.getNotificationId());
     if (notification == null) {
@@ -66,7 +65,6 @@ class EmailRequestListener {
             negotiation != null ? negotiation.getId() : null,
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
-
     emailService.sendEmail(person, notification.getTitle(), emailContent);
   }
 }
