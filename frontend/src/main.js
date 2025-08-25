@@ -33,7 +33,7 @@ if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
   })
 }
 
-if (i18nConfig.locale === 'I18N_LOCALE_PLACEHOLDER' || i18nConfig.locale === false) {
+if (i18nConfig.locale === 'I18N_LOCALE_PLACEHOLDER' || i18nConfig.locale == false) {
   i18nConfig.locale = 'en'
 }
 const i18n = createI18n(i18nConfig)
