@@ -3,16 +3,14 @@ package eu.bbmri_eric.negotiator.template;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@CommonsLog
 class TemplateServiceImpl implements TemplateService {
-
-  private static final Logger logger = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
   private final TemplateRepository templateRepository;
 
@@ -39,12 +37,12 @@ class TemplateServiceImpl implements TemplateService {
       var templateEntity = existingTemplate.get();
       templateEntity.setContent(template);
       templateRepository.save(templateEntity);
-      logger.info("Updated template '{}'", templateName);
+      log.info("Updated template '%s'".formatted(templateName));
       return templateEntity.getContent();
     } else {
       var newTemplate = Template.builder().name(templateName).content(template).build();
       templateRepository.save(newTemplate);
-      logger.info("Created new template '{}'", templateName);
+      log.info("Created new template '%s'".formatted(templateName));
       return newTemplate.getContent();
     }
   }
@@ -63,12 +61,11 @@ class TemplateServiceImpl implements TemplateService {
       templateEntity.setContent(originalContent);
       templateRepository.save(templateEntity);
 
-      logger.info("Reset template '{}' to original content", templateName);
+      log.info("Reset template '%s' to original content".formatted(templateName));
       return templateEntity.getContent();
 
     } catch (IOException e) {
-      logger.error(
-          "Failed to load original content for template '{}': {}", templateName, e.getMessage());
+      log.error("Failed to load original content for template '%s': %s".formatted(templateName, e.getMessage()));
       return existingTemplate.get().getContent();
     }
   }
