@@ -304,15 +304,16 @@ public class NegotiationController {
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(summary = "Generate a PDF for a negotiation")
   @SecurityRequirement(name = "security_auth")
-  public ResponseEntity<byte[]> generateNegotiationPdf(@Valid @PathVariable String id) throws Exception {
+  public ResponseEntity<byte[]> generateNegotiationPdf(@Valid @PathVariable String id)
+      throws Exception {
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
-      byte[] pdfBytes = negotiationPdfService.generatePdf(id);
-      return ResponseEntity.ok()
-          .contentType(MediaType.APPLICATION_PDF)
-          .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-          .body(pdfBytes);
+    byte[] pdfBytes = negotiationPdfService.generatePdf(id);
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_PDF)
+        .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
+        .body(pdfBytes);
   }
 
   private String getUserId() {

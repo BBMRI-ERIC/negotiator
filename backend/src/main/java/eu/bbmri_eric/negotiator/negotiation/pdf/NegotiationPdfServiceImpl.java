@@ -30,8 +30,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private String fontPath;
 
   public NegotiationPdfServiceImpl(
-      NegotiationRepository negotiationRepository,
-      PdfContextBuilder pdfContextBuilder) {
+      NegotiationRepository negotiationRepository, PdfContextBuilder pdfContextBuilder) {
     this.negotiationRepository = negotiationRepository;
     this.pdfContextBuilder = pdfContextBuilder;
   }
@@ -41,8 +40,10 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   public byte[] generatePdf(String negotiationId) throws PdfGenerationException {
     Negotiation negotiation = findEntityById(negotiationId);
     try {
-      String renderedHtml = pdfContextBuilder.createPdfContent(negotiation, DEFAULT_PDF_TEMPLATE_NAME)
-          .replaceAll("(<br />)+$", "");
+      String renderedHtml =
+          pdfContextBuilder
+              .createPdfContent(negotiation, DEFAULT_PDF_TEMPLATE_NAME)
+              .replaceAll("(<br />)+$", "");
       return renderPdf(renderedHtml);
     } catch (Exception e) {
       throw new RuntimeException("Error creating negotiation pdf: " + e.getMessage());

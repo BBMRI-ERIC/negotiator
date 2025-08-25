@@ -85,8 +85,8 @@ class DatabaseTemplateLoader implements CommandLineRunner {
   }
 
   /**
-   * Extracts template name from filename by removing the .html extension while preserving
-   * the original case.
+   * Extracts template name from filename by removing the .html extension while preserving the
+   * original case.
    *
    * @param filename the template filename (e.g., "EMAIL_BODY.html")
    * @return the template name (e.g., "EMAIL_BODY")
