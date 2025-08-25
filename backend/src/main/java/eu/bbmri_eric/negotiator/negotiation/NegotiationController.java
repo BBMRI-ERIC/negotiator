@@ -304,8 +304,7 @@ public class NegotiationController {
   @GetMapping(value = "/negotiations/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(summary = "Generate a PDF for a negotiation")
   @SecurityRequirement(name = "security_auth")
-  public ResponseEntity<byte[]> generateNegotiationPdf(@Valid @PathVariable String id)
-      throws Exception {
+  public ResponseEntity<byte[]> generateNegotiationPdf(@Valid @PathVariable String id) {
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
