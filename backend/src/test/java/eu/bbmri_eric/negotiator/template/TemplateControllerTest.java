@@ -130,7 +130,7 @@ class TemplateControllerTest {
   @WithMockUser(roles = "ADMIN")
   void resetNotificationTemplate_withResetOperation_returnsOriginalContent() throws Exception {
     var modifiedContent = "<html><body>Modified template</body></html>";
-    var template = Template.builder().name("email_body").content(modifiedContent).build();
+    var template = Template.builder().name("email").content(modifiedContent).build();
     templateRepository.save(template);
 
     var request = new TemplateOperationRequest();
@@ -138,13 +138,13 @@ class TemplateControllerTest {
 
     mockMvc
         .perform(
-            post(TEMPLATES_ENDPOINT + "/email_body/operations")
+            post(TEMPLATES_ENDPOINT + "/email/operations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/xhtml+xml;charset=UTF-8"));
 
-    var resetTemplate = templateRepository.findByName("email_body");
+    var resetTemplate = templateRepository.findByName("email");
     assertTrue(resetTemplate.isPresent());
     assertNotEquals(modifiedContent, resetTemplate.get().getContent());
   }

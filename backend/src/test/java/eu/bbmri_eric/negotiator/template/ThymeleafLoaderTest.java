@@ -31,9 +31,9 @@ class ThymeleafLoaderTest {
 
     var templateNames = loadedTemplates.stream().map(Template::getName).toList();
 
-    assertTrue(templateNames.contains("email_body"));
+    assertTrue(templateNames.contains("email"));
     assertTrue(templateNames.contains("email_footer"));
-    assertTrue(templateNames.contains("email_logo"));
+    assertTrue(templateNames.contains("logo"));
     assertTrue(templateNames.contains("pdf_negotiation_summary"));
 
     for (Template template : loadedTemplates) {
