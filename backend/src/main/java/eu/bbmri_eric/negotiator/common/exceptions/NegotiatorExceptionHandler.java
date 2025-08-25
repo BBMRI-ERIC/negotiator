@@ -336,7 +336,7 @@ public class NegotiatorExceptionHandler {
     return problemDetail;
   }
 
-  @ExceptionHandler(RuntimeException.class)
+  @ExceptionHandler(PdfGenerationException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ApiResponse(
       responseCode = "500",
@@ -356,7 +356,7 @@ public class NegotiatorExceptionHandler {
                                     "instance": "/api/your-endpoint"
                                   }
                                   """)))
-  public final ProblemDetail handleRuntimeException(RuntimeException ex) {
+  public final ProblemDetail handleRuntimeException(PdfGenerationException ex) {
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     problemDetail.setType(
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
