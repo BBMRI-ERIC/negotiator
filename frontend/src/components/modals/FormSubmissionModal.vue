@@ -485,9 +485,9 @@ async function addHardcodedSectionFields() {
   var costEstimationElements = []
   var allElements = await formsStore.retrieveAllElements()
 
-  var allElementsNameDiscriptionPair = {}
+  var allElementsNameDescriptionPair = {}
   allElements.forEach((element) => {
-    allElementsNameDiscriptionPair[element.name] = element.description
+    allElementsNameDescriptionPair[element.name] = element.description
   })
 
   // take object from information_submission table and display it in the form for canServ purpose
@@ -499,7 +499,7 @@ async function addHardcodedSectionFields() {
           name: key || '',
           label: key || '',
           value: submittedForm.value.payload['cost-estimation'][key] || '',
-          description: allElementsNameDiscriptionPair[key] || '',
+          description: allElementsNameDescriptionPair[key] || '',
           type: 'INFORMATION-HARDCODED',
           required: false,
         })
