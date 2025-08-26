@@ -23,7 +23,7 @@
               to="/admin"
             >
               <i class="bi bi-clipboard-check" />
-              Review requests
+              {{ $t('navbar.admin') }}
             </router-link>
           </li>
           <li v-if="isResearcher" class="nav-item">
@@ -38,7 +38,7 @@
               to="/researcher"
             >
               <i class="bi bi-chat-left-dots" />
-              Your negotiations
+              {{ $t('navbar.researcher') }}
             </router-link>
           </li>
           <li v-if="isRepresentative" class="nav-item">
@@ -53,7 +53,7 @@
               to="/biobanker"
             >
               <i class="bi bi-bank" />
-              Your biobank
+              {{ $t('navbar.biobanker') }}
             </router-link>
           </li>
           <!-- Dropdown for multiple networks -->
@@ -115,7 +115,7 @@
               to="/FAQ"
             >
               <i class="bi bi-people" />
-              Support
+              {{ $t('navbar.FAQ') }}
             </router-link>
           </li>
           <li class="nav-item">
@@ -129,7 +129,7 @@
               rel="noopener"
             >
               <i class="bi bi-book" />
-              Documentation
+              {{ $t('navbar.doc') }}
             </a>
           </li>
         </ul>
