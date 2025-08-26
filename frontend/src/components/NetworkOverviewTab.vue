@@ -30,6 +30,23 @@
             @input="$emit('update:endDate', $event.target.value)"
           />
         </div>
+     
+          <button
+            type="button"
+            class="btn btn-primary" 
+            @click="setDateRange('sinceCurrentYear')"
+          >
+          Since current year
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary" 
+            @click="setDateRange('sinceOneYearAgo')"
+          >
+          Last year
+        </button>
+      
+        
       </div>
     </div>
 
@@ -173,13 +190,41 @@ defineProps({
   },
 })
 
-defineEmits(['update:startDate', 'update:endDate', 'setNegotiationIds'])
+const emits = defineEmits(['update:startDate', 'update:endDate', 'setNegotiationIds'])
 
 function formatStatusLabel(status) {
   return status
     .toLowerCase()
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function setDateRange(range) {
+  const formatDate = (date) => date.toISOString().slice(0, 10)
+
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+
+  let startDate
+
+  switch (range) {
+    case 'sinceCurrentYear':
+      startDate = new Date(today.getFullYear(), 0, 1) 
+      break
+
+    case 'sinceOneYearAgo':
+      startDate = new Date(today)
+      startDate.setFullYear(today.getFullYear() - 1) 
+      break
+
+    default:
+      console.warn(`Unknown range: ${range}`)
+      startDate = today
+  }
+
+  emits('update:startDate', formatDate(startDate))
+  emits('update:endDate', formatDate(yesterday))
 }
 </script>
 
