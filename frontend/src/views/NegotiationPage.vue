@@ -213,7 +213,7 @@
                   }}/{{
                     $t(
                       'negotiationPage.resources',
-                      Object.entries(representedOrganizationsById).length,
+                      resources.length,
                     )
                   }}
                 </label>
