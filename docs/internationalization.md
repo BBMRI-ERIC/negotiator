@@ -43,7 +43,7 @@ With the current internationalization implementation, you can:
 
 ## Deployment Configuration
 
-For detailed information about configuring these environment variables in your deployment, please refer to the [Deployment](deployment.md) documentation, specifically the "Custom properties for the frontend Docker Container" section.
+For detailed information about configuring these environment variables in your deployment, please refer to the [Deployment](/deployment) documentation, specifically the "Custom properties for the frontend Docker Container" section.
 
 ## Limitations
 
