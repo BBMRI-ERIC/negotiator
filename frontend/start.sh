@@ -14,8 +14,8 @@ for file in assets/index*.js;
          -e "s|RESOURCES_PLACEHOLDER|${API_RESOURCES:-default_resources}|g" \
          -e "s|MATOMO_HOST_PLACEHOLDER|${MATOMO_HOST:-default_matomo_host}|g" \
          -e "s|MATOMO_SITE_ID_PLACEHOLDER|${MATOMO_SITE_ID:-default_site_id}|g" \
-         -e "s|I18N_LOCALE_PLACEHOLDER|${I18N_LOCALE:-false}|g" \
-         -e "s|I18N_FALLBACKLOCALE_PLACEHOLDER|${I18N_FALLBACKLOCALE:-false}|g" \
+         -e "s|I18N_LOCALE_PLACEHOLDER|${I18N_LOCALE:-en}|g" \
+         -e "s|I18N_FALLBACKLOCALE_PLACEHOLDER|${I18N_FALLBACKLOCALE:-en}|g" \
          -e "s|FEATURE_FLAG_FAQPAGE_PLACEHOLDER|${FEATURE_FLAG_FAQPAGE:-false}|g" \
          -e "s|FEATURE_FLAG_NETWORKS_PLACEHOLDER|${FEATURE_FLAG_NETWORKS:-false}|g" \
          -e "s|FEATURE_FLAG_VUETOUR_PLACEHOLDER|${FEATURE_FLAG_VUETOUR:-false}|g" \

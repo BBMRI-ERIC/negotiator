@@ -16,8 +16,8 @@ The frontend application supports the following internationalization environment
 
 | Environment Variable | Description | Default Value | Example |
 |---------------------|-------------|---------------|---------|
-| `I18N_LOCALE` | Primary UI locale code (ISO 639-1 language codes) | `false` | `en`, `de`, `fr`, `it` |
-| `I18N_FALLBACKLOCALE` | Fallback locale when the primary locale is not available | `false` | `en` |
+| `I18N_LOCALE` | Primary UI locale code (ISO 639-1 language codes) | `en`          | `en`, `de`, `fr`, `it` |
+| `I18N_FALLBACKLOCALE` | Fallback locale when the primary locale is not available | `en`          | `en` |
 
 ### Configuration Example
 
