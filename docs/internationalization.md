@@ -16,7 +16,7 @@ The frontend application supports the following internationalization environment
 
 | Environment Variable | Description | Default Value | Example |
 |---------------------|-------------|---------------|---------|
-| `i18n_LOCALE` | Primary UI locale code (ISO 639-1 language codes) | `false` | `en`, `de`, `fr`, `it` |
+| `I18N_LOCALE` | Primary UI locale code (ISO 639-1 language codes) | `false` | `en`, `de`, `fr`, `it` |
 | `I18N_FALLBACKLOCALE` | Fallback locale when the primary locale is not available | `false` | `en` |
 
 ### Configuration Example
@@ -28,7 +28,7 @@ services:
   negotiator-frontend:
     image: bbmrieric/negotiator-frontend:latest
     environment:
-      - i18n_LOCALE=de
+      - I18N_LOCALE=de
       - I18N_FALLBACKLOCALE=en
     # ... other configuration
 ```

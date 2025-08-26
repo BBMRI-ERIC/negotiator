@@ -108,7 +108,7 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `API_RESOURCES`              | **(Required)** OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | `default_resources`    |
 | `MATOMO_HOST`                | Matomo analytics host                                                                                                  | `default_matomo_host`  |
 | `MATOMO_SITE_ID`             | Matomo site ID                                                                                                         | `default_site_id`      |
-| `i18n_LOCALE`                | UI locale code (e.g., en, de, fr)                                                                                      | `false`                |
+| `I18N_LOCALE`                | UI locale code (e.g., en, de, fr)                                                                                      | `false`                |
 | `I18N_FALLBACKLOCALE`        | Fallback locale if no match is found                                                                                   | `false`                |
 | `FEATURE_FLAG_FAQPAGE`       | Toggle to enable the FAQ page                                                                                          | `false`                |
 | `FEATURE_FLAG_NETWORKS`      | Toggle to enable the Networks feature                                                                                  | `false`                |
