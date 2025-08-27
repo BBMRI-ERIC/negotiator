@@ -39,6 +39,7 @@
 <script setup>
 import { computed, defineProps } from 'vue'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import NegotiatorModal from './NegotiatorModal.vue'
 
 const props = defineProps({
@@ -55,9 +56,10 @@ const props = defineProps({
 const formattedReleaseBody = computed(() => {
   if (!props.release?.body) return ''
 
-  // Convert markdown to HTML
   try {
-    return marked.parse(props.release.body)
+    // Convert markdown to HTML and sanitize
+    const rawHtml = marked.parse(props.release.body)
+    return DOMPurify.sanitize(rawHtml)
   } catch {
     // Fallback to plain text with line breaks
     return props.release.body.replace(/\n/g, '<br>')
