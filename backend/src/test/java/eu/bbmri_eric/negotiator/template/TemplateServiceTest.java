@@ -259,4 +259,50 @@ public class TemplateServiceTest {
     assertThat(result).contains("<span>john@example.com</span>");
     assertThat(result).contains("Status: Active User");
   }
+
+  @Test
+  @DisplayName("Should preserve Thymeleaf attributes during sanitization (using TEST_SIMPLE)")
+  void shouldPreserveThymeleafAttributesUsingTestSimple() {
+    String templateName = "TEST_SIMPLE";
+    String templateContent = "<span th:text=\"${userName}\">Name</span>";
+    templateService.updateTemplate(templateName, templateContent);
+    String result = templateService.getByName(templateName);
+    assertThat(result).contains("th:text=\"${userName}\"");
+  }
+
+  @Test
+  @DisplayName("Should sanitize dangerous HTML content (using TEST_SIMPLE)")
+  void shouldSanitizeDangerousHtmlUsingTestSimple() {
+    String templateName = "TEST_SIMPLE";
+    String templateContent = "<div>Hello</div><script>alert('xss')</script>";
+    templateService.updateTemplate(templateName, templateContent);
+    String result = templateService.getByName(templateName);
+    assertThat(result).contains("<div>Hello</div>");
+    assertThat(result).doesNotContain("<script>");
+    assertThat(result).doesNotContain("alert('xss')");
+  }
+
+  @Test
+  @DisplayName("processTemplate should preserve Thymeleaf attributes (using TEST_SIMPLE)")
+  void processTemplateShouldPreserveThymeleafAttributesUsingTestSimple() {
+    String templateName = "TEST_SIMPLE";
+    String templateContent = "<span th:text=\"${userName}\">Name</span>";
+    templateService.updateTemplate(templateName, templateContent);
+    Map<String, Object> variables = Map.of("userName", "TestUser");
+    String result = templateService.processTemplate(variables, templateName);
+    assertThat(result).contains("TestUser");
+    assertThat(result).doesNotContain("th:text");
+  }
+
+  @Test
+  @DisplayName("processTemplate should sanitize dangerous HTML content (using TEST_SIMPLE)")
+  void processTemplateShouldSanitizeDangerousHtmlUsingTestSimple() {
+    String templateName = "TEST_SIMPLE";
+    String templateContent = "<div>Hello</div><script>alert('xss')</script>";
+    templateService.updateTemplate(templateName, templateContent);
+    String result = templateService.processTemplate(Map.of(), templateName);
+    assertThat(result).contains("<div>Hello</div>");
+    assertThat(result).doesNotContain("<script>");
+    assertThat(result).doesNotContain("alert('xss')");
+  }
 }
