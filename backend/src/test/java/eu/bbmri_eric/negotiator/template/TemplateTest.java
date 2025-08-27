@@ -22,7 +22,7 @@ class TemplateTest {
     assertEquals(1L, entity.getId());
     assertEquals("test-template", entity.getName());
     assertEquals("<html><body>Test template</body></html>", entity.getContent());
-    assertEquals(now, entity.getUpdatedAt());
+    assertTrue(java.time.Duration.between(now, entity.getUpdatedAt()).abs().getSeconds() <= 5);
   }
 
   @Test
@@ -32,20 +32,18 @@ class TemplateTest {
     assertNull(entity.getId());
     assertNull(entity.getName());
     assertNull(entity.getContent());
-    assertNull(entity.getUpdatedAt());
   }
 
   @Test
   void allArgsConstructor_CreatesValidEntity() {
     LocalDateTime now = LocalDateTime.now();
 
-    Template entity =
-        new Template(1L, "test-template", "<html><body>Test template</body></html>", now);
+    Template entity = new Template(1L, "test-template", "<html><body>Test template</body></html>");
 
     assertEquals(1L, entity.getId());
     assertEquals("test-template", entity.getName());
     assertEquals("<html><body>Test template</body></html>", entity.getContent());
-    assertEquals(now, entity.getUpdatedAt());
+    assertTrue(java.time.Duration.between(now, entity.getUpdatedAt()).abs().getSeconds() <= 5);
   }
 
   @Test
@@ -61,7 +59,7 @@ class TemplateTest {
     assertEquals(1L, entity.getId());
     assertEquals("test-template", entity.getName());
     assertEquals("<html><body>Test template</body></html>", entity.getContent());
-    assertEquals(now, entity.getUpdatedAt());
+    assertTrue(java.time.Duration.between(now, entity.getUpdatedAt()).abs().getSeconds() <= 5);
   }
 
   @Test
@@ -150,7 +148,6 @@ class TemplateTest {
     assertTrue(toString.contains("id=1"));
     assertTrue(toString.contains("name='test-template'"));
     assertTrue(toString.contains("updatedAt=" + now));
-    // HTML content should not be included in toString for security/readability
     assertFalse(toString.contains("<html>"));
   }
 }

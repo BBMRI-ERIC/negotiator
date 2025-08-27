@@ -39,17 +39,25 @@ class DatabaseTemplateLoader implements CommandLineRunner {
 
     for (Resource templateResource : templateResources) {
       var templateName = extractTemplateName(templateResource.getFilename());
-
-      if (templateRepository.existsByName(templateName)) {
-        log.debug(
-            "Template '%s' already exists in database, skipping import".formatted(templateName));
-        skippedCount++;
-        continue;
-      }
-
+      var existingTemplateOpt = templateRepository.findByName(templateName);
       try {
         var htmlContent = loadTemplateContent(templateResource);
-
+        if (existingTemplateOpt.isPresent()) {
+          var existingTemplate = existingTemplateOpt.get();
+          if (existingTemplate.isCustomized()) {
+            log.debug("Template '%s' is customized, skipping update".formatted(templateName));
+            skippedCount++;
+            continue;
+          } else {
+            existingTemplate.setContent(htmlContent);
+            templateRepository.save(existingTemplate);
+            log.info(
+                "Template '%s' updated in database from '%s'"
+                    .formatted(templateName, templateResource.getFilename()));
+            importedCount++;
+            continue;
+          }
+        }
         var template = Template.builder().name(templateName).content(htmlContent).build();
         templateRepository.save(template);
         log.info(

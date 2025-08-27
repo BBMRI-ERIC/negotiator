@@ -42,6 +42,7 @@ public class TemplateServiceImpl implements TemplateService {
     if (existingTemplate.isPresent()) {
       var templateEntity = existingTemplate.get();
       templateEntity.setContent(sanitizeHtml(template));
+      templateEntity.setCustomized(true);
       templateRepository.save(templateEntity);
       log.info("Updated template '%s'".formatted(templateName));
       return templateEntity.getContent();
@@ -61,6 +62,7 @@ public class TemplateServiceImpl implements TemplateService {
       var originalContent = loadOriginalTemplateContent(templateName);
       var templateEntity = existingTemplate.get();
       templateEntity.setContent(originalContent);
+      templateEntity.setCustomized(false);
       templateRepository.save(templateEntity);
       log.info("Reset template '%s' to original content".formatted(templateName));
       return templateEntity.getContent();

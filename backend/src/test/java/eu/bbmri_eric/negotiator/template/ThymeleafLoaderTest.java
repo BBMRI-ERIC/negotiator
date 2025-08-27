@@ -86,6 +86,43 @@ class ThymeleafLoaderTest {
     assertTrue(templateRepository.count() >= 4);
   }
 
+  @Test
+  void run_whenTemplateIsCustomized_doesNotOverrideContent() throws Exception {
+    var customizedTemplate =
+        Template.builder()
+            .name("EMAIL")
+            .content("<html><body>Customized content</body></html>")
+            .isCustomized(true)
+            .build();
+    templateRepository.save(customizedTemplate);
+
+    databaseTemplateLoader.run();
+
+    var templateOpt = templateRepository.findByName("EMAIL");
+    assertTrue(templateOpt.isPresent());
+    assertEquals("<html><body>Customized content</body></html>", templateOpt.get().getContent());
+  }
+
+  @Test
+  void run_whenTemplateIsNotCustomized_overridesContent() throws Exception {
+    var defaultTemplate =
+        Template.builder()
+            .name("EMAIL")
+            .content("<html><body>Old default content</body></html>")
+            .isCustomized(false)
+            .build();
+    templateRepository.save(defaultTemplate);
+
+    databaseTemplateLoader.run();
+
+    var templateOpt = templateRepository.findByName("EMAIL");
+    assertTrue(templateOpt.isPresent());
+    assertFalse(
+        "<html><body>Old default content</body></html>".equals(templateOpt.get().getContent()));
+    assertNotNull(templateOpt.get().getContent());
+    assertFalse(templateOpt.get().getContent().trim().isEmpty());
+  }
+
   private void assertNotNull(Object object) {
     org.junit.jupiter.api.Assertions.assertNotNull(object);
   }

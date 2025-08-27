@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -44,16 +45,33 @@ class Template {
   @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
 
+  @Builder.Default
+  @NotNull(message = "Must have a value")
+  private boolean isCustomized = false;
+
   @UpdateTimestamp
   @Column(name = "updated_at", nullable = false)
-  private LocalDateTime updatedAt;
+  @Builder.Default
+  private LocalDateTime updatedAt = LocalDateTime.now();
 
-  @Override
+  public Template(Long id, String name, String content) {
+    this.id = id;
+    this.name = name;
+    this.content = content;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+    public void setContent(String content) {
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Template template = (Template) o;
-    return Objects.equals(id, template.id)
+    return isCustomized == template.isCustomized
+        && Objects.equals(id, template.id)
         && Objects.equals(name, template.name)
         && Objects.equals(content, template.content)
         && Objects.equals(updatedAt, template.updatedAt);
@@ -61,7 +79,7 @@ class Template {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, content, updatedAt);
+    return Objects.hash(id, name, content, isCustomized, updatedAt);
   }
 
   @Override

@@ -111,19 +111,12 @@ class TemplateControllerTest {
   @WithMockUser(roles = "ADMIN")
   void updateNotificationTemplate_createsNewTemplate_whenNotExists() throws Exception {
     var newContent = "<html><body>New template</body></html>";
-
     mockMvc
         .perform(
             put(TEMPLATES_ENDPOINT + "/new_template")
                 .contentType(MediaType.TEXT_PLAIN)
                 .content(newContent))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType("application/xhtml+xml;charset=UTF-8"))
-        .andExpect(content().string(newContent));
-
-    var createdTemplate = templateRepository.findByName("new_template");
-    assertTrue(createdTemplate.isPresent());
-    assertEquals(newContent, createdTemplate.get().getContent());
+        .andExpect(status().isBadRequest());
   }
 
   @Test

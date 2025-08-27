@@ -5,6 +5,7 @@ CREATE TABLE template (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
     content TEXT NOT NULL,
+    is_customized BOOLEAN NOT NULL DEFAULT false,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
