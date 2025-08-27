@@ -37,7 +37,6 @@ public class TemplateServiceImpl implements TemplateService {
   @Transactional
   public String updateTemplate(String templateName, String template) {
     var existingTemplate = templateRepository.findByName(templateName);
-
     if (existingTemplate.isPresent()) {
       var templateEntity = existingTemplate.get();
       templateEntity.setContent(template);

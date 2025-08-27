@@ -36,8 +36,6 @@ public class UnreachableResourcesHandler
         negotiationRepository
             .findById(event.getNegotiationId())
             .orElseThrow(() -> new EntityNotFoundException(event.getNegotiationId()));
-
-    // Group resources by organization contact email to avoid spam
     var resourcesByContactEmail =
         negotiation.getResources().stream()
             .filter(resource -> resource.getRepresentatives().isEmpty())
@@ -45,8 +43,6 @@ public class UnreachableResourcesHandler
                 resource ->
                     resource.getContactEmail() != null && !resource.getContactEmail().isEmpty())
             .collect(Collectors.groupingBy(Resource::getContactEmail));
-
-    // Send one email per organization containing all their unrepresented resources
     resourcesByContactEmail.forEach(
         (contactEmail, resources) -> {
           String message = buildGroupedNotificationMessage(negotiation, resources);

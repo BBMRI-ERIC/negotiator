@@ -75,7 +75,7 @@ public class EmailServiceImpl implements EmailService {
   }
 
   private void validateEmailParameters(
-      @Email String emailAddress, String subject, String mailBody) {
+     String emailAddress, String subject, String mailBody) {
     EmailValidator emailValidator = EmailValidator.getInstance();
     if (Objects.isNull(emailAddress)
         || emailAddress.trim().isEmpty()
