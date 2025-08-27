@@ -2,7 +2,6 @@ package eu.bbmri_eric.negotiator.notification.internal;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
-import eu.bbmri_eric.negotiator.governance.resource.UnreachableResourcesEvent;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /** Service for handling resource state management and representative notifications. */
@@ -29,15 +27,11 @@ class ResourceNotificationService {
 
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
-  private final ApplicationEventPublisher applicationEventPublisher;
 
   ResourceNotificationService(
-      NotificationService notificationService,
-      NegotiationRepository negotiationRepository,
-      ApplicationEventPublisher applicationEventPublisher) {
+      NotificationService notificationService, NegotiationRepository negotiationRepository) {
     this.notificationService = notificationService;
     this.negotiationRepository = negotiationRepository;
-    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   /**
@@ -50,7 +44,6 @@ class ResourceNotificationService {
 
   private void handleResourceStateManagement(String negotiationId) {
     Negotiation negotiation = findNegotiation(negotiationId);
-    int unreachableResourcesCounter = 0;
     if (!negotiation.getCurrentState().equals(NegotiationState.IN_PROGRESS)) {
       return;
     }
@@ -62,16 +55,11 @@ class ResourceNotificationService {
       if (resource.getRepresentatives().isEmpty()) {
         negotiation.setStateForResource(
             resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_UNREACHABLE);
-        unreachableResourcesCounter++;
       } else {
         negotiation.setStateForResource(
             resource.getSourceId(), NegotiationResourceState.REPRESENTATIVE_CONTACTED);
         contactedRepresentatives.addAll(resource.getRepresentatives());
       }
-    }
-    if (unreachableResourcesCounter > 0) {
-      applicationEventPublisher.publishEvent(
-          new UnreachableResourcesEvent(this, unreachableResourcesCounter, negotiationId));
     }
     notifyRepresentatives(negotiationId, contactedRepresentatives);
   }

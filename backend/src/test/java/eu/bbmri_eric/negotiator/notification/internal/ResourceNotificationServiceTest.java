@@ -36,9 +36,7 @@ class ResourceNotificationServiceTest {
 
   @BeforeEach
   void setUp() {
-    service =
-        new ResourceNotificationService(
-            notificationService, negotiationRepository, applicationEventPublisher);
+    service = new ResourceNotificationService(notificationService, negotiationRepository);
   }
 
   @Test
