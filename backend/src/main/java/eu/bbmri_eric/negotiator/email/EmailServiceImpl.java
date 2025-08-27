@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.email;
 import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.validation.constraints.Email;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
@@ -74,8 +73,7 @@ public class EmailServiceImpl implements EmailService {
     recordEmailNotification(recipientAddress, content);
   }
 
-  private void validateEmailParameters(
-     String emailAddress, String subject, String mailBody) {
+  private void validateEmailParameters(String emailAddress, String subject, String mailBody) {
     EmailValidator emailValidator = EmailValidator.getInstance();
     if (Objects.isNull(emailAddress)
         || emailAddress.trim().isEmpty()

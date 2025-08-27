@@ -44,10 +44,7 @@ public class TemplateServiceImpl implements TemplateService {
       log.info("Updated template '%s'".formatted(templateName));
       return templateEntity.getContent();
     } else {
-      var newTemplate = Template.builder().name(templateName).content(template).build();
-      templateRepository.save(newTemplate);
-      log.info("Created new template '%s'".formatted(templateName));
-      return newTemplate.getContent();
+      throw new IllegalArgumentException("Template not found: " + templateName);
     }
   }
 
@@ -58,21 +55,15 @@ public class TemplateServiceImpl implements TemplateService {
     if (existingTemplate.isEmpty()) {
       throw new IllegalArgumentException("%s template not found".formatted(templateName));
     }
-
     try {
       var originalContent = loadOriginalTemplateContent(templateName);
       var templateEntity = existingTemplate.get();
       templateEntity.setContent(originalContent);
       templateRepository.save(templateEntity);
-
       log.info("Reset template '%s' to original content".formatted(templateName));
       return templateEntity.getContent();
-
     } catch (IOException e) {
-      log.error(
-          "Failed to load original content for template '%s': %s"
-              .formatted(templateName, e.getMessage()));
-      return existingTemplate.get().getContent();
+      throw new NullPointerException("Original template not found: " + templateName);
     }
   }
 
@@ -81,26 +72,19 @@ public class TemplateServiceImpl implements TemplateService {
     if (templateName == null || templateName.isBlank()) {
       throw new IllegalArgumentException("Template name cannot be null or blank");
     }
-
-    var template = templateRepository.findByName(templateName);
-    if (template.isEmpty()) {
-      log.error("Template '%s' not found".formatted(templateName));
-      throw new IllegalArgumentException("Template '%s' not found".formatted(templateName));
-    }
-
+    templateRepository
+        .findByName(templateName)
+        .orElseThrow(() -> new IllegalArgumentException("Template not found: " + templateName));
     try {
       var context = new Context();
       if (variables != null && !variables.isEmpty()) {
         context.setVariables(variables);
       }
-
       var processedTemplate = templateEngine.process(templateName, context);
       log.debug(
           "Successfully processed template '%s' with %d variables"
               .formatted(templateName, variables != null ? variables.size() : 0));
-
       return processedTemplate;
-
     } catch (Exception e) {
       log.error("Failed to process template '%s': %s".formatted(templateName, e.getMessage()), e);
       throw new RuntimeException("Failed to process template '%s'".formatted(templateName), e);
@@ -110,11 +94,9 @@ public class TemplateServiceImpl implements TemplateService {
   private String loadOriginalTemplateContent(String templateName) throws IOException {
     var resourcePath = "templates/" + templateName.toUpperCase() + ".html";
     var resource = new ClassPathResource(resourcePath);
-
     if (!resource.exists()) {
       throw new IOException("Original template file not found: " + resourcePath);
     }
-
     return resource.getContentAsString(StandardCharsets.UTF_8);
   }
 }
