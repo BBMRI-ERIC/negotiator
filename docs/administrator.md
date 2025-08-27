@@ -17,11 +17,11 @@ To customize the UI, you need administrator privileges. Follow these steps:
 
 2. **Access the UI Configuration**  
    Choose one of the following methods:
-   - **Via Dropdown Menu:**
-      * After logging in, locate the dropdown menu.
-      * Select the **Admin UI Configuration** option.
-   - **Via Direct URL:**
-      * Navigate to the following URL in your browser: _/ui-configuration_.
+    - **Via Dropdown Menu:**
+        * After logging in, locate the dropdown menu.
+        * Select the **Admin UI Configuration** option.
+    - **Via Direct URL:**
+        * Navigate to the following URL in your browser: _/ui-configuration_.
 
 ---
 
@@ -31,11 +31,11 @@ The image URL input field can accept two types of values:
 
 1. **Local File Name:**  
    Enter the name of a file available locally within the system.
-   * Example: _bbmri_
+    * Example: _bbmri_
 
 2. **External Image URL:**  
    Provide the complete URL of an image hosted on an external server.
-   * Example: `https://example.com/image.png`
+    * Example: `https://example.com/image.png`
 
 ## Additional Information Requirements Guide
 
@@ -83,25 +83,49 @@ There, you can add a new webhook by providing the following information:
 > Please ensure that your webhook URL is not publicly accessible or use a firewall to restrict access to it. If you
 > would like us to implement authentication for webhooks, please let us know.
 
-
 ## Templates
-The Negotiator provides a set of templates that can be customized to suit your needs. There are three types of templates
-Email, PDF and Common templates.
-Admin users can update or reset these templates via the UI in the Admin Settings -> Templates.
-The templates are written in HTML with [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing you to include dynamic
-content using expressions, conditionals, and loops.
 
-### Email Templates
-The available variables are listed in the [Notification](notifications.md) documentation.
+The Negotiator provides a set of customizable templates used for generating PDFs, emails, and more. Admin users can
+update or reset these templates via the UI in Admin Settings → Templates.
 
-### PDF Templates
-The available variables are:
-- `negotiationPdfData.author.name`: The name of the author.
-- `negotiationPdfData.author.email`: The email of the author.
-- `negotiationPdfData.id`: The ID of the negotiation.
-- `negotiationPdfData.createdAt`: The date the negotiation was created.
-- `negotiationPdfData.status`: The status of the negotiation.
-- `negotiationPdfData.payload`: The payload of the negotiation. This is in JSON format and is in the default templated 
-  looped over to generate the individual sections of the PDF.
-- `now`: The current date and time.
-- `logoUrl`: The URL of the logo.
+Templates are written in HTML using [Thymeleaf](https://www.thymeleaf.org/) syntax, allowing dynamic content through
+expressions, conditionals, and loops.
+
+> [!NOTE]
+> If you customize a template, it will not be automatically updated when a new version of Negotiator is released. This
+> ensures your customizations are preserved during upgrades.
+> To restore a template to the latest official version, use the Reset option.
+
+> [!WARNING]
+> Resetting a template will remove all your customizations for that template.
+
+Below is a table of all available variables for the email template:
+
+| Variable Name           | Description                                                   |
+|-------------------------|---------------------------------------------------------------|
+| recipient               | The name of the recipient of the email                        |
+| message                 | The main content or body of the message                       |
+| negotiation             | The ID of the negotiation (if available)                      |
+| titleForNegotiation     | The title of the negotiation (if available)                   |
+| date                    | The formatted creation date of the negotiation (if available) |
+| frontendUrl             | The base URL of the frontend application                      |
+| emailYoursSincerelyText | The closing "Yours sincerely" text used in the email footer   |
+| emailHelpdeskHref       | The URL (href) for the helpdesk or support                    |
+| logoUrl                 | The URL to the logo displayed in the email                    |
+
+Below is a table of all available variables for the PDF template:
+
+| Variable Name           | Description                                                        |
+|-------------------------|--------------------------------------------------------------------|
+| now                     | The current timestamp                                              |
+| logoUrl                 | The URL to the logo displayed in the document                      |
+| authorName              | The name of the user who created the negotiation                   |
+| authorEmail             | The email address of the negotiation's creator                     |
+| negotiationId           | The unique identifier of the negotiation                           |
+| negotiationTitle        | The title or subject of the negotiation                            |
+| negotiationCreatedAt    | The creation date of the negotiation                               |
+| negotiationStatus       | The current status or state of the negotiation                     |
+| negotiationPayload      | The processed payload content related to the negotiation           |
+| resourcesByOrganization | A mapping or grouping of resources categorized by organization     |
+| totalResourceCount      | The total number of resources involved in the negotiation          |
+| totalOrganizationCount  | The total number of organizations participating in the negotiation |
