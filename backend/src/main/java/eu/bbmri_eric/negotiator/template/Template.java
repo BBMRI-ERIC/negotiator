@@ -61,12 +61,12 @@ class Template {
     this.updatedAt = LocalDateTime.now();
   }
 
-    public void setContent(String content) {
-        this.content = content;
-        this.updatedAt = LocalDateTime.now();
-    }
+  public void setContent(String content) {
+    this.content = content;
+    this.updatedAt = LocalDateTime.now();
+  }
 
-    @Override
+  @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Template template = (Template) o;

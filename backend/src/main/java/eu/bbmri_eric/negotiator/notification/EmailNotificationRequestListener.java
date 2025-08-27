@@ -99,9 +99,9 @@ class EmailNotificationRequestListener {
       LocalDateTime negotiationCreationDate) {
 
     Map<String, Object> variables = new HashMap<>();
-      // DO NOT remove any variables without a good reason.
-      // Any deployments without updated templates would miss them.
-      // If you add or modify them mention it in the documentation.
+    // DO NOT remove any variables without a good reason.
+    // Any deployments without updated templates would miss them.
+    // If you add or modify them mention it in the documentation.
     variables.put("recipient", recipientName);
     variables.put("message", message);
 
