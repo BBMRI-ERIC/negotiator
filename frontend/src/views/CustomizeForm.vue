@@ -122,7 +122,7 @@
                   :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
                   type="checkbox"
                 />
-                <label class="form-check-label" for="inlineCheckbox1">{{ value }}</label>
+                <label class="form-check-label" for="inlineCheckbox1">{{ criteria.labe }}</label>
               </div>
 
               <div
@@ -270,9 +270,6 @@
                 </div>
 
                 <div v-else-if="criteria.type === 'FILE'">
-                  <label v-if="isEditForm" class="form-label text-primary-text">
-                    Uploaded file: {{ negotiationCriteria[section.name][criteria.name].name }}
-                  </label>
                   <input
                     accept=".pdf"
                     class="form-control text-secondary-text"
@@ -436,7 +433,7 @@ onMounted(async () => {
 
     nonEditedAccessForm.value.sections.forEach((section) => {
       addFormSection(section.name, section.label, section.description, section.elements)
-      activeElements.value[activeElements.value.length - 1].selectedElements = section.elements
+      activeElements.value[activeElements.value.length - 1].selectedElements = [...section.elements]
     })
 
     // Put elements that are selected by user first in each section
@@ -536,13 +533,31 @@ async function addAccessForm() {
   goToAdminSettingsPage()
 }
 
+function compareSections(json1, json2) {
+  const sections1 = json1.sections || [];
+  const sections2 = json2.sections || [];
+
+  const getSectionIds = (sections) => sections.map(s => s.name);
+
+  const ids1 = new Set(getSectionIds(sections1));
+  const ids2 = new Set(getSectionIds(sections2));
+
+  const added = sections2.filter(s => !ids1.has(s.name));
+  const removed = sections1.filter(s => !ids2.has(s.name));
+
+  return {
+    added,
+    removed
+  };
+}
+
 async function editAccessForm() {
   const postAccessForm = JSON.parse(JSON.stringify(accessForm.value))
   let accessFormId = accessForm.value.id
 
-  // unlink all sections from accessForm
 
-  nonEditedAccessForm.value.sections.forEach((section) => {
+  // unlink removed sections from accessForm
+  compareSections(nonEditedAccessForm.value, accessForm.value).removed.forEach((section) => {
     try {
       negotiationFormStore.unlinkSectionFromAccessForm(accessFormId, section.id)
     } catch (e) {
@@ -557,19 +572,22 @@ async function editAccessForm() {
       sectionIndex,
     )
 
-    postAccessForm.sections[sectionIndex].elements =
-      activeElements.value[sectionIndex].selectedElements
+    postAccessForm.sections[sectionIndex].elements = activeElements.value[sectionIndex].selectedElements
+
     const sections = {
       name: section.name,
       label: section.label,
       description: section.description,
     }
 
+    if (compareSections(nonEditedAccessForm.value, accessForm.value).added.some(e => e.name === section.name)) {
+
     negotiationFormStore.addAccessFormSections(sections).then((section) => {
       const currentSection = {
         sectionId: section.id,
         sectionOrder: sectionIndex,
       }
+
       negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
         postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
           let currentElement = {
@@ -589,6 +607,44 @@ async function editAccessForm() {
         })
       })
     })
+    } else {
+      // unlink removed elements from section
+      const originalSection = nonEditedAccessForm.value.sections.find(s => s.name === section.name)
+      if (originalSection) {
+        const originalElementIds = new Set(originalSection.elements.map(el => el.id))
+        const currentElementIds = new Set(activeElements.value[sectionIndex].selectedElements.map(el => el.id))
+
+        originalSection.elements.forEach((element) => {
+          if (!currentElementIds.has(element.id)) {
+            try {
+              negotiationFormStore.deleteLinkElementFromSectionInAccessForm(accessFormId, section.id, element.id)
+            } catch (e) {
+              console.error('Error unlinking element from section in access form', e)
+            }
+          }
+        })
+      }
+
+      // link new elements to section
+      postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
+        if (!originalSection || !originalSection.elements.some(e => e.id === element.id)) {
+          let currentElement = {
+            elementId: element.id,
+            elementOrder: elementIndex,
+            required: false,
+          }
+          try {
+            negotiationFormStore.linkElementsToSectionToAccessForm(
+              accessFormId,
+              section.id,
+              currentElement,
+            )
+          } catch (e) {
+            console.error('error linking elements to section', e)
+          }
+        }
+      })
+    }
   })
 
   goToAdminSettingsPage()

@@ -294,6 +294,22 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
       })
   }
 
+  async function deleteLinkElementFromSectionInAccessForm(formId, sectionId, elementId) {
+    return await axios
+      .delete(
+        `${apiPaths.BASE_API_PATH}/access-forms/${formId}/sections/${sectionId}/elements/${elementId}`,
+        {
+          headers: getBearerHeaders(),
+        },
+      )
+      .then((response) => {
+        return response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error deleting elemet link from specific section in an access form')
+      })
+  }
+
   async function retrieveAccessForms() {
     return await axios
       .get(`${apiPaths.BASE_API_PATH}/access-forms`, {
@@ -338,6 +354,7 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
     linkSectionToAccessForm,
     unlinkSectionFromAccessForm,
     linkElementsToSectionToAccessForm,
+    deleteLinkElementFromSectionInAccessForm,
     retrieveAccessForms,
     retrieveAccessFormById,
   }
