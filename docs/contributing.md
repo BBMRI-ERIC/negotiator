@@ -88,7 +88,7 @@ To create a release, simply go to Releases → Draft a new release
 
 - **Added:** for new features/additions
 - **Fixed:** for bug fixes
-- **Internal:**, for chores and other changes that do not impact the functionality.
+- **Internal:** for chores and other changes that do not impact the functionality.
 
 ---
   Below is an example of a release description, please follow this structure!
