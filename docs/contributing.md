@@ -86,16 +86,16 @@ To create a release, simply go to Releases → Draft a new release
 → Choose new tag → Generate release notes → Edit to follow structure above → Publish release
 
 
-- **Added** for new features/additions
-- **Fixed** for bug fixes
-- **Internal**, for chores and other changes that do not impact the functionality.
+- **Added:** for new features/additions
+- **Fixed:** for bug fixes
+- **Internal:**, for chores and other changes that do not impact the functionality.
 
 ---
   Below is an example of a release description, please follow this structure!
 ### What's New in v1.4.0
-- **Added** export to CSV
-- **Fixed** issue with date parsing
-- **Internal** refactor of logging module
+- **Added:** export to CSV
+- **Fixed:** issue with date parsing
+- **Internal:** refactor of logging module
 
 Thanks to Alice and Bob for contributions!
 
