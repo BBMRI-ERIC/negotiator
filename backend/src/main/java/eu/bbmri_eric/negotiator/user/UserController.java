@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
+import eu.bbmri_eric.negotiator.common.AuthorizationService;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
@@ -33,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/v3")
@@ -45,17 +45,10 @@ public class UserController {
 
   @Autowired PersonService personService;
 
+  @Autowired AuthorizationService authorizationService;
+
   @Autowired NetworkService networkService;
   @Autowired NetworkModelAssembler networkModelAssembler;
-
-  private static void checkAuthorization(Long id) {
-    if (!AuthenticatedUserContext.getRoles().contains("ROLE_ADMIN")
-        && !AuthenticatedUserContext.getRoles().contains("ROLE_AUTHORIZATION_MANAGER")) {
-      if (!Objects.equals(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId(), id)) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-      }
-    }
-  }
 
   @GetMapping(value = "/users")
   @ResponseStatus(HttpStatus.OK)
@@ -93,7 +86,7 @@ public class UserController {
   @Operation(summary = "List all resources represented by a user")
   @ResponseStatus(HttpStatus.OK)
   public CollectionModel<ResourceResponseModel> findRepresentedResources(@PathVariable Long id) {
-    checkAuthorization(id);
+    authorizationService.checkAuthorization(id);
     return CollectionModel.of(personService.getResourcesRepresentedByUserId(id));
   }
 
@@ -160,7 +153,7 @@ public class UserController {
       @PathVariable Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    checkAuthorization(id);
+    authorizationService.checkAuthorization(id);
     return networkModelAssembler.toPagedModel(
         (Page<NetworkDTO>) networkService.findAllForManager(id, PageRequest.of(page, size)), id);
   }
