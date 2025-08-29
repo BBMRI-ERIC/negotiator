@@ -6,7 +6,6 @@ export function useOrganizations() {
   const adminStore = useAdminStore()
   const organizationsStore = useOrganizationsStore()
 
-  // Reactive state
   const organizations = ref([])
   const organizationResources = ref({})
   const loadingResources = ref(new Set())
@@ -18,7 +17,6 @@ export function useOrganizations() {
   const pageLinks = ref({})
   const pageSize = ref(20)
 
-  // Filters state - default to showing only active organizations
   const filters = ref({
     statusFilter: 'active',
     name: '',
@@ -26,10 +24,8 @@ export function useOrganizations() {
     resourceName: ''
   })
 
-  // Debounce timeout reference
   let searchTimeout = null
 
-  // Computed properties
   const allExpanded = computed(() => {
     return organizations.value.length > 0 && expandedOrganizations.value.size === organizations.value.length
   })
@@ -39,25 +35,21 @@ export function useOrganizations() {
       return []
     }
 
-    // Separate active and withdrawn organizations
     const activeOrgs = organizations.value.filter(org => !org.withdrawn)
     const withdrawnOrgs = organizations.value.filter(org => org.withdrawn)
 
-    // Sort active organizations by ID (ascending)
     const sortedActive = activeOrgs.sort((a, b) => {
       const aId = String(a.id || a.externalId || '').toLowerCase()
       const bId = String(b.id || b.externalId || '').toLowerCase()
       return aId.localeCompare(bId, undefined, { numeric: true })
     })
 
-    // Sort withdrawn organizations by ID (ascending)
     const sortedWithdrawn = withdrawnOrgs.sort((a, b) => {
       const aId = String(a.id || a.externalId || '').toLowerCase()
       const bId = String(b.id || b.externalId || '').toLowerCase()
       return aId.localeCompare(bId, undefined, { numeric: true })
     })
 
-    // Return active first, then withdrawn
     return [...sortedActive, ...sortedWithdrawn]
   })
 
@@ -65,25 +57,21 @@ export function useOrganizations() {
     const resources = organizationResources.value[organizationId] || []
     if (resources.length === 0) return []
 
-    // Separate active and withdrawn resources
     const activeResources = resources.filter(resource => !resource.withdrawn && resource.status !== 'withdrawn')
     const withdrawnResources = resources.filter(resource => resource.withdrawn || resource.status === 'withdrawn')
 
-    // Sort active resources by ID (ascending)
     const sortedActive = activeResources.sort((a, b) => {
       const aId = String(a.id || a.sourceId || '').toLowerCase()
       const bId = String(b.id || b.sourceId || '').toLowerCase()
       return aId.localeCompare(bId, undefined, { numeric: true })
     })
 
-    // Sort withdrawn resources by ID (ascending)
     const sortedWithdrawn = withdrawnResources.sort((a, b) => {
       const aId = String(a.id || a.sourceId || '').toLowerCase()
       const bId = String(b.id || b.sourceId || '').toLowerCase()
       return aId.localeCompare(bId, undefined, { numeric: true })
     })
 
-    // Return active first, then withdrawn
     return [...sortedActive, ...sortedWithdrawn]
   }
 
@@ -107,7 +95,6 @@ export function useOrganizations() {
     return 'No organizations found.'
   }
 
-  // Methods for hierarchical functionality
   const toggleOrganization = async (organizationId) => {
     if (expandedOrganizations.value.has(organizationId)) {
       expandedOrganizations.value.delete(organizationId)
@@ -124,7 +111,6 @@ export function useOrganizations() {
       organizations.value.forEach(org => {
         expandedOrganizations.value.add(org.id)
       })
-      // Load resources for all organizations
       await Promise.all(
         organizations.value.map(org => loadResourcesForOrganization(org.id))
       )
@@ -133,16 +119,13 @@ export function useOrganizations() {
 
   const loadResourcesForOrganization = async (organizationId) => {
     if (organizationResources.value[organizationId]) {
-      return // Already loaded
+      return
     }
 
     loadingResources.value.add(organizationId)
 
     try {
-      // Use the real API to fetch organization with resources expanded
       const organizationWithResources = await organizationsStore.getOrganizationById(organizationId, 'resources')
-
-      // Extract resources from the response
       const resources = organizationWithResources.resources || organizationWithResources._embedded?.resources || []
       organizationResources.value[organizationId] = resources
     } catch (error) {
@@ -156,26 +139,21 @@ export function useOrganizations() {
   const loadOrganizations = async () => {
     loading.value = true
     try {
-      // Build filters object for the API
       const apiFilters = {}
 
-      // Add name filter if provided
       if (filters.value.name && filters.value.name.trim()) {
         apiFilters.name = filters.value.name.trim()
       }
 
-      // Add externalId filter if provided
       if (filters.value.externalId && filters.value.externalId.trim()) {
         apiFilters.externalId = filters.value.externalId.trim()
       }
 
-      // Add withdrawn filter based on status selection
       if (filters.value.statusFilter === 'active') {
         apiFilters.withdrawn = false
       } else if (filters.value.statusFilter === 'withdrawn') {
         apiFilters.withdrawn = true
       }
-      // For 'all' status, don't add withdrawn filter
 
       const response = await adminStore.retrieveOrganizationsPaginated(
         pageNumber.value,
@@ -195,7 +173,6 @@ export function useOrganizations() {
     }
   }
 
-  // Pagination methods
   const previousPage = () => {
     if (pageNumber.value > 0) {
       pageNumber.value -= 1
@@ -222,7 +199,6 @@ export function useOrganizations() {
     loadOrganizations()
   }
 
-  // Filter methods
   const updateFilters = (newFilters) => {
     Object.assign(filters.value, newFilters)
   }
@@ -244,19 +220,16 @@ export function useOrganizations() {
   }
 
   const debouncedSearch = () => {
-    // Clear previous timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout)
     }
 
-    // Set new timeout for 500ms delay
     searchTimeout = setTimeout(() => {
       pageNumber.value = 0
       loadOrganizations()
     }, 500)
   }
 
-  // Resource management
   const reloadResourcesForOrganization = async (organizationId) => {
     if (organizationId) {
       delete organizationResources.value[organizationId]
@@ -264,13 +237,11 @@ export function useOrganizations() {
     }
   }
 
-  // Initialize
   onMounted(() => {
     loadOrganizations()
   })
 
   return {
-    // State
     organizations: sortedOrganizations,
     organizationResources,
     loadingResources,
@@ -282,12 +253,8 @@ export function useOrganizations() {
     pageSize,
     filters,
     allExpanded,
-
-    // Computed
     getNoResultsMessage,
     sortedResourcesForOrganization,
-
-    // Methods
     toggleOrganization,
     toggleExpandAll,
     loadResourcesForOrganization,

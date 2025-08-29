@@ -8,20 +8,11 @@ export function useOrganizationOperations() {
   const handleOrganizationCreate = async (newOrganization, { loadOrganizations, closeCreateModal }) => {
     try {
       loading.value = true
-      console.log('Frontend: Creating new organization with data:', JSON.stringify(newOrganization, null, 2))
-
-      const createdOrganization = await adminStore.createOrganization(newOrganization)
-      console.log('Frontend: Organization created successfully, response:', createdOrganization)
-
+      await adminStore.createOrganization(newOrganization)
       await loadOrganizations()
       closeCreateModal()
     } catch (error) {
-      console.error('Frontend: Error creating organization:', error)
-      console.error('Frontend: Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      })
+      console.error('Error creating organization:', error)
     } finally {
       loading.value = false
     }
@@ -30,21 +21,11 @@ export function useOrganizationOperations() {
   const handleOrganizationUpdate = async ({ organizationId, updateData }, { loadOrganizations, closeEditModal }) => {
     try {
       loading.value = true
-      console.log('Frontend: Updating organization with ID:', organizationId)
-      console.log('Frontend: Update data being sent:', JSON.stringify(updateData, null, 2))
-
-      const updatedOrganization = await adminStore.updateOrganization(organizationId, updateData)
-      console.log('Frontend: Update successful, response:', updatedOrganization)
-
+      await adminStore.updateOrganization(organizationId, updateData)
       await loadOrganizations()
       closeEditModal()
     } catch (error) {
-      console.error('Frontend: Error updating organization:', error)
-      console.error('Frontend: Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      })
+      console.error('Error updating organization:', error)
     } finally {
       loading.value = false
     }
@@ -52,13 +33,10 @@ export function useOrganizationOperations() {
 
   const handleResourceCreate = async (createdResourceData, { selectedOrganizationForResource, reloadResourcesForOrganization, closeCreateResourceModal }) => {
     try {
-      console.log('Resource created successfully:', createdResourceData)
-
       const organizationId = selectedOrganizationForResource.value?.id
       if (organizationId) {
         await reloadResourcesForOrganization(organizationId)
       }
-
       closeCreateResourceModal()
     } catch (error) {
       console.error('Error handling resource creation:', error)
@@ -67,12 +45,8 @@ export function useOrganizationOperations() {
 
   const handleResourceUpdate = async (updatedResourceData, { selectedResource, organizationResources, reloadResourcesForOrganization, closeEditResourceModal }) => {
     try {
-      console.log('Resource updated successfully:', updatedResourceData)
-
-      // Find the organization ID from the updated resource or the selected resource
       let organizationId = updatedResourceData.organizationId || selectedResource.value?.organizationId
 
-      // If we still don't have the organization ID, search through all loaded resources
       if (!organizationId) {
         for (const [orgId, resources] of Object.entries(organizationResources.value)) {
           if (resources.some(resource => resource.id === updatedResourceData.id || resource.id === selectedResource.value?.id)) {

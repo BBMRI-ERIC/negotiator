@@ -202,9 +202,7 @@ const handleSubmit = async () => {
     }
 
     emit('create', createData)
-  } catch (error) {
-    console.error('Error in handleSubmit:', error)
-  } finally {
+  } catch {
     isSubmitting.value = false
   }
 }

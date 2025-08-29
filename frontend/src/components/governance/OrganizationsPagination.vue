@@ -66,7 +66,6 @@ const props = defineProps({
 const emit = defineEmits(['previousPage', 'nextPage', 'updatePageSize'])
 
 const handlePageSizeChange = (event) => {
-  console.log(event.target.value)
   emit('updatePageSize', Number(event.target.value))
 }
 
