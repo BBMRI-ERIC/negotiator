@@ -41,7 +41,7 @@
     "pinia": "^2.3.1",
     "pinia-oidc": "^1.0.10",
     "sass-loader": "^16.0.5",
-    "vue": "^3.5.17",
+    "vue": "^3.5.20",
     "vue-chartjs": "^5.3.2",
     "vue-codemirror": "^6.1.1",
     "vue-dompurify-html": "^5.3.0",
