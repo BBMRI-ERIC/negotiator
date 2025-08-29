@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,11 @@ import org.springframework.web.server.ResponseStatusException;
 @SecurityRequirement(name = "security_auth")
 public class TemplateController {
 
-  @Autowired TemplateService templateService;
+  TemplateService templateService;
+
+  TemplateController(TemplateService templateService) {
+    this.templateService = templateService;
+  }
 
   @GetMapping("/templates")
   @Operation(
@@ -26,7 +29,7 @@ public class TemplateController {
       description = "Get all notification templates")
   @ResponseStatus(HttpStatus.OK)
   public List<String> getAllNotificationTemplates() {
-    return templateService.getAllNotificationTemplates();
+    return templateService.getAll();
   }
 
   @GetMapping(value = "/templates/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
@@ -35,7 +38,7 @@ public class TemplateController {
       description = "Get a notification template by name")
   @ResponseStatus(HttpStatus.OK)
   public String getNotificationTemplate(@PathVariable String templateName) {
-    return templateService.getNotificationTemplate(templateName);
+    return templateService.getByName(templateName);
   }
 
   @PutMapping(value = "/templates/{templateName}", produces = MediaType.APPLICATION_XHTML_XML_VALUE)
@@ -45,7 +48,7 @@ public class TemplateController {
   @ResponseStatus(HttpStatus.OK)
   public String updateNotificationTemplate(
       @PathVariable String templateName, @RequestBody String template) {
-    return templateService.updateNotificationTemplate(templateName, template);
+    return templateService.updateTemplate(templateName, template);
   }
 
   @PostMapping(
@@ -60,7 +63,7 @@ public class TemplateController {
       @PathVariable String templateName, @RequestBody TemplateOperationRequest request) {
 
     if (request.getOperation() == TemplateOperationRequest.Operation.RESET) {
-      return templateService.resetNotificationTemplate(templateName);
+      return templateService.resetTemplate(templateName);
     }
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid operation");
   }

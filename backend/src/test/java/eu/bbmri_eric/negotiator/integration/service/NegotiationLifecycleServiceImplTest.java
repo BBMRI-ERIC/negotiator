@@ -463,7 +463,7 @@ public class NegotiationLifecycleServiceImplTest {
 
   @Test
   @WithMockNegotiatorUser(authorities = "ROLE_ADMIN", id = 109L)
-  void sendEventForResource_fulfilledRequirement_ok() throws IOException {
+  void sendEventForResource_fulfilledRequirement_ok() throws IOException, InterruptedException {
     NegotiationDTO negotiationDTO = saveNegotiation();
     negotiationLifecycleService.sendEvent(negotiationDTO.getId(), NegotiationEvent.APPROVE);
     AccessForm accessForm = accessFormRepository.findAll().stream().findFirst().get();
@@ -481,6 +481,7 @@ public class NegotiationLifecycleServiceImplTest {
     assertTrue(
         informationSubmissionRepository.existsByResource_SourceIdAndNegotiation_Id(
             resource.getSourceId(), negotiation.getId()));
+    Thread.sleep(1000);
     assertEquals(
         NegotiationResourceState.CHECKING_AVAILABILITY,
         resourceLifecycleService.sendEvent(
