@@ -11,11 +11,9 @@
         <!-- Modal Header -->
         <div class="modal-header border-bottom">
           <div class="d-flex align-items-center">
-            <i class="bi bi-building text-primary me-3" style="font-size: 1.5rem;"></i>
+            <i class="bi bi-building text-primary me-3" style="font-size: 1.5rem"></i>
             <div>
-              <h4 class="modal-title mb-0" :id="`${modalId}Label`">
-                Edit Organization
-              </h4>
+              <h4 class="modal-title mb-0" :id="`${modalId}Label`">Edit Organization</h4>
               <small class="text-muted">{{ formData.name || 'Organization Details' }}</small>
             </div>
           </div>
@@ -60,7 +58,9 @@
               >
                 <i class="bi bi-database me-2"></i>
                 Resources
-                <span v-if="resourcesCount > 0" class="badge bg-secondary ms-2">{{ resourcesCount }}</span>
+                <span v-if="resourcesCount > 0" class="badge bg-secondary ms-2">{{
+                  resourcesCount
+                }}</span>
               </button>
             </li>
           </ul>
@@ -68,7 +68,12 @@
           <!-- Tab Content -->
           <div class="tab-content">
             <!-- Organization Details Tab -->
-            <div class="tab-pane fade show active p-4" id="details" role="tabpanel" aria-labelledby="details-tab">
+            <div
+              class="tab-pane fade show active p-4"
+              id="details"
+              role="tabpanel"
+              aria-labelledby="details-tab"
+            >
               <form @submit.prevent="handleSubmit" class="organization-form">
                 <div class="row">
                   <div class="col-md-6">
@@ -103,13 +108,17 @@
                         required
                         placeholder="Enter external identifier"
                       />
-                      <div v-if="errors.externalId" class="invalid-feedback">{{ errors.externalId }}</div>
+                      <div v-if="errors.externalId" class="invalid-feedback">
+                        {{ errors.externalId }}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label for="organizationDescription" class="form-label fw-medium">Description</label>
+                  <label for="organizationDescription" class="form-label fw-medium"
+                    >Description</label
+                  >
                   <textarea
                     id="organizationDescription"
                     v-model="formData.description"
@@ -118,7 +127,9 @@
                     rows="4"
                     placeholder="Enter organization description..."
                   ></textarea>
-                  <div v-if="errors.description" class="invalid-feedback">{{ errors.description }}</div>
+                  <div v-if="errors.description" class="invalid-feedback">
+                    {{ errors.description }}
+                  </div>
                 </div>
 
                 <div class="row">
@@ -133,13 +144,17 @@
                         :class="{ 'is-invalid': errors.contactEmail }"
                         placeholder="contact@example.com"
                       />
-                      <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
+                      <div v-if="errors.contactEmail" class="invalid-feedback">
+                        {{ errors.contactEmail }}
+                      </div>
                     </div>
                   </div>
 
                   <div class="col-md-6">
                     <div class="mb-3">
-                      <label for="organizationUri" class="form-label fw-medium">Organization URI</label>
+                      <label for="organizationUri" class="form-label fw-medium"
+                        >Organization URI</label
+                      >
                       <input
                         id="organizationUri"
                         v-model="formData.uri"
@@ -173,7 +188,12 @@
             </div>
 
             <!-- Resources Tab -->
-            <div class="tab-pane fade" id="resources" role="tabpanel" aria-labelledby="resources-tab">
+            <div
+              class="tab-pane fade"
+              id="resources"
+              role="tabpanel"
+              aria-labelledby="resources-tab"
+            >
               <div v-if="loadingResources" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading resources...</span>
@@ -197,10 +217,10 @@
 
         <!-- Modal Footer -->
         <div class="modal-footer border-top bg-light">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">
             <i class="bi bi-x-circle me-2"></i>Cancel
           </button>
-          <button type="button" class="btn btn-primary" @click="handleSubmit" :disabled="saving">
+          <button type="button" class="btn btn-secondary" @click="handleSubmit" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status">
               <span class="visually-hidden">Loading...</span>
             </span>
@@ -269,7 +289,7 @@ watch(
       await loadOrganizationWithResources(newOrganization.id)
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const organizationWithResources = ref(null)
@@ -415,7 +435,9 @@ const loadResources = () => {
   border-radius: 0.375rem;
   padding: 0.75rem;
   font-size: 0.95rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 .form-control:focus {
