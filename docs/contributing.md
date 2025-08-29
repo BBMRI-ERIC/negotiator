@@ -82,21 +82,42 @@ with a checklist to help you with providing a high-quality contribution.
 ## Releasing
 Currently, the project does not require a regular release schedule.
 Changelog is kept in the form of GitHub releases and their description.
-Below is an example of a release description, please follow this structure!
-
-- **Added** for new features/additions
-- **Fixed** for bug fixes
-- **Internal**, for chores and other changes that do not impact the functionality.
-
-
-## What's New in v1.4.0
-- ✨ Added export to CSV (#52)
-- 🐛 Fixed issue with date parsing (#48)
-- 🧹 Internal refactor of logging module
-
-Thanks to alice and bob for contributions!
 To create a release, simply go to Releases → Draft a new release
 → Choose new tag → Generate release notes → Edit to follow structure above → Publish release
 
-**Good luck and thank you! 🙇🏻‍♂️** 
+### Release Categories
 
+- **Added:** for new features/additions
+- **Fixed:** for bug fixes
+- **Changed:** for changes in existing functionality
+- **Deprecated:** for soon-to-be removed features
+- **Removed:** for now removed features
+- **Internal:** for chores and other changes that do not impact the functionality
+
+### Breaking Changes
+
+For breaking changes that require a major version bump (following [Semantic Versioning](https://semver.org/)):
+- Use the **BREAKING:** prefix in the category description
+- Clearly explain what changed and how to migrate
+- Include migration steps or links to migration guides when applicable
+
+Example:
+- **BREAKING - Removed:** Legacy API endpoints */api/v1/* - migrate to */api/v2/*
+- **BREAKING - Changed:** Configuration format updated - see migration guide in docs
+
+---
+  Below is an example of a release description, please follow this structure!
+### What's New in v2.0.0
+- **Added:** export to CSV
+- **BREAKING - Changed:** Authentication now requires API keys instead of username/password - see [authentication guide](/auth)
+- **Fixed:** issue with date parsing
+- **BREAKING - Removed:** Legacy endpoints */api/v1/users* and */api/v1/projects* - use */api/v2/users* and */api/v2/projects* instead
+- **Internal:** refactor of logging module
+
+Thanks to Alice and Bob for contributions!
+
+⚠️ **This is a major release with breaking changes. Please review the migration steps above before upgrading.**
+
+---
+
+                        Good luck and thank you! 🙇🏻‍♂️
