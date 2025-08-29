@@ -86,15 +86,11 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     if (fontPath == null || fontPath.trim().isEmpty()) {
       throw new IllegalArgumentException("Font path is not configured");
     }
-
-    // First, try to load as a classpath resource
     URL classpathUrl = getClass().getResource(fontPath);
     if (classpathUrl != null) {
       log.debug("Font loaded from classpath: " + fontPath);
       return classpathUrl;
     }
-
-    // If not found on classpath, try as a file system path
     Path filePath = Paths.get(fontPath);
     File fontFile = filePath.toFile();
 
@@ -107,8 +103,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
         throw new IOException("Invalid font file path: " + fontPath, e);
       }
     }
-
-    // Try relative to classpath root if path doesn't start with '/'
     if (!fontPath.startsWith("/")) {
       String classpathPath = "/" + fontPath;
       classpathUrl = getClass().getResource(classpathPath);
@@ -117,7 +111,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
         return classpathUrl;
       }
     }
-
     log.error("Font not found at path: " + fontPath);
     return null;
   }
