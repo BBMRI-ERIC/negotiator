@@ -171,22 +171,15 @@
           >
             UI: <span class="pe-2">{{ gitTag }}</span
             >Application: <span>{{ backendVersion }}</span>
-            <ReleaseNotificationIcon class="ms-2" modal-id="footerReleaseModal" />
           </div>
         </div>
       </div>
     </div>
-    <!-- Release Notification Modal at App level -->
-    <ReleaseNotificationModal
-      modal-id="globalReleaseModal"
-      :release="releasesStore.latestRelease"
-      @dismiss="handleReleaseDissmiss"
-    />
   </footer>
 </template>
 
 <script setup>
-import { computed, onBeforeMount, onMounted, ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import bbmriLogo from '../assets/images/bbmri/home-bbmri.png'
 import canservLogo from '../assets/images/canserv/home-canserv.png'
 import eucaimLogo from '../assets/images/eucaim/home-eucaim.png'
@@ -194,13 +187,9 @@ import workProgrammeLogo from '../assets/images/work-programme.png'
 import { useActuatorInfoStore } from '../store/actuatorInfo.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import CopyrightText from '../components/CopyrightText.vue'
-import ReleaseNotificationIcon from '../components/ReleaseNotificationIcon.vue'
-import ReleaseNotificationModal from '@/components/modals/ReleaseNotificationModal.vue'
-import { useReleasesStore } from '@/store/releases.js'
 
 const uiConfigurationStore = useUiConfiguration()
 const actuatorInfoStore = useActuatorInfoStore()
-const releasesStore = useReleasesStore()
 const viteGitTag = import.meta.env.VITE_GIT_TAG
 
 const gitTag = viteGitTag
@@ -211,35 +200,6 @@ onBeforeMount(() => {
     backendVersion.value = actuatorInfoStore.actuatorInfoBuildVersion
   })
 })
-
-// Initialize release checking system at app level
-onMounted(() => {
-  releasesStore.loadDismissedReleases()
-
-  // Set current version when actuator info is available
-  if (actuatorInfoStore.actuatorInfoBuildVersion) {
-    releasesStore.setCurrentVersion(actuatorInfoStore.actuatorInfoBuildVersion)
-    // Only start periodic checks if version pattern is supported
-    if (isVersionSupported(actuatorInfoStore.actuatorInfoBuildVersion)) {
-      releasesStore.startPeriodicCheck()
-    }
-  } else {
-    // Wait for actuator info to be loaded
-    actuatorInfoStore.retrieveBackendActuatorInfo().then(() => {
-      releasesStore.setCurrentVersion(actuatorInfoStore.actuatorInfoBuildVersion)
-      // Only start periodic checks if version pattern is supported
-      if (isVersionSupported(actuatorInfoStore.actuatorInfoBuildVersion)) {
-        releasesStore.startPeriodicCheck()
-      }
-    })
-  }
-})
-
-function isVersionSupported(version) {
-  // Check if version follows v3.x.x pattern (e.g., v3.17.3, v3.0.0, v3.1.2)
-  const versionPattern = /^v3\.\d+\.\d+$/
-  return versionPattern.test(version)
-}
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer
@@ -262,10 +222,6 @@ const returnWorkProgrammeSrc = computed(() => {
   }
   return uiConfiguration.value?.footerWorkProgrammeImageUrl
 })
-
-function handleReleaseDissmiss(tagName) {
-  releasesStore.dismissRelease(tagName)
-}
 </script>
 
 <style scoped>
