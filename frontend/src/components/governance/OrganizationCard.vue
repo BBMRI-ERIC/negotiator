@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="organization-card"
-    :class="{ 'expanded': isExpanded }"
-  >
+  <div class="organization-card" :class="{ expanded: isExpanded }">
     <!-- Organization Header -->
     <div
       class="organization-header"
@@ -67,23 +64,29 @@ import ResourcesList from './ResourcesList.vue'
 defineProps({
   organization: {
     type: Object,
-    required: true
+    required: true,
   },
   isExpanded: {
     type: Boolean,
-    required: true
+    required: true,
   },
   resources: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   resourcesLoading: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
-const emit = defineEmits(['toggleExpanded', 'editOrganization', 'editResource', 'addResources', 'representativesUpdated'])
+const emit = defineEmits([
+  'toggleExpanded',
+  'editOrganization',
+  'editResource',
+  'addResources',
+  'representativesUpdated',
+])
 
 // Keyboard event handler for accessibility
 function handleKeyDown(event) {

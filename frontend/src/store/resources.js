@@ -82,7 +82,7 @@ export const useResourcesStore = defineStore('resources', () => {
       .patch(
         `${apiPaths.BASE_API_PATH}/users/${userId}/resources`,
         { id: resourceId },
-        { headers: getBearerHeaders() }
+        { headers: getBearerHeaders() },
       )
       .then((response) => {
         if (!silent) {

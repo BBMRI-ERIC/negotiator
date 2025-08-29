@@ -200,7 +200,7 @@ async function loadResources() {
     const response = await adminStore.retrieveResourcesPaginated(
       pageNumber.value,
       pageSize.value,
-      apiFilters
+      apiFilters,
     )
     resources.value = response?._embedded?.resources ?? []
     pageLinks.value = response._links || {}

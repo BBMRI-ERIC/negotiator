@@ -83,15 +83,13 @@
                 required
               >
                 <option value="">Select an access form</option>
-                <option
-                  v-for="form in accessForms"
-                  :key="form.id"
-                  :value="form.id"
-                >
+                <option v-for="form in accessForms" :key="form.id" :value="form.id">
                   {{ form.name }}
                 </option>
               </select>
-              <div v-if="errors.accessFormId" class="invalid-feedback">{{ errors.accessFormId }}</div>
+              <div v-if="errors.accessFormId" class="invalid-feedback">
+                {{ errors.accessFormId }}
+              </div>
             </div>
 
             <div class="mb-3">
@@ -108,7 +106,9 @@
                 required
                 min="1"
               />
-              <div v-if="errors.discoveryServiceId" class="invalid-feedback">{{ errors.discoveryServiceId }}</div>
+              <div v-if="errors.discoveryServiceId" class="invalid-feedback">
+                {{ errors.discoveryServiceId }}
+              </div>
             </div>
 
             <div class="mb-3">
@@ -121,7 +121,9 @@
                 :class="{ 'is-invalid': errors.contactEmail }"
                 placeholder="contact@example.com"
               />
-              <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
+              <div v-if="errors.contactEmail" class="invalid-feedback">
+                {{ errors.contactEmail }}
+              </div>
             </div>
 
             <div class="mb-3">
@@ -186,20 +188,20 @@ import { useFormsStore } from '@/store/forms'
 const props = defineProps({
   modalId: {
     type: String,
-    required: true
+    required: true,
   },
   organizationId: {
     type: [String, Number],
-    required: true
+    required: true,
   },
   organizationName: {
     type: String,
-    default: ''
+    default: '',
   },
   shown: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['create', 'close'])
@@ -216,7 +218,7 @@ const formData = ref({
   accessFormId: '',
   discoveryServiceId: '',
   contactEmail: '',
-  uri: ''
+  uri: '',
 })
 
 // Form state
@@ -231,7 +233,8 @@ const isFormValid = computed(() => {
   const hasDescription = formData.value.description?.trim().length > 0
   const hasSourceId = formData.value.sourceId?.trim().length > 0
   const hasAccessForm = formData.value.accessFormId && formData.value.accessFormId !== ''
-  const hasDiscoveryService = formData.value.discoveryServiceId &&
+  const hasDiscoveryService =
+    formData.value.discoveryServiceId &&
     formData.value.discoveryServiceId !== '' &&
     !isNaN(Number(formData.value.discoveryServiceId))
 
@@ -239,9 +242,12 @@ const isFormValid = computed(() => {
 })
 
 // Watch for organization ID changes
-watch(() => props.organizationId, (newId) => {
-  formData.value.organizationId = Number(newId)
-})
+watch(
+  () => props.organizationId,
+  (newId) => {
+    formData.value.organizationId = Number(newId)
+  },
+)
 
 // Load access forms on mount
 onMounted(async () => {
@@ -317,7 +323,7 @@ const resetForm = () => {
     accessFormId: '',
     discoveryServiceId: '',
     contactEmail: '',
-    uri: ''
+    uri: '',
   }
   errors.value = {}
   submitting.value = false
@@ -333,16 +339,18 @@ const handleSubmit = async () => {
   try {
     // Prepare the resource data for API call
     // The API expects an array of resources
-    const resourceData = [{
-      name: formData.value.name.trim(),
-      description: formData.value.description.trim(),
-      sourceId: formData.value.sourceId.trim(),
-      organizationId: formData.value.organizationId,
-      accessFormId: Number(formData.value.accessFormId),
-      discoveryServiceId: Number(formData.value.discoveryServiceId),
-      contactEmail: formData.value.contactEmail?.trim() || null,
-      uri: formData.value.uri?.trim() || null
-    }]
+    const resourceData = [
+      {
+        name: formData.value.name.trim(),
+        description: formData.value.description.trim(),
+        sourceId: formData.value.sourceId.trim(),
+        organizationId: formData.value.organizationId,
+        accessFormId: Number(formData.value.accessFormId),
+        discoveryServiceId: Number(formData.value.discoveryServiceId),
+        contactEmail: formData.value.contactEmail?.trim() || null,
+        uri: formData.value.uri?.trim() || null,
+      },
+    ]
 
     console.log('Creating resource with data:', resourceData)
 
@@ -361,7 +369,7 @@ const handleSubmit = async () => {
     // Handle validation errors from server
     if (error.response?.status === 400 && error.response?.data?.violations) {
       const violations = error.response.data.violations
-      violations.forEach(violation => {
+      violations.forEach((violation) => {
         errors.value[violation.field] = violation.message
       })
     }
@@ -376,11 +384,14 @@ const handleClose = () => {
 }
 
 // Reset form when modal is shown
-watch(() => props.shown, (isShown) => {
-  if (isShown) {
-    resetForm()
-  }
-})
+watch(
+  () => props.shown,
+  (isShown) => {
+    if (isShown) {
+      resetForm()
+    }
+  },
+)
 </script>
 
 <style scoped>

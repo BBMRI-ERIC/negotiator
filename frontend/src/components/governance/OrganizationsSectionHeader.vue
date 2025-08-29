@@ -5,11 +5,7 @@
       Organizations & Resources
     </h2>
     <div class="actions-group">
-      <button
-        class="btn btn-primary"
-        @click="$emit('createOrganization')"
-        :disabled="loading"
-      >
+      <button class="btn btn-primary" @click="$emit('createOrganization')" :disabled="loading">
         <i class="bi bi-plus-circle me-2"></i>
         Create Organization
       </button>
@@ -21,8 +17,8 @@
 defineProps({
   loading: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 })
 
 defineEmits(['createOrganization'])
