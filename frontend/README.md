@@ -60,11 +60,9 @@ src/config/matomo.js
 
 ### Matomo Configuration Variables
 
-```javascript
+```
 matomoHost: "MATOMO_HOST_PLACEHOLDER",
-    matomoId
-:
-"MATOMO_SITE_ID_PLACEHOLDER"
+matomoId: "MATOMO_SITE_ID_PLACEHOLDER"
 ```
 
 For more details, see
@@ -74,20 +72,16 @@ the [Matomo Configuration Reference](https://matomo.org/faq/new-to-piwik/how-do-
 
 The i18n configuration involves two variables:
 
-```javascript
+```
 locale: "I18N_LOCALE_PLACEHOLDER",
-    fallbackLocale
-:
-"I18N_FALLBACKLOCALE_PLACEHOLDER"
+fallbackLocale: "I18N_FALLBACKLOCALE_PLACEHOLDER"
 ```
 
 Example configuration:
 
-```javascript
-locale: "en-bbmri",
-    fallbackLocale
-:
-"en"
+```
+locale: "en-bbmri", 
+fallbackLocale: "en"
 ```
 
 ## Configuration for Feature Flags
