@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.AuthorizationService;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
@@ -45,8 +44,6 @@ public class UserController {
 
   @Autowired PersonService personService;
 
-  @Autowired AuthorizationService authorizationService;
-
   @Autowired NetworkService networkService;
   @Autowired NetworkModelAssembler networkModelAssembler;
 
@@ -86,7 +83,6 @@ public class UserController {
   @Operation(summary = "List all resources represented by a user")
   @ResponseStatus(HttpStatus.OK)
   public CollectionModel<ResourceResponseModel> findRepresentedResources(@PathVariable Long id) {
-    authorizationService.checkAuthorization(id);
     return CollectionModel.of(personService.getResourcesRepresentedByUserId(id));
   }
 
@@ -153,7 +149,6 @@ public class UserController {
       @PathVariable Long id,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "50") int size) {
-    authorizationService.checkAuthorization(id);
     return networkModelAssembler.toPagedModel(
         (Page<NetworkDTO>) networkService.findAllForManager(id, PageRequest.of(page, size)), id);
   }
