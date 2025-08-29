@@ -42,35 +42,41 @@ import OrganizationCard from './OrganizationCard.vue'
 defineProps({
   organizations: {
     type: Array,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    required: true
+    required: true,
   },
   expandedOrganizations: {
     type: Set,
-    required: true
+    required: true,
   },
   organizationResources: {
     type: Object,
-    required: true
+    required: true,
   },
   loadingResources: {
     type: Set,
-    required: true
+    required: true,
   },
   noResultsMessage: {
     type: String,
-    required: true
+    required: true,
   },
   sortedResourcesForOrganization: {
     type: Function,
-    required: true
-  }
+    required: true,
+  },
 })
 
-defineEmits(['toggleOrganization', 'editOrganization', 'editResource', 'addResources', 'representativesUpdated'])
+defineEmits([
+  'toggleOrganization',
+  'editOrganization',
+  'editResource',
+  'addResources',
+  'representativesUpdated',
+])
 </script>
 
 <style scoped>

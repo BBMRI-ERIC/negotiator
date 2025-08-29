@@ -132,8 +132,8 @@ export const useAdminStore = defineStore('admin', () => {
     // add filtersSortData in case they are valued
     const params = Object.fromEntries(
       // eslint-disable-next-line
-      Object.entries(filtersSortData).filter(([_, value]) => value !== '')
-    );
+      Object.entries(filtersSortData).filter(([_, value]) => value !== ''),
+    )
     params.page = page
     params.size = size
     return axios

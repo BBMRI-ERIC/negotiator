@@ -556,7 +556,7 @@ const debouncedSave = ref(
       await saveDraftSilently(step)
       currentSectionModified.value = false
     }
-  }, 1000) // Wait 1 second after user stops typing
+  }, 1000), // Wait 1 second after user stops typing
 )
 
 async function saveDraftSilently(step) {

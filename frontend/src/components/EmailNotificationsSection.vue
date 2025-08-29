@@ -112,7 +112,6 @@ import { ROLES } from '@/config/consts'
 import AdminSettingsFilterSort from './AdminSettingsFilterSort.vue'
 import { formatTimestamp } from '@/composables/utils.js'
 
-
 const emit = defineEmits(['view-email'])
 
 const emailStore = useEmailStore()
@@ -125,23 +124,35 @@ const sortByFields = ref({
   defaultOrder: 'DESC',
   fields: [
     { value: 'address', label: 'Email Address' },
-    { value: 'sentAt', label: 'Sent At' }
-  ]}
-)
+    { value: 'sentAt', label: 'Sent At' },
+  ],
+})
 
 const filtersFields = ref([
-  { name: 'address', label: 'Email Address', type: 'text', default: '', placeholder: "Enter email address"},
-  { name: 'sentAt', label: 'Sent At', type: 'date-range', inputType: 'datetime-local', default: { start: '', end: '' } }
+  {
+    name: 'address',
+    label: 'Email Address',
+    type: 'text',
+    default: '',
+    placeholder: 'Enter email address',
+  },
+  {
+    name: 'sentAt',
+    label: 'Sent At',
+    type: 'date-range',
+    inputType: 'datetime-local',
+    default: { start: '', end: '' },
+  },
 ])
 
 const filtersSortData = ref({
   address: '',
   sentAt: {
-    start: '', 
-    end: ''
+    start: '',
+    end: '',
   },
   sortBy: sortByFields.value.defaultField,
-  sortOrder: sortByFields.value.defaultOrder
+  sortOrder: sortByFields.value.defaultOrder,
 })
 
 const pagination = ref({
@@ -157,7 +168,7 @@ const fetchEmails = async () => {
     const params = {
       page: pagination.value.number,
       size: pagination.value.size,
-      sort:`${filtersSortData.value.sortBy},${filtersSortData.value.sortOrder}`,
+      sort: `${filtersSortData.value.sortBy},${filtersSortData.value.sortOrder}`,
     }
 
     if (filtersSortData.value.address) {
@@ -206,7 +217,9 @@ const getSortIcon = (field) => {
   if (filtersSortData.value.sortBy !== field) {
     return 'fas fa-sort text-muted'
   }
-  return filtersSortData.value.sortOrder === 'ASC' ? 'fas fa-sort-up text-dark' : 'fas fa-sort-down text-dark'
+  return filtersSortData.value.sortOrder === 'ASC'
+    ? 'fas fa-sort-up text-dark'
+    : 'fas fa-sort-down text-dark'
 }
 
 const goToPage = (page) => {

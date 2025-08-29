@@ -43,12 +43,20 @@
     <!-- Empty State -->
     <div v-else-if="filteredResources.length === 0" class="empty-state">
       <div class="text-center py-4">
-        <i class="bi bi-database text-muted" style="font-size: 2.5rem;"></i>
+        <i class="bi bi-database text-muted" style="font-size: 2.5rem"></i>
         <h6 class="text-muted mt-2 mb-1">
-          {{ searchQuery || statusFilter ? 'No resources found matching your criteria' : 'No resources available' }}
+          {{
+            searchQuery || statusFilter
+              ? 'No resources found matching your criteria'
+              : 'No resources available'
+          }}
         </h6>
         <p class="text-muted small mb-0">
-          {{ searchQuery || statusFilter ? 'Try adjusting your search terms or filters' : 'This organization has no resources' }}
+          {{
+            searchQuery || statusFilter
+              ? 'Try adjusting your search terms or filters'
+              : 'This organization has no resources'
+          }}
         </p>
       </div>
     </div>
@@ -77,11 +85,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="resource in filteredResources"
-              :key="resource.id"
-              class="resource-row"
-            >
+            <tr v-for="resource in filteredResources" :key="resource.id" class="resource-row">
               <td class="py-2">
                 <div class="fw-medium">{{ resource.name }}</div>
                 <small class="text-muted">ID: {{ resource.id }}</small>
@@ -113,13 +117,14 @@
     </div>
 
     <!-- Results Summary moved to bottom -->
-    <div v-if="!loading && filteredResources.length > 0" class="results-summary mt-3 pt-2 border-top">
+    <div
+      v-if="!loading && filteredResources.length > 0"
+      class="results-summary mt-3 pt-2 border-top"
+    >
       <div class="d-flex justify-content-between align-items-center">
         <div class="text-muted small">
           Showing {{ filteredResources.length }} of {{ allResources.length }} resources
-          <span v-if="searchQuery || statusFilter" class="text-info">
-            (filtered)
-          </span>
+          <span v-if="searchQuery || statusFilter" class="text-info"> (filtered) </span>
         </div>
         <div v-if="searchQuery" class="text-muted small">
           <i class="bi bi-search me-1"></i>
@@ -136,12 +141,12 @@ import { ref, computed, watch } from 'vue'
 const props = defineProps({
   organization: {
     type: Object,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 // Local reactive state
@@ -159,16 +164,17 @@ const filteredResources = computed(() => {
   // Apply search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    resources = resources.filter(resource =>
-      resource.name?.toLowerCase().includes(query) ||
-      resource.sourceId?.toLowerCase().includes(query) ||
-      resource.description?.toLowerCase().includes(query)
+    resources = resources.filter(
+      (resource) =>
+        resource.name?.toLowerCase().includes(query) ||
+        resource.sourceId?.toLowerCase().includes(query) ||
+        resource.description?.toLowerCase().includes(query),
     )
   }
 
   // Apply status filter
   if (statusFilter.value) {
-    resources = resources.filter(resource => {
+    resources = resources.filter((resource) => {
       const isActive = !resource.withdrawn
       return statusFilter.value === 'active' ? isActive : !isActive
     })
@@ -227,12 +233,15 @@ const getStatusText = (resource) => {
 }
 
 // Watch for organization changes to reset filters
-watch(() => props.organization, () => {
-  searchQuery.value = ''
-  statusFilter.value = ''
-  sortBy.value = 'name'
-  sortDirection.value = 'asc'
-})
+watch(
+  () => props.organization,
+  () => {
+    searchQuery.value = ''
+    statusFilter.value = ''
+    sortBy.value = 'name'
+    sortDirection.value = 'asc'
+  },
+)
 </script>
 
 <style scoped>
