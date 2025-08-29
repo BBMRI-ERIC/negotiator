@@ -50,12 +50,12 @@ import { ref, watch } from 'vue'
 const props = defineProps({
   filters: {
     type: Object,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const emit = defineEmits(['updateFilters', 'clearFilters', 'debouncedSearch', 'applyFilters'])
@@ -64,9 +64,13 @@ const emit = defineEmits(['updateFilters', 'clearFilters', 'debouncedSearch', 'a
 const localFilters = ref({ ...props.filters })
 
 // Watch for external filter changes (e.g., from clear filters)
-watch(() => props.filters, (newFilters) => {
-  localFilters.value = { ...newFilters }
-}, { deep: true })
+watch(
+  () => props.filters,
+  (newFilters) => {
+    localFilters.value = { ...newFilters }
+  },
+  { deep: true },
+)
 
 const handleStatusChange = () => {
   emit('updateFilters', { statusFilter: localFilters.value.statusFilter })

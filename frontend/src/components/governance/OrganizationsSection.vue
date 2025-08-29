@@ -122,7 +122,7 @@ const {
   clearFilters,
   applyFilters,
   debouncedSearch,
-  reloadResourcesForOrganization
+  reloadResourcesForOrganization,
 } = organizations
 
 // Destructure operations composable
@@ -131,12 +131,12 @@ const {
   handleOrganizationCreate: baseHandleOrganizationCreate,
   handleOrganizationUpdate: baseHandleOrganizationUpdate,
   handleResourceCreate: baseHandleResourceCreate,
-  handleResourceUpdate: baseHandleResourceUpdate
+  handleResourceUpdate: baseHandleResourceUpdate,
 } = operations
 
 // Event handlers
 const handleAddResources = (organizationId) => {
-  const organization = organizationsList.value.find(org => org.id === organizationId)
+  const organization = organizationsList.value.find((org) => org.id === organizationId)
   if (organization) {
     modals.openCreateResourceModal(organization)
   }
@@ -145,14 +145,14 @@ const handleAddResources = (organizationId) => {
 const handleOrganizationCreate = (newOrganization) => {
   baseHandleOrganizationCreate(newOrganization, {
     loadOrganizations,
-    closeCreateModal: modals.closeCreateModal
+    closeCreateModal: modals.closeCreateModal,
   })
 }
 
 const handleOrganizationUpdate = (updateData) => {
   baseHandleOrganizationUpdate(updateData, {
     loadOrganizations,
-    closeEditModal: modals.closeEditModal
+    closeEditModal: modals.closeEditModal,
   })
 }
 
@@ -160,7 +160,7 @@ const handleResourceCreate = (createdResourceData) => {
   baseHandleResourceCreate(createdResourceData, {
     selectedOrganizationForResource: modals.selectedOrganizationForResource,
     reloadResourcesForOrganization,
-    closeCreateResourceModal: modals.closeCreateResourceModal
+    closeCreateResourceModal: modals.closeCreateResourceModal,
   })
 }
 
@@ -169,7 +169,7 @@ const handleResourceUpdate = (updatedResourceData) => {
     selectedResource: modals.selectedResource,
     organizationResources,
     reloadResourcesForOrganization,
-    closeEditResourceModal: modals.closeEditResourceModal
+    closeEditResourceModal: modals.closeEditResourceModal,
   })
 }
 
@@ -178,11 +178,11 @@ const handleRepresentativesUpdated = (eventData) => {
   if (resourceId) {
     const resource = Object.values(organizationResources.value)
       .flat()
-      .find(r => r.id === resourceId)
+      .find((r) => r.id === resourceId)
 
     if (resource) {
-      const organizationId = organizationsList.value.find(org =>
-        organizationResources.value[org.id]?.some(r => r.id === resourceId)
+      const organizationId = organizationsList.value.find((org) =>
+        organizationResources.value[org.id]?.some((r) => r.id === resourceId),
       )?.id
 
       if (organizationId) {

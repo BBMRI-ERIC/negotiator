@@ -11,11 +11,9 @@
         <!-- Modal Header -->
         <div class="modal-header border-bottom">
           <div class="d-flex align-items-center">
-            <i class="bi bi-database text-primary me-3" style="font-size: 1.5rem;"></i>
+            <i class="bi bi-database text-primary me-3" style="font-size: 1.5rem"></i>
             <div>
-              <h4 class="modal-title mb-0" :id="`${modalId}Label`">
-                Edit Resource
-              </h4>
+              <h4 class="modal-title mb-0" :id="`${modalId}Label`">Edit Resource</h4>
               <small class="text-muted">{{ formData.name || 'Resource Details' }}</small>
             </div>
           </div>
@@ -58,9 +56,7 @@
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="sourceId" class="form-label fw-medium">
-                    Source ID
-                  </label>
+                  <label for="sourceId" class="form-label fw-medium"> Source ID </label>
                   <input
                     id="sourceId"
                     :value="resource?.sourceId || ''"
@@ -100,7 +96,9 @@
                     :class="{ 'is-invalid': errors.contactEmail }"
                     placeholder="contact@example.com"
                   />
-                  <div v-if="errors.contactEmail" class="invalid-feedback">{{ errors.contactEmail }}</div>
+                  <div v-if="errors.contactEmail" class="invalid-feedback">
+                    {{ errors.contactEmail }}
+                  </div>
                 </div>
               </div>
 
@@ -144,12 +142,7 @@
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
             <i class="bi bi-x-circle me-2"></i>Cancel
           </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            @click="handleSubmit"
-            :disabled="saving"
-          >
+          <button type="button" class="btn btn-primary" @click="handleSubmit" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status">
               <span class="visually-hidden">Loading...</span>
             </span>
@@ -212,7 +205,7 @@ watch(
       errors.value = {}
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const validateForm = () => {
@@ -285,7 +278,7 @@ const handleSubmit = async () => {
     // Handle validation errors from server
     if (error.response?.status === 400 && error.response?.data?.violations) {
       const violations = error.response.data.violations
-      violations.forEach(violation => {
+      violations.forEach((violation) => {
         errors.value[violation.field] = violation.message
       })
     } else if (error.response?.data?.message) {
@@ -361,7 +354,9 @@ const handleSubmit = async () => {
   font-size: 0.9rem;
   border: 1px solid #e8ecef;
   border-radius: 0.375rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 }
 
 .form-control:focus {

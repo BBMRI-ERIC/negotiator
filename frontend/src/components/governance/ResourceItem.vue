@@ -47,8 +47,8 @@ import ResourceRepresentativesModal from '../modals/ResourceRepresentativesModal
 const props = defineProps({
   resource: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const emit = defineEmits(['editResource', 'representativesUpdated'])

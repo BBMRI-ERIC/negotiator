@@ -13,8 +13,17 @@
       <button type="button" class="btn-close" @click.prevent="$emit('removed')" />
     </div>
     <div v-if="downloadable" class="ms-auto align-self-center pe-2 d-flex align-items-center">
-      <div v-if="isDownloading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-      <i class="bi bi-download cursor-pointer" :class="{ 'text-muted': isDownloading }" @click="!isDownloading && $emit('download')" />
+      <div
+        v-if="isDownloading"
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+        aria-hidden="true"
+      ></div>
+      <i
+        class="bi bi-download cursor-pointer"
+        :class="{ 'text-muted': isDownloading }"
+        @click="!isDownloading && $emit('download')"
+      />
     </div>
   </div>
 </template>

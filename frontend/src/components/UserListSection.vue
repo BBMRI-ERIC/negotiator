@@ -89,16 +89,31 @@ const sortByFields = ref({
     { value: 'name', label: 'Name' },
     { value: 'email', label: 'Email' },
     { value: 'subjectId', label: 'Subject Id' },
-    { value: 'lastLogin', label: 'Last Login' }
-  ]}
-)
+    { value: 'lastLogin', label: 'Last Login' },
+  ],
+})
 
 const filtersFields = ref([
   { name: 'name', label: 'Name', type: 'text', default: '', placeholder: 'Enter the Name' },
   { name: 'email', label: 'Email', type: 'email', default: '', placeholder: 'Enter the Email' },
-  { name: 'subjectId', label: 'Subject ID', type: 'text', default: '', placeholder: 'Enter the Subject Id'},
-  { name: 'isAdmin', label: 'Is Admin', type: 'radio', options: [{ value: true, label: "True" }, { value: false, label: "False" }], default: ''},
-  { name: 'lastLogin', label: 'Last Login', type: 'date-range', default: { start: '', end: '' } }
+  {
+    name: 'subjectId',
+    label: 'Subject ID',
+    type: 'text',
+    default: '',
+    placeholder: 'Enter the Subject Id',
+  },
+  {
+    name: 'isAdmin',
+    label: 'Is Admin',
+    type: 'radio',
+    options: [
+      { value: true, label: 'True' },
+      { value: false, label: 'False' },
+    ],
+    default: '',
+  },
+  { name: 'lastLogin', label: 'Last Login', type: 'date-range', default: { start: '', end: '' } },
 ])
 
 const filtersSortData = ref({
@@ -107,8 +122,8 @@ const filtersSortData = ref({
   subjectId: '',
   isAdmin: '',
   lastLogin: {
-    start: '', 
-    end: ''
+    start: '',
+    end: '',
   },
   sortBy: sortByFields.value.defaultField,
   sortOrder: sortByFields.value.defaultOrder,
@@ -162,7 +177,7 @@ const fetchUsers = async () => {
     const { users: usersData, totalUsers: totalCount } = await adminStore.retrieveUsers(
       currentPage.value - 1,
       pageSize.value,
-      data
+      data,
     )
     users.value = usersData || []
     totalUsers.value = totalCount || 0

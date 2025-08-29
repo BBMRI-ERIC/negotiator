@@ -241,7 +241,12 @@ import { computed, onBeforeMount } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
-import { getBadgeColor, getBadgeIcon, transformStatus, formatTimestampToLocalDateTime } from '../composables/utils.js'
+import {
+  getBadgeColor,
+  getBadgeIcon,
+  transformStatus,
+  formatTimestampToLocalDateTime,
+} from '../composables/utils.js'
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
