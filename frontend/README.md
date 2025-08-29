@@ -1,63 +1,50 @@
 # Negotiator Frontend
 
-It is recommended to use Yarn as the package manager because some legacy packages (or packages that have not been
-updated for a few years) specify a peer dependency that conflicts with packages you may want to install.
+This project uses Yarn as the package manager.
+Yarn is recommended because some legacy packages specify peer
+dependencies that can conflict with newer package versions when using npm.
 
 ## Project Setup
 
-To set up the project, you can use either Yarn or npm:
+To set up the project:
 
 ```sh
-# Using Yarn
 yarn install
-
-# Using npm
-npm install
 ```
 
 ### Compile and Hot-Reload for Development
 
-To compile and hot-reload the application for development:
+To start the development server with hot-reload:
 
 ```sh
-# Using Yarn
 yarn dev
-
-# Using npm
-npm run dev
 ```
 
 ### Compile and Minify for Production
 
-To compile and minify the application for production:
+To build the application for production:
 
 ```sh
-# Using Yarn
 yarn build
-
-# Using npm
-npm run build
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
-To lint the codebase with ESLint:
+To lint the codebase:
 
 ```sh
-# Using Yarn
 yarn lint
-
-# Using npm
-npm run lint
 ```
 
-### Run e2e tests with [Cypress](https://docs.cypress.io/guides/overview/why-cypress)
+### Run E2E Tests with [Cypress](https://docs.cypress.io/guides/overview/why-cypress)
+
+To run end-to-end tests:
 
 ```sh
 yarn cypress run --browser chrome
 ```
 
-For more test scripts see [package.json](package.json)
+For additional test scripts, see [package.json](package.json).
 
 ### Customize Configuration
 
@@ -71,26 +58,36 @@ The Matomo configuration file is located at:
 src/config/matomo.js
 ```
 
-### The Matomo configuration involves two variables:
+### Matomo Configuration Variables
 
-```sh
+```javascript
 matomoHost: "MATOMO_HOST_PLACEHOLDER",
-matomoId: "MATOMO_SITE_ID_PLACEHOLDER"
+    matomoId
+:
+"MATOMO_SITE_ID_PLACEHOLDER"
 ```
 
 For more details, see
 the [Matomo Configuration Reference](https://matomo.org/faq/new-to-piwik/how-do-i-install-the-matomo-tracking-code-on-websites-that-use-vue-js/).
 
-### The i18n configuration involves two variables:
+## Configuration for Internationalization (i18n)
 
-```sh
+The i18n configuration involves two variables:
+
+```javascript
 locale: "I18N_LOCALE_PLACEHOLDER",
-fallbackLocale: "I18N_FALLBACKLOCALE_PLACEHOLDER"
+    fallbackLocale
+:
+"I18N_FALLBACKLOCALE_PLACEHOLDER"
 ```
-example 
-```sh
+
+Example configuration:
+
+```javascript
 locale: "en-bbmri",
-fallbackLocale: "en"
+    fallbackLocale
+:
+"en"
 ```
 
 ## Configuration for Feature Flags
@@ -101,8 +98,8 @@ The feature flags configuration file is located at:
 src/config/featureFlags.js
 ```
 
-You can adjust the visibility of features, components, or code that is ready for testing but not intended for release by
-using feature flags.
+You can control the visibility of features, components, or code that is ready for testing but not intended for release
+by using feature flags.
 
 ## Configuration for External Links
 
@@ -112,11 +109,9 @@ The external links configuration file is located at:
 src/config/externalLinks.js
 ```
 
-You can set the URLs that external links lead to in this file.
+Configure URLs for external links in this file.
 
-## Configuration for vuex-oidc
-
-## Config for pinia-oidc
+## Configuration for OIDC Authentication
 
 The OIDC configuration file is located at:
 
@@ -124,9 +119,12 @@ The OIDC configuration file is located at:
 src/config/oidc.js
 ```
 
-### About
+### About OIDC
 
-This library provides OpenID Connect (OIDC) and OAuth2 protocol support for client-side, browser-based JavaScript client
+This library provides OpenID Connect (OIDC) and OAuth2 protocol support for client-side, browser-based JavaScript
 applications. It also includes support for user session and access token management.
 
-See [Configuration Reference](https://github.com/perarnborg/vuex-oidc/wiki, https://github.com/zhazhazhu/pinia-oidc).
+See the configuration references:
+
+- [vuex-oidc](https://github.com/perarnborg/vuex-oidc/wiki)
+- [pinia-oidc](https://github.com/zhazhazhu/pinia-oidc)
