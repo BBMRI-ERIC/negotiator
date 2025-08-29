@@ -356,7 +356,7 @@ public class NegotiatorExceptionHandler {
                                     "instance": "/api/your-endpoint"
                                   }
                                   """)))
-  public final ProblemDetail handleRuntimeException(PdfGenerationException ex) {
+  public final ProblemDetail handlePdfGenerationException(PdfGenerationException ex) {
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     problemDetail.setType(
         URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
