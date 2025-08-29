@@ -105,21 +105,21 @@ function handleKeyDown(event) {
 }
 
 /* Gray styling for withdrawn organizations */
-.organization-card:has(.status-withdrawn) {
+.organization-card.withdrawn {
   background: #f8f9fa;
   border-color: #d1d1d1;
   opacity: 0.7;
 }
 
-.organization-card:has(.status-withdrawn) .organization-header {
+.organization-card.withdrawn .organization-header {
   background: #f8f9fa;
 }
 
-.organization-card:has(.status-withdrawn) .organization-name {
+.organization-card.withdrawn .organization-name {
   color: #6c757d !important;
 }
 
-.organization-card:has(.status-withdrawn) .organization-meta {
+.organization-card.withdrawn .organization-meta {
   color: #868e96 !important;
 }
 
