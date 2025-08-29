@@ -21,6 +21,8 @@
     <EmailNotificationsSection @view-email="viewEmailDetails" />
     <hr />
     <UserListSection />
+    <hr />
+    <email-template-section />
   </div>
   <LoadingIndicator v-else />
   <WebhookModal
@@ -39,8 +41,6 @@
     ref="deleteModal"
   />
   <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
-  <hr />
-  <email-template-section />
 </template>
 
 <script setup>

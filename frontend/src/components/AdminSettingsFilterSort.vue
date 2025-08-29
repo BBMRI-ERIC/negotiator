@@ -211,8 +211,6 @@ function clearAllFilters() {
 }
 
 function isChecked(value) {
-  console.log(value)
-  console.log(filtersSortData.value.sortBy === value)
   return filtersSortData.value.sortBy === value
 }
 </script>
