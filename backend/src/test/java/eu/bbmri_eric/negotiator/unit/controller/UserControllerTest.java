@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.unit.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import eu.bbmri_eric.negotiator.common.AuthorizationService;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -24,6 +25,7 @@ public class UserControllerTest {
 
   @MockBean NetworkService networkService;
   @MockBean NetworkModelAssembler networkModelAssembler;
+  @MockBean AuthorizationService authorizationService;
   @Autowired private UserModelAssembler userModelAssembler;
 
   @Test
