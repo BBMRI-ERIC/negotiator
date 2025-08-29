@@ -34,8 +34,6 @@ class DatabaseTemplateResolver extends AbstractConfigurableTemplateResolver {
       String resourceName,
       String characterEncoding,
       Map<String, Object> templateResolutionAttributes) {
-
-    // Try to find the template in the database
     return templateRepository
         .findByName(template)
         .map(dbTemplate -> (ITemplateResource) new StringTemplateResource(dbTemplate.getContent()))
