@@ -133,22 +133,43 @@
                     : 'opacity: 0.5;'
                 "
               >
-                <label
-                  class="form-label"
-                  :style="{ color: uiConfiguration?.primaryTextColor }"
-                  :class="{ required: criteria.required }"
-                >
-                  {{ criteria.label }}
-                </label>
+                <div class="d-flex space-beatwine justify-content-between">
+                  <div>
+                    <label
+                      class="form-label"
+                      :style="{ color: uiConfiguration?.primaryTextColor }"
+                      :class="{ required: criteria.required }"
+                    >
+                      {{ criteria.label }}
+                    </label>
 
-                <span v-if="criteria.description" class="ms-2 text-muted">
-                  <i
-                    class="py-1 bi bi-info-circle"
-                    data-bs-toggle="tooltip"
-                    :data-bs-title="criteria.description"
-                    :style="{ color: uiConfiguration?.primaryTextColor }"
-                  />
-                </span>
+                    <span v-if="criteria.description" class="ms-2 text-muted">
+                      <i
+                        class="py-1 bi bi-info-circle"
+                        data-bs-toggle="tooltip"
+                        :data-bs-title="criteria.description"
+                        :style="{ color: uiConfiguration?.primaryTextColor }"
+                      />
+                    </span>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      :id="`inlineCheckboxRequired-${criteria.id}`"
+                      @change="
+                        (changeRequriedElements(index, criteria),
+                        (criteria.required = !criteria.required))
+                      "
+                      :value="criteria.required"
+                      :checked="criteria.required"
+                      class="form-check-input form-check-input-requiried"
+                      :class="validationColorHighlight.includes(criteria.name) ? 'is-invalid' : ''"
+                      type="checkbox"
+                    />
+                    <label class="form-check-label" :for="`inlineCheckboxRequired-${criteria.id}`"
+                      >Required field</label
+                    >
+                  </div>
+                </div>
 
                 <div v-if="criteria.type === 'TEXT'">
                   <input
@@ -403,6 +424,7 @@ const accessForm = ref({
 })
 const nonEditedAccessForm = ref({})
 const accessFormElements = ref([])
+var requriedElements = ref([])
 const addModal = ref(null)
 const duplicateModal = ref(null)
 const editModal = ref(null)
@@ -445,7 +467,6 @@ onMounted(async () => {
         ...selectedElements,
         ...section.elements.filter((item) => !selectedIds.includes(item.id)),
       ]
-
       section.elements = reorderedElements
     })
 
@@ -475,6 +496,9 @@ function addFormSection(name, label, description, elements) {
     id: accessForm.value.sections.length,
     selectedElements: elements || [],
   })
+  // add sections as array to requriedElements
+  requriedElements.value.push([])
+
   initNegotiationCriteria()
   forceReRenderFormWizard.value += 1
 }
@@ -534,27 +558,26 @@ async function addAccessForm() {
 }
 
 function compareSections(json1, json2) {
-  const sections1 = json1.sections || [];
-  const sections2 = json2.sections || [];
+  const sections1 = json1.sections || []
+  const sections2 = json2.sections || []
 
-  const getSectionIds = (sections) => sections.map(s => s.name);
+  const getSectionIds = (sections) => sections.map((s) => s.name)
 
-  const ids1 = new Set(getSectionIds(sections1));
-  const ids2 = new Set(getSectionIds(sections2));
+  const ids1 = new Set(getSectionIds(sections1))
+  const ids2 = new Set(getSectionIds(sections2))
 
-  const added = sections2.filter(s => !ids1.has(s.name));
-  const removed = sections1.filter(s => !ids2.has(s.name));
+  const added = sections2.filter((s) => !ids1.has(s.name))
+  const removed = sections1.filter((s) => !ids2.has(s.name))
 
   return {
     added,
-    removed
-  };
+    removed,
+  }
 }
 
 async function editAccessForm() {
   const postAccessForm = JSON.parse(JSON.stringify(accessForm.value))
   let accessFormId = accessForm.value.id
-
 
   // unlink removed sections from accessForm
   compareSections(nonEditedAccessForm.value, accessForm.value).removed.forEach((section) => {
@@ -572,7 +595,8 @@ async function editAccessForm() {
       sectionIndex,
     )
 
-    postAccessForm.sections[sectionIndex].elements = activeElements.value[sectionIndex].selectedElements
+    postAccessForm.sections[sectionIndex].elements =
+      activeElements.value[sectionIndex].selectedElements
 
     const sections = {
       name: section.name,
@@ -580,44 +604,79 @@ async function editAccessForm() {
       description: section.description,
     }
 
-    if (compareSections(nonEditedAccessForm.value, accessForm.value).added.some(e => e.name === section.name)) {
+    // link new sections to accessForm
+    if (
+      compareSections(nonEditedAccessForm.value, accessForm.value).added.some(
+        (e) => e.name === section.name,
+      )
+    ) {
+      negotiationFormStore.addAccessFormSections(sections).then((section) => {
+        const currentSection = {
+          sectionId: section.id,
+          sectionOrder: sectionIndex,
+        }
 
-    negotiationFormStore.addAccessFormSections(sections).then((section) => {
-      const currentSection = {
-        sectionId: section.id,
-        sectionOrder: sectionIndex,
-      }
-
-      negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
-        postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
-          let currentElement = {
-            elementId: element.id,
-            elementOrder: elementIndex,
-            required: false,
-          }
-          try {
-            negotiationFormStore.linkElementsToSectionToAccessForm(
-              accessFormId,
-              section.id,
-              currentElement,
-            )
-          } catch (e) {
-            console.error('error linking elements to section', e)
-          }
+        negotiationFormStore.linkSectionToAccessForm(accessFormId, currentSection).then(() => {
+          postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
+            let currentElement = {
+              elementId: element.id,
+              elementOrder: elementIndex,
+              required: false,
+            }
+            try {
+              negotiationFormStore.linkElementsToSectionToAccessForm(
+                accessFormId,
+                section.id,
+                currentElement,
+              )
+            } catch (e) {
+              console.error('error linking elements to section', e)
+            }
+          })
         })
       })
-    })
     } else {
       // unlink removed elements from section
-      const originalSection = nonEditedAccessForm.value.sections.find(s => s.name === section.name)
+      const originalSection = nonEditedAccessForm.value.sections.find(
+        (s) => s.name === section.name,
+      )
       if (originalSection) {
-        const originalElementIds = new Set(originalSection.elements.map(el => el.id))
-        const currentElementIds = new Set(activeElements.value[sectionIndex].selectedElements.map(el => el.id))
+        const originalElementIds = new Set(originalSection.elements.map((el) => el.id))
+        const currentElementIds = new Set(
+          activeElements.value[sectionIndex].selectedElements.map((el) => el.id),
+        )
 
         originalSection.elements.forEach((element) => {
-          if (!currentElementIds.has(element.id)) {
+          const elementRequiredDiff =
+            requriedElements.value[sectionIndex][element.id] !== undefined &&
+            requriedElements.value[sectionIndex][element.id] !== element.required
+          if (!currentElementIds.has(element.id) || elementRequiredDiff) {
             try {
-              negotiationFormStore.deleteLinkElementFromSectionInAccessForm(accessFormId, section.id, element.id)
+              negotiationFormStore
+                .deleteLinkElementFromSectionInAccessForm(accessFormId, section.id, element.id)
+                .then(() => {
+                  if (elementRequiredDiff) {
+                    // link new elements to section
+                    postAccessForm.sections[sectionIndex].elements.forEach(
+                      (element, elementIndex) => {
+                        let currentElement = {
+                          elementId: element.id,
+                          elementOrder: elementIndex,
+                          required: element.required,
+                        }
+                        try {
+                          negotiationFormStore.linkElementsToSectionToAccessForm(
+                            accessFormId,
+                            section.id,
+                            currentElement,
+                          )
+                        } catch (e) {
+                          console.error('error linking elements to section', e)
+                        }
+                      },
+                    )
+                  }
+                })
             } catch (e) {
               console.error('Error unlinking element from section in access form', e)
             }
@@ -627,11 +686,11 @@ async function editAccessForm() {
 
       // link new elements to section
       postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
-        if (!originalSection || !originalSection.elements.some(e => e.id === element.id)) {
+        if (!originalSection || !originalSection.elements.some((e) => e.id === element.id)) {
           let currentElement = {
             elementId: element.id,
             elementOrder: elementIndex,
-            required: false,
+            required: element.required,
           }
           try {
             negotiationFormStore.linkElementsToSectionToAccessForm(
@@ -726,6 +785,9 @@ function changeActiveElements(elementIndex, element, event) {
     }
   }
 }
+function changeRequriedElements(index, criteria) {
+  requriedElements.value[index][criteria.id] = criteria.required
+}
 
 function sortActiveElements(referenceArray, arrayToSort, sectionIndex) {
   // Sort the arrayToSort based on the order in the referenceArray
@@ -741,6 +803,7 @@ function sortActiveElements(referenceArray, arrayToSort, sectionIndex) {
 
 function removeSection(sectionIndex) {
   accessForm.value.sections.splice(sectionIndex, 1)
+  requriedElements.value.splice(sectionIndex, 1)
   forceReRenderFormWizard.value += 1
 }
 </script>
@@ -751,6 +814,10 @@ function removeSection(sectionIndex) {
 .required:after {
   content: '  *\00a0';
   color: red;
+}
+.form-check-input-requiried:checked {
+  background-color: var(--bs-danger);
+  border-color: var(--bs-danger);
 }
 .bi:hover {
   color: #7c7c7c;
