@@ -1,6 +1,6 @@
 <template>
   <div class="email-notifications-section">
-    <h3 class="mb-4">Email Notifications</h3>
+    <h3 class="mb-4">Emails</h3>
 
     <!-- Filters -->
     <AdminSettingsFilterSort

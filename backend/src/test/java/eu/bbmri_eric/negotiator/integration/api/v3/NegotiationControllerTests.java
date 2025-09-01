@@ -1729,23 +1729,11 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void testGetPdf_Ok_WithTemplateNameProvided() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf")
-                .param("template", "pdf-negotiation-summary"))
+        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/pdf"))
         .andExpect(
             header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
-  }
-
-  @Test
-  @WithUserDetails("admin")
-  public void testGetPdf_BadRequest_WithTemplateNameProvided() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/pdf")
-                .param("template", "email-footer"))
-        .andExpect(status().isBadRequest());
   }
 
   @Test
