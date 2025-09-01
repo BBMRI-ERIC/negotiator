@@ -1,10 +1,14 @@
 package eu.bbmri_eric.negotiator.negotiation.pdf;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,36 +18,59 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service(value = "DefaultNegotiationPdfService")
 @CommonsLog
+@Transactional
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
-  private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
   private final NegotiationRepository negotiationRepository;
-  private final PdfContextBuilder pdfContextBuilder;
+  private static final DateTimeFormatter DTF =
+      DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
+  private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
+  private final TemplateEngine templateEngine;
+  private final ObjectMapper objectMapper;
 
   @Value("${negotiator.pdfFont}")
   private String fontPath;
 
+  @Value("${negotiator.emailLogo}")
+  private String logoURL;
+
   public NegotiationPdfServiceImpl(
-      NegotiationRepository negotiationRepository, PdfContextBuilder pdfContextBuilder) {
+      NegotiationRepository negotiationRepository,
+      TemplateEngine templateEngine,
+      ObjectMapper objectMapper) {
     this.negotiationRepository = negotiationRepository;
-    this.pdfContextBuilder = pdfContextBuilder;
+    this.templateEngine = templateEngine;
+    this.objectMapper = objectMapper;
   }
 
-  @Override
-  @Transactional
-  public byte[] generatePdf(String negotiationId) throws PdfGenerationException {
+  public byte[] generatePdf(String negotiationId, String templateName)
+      throws PdfGenerationException {
     Negotiation negotiation = findEntityById(negotiationId);
+
+    if (templateName == null) {
+      templateName = DEFAULT_PDF_TEMPLATE_NAME;
+    }
+
     try {
+      Context context = createContext(negotiation);
       String renderedHtml =
-          pdfContextBuilder
-              .createPdfContent(negotiation, DEFAULT_PDF_TEMPLATE_NAME)
-              .replaceAll("(<br />)+$", "");
+          templateEngine.process(templateName, context).replaceAll("(<br />)+$", "");
+
       return renderPdf(renderedHtml);
     } catch (Exception e) {
       throw new PdfGenerationException("Error creating negotiation pdf: " + e.getMessage());
@@ -54,6 +81,60 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     return negotiationRepository
         .findDetailedById(negotiationId)
         .orElseThrow(() -> new EntityNotFoundException(negotiationId));
+  }
+
+  private String escapeHtml(String input) {
+    String escapedText = HtmlUtils.htmlEscape(input);
+
+    return escapedText.replace("\n", "<br />");
+  }
+
+  private Map<String, Object> processPayload(Map<String, Object> payload) {
+    Map<String, Object> processedPayload = new HashMap<>();
+    payload.forEach(
+        (key, value) -> {
+          if (value instanceof String str) {
+            processedPayload.put(
+                key.replaceAll("-", " ").toUpperCase(),
+                escapeHtml(str).replaceAll("(<br />)+$", ""));
+          } else if (value instanceof Map<?, ?> map) {
+            if (map.isEmpty()) {
+              processedPayload.put(key.replaceAll("-", " ").toUpperCase(), "Empty");
+            } else {
+              processedPayload.put(
+                  key.replaceAll("-", " ").toUpperCase(),
+                  processPayload((Map<String, Object>) map));
+            }
+          } else if (value instanceof Iterable<?> iterable) {
+            processedPayload.put(
+                key.replaceAll("-", " ").toUpperCase(),
+                StreamSupport.stream(iterable.spliterator(), false)
+                    .map(item -> (item instanceof String s) ? escapeHtml(s) : item)
+                    .collect(Collectors.toList()));
+          }
+        });
+    return processedPayload;
+  }
+
+  private Context createContext(Negotiation negotiation) throws JsonProcessingException {
+    Map<String, Object> payload =
+        this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
+
+    Context context = new Context();
+    Person creator = negotiation.getCreatedBy();
+
+    context.setVariable("now", LocalDateTime.now().format(DTF));
+    context.setVariable("logoUrl", logoURL);
+    context.setVariable("authorName", creator.getName());
+    context.setVariable("authorEmail", creator.getEmail());
+    context.setVariable("authorInstitution", creator.getOrganization());
+    context.setVariable("negotiationId", negotiation.getId());
+    context.setVariable("negotiationTitle", negotiation.getTitle());
+    context.setVariable("negotiationCreatedAt", negotiation.getCreationDate());
+    context.setVariable("negotiationStatus", negotiation.getCurrentState());
+    context.setVariable("negotiationPayload", processPayload(payload));
+
+    return context;
   }
 
   private byte[] renderPdf(String html) throws IOException {
