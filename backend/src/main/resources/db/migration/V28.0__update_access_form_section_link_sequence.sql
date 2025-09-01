@@ -1,2 +1,0 @@
-ALTER SEQUENCE section_element_link_id_seq RESTART WITH 10000 INCREMENT BY 1;
-
