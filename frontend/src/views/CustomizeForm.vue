@@ -641,7 +641,6 @@ async function editAccessForm() {
         (s) => s.name === section.name,
       )
       if (originalSection) {
-        const originalElementIds = new Set(originalSection.elements.map((el) => el.id))
         const currentElementIds = new Set(
           activeElements.value[sectionIndex].selectedElements.map((el) => el.id),
         )
