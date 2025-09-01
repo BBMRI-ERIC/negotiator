@@ -660,7 +660,7 @@ async function editAccessForm() {
                       (element, elementIndex) => {
                         let currentElement = {
                           elementId: element.id,
-                          elementOrder: elementIndex,
+                          elementOrder: elementIndex + 1,
                           required: element.required,
                         }
                         try {
@@ -688,7 +688,7 @@ async function editAccessForm() {
         if (!originalSection || !originalSection.elements.some((e) => e.id === element.id)) {
           let currentElement = {
             elementId: element.id,
-            elementOrder: elementIndex,
+            elementOrder: elementIndex + 1,
             required: element.required,
           }
           try {
