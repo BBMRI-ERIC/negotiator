@@ -144,6 +144,24 @@ class TemplateControllerTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
+  void resetNotificationTemplate_wrongName_throws400() throws Exception {
+    var modifiedContent = "<html><body>Modified template</body></html>";
+    var template = Template.builder().name("email").content(modifiedContent).build();
+    templateRepository.save(template);
+
+    var request = new TemplateOperationRequest();
+    request.setOperation(TemplateOperationRequest.Operation.RESET);
+
+    mockMvc
+        .perform(
+            post(TEMPLATES_ENDPOINT + "/nonexistent/operations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
   void resetNotificationTemplate_withInvalidOperation_returnsBadRequest() throws Exception {
     var template =
         Template.builder().name("email_body").content("<html><body>Test</body></html>").build();

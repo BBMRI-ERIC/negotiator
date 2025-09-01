@@ -67,7 +67,7 @@ public class TemplateServiceImpl implements TemplateService {
       log.info("Reset template '%s' to original content".formatted(templateName));
       return templateEntity.getContent();
     } catch (IOException e) {
-      throw new NullPointerException("Original template not found: " + templateName);
+      throw new IllegalArgumentException("Original template not found: " + templateName);
     }
   }
 
