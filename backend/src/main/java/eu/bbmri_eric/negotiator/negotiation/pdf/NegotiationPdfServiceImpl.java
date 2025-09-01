@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
-import eu.bbmri_eric.negotiator.user.Person;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.apachecommons.CommonsLog;
@@ -116,23 +117,40 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     return processedPayload;
   }
 
+  private Map<String, Set<String>> getResourcesByOrganization(Set<Resource> resources) {
+    Map<String, Set<String>> resourcesByOrganization = new HashMap<>();
+
+    resources.forEach(
+        resource -> {
+          if (resourcesByOrganization.containsKey(resource.getOrganization().getName())) {
+            resourcesByOrganization
+                .get(resource.getOrganization().getName())
+                .add(resource.getName());
+          } else {
+            resourcesByOrganization.put(
+                resource.getOrganization().getName(), Set.of(resource.getName()));
+          }
+        });
+    return resourcesByOrganization;
+  }
+
   private Context createContext(Negotiation negotiation) throws JsonProcessingException {
     Map<String, Object> payload =
         this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
 
     Context context = new Context();
-    Person creator = negotiation.getCreatedBy();
-
     context.setVariable("now", LocalDateTime.now().format(DTF));
     context.setVariable("logoUrl", logoURL);
-    context.setVariable("authorName", creator.getName());
-    context.setVariable("authorEmail", creator.getEmail());
-    context.setVariable("authorInstitution", creator.getOrganization());
+    context.setVariable("authorName", negotiation.getCreatedBy().getName());
+    context.setVariable("authorEmail", negotiation.getCreatedBy().getEmail());
+    context.setVariable("authorInstitution", negotiation.getCreatedBy().getOrganization());
     context.setVariable("negotiationId", negotiation.getId());
     context.setVariable("negotiationTitle", negotiation.getTitle());
     context.setVariable("negotiationCreatedAt", negotiation.getCreationDate());
     context.setVariable("negotiationStatus", negotiation.getCurrentState());
     context.setVariable("negotiationPayload", processPayload(payload));
+    context.setVariable(
+        "resourcesByOrganization", getResourcesByOrganization(negotiation.getResources()));
 
     return context;
   }
