@@ -63,7 +63,9 @@
               <i class="bi bi-diagram-3"></i>
             </div>
             <h4 class="placeholder-title">Networks Management</h4>
-            <p class="placeholder-description">Manage networks and their connections to resources</p>
+            <p class="placeholder-description">
+              Manage networks and their connections to resources
+            </p>
             <div class="alert alert-info">
               <i class="bi bi-info-circle me-2"></i>
               Networks functionality will be implemented here
@@ -88,11 +90,15 @@ const router = useRouter()
 const activeTab = ref('organizations')
 
 // Watch for route changes to update active tab
-watch(() => route.query.tab, (newTab) => {
-  if (newTab && ['organizations', 'networks'].includes(newTab)) {
-    activeTab.value = newTab
-  }
-}, { immediate: true })
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab && ['organizations', 'networks'].includes(newTab)) {
+      activeTab.value = newTab
+    }
+  },
+  { immediate: true },
+)
 
 // Function to set active tab and update URL
 const setActiveTab = (tab) => {
@@ -101,7 +107,7 @@ const setActiveTab = (tab) => {
   // Update URL with query parameter
   router.push({
     path: route.path,
-    query: { ...route.query, tab }
+    query: { ...route.query, tab },
   })
 }
 
@@ -121,7 +127,7 @@ onMounted(async () => {
     if (!urlTab) {
       router.replace({
         path: route.path,
-        query: { ...route.query, tab: 'organizations' }
+        query: { ...route.query, tab: 'organizations' },
       })
     }
   }

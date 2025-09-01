@@ -168,9 +168,7 @@
                     :style="{ color: uiConfiguration.primaryTextColor }"
                   >
                     <i class="bi bi-buildings mx-2" />
-                    {{
-                      $t('negotiationPage.organisations', Object.keys(organizationsById).length)
-                    }}
+                    {{ $t('negotiationPage.organisations', Object.keys(organizationsById).length) }}
                     ({{ Object.keys(organizationsById).length }}) |
                     <i class="bi bi-box-seam" />
                     {{ $t('negotiationPage.resources', numberOfResources) }} ({{
@@ -210,12 +208,7 @@
                       'negotiationPage.organisations',
                       Object.entries(representedOrganizationsById).length,
                     )
-                  }}/{{
-                    $t(
-                      'negotiationPage.resources',
-                      resources.length,
-                    )
-                  }}
+                  }}/{{ $t('negotiationPage.resources', resources.length) }}
                 </label>
                 <div
                   v-for="[orgId, org] in Object.entries(representedOrganizationsById)"

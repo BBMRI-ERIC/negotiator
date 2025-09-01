@@ -19,10 +19,7 @@
           :value="option.value"
           @change="emitChange"
         />
-        <label
-          class="form-check-label"
-          :style=labelStyle
-        >
+        <label class="form-check-label" :style="labelStyle">
           {{ option.label }}
         </label>
       </div>
@@ -35,45 +32,44 @@
         <i class="bi bi-x-circle" />
         Clear
       </button>
-    </ul>    
+    </ul>
   </div>
 </template>
 
 <script setup>
+const value = defineModel('value')
 
-const value = defineModel("value")
-
-const emit = defineEmits(["change"])
+const emit = defineEmits(['change'])
 
 defineProps({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   label: {
     type: String,
-    required: true
+    required: true,
   },
   type: {
     type: String,
     required: false,
     default: 'checkbox',
-    validator: (prop) => ['checkbox', 'radio'].includes(prop)
+    validator: (prop) => ['checkbox', 'radio'].includes(prop),
   },
   options: {
     type: Array,
     required: true,
-    default: () => []
+    default: () => [],
   },
   buttonStyle: {
     type: Object,
     required: false,
-    default: () => {}
+    default: () => {},
   },
   labelStyle: {
     type: Object,
     required: false,
-    default: () => {}
+    default: () => {},
   },
   clearButtonStyle: {
     type: Object,
@@ -82,9 +78,9 @@ defineProps({
       'border-color': '#dc3545',
       '--hovercolor': '#dc3545',
       'background-color': '#FFFFFF',
-      'color': '#dc3545'
-    })
-  }
+      color: '#dc3545',
+    }),
+  },
 })
 
 function emitChange() {
@@ -95,7 +91,6 @@ function clearValue() {
   value.value = ''
   emitChange()
 }
-
 </script>
 
 <style scoped>

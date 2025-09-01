@@ -21,13 +21,16 @@ export function useOrganizations() {
     statusFilter: 'active',
     name: '',
     externalId: '',
-    resourceName: ''
+    resourceName: '',
   })
 
   let searchTimeout = null
 
   const allExpanded = computed(() => {
-    return organizations.value.length > 0 && expandedOrganizations.value.size === organizations.value.length
+    return (
+      organizations.value.length > 0 &&
+      expandedOrganizations.value.size === organizations.value.length
+    )
   })
 
   const sortedOrganizations = computed(() => {
@@ -35,8 +38,8 @@ export function useOrganizations() {
       return []
     }
 
-    const activeOrgs = organizations.value.filter(org => !org.withdrawn)
-    const withdrawnOrgs = organizations.value.filter(org => org.withdrawn)
+    const activeOrgs = organizations.value.filter((org) => !org.withdrawn)
+    const withdrawnOrgs = organizations.value.filter((org) => org.withdrawn)
 
     const sortedActive = activeOrgs.sort((a, b) => {
       const aId = String(a.id || a.externalId || '').toLowerCase()
@@ -57,8 +60,12 @@ export function useOrganizations() {
     const resources = organizationResources.value[organizationId] || []
     if (resources.length === 0) return []
 
-    const activeResources = resources.filter(resource => !resource.withdrawn && resource.status !== 'withdrawn')
-    const withdrawnResources = resources.filter(resource => resource.withdrawn || resource.status === 'withdrawn')
+    const activeResources = resources.filter(
+      (resource) => !resource.withdrawn && resource.status !== 'withdrawn',
+    )
+    const withdrawnResources = resources.filter(
+      (resource) => resource.withdrawn || resource.status === 'withdrawn',
+    )
 
     const sortedActive = activeResources.sort((a, b) => {
       const aId = String(a.id || a.sourceId || '').toLowerCase()
@@ -80,7 +87,8 @@ export function useOrganizations() {
       return 'Loading organizations...'
     }
 
-    const hasSearchFilters = filters.value.name || filters.value.externalId || filters.value.resourceName
+    const hasSearchFilters =
+      filters.value.name || filters.value.externalId || filters.value.resourceName
 
     if (hasSearchFilters) {
       return 'No organizations found matching your search criteria.'
@@ -108,12 +116,10 @@ export function useOrganizations() {
     if (allExpanded.value) {
       expandedOrganizations.value.clear()
     } else {
-      organizations.value.forEach(org => {
+      organizations.value.forEach((org) => {
         expandedOrganizations.value.add(org.id)
       })
-      await Promise.all(
-        organizations.value.map(org => loadResourcesForOrganization(org.id))
-      )
+      await Promise.all(organizations.value.map((org) => loadResourcesForOrganization(org.id)))
     }
   }
 
@@ -125,8 +131,12 @@ export function useOrganizations() {
     loadingResources.value.add(organizationId)
 
     try {
-      const organizationWithResources = await organizationsStore.getOrganizationById(organizationId, 'resources')
-      const resources = organizationWithResources.resources || organizationWithResources._embedded?.resources || []
+      const organizationWithResources = await organizationsStore.getOrganizationById(
+        organizationId,
+        'resources',
+      )
+      const resources =
+        organizationWithResources.resources || organizationWithResources._embedded?.resources || []
       organizationResources.value[organizationId] = resources
     } catch (error) {
       console.error('Failed to load resources for organization:', organizationId, error)
@@ -158,7 +168,7 @@ export function useOrganizations() {
       const response = await adminStore.retrieveOrganizationsPaginated(
         pageNumber.value,
         pageSize.value,
-        apiFilters
+        apiFilters,
       )
       organizations.value = response?._embedded?.organizations ?? []
       pageLinks.value = response._links || {}
@@ -208,7 +218,7 @@ export function useOrganizations() {
       statusFilter: 'active',
       name: '',
       externalId: '',
-      resourceName: ''
+      resourceName: '',
     }
     pageNumber.value = 0
     loadOrganizations()
@@ -266,6 +276,6 @@ export function useOrganizations() {
     clearFilters,
     applyFilters,
     debouncedSearch,
-    reloadResourcesForOrganization
+    reloadResourcesForOrganization,
   }
 }
