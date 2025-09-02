@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
+import eu.bbmri_eric.negotiator.attachment.AttachmentConversionServiceImpl;
+import eu.bbmri_eric.negotiator.common.PdfMerger;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
@@ -21,13 +23,17 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.HtmlUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -38,6 +44,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private final NegotiationRepository negotiationRepository;
+  private final AttachmentConversionServiceImpl conversionService;
   private static final DateTimeFormatter DTF =
       DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
   private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
@@ -53,13 +60,15 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   public NegotiationPdfServiceImpl(
       NegotiationRepository negotiationRepository,
       TemplateEngine templateEngine,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper,
+      AttachmentConversionServiceImpl conversionService) {
     this.negotiationRepository = negotiationRepository;
     this.templateEngine = templateEngine;
     this.objectMapper = objectMapper;
+    this.conversionService = conversionService;
   }
 
-  public byte[] generatePdf(String negotiationId, String templateName)
+  public byte[] generatePdf(String negotiationId, String templateName, boolean includeAttachments)
       throws PdfGenerationException {
     Negotiation negotiation = findEntityById(negotiationId);
 
@@ -72,7 +81,23 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       String renderedHtml =
           templateEngine.process(templateName, context).replaceAll("(<br />)+$", "");
 
-      return renderPdf(renderedHtml);
+      byte[] pdfBytes = renderPdf(renderedHtml);
+      if (!includeAttachments) {
+        return pdfBytes;
+      } else {
+        List<byte[]> pdfsToMerge =
+            Stream.concat(
+                    Stream.of(pdfBytes),
+                    conversionService.toPdfByNegotiationId(negotiationId).stream())
+                .toList();
+
+        try {
+          return PdfMerger.mergePdfs(pdfsToMerge);
+        } catch (IOException e) {
+          throw new ResponseStatusException(
+              HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
+        }
+      }
     } catch (Exception e) {
       throw new PdfGenerationException("Error creating negotiation pdf: " + e.getMessage());
     }

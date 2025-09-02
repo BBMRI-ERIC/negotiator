@@ -1,10 +1,8 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
+import eu.bbmri_eric.negotiator.attachment.AttachmentConversionServiceImpl;
 import eu.bbmri_eric.negotiator.attachment.AttachmentService;
-import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
-import eu.bbmri_eric.negotiator.common.PdfMerger;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithStatusDTO;
@@ -28,7 +26,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -39,8 +36,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -77,9 +72,6 @@ public class NegotiationController {
 
   private final NegotiationTimeline timelineService;
 
-  private final AttachmentService attachmentService;
-  private final AttachmentConversionService mergingService;
-
   private final NegotiationModelAssembler assembler;
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
@@ -95,7 +87,7 @@ public class NegotiationController {
       ResourceService resourceService,
       NegotiationTimeline timelineService,
       AttachmentService attachmentService,
-      AttachmentConversionService mergingService,
+      AttachmentConversionServiceImpl mergingService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler,
       NegotiationPdfService negotiationPdfService) {
@@ -105,8 +97,6 @@ public class NegotiationController {
     this.personService = personService;
     this.resourceService = resourceService;
     this.timelineService = timelineService;
-    this.attachmentService = attachmentService;
-    this.mergingService = mergingService;
     this.assembler = assembler;
     this.resourceWithStatusAssembler = resourceWithStatusAssembler;
     this.negotiationPdfService = negotiationPdfService;
@@ -341,42 +331,17 @@ public class NegotiationController {
       throws Exception {
 
     byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName, includeAttachments);
-
+    String pdfName;
     if (includeAttachments) {
-      List<String> attachmentIds =
-          attachmentService.findByNegotiation(id).stream()
-              .map(AttachmentMetadataDTO::getId)
-              .toList();
-
-      List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
-      pdfsToMerge.add(pdfBytes);
-
-      if (!attachmentIds.isEmpty()) {
-        List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
-        pdfsToMerge.addAll(attachmentPdfs);
-      }
-
-      byte[] mergedPdf = null;
-      try {
-        mergedPdf = PdfMerger.mergePdfs(pdfsToMerge);
-      } catch (IOException e) {
-        throw new ResponseStatusException(
-            HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
-      }
-
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_PDF);
-      headers.setContentDisposition(
-          ContentDisposition.builder("attachment")
-              .filename(String.format("%s_merged.pdf", id))
-              .build());
-      return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
+      pdfName = String.format("negotiation-%s", id);
     } else {
-      return ResponseEntity.ok()
-          .contentType(MediaType.APPLICATION_PDF)
-          .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-          .body(pdfBytes);
+      pdfName = String.format("negotiation-%s-merged", id);
     }
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_PDF)
+        .header("Content-Disposition", "attachment; filename=\"" + pdfName + ".pdf\"")
+        .body(pdfBytes);
   }
 
   private byte[] generateNegotiationPdfInternal(
@@ -389,8 +354,7 @@ public class NegotiationController {
           HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
     try {
-      byte[] pdfBytes = negotiationPdfService.generatePdf(id, templateName);
-      return pdfBytes;
+      return negotiationPdfService.generatePdf(id, templateName, includeAttachments);
     } catch (Exception e) {
       throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);

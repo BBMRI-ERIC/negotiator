@@ -239,7 +239,7 @@ class NegotiationPdfGenerationTest {
 
     List<String> attachmentIds = List.of(pdfAttachment.getId(), docxAttachment.getId());
 
-    List<byte[]> convertedPdfs = conversionService.getAttachmentsAsPdf(attachmentIds);
+    List<byte[]> convertedPdfs = conversionService.attachmentsListToPdf(attachmentIds);
 
     assertEquals(2, convertedPdfs.size());
     assertNotNull(convertedPdfs.get(0));
