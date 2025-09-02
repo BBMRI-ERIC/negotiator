@@ -107,7 +107,12 @@
         </div>
         <draggable
           :modelValue="accessForm.sections[index].elements"
-          @update:modelValue="(newValue) => (accessForm.sections[index].elements = newValue)"
+          @update:modelValue="
+            (newValue) => (
+              (accessForm.sections[index].elements = newValue),
+              updateSectionsWithNewOrderElements(section.name)
+            )
+          "
         >
           <template #item="{ element: criteria }">
             <div class="mb-4 mx-3 d-flex">
@@ -685,7 +690,11 @@ async function editAccessForm() {
 
       // link new elements to section
       postAccessForm.sections[sectionIndex].elements.forEach((element, elementIndex) => {
-        if (!originalSection || !originalSection.elements.some((e) => e.id === element.id)) {
+        if (
+          !originalSection ||
+          !originalSection.elements.some((e) => e.id === element.id) ||
+          sectionsWithNewOrderElements.value[section.name]
+        ) {
           let currentElement = {
             elementId: element.id,
             elementOrder: elementIndex + 1,
@@ -804,6 +813,14 @@ function removeSection(sectionIndex) {
   accessForm.value.sections.splice(sectionIndex, 1)
   requriedElements.value.splice(sectionIndex, 1)
   forceReRenderFormWizard.value += 1
+}
+
+const sectionsWithNewOrderElements = ref({})
+
+function updateSectionsWithNewOrderElements(sectionName) {
+  if (sectionName) {
+    sectionsWithNewOrderElements.value[sectionName] = sectionName
+  }
 }
 </script>
 <style scoped>
