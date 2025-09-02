@@ -107,23 +107,31 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
       }
 
       log.debug("Converting attachment with content type: " + contentType);
-
-      return switch (contentType) {
-        case CONTENT_TYPE_PDF -> {
-          log.debug("Attachment is already PDF, returning as-is");
-          yield payload;
-        }
-        case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> convertDocxToPdf(payload);
-        case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> convertDocToPdf(payload);
-        default -> {
-          log.error("Unrecognized attachment content type: " + contentType);
-          yield null;
-        }
-      };
+      FileTypeConverter converter = getConverter(contentType);
+      if (converter != null) {
+        return converter.convertToPdf(payload);
+      } else {
+        return null;
+      }
     } catch (Exception e) {
       log.error("Error converting attachment to PDF: " + e.getMessage());
       return null;
     }
+  }
+
+  private FileTypeConverter getConverter(String contentType) {
+    return switch (contentType) {
+      case CONTENT_TYPE_PDF -> {
+        log.debug("Attachment is already PDF, returning as-is");
+        yield new PDFConverter();
+      }
+      case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> new DocxConverter();
+      case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> new DocConverter();
+      default -> {
+        log.error("Unrecognized attachment content type: " + contentType);
+        yield null;
+      }
+    };
   }
 
   private byte[] convertDocToPdf(byte[] docBytes) throws Exception {
