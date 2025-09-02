@@ -336,6 +336,64 @@ public class NegotiatorExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(PdfGenerationException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal Server Error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                                  {
+                                    "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+                                    "title": "Internal Server Error",
+                                    "status": 500,
+                                    "detail": "Specific error message goes here",
+                                    "instance": "/api/your-endpoint"
+                                  }
+                                  """)))
+  public final ProblemDetail handlePdfGenerationException(PdfGenerationException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
+    problemDetail.setTitle("Internal Server Error");
+    problemDetail.setDetail(ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(IllegalStateException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal Server Error",
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                                  {
+                                    "type": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500",
+                                    "title": "Internal Server Error",
+                                    "status": 500,
+                                    "detail": "Specific error message goes here",
+                                    "instance": "/api/your-endpoint"
+                                  }
+                                  """)))
+  public final ProblemDetail handleIllegalStateException(IllegalStateException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    problemDetail.setType(
+        URI.create("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500"));
+    problemDetail.setTitle("Internal Server Error");
+    problemDetail.setDetail(ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(TransactionException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public final ResponseEntity<HttpErrorResponseModel> handleTransactionException(

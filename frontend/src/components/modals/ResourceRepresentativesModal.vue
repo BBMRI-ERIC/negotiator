@@ -9,9 +9,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 :id="`${modalId}Label`" class="modal-title">
-            Manage Resource Representatives
-          </h5>
+          <h5 :id="`${modalId}Label`" class="modal-title">Manage Resource Representatives</h5>
           <button
             type="button"
             class="btn-close"
@@ -38,11 +36,15 @@
             <ul class="mb-0">
               <li v-if="representativesToAdd.length > 0">
                 Add {{ representativesToAdd.length }} representative(s):
-                <span class="fw-bold">{{ representativesToAdd.map(r => r.name).join(', ') }}</span>
+                <span class="fw-bold">{{
+                  representativesToAdd.map((r) => r.name).join(', ')
+                }}</span>
               </li>
               <li v-if="representativesToRemove.length > 0">
                 Remove {{ representativesToRemove.length }} representative(s):
-                <span class="fw-bold">{{ representativesToRemove.map(r => r.name).join(', ') }}</span>
+                <span class="fw-bold">{{
+                  representativesToRemove.map((r) => r.name).join(', ')
+                }}</span>
               </li>
             </ul>
           </div>
@@ -77,7 +79,7 @@
             <div
               v-else-if="searchResults.length > 0"
               class="border rounded p-3 mb-3"
-              style="max-height: 200px; overflow-y: auto;"
+              style="max-height: 200px; overflow-y: auto"
             >
               <div
                 v-for="user in searchResults"
@@ -121,23 +123,17 @@
                 class="d-flex justify-content-between align-items-center py-2 border-bottom"
                 :class="{
                   'text-decoration-line-through opacity-50': isMarkedForRemoval(representative.id),
-                  'text-success fw-bold': isMarkedForAddition(representative.id)
+                  'text-success fw-bold': isMarkedForAddition(representative.id),
                 }"
               >
                 <div>
                   <strong>{{ representative.name }}</strong>
                   <br />
                   <small class="text-muted">{{ representative.email }}</small>
-                  <span
-                    v-if="isMarkedForAddition(representative.id)"
-                    class="badge bg-success ms-2"
-                  >
+                  <span v-if="isMarkedForAddition(representative.id)" class="badge bg-success ms-2">
                     New
                   </span>
-                  <span
-                    v-if="isMarkedForRemoval(representative.id)"
-                    class="badge bg-danger ms-2"
-                  >
+                  <span v-if="isMarkedForRemoval(representative.id)" class="badge bg-danger ms-2">
                     To Remove
                   </span>
                 </div>
@@ -202,12 +198,12 @@ import { useNotificationsStore } from '@/store/notifications'
 const props = defineProps({
   modalId: {
     type: String,
-    required: true
+    required: true,
   },
   resource: {
     type: Object,
-    default: null
-  }
+    default: null,
+  },
 })
 
 const emit = defineEmits(['representativesUpdated'])
@@ -231,8 +227,8 @@ const representativesToRemove = ref([])
 
 let searchTimeout = null
 
-const hasChanges = computed(() =>
-  representativesToAdd.value.length > 0 || representativesToRemove.value.length > 0
+const hasChanges = computed(
+  () => representativesToAdd.value.length > 0 || representativesToRemove.value.length > 0,
 )
 
 const handleSearchInput = () => {
@@ -253,7 +249,7 @@ const searchUsers = async () => {
   try {
     const filtersSortData = {
       name: searchQuery.value,
-      email: searchQuery.value
+      email: searchQuery.value,
     }
 
     const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
@@ -267,15 +263,15 @@ const searchUsers = async () => {
 }
 
 const isCurrentRepresentative = (userId) => {
-  return currentRepresentatives.value.some(rep => rep.id === userId)
+  return currentRepresentatives.value.some((rep) => rep.id === userId)
 }
 
 const isMarkedForAddition = (userId) => {
-  return representativesToAdd.value.some(rep => rep.id === userId)
+  return representativesToAdd.value.some((rep) => rep.id === userId)
 }
 
 const isMarkedForRemoval = (userId) => {
-  return representativesToRemove.value.some(rep => rep.id === userId)
+  return representativesToRemove.value.some((rep) => rep.id === userId)
 }
 
 const getAddButtonText = (userId) => {
@@ -289,7 +285,7 @@ const stageAddRepresentative = (user) => {
     const userDto = {
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
     }
 
     currentRepresentatives.value.push(userDto)
@@ -298,23 +294,23 @@ const stageAddRepresentative = (user) => {
 }
 
 const stageRemoveRepresentative = (representative) => {
-  const wasOriginal = originalRepresentatives.value.some(rep => rep.id === representative.id)
+  const wasOriginal = originalRepresentatives.value.some((rep) => rep.id === representative.id)
 
   if (wasOriginal) {
     representativesToRemove.value.push(representative)
   } else {
     currentRepresentatives.value = currentRepresentatives.value.filter(
-      rep => rep.id !== representative.id
+      (rep) => rep.id !== representative.id,
     )
     representativesToAdd.value = representativesToAdd.value.filter(
-      rep => rep.id !== representative.id
+      (rep) => rep.id !== representative.id,
     )
   }
 }
 
 const unstageRemoveRepresentative = (representative) => {
   representativesToRemove.value = representativesToRemove.value.filter(
-    rep => rep.id !== representative.id
+    (rep) => rep.id !== representative.id,
   )
 }
 
@@ -346,32 +342,27 @@ const handleSave = async () => {
       await resourcesStore.removeRepresentativeFromResource(
         representative.id,
         props.resource.id,
-        true
+        true,
       )
     }
 
     for (const representative of representativesToAdd.value) {
       currentOperation.value++
-      await resourcesStore.addRepresentativeToResource(
-        representative.id,
-        props.resource.id,
-        true
-      )
+      await resourcesStore.addRepresentativeToResource(representative.id, props.resource.id, true)
     }
 
     representativesToAdd.value = []
     representativesToRemove.value = []
     originalRepresentatives.value = [
-      ...currentRepresentatives.value.filter(rep => !isMarkedForRemoval(rep.id))
+      ...currentRepresentatives.value.filter((rep) => !isMarkedForRemoval(rep.id)),
     ]
 
     notifications.setNotification('Representatives updated successfully', 'success')
 
     emit('representativesUpdated', {
       resourceId: props.resource.id,
-      representatives: originalRepresentatives.value
+      representatives: originalRepresentatives.value,
     })
-
   } catch {
     notifications.setNotification('Error saving representative changes. Please try again.')
   } finally {
@@ -399,14 +390,18 @@ const initializeModal = () => {
   }
 }
 
-watch(() => props.resource, (newResource) => {
-  if (newResource) {
-    const reps = newResource.representatives || []
-    originalRepresentatives.value = [...reps]
-    currentRepresentatives.value = [...reps]
-    resetSearchState()
-  }
-}, { immediate: true })
+watch(
+  () => props.resource,
+  (newResource) => {
+    if (newResource) {
+      const reps = newResource.representatives || []
+      originalRepresentatives.value = [...reps]
+      currentRepresentatives.value = [...reps]
+      resetSearchState()
+    }
+  },
+  { immediate: true },
+)
 
 const resetSearchState = () => {
   representativesToAdd.value = []

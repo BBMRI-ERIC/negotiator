@@ -94,13 +94,21 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithUserDetails("researcher")
+  @WithUserDetails("admin")
   void getRepresentedNetworks_oneNetwork_ok() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(102)))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/json"))
         .andExpect(jsonPath("$.page.totalElements", is(1)));
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  void getRepresentedNetworks_validRequest_Forbidden() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(102)))
+        .andExpect(status().isForbidden());
   }
 
   @Test

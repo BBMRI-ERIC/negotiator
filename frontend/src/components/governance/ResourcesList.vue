@@ -58,12 +58,12 @@ import ResourceItem from './ResourceItem.vue'
 defineProps({
   resources: {
     type: Array,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 })
 
 defineEmits(['editResource', 'addResources', 'representativesUpdated'])

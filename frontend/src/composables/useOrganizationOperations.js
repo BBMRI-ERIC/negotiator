@@ -5,7 +5,10 @@ export function useOrganizationOperations() {
   const adminStore = useAdminStore()
   const loading = ref(false)
 
-  const handleOrganizationCreate = async (newOrganization, { loadOrganizations, closeCreateModal }) => {
+  const handleOrganizationCreate = async (
+    newOrganization,
+    { loadOrganizations, closeCreateModal },
+  ) => {
     try {
       loading.value = true
       await adminStore.createOrganization(newOrganization)
@@ -18,7 +21,10 @@ export function useOrganizationOperations() {
     }
   }
 
-  const handleOrganizationUpdate = async ({ organizationId, updateData }, { loadOrganizations, closeEditModal }) => {
+  const handleOrganizationUpdate = async (
+    { organizationId, updateData },
+    { loadOrganizations, closeEditModal },
+  ) => {
     try {
       loading.value = true
       await adminStore.updateOrganization(organizationId, updateData)
@@ -31,7 +37,10 @@ export function useOrganizationOperations() {
     }
   }
 
-  const handleResourceCreate = async (createdResourceData, { selectedOrganizationForResource, reloadResourcesForOrganization, closeCreateResourceModal }) => {
+  const handleResourceCreate = async (
+    createdResourceData,
+    { selectedOrganizationForResource, reloadResourcesForOrganization, closeCreateResourceModal },
+  ) => {
     try {
       const organizationId = selectedOrganizationForResource.value?.id
       if (organizationId) {
@@ -43,13 +52,28 @@ export function useOrganizationOperations() {
     }
   }
 
-  const handleResourceUpdate = async (updatedResourceData, { selectedResource, organizationResources, reloadResourcesForOrganization, closeEditResourceModal }) => {
+  const handleResourceUpdate = async (
+    updatedResourceData,
+    {
+      selectedResource,
+      organizationResources,
+      reloadResourcesForOrganization,
+      closeEditResourceModal,
+    },
+  ) => {
     try {
-      let organizationId = updatedResourceData.organizationId || selectedResource.value?.organizationId
+      let organizationId =
+        updatedResourceData.organizationId || selectedResource.value?.organizationId
 
       if (!organizationId) {
         for (const [orgId, resources] of Object.entries(organizationResources.value)) {
-          if (resources.some(resource => resource.id === updatedResourceData.id || resource.id === selectedResource.value?.id)) {
+          if (
+            resources.some(
+              (resource) =>
+                resource.id === updatedResourceData.id ||
+                resource.id === selectedResource.value?.id,
+            )
+          ) {
             organizationId = orgId
             break
           }
@@ -71,6 +95,6 @@ export function useOrganizationOperations() {
     handleOrganizationCreate,
     handleOrganizationUpdate,
     handleResourceCreate,
-    handleResourceUpdate
+    handleResourceUpdate,
   }
 }

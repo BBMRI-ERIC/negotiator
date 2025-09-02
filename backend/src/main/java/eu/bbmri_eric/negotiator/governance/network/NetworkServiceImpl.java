@@ -47,6 +47,7 @@ public class NetworkServiceImpl implements NetworkService {
 
   @Override
   public Iterable<NetworkDTO> findAllForManager(Long managerId, Pageable pageable) {
+    AuthenticatedUserContext.checkUserAccess(managerId);
     Person manager =
         personRepository
             .findById(managerId)

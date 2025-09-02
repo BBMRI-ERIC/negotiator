@@ -117,6 +117,6 @@ export function useOrganizationModals() {
     openCreateResourceModal,
     closeCreateResourceModal,
     openEditResourceModal,
-    closeEditResourceModal
+    closeEditResourceModal,
   }
 }

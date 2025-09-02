@@ -10,37 +10,36 @@
       @input="emitInput"
     />
     <button class="input-group-text" @click="resetValue">
-        <i class="bi bi-x"></i>
+      <i class="bi bi-x"></i>
     </button>
   </div>
 </template>
 
 <script setup>
+const value = defineModel('value')
 
-const value = defineModel("value")
-
-const emit = defineEmits(["input"])
+const emit = defineEmits(['input'])
 
 defineProps({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   label: {
     type: String,
-    required: true
+    required: true,
   },
   type: {
     type: String,
     required: false,
     default: 'text',
-    validator: (prop) => ['test', 'email'].includes(prop)
+    validator: (prop) => ['test', 'email'].includes(prop),
   },
   placeholder: {
     type: String,
     required: false,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 function emitInput() {
@@ -51,9 +50,6 @@ function resetValue() {
   value.value = ''
   emitInput()
 }
-
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
