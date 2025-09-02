@@ -27,12 +27,10 @@ class PdfMerger {
           continue;
         }
 
-        // Load the PDF bytes into the PDDocument using try-with-resources
         try (PDDocument doc = Loader.loadPDF(pdfBytes)) {
           mergeDocument(mergedPdf, doc);
         } catch (IOException e) {
           log.error("Failed to merge PDF document: " + e.getMessage(), e);
-          // Create an error document and merge it
           try (PDDocument errorDoc = new PDDocument()) {
             errorDoc.addPage(new PDPage());
             errorDoc.getDocumentInformation().setTitle("Error Document");
