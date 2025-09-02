@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
-import eu.bbmri_eric.negotiator.attachment.AttachmentConversionServiceImpl;
+import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.common.PdfMerger;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
@@ -44,7 +44,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional
 public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private final NegotiationRepository negotiationRepository;
-  private final AttachmentConversionServiceImpl conversionService;
+  private final AttachmentConversionService conversionService;
   private static final DateTimeFormatter DTF =
       DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
   private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
@@ -61,7 +61,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       NegotiationRepository negotiationRepository,
       TemplateEngine templateEngine,
       ObjectMapper objectMapper,
-      AttachmentConversionServiceImpl conversionService) {
+      AttachmentConversionService conversionService) {
     this.negotiationRepository = negotiationRepository;
     this.templateEngine = templateEngine;
     this.objectMapper = objectMapper;
