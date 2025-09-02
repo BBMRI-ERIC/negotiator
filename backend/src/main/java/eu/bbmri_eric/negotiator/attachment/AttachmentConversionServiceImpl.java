@@ -116,7 +116,7 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
         case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> convertDocxToPdf(payload);
         case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> convertDocToPdf(payload);
         default -> {
-          log.error("Unrecognized attachment content type:" + contentType);
+          log.error("Unrecognized attachment content type: " + contentType);
           yield null;
         }
       };
@@ -140,7 +140,7 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
 
       Range range = doc.getRange();
       int paragraphCount = range.numParagraphs();
-      log.debug("Processing paragraphs from DOC:" + paragraphCount);
+      log.debug("Processing paragraphs from DOC: " + paragraphCount);
 
       pdfDoc = new Document();
       PdfWriter.getInstance(pdfDoc, pdfOutputStream);
@@ -180,7 +180,9 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream()) {
 
       WordprocessingMLPackage wordMLPackage = Docx4J.load(docxInputStream);
-
+      if (wordMLPackage == null) {
+        throw new IllegalStateException("Failed to load DOCX package");
+      }
       Docx4J.toPDF(wordMLPackage, pdfOutputStream);
       byte[] result = pdfOutputStream.toByteArray();
       log.debug("Successfully converted DOCX to PDF, output size: " + result.length);

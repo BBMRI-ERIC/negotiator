@@ -9,7 +9,7 @@ describe("Test negotiation pdf download", () => {
     })
 
     // Download of merged pdf
-    context("check if you can download negotiation pdf is working", () => {
+    context("check if negotiation pdf download is working", () => {
         it("test if download pdf button is working", () => {
 
             cy.get(".pdf-button").should("be.visible")
@@ -21,7 +21,7 @@ describe("Test negotiation pdf download", () => {
     })
 
     // Download of negotiation pdf
-    context("check if you can download merged negotiation pdf is working", () => {
+    context("check if merged negotiation pdf download is working", () => {
         it("test if download merged pdf button is working", () => {
 
             cy.get(".merged-pdf-button").should("be.visible")
