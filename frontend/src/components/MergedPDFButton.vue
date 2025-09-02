@@ -70,6 +70,6 @@ a {
 
 .pdf-text-hover:hover,
 .pdf-text-hover:hover i {
-  color: #28a745 !important; /* Bootstrap's success green */
+  color: var(--bs-danger) !important;
 }
 </style>
