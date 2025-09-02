@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.common;
+package eu.bbmri_eric.negotiator.negotiation.pdf;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 
 /** Utility class for merging multiple PDF documents into a single PDF. */
 @CommonsLog
-public class PdfMerger {
+class PdfMerger {
   /**
    * Merges a list of PDF documents represented as byte arrays into a single PDF.
    *

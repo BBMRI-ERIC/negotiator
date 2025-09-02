@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
-import eu.bbmri_eric.negotiator.common.PdfMerger;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
