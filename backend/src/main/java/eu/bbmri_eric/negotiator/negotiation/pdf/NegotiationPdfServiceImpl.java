@@ -47,6 +47,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private static final DateTimeFormatter DTF =
       DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
   private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
+  private static final Set<String> ALLOWED_TEMPLATES = Set.of("PDF_NEGOTIATION_SUMMARY");
   private final TemplateEngine templateEngine;
   private final ObjectMapper objectMapper;
 
@@ -73,6 +74,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
     if (templateName == null) {
       templateName = DEFAULT_PDF_TEMPLATE_NAME;
+    } else if (!ALLOWED_TEMPLATES.contains(templateName)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
 
     try {

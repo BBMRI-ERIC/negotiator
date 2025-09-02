@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
@@ -74,8 +73,6 @@ public class NegotiationController {
   private final ResourceWithStatusAssembler resourceWithStatusAssembler;
 
   private final NegotiationPdfService negotiationPdfService;
-
-  private static final Set<String> ALLOWED_TEMPLATES = Set.of("PDF_NEGOTIATION_SUMMARY");
 
   public NegotiationController(
       NegotiationService negotiationService,
@@ -327,11 +324,6 @@ public class NegotiationController {
 
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-
-    if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
     }
 
     byte[] pdfBytes;
