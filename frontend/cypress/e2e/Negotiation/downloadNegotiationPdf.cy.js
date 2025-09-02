@@ -28,7 +28,7 @@ describe("Test negotiation pdf download", () => {
 
             cy.get(".merged-pdf-button").click()
 
-            cy.get('.col-12 > .alert').should("be.visible").contains("Merged PDF successfully saved")
+            cy.get('.col-12 > .alert').should("be.visible").contains("File successfully saved")
         })
     })
 })

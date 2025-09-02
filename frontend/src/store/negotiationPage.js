@@ -319,28 +319,28 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
       })
   }
 
-  async function retrieveNegotiationPDF(id) {
+  async function retrieveNegotiationPDF(id, includeAttachments) {
     return axios
-      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf`, {
+      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf?includeAttachments=${includeAttachments}`, {
         headers: getBearerHeaders(),
         responseType: 'blob',
       })
-      .then((response) => response.data)
+      .then((response) => {
+        const disposition = response.headers["content-disposition"]
+
+        let filename = `negotiation-${id}.pdf`
+        if (disposition && disposition.includes("filename=")) {
+          // Extract filename using regex
+          const matches = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/);
+          if (matches && matches[1]) {
+            filename = decodeURIComponent(matches[1]);
+          }
+        }
+
+        return { data: response.data, name: filename}
+      })
       .catch((error) => {
         console.error('Error retrieving PDF:', error)
-        throw error
-      })
-  }
-
-  async function retrieveNegotiationMergedPDF(id) {
-    return axios
-      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf?includeAttachments=true`, {
-        headers: getBearerHeaders(),
-        responseType: 'blob',
-      })
-      .then((response) => response.data)
-      .catch((error) => {
-        console.error('Error retrieving merged PDF:', error)
         throw error
       })
   }
@@ -381,7 +381,6 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
     retrieveResourceAllStates,
     deleteNegotiation,
     retrieveNegotiationPDF,
-    retrieveNegotiationMergedPDF,
     retrieveNegotiationTimeline,
   }
 })
