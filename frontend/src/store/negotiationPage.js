@@ -334,7 +334,7 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
 
   async function retrieveNegotiationMergedPDF(id) {
     return axios
-      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/fullpdf`, {
+      .get(`${apiPaths.NEGOTIATION_PATH}/${id}/pdf?includeAttachments=true`, {
         headers: getBearerHeaders(),
         responseType: 'blob',
       })

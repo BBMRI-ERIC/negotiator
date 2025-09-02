@@ -332,61 +332,55 @@ public class NegotiationController {
               description =
                   "Specific template to be used for generation, identified by the template name. If omitted the default template is used.")
           @RequestParam(value = "template", required = false)
-          String templateName)
-      throws Exception {
-
-    byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName);
-    return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_PDF)
-        .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
-        .body(pdfBytes);
-  }
-
-  @GetMapping(value = "/negotiations/{id}/fullpdf", produces = MediaType.APPLICATION_PDF_VALUE)
-  @Operation(
-      summary =
-          "Generate a PDF for a negotiation including all attachments. converted to PDF format, if the source document format is supported for conversion.",
-      description =
-          "This endpoint creates a merged PDF including all attached documents if the source document format is supported for conversion to PDF. A specific template can be applied to generate the PDF.")
-  @SecurityRequirement(name = "security_auth")
-  public ResponseEntity<byte[]> generateNegotiationPdfWithAttachments(
-      @PathVariable String id,
+          String templateName,
       @Parameter(
               description =
-                  "Specific template to be used for generation, identified by the template name. If omitted the default template is used.")
-          @RequestParam(value = "template", required = false)
-          String templateName)
+                  "Whether to include attachments to the generated PDF or not. By default it's false")
+          @RequestParam(value = "includeAttachments", required = false, defaultValue = "false")
+          boolean includeAttachments)
       throws Exception {
 
-    byte[] negotiationPdf = generateNegotiationPdfInternal(id, templateName);
-    List<String> attachmentIds =
-        attachmentService.findByNegotiation(id).stream().map(AttachmentMetadataDTO::getId).toList();
+    byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName, includeAttachments);
 
-    List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
-    pdfsToMerge.add(negotiationPdf);
+    if (includeAttachments) {
+      List<String> attachmentIds =
+          attachmentService.findByNegotiation(id).stream()
+              .map(AttachmentMetadataDTO::getId)
+              .toList();
 
-    if (!attachmentIds.isEmpty()) {
-      List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
-      pdfsToMerge.addAll(attachmentPdfs);
+      List<byte[]> pdfsToMerge = new java.util.ArrayList<>();
+      pdfsToMerge.add(pdfBytes);
+
+      if (!attachmentIds.isEmpty()) {
+        List<byte[]> attachmentPdfs = mergingService.getAttachmentsAsPdf(attachmentIds);
+        pdfsToMerge.addAll(attachmentPdfs);
+      }
+
+      byte[] mergedPdf = null;
+      try {
+        mergedPdf = PdfMerger.mergePdfs(pdfsToMerge);
+      } catch (IOException e) {
+        throw new ResponseStatusException(
+            HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
+      }
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.setContentDisposition(
+          ContentDisposition.builder("attachment")
+              .filename(String.format("%s_merged.pdf", id))
+              .build());
+      return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
+    } else {
+      return ResponseEntity.ok()
+          .contentType(MediaType.APPLICATION_PDF)
+          .header("Content-Disposition", "attachment; filename=\"negotiation-" + id + ".pdf\"")
+          .body(pdfBytes);
     }
-
-    byte[] mergedPdf = null;
-    try {
-      mergedPdf = PdfMerger.mergePdfs(pdfsToMerge);
-    } catch (IOException e) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error merging PDFs", e);
-    }
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_PDF);
-    headers.setContentDisposition(
-        ContentDisposition.builder("attachment")
-            .filename(String.format("%s_merged.pdf", id))
-            .build());
-    return new ResponseEntity<>(mergedPdf, headers, HttpStatus.OK);
   }
 
-  private byte[] generateNegotiationPdfInternal(String id, String templateName) throws Exception {
+  private byte[] generateNegotiationPdfInternal(
+      String id, String templateName, boolean includeAttachments) throws Exception {
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
