@@ -215,7 +215,7 @@ class NegotiationPdfGenerationTest {
 
     byte[] mergedPdfContent = result.getResponse().getContentAsByteArray();
     assertNotNull(mergedPdfContent);
-    assertTrue(mergedPdfContent.length > 0);
+    assertTrue(mergedPdfContent.length > pdfFile.getSize() + docxFile.getSize());
   }
 
   @Test
