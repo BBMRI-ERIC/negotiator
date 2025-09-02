@@ -1751,7 +1751,9 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void getFullPdf_Ok_WhenUserIsAdmin() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-3/fullpdf"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-3/pdf?includeAttachments=true"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/pdf"))
         .andExpect(
@@ -1762,7 +1764,9 @@ public class NegotiationControllerTests {
   @WithUserDetails("TheResearcher")
   public void getFullPdf_Ok_WhenUserIsCreator() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/fullpdf"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-1/pdf?includeAttachments=true"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/pdf"))
         .andExpect(
@@ -1773,7 +1777,9 @@ public class NegotiationControllerTests {
   @WithUserDetails("SarahRepr")
   public void getFullPdf_Forbidden_WhenUserNotCreatorOrAdmin() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-1/fullpdf"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-1/pdf?includeAttachments=true"))
         .andExpect(status().isForbidden());
   }
 
@@ -1781,7 +1787,9 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void getFullPdf_NotFound_WhenNegotiationDoesNotExist() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations/non-existent-id/fullpdf"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/non-existent-id/pdf?includeAttachments=true"))
         .andExpect(status().isNotFound());
   }
 
@@ -1789,7 +1797,9 @@ public class NegotiationControllerTests {
   @WithUserDetails("admin")
   public void getFullPdf_Ok_WithLargePayload() throws Exception {
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-5/fullpdf"))
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-5/pdf?includeAttachments=true"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/pdf"))
         .andExpect(
@@ -1833,7 +1843,8 @@ public class NegotiationControllerTests {
 
     // mockMvc
     //     .perform(MockMvcRequestBuilders.get(
-    //         "/v3/negotiations/negotiation-with-corrupted-attachments/fullpdf"))
+    //
+    // "/v3/negotiations/negotiation-with-corrupted-attachments/pdf?includeAttachments=true"))
     //     .andExpect(status().isInternalServerError());
   }
 }

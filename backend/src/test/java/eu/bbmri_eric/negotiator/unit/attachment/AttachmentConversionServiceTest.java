@@ -43,7 +43,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(pdfAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(1, result.size());
     assertEquals(pdfBytes, result.get(0));
@@ -63,7 +63,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docxAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // With valid DOCX file, should convert to PDF successfully
     assertEquals(1, result.size());
@@ -84,7 +84,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // The minimal DOC file created for testing is invalid and should be skipped
     assertEquals(0, result.size());
@@ -104,7 +104,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // The minimal DOC file created for testing is invalid and should be skipped
     assertEquals(0, result.size());
@@ -124,7 +124,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docxAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // With valid DOCX file detected by Tika, should convert to PDF successfully
     assertEquals(1, result.size());
@@ -145,7 +145,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // The minimal DOC file created for testing is invalid and should be skipped
     assertEquals(0, result.size());
@@ -165,7 +165,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // The minimal DOC file created for testing is valid
     assertEquals(1, result.size());
@@ -198,7 +198,7 @@ class AttachmentConversionServiceTest {
     when(attachmentService.findById(pdfId)).thenReturn(pdfAttachment);
     when(attachmentService.findById(docxId)).thenReturn(docxAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(pdfId, docxId));
+    List<byte[]> result = conversionService.listToPdf(List.of(pdfId, docxId));
 
     // Should process PDF file and attempt DOCX conversion
     // Note: DOCX conversion may succeed or fail depending on the test file validity
@@ -219,7 +219,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(unsupportedAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -237,7 +237,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(invalidDocxAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -255,15 +255,14 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(invalidDocAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
 
   @Test
   void testconvertAttachmentsToPdf_WithEmptyAttachmentList_ThrowsIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class, () -> conversionService.attachmentsListToPdf(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> conversionService.listToPdf(List.of()));
   }
 
   @Test
@@ -280,7 +279,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(corruptedDocxAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // Corrupted DOCX file should be skipped
     assertEquals(0, result.size());
@@ -300,7 +299,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(corruptedDocAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // Corrupted DOC file should be skipped
     assertEquals(0, result.size());
@@ -308,14 +307,12 @@ class AttachmentConversionServiceTest {
 
   @Test
   void testconvertAttachmentsToPdf_WithNullAttachmentIds_ThrowsIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class, () -> conversionService.attachmentsListToPdf(null));
+    assertThrows(IllegalArgumentException.class, () -> conversionService.listToPdf(null));
   }
 
   @Test
   void testconvertAttachmentsToPdf_WithEmptyAttachmentIds_ThrowsIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class, () -> conversionService.attachmentsListToPdf(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> conversionService.listToPdf(List.of()));
   }
 
   @Test
@@ -337,7 +334,7 @@ class AttachmentConversionServiceTest {
     attachmentIds.add(validId);
     attachmentIds.add(null);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(attachmentIds);
+    List<byte[]> result = conversionService.listToPdf(attachmentIds);
 
     assertEquals(1, result.size());
     assertEquals(pdfBytes, result.get(0));
@@ -360,7 +357,7 @@ class AttachmentConversionServiceTest {
     when(attachmentService.findById(validId)).thenReturn(pdfAttachment);
     when(attachmentService.findById(failingId)).thenThrow(new RuntimeException("Service error"));
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(validId, failingId));
+    List<byte[]> result = conversionService.listToPdf(List.of(validId, failingId));
 
     assertEquals(1, result.size());
     assertEquals(pdfBytes, result.get(0));
@@ -374,7 +371,7 @@ class AttachmentConversionServiceTest {
     when(attachmentService.findById(failingId1)).thenThrow(new RuntimeException("Service error 1"));
     when(attachmentService.findById(failingId2)).thenThrow(new RuntimeException("Service error 2"));
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(failingId1, failingId2));
+    List<byte[]> result = conversionService.listToPdf(List.of(failingId1, failingId2));
 
     assertEquals(0, result.size());
   }
@@ -385,7 +382,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(null);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -403,7 +400,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -421,7 +418,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -439,7 +436,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -457,7 +454,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -475,7 +472,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -493,7 +490,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -511,7 +508,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     assertEquals(0, result.size());
   }
@@ -564,7 +561,7 @@ class AttachmentConversionServiceTest {
     when(attachmentService.findById(validDocxId)).thenReturn(validDocxAttachment);
 
     List<byte[]> result =
-        conversionService.attachmentsListToPdf(
+        conversionService.listToPdf(
             List.of(validPdfId, nullContentTypeId, emptyPayloadId, validDocxId));
 
     // Should process at least the valid PDF, possibly the DOCX if conversion succeeds
@@ -587,7 +584,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // Note: This test might fail if the created DOC bytes are not valid
     // The result depends on whether the DOC conversion succeeds
@@ -608,7 +605,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // Should skip since content type doesn't match exactly
     assertEquals(0, result.size());
@@ -632,7 +629,7 @@ class AttachmentConversionServiceTest {
       String attachmentId = "test-null-dto";
       when(attachmentService.findById(attachmentId)).thenReturn(null);
 
-      List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+      List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
       assertEquals(0, result.size());
     }
   }
@@ -667,7 +664,7 @@ class AttachmentConversionServiceTest {
 
       when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-      List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+      List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
       assertEquals(0, result.size());
     }
   }
@@ -703,7 +700,7 @@ class AttachmentConversionServiceTest {
 
       when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-      List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+      List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
       assertEquals(0, result.size());
     }
   }
@@ -726,7 +723,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(attachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // Should skip the attachment due to conversion failure
     assertEquals(0, result.size());
@@ -748,7 +745,7 @@ class AttachmentConversionServiceTest {
 
     when(attachmentService.findById(attachmentId)).thenReturn(docAttachment);
 
-    List<byte[]> result = conversionService.attachmentsListToPdf(List.of(attachmentId));
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
 
     // This test verifies that a properly structured DOC file can be converted
     // The result may be 0 (if conversion fails) or 1 (if conversion succeeds)

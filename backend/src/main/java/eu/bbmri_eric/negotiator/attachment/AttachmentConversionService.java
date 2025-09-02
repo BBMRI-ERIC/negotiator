@@ -12,7 +12,7 @@ public interface AttachmentConversionService {
    * @return a list of byte arrays, each representing a PDF file
    * @throws IllegalArgumentException if attachmentIds is null or empty
    */
-  List<byte[]> toPdfByNegotiationId(String negotiationId);
+  List<byte[]> listByNegotiationIdToPdf(String negotiationId);
 
   /**
    * Retrieves the specified attachments and converts them to PDF format.
@@ -21,5 +21,5 @@ public interface AttachmentConversionService {
    * @return a list of byte arrays, each representing a PDF file
    * @throws IllegalArgumentException if attachmentIds is null or empty
    */
-  List<byte[]> attachmentsListToPdf(List<String> attachmentIds);
+  List<byte[]> listToPdf(List<String> attachmentIds);
 }

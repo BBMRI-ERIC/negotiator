@@ -78,17 +78,17 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
     try {
       Context context = createContext(negotiation);
-      String renderedHtml =
-          templateEngine.process(templateName, context).replaceAll("(<br />)+$", "");
 
-      byte[] pdfBytes = renderPdf(renderedHtml);
+      byte[] pdfBytes =
+          renderPdf(templateEngine.process(templateName, context).replaceAll("(<br />)+$", ""));
+
       if (!includeAttachments) {
         return pdfBytes;
       } else {
         List<byte[]> pdfsToMerge =
             Stream.concat(
                     Stream.of(pdfBytes),
-                    conversionService.toPdfByNegotiationId(negotiationId).stream())
+                    conversionService.listByNegotiationIdToPdf(negotiationId).stream())
                 .toList();
 
         try {

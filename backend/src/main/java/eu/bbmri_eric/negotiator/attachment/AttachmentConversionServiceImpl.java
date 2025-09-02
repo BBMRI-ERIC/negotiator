@@ -34,23 +34,21 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
     this.attachmentService = attachmentService;
   }
 
-  public List<byte[]> toPdfByNegotiationId(String negotiationId) {
+  public List<byte[]> listByNegotiationIdToPdf(String negotiationId) {
     List<String> attachmentIds =
         attachmentService.findByNegotiation(negotiationId).stream()
             .map(AttachmentMetadataDTO::getId)
             .toList();
 
-    return attachmentsListToPdf(attachmentIds);
+    if (attachmentIds.isEmpty()) {
+      log.warn("No valid attachments found for negotiation");
+      return List.of();
+    }
+
+    return listToPdf(attachmentIds);
   }
 
-  /**
-   * Retrieves the specified attachments and converts them to PDF format.
-   *
-   * @param attachmentIds the list of attachment IDs to retrieve and convert
-   * @return a list of byte arrays, each representing a PDF file
-   * @throws IllegalArgumentException if attachmentIds is null or empty
-   */
-  public List<byte[]> attachmentsListToPdf(List<String> attachmentIds) {
+  public List<byte[]> listToPdf(List<String> attachmentIds) {
     if (attachmentIds == null || attachmentIds.isEmpty()) {
       log.warn("Attachment IDs list is null or empty");
       throw new IllegalArgumentException("Attachment IDs list cannot be null or empty");
@@ -110,20 +108,18 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
 
       log.debug("Converting attachment with content type: " + contentType);
 
-      switch (contentType) {
-        case CONTENT_TYPE_PDF:
+      return switch (contentType) {
+        case CONTENT_TYPE_PDF -> {
           log.debug("Attachment is already PDF, returning as-is");
-          return payload;
-        case CONTENT_TYPE_DOCX:
-        case CONTENT_TYPE_TIKA_OOXML:
-          return convertDocxToPdf(payload);
-        case CONTENT_TYPE_DOC:
-        case CONTENT_TYPE_TIKA_MSOFFICE:
-          return convertDocToPdf(payload);
-        default:
+          yield payload;
+        }
+        case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> convertDocxToPdf(payload);
+        case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> convertDocToPdf(payload);
+        default -> {
           log.error("Unrecognized attachment content type:" + contentType);
-          return null;
-      }
+          yield null;
+        }
+      };
     } catch (Exception e) {
       log.error("Error converting attachment to PDF: " + e.getMessage());
       return null;

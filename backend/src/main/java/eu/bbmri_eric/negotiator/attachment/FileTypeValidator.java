@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 /** Validates file type based on decoded MIME type and file extension. */
 @Component
 @CommonsLog
-class FileTypeValidator implements Validator {
+public class FileTypeValidator implements Validator {
 
   private static final Tika tika = new Tika();
 

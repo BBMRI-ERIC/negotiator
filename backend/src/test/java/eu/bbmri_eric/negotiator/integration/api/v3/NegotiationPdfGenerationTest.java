@@ -32,7 +32,8 @@ class NegotiationPdfGenerationTest {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
   private static final String PDF_ENDPOINT = "/v3/negotiations/{id}/pdf";
-  private static final String FULL_PDF_ENDPOINT = "/v3/negotiations/{id}/fullpdf";
+  private static final String FULL_PDF_ENDPOINT =
+      "/v3/negotiations/{id}/pdf?includeAttachments=true";
   private static final String ATTACHMENT_ENDPOINT = "/v3/negotiations/{id}/attachments";
 
   @Autowired private WebApplicationContext context;
@@ -97,7 +98,7 @@ class NegotiationPdfGenerationTest {
                 header()
                     .string(
                         "Content-Disposition",
-                        "attachment; filename=\"" + NEGOTIATION_1_ID + "_merged.pdf\""))
+                        "attachment; filename=\"negotiation-" + NEGOTIATION_1_ID + "-merged.pdf\""))
             .andReturn();
 
     byte[] mergedPdfContent = result.getResponse().getContentAsByteArray();
@@ -239,7 +240,7 @@ class NegotiationPdfGenerationTest {
 
     List<String> attachmentIds = List.of(pdfAttachment.getId(), docxAttachment.getId());
 
-    List<byte[]> convertedPdfs = conversionService.attachmentsListToPdf(attachmentIds);
+    List<byte[]> convertedPdfs = conversionService.listToPdf(attachmentIds);
 
     assertEquals(2, convertedPdfs.size());
     assertNotNull(convertedPdfs.get(0));
@@ -269,7 +270,7 @@ class NegotiationPdfGenerationTest {
     mockMvc
         .perform(
             get(PDF_ENDPOINT, NEGOTIATION_1_ID)
-                .param("template", "pdf-negotiation-summary")
+                .param("template", "PDF_NEGOTIATION_SUMMARY")
                 .with(jwt().jwt(builder -> builder.subject("109"))))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_PDF));

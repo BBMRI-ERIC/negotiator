@@ -1,7 +1,5 @@
 package eu.bbmri_eric.negotiator.negotiation;
 
-import eu.bbmri_eric.negotiator.attachment.AttachmentConversionServiceImpl;
-import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceService;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceWithStatusAssembler;
@@ -77,7 +75,7 @@ public class NegotiationController {
 
   private final NegotiationPdfService negotiationPdfService;
 
-  private static final Set<String> ALLOWED_TEMPLATES = Set.of("pdf-negotiation-summary");
+  private static final Set<String> ALLOWED_TEMPLATES = Set.of("PDF_NEGOTIATION_SUMMARY");
 
   public NegotiationController(
       NegotiationService negotiationService,
@@ -86,8 +84,6 @@ public class NegotiationController {
       PersonService personService,
       ResourceService resourceService,
       NegotiationTimeline timelineService,
-      AttachmentService attachmentService,
-      AttachmentConversionServiceImpl mergingService,
       NegotiationModelAssembler assembler,
       ResourceWithStatusAssembler resourceWithStatusAssembler,
       NegotiationPdfService negotiationPdfService) {
@@ -327,38 +323,36 @@ public class NegotiationController {
               description =
                   "Whether to include attachments to the generated PDF or not. By default it's false")
           @RequestParam(value = "includeAttachments", required = false, defaultValue = "false")
-          boolean includeAttachments)
-      throws Exception {
+          boolean includeAttachments) {
 
-    byte[] pdfBytes = generateNegotiationPdfInternal(id, templateName, includeAttachments);
+    if (!negotiationService.isAuthorizedForNegotiation(id)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+
+    if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
+    }
+
+    byte[] pdfBytes;
+    try {
+      pdfBytes = negotiationPdfService.generatePdf(id, templateName, includeAttachments);
+    } catch (Exception e) {
+      throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
+    }
+
     String pdfName;
     if (includeAttachments) {
-      pdfName = String.format("negotiation-%s", id);
-    } else {
       pdfName = String.format("negotiation-%s-merged", id);
+    } else {
+      pdfName = String.format("negotiation-%s", id);
     }
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_PDF)
         .header("Content-Disposition", "attachment; filename=\"" + pdfName + ".pdf\"")
         .body(pdfBytes);
-  }
-
-  private byte[] generateNegotiationPdfInternal(
-      String id, String templateName, boolean includeAttachments) throws Exception {
-    if (!negotiationService.isAuthorizedForNegotiation(id)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    if (templateName != null && !ALLOWED_TEMPLATES.contains(templateName)) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
-    }
-    try {
-      return negotiationPdfService.generatePdf(id, templateName, includeAttachments);
-    } catch (Exception e) {
-      throw new ResponseStatusException(
-          HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);
-    }
   }
 
   private String getUserId() {
