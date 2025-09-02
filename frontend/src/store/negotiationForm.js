@@ -306,7 +306,9 @@ export const useNegotiationFormStore = defineStore('negotiationForm', () => {
         return response.data
       })
       .catch(() => {
-        notifications.setNotification('Error deleting elemet link from specific section in an access form')
+        notifications.setNotification(
+          'Error deleting elemet link from specific section in an access form',
+        )
       })
   }
 
