@@ -556,8 +556,7 @@ const debouncedSave = (
       await saveDraftSilently(step)
       currentSectionModified.value = false
     }
-  }, 1000) // Wait 1 second after user stops typing
-)
+  }, 1000))
 
 async function saveDraftSilently(step) {
   if (props.isEditForm) {
