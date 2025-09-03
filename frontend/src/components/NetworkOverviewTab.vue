@@ -244,9 +244,6 @@ function setDateRange(range) {
 
   emits('update:startDate', formatDate(startDate))
   emits('update:endDate', formatDate(yesterday))
-
-  emits('update:startDate', formatDate(startDate))
-  emits('update:endDate', formatDate(yesterday))
 }
 </script>
 
