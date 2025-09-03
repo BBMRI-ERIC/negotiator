@@ -10,6 +10,7 @@ import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
+import CustomizeForm from '@/views/CustomizeForm.vue'
 import { ROLES } from '@/config/consts'
 import { useUserStore } from '../store/user.js'
 import hasUser from '@/middlewares/hasUser.js'
@@ -134,6 +135,27 @@ const router = createRouter({
       name: 'networks-page',
       component: NetworksPage,
       props: true,
+      meta: { isPublic: false },
+    },
+    {
+      path: '/createAccessForm',
+      name: 'create-Access-Form',
+      component: CustomizeForm,
+      props: { typeAccessForm: 'Create' },
+      meta: { isPublic: false },
+    },
+    {
+      path: '/editAccessForm/:accessFormId?',
+      name: 'edit-access-Form',
+      component: CustomizeForm,
+      props: { typeAccessForm: 'Edit' },
+      meta: { isPublic: false },
+    },
+    {
+      path: '/duplicateAccessForm/:accessFormId?',
+      name: 'duplicate-access-Form',
+      component: CustomizeForm,
+      props: { typeAccessForm: 'Duplicate' },
       meta: { isPublic: false },
     },
     {
