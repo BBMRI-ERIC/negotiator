@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="organization-actions">
+      <div class="organization-actions" v-if="isEditable">
         <button
           class="btn btn-sm btn-outline-secondary"
           @click.stop="$emit('editOrganization')"
@@ -60,6 +60,12 @@
 
 <script setup>
 import ResourcesList from './ResourcesList.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const isEditable = computed(() => route.meta.isEditable)
 
 defineProps({
   organization: {

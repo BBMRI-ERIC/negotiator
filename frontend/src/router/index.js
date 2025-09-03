@@ -10,6 +10,7 @@ import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
+import ResourcePage from '@/views/ResourcePage.vue'
 import { ROLES } from '@/config/consts'
 import { useUserStore } from '../store/user.js'
 import hasUser from '@/middlewares/hasUser.js'
@@ -80,6 +81,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/resources',
+      name: 'resources',
+      component: ResourcePage,
+      props: { userRole: ROLES.REPRESENTATIVE },
+      meta: { isPublic: false, isEditable: false },
+      beforeEnter: async () => {
+        return await isAllowedToAccess(ROLES.REPRESENTATIVE)
+      },
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: UserPage,
@@ -117,7 +128,7 @@ const router = createRouter({
       path: '/governance',
       name: 'governance',
       component: GovernancePage,
-      meta: { isPublic: false, middleware: [hasUser] },
+      meta: { isPublic: false, middleware: [hasUser], isEditable: true },
       beforeEnter: async () => {
         return await isAllowedToAccess(ROLES.ADMINISTRATOR)
       },
