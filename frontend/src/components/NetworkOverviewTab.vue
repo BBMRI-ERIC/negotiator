@@ -33,17 +33,31 @@
      
           <button
             type="button"
-            class="btn btn-primary" 
+            class="btn btn-primary me-2" 
             @click="setDateRange('sinceCurrentYear')"
           >
-          Since current year
+          YTD
         </button>
         <button
             type="button"
-            class="btn btn-primary" 
+            class="btn btn-primary me-2" 
+            @click="setDateRange('sinceOneMonthAgo')"
+          >
+          1M
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary me-2" 
+            @click="setDateRange('sinceSixMonthsAgo')"
+          >
+          6M
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary me-2" 
             @click="setDateRange('sinceOneYearAgo')"
           >
-          Last year
+          1Y
         </button>
       
         
@@ -92,9 +106,9 @@
             class="col-md-6 col-lg-4 mb-4 d-flex"
           >
             <NetworkStatsCard
-              :label="formatStatusLabel(status)"
+              :label="status"
               :value="count"
-              :tooltip="'The number of negotiations with status: ' + formatStatusLabel(status)"
+              :tooltip="'The number of negotiations with status: ' + status"
             />
           </div>
         </div>
@@ -192,13 +206,6 @@ defineProps({
 
 const emits = defineEmits(['update:startDate', 'update:endDate', 'setNegotiationIds'])
 
-function formatStatusLabel(status) {
-  return status
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-}
-
 function setDateRange(range) {
   const formatDate = (date) => date.toISOString().slice(0, 10)
 
@@ -210,18 +217,31 @@ function setDateRange(range) {
 
   switch (range) {
     case 'sinceCurrentYear':
-      startDate = new Date(today.getFullYear(), 0, 1) 
+      startDate = new Date(today.getFullYear(), 0, 1)
       break
 
     case 'sinceOneYearAgo':
       startDate = new Date(today)
-      startDate.setFullYear(today.getFullYear() - 1) 
+      startDate.setFullYear(today.getFullYear() - 1)
+      break
+
+    case 'sinceOneMonthAgo':
+      startDate = new Date(today)
+      startDate.setMonth(today.getMonth() - 1)
+      break
+
+    case 'sinceSixMonthsAgo':
+      startDate = new Date(today)
+      startDate.setMonth(today.getMonth() - 6)
       break
 
     default:
       console.warn(`Unknown range: ${range}`)
       startDate = today
   }
+
+  emits('update:startDate', formatDate(startDate))
+  emits('update:endDate', formatDate(yesterday))
 
   emits('update:startDate', formatDate(startDate))
   emits('update:endDate', formatDate(yesterday))
