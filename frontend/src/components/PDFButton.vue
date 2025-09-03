@@ -50,8 +50,6 @@ const uiConfigurationTheme = computed(() => {
 })
 
 async function retrievePDF() {
-  console.log(downloadingSpinner.value)
-
   const spinnerModal = new Modal(downloadingSpinner.value.$el);
   spinnerModal.show();
   try {
@@ -70,6 +68,7 @@ async function retrievePDF() {
   } catch {
     notificationsStore.setNotification('Error saving file', 'warning')
   } finally {
+    console.log("Removing spinner")
     spinnerModal.hide();
   }
 }

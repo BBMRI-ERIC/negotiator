@@ -75,7 +75,7 @@
           :negotiation-pdf-data="negotiation"
           data-cy="pdf-button" 
           text="Download PDF"
-          include-attachments=false
+          :include-attachments=false
         />
         <PDFButton
           id="merged-pdf-button"
@@ -83,7 +83,7 @@
           :negotiation-pdf-data="negotiation"
           data-cy="merged-pdf-button"
           text="Download PDF with attachments"
-          include-attachments=true
+          :include-attachments=true
         />
         <TransferButton
           class="mt-2"
