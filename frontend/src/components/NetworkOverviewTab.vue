@@ -6,7 +6,6 @@
     </h4>
     <p class="text-muted">The overview visible below is generated for the selected period</p>
 
-    <!-- Date Range Filters -->
     <div class="mb-4">
       <div class="mb-4">
         <div class="form-group d-inline-block mr-3">
@@ -31,43 +30,39 @@
           />
         </div>
      
-          <button
-            type="button"
-            :class="['btn', 'me-2', activeRange === 'sinceCurrentYear' ? 'btn-primary' : 'btn-outline-primary']"
-            @click="setDateRange('sinceCurrentYear')"
-          >
+        <button
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceCurrentYear' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceCurrentYear')"
+        >
           YTD
         </button>
         <button
-            type="button"
-            :class="['btn', 'me-2', activeRange === 'sinceOneMonthAgo' ? 'btn-primary' : 'btn-outline-primary']"
-            @click="setDateRange('sinceOneMonthAgo')"
-          >
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceOneMonthAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceOneMonthAgo')"
+        >
           1M
         </button>
         <button
-            type="button"
-            :class="['btn', 'me-2', activeRange === 'sinceSixMonthsAgo' ? 'btn-primary' : 'btn-outline-primary']"
-            @click="setDateRange('sinceSixMonthsAgo')"
-          >
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceSixMonthsAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceSixMonthsAgo')"
+        >
           6M
         </button>
         <button
-            type="button"
-            :class="['btn', 'me-2', activeRange === 'sinceOneYearAgo' ? 'btn-primary' : 'btn-outline-primary']"
-            @click="setDateRange('sinceOneYearAgo')"
-          >
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceOneYearAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceOneYearAgo')"
+        >
           1Y
         </button>
-      
-        
       </div>
     </div>
 
-    <!-- Negotiations Card -->
     <div class="card">
       <div class="card-body">
-        <!-- Card Header -->
         <div class="d-flex flex-row mb-2 align-items-center">
           <h4 class="card-title mb-0">Negotiations</h4>
           <i
@@ -76,19 +71,16 @@
           />
         </div>
 
-        <!-- Total Number of Requests -->
         <div class="text-center mb-2">
           <h5>Total Negotiations: {{ stats.totalNumberOfNegotiations }}</h5>
         </div>
 
-        <!-- Pie Chart Section -->
         <div v-if="stats" class="pie-chart-container">
           <Pie :data="pieData" :options="pieOptions" />
         </div>
       </div>
     </div>
 
-    <!-- Status Distribution Card -->
     <div class="card mt-4">
       <div class="card-body">
         <div class="d-flex flex-row mb-4 align-items-center">
@@ -115,7 +107,6 @@
       </div>
     </div>
 
-    <!-- Additional Information Card -->
     <div class="card mt-4">
       <div class="card-body">
         <div class="d-flex flex-row mb-4 align-items-center">
@@ -183,8 +174,7 @@ import { Pie } from 'vue-chartjs'
 import NetworkStatsCard from './NetworkStatsCard.vue'
 import { transformStatus } from '../composables/utils.js'
 
-
-const activeRange = ref(null)
+const activeRange = ref('sinceCurrentYear')
 
 defineProps({
   stats: {
@@ -213,48 +203,37 @@ const emits = defineEmits(['update:startDate', 'update:endDate', 'setNegotiation
 
 function setDateRange(range) {
   activeRange.value = range
-
   const formatDate = (date) => date.toISOString().slice(0, 10)
-
   const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
-
   let startDate
 
   switch (range) {
     case 'sinceCurrentYear':
       startDate = new Date(today.getFullYear(), 0, 1)
       break
-
     case 'sinceOneYearAgo':
       startDate = new Date(today)
       startDate.setFullYear(today.getFullYear() - 1)
       break
-
     case 'sinceOneMonthAgo':
       startDate = new Date(today)
       startDate.setMonth(today.getMonth() - 1)
       break
-
     case 'sinceSixMonthsAgo':
       startDate = new Date(today)
       startDate.setMonth(today.getMonth() - 6)
       break
-
     default:
       console.warn(`Unknown range: ${range}`)
       startDate = today
   }
 
   emits('update:startDate', formatDate(startDate))
-  emits('update:endDate', formatDate(yesterday))
+  emits('update:endDate', formatDate(today))
 }
 
 function handleDateChange(type, value) {
-  // Clear active button state when manually editing dates
   activeRange.value = null
-
   const formattedValue = new Date(value).toISOString().slice(0, 10)
 
   if (type === 'start') {
@@ -319,15 +298,10 @@ function handleDateChange(type, value) {
   gap: 1rem;
 }
 
-.flex-fill {
-  flex: 1;
-}
-
 .text-muted {
   color: #6c757d !important;
 }
 
-.mt-3,
 .mt-4 {
   margin-top: 1.5rem !important;
 }
