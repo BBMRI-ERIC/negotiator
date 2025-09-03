@@ -16,7 +16,7 @@
             :value="startDate"
             type="date"
             class="form-control"
-            @input="$emit('update:startDate', $event.target.value)"
+            @input="handleDateChange('start', $event.target.value)"
           />
         </div>
 
@@ -27,34 +27,34 @@
             :value="endDate"
             type="date"
             class="form-control"
-            @input="$emit('update:endDate', $event.target.value)"
+            @input="handleDateChange('end', $event.target.value)"
           />
         </div>
      
           <button
             type="button"
-            class="btn btn-primary me-2" 
+            :class="['btn', 'me-2', activeRange === 'sinceCurrentYear' ? 'btn-primary' : 'btn-outline-primary']"
             @click="setDateRange('sinceCurrentYear')"
           >
           YTD
         </button>
         <button
             type="button"
-            class="btn btn-primary me-2" 
+            :class="['btn', 'me-2', activeRange === 'sinceOneMonthAgo' ? 'btn-primary' : 'btn-outline-primary']"
             @click="setDateRange('sinceOneMonthAgo')"
           >
           1M
         </button>
         <button
             type="button"
-            class="btn btn-primary me-2" 
+            :class="['btn', 'me-2', activeRange === 'sinceSixMonthsAgo' ? 'btn-primary' : 'btn-outline-primary']"
             @click="setDateRange('sinceSixMonthsAgo')"
           >
           6M
         </button>
         <button
             type="button"
-            class="btn btn-primary me-2" 
+            :class="['btn', 'me-2', activeRange === 'sinceOneYearAgo' ? 'btn-primary' : 'btn-outline-primary']"
             @click="setDateRange('sinceOneYearAgo')"
           >
           1Y
@@ -178,10 +178,13 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { Pie } from 'vue-chartjs'
 import NetworkStatsCard from './NetworkStatsCard.vue'
 import { transformStatus } from '../composables/utils.js'
 
+
+const activeRange = ref(null)
 
 defineProps({
   stats: {
@@ -209,6 +212,8 @@ defineProps({
 const emits = defineEmits(['update:startDate', 'update:endDate', 'setNegotiationIds'])
 
 function setDateRange(range) {
+  activeRange.value = range
+
   const formatDate = (date) => date.toISOString().slice(0, 10)
 
   const today = new Date()
@@ -244,6 +249,19 @@ function setDateRange(range) {
 
   emits('update:startDate', formatDate(startDate))
   emits('update:endDate', formatDate(yesterday))
+}
+
+function handleDateChange(type, value) {
+  // Clear active button state when manually editing dates
+  activeRange.value = null
+
+  const formattedValue = new Date(value).toISOString().slice(0, 10)
+
+  if (type === 'start') {
+    emits('update:startDate', formattedValue)
+  } else if (type === 'end') {
+    emits('update:endDate', formattedValue)
+  }
 }
 </script>
 
