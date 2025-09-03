@@ -68,7 +68,11 @@
             <i class="bi bi-paperclip" />
           </button>
           <small v-if="props.isUploading" class="text-muted ms-2 d-flex align-items-center">
-            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            <span
+              class="spinner-border spinner-border-sm me-1"
+              role="status"
+              aria-hidden="true"
+            ></span>
             {{ attachment ? `Uploading ${attachment.name}...` : 'Uploading...' }}
           </small>
         </div>

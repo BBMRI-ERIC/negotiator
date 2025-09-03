@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 /** Retrieving information about the currently authenticated User/Principal. */
 @Component
@@ -86,5 +88,27 @@ public class AuthenticatedUserContext {
     return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Checks if user is allowed to access resource based on their role or if they are accessing their
+   * own
+   *
+   * @param personId the id of the person to be checked for authorization.
+   */
+  public static void checkUserAccess(Long personId) {
+    final List<String> roles = getRoles();
+    if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_AUTHORIZATION_MANAGER")) {
+      return;
+    }
+    try {
+      final Long currentId = getCurrentlyAuthenticatedUserInternalId();
+      if (!Objects.equals(currentId, personId)) {
+        log.warn("Forbidden access: user " + currentId + " attempted to act on user " + personId);
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+      }
+    } catch (AuthenticationCredentialsNotFoundException ex) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
   }
 }

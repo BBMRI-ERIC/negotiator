@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
+import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
@@ -114,6 +115,7 @@ public class PersonServiceImpl implements PersonService {
 
   @Override
   public Set<ResourceResponseModel> getResourcesRepresentedByUserId(Long personId) {
+    AuthenticatedUserContext.checkUserAccess(personId);
     Set<Resource> resources =
         personRepository
             .findDetailedById(personId)

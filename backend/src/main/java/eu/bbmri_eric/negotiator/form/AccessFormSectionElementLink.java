@@ -23,7 +23,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator(name = "section_element_link_id_seq", initialValue = 100)
+@SequenceGenerator(name = "section_element_link_id_seq", allocationSize = 1)
 class AccessFormSectionElementLink implements Comparable<AccessFormSectionElementLink> {
 
   @Id

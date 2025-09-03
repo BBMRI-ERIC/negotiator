@@ -14,7 +14,7 @@ import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NotificationEmailModelAssembler
+class NotificationEmailModelAssembler
     implements RepresentationModelAssembler<
         NotificationEmailDTO, EntityModel<NotificationEmailDTO>> {
 

@@ -1,46 +1,52 @@
 <template>
-  <div v-if="!isLoading">
-    <h1 class="mb-5 text-center">Administrator Console</h1>
-    <hr />
-    <InformationRequirementsSection
-      :resource-all-events="resourceAllEvents"
-      :info-requirements="infoRequirements"
-      :access-forms="accessForms"
-      @set-info-requirements="setInfoRequirements"
-      @add-requirement="() => {}"
+  <div class="admin-settings-page">
+    <div v-if="!isLoading">
+      <h1 class="mb-5 text-center">Administrator Console</h1>
+      <hr />
+      <InformationRequirementsSection
+        :resource-all-events="resourceAllEvents"
+        :info-requirements="infoRequirements"
+        :access-forms="accessForms"
+        @set-info-requirements="setInfoRequirements"
+        @add-requirement="() => {}"
+      />
+      <hr />
+      <WebhooksSection
+        :webhooks="webhooks"
+        @add-webhook="addWebhook"
+        @edit-webhook="editWebhook"
+        @delete-webhook="deleteWebhook"
+        @test-webhook="testWebhook"
+      />
+      <hr />
+      <EmailNotificationsSection @view-email="viewEmailDetails" />
+      <hr />
+      <UserListSection />
+    </div>
+    <LoadingIndicator v-else />
+    <WebhookModal
+      id="webhookmodal"
+      :shown="shown"
+      :webhook="selectedWebhook"
+      @update="handleWebhookUpdate"
+      @create="handleNewWebhook"
     />
-    <hr />
-    <WebhooksSection
-      :webhooks="webhooks"
-      @add-webhook="addWebhook"
-      @edit-webhook="editWebhook"
-      @delete-webhook="deleteWebhook"
-      @test-webhook="testWebhook"
+    <confirmation-modal
+      id="delete-webhookmodal"
+      title="Delete Webhook"
+      text="Are you sure you want to delete this webhook?"
+      :message-enabled="false"
+      @confirm="confirmDeleteWebhook"
+      ref="deleteModal"
     />
+    <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
-    <EmailNotificationsSection @view-email="viewEmailDetails" />
-    <hr />
-    <UserListSection />
+    <email-template-section />
+    <div v-if="featureFlagsAddAcessForms">
+      <hr />
+      <AccessFormsSection />
+    </div>
   </div>
-  <LoadingIndicator v-else />
-  <WebhookModal
-    id="webhookmodal"
-    :shown="shown"
-    :webhook="selectedWebhook"
-    @update="handleWebhookUpdate"
-    @create="handleNewWebhook"
-  />
-  <confirmation-modal
-    id="delete-webhookmodal"
-    title="Delete Webhook"
-    text="Are you sure you want to delete this webhook?"
-    :message-enabled="false"
-    @confirm="confirmDeleteWebhook"
-    ref="deleteModal"
-  />
-  <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
-  <hr />
-  <email-template-section />
 </template>
 
 <script setup>
@@ -59,6 +65,8 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
+import AccessFormsSection from '@/components/AccessFormsSection.vue'
+import allFeatureFlags from '@/config/featureFlags.js'
 
 const userStore = useUserStore()
 const adminStore = useAdminStore()
@@ -74,6 +82,9 @@ const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
 const selectedEmailId = ref(null)
+const featureFlagsAddAcessForms = !!(
+  allFeatureFlags.add_access_forms === 'true' || allFeatureFlags.add_access_forms === true
+)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {

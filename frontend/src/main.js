@@ -14,6 +14,8 @@ import 'vue3-tour/dist/vue3-tour.css'
 import { useOidcStore } from './store/oidc'
 import { piniaOidcCreateRouterMiddleware } from 'pinia-oidc'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
+import { createI18n } from 'vue-i18n'
+import i18nConfig from './config/i18n.js'
 import('./assets/scss/theme.scss')
 
 library.add(faSpinner)
@@ -30,7 +32,13 @@ if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
     siteId: matomo.matomoId,
   })
 }
+if (import.meta.env.DEV) {
+  i18nConfig.locale = 'en'
+  i18nConfig.fallbackLocale = 'en'
+}
+const i18n = createI18n(i18nConfig)
 
+app.use(i18n)
 app.use(router)
 app.use(pinia)
 app.use(Vue3Tour)
