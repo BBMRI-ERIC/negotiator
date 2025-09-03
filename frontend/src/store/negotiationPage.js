@@ -326,18 +326,18 @@ export const useNegotiationPageStore = defineStore('negotiationPage', () => {
         responseType: 'blob',
       })
       .then((response) => {
-        const disposition = response.headers["content-disposition"]
+        const disposition = response.headers['content-disposition']
 
         let filename = `negotiation-${id}.pdf`
-        if (disposition && disposition.includes("filename=")) {
+        if (disposition && disposition.includes('filename=')) {
           // Extract filename using regex
-          const matches = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/);
+          const matches = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/)
           if (matches && matches[1]) {
-            filename = decodeURIComponent(matches[1]);
+            filename = decodeURIComponent(matches[1])
           }
         }
 
-        return { data: response.data, name: filename}
+        return { data: response.data, name: filename }
       })
       .catch((error) => {
         console.error('Error retrieving PDF:', error)

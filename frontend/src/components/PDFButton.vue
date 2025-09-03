@@ -9,9 +9,7 @@
       }"
       ><i class="bi bi-file-earmark-pdf" />{{ text }}</a
     >
-    <DownloadingSpinner
-      ref="downloadingSpinner"
-    />
+    <DownloadingSpinner ref="downloadingSpinner" />
   </div>
 </template>
 
@@ -21,9 +19,9 @@ import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useNegotiationPageStore } from '@/store/negotiationPage.js'
 import { useNotificationsStore } from '../store/notifications'
 import DownloadingSpinner from '@/components/modals/DownloadingSpinner.vue'
-import { Modal } from "bootstrap";
+import { Modal } from 'bootstrap'
 
-const downloadingSpinner = ref(null);
+const downloadingSpinner = ref(null)
 
 const props = defineProps({
   negotiationPdfData: {
@@ -32,13 +30,13 @@ const props = defineProps({
   },
   text: {
     type: String,
-    required: true
+    required: true,
   },
   includeAttachments: {
     type: Boolean,
     required: false,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const uiConfigurationStore = useUiConfiguration()
@@ -50,12 +48,15 @@ const uiConfigurationTheme = computed(() => {
 })
 
 async function retrievePDF() {
-  const spinnerModal = new Modal(downloadingSpinner.value.$el);
-  spinnerModal.show();
+  const spinnerModal = new Modal(downloadingSpinner.value.$el)
+  spinnerModal.show()
   try {
-    const pdfData = await negotiationPageStore.retrieveNegotiationPDF(props.negotiationPdfData.id, props.includeAttachments)
+    const pdfData = await negotiationPageStore.retrieveNegotiationPDF(
+      props.negotiationPdfData.id,
+      props.includeAttachments,
+    )
     const pdfBlob = new Blob([pdfData.data], { type: 'application/pdf' })
-    
+
     const link = document.createElement('a')
     link.href = URL.createObjectURL(pdfBlob)
     link.download = pdfData.name
@@ -68,8 +69,8 @@ async function retrievePDF() {
   } catch {
     notificationsStore.setNotification('Error saving file', 'warning')
   } finally {
-    console.log("Removing spinner")
-    spinnerModal.hide();
+    console.log('Removing spinner')
+    spinnerModal.hide()
   }
 }
 </script>
