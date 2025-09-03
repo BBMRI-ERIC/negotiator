@@ -19,7 +19,7 @@
           @representatives-updated="$emit('representativesUpdated', $event)"
         />
         <!-- Add Resources Button at bottom -->
-        <div class="add-resources-container">
+        <div class="add-resources-container" v-if="isEditable">
           <button
             class="btn btn-outline-primary add-resources-btn"
             @click="$emit('addResources')"
@@ -37,7 +37,7 @@
       <div class="no-resources-content">
         <i class="bi bi-database text-muted"></i>
         <p class="text-muted mb-2">No resources found for this organization</p>
-        <div class="add-resources-container">
+        <div class="add-resources-container" v-if="isEditable">
           <button
             class="btn btn-outline-primary add-resources-btn"
             @click="$emit('addResources')"
@@ -54,6 +54,12 @@
 
 <script setup>
 import ResourceItem from './ResourceItem.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const isEditable = computed(() => route.meta.isEditable)
 
 defineProps({
   resources: {

@@ -5,11 +5,13 @@ import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.UserNotFoundException;
 import eu.bbmri_eric.negotiator.governance.network.Network;
 import eu.bbmri_eric.negotiator.governance.network.NetworkRepository;
+import eu.bbmri_eric.negotiator.governance.organization.*;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
@@ -32,6 +34,8 @@ public class PersonServiceImpl implements PersonService {
   private final PersonRepository personRepository;
 
   private final ResourceRepository resourceRepository;
+  private final OrganizationRepository organizationRepository;
+
   private final ModelMapper modelMapper;
   private final ApplicationEventPublisher eventPublisher;
 
@@ -39,11 +43,13 @@ public class PersonServiceImpl implements PersonService {
       NetworkRepository networkRepository,
       PersonRepository personRepository,
       ResourceRepository resourceRepository,
+      OrganizationRepository organizationRepository,
       ModelMapper modelMapper,
       ApplicationEventPublisher eventPublisher) {
     this.networkRepository = networkRepository;
     this.personRepository = personRepository;
     this.resourceRepository = resourceRepository;
+    this.organizationRepository = organizationRepository;
     this.modelMapper = modelMapper;
     this.eventPublisher = eventPublisher;
   }
@@ -183,6 +189,32 @@ public class PersonServiceImpl implements PersonService {
             .formatted(manager.getName(), network.getName()));
     network.removeManager(manager);
     networkRepository.save(network);
+  }
+
+  @Override
+  public Set<OrganizationDTO> getOrganizationsContainingResourceRepresentedByUser(
+      Long personId, String expand, String name, Boolean withdrawn) {
+    Set<Organization> organizations =
+        organizationRepository.findAllOrganizationsContainingResourceRepresentedByUser(
+            personId, name, withdrawn);
+    return organizations.stream()
+        .map(
+            o -> {
+              if (Objects.equals(expand, "resources")) {
+                OrganizationWithResourcesDTO dto =
+                    modelMapper.map(o, OrganizationWithResourcesDTO.class);
+                dto.setResources(
+                    resourceRepository
+                        .findByRepresentativeAndOrganization(personId, o.getId())
+                        .stream()
+                        .map(resource -> modelMapper.map(resource, ResourceResponseModel.class))
+                        .collect(Collectors.toSet()));
+                return dto;
+              } else {
+                return modelMapper.map(o, OrganizationDTO.class);
+              }
+            })
+        .collect(Collectors.toSet());
   }
 
   private Resource getResource(Long resourceId) {

@@ -41,7 +41,6 @@
       @update-page-size="updatePageSize"
     />
 
-    <!-- Edit Organization Modal -->
     <EditOrganizationModal
       modal-id="editOrganizationModal"
       :organization="modals.selectedOrganization.value"
@@ -50,7 +49,6 @@
       @close="modals.closeEditModal"
     />
 
-    <!-- Create Organization Modal -->
     <CreateOrganizationModal
       modal-id="createOrganizationModal"
       :shown="modals.showCreateModal.value"
@@ -58,7 +56,6 @@
       @close="modals.closeCreateModal"
     />
 
-    <!-- Create Resource Modal -->
     <CreateResourceModal
       modal-id="createResourceModal"
       :organization-id="modals.selectedOrganizationForResource.value?.id"
@@ -68,7 +65,6 @@
       @close="modals.closeCreateResourceModal"
     />
 
-    <!-- Edit Resource Modal -->
     <EditResourceModal
       modal-id="editResourceModal"
       :resource="modals.selectedResource.value"
@@ -93,12 +89,10 @@ import EditOrganizationModal from './EditOrganizationModal.vue'
 import CreateResourceModal from './CreateResourceModal.vue'
 import EditResourceModal from './EditResourceModal.vue'
 
-// Composables
 const organizations = useOrganizations()
 const modals = useOrganizationModals()
 const operations = useOrganizationOperations()
 
-// Destructure organizations composable
 const {
   organizations: organizationsList,
   organizationResources,
@@ -125,7 +119,6 @@ const {
   reloadResourcesForOrganization,
 } = organizations
 
-// Destructure operations composable
 const {
   loading: operationsLoading,
   handleOrganizationCreate: baseHandleOrganizationCreate,
@@ -134,7 +127,6 @@ const {
   handleResourceUpdate: baseHandleResourceUpdate,
 } = operations
 
-// Event handlers
 const handleAddResources = (organizationId) => {
   const organization = organizationsList.value.find((org) => org.id === organizationId)
   if (organization) {

@@ -4,13 +4,16 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springdoc.core.annotations.ParameterObject;
@@ -167,5 +170,21 @@ public class UserController {
   public void removeAPersonAsAManagerForNetwork(
       @PathVariable Long id, @PathVariable Long networkId) {
     personService.removeAsManagerForNetwork(id, networkId);
+  }
+
+  @GetMapping(value = "/users/{id}/organizations", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "List all organizations that include a resource represented by a user")
+  @ResponseStatus(HttpStatus.OK)
+  public Set<OrganizationDTO> findRepresentedOrganizations(
+      @PathVariable Long id,
+      @RequestParam(required = false)
+          @Schema(description = "resource expansion", example = "resources")
+          String expand,
+      @RequestParam(required = false) @Schema(description = "organization name") String name,
+      @RequestParam(required = false) @Schema(description = "organization status", example = "true")
+          Boolean withdrawn) {
+    AuthenticatedUserContext.checkUserAccess(id);
+    return personService.getOrganizationsContainingResourceRepresentedByUser(
+        id, expand, name, withdrawn);
   }
 }
