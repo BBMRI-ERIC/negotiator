@@ -70,6 +70,7 @@
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0">
         <PDFButton 
+          id="pdf-button"
           class="mt-2" 
           :negotiation-pdf-data="negotiation"
           data-cy="pdf-button" 
@@ -77,6 +78,7 @@
           include-attachments=false
         />
         <PDFButton
+          id="merged-pdf-button"
           class="mt-2"
           :negotiation-pdf-data="negotiation"
           data-cy="merged-pdf-button"

@@ -12,22 +12,25 @@ describe("Test negotiation pdf download", () => {
     context("check if negotiation pdf download is working", () => {
         it("test if download pdf button is working", () => {
 
-            cy.get(".pdf-button").should("be.visible")
-
-            cy.get(".pdf-button").click()
-
-            cy.get('.col-12 > .alert').should("be.visible").contains("File successfully saved")
+          cy.get("#pdf-button").should("be.visible")
+          cy.get("#pdf-button > .pdf-button").click()
+          cy.wait(500)
+          cy.get(".modal-content").should("be.visible")
+          cy.get(".modal-dialog > .modal-content").should("be.visible").contains("Downloading")
+          cy.wait(3000)
+          cy.get('.col-12 > .alert').should("be.visible").contains("File successfully saved")
         })
     })
 
     // Download of negotiation pdf
     context("check if merged negotiation pdf download is working", () => {
         it("test if download merged pdf button is working", () => {
-
-            cy.get(".merged-pdf-button").should("be.visible")
-
-            cy.get(".merged-pdf-button").click()
-
+            cy.get("#merged-pdf-button").should("be.visible")
+            cy.get("#merged-pdf-button > .pdf-button").click()
+            cy.wait(500)
+            cy.get(".modal-content").should("be.visible")
+            cy.get(".modal-dialog > .modal-content").should("be.visible").contains("Downloading")
+            cy.wait(3000)
             cy.get('.col-12 > .alert').should("be.visible").contains("File successfully saved")
         })
     })

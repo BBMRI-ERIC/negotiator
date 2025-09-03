@@ -1,8 +1,4 @@
 <template>
-  <downloading-spinner
-    id="downloadingPDFSpinner"
-  />
-
   <div>
     <a
       class="pdf-button pdf-text-hover cursor-pointer"
@@ -13,16 +9,21 @@
       }"
       ><i class="bi bi-file-earmark-pdf" />{{ text }}</a
     >
+    <DownloadingSpinner
+      ref="downloadingSpinner"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useNegotiationPageStore } from '@/store/negotiationPage.js'
 import { useNotificationsStore } from '../store/notifications'
 import DownloadingSpinner from '@/components/modals/DownloadingSpinner.vue'
-import * as bootstrap from "bootstrap";
+import { Modal } from "bootstrap";
+
+const downloadingSpinner = ref(null);
 
 const props = defineProps({
   negotiationPdfData: {
@@ -49,8 +50,9 @@ const uiConfigurationTheme = computed(() => {
 })
 
 async function retrievePDF() {
-  const spinnerModalEl = document.getElementById("downloadingPDFSpinner");
-  const spinnerModal = new bootstrap.Modal(spinnerModalEl);
+  console.log(downloadingSpinner.value)
+
+  const spinnerModal = new Modal(downloadingSpinner.value.$el);
   spinnerModal.show();
   try {
     const pdfData = await negotiationPageStore.retrieveNegotiationPDF(props.negotiationPdfData.id, props.includeAttachments)
@@ -65,9 +67,7 @@ async function retrievePDF() {
     URL.revokeObjectURL(link.href)
 
     notificationsStore.setNotification('File successfully saved', 'success')
-    document.getElementById("downloadingPDFSpinner");
-  } catch (error) {
-    console.error('Error retrieving or saving the PDF:', error)
+  } catch {
     notificationsStore.setNotification('Error saving file', 'warning')
   } finally {
     spinnerModal.hide();

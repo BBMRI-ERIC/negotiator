@@ -1,7 +1,6 @@
 <template>
   <div
     class="modal fade"
-    ref="spinnerModal"
     tabindex="-1"
     aria-hidden="true"
     data-bs-backdrop="static"
@@ -21,19 +20,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-defineEmits(['update:modelValue'])
-
-const spinnerModal = ref(null)
-
-</script>
