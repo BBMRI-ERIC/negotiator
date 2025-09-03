@@ -79,7 +79,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
     Negotiation negotiation = findEntityById(negotiationId);
 
-
     try {
       Context context = createContext(negotiation);
 
