@@ -7,6 +7,7 @@ import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
@@ -70,14 +71,14 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
 
   public byte[] generatePdf(String negotiationId, String templateName, boolean includeAttachments)
       throws PdfGenerationException {
-    Negotiation negotiation = findEntityById(negotiationId);
-
     if (templateName == null) {
       templateName = DEFAULT_PDF_TEMPLATE_NAME;
     } else if (!ALLOWED_TEMPLATES.contains(templateName)) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Invalid template name: " + templateName);
+      throw new WrongRequestException("Invalid template name: " + templateName);
     }
+
+    Negotiation negotiation = findEntityById(negotiationId);
+
 
     try {
       Context context = createContext(negotiation);
