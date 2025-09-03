@@ -106,9 +106,9 @@
             class="col-md-6 col-lg-4 mb-4 d-flex"
           >
             <NetworkStatsCard
-              :label="status"
+              :label="transformStatus(status)"
               :value="count"
-              :tooltip="'The number of negotiations with status: ' + status"
+              :tooltip="'The number of negotiations with status: ' + transformStatus(status)"
             />
           </div>
         </div>
@@ -180,6 +180,8 @@
 <script setup>
 import { Pie } from 'vue-chartjs'
 import NetworkStatsCard from './NetworkStatsCard.vue'
+import { transformStatus } from '../composables/utils.js'
+
 
 defineProps({
   stats: {
