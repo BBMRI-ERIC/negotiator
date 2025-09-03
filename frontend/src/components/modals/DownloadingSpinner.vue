@@ -1,6 +1,6 @@
 <template>
   <div
-    class="modal fade"
+    class="modal"
     tabindex="-1"
     aria-hidden="true"
     data-bs-backdrop="static"
