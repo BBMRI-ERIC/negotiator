@@ -246,7 +246,7 @@
 
           <div v-else-if="criteria.type === 'INFORMATION'">
             <p v-if="criteria.description" class="text-muted">
-              {{ criteria.description }}
+              {{ negotiationCriteria[section.name][criteria.name] || criteria.description }}
             </p>
           </div>
 
@@ -771,6 +771,8 @@ function isSectionValid(section, changeColor) {
           validationColorHighlight.value.push(ac.name)
         }
         valid = false
+      } else if (ac.type === 'INFORMATION') {
+        valid = true
       } else if (
         ac.type !== 'MULTIPLE_CHOICE' &&
         ac.type !== 'FILE' &&
