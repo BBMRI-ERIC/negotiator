@@ -69,7 +69,6 @@ async function retrievePDF() {
   } catch {
     notificationsStore.setNotification('Error saving file', 'warning')
   } finally {
-    console.log('Removing spinner')
     spinnerModal.hide()
   }
 }
