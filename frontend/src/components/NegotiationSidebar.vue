@@ -69,7 +69,22 @@
         </ul>
       </li>
       <li class="list-group-item p-2 btn-sm border-bottom-0">
-        <PDFButton class="mt-2" :negotiation-pdf-data="negotiation" />
+        <PDFButton
+          id="pdf-button"
+          class="mt-2"
+          :negotiation-pdf-data="negotiation"
+          data-cy="pdf-button"
+          text="Download PDF"
+          :include-attachments="false"
+        />
+        <PDFButton
+          id="merged-pdf-button"
+          class="mt-2"
+          :negotiation-pdf-data="negotiation"
+          data-cy="merged-pdf-button"
+          text="Download PDF with attachments"
+          :include-attachments="true"
+        />
         <TransferButton
           class="mt-2"
           :negotiation-id="negotiation.id"
