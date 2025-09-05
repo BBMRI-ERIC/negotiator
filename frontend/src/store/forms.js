@@ -30,6 +30,18 @@ export const useFormsStore = defineStore('forms', () => {
       })
   }
 
+  function retrieveAllElements() {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/elements`, { headers: getBearerHeaders() })
+      .then((response) => {
+        return response.data._embedded['elements']
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting elements data from server', 'danger')
+        return null
+      })
+  }
+
   function retrieveDynamicAccessFormsValueSetByLink(link) {
     return axios
       .get(`${link}`, { headers: getBearerHeaders() })
@@ -205,6 +217,7 @@ export const useFormsStore = defineStore('forms', () => {
   return {
     retrieveAccessFormById,
     retrieveAllAccessForms,
+    retrieveAllElements,
     retrieveDynamicAccessFormsValueSetByLink,
     submitRequiredInformation,
     retrieveInfoRequirementsById,

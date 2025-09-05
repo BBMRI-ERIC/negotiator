@@ -36,10 +36,12 @@
     :resource-states="resourceStates"
     :negotiation-id="negotiationId"
     :ui-configuration="uiConfiguration"
+    :isAdmin="isAdmin"
     @open-form-modal="openFormModal"
     @open-modal="openModal"
     @update-resource-state="updateResourceState"
     @update-org-status="updateOrgStatus"
+    @editInfoSubmission="editInfoSubmission"
   />
 </template>
 
@@ -143,7 +145,13 @@ onMounted(() => {
   formViewModalInstance.value = new Modal(formViewModalRef.value.$el)
 })
 
-function editInfoSubmission() {
+async function editInfoSubmission(href) {
+  if (href) {
+    await negotiationPageStore.retrieveInformationSubmission(href).then((res) => {
+      submittedForm.value = res
+      formViewModalInstance.value.show()
+    })
+  }
   isFormEditable.value = true
   formViewModalInstance.value.hide()
   resourceId.value = submittedForm.value.resourceId

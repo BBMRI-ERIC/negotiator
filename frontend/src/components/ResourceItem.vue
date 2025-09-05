@@ -47,14 +47,24 @@
       </div>
       <!-- Submitted Requirements (Green) -->
       <div v-for="(link, index) in getSubmissionLinks" :key="index" class="mt-1">
-        <a class="submission-text cursor-pointer" @click.prevent="onOpenFormModal(link.href)">
-          <i class="bi bi-check-circle" /> {{ link.name }} submitted
-        </a>
+        <div v-if="isSubmittedRequirementsEdit[link.href] && !isAdmin">
+          <a
+            class="submission-text-edit cursor-pointer"
+            @click="$emit('editInfoSubmission', link.href)"
+          >
+            <i class="bi bi-pencil-square" /> {{ link.name }} Edit
+          </a>
+        </div>
+        <div v-else>
+          <a class="submission-text cursor-pointer" @click.prevent="onOpenFormModal(link.href)">
+            <i class="bi bi-check-circle" /> {{ link.name }} Submitted
+          </a>
+        </div>
       </div>
       <!-- Missing Requirements (Red) -->
       <div v-for="(link, index) in getRequirementLinks" :key="index" class="mt-1">
         <a class="requirement-text cursor-pointer" @click="onOpenModal(link.href, resource.id)">
-          <i class="bi bi-exclamation-circle-fill" /> {{ link.title }} required
+          <i class="bi bi-exclamation-circle-fill" /> {{ link.title }} Required
         </a>
       </div>
     </div>
@@ -62,16 +72,19 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { transformStatus } from '../composables/utils.js'
 import CopyTextButton from '@/components/CopyTextButton.vue'
+import { useNegotiationPageStore } from '../store/negotiationPage.js'
 
 const props = defineProps({
   resource: { type: Object, required: true },
   uiConfiguration: { type: Object, required: true },
+  isAdmin: { type: Boolean, default: false },
 })
-const emit = defineEmits(['open-form-modal', 'open-modal', 'update-resource-state'])
 
+const negotiationPageStore = useNegotiationPageStore()
+const emit = defineEmits(['open-form-modal', 'open-modal', 'update-resource-state'])
 const sanitizeId = (id) => id.replaceAll(':', '_')
 
 const getStatusForResource = () => {
@@ -96,6 +109,15 @@ const getLifecycleLinks = (links) =>
 const onOpenModal = (href, resourceId) => {
   emit('open-modal', href, resourceId)
 }
+
+const isSubmittedRequirementsEdit = ref({})
+onMounted(() => {
+  getSubmissionLinks.value.forEach((element) => {
+    negotiationPageStore.retrieveInformationSubmission(element.href).then((res) => {
+      isSubmittedRequirementsEdit.value[element.href] = res.editable
+    })
+  })
+})
 
 const onOpenFormModal = (href) => {
   emit('open-form-modal', href)
@@ -131,7 +153,11 @@ const onUpdateResourceState = (link) => {
 /* Submission (submitted) - green text */
 .submission-text {
   color: green;
-  font-weight: bold;
+}
+
+/* Submission (submitted and editable) - orange text */
+.submission-text-edit {
+  color: var(--bs-warning);
 }
 
 /* Resource link */

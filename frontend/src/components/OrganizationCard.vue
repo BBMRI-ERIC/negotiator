@@ -16,9 +16,11 @@
         :key="resource.id"
         :resource="resource"
         :ui-configuration="uiConfiguration"
+        :isAdmin="isAdmin"
         @open-form-modal="openFormModal"
         @open-modal="openModal"
         @update-resource-state="updateResourceState"
+        @editInfoSubmission="editInfoSubmission"
       />
     </div>
   </div>
@@ -35,12 +37,14 @@ const props = defineProps({
   resourceStates: { type: Array, default: () => [] },
   negotiationId: { type: String, default: undefined },
   uiConfiguration: { type: Object, required: true },
+  isAdmin: { type: Boolean, default: false },
 })
 const emit = defineEmits([
   'open-form-modal',
   'open-modal',
   'update-resource-state',
   'update-org-status',
+  'edit-info-submission',
 ])
 
 const dropdownVisible = reactive({})
@@ -77,6 +81,10 @@ const openFormModal = (href) => {
 
 const updateResourceState = (link) => {
   emit('update-resource-state', link)
+}
+
+function editInfoSubmission(href) {
+  emit('edit-info-submission', href)
 }
 </script>
 
