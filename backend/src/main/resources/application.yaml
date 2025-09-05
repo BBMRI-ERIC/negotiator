@@ -101,8 +101,6 @@ negotiator:
   authorization:
     claim: "eduperson_entitlement"
     admin-claim-value: ""
-    researcher-claim-value: ""
-    biobanker-claim-value: ""
   notification:
     reminder-cron-expression: "0 0 6 * * *"
   email:
