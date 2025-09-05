@@ -97,10 +97,10 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
       }
 
       log.debug("Converting attachment with content type: " + contentType);
-      FileTypeConverter converter = getConverter(contentType);
-      if (converter != null) {
+      try {
+        FileTypeConverter converter = getConverter(contentType);
         return converter.convertToPdf(payload);
-      } else {
+      } catch (IllegalArgumentException ex) {
         return null;
       }
     } catch (Exception e) {
@@ -118,8 +118,7 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
       case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> new DocxConverter();
       case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> new DocConverter();
       default -> {
-        log.error("Unrecognized attachment content type: " + contentType);
-        yield null;
+        throw new IllegalArgumentException("Unsupported content type");
       }
     };
   }
