@@ -313,22 +313,16 @@ public class NegotiationController {
       @PathVariable String id,
       @Parameter(
               description =
-                  "Specific template to be used for generation, identified by the template name. If omitted the default template is used.")
-          @RequestParam(value = "template", required = false)
-          String templateName,
-      @Parameter(
-              description =
                   "Whether to include attachments to the generated PDF or not. By default it's false")
           @RequestParam(value = "includeAttachments", required = false, defaultValue = "false")
           boolean includeAttachments) {
-
     if (!negotiationService.isAuthorizedForNegotiation(id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
     byte[] pdfBytes;
     try {
-      pdfBytes = negotiationPdfService.generatePdf(id, templateName, includeAttachments);
+      pdfBytes = negotiationPdfService.generatePdf(id, includeAttachments);
     } catch (Exception e) {
       throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR, "Error generating PDF", e);

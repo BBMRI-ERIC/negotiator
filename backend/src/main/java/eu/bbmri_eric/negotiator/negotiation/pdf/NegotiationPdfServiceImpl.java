@@ -7,7 +7,6 @@ import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
@@ -48,7 +47,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private static final DateTimeFormatter DTF =
       DateTimeFormatter.ofPattern("MMMM dd, yyyy - h:mm a");
   private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
-  private static final Set<String> ALLOWED_TEMPLATES = Set.of("PDF_NEGOTIATION_SUMMARY");
   private final TemplateEngine templateEngine;
   private final ObjectMapper objectMapper;
 
@@ -69,13 +67,8 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     this.conversionService = conversionService;
   }
 
-  public byte[] generatePdf(String negotiationId, String templateName, boolean includeAttachments)
+  public byte[] generatePdf(String negotiationId, boolean includeAttachments)
       throws PdfGenerationException {
-    if (templateName == null) {
-      templateName = DEFAULT_PDF_TEMPLATE_NAME;
-    } else if (!ALLOWED_TEMPLATES.contains(templateName)) {
-      throw new WrongRequestException("Invalid template name: " + templateName);
-    }
 
     Negotiation negotiation = findEntityById(negotiationId);
 
@@ -83,7 +76,10 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       Context context = createContext(negotiation);
 
       byte[] pdfBytes =
-          renderPdf(templateEngine.process(templateName, context).replaceAll("(<br />)+$", ""));
+          renderPdf(
+              templateEngine
+                  .process(DEFAULT_PDF_TEMPLATE_NAME, context)
+                  .replaceAll("(<br />)+$", ""));
 
       if (!includeAttachments) {
         return pdfBytes;

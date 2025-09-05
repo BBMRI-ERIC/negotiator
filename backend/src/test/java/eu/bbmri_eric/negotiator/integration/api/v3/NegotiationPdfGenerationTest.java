@@ -249,33 +249,6 @@ class NegotiationPdfGenerationTest {
     assertTrue(convertedPdfs.get(1).length > 0);
   }
 
-  @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
-  void testGenerateNegotiationPdf_WithInvalidTemplate_ReturnsBadRequest() throws Exception {
-    mockMvc
-        .perform(
-            get(PDF_ENDPOINT, NEGOTIATION_1_ID)
-                .param("template", "invalid-template")
-                .with(jwt().jwt(builder -> builder.subject("109"))))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
-  void testGenerateNegotiationPdf_WithValidTemplate_ReturnsOk() throws Exception {
-    mockMvc
-        .perform(
-            get(PDF_ENDPOINT, NEGOTIATION_1_ID)
-                .param("template", "PDF_NEGOTIATION_SUMMARY")
-                .with(jwt().jwt(builder -> builder.subject("109"))))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_PDF));
-  }
-
   private byte[] createSimplePdfBytes() {
     StringBuilder pdf = new StringBuilder();
     pdf.append("%PDF-1.4\n");
