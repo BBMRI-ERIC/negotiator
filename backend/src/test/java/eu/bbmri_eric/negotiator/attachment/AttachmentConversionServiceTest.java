@@ -1,12 +1,10 @@
-package eu.bbmri_eric.negotiator.unit.attachment;
+package eu.bbmri_eric.negotiator.attachment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import eu.bbmri_eric.negotiator.attachment.AttachmentConversionServiceImpl;
-import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentDTO;
 import java.io.IOException;
 import java.io.InputStream;
