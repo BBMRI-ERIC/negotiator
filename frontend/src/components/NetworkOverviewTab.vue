@@ -6,7 +6,6 @@
     </h4>
     <p class="text-muted">The overview visible below is generated for the selected period</p>
 
-    <!-- Date Range Filters -->
     <div class="mb-4">
       <div class="mb-4">
         <div class="form-group d-inline-block mr-3">
@@ -16,7 +15,7 @@
             :value="startDate"
             type="date"
             class="form-control"
-            @input="$emit('update:startDate', $event.target.value)"
+            @input="handleDateChange('start', $event.target.value)"
           />
         </div>
 
@@ -27,16 +26,43 @@
             :value="endDate"
             type="date"
             class="form-control"
-            @input="$emit('update:endDate', $event.target.value)"
+            @input="handleDateChange('end', $event.target.value)"
           />
         </div>
+     
+        <button
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceCurrentYear' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceCurrentYear')"
+        >
+          YTD
+        </button>
+        <button
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceOneMonthAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceOneMonthAgo')"
+        >
+          1M
+        </button>
+        <button
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceSixMonthsAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceSixMonthsAgo')"
+        >
+          6M
+        </button>
+        <button
+          type="button"
+          :class="['btn', 'me-2', activeRange === 'sinceOneYearAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          @click="setDateRange('sinceOneYearAgo')"
+        >
+          1Y
+        </button>
       </div>
     </div>
 
-    <!-- Negotiations Card -->
     <div class="card">
       <div class="card-body">
-        <!-- Card Header -->
         <div class="d-flex flex-row mb-2 align-items-center">
           <h4 class="card-title mb-0">Negotiations</h4>
           <i
@@ -45,19 +71,16 @@
           />
         </div>
 
-        <!-- Total Number of Requests -->
         <div class="text-center mb-2">
           <h5>Total Negotiations: {{ stats.totalNumberOfNegotiations }}</h5>
         </div>
 
-        <!-- Pie Chart Section -->
         <div v-if="stats" class="pie-chart-container">
           <Pie :data="pieData" :options="pieOptions" />
         </div>
       </div>
     </div>
 
-    <!-- Status Distribution Card -->
     <div class="card mt-4">
       <div class="card-body">
         <div class="d-flex flex-row mb-4 align-items-center">
@@ -75,16 +98,15 @@
             class="col-md-6 col-lg-4 mb-4 d-flex"
           >
             <NetworkStatsCard
-              :label="formatStatusLabel(status)"
+              :label="transformStatus(status)"
               :value="count"
-              :tooltip="'The number of negotiations with status: ' + formatStatusLabel(status)"
+              :tooltip="'The number of negotiations with status: ' + transformStatus(status)"
             />
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Additional Information Card -->
     <div class="card mt-4">
       <div class="card-body">
         <div class="d-flex flex-row mb-4 align-items-center">
@@ -147,8 +169,12 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { Pie } from 'vue-chartjs'
 import NetworkStatsCard from './NetworkStatsCard.vue'
+import { transformStatus } from '../composables/utils.js'
+
+const activeRange = ref('sinceCurrentYear')
 
 defineProps({
   stats: {
@@ -173,13 +199,48 @@ defineProps({
   },
 })
 
-defineEmits(['update:startDate', 'update:endDate', 'setNegotiationIds'])
+const emits = defineEmits(['update:startDate', 'update:endDate', 'setNegotiationIds'])
 
-function formatStatusLabel(status) {
-  return status
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase())
+function setDateRange(range) {
+  activeRange.value = range
+  const formatDate = (date) => date.toISOString().slice(0, 10)
+  const today = new Date()
+  let startDate
+
+  switch (range) {
+    case 'sinceCurrentYear':
+      startDate = new Date(today.getFullYear(), 0, 1)
+      break
+    case 'sinceOneYearAgo':
+      startDate = new Date(today)
+      startDate.setFullYear(today.getFullYear() - 1)
+      break
+    case 'sinceOneMonthAgo':
+      startDate = new Date(today)
+      startDate.setMonth(today.getMonth() - 1)
+      break
+    case 'sinceSixMonthsAgo':
+      startDate = new Date(today)
+      startDate.setMonth(today.getMonth() - 6)
+      break
+    default:
+      console.warn(`Unknown range: ${range}`)
+      startDate = today
+  }
+
+  emits('update:startDate', formatDate(startDate))
+  emits('update:endDate', formatDate(today))
+}
+
+function handleDateChange(type, value) {
+  activeRange.value = null
+  const formattedValue = new Date(value).toISOString().slice(0, 10)
+
+  if (type === 'start') {
+    emits('update:startDate', formattedValue)
+  } else if (type === 'end') {
+    emits('update:endDate', formattedValue)
+  }
 }
 </script>
 
@@ -237,15 +298,10 @@ function formatStatusLabel(status) {
   gap: 1rem;
 }
 
-.flex-fill {
-  flex: 1;
-}
-
 .text-muted {
   color: #6c757d !important;
 }
 
-.mt-3,
 .mt-4 {
   margin-top: 1.5rem !important;
 }

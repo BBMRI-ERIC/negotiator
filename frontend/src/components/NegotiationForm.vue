@@ -246,7 +246,7 @@
 
           <div v-else-if="criteria.type === 'INFORMATION'">
             <p v-if="criteria.description" class="text-muted">
-              {{ criteria.description }}
+              {{ negotiationCriteria[section.name][criteria.name] || criteria.description }}
             </p>
           </div>
 
@@ -550,14 +550,12 @@ async function getValueSet(id) {
   })
 }
 
-const debouncedSave = ref(
-  debounce(async (step) => {
-    if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
-      await saveDraftSilently(step)
-      currentSectionModified.value = false
-    }
-  }, 1000), // Wait 1 second after user stops typing
-)
+const debouncedSave = debounce(async (step) => {
+  if ((!props.isEditForm || currentStatus.value === 'DRAFT') && currentSectionModified.value) {
+    await saveDraftSilently(step)
+    currentSectionModified.value = false
+  }
+}, 1000)
 
 async function saveDraftSilently(step) {
   if (props.isEditForm) {
@@ -773,6 +771,8 @@ function isSectionValid(section, changeColor) {
           validationColorHighlight.value.push(ac.name)
         }
         valid = false
+      } else if (ac.type === 'INFORMATION') {
+        valid = true
       } else if (
         ac.type !== 'MULTIPLE_CHOICE' &&
         ac.type !== 'FILE' &&

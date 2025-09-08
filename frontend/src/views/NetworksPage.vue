@@ -64,6 +64,8 @@ import {
   Tooltip,
 } from 'chart.js'
 import { generatePieChartBackgroundColorArray } from '../composables/utils.js'
+import { transformStatus } from '../composables/utils.js'
+
 import NegotiationsListModal from '@/components/modals/NegotiationsListModal.vue'
 import NetworkHeader from '@/components/NetworkHeader.vue'
 import NetworkWarningBanner from '@/components/NetworkWarningBanner.vue'
@@ -276,7 +278,7 @@ async function loadStats(networkId) {
 
 function setPieData(labelsData, datasetsData) {
   pieData.value = {
-    labels: labelsData,
+    labels: labelsData.map(label=>transformStatus(label)),
     datasets: [
       {
         data: datasetsData,
