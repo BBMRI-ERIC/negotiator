@@ -1,6 +1,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAdminStore } from '@/store/admin'
 import { useOrganizationsStore } from '@/store/organizations'
+import { sortOrganizations, sortResources } from '@/utils/sort'
+import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
 
 export function useOrganizations() {
   const adminStore = useAdminStore()
@@ -33,74 +35,17 @@ export function useOrganizations() {
     )
   })
 
-  const sortedOrganizations = computed(() => {
-    if (!organizations.value || organizations.value.length === 0) {
-      return []
-    }
-
-    const activeOrgs = organizations.value.filter((org) => !org.withdrawn)
-    const withdrawnOrgs = organizations.value.filter((org) => org.withdrawn)
-
-    const sortedActive = activeOrgs.sort((a, b) => {
-      const aId = String(a.id || a.externalId || '').toLowerCase()
-      const bId = String(b.id || b.externalId || '').toLowerCase()
-      return aId.localeCompare(bId, undefined, { numeric: true })
-    })
-
-    const sortedWithdrawn = withdrawnOrgs.sort((a, b) => {
-      const aId = String(a.id || a.externalId || '').toLowerCase()
-      const bId = String(b.id || b.externalId || '').toLowerCase()
-      return aId.localeCompare(bId, undefined, { numeric: true })
-    })
-
-    return [...sortedActive, ...sortedWithdrawn]
-  })
+  const sortedOrganizations = computed(() => sortOrganizations(organizations.value || []))
 
   const sortedResourcesForOrganization = (organizationId) => {
     const resources = organizationResources.value[organizationId] || []
-    if (resources.length === 0) return []
-
-    const activeResources = resources.filter(
-      (resource) => !resource.withdrawn && resource.status !== 'withdrawn',
-    )
-    const withdrawnResources = resources.filter(
-      (resource) => resource.withdrawn || resource.status === 'withdrawn',
-    )
-
-    const sortedActive = activeResources.sort((a, b) => {
-      const aId = String(a.id || a.sourceId || '').toLowerCase()
-      const bId = String(b.id || b.sourceId || '').toLowerCase()
-      return aId.localeCompare(bId, undefined, { numeric: true })
-    })
-
-    const sortedWithdrawn = withdrawnResources.sort((a, b) => {
-      const aId = String(a.id || a.sourceId || '').toLowerCase()
-      const bId = String(b.id || b.sourceId || '').toLowerCase()
-      return aId.localeCompare(bId, undefined, { numeric: true })
-    })
-
-    return [...sortedActive, ...sortedWithdrawn]
+    return sortResources(resources)
   }
 
   const getNoResultsMessage = () => {
-    if (loading.value) {
-      return 'Loading organizations...'
-    }
-
     const hasSearchFilters =
-      filters.value.name || filters.value.externalId || filters.value.resourceName
-
-    if (hasSearchFilters) {
-      return 'No organizations found matching your search criteria.'
-    }
-
-    if (filters.value.statusFilter === 'withdrawn') {
-      return 'No withdrawn organizations found.'
-    } else if (filters.value.statusFilter === 'active') {
-      return 'No active organizations found.'
-    }
-
-    return 'No organizations found.'
+      !!filters.value.name || !!filters.value.externalId || !!filters.value.resourceName
+    return buildNoResultsMsg(loading.value, hasSearchFilters, filters.value.statusFilter)
   }
 
   const toggleOrganization = async (organizationId) => {
