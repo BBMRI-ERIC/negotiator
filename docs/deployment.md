@@ -87,12 +87,16 @@ the [application file](https://github.com/BBMRI-ERIC/negotiator/blob/master/back
 | `NEGOTIATOR_EMAIL_LOGO`                               | URL for the Negotiator logo image.                                                                      | `"https://web.bbmri-eric.eu/Negotiator/2023-BBMRI-ERIC-Logo_NEGOTIATOR.png"` |
 | `NEGOTIATOR_AUTHORIZATION_CLAIM`                      | Claim used for authorization.                                                                           | `"eduperson_entitlement"`                                                    |
 | `NEGOTIATOR_AUTHORIZATION_ADMINCLAIMVALUE`            | Claim value for admin users.                                                                            | `""`                                                                         |
-| `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE`       | Claim value for researcher users.                                                                       | `""`                                                                         |
-| `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE`        | Claim value for biobanker users.                                                                        | `""`                                                                         |
 | `NEGOTIATOR_NOTIFICATION_REMINDERCRONEXPRESSION`      | Cron expression for reminder notifications.                                                             | `"0 0 6 * * *"`                                                              |
 | `NEGOTIATOR_EMAIL_FREQUENCYCRONEXPRESSION`            | Cron expression for email frequency.                                                                    | `"0 0 * * * *"`                                                              |
 | `NEGOTIATOR_EMAILADDRESS`                             | Email address from which emails are sent                                                                | "BBMRI-ERIC Negotiator <noreply@bbmri-eric.eu>"                              |
 | `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES` | OAuth2 Resource Audience(s); see [aud claim](https://datatracker.ietf.org/doc/html/rfc8693#section-3.1) | "https://negotiator.bbmri-eric.eu,negotiator-api"                            |
+
+> [!NOTE]
+> Only the ADMIN role is mapped from token claims. The RESEARCHER role is granted by default to all authenticated users,
+> and REPRESENTATIVE/NETWORK MANAGER roles are assigned inside the Negotiator. Previous variables like
+> `NEGOTIATOR_AUTHORIZATION_RESEARCHERCLAIMVALUE` and `NEGOTIATOR_AUTHORIZATION_BIOBANKERCLAIMVALUE` are deprecated and
+> not used by current versions.
 
 
 

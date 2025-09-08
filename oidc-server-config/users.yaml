@@ -28,11 +28,6 @@
         "Type": "email",
         "Value": "adam.researcher@gmail.com",
         "ValueType": "string"
-      },
-      {
-        "Type": "eduperson_entitlement",
-        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\"]",
-        "ValueType": "json"
       }
     ]
   },
@@ -65,11 +60,6 @@
         "Type": "email",
         "Value": "taylor.biobanker@gmail.com",
         "ValueType": "string"
-      },
-      {
-        "Type": "eduperson_entitlement",
-        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection#perun.bbmri-eric.eu\",\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection_2#perun.bbmri-eric.eu\",\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection_3#perun.bbmri-eric.eu\",\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric.ID.SE_890.collection.dummy_collection_4#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.2#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.1#perun.bbmri-eric.eu\"]",
-        "ValueType": "json"
       }
     ]
   },
@@ -102,11 +92,6 @@
         "Type": "email",
         "Value": "sarah.repr@biobank.eu",
         "ValueType": "string"
-      },
-      {
-        "Type": "eduperson_entitlement",
-        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric:ID:CZ_MMCI:collection:LTS#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:biobankers#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.2#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:biobank.1.collection.1#perun.bbmri-eric.eu\"]",
-        "ValueType": "json"
       }
     ]
   },
@@ -142,7 +127,7 @@
       },
       {
         "Type": "eduperson_entitlement",
-        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory:bbmri-eric:ID:CZ_MMCI:collection:LTS#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:collections:BBMRI-ERIC%20Directory#perun.bbmri-eric.eu\", \"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:researchers#perun.bbmri-eric.eu\"]",
+        "Value": "[\"urn:geant:bbmri-eric.eu:group:bbmri:negotiator_v3:admins#perun.bbmri-eric.eu\"]",
         "ValueType": "json"
       }
     ]
