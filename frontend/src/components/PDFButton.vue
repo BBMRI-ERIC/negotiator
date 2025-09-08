@@ -7,8 +7,11 @@
         color: uiConfigurationTheme.primaryTextColor,
         '--hoverColor': uiConfigurationTheme?.secondaryTextColor,
       }"
-      ><i class="bi bi-file-earmark-pdf" />{{ text }}</a
-    >
+      ><i class="bi bi-file-earmark-pdf" />
+        {{ text }}
+        <span v-if="badgeText" class="badge rounded-pill" :class="badgeClass"> {{ badgeText }} </span>
+    </a>
+    
     <DownloadingSpinner ref="downloadingSpinner" />
   </div>
 </template>
@@ -32,6 +35,16 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  badgeText: {
+    type: String,
+    required: false,
+    default: null
+  },
+  badgeType: {
+    type: String,
+    required: false,
+    default: null
+  },
   includeAttachments: {
     type: Boolean,
     required: false,
@@ -45,6 +58,10 @@ const notificationsStore = useNotificationsStore()
 
 const uiConfigurationTheme = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
+})
+
+const badgeClass = computed(() => {
+  return `bg-${props.badgeType}`
 })
 
 async function retrievePDF() {

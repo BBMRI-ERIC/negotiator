@@ -73,7 +73,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     Negotiation negotiation = findEntityById(negotiationId);
 
     try {
-      Context context = createContext(negotiation);
+      Context context = createContext(negotiation, includeAttachments);
 
       byte[] pdfBytes =
           renderPdf(
@@ -158,7 +158,8 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     return resourcesByOrganization;
   }
 
-  private Context createContext(Negotiation negotiation) throws JsonProcessingException {
+  private Context createContext(Negotiation negotiation, boolean includeAttachments)
+      throws JsonProcessingException {
     Map<String, Object> payload =
         this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
 
@@ -175,6 +176,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     context.setVariable("negotiationPayload", processPayload(payload));
     context.setVariable(
         "resourcesByOrganization", getResourcesByOrganization(negotiation.getResources()));
+    context.setVariable("includeAttachments", includeAttachments);
 
     return context;
   }

@@ -83,6 +83,8 @@
           :negotiation-pdf-data="negotiation"
           data-cy="merged-pdf-button"
           text="Download PDF with attachments"
+          badge-text="Beta"
+          badge-type="warning"
           :include-attachments="true"
         />
         <TransferButton

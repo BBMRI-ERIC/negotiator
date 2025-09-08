@@ -397,17 +397,6 @@
     </div>
 </div>
 
-<!-- APPENDICES -->
-<div class="page-break"></div>
-<h1>Appendices</h1>
-<div class="section">
-    <div class="placeholder-box">
-        <p><strong>Supporting documentation may include:</strong></p>
-        <p>Detailed technical specifications, research protocol and methodology, data management plans, quality assurance procedures, and contact information for all parties.</p>
-        <p><em>Additional documents and references as applicable</em></p>
-    </div>
-</div>
-
 <!-- LEGAL DISCLAIMER AND FOOTER -->
 <div class="legal-footer">
     <h2 style="color: #003366; font-size: 12px; margin-top: 0; margin-bottom: 1em;">Legal Disclaimer and Contact Information</h2>
@@ -459,6 +448,19 @@
             This document was generated automatically by the BBMRI-ERIC Negotiator platform on <span th:text="${now}">August 25, 2025</span>
         </p>
     </div>
+</div>
+
+<!-- APPENDICES -->
+<div th:if="${includeAttachments}">
+<div class="page-break"></div>
+<h1>Appendices</h1>
+<div class="section">
+    <div class="placeholder-box">
+        <p><strong>Supporting documentation may include:</strong></p>
+        <p>Detailed technical specifications, research protocol and methodology, data management plans, quality assurance procedures, and contact information for all parties.</p>
+        <p><em>Additional documents and references as applicable</em></p>
+    </div>
+</div>
 </div>
 
 </body>
