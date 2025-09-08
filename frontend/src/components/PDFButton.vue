@@ -7,56 +7,86 @@
         color: uiConfigurationTheme.primaryTextColor,
         '--hoverColor': uiConfigurationTheme?.secondaryTextColor,
       }"
-      ><i class="bi bi-filetype-pdf" /> Download PDF</a
-    >
+      ><i class="bi bi-file-earmark-pdf" />
+        {{ text }}
+        <span v-if="badgeText" class="badge rounded-pill" :class="badgeClass"> {{ badgeText }} </span>
+    </a>
+    
+    <DownloadingSpinner ref="downloadingSpinner" />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import { useNegotiationPageStore } from '@/store/negotiationPage.js'
 import { useNotificationsStore } from '../store/notifications'
+import DownloadingSpinner from '@/components/modals/DownloadingSpinner.vue'
+import { Modal } from 'bootstrap'
+
+const downloadingSpinner = ref(null)
 
 const props = defineProps({
   negotiationPdfData: {
     type: Object,
     default: undefined,
   },
+  text: {
+    type: String,
+    required: true,
+  },
+  badgeText: {
+    type: String,
+    required: false,
+    default: null
+  },
+  badgeType: {
+    type: String,
+    required: false,
+    default: null
+  },
+  includeAttachments: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const uiConfigurationStore = useUiConfiguration()
 const negotiationPageStore = useNegotiationPageStore()
 const notificationsStore = useNotificationsStore()
-const loadingPdf = ref(false)
 
 const uiConfigurationTheme = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
 })
 
+const badgeClass = computed(() => {
+  return `bg-${props.badgeType}`
+})
+
 async function retrievePDF() {
-  if (!loadingPdf.value) {
-    loadingPdf.value = true
-    try {
-      const pdfData = await negotiationPageStore.retrieveNegotiationPDF(props.negotiationPdfData.id)
-      const pdfBlob = new Blob([pdfData], { type: 'application/pdf' })
+  const spinnerModal = new Modal(downloadingSpinner.value.$el)
+  spinnerModal.show()
+  try {
+    const pdfData = await negotiationPageStore.retrieveNegotiationPDF(
+      props.negotiationPdfData.id,
+      props.includeAttachments,
+    )
+    const pdfBlob = new Blob([pdfData.data], { type: 'application/pdf' })
 
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(pdfBlob)
-      link.download = `Negotiation_${props.negotiationPdfData.id}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(pdfBlob)
+    link.download = pdfData.name
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
 
-      URL.revokeObjectURL(link.href)
-
-      notificationsStore.setNotification('File successfully saved', 'success')
-      loadingPdf.value = false
-    } catch (error) {
-      console.error('Error retrieving or saving the PDF:', error)
-      notificationsStore.setNotification('Error saving file', 'warning')
-      loadingPdf.value = false
-    }
+    notificationsStore.setNotification('File successfully saved', 'success')
+  } catch {
+    notificationsStore.setNotification('Error saving file', 'warning')
+  } finally {
+    spinnerModal.hide()
   }
 }
 </script>
@@ -68,6 +98,6 @@ a {
 
 .pdf-text-hover:hover,
 .pdf-text-hover:hover i {
-  color: #dc3545 !important; /* Bootstrap's danger red */
+  color: var(--bs-danger) !important;
 }
 </style>

@@ -22,15 +22,16 @@ class FileTypeValidator implements Validator {
           "application/pdf",
           "image/png",
           "image/jpeg",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          "application/x-tika-ooxml",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "application/vnd.ms-excel",
-          "application/x-tika-msoffice",
-          "text/plain",
-          "text/csv",
-          "application/csv");
+          "application/msword", // .doc
+          "application/x-tika-msoffice", // .doc (generic Tikatype)
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+          "application/x-tika-ooxml", // .docx (generic Tika type)
+          "text/plain", // .txt
+          "text/csv", // .csv
+          "application/csv", // .csv
+          "application/vnd.ms-excel", // .xls (Excel 97-2003)
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
+          );
 
   private static final List<String> ALLOWED_EXTENSIONS =
       List.of("pdf", "png", "jpeg", "jpg", "doc", "docx", "txt", "csv", "xls", "xlsx");
