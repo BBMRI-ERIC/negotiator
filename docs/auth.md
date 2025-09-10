@@ -32,20 +32,18 @@ To retrieve additional user details, both the frontend and the backend call the
 object containing various claims about the authenticated user. These claims can include information like email, name,
 roles, and custom attributes, which are essential for fine-grained authorization decisions.
 
-Once the backend receives the _**userinfo**_ response, it parses the user's claims to make authorization decisions. The
-roles and permissions assigned to a user are often based on specific claims returned in the **_userinfo_** response. For
-instance, in the Negotiator platform, users may be assigned roles such as **RESEARCHER**, **ADMIN**, or
-**REPRESENTATIVE** based on values found in a claim like **_eduperson_entitlement_**.
+Once the backend receives the _**userinfo**_ response, it parses the user's claims to make authorization decisions as needed.
+In the Negotiator platform, only the **ADMIN** role is derived from token claims (for example, from an
+**_eduperson_entitlement_** claim). The **RESEARCHER** role is granted by default to all authenticated users, and
+the **REPRESENTATIVE** and **NETWORK MANAGER** roles are assigned inside the Negotiator by administrators — they are not
+derived from token claims.
 
 For example:
 
-- If the *eduperson_entitlement* claim contains the value **RESEARCHER**, the user is granted the **RESEARCHER** role.
-- Similarly, if the claim contains **ADMIN**, the user is granted the **ADMIN** role, and so on.
+- If the configured authorization claim contains the value **ADMIN**, the user is granted the **ADMIN** role.
 
-The values in the *eduperson_entitlement* claim (or any other claim) are fully customizable to suit the needs of your
-application. You can define roles and permissions according to your organization's policies by mapping specific claim
-values to roles in your system. The mapping can be customized in
-the [application.yml file](https://github.com/BBMRI-ERIC/negotiator/blob/master/backend/src/main/resources/application.yaml).
+The exact claim and value mapping for the **ADMIN** role can be customized in
+the [application.yml file](https://github.com/BBMRI-ERIC/negotiator/blob/master/backend/src/main/resources/application.yaml)
 or via environment variables.
 
 This flexibility allows the Negotiator platform to adapt to various authorization schemes and ensures that users only
@@ -73,7 +71,7 @@ make API calls on behalf of a system (not a user). Here's how it works in a typi
    credentials once it expires.
 
 For example, consider a script running on a server that needs to periodically pull data from the Negotiator backend (
-e.g., to collect usage metrics or sync data with another system). Using the Client Credentials Flow, the script will
+ e.g., to collect usage metrics or sync data with another system). Using the Client Credentials Flow, the script will
 authenticate against the OIDC provider, obtain an access token, and use it to make API calls to the backend, all without
 requiring user interaction.
 
@@ -113,16 +111,20 @@ assurance and can be enabled based on the security requirements of the environme
 ## Authorization
 
 In this seciton the roles supported by the Negotiator are described.
-Unless stated otherwise, these roles are assigned through mapping values in a specific scope as stated above.
+
+Role assignment overview:
+- **RESEARCHER** is granted by default to all authenticated users.
+- **REPRESENTATIVE** and **NETWORK MANAGER** are assigned inside the Negotiator by administrators.
+- **ADMIN** can be mapped from token claims (configurable).
 
 ### Basic user roles
 
-- **RESEARCHER**: The most basic role each user is granted. It allows the user to create Negotiations and interact with
-  them.
-- **REPRESENTATIVE**: A user responsible for mediating access to a given resource. It allows them interacting with
-  relevant Negotiations.
-- **NETWORK MANAGER**: A user responsible for moderating access to a group of resources. Grants them access to
-  monitoring functionalities over relevant Negotiations.
+- **RESEARCHER**: The most basic role each user is granted by default. It allows the user to create Negotiations and
+  interact with them.
+- **REPRESENTATIVE**: A user responsible for mediating access to a given resource. Assignment is managed inside the
+  Negotiator; it allows them to interact with relevant Negotiations.
+- **NETWORK MANAGER**: A user responsible for moderating access to a group of resources. Assignment is managed inside
+  the Negotiator and grants access to monitoring functionalities over relevant Negotiations.
 
 ### Special roles
 
@@ -133,4 +135,3 @@ Unless stated otherwise, these roles are assigned through mapping values in a sp
   token contains scope _**negotiator_authz_management**_.
 - **PROMETHEUS**: Grants access to metrics endpoints. Assigned to the user if the token contains scope
   _**negotiator_monitoring**_.
-

@@ -24,5 +24,3 @@ negotiator:
   authorization:
     claim: "authz"
     admin-claim-value: "admin_group"
-    researcher-claim-value: "researcher_group"
-    biobanker-claim-value: "biobanker_group"

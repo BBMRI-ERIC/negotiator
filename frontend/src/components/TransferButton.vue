@@ -73,7 +73,7 @@ function handleConfirm(subjectId) {
 
 .btn-link:hover,
 .btn-link:hover i {
-  color: #dc3545 !important; /* Bootstrap's danger red */
+  color: var(--bs-danger) !important;
 }
 
 .btn-link:focus {

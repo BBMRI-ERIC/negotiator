@@ -27,8 +27,6 @@ public class CustomJWTAuthConverterTest {
 
   private static final String TEST_AUTHZ_CLAIM = "roles";
   private static final String TEST_AUTHZ_ADMIN_VALUE = "admin";
-  private static final String TEST_AUTHZ_RESEARCHER_VALUE = "researcher";
-  private static final String TEST_AUTHZ_BIOBANKER_VALUE = "biobanker";
   private static final String USER_INFO_ENDPOINT_PATH = "/userinfo";
 
   @RegisterExtension
@@ -50,20 +48,10 @@ public class CustomJWTAuthConverterTest {
     String userInfoEndpointUrl = wireMockServer.baseUrl() + USER_INFO_ENDPOINT_PATH;
     converterWithUserInfo =
         new CustomJWTAuthConverter(
-            personRepository,
-            userInfoEndpointUrl,
-            TEST_AUTHZ_CLAIM,
-            TEST_AUTHZ_ADMIN_VALUE,
-            TEST_AUTHZ_RESEARCHER_VALUE,
-            TEST_AUTHZ_BIOBANKER_VALUE);
+            personRepository, userInfoEndpointUrl, TEST_AUTHZ_CLAIM, TEST_AUTHZ_ADMIN_VALUE);
     converterWithoutUserInfo =
         new CustomJWTAuthConverter(
-            personRepository,
-            null,
-            TEST_AUTHZ_CLAIM,
-            TEST_AUTHZ_ADMIN_VALUE,
-            TEST_AUTHZ_RESEARCHER_VALUE,
-            TEST_AUTHZ_BIOBANKER_VALUE);
+            personRepository, null, TEST_AUTHZ_CLAIM, TEST_AUTHZ_ADMIN_VALUE);
   }
 
   private Jwt createFakeJwt(Map<String, Object> claims, String tokenValue) {
@@ -256,15 +244,6 @@ public class CustomJWTAuthConverterTest {
 
     Collection<GrantedAuthority> authorities = converterWithUserInfo.parseUserAuthorities(claims);
     assertTrue(authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_RESEARCHER")));
-  }
-
-  @Test
-  void testParseUserAuthorities_withBiobankerRole() {
-    Map<String, Object> claims = new HashMap<>();
-    claims.put("roles", List.of("biobanker"));
-
-    Collection<GrantedAuthority> authorities = converterWithUserInfo.parseUserAuthorities(claims);
-    assertTrue(authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_REPRESENTATIVE")));
   }
 
   @Test
