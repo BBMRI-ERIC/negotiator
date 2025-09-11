@@ -56,6 +56,21 @@
               {{ $t('navbar.biobanker') }}
             </router-link>
           </li>
+          <li v-if="isRepresentative" class="nav-item">
+            <router-link
+              :style="{
+                color:
+                  $route.path === '/resources' || $route.params.userRole === 'ROLE_REPRESENTATIVE'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
+              class="nav-link active nav-option"
+              to="/resources"
+            >
+              <i class="bi bi-archive" />
+              Your resources
+            </router-link>
+          </li>
           <!-- Dropdown for multiple networks -->
           <li
             v-if="showNetworksTab && networks.length > 1"

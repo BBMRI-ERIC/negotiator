@@ -1,38 +1,28 @@
 import { ref, computed, onMounted } from 'vue'
-import { useAdminStore } from '@/store/admin'
-import { useOrganizationsStore } from '@/store/organizations'
+import { useResourcesStore } from '@/store/resources'
+import { useUserStore } from '@/store/user.js'
 import { sortOrganizations, sortResources } from '@/utils/sort'
 import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
 
-export function useOrganizations() {
-  const adminStore = useAdminStore()
-  const organizationsStore = useOrganizationsStore()
+export function useResources() {
+  const resourceStore = useResourcesStore()
+  const userStore = useUserStore()
 
   const organizations = ref([])
   const organizationResources = ref({})
   const loadingResources = ref(new Set())
   const expandedOrganizations = ref(new Set())
   const loading = ref(true)
-  const pageNumber = ref(0)
-  const totalPages = ref(0)
-  const totalElements = ref(0)
-  const pageLinks = ref({})
-  const pageSize = ref(20)
 
   const filters = ref({
     statusFilter: 'active',
-    name: '',
-    externalId: '',
-    resourceName: '',
+    name: ''
   })
 
   let searchTimeout = null
 
   const allExpanded = computed(() => {
-    return (
-      organizations.value.length > 0 &&
-      expandedOrganizations.value.size === organizations.value.length
-    )
+    return organizations.value.length > 0 && expandedOrganizations.value.size === organizations.value.length
   })
 
   const sortedOrganizations = computed(() => sortOrganizations(organizations.value || []))
@@ -43,9 +33,7 @@ export function useOrganizations() {
   }
 
   const getNoResultsMessage = () => {
-    const hasSearchFilters =
-      !!filters.value.name || !!filters.value.externalId || !!filters.value.resourceName
-    return buildNoResultsMsg(loading.value, hasSearchFilters, filters.value.statusFilter)
+    return buildNoResultsMsg(loading.value, !!filters.value.name, filters.value.statusFilter)
   }
 
   const toggleOrganization = async (organizationId) => {
@@ -57,17 +45,6 @@ export function useOrganizations() {
     }
   }
 
-  const toggleExpandAll = async () => {
-    if (allExpanded.value) {
-      expandedOrganizations.value.clear()
-    } else {
-      organizations.value.forEach((org) => {
-        expandedOrganizations.value.add(org.id)
-      })
-      await Promise.all(organizations.value.map((org) => loadResourcesForOrganization(org.id)))
-    }
-  }
-
   const loadResourcesForOrganization = async (organizationId) => {
     if (organizationResources.value[organizationId]) {
       return
@@ -76,12 +53,8 @@ export function useOrganizations() {
     loadingResources.value.add(organizationId)
 
     try {
-      const organizationWithResources = await organizationsStore.getOrganizationById(
-        organizationId,
-        'resources',
-      )
-      const resources =
-        organizationWithResources.resources || organizationWithResources._embedded?.resources || []
+      const resources = organizations.value.find(org => org.id === organizationId)?.resources || []
+
       organizationResources.value[organizationId] = resources
     } catch (error) {
       console.error('Failed to load resources for organization:', organizationId, error)
@@ -100,58 +73,25 @@ export function useOrganizations() {
         apiFilters.name = filters.value.name.trim()
       }
 
-      if (filters.value.externalId && filters.value.externalId.trim()) {
-        apiFilters.externalId = filters.value.externalId.trim()
-      }
-
       if (filters.value.statusFilter === 'active') {
         apiFilters.withdrawn = false
       } else if (filters.value.statusFilter === 'withdrawn') {
         apiFilters.withdrawn = true
       }
 
-      const response = await adminStore.retrieveOrganizationsPaginated(
-        pageNumber.value,
-        pageSize.value,
-        apiFilters,
+      const response = await resourceStore.getRepresentedResources(
+        userStore.userInfo?.id,
+        false,
+        apiFilters
       )
-      organizations.value = response?._embedded?.organizations ?? []
-      pageLinks.value = response._links || {}
-      pageNumber.value = response.page?.number ?? 0
-      totalPages.value = response.page?.totalPages ?? 0
-      totalElements.value = response.page?.totalElements ?? 0
+
+      organizations.value = response
     } catch (error) {
       console.error('Error loading organizations:', error)
       organizations.value = []
     } finally {
       loading.value = false
     }
-  }
-
-  const previousPage = () => {
-    if (pageNumber.value > 0) {
-      pageNumber.value -= 1
-      loadOrganizations()
-    }
-  }
-
-  const nextPage = () => {
-    if (pageNumber.value < totalPages.value - 1) {
-      pageNumber.value += 1
-      loadOrganizations()
-    }
-  }
-
-  const updatePageSize = (newPageSize) => {
-    if (newPageSize < 1) {
-      pageSize.value = 20
-    } else if (newPageSize > 100) {
-      pageSize.value = 100
-    } else {
-      pageSize.value = newPageSize
-    }
-    pageNumber.value = 0
-    loadOrganizations()
   }
 
   const updateFilters = (newFilters) => {
@@ -161,16 +101,12 @@ export function useOrganizations() {
   const clearFilters = () => {
     filters.value = {
       statusFilter: 'active',
-      name: '',
-      externalId: '',
-      resourceName: '',
+      name: ''
     }
-    pageNumber.value = 0
     loadOrganizations()
   }
 
   const applyFilters = () => {
-    pageNumber.value = 0
     loadOrganizations()
   }
 
@@ -180,16 +116,8 @@ export function useOrganizations() {
     }
 
     searchTimeout = setTimeout(() => {
-      pageNumber.value = 0
       loadOrganizations()
     }, 500)
-  }
-
-  const reloadResourcesForOrganization = async (organizationId) => {
-    if (organizationId) {
-      delete organizationResources.value[organizationId]
-      await loadResourcesForOrganization(organizationId)
-    }
   }
 
   onMounted(() => {
@@ -202,25 +130,16 @@ export function useOrganizations() {
     loadingResources,
     expandedOrganizations,
     loading,
-    pageNumber,
-    totalPages,
-    totalElements,
-    pageSize,
     filters,
     allExpanded,
     getNoResultsMessage,
     sortedResourcesForOrganization,
     toggleOrganization,
-    toggleExpandAll,
     loadResourcesForOrganization,
     loadOrganizations,
-    previousPage,
-    nextPage,
-    updatePageSize,
     updateFilters,
     clearFilters,
     applyFilters,
-    debouncedSearch,
-    reloadResourcesForOrganization,
+    debouncedSearch
   }
 }

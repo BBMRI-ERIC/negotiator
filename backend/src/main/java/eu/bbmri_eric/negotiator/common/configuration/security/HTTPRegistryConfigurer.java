@@ -89,6 +89,8 @@ public class HTTPRegistryConfigurer {
         .hasAnyRole("AUTHORIZATION_MANAGER", "ADMIN")
         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/v3/users/*/resources/**"))
         .hasAnyRole("AUTHORIZATION_MANAGER", "ADMIN")
+        .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/users/*/organizations"))
+        .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/resources/**"))
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/v3/negotiations/*/resources/**"))

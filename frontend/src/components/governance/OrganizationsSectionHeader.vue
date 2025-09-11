@@ -4,7 +4,7 @@
       <i class="bi bi-diagram-3 me-2"></i>
       Organizations & Resources
     </h2>
-    <div class="actions-group">
+    <div class="actions-group" v-if="isEditable">
       <button class="btn btn-primary" @click="$emit('createOrganization')" :disabled="loading">
         <i class="bi bi-plus-circle me-2"></i>
         Create Organization
@@ -14,6 +14,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const isEditable = computed(() => route.meta.isEditable)
+
 defineProps({
   loading: {
     type: Boolean,

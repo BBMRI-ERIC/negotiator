@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.governance.organization;
 
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashSet;
@@ -18,9 +19,12 @@ import org.springframework.hateoas.server.core.Relation;
 @Relation(collectionRelation = "organizations", itemRelation = "organization")
 @Schema(description = "An organization")
 public class OrganizationWithResourcesDTO extends OrganizationDTO {
-  Set<ResourceWithRepsDTO> resources = new HashSet<>();
+  Set<ResourceResponseModel> resources = new HashSet<>();
 
-  public void addResource(ResourceWithRepsDTO resource) {
+  public void addResource(ResourceResponseModel resource) {
+    if (resource instanceof ResourceWithRepsDTO) {
+      resources.removeIf(r -> Objects.equals(r.getId(), resource.getId()));
+    }
     resources.add(resource);
   }
 

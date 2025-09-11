@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.user;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import java.util.List;
 import java.util.Set;
@@ -117,4 +118,12 @@ public interface PersonService {
    * @param networkId the ID of the resource
    */
   void removeAsManagerForNetwork(Long managerId, Long networkId);
+
+  /**
+   * Retrieves all organizations containing a resource represented by a person.
+   *
+   * @param personId the ID of the representative
+   */
+  Set<OrganizationDTO> getOrganizationsContainingResourceRepresentedByUser(
+      Long personId, String expand, String name, Boolean withdrawn);
 }
