@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.template;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -9,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
+import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,30 @@ class TemplateControllerTest {
   @BeforeEach
   void setUp() {
     templateRepository.deleteAll();
+  }
+
+  @Test
+  @WithMockNegotiatorUser(authName = "TheResearcher")
+  void updateTemplate_asRegularUser_403() throws Exception {
+    mockMvc.perform(put(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+    mockMvc.perform(post(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+    mockMvc.perform(patch(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser
+  void updateTemplate_asAnonymousUser_403() throws Exception {
+    mockMvc.perform(put(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+    mockMvc.perform(post(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+    mockMvc.perform(patch(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser
+  void updateTemplate_noAuth_403() throws Exception {
+    mockMvc.perform(put(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+    mockMvc.perform(post(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
+    mockMvc.perform(patch(TEMPLATES_ENDPOINT + "/EMAIL")).andExpect(status().isForbidden());
   }
 
   @Test
