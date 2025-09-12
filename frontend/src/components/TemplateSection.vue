@@ -82,6 +82,13 @@ function openUpdateTemplateModal() {
 }
 
 function updateTemplate() {
-  templateStore.updateTemplate(templateName.value, templateData.value)
+  templateStore.updateTemplate(templateName.value, templateData.value).then(() => {
+    // Return to template table after successful update
+    returnToTemplateTable()
+    // Refresh the templates list
+    templateStore.retrieveTemplates().then((response) => {
+      allTemplates.value = response
+    })
+  })
 }
 </script>

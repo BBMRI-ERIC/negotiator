@@ -40,10 +40,11 @@ export const useTemplates = defineStore('emailTemplates', () => {
       })
       .then(() => {
         notifications.setNotification('Template was updated successfully', 'success')
+        return true // Return success indicator
       })
       .catch(() => {
         notifications.setNotification('Error updating template', 'danger')
-        return null
+        throw new Error('Template update failed') // Properly throw error to be caught by caller
       })
   }
 
