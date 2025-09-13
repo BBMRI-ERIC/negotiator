@@ -60,7 +60,7 @@ public class Negotiation extends AuditEntity {
 
   @OneToMany(
       mappedBy = "negotiation",
-      cascade = {CascadeType.MERGE})
+      cascade = {CascadeType.MERGE, CascadeType.REMOVE})
   @Builder.Default
   private Set<Attachment> attachments = new HashSet<>();
 
