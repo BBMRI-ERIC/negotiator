@@ -6,7 +6,6 @@
       text="Are you sure you want to update the template?"
       :message-enabled="false"
       @confirm="updateTemplate()"
-      :ref="updateTemplateModal"
     />
     <h2>Templates</h2>
     <div class="text-muted mb-3">
@@ -28,7 +27,7 @@
         @click="returnToTemplateTable()"
       >
         <i class="bi bi-arrow-return-left"></i>
-        Retrun to Template Table
+        Return to Template Table
       </button>
 
       <TemplateEditor v-model:templateData="templateData" />
@@ -36,7 +35,8 @@
       <button
         type="button"
         class="btn btn-primary float-end btn-sm my-3"
-        @click="openUpdateTemplateModal()"
+        data-bs-toggle="modal"
+        data-bs-target="#update-template-modal"
       >
         Update Template
       </button>
@@ -56,11 +56,9 @@ import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 import TemplatesTable from '@/components/TemplatesTable.vue'
 import TemplateEditor from '@/components/TemplateEditor.vue'
 import { useTemplates } from '@/store/templates.js'
-import { Modal } from 'bootstrap'
 
 const templateStore = useTemplates()
 
-const updateTemplateModal = ref(null)
 const allTemplates = ref([])
 const templateName = ref('')
 const templateData = ref('')
@@ -76,19 +74,17 @@ function returnToTemplateTable() {
   templateName.value = ''
 }
 
-function openUpdateTemplateModal() {
-  updateTemplateModal.value = new Modal(document.querySelector('#update-template-modal'))
-  updateTemplateModal.value.show()
-}
-
 function updateTemplate() {
-  templateStore.updateTemplate(templateName.value, templateData.value).then(() => {
-    // Return to template table after successful update
-    returnToTemplateTable()
-    // Refresh the templates list
-    templateStore.retrieveTemplates().then((response) => {
+  templateStore.updateTemplate(templateName.value, templateData.value)
+    .then(() => {
+      returnToTemplateTable()
+      return templateStore.retrieveTemplates()
+    })
+    .then((response) => {
       allTemplates.value = response
     })
-  })
+    .catch((error) => {
+      console.error('Error updating template:', error)
+    })
 }
 </script>
