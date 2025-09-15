@@ -105,6 +105,8 @@ public class TemplateServiceImpl implements TemplateService {
 
   private String sanitizeHtml(String html) {
     String originalHtml = html;
+    // This custom sanitization is necessary to make it work with Thymeleaf.
+    // Libraries like OWASP are too restrictive which results in a loss of content.
     html = html.replaceAll("(?is)<(script|object|embed|applet|iframe|form)[^>]*>.*?</\\1>", "");
     html = html.replaceAll("(?i)<(script|object|embed|applet|iframe|form)[^>]*/?>", "");
     html = html.replaceAll("(?i)javascript:", "");
@@ -113,7 +115,6 @@ public class TemplateServiceImpl implements TemplateService {
       log.debug(
           "Template content sanitized - removed script-like content and dangerous attributes");
     }
-
     return html;
   }
 }
