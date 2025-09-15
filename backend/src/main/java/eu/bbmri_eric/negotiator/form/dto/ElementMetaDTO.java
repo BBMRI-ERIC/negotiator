@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.form.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import eu.bbmri_eric.negotiator.form.value_set.ValueSetDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,6 @@ import org.springframework.hateoas.server.core.Relation;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Relation(collectionRelation = "elements", itemRelation = "element")
 public class ElementMetaDTO {
   @NotNull private Long id;
@@ -25,4 +25,6 @@ public class ElementMetaDTO {
   @NotNull private String description;
 
   @NotNull private String type;
+
+  private ValueSetDTO valueSet;
 }

@@ -43,10 +43,9 @@
     <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
     <email-template-section />
-    <div v-if="featureFlagsAddAcessForms">
-      <hr />
-      <AccessFormsSection />
-    </div>
+    <hr />
+    <AccessFormsSection />
+    <ElementsManagement />
   </div>
 </template>
 
@@ -69,6 +68,7 @@ import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
 import allFeatureFlags from '@/config/featureFlags.js'
 
+import ElementsManagement from '@/components/ElementsManagement.vue'
 const userStore = useUserStore()
 const adminStore = useAdminStore()
 const formsStore = useFormsStore()
@@ -83,9 +83,6 @@ const selectedWebhook = ref({})
 const webhooks = ref([])
 const shown = ref(false)
 const selectedEmailId = ref(null)
-const featureFlagsAddAcessForms = !!(
-  allFeatureFlags.add_access_forms === 'true' || allFeatureFlags.add_access_forms === true
-)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {

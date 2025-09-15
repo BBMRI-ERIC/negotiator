@@ -42,6 +42,107 @@ export const useFormsStore = defineStore('forms', () => {
       })
   }
 
+  function createElement(elementData) {
+    return axios
+      .post(`${apiPaths.BASE_API_PATH}/elements`, elementData, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Element created successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.detail || 'Error creating element'
+        notifications.setNotification(errorMessage, 'danger')
+        throw error
+      })
+  }
+
+  function updateElement(elementId, elementData) {
+    return axios
+      .put(`${apiPaths.BASE_API_PATH}/elements/${elementId}`, elementData, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Element updated successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.detail || 'Error updating element'
+        notifications.setNotification(errorMessage, 'danger')
+        throw error
+      })
+  }
+
+  function deleteElement(elementId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/elements/${elementId}`, { headers: getBearerHeaders() })
+      .then(() => {
+        notifications.setNotification('Element deleted successfully', 'success')
+        return true
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.detail || 'Error deleting element'
+        notifications.setNotification(errorMessage, 'danger')
+        throw error
+      })
+  }
+
+  function retrieveAllValueSets() {
+    return axios
+      .get(`${apiPaths.BASE_API_PATH}/value-sets`, { headers: getBearerHeaders() })
+      .then((response) => {
+        // Handle the correct API response structure
+        if (response.data._embedded && response.data._embedded.valueSetDTOList) {
+          return response.data._embedded.valueSetDTOList
+        }
+        // Fallback for other possible structures
+        return response.data._embedded ? response.data._embedded['value-sets'] : response.data
+      })
+      .catch(() => {
+        notifications.setNotification('Error getting value sets from server', 'danger')
+        return null
+      })
+  }
+
+  function createValueSet(valueSetData) {
+    return axios
+      .post(`${apiPaths.BASE_API_PATH}/value-sets`, valueSetData, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Value set created successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.detail || 'Error creating value set'
+        notifications.setNotification(errorMessage, 'danger')
+        throw error
+      })
+  }
+
+  function updateValueSet(valueSetId, valueSetData) {
+    return axios
+      .put(`${apiPaths.BASE_API_PATH}/value-sets/${valueSetId}`, valueSetData, { headers: getBearerHeaders() })
+      .then((response) => {
+        notifications.setNotification('Value set updated successfully', 'success')
+        return response.data
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.detail || 'Error updating value set'
+        notifications.setNotification(errorMessage, 'danger')
+        throw error
+      })
+  }
+
+  function deleteValueSet(valueSetId) {
+    return axios
+      .delete(`${apiPaths.BASE_API_PATH}/value-sets/${valueSetId}`, { headers: getBearerHeaders() })
+      .then(() => {
+        notifications.setNotification('Value set deleted successfully', 'success')
+        return true
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.detail || 'Error deleting value set'
+        notifications.setNotification(errorMessage, 'danger')
+        throw error
+      })
+  }
+
   function retrieveDynamicAccessFormsValueSetByLink(link) {
     return axios
       .get(`${link}`, { headers: getBearerHeaders() })
@@ -218,6 +319,13 @@ export const useFormsStore = defineStore('forms', () => {
     retrieveAccessFormById,
     retrieveAllAccessForms,
     retrieveAllElements,
+    createElement,
+    updateElement,
+    deleteElement,
+    retrieveAllValueSets,
+    createValueSet,
+    updateValueSet,
+    deleteValueSet,
     retrieveDynamicAccessFormsValueSetByLink,
     submitRequiredInformation,
     retrieveInfoRequirementsById,
