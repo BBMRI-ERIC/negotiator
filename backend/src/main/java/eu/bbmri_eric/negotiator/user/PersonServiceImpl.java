@@ -194,6 +194,7 @@ public class PersonServiceImpl implements PersonService {
   @Override
   public Set<OrganizationDTO> getOrganizationsContainingResourceRepresentedByUser(
       Long personId, String expand, String name, Boolean withdrawn) {
+    AuthenticatedUserContext.checkUserAccess(personId);
     Set<Organization> organizations =
         organizationRepository.findAllOrganizationsContainingResourceRepresentedByUser(
             personId, name, withdrawn);
