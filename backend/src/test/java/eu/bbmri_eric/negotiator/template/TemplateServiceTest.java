@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.template;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import java.time.LocalDateTime;
@@ -25,7 +26,6 @@ public class TemplateServiceTest {
 
   @BeforeEach
   void setUp() {
-    templateRepository.deleteAll();
     var simpleTemplate =
         Template.builder()
             .name("TEST_SIMPLE")
@@ -304,5 +304,19 @@ public class TemplateServiceTest {
     assertThat(result).contains("<div>Hello</div>");
     assertThat(result).doesNotContain("<script>");
     assertThat(result).doesNotContain("alert('xss')");
+  }
+
+  @Test
+  @DisplayName("Update template should not remove allowed elements")
+  void updateTemplate_notSanitized() {
+    templateService.resetTemplate("EMAIL");
+    String templateContent = templateService.getByName("EMAIL");
+    templateService.updateTemplate("TEST_SIMPLE", templateContent);
+    String result = templateService.getByName("TEST_SIMPLE");
+    assertEquals(templateContent, result);
+    templateContent = templateService.getByName("PDF_NEGOTIATION_SUMMARY");
+    templateService.updateTemplate("TEST_SIMPLE", templateContent);
+    result = templateService.getByName("TEST_SIMPLE");
+    assertEquals(templateContent, result);
   }
 }
