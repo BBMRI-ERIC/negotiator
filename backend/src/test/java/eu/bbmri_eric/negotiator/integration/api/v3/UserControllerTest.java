@@ -480,8 +480,8 @@ public class UserControllerTest {
         .perform(
             MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(103)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()", is(1)));
+        .andExpect(jsonPath("$._embedded.organizations").isArray())
+        .andExpect(jsonPath("$._embedded.organizations.length()", is(1)));
   }
 
   @Test
@@ -492,8 +492,7 @@ public class UserControllerTest {
             MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(103))
                 .param("name", "NoSuchOrgNameShouldNotMatch"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()", is(0)));
+        .andExpect(jsonPath("$._embedded.organizations").doesNotExist());
   }
 
   @Test
@@ -505,9 +504,9 @@ public class UserControllerTest {
                 .param("expand", "resources"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/json"))
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()", not(0)))
-        .andExpect(jsonPath("$[0].resources").isArray());
+        .andExpect(jsonPath("$._embedded.organizations").isArray())
+        .andExpect(jsonPath("$._embedded.organizations.length()", not(0)))
+        .andExpect(jsonPath("$._embedded.organizations[0].resources").isArray());
   }
 
   @Test
