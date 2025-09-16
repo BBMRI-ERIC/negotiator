@@ -4,8 +4,8 @@
       <i class="bi bi-diagram-3 me-2"></i>
       Organizations & Resources
     </h2>
-    <div class="actions-group" v-if="isEditable">
-      <button class="btn btn-primary" @click="$emit('createOrganization')" :disabled="loading">
+    <div class="actions-group" v-if="props.isAdmin">
+      <button class="btn btn-primary" @click="$emit('createOrganization')" :disabled="props.loading">
         <i class="bi bi-plus-circle me-2"></i>
         Create Organization
       </button>
@@ -14,14 +14,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-const isEditable = computed(() => route.meta.isEditable)
-
-defineProps({
+const props = defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   loading: {
     type: Boolean,
     required: true,

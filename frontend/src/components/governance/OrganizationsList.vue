@@ -27,6 +27,7 @@
       :is-expanded="expandedOrganizations.has(organization.id)"
       :resources="sortedResourcesForOrganization(organization.id)"
       :resources-loading="loadingResources.has(organization.id)"
+      :is-admin="isAdmin"
       @toggle-expanded="$emit('toggleOrganization', organization.id)"
       @edit-organization="$emit('editOrganization', organization)"
       @edit-resource="$emit('editResource', $event)"
@@ -40,6 +41,10 @@
 import OrganizationCard from './OrganizationCard.vue'
 
 defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   organizations: {
     type: Array,
     required: true,

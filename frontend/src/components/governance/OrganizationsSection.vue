@@ -3,6 +3,7 @@
     <OrganizationsSectionHeader
       :loading="organizationsLoading || operationsLoading"
       :all-expanded="allExpanded"
+      :is-admin="props.isAdmin"
       @create-organization="modals.openCreateModal"
     />
 
@@ -23,6 +24,7 @@
       :loading-resources="loadingResources"
       :no-results-message="getNoResultsMessage()"
       :sorted-resources-for-organization="sortedResourcesForOrganization"
+      :is-admin="props.isAdmin"
       @toggle-organization="toggleOrganization"
       @edit-organization="modals.openEditModal"
       @edit-resource="modals.openEditResourceModal"
@@ -39,6 +41,7 @@
       @previous-page="previousPage"
       @next-page="nextPage"
       @update-page-size="updatePageSize"
+      v-if="props.isAdmin"
     />
 
     <EditOrganizationModal
@@ -47,6 +50,7 @@
       :shown="modals.showEditModal.value"
       @update="handleOrganizationUpdate"
       @close="modals.closeEditModal"
+      v-if="props.isAdmin"
     />
 
     <CreateOrganizationModal
@@ -54,6 +58,7 @@
       :shown="modals.showCreateModal.value"
       @create="handleOrganizationCreate"
       @close="modals.closeCreateModal"
+      v-if="props.isAdmin"
     />
 
     <CreateResourceModal
@@ -63,6 +68,7 @@
       :shown="modals.showCreateResourceModal.value"
       @create="handleResourceCreate"
       @close="modals.closeCreateResourceModal"
+      v-if="props.isAdmin"
     />
 
     <EditResourceModal
@@ -71,6 +77,7 @@
       :shown="modals.showEditResourceModal.value"
       @update="handleResourceUpdate"
       @close="modals.closeEditResourceModal"
+      v-if="props.isAdmin"
     />
   </div>
 </template>
@@ -92,6 +99,13 @@ import EditResourceModal from './EditResourceModal.vue'
 const organizations = useOrganizations()
 const modals = useOrganizationModals()
 const operations = useOrganizationOperations()
+
+const props = defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const {
   organizations: organizationsList,

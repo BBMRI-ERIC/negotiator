@@ -1,12 +1,17 @@
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAdminStore } from '@/store/admin'
 import { useOrganizationsStore } from '@/store/organizations'
+import { useResourcesStore } from '@/store/resources'
+import { useUserStore } from '@/store/user.js'
 import { sortOrganizations, sortResources } from '@/utils/sort'
 import { getNoResultsMessage as buildNoResultsMsg } from '@/utils/messages'
+import { ROLES } from '@/config/consts.js'
 
 export function useOrganizations() {
   const adminStore = useAdminStore()
   const organizationsStore = useOrganizationsStore()
+  const resourceStore = useResourcesStore()
+  const userStore = useUserStore()
 
   const organizations = ref([])
   const organizationResources = ref({})
@@ -27,6 +32,10 @@ export function useOrganizations() {
   })
 
   let searchTimeout = null
+
+  const isAdmin = computed(() => {
+    return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
+  })
 
   const allExpanded = computed(() => {
     return (
@@ -76,13 +85,21 @@ export function useOrganizations() {
     loadingResources.value.add(organizationId)
 
     try {
-      const organizationWithResources = await organizationsStore.getOrganizationById(
-        organizationId,
-        'resources',
-      )
-      const resources =
-        organizationWithResources.resources || organizationWithResources._embedded?.resources || []
-      organizationResources.value[organizationId] = resources
+      if (isAdmin.value) {
+        const organizationWithResources = await organizationsStore.getOrganizationById(
+          organizationId,
+          'resources',
+        )
+
+        organizationResources.value[organizationId] =
+          organizationWithResources.resources ||
+          organizationWithResources._embedded?.resources ||
+          []
+      } else {
+
+        organizationResources.value[organizationId] =
+          organizations.value.find((org) => org.id === organizationId)?.resources || []
+      }
     } catch (error) {
       console.error('Failed to load resources for organization:', organizationId, error)
       organizationResources.value[organizationId] = []
@@ -110,11 +127,20 @@ export function useOrganizations() {
         apiFilters.withdrawn = true
       }
 
-      const response = await adminStore.retrieveOrganizationsPaginated(
-        pageNumber.value,
-        pageSize.value,
-        apiFilters,
-      )
+      let response = null
+      if (isAdmin.value){
+        response = await adminStore.retrieveOrganizationsPaginated(
+          pageNumber.value,
+          pageSize.value,
+          apiFilters,
+        )
+      } else {
+        response = await resourceStore.getRepresentedResources(
+          userStore.userInfo?.id,
+          false,
+          apiFilters
+        )
+      }
       organizations.value = response?._embedded?.organizations ?? []
       pageLinks.value = response._links || {}
       pageNumber.value = response.page?.number ?? 0

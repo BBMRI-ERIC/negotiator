@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="organization-actions" v-if="isEditable">
+      <div class="organization-actions" v-if="isAdmin">
         <button
           class="btn btn-sm btn-outline-secondary"
           @click.stop="$emit('editOrganization')"
@@ -51,6 +51,7 @@
       :id="`resources-${organization.id}`"
       :resources="resources"
       :loading="resourcesLoading"
+      :is-admin="isAdmin"
       @edit-resource="$emit('editResource', $event)"
       @add-resources="$emit('addResources')"
       @representatives-updated="$emit('representativesUpdated', $event)"
@@ -60,14 +61,12 @@
 
 <script setup>
 import ResourcesList from './ResourcesList.vue'
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-const isEditable = computed(() => route.meta.isEditable)
 
 defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   organization: {
     type: Object,
     required: true,

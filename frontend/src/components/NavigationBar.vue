@@ -60,15 +60,15 @@
             <router-link
               :style="{
                 color:
-                  $route.path === '/resources' || $route.params.userRole === 'ROLE_REPRESENTATIVE'
+                  $route.path === '/governance' || $route.params.userRole === 'ROLE_REPRESENTATIVE' || $route.params.userRole === 'ROLE_ADMIN'
                     ? uiConfiguration?.navbarActiveTextColor
                     : uiConfiguration?.navbarTextColor,
               }"
               class="nav-link active nav-option"
-              to="/resources"
+              to="/governance"
             >
               <i class="bi bi-archive" />
-              Your resources
+              Governance
             </router-link>
           </li>
           <!-- Dropdown for multiple networks -->
