@@ -174,8 +174,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     context.setVariable("negotiationCreatedAt", negotiation.getCreationDate());
     context.setVariable("negotiationStatus", negotiation.getCurrentState());
     context.setVariable("negotiationPayload", processPayload(payload));
-    context.setVariable(
-        "resourcesByOrganization", getResourcesByOrganization(negotiation.getResources()));
     context.setVariable("includeAttachments", includeAttachments);
 
     return context;
