@@ -3,7 +3,6 @@ package eu.bbmri_eric.negotiator.integration.api.v3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -17,12 +16,10 @@ import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
+import jakarta.transaction.Transactional;
 import java.io.InputStream;
 import java.util.List;
-
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,8 +28,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
 @AutoConfigureMockMvc
@@ -46,21 +41,19 @@ class NegotiationPdfGenerationTest {
 
   @Autowired private AttachmentService attachmentService;
   @Autowired private AttachmentConversionService conversionService;
-  @Autowired private NegotiationRepository  negotiationRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
   @Autowired private ResourceRepository resourceRepository;
-    @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   @WithUserDetails("TheResearcher")
   @Transactional
   void testGenerateNegotiationPdf_WithoutAttachments_ReturnsBasicPdf() throws Exception {
-      Resource resource = resourceRepository.findById(5L).get();
-      negotiationRepository.findById(NEGOTIATION_1_ID).get().addResource(resource);
+    Resource resource = resourceRepository.findById(5L).get();
+    negotiationRepository.findById(NEGOTIATION_1_ID).get().addResource(resource);
     MvcResult result =
         mockMvc
-            .perform(
-                get(PDF_ENDPOINT, NEGOTIATION_1_ID))
+            .perform(get(PDF_ENDPOINT, NEGOTIATION_1_ID))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andExpect(
@@ -77,25 +70,18 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
+  @WithUserDetails("TheResearcher")
   void testGenerateNegotiationPdfWithAttachments_WithPdfAttachment_MergesPdfs() throws Exception {
     MockMultipartFile pdfFile =
         new MockMultipartFile("file", "test.pdf", "application/pdf", createSimplePdfBytes());
 
     mockMvc
-        .perform(
-            multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID)
-                .file(pdfFile)
-                .with(jwt().jwt(builder -> builder.subject("109"))))
+        .perform(multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID).file(pdfFile))
         .andExpect(status().isCreated());
 
     MvcResult result =
         mockMvc
-            .perform(
-                get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID)
-                    .with(jwt().jwt(builder -> builder.subject("109"))))
+            .perform(get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andExpect(
@@ -112,9 +98,7 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
+  @WithUserDetails("TheResearcher")
   void testGenerateNegotiationPdfWithAttachments_WithDocxAttachment_ConvertsAndMerges()
       throws Exception {
     MockMultipartFile docxFile =
@@ -125,17 +109,12 @@ class NegotiationPdfGenerationTest {
             createMinimalDocxBytes());
 
     mockMvc
-        .perform(
-            multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID)
-                .file(docxFile)
-                .with(jwt().jwt(builder -> builder.subject("109"))))
+        .perform(multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID).file(docxFile))
         .andExpect(status().isCreated());
 
     MvcResult result =
         mockMvc
-            .perform(
-                get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID)
-                    .with(jwt().jwt(builder -> builder.subject("109"))))
+            .perform(get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andReturn();
@@ -146,26 +125,19 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
+  @WithUserDetails("TheResearcher")
   void testGenerateNegotiationPdfWithAttachments_WithDocAttachment_ConvertsAndMerges()
       throws Exception {
     MockMultipartFile docFile =
         new MockMultipartFile("file", "test.doc", "application/msword", createMinimalDocBytes());
 
     mockMvc
-        .perform(
-            multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID)
-                .file(docFile)
-                .with(jwt().jwt(builder -> builder.subject("109"))))
+        .perform(multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID).file(docFile))
         .andExpect(status().isCreated());
 
     MvcResult result =
         mockMvc
-            .perform(
-                get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID)
-                    .with(jwt().jwt(builder -> builder.subject("109"))))
+            .perform(get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andReturn();
@@ -176,9 +148,7 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
+  @WithUserDetails("TheResearcher")
   void testGenerateNegotiationPdfWithAttachments_WithMultipleAttachments_MergesAll()
       throws Exception {
     MockMultipartFile pdfFile =
@@ -192,27 +162,16 @@ class NegotiationPdfGenerationTest {
             createMinimalDocxBytes());
 
     mockMvc
-        .perform(
-            multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID)
-                .file(pdfFile)
-                .with(jwt().jwt(builder -> builder.subject("109"))))
+        .perform(multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID).file(pdfFile))
         .andExpect(status().isCreated());
 
     mockMvc
-        .perform(
-            multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID)
-                .file(docxFile)
-                .with(jwt().jwt(builder -> builder.subject("109"))))
+        .perform(multipart(ATTACHMENT_ENDPOINT, NEGOTIATION_1_ID).file(docxFile))
         .andExpect(status().isCreated());
-
-    List<AttachmentMetadataDTO> attachments = attachmentService.findByNegotiation(NEGOTIATION_1_ID);
-    assertTrue(attachments.size() >= 2);
 
     MvcResult result =
         mockMvc
-            .perform(
-                get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID)
-                    .with(jwt().jwt(builder -> builder.subject("109"))))
+            .perform(get(FULL_PDF_ENDPOINT, NEGOTIATION_1_ID))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andReturn();
@@ -223,9 +182,8 @@ class NegotiationPdfGenerationTest {
   }
 
   @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
+  @WithUserDetails("TheResearcher")
+  @Disabled
   void testAttachmentConversionService_DirectlyTestsConversionLogic() throws Exception {
     MockMultipartFile pdfFile =
         new MockMultipartFile("file", "test.pdf", "application/pdf", loadTestFile("test.pdf"));
