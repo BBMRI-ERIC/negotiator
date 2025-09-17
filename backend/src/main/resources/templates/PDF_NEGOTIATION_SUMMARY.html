@@ -358,44 +358,7 @@
     </div>
 </div>
 
-<!-- RESOURCES OVERVIEW -->
 <div class="page-break"></div>
-<h1>Resources Overview</h1>
-<div class="section">
-    <div th:if="${resourcesByOrganization != null and !resourcesByOrganization.empty}">
-        <div style="margin-bottom: 2em;">
-            <p><strong>Summary:</strong> This negotiation involves <span th:text="${totalResourceCount}">0</span> resources from <span th:text="${totalOrganizationCount}">0</span> organizations.</p>
-        </div>
-
-        <div class="field-container" th:each="orgEntry : ${resourcesByOrganization}">
-            <span class="field-label" th:text="${orgEntry.key}">Organization Name</span>
-            <div class="field-value">
-                <div th:if="${orgEntry.value != null and !orgEntry.value.empty}">
-                    <ul style="margin: 0; padding-left: 1.5em;">
-                        <li th:each="resourceName : ${orgEntry.value}" th:text="${resourceName}">Resource Name</li>
-                    </ul>
-                    <p style="font-size: 10px; color: #6c757d; margin-top: 0.5em;" th:text="'(' + ${orgEntry.value.size()} + ' resource' + (${orgEntry.value.size()} > 1 ? 's' : '') + ')'">
-                        (X resources)
-                    </p>
-                </div>
-                <div th:if="${orgEntry.value == null or orgEntry.value.empty}">
-                    <em style="color: #6c757d;">No resources available</em>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div th:if="${resourcesByOrganization == null or resourcesByOrganization.empty}" class="placeholder-box">
-        <p><strong>No resources found</strong></p>
-        <p>This negotiation does not currently have any resources associated with it.</p>
-    </div>
-
-    <div style="margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;">
-        <p style="font-size: 10px; color: #6c757d; font-style: italic;">
-            <strong>Note:</strong> Resource information includes all biobank collections, datasets, and other resources that are part of this negotiation request. Contact details and access requirements may vary by organization.
-        </p>
-    </div>
-</div>
 
 <!-- LEGAL DISCLAIMER AND FOOTER -->
 <div class="legal-footer">

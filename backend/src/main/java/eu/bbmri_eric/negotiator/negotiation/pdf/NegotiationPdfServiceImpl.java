@@ -141,23 +141,6 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     return processedPayload;
   }
 
-  private Map<String, Set<String>> getResourcesByOrganization(Set<Resource> resources) {
-    Map<String, Set<String>> resourcesByOrganization = new HashMap<>();
-
-    resources.forEach(
-        resource -> {
-          if (resourcesByOrganization.containsKey(resource.getOrganization().getName())) {
-            resourcesByOrganization
-                .get(resource.getOrganization().getName())
-                .add(resource.getName());
-          } else {
-            resourcesByOrganization.put(
-                resource.getOrganization().getName(), Set.of(resource.getName()));
-          }
-        });
-    return resourcesByOrganization;
-  }
-
   private Context createContext(Negotiation negotiation, boolean includeAttachments)
       throws JsonProcessingException {
     Map<String, Object> payload =
