@@ -151,11 +151,10 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
                 .get(resource.getOrganization().getName())
                 .add(resource.getName());
           } else {
-            resourcesByOrganization.put(
-                resource.getOrganization().getName(), new HashSet<>());
-              resourcesByOrganization
-                      .get(resource.getOrganization().getName())
-                      .add(resource.getName());
+            resourcesByOrganization.put(resource.getOrganization().getName(), new HashSet<>());
+            resourcesByOrganization
+                .get(resource.getOrganization().getName())
+                .add(resource.getName());
           }
         });
     return resourcesByOrganization;
