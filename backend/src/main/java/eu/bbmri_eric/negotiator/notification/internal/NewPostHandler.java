@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 class NewPostHandler implements NotificationStrategy<NewPostEvent> {
   public static final String TITLE = "New Post Notification";
-  public static final String BODY = "A new post has been created in negotiation ";
+  public static final String BODY = "A new message was posted in negotiation ";
   private final NotificationService notificationService;
   private final PersonService personService;
   private final NegotiationRepository negotiationRepository;
@@ -74,7 +74,7 @@ class NewPostHandler implements NotificationStrategy<NewPostEvent> {
           new NotificationCreateDTO(
               recipients.stream().map(Person::getId).toList(),
               TITLE,
-              BODY + event.getNegotiationId(),
+              BODY + negotiation.getTitle(),
               event.getNegotiationId()));
     }
   }
@@ -96,7 +96,7 @@ class NewPostHandler implements NotificationStrategy<NewPostEvent> {
     if (!recipientIds.isEmpty()) {
       notificationService.createNotifications(
           new NotificationCreateDTO(
-              recipientIds, TITLE, BODY + event.getNegotiationId(), event.getNegotiationId()));
+              recipientIds, TITLE, BODY + negotiation.getTitle(), event.getNegotiationId()));
     }
   }
 }
