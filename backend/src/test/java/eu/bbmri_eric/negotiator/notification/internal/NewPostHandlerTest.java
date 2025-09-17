@@ -48,6 +48,7 @@ class NewPostHandlerTest {
     lenient().when(resource2.getRepresentatives()).thenReturn(Set.of(representative2));
     lenient().when(negotiation.getResources()).thenReturn(Set.of(resource1, resource2));
     lenient().when(negotiation.getCreatedBy()).thenReturn(negotiationAuthor);
+    lenient().when(negotiation.getTitle()).thenReturn("Important Negotiation");
   }
 
   @Test
@@ -73,7 +74,8 @@ class NewPostHandlerTest {
     NotificationCreateDTO dto = captor.getValue();
     assertNotNull(dto);
     assertEquals("New Post Notification", dto.getTitle());
-    assertEquals("A new post has been created in negotiation " + negotiationId, dto.getBody());
+    assertEquals(
+        "A new message was posted in negotiation " + "Important Negotiation", dto.getBody());
     assertEquals(negotiationId, dto.getNegotiationId());
 
     List<Long> recipients = dto.getUserIds();
