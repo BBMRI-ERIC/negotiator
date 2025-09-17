@@ -7,6 +7,7 @@ import com.lowagie.text.pdf.BaseFont;
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import jakarta.transaction.Transactional;
@@ -21,8 +22,10 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -139,6 +142,25 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     return processedPayload;
   }
 
+  private Map<String, Set<String>> getResourcesByOrganization(Set<Resource> resources) {
+    Map<String, Set<String>> resourcesByOrganization = new HashMap<>();
+    resources.forEach(
+        resource -> {
+          if (resourcesByOrganization.containsKey(resource.getOrganization().getName())) {
+            resourcesByOrganization
+                .get(resource.getOrganization().getName())
+                .add(resource.getName());
+          } else {
+            resourcesByOrganization.put(
+                resource.getOrganization().getName(), new HashSet<>());
+              resourcesByOrganization
+                      .get(resource.getOrganization().getName())
+                      .add(resource.getName());
+          }
+        });
+    return resourcesByOrganization;
+  }
+
   private Context createContext(Negotiation negotiation, boolean includeAttachments)
       throws JsonProcessingException {
     Map<String, Object> payload =
@@ -155,6 +177,8 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     context.setVariable("negotiationCreatedAt", negotiation.getCreationDate());
     context.setVariable("negotiationStatus", negotiation.getCurrentState());
     context.setVariable("negotiationPayload", processPayload(payload));
+    context.setVariable(
+        "resourcesByOrganization", getResourcesByOrganization(negotiation.getResources()));
     context.setVariable("includeAttachments", includeAttachments);
 
     return context;
