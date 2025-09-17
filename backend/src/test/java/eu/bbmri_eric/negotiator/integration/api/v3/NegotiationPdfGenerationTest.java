@@ -13,21 +13,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.attachment.dto.AttachmentMetadataDTO;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.io.InputStream;
 import java.util.List;
+
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 class NegotiationPdfGenerationTest {
 
   private static final String NEGOTIATION_1_ID = "negotiation-1";
@@ -36,27 +44,23 @@ class NegotiationPdfGenerationTest {
       "/v3/negotiations/{id}/pdf?includeAttachments=true";
   private static final String ATTACHMENT_ENDPOINT = "/v3/negotiations/{id}/attachments";
 
-  @Autowired private WebApplicationContext context;
   @Autowired private AttachmentService attachmentService;
   @Autowired private AttachmentConversionService conversionService;
-
+  @Autowired private NegotiationRepository  negotiationRepository;
+  @Autowired private ResourceRepository resourceRepository;
+    @Autowired
   private MockMvc mockMvc;
 
-  @BeforeEach
-  void setUp() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-  }
-
   @Test
-  @WithMockNegotiatorUser(
-      id = 109L,
-      authorities = {"ROLE_ADMIN"})
+  @WithUserDetails("TheResearcher")
+  @Transactional
   void testGenerateNegotiationPdf_WithoutAttachments_ReturnsBasicPdf() throws Exception {
+      Resource resource = resourceRepository.findById(5L).get();
+      negotiationRepository.findById(NEGOTIATION_1_ID).get().addResource(resource);
     MvcResult result =
         mockMvc
             .perform(
-                get(PDF_ENDPOINT, NEGOTIATION_1_ID)
-                    .with(jwt().jwt(builder -> builder.subject("109"))))
+                get(PDF_ENDPOINT, NEGOTIATION_1_ID))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andExpect(
