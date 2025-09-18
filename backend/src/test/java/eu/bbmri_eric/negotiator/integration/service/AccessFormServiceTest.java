@@ -161,7 +161,7 @@ public class AccessFormServiceTest {
             .anyMatch(res -> res.getId().equals(resource.getSourceId())));
     AccessForm accessForm = resource.getAccessForm();
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT, "test");
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection =
@@ -218,7 +218,7 @@ public class AccessFormServiceTest {
             .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT, "test");
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection = accessFormSectionRepository.findById(1L).get();
