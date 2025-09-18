@@ -27,7 +27,7 @@ public class AccessFormMapperTest {
     AccessForm form = new AccessForm("test");
     AccessFormSection section = new AccessFormSection("test", "test1", "test2");
     AccessFormElement element =
-        new AccessFormElement("test3", "test4", "test5", FormElementType.TEXT);
+        new AccessFormElement("test3", "test4", "test5", FormElementType.TEXT, "test5");
     form.linkSection(section, 0);
     form.linkElementToSection(section, element, 0, true);
     AccessFormDTO accessFormDTO = mapper.map(form, AccessFormDTO.class);
