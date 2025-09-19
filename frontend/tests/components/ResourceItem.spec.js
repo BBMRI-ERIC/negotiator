@@ -1,8 +1,13 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import ResourceItem from '@/components/ResourceItem.vue'
+import { setActivePinia, createPinia } from 'pinia'
 
 describe('ResourceItem.vue', () => {
+  // creates a fresh pinia and makes it active
+  // so it's automatically picked up by any useStore() call
+  // without having to pass it to it: `useStore(pinia)`
+  setActivePinia(createPinia())
   // Sample resource with lifecycle, submission, and requirement links.
   const resource = {
     id: '1',

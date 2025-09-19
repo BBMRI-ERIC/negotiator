@@ -47,8 +47,6 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
   private final String userInfoEndpoint;
   private final String authzClaim;
   private final String authzAdminValue;
-  private final String authzResearcherValue;
-  private final String authzBiobankerValue;
 
   // Cache for user info claims
   private static final Map<String, Map<String, Object>> userInfoCache = new ConcurrentHashMap<>();
@@ -79,6 +77,7 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     if (!person.getResources().isEmpty()) {
       authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
     }
+    authorities.add(new SimpleGrantedAuthority("ROLE_RESEARCHER"));
     return new NegotiatorJwtAuthenticationToken(person, jwt, authorities);
   }
 
@@ -131,14 +130,12 @@ public class CustomJWTAuthConverter implements Converter<Jwt, AbstractAuthentica
     if (claims.containsKey(authzClaim)) {
       @SuppressWarnings("unchecked")
       List<String> entitlements = (List<String>) claims.get(authzClaim);
+      authorities.add(new SimpleGrantedAuthority("ROLE_RESEARCHER"));
+      if (Objects.isNull(entitlements)) {
+        return authorities;
+      }
       if (entitlements.contains(authzAdminValue)) {
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-      }
-      if (entitlements.contains(authzResearcherValue)) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_RESEARCHER"));
-      }
-      if (entitlements.contains(authzBiobankerValue)) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_REPRESENTATIVE"));
       }
     }
     return authorities;

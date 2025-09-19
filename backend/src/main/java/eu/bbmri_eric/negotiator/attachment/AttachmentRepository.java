@@ -13,7 +13,8 @@ public interface AttachmentRepository extends JpaRepository<Attachment, String> 
           + "a.id, a.name, a.size, a.contentType, o.id, o.externalId, a.negotiation.id, a.createdBy.id) "
           + "FROM Attachment a "
           + "LEFT JOIN a.organization o "
-          + "WHERE a.negotiation.id = :negotiationId")
+          + "WHERE a.negotiation.id = :negotiationId "
+          + "ORDER BY a.creationDate ASC")
   List<MetadataAttachmentViewDTO> findByNegotiationId(String negotiationId);
 
   @Query(

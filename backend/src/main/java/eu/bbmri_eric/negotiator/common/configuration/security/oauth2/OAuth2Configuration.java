@@ -27,12 +27,6 @@ public class OAuth2Configuration {
   @Value("${negotiator.authorization.admin-claim-value}")
   private String authzAdminValue;
 
-  @Value("${negotiator.authorization.researcher-claim-value}")
-  private String authzResearcherValue;
-
-  @Value("${negotiator.authorization.biobanker-claim-value}")
-  private String authzBiobankerValue;
-
   public OAuth2Configuration(
       PersonRepository personRepository,
       JwtDecoder jwtDecoder,
@@ -48,12 +42,7 @@ public class OAuth2Configuration {
         jwt ->
             jwt.jwtAuthenticationConverter(
                     new CustomJWTAuthConverter(
-                        personRepository,
-                        userInfoEndpoint,
-                        authzClaim,
-                        authzAdminValue,
-                        authzResearcherValue,
-                        authzBiobankerValue))
+                        personRepository, userInfoEndpoint, authzClaim, authzAdminValue))
                 .decoder(jwtDecoder));
   }
 }

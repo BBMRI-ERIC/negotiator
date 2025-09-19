@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.integration.api.v3;
+package eu.bbmri_eric.negotiator.negotiation;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -18,6 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import eu.bbmri_eric.negotiator.attachment.AttachmentRepository;
+import eu.bbmri_eric.negotiator.attachment.AttachmentService;
 import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
@@ -25,8 +27,7 @@ import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.organization.OrganizationRepository;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
-import eu.bbmri_eric.negotiator.negotiation.Negotiation;
-import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationUpdateDTO;
 import eu.bbmri_eric.negotiator.negotiation.dto.UpdateResourcesDTO;
@@ -49,26 +50,25 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
+@AutoConfigureMockMvc
 public class NegotiationControllerTests {
 
-  // Request alrady present in data-h2. It is already assigned to a request
   private static final String REQUEST_1_ID = "request-1";
   private static final String REQUEST_2_ID = "request-2";
   private static final String REQUEST_UNASSIGNED = "request-unassigned";
@@ -84,27 +84,27 @@ public class NegotiationControllerTests {
   private static final String POSTS_LINK_TPL = "http://localhost/v3/negotiations/%s/posts";
   private static final String ATTACHMENTS_LINK_TPL =
       "http://localhost/v3/negotiations/%s/attachments";
-
-  @Autowired private WebApplicationContext context;
-  @Autowired private NegotiationRepository negotiationRepository;
   @Autowired PersonRepository personRepository;
-  @Autowired EntityManager entityManager; // for flushing the entity manager
-
   @Autowired ResourceRepository resourceRepository;
-
   @Autowired RequestRepository requestRepository;
-
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
-
   @Autowired OrganizationRepository organizationRepository;
-
   @Autowired PostRepository postRepository;
+  @Autowired AttachmentRepository attachmentRepository;
+  @Autowired private NegotiationRepository negotiationRepository;
+  @Autowired private MockMvc mockMvc;
+  @Autowired private AttachmentService attachmentService;
 
-  private MockMvc mockMvc;
+  @Autowired private EntityManager entityManager;
 
-  @BeforeEach
-  public void before() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+  private static JsonNode getJsonNode() throws JsonProcessingException {
+    String payload =
+        """
+                        {"project":{"title":"sdfsdfsd","diseaese-code":null,"objective":null,"organization":"sdfsdf","profit":"Yes","acknowledgment":null,"Multichoice test":[],"Bool test":null,"Single test":"first_choice"},"request":{"description":null,"collection":null,"donors":null,"samples":null,"specifics":null},"ethics-vote":{"ethics-vote":null,"ethics-vote-attachment":null}}""";
+    ;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    return jsonPayload;
   }
 
   @Test
@@ -1052,16 +1052,6 @@ public class NegotiationControllerTests {
     assertEquals(expectedPayloadJson, actualPayloadJson);
   }
 
-  private static JsonNode getJsonNode() throws JsonProcessingException {
-    String payload =
-        """
-                {"project":{"title":"sdfsdfsd","diseaese-code":null,"objective":null,"organization":"sdfsdf","profit":"Yes","acknowledgment":null,"Multichoice test":[],"Bool test":null,"Single test":"first_choice"},"request":{"description":null,"collection":null,"donors":null,"samples":null,"specifics":null},"ethics-vote":{"ethics-vote":null,"ethics-vote-attachment":null}}""";
-    ;
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jsonPayload = mapper.readTree(payload);
-    return jsonPayload;
-  }
-
   @Test
   @WithMockNegotiatorUser(id = 108L)
   @Transactional
@@ -1071,22 +1061,22 @@ public class NegotiationControllerTests {
         new ObjectMapper()
             .readTree(
                 """
-                        {
-                    "project": {
-                    "title": "Updated",
-                    "description": "Description"
-                    },
-                     "samples": {
-                       "sample-type": "DNA",
-                       "num-of-subjects": 20,
-                       "num-of-samples": 20,
-                       "volume-per-sample": 5
-                     },
-                     "ethics-vote": {
-                       "ethics-vote": "No"
-                     }
-                    }
-                    """));
+                                            {
+                                        "project": {
+                                        "title": "Updated",
+                                        "description": "Description"
+                                        },
+                                         "samples": {
+                                           "sample-type": "DNA",
+                                           "num-of-subjects": 20,
+                                           "num-of-samples": 20,
+                                           "volume-per-sample": 5
+                                         },
+                                         "ethics-vote": {
+                                           "ethics-vote": "No"
+                                         }
+                                        }
+                                        """));
     mockMvc
         .perform(
             MockMvcRequestBuilders.patch("/v3/negotiations/negotiation-1")
@@ -1263,7 +1253,8 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithMockNegotiatorUser(id = 102L) // Assuming a non-admin user
+  @WithMockNegotiatorUser(id = 102L)
+  // Assuming a non-admin user
   void sendEvent_NonAdmin_Forbidden() throws Exception {
     mockMvc
         .perform(
@@ -1621,19 +1612,43 @@ public class NegotiationControllerTests {
   }
 
   @Test
-  @WithUserDetails("TheResearcher")
-  @Transactional
+  @WithUserDetails("researcher")
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   public void testDelete_ok_whenNegotiatorAuthor() throws Exception {
-    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
-    negotiation.setCurrentState(NegotiationState.DRAFT);
-    negotiationRepository.save(negotiation);
-
+    NegotiationCreateDTO request = TestUtils.createNegotiation(REQUEST_UNASSIGNED, true);
+    String requestBody = TestUtils.jsonFromRequest(request);
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(URI.create(NEGOTIATIONS_URL))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBody))
+            .andExpect(status().isCreated())
+            .andReturn();
+    String negotiationId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    byte[] data = "Hello, World!".getBytes();
+    String fileName = "text.txt";
+    MockMultipartFile file =
+        new MockMultipartFile("file", fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, data);
+    MvcResult attachmentDto =
+        mockMvc
+            .perform(
+                multipart("/v3/negotiations/%s/attachments".formatted(negotiationId)).file(file))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").isString())
+            .andExpect(jsonPath("$.name", is(fileName)))
+            .andExpect(jsonPath("$.contentType", is(MediaType.APPLICATION_OCTET_STREAM_VALUE)))
+            .andExpect(jsonPath("$.size", is(data.length)))
+            .andReturn();
+    String attachmentId = JsonPath.read(attachmentDto.getResponse().getContentAsString(), "$.id");
+    assertEquals(
+        attachmentRepository.findById(attachmentId).get().getNegotiation().getId(), negotiationId);
     mockMvc
-        .perform(MockMvcRequestBuilders.delete("%s/negotiation-1".formatted(NEGOTIATIONS_URL)))
+        .perform(MockMvcRequestBuilders.delete("%s/%s".formatted(NEGOTIATIONS_URL, negotiationId)))
         .andExpect(status().isNoContent());
-
-    assertFalse(negotiationRepository.findById("negotiation-1").isPresent());
+    assertFalse(negotiationRepository.findById(negotiationId).isPresent());
+    assertFalse(attachmentRepository.findById(attachmentId).isPresent());
   }
 
   @Test
@@ -1741,6 +1756,65 @@ public class NegotiationControllerTests {
   public void testGetPdf_Ok_PayloadWithSpecialCharacters() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/v3/negotiations/negotiation-5/pdf"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void getFullPdf_Ok_WhenUserIsAdmin() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-3/pdf?includeAttachments=true"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  public void getFullPdf_Ok_WhenUserIsCreator() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-1/pdf?includeAttachments=true"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/pdf"))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".pdf")));
+  }
+
+  @Test
+  @WithUserDetails("SarahRepr")
+  public void getFullPdf_Forbidden_WhenUserNotCreatorOrAdmin() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-1/pdf?includeAttachments=true"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void getFullPdf_NotFound_WhenNegotiationDoesNotExist() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/non-existent-id/pdf?includeAttachments=true"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithUserDetails("admin")
+  public void getFullPdf_Ok_WithLargePayload() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                "/v3/negotiations/negotiation-5/pdf?includeAttachments=true"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/pdf"))
         .andExpect(
