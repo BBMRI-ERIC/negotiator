@@ -81,6 +81,12 @@ const router = createRouter({
       },
     },
     {
+      path: '/governance',
+      name: 'governance',
+      component: GovernancePage,
+      meta: { isPublic: false, middleware: [hasUser] },
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: UserPage,
@@ -109,15 +115,6 @@ const router = createRouter({
       path: '/ui-configuration',
       name: 'ui-configuration',
       component: AdminUiConfigurationPage,
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: async () => {
-        return await isAllowedToAccess(ROLES.ADMINISTRATOR)
-      },
-    },
-    {
-      path: '/governance',
-      name: 'governance',
-      component: GovernancePage,
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: async () => {
         return await isAllowedToAccess(ROLES.ADMINISTRATOR)

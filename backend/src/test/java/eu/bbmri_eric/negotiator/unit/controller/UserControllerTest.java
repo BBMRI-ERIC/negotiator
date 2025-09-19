@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationModelAssembler;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.user.UserController;
 import eu.bbmri_eric.negotiator.user.UserModelAssembler;
@@ -24,6 +25,7 @@ public class UserControllerTest {
 
   @MockBean NetworkService networkService;
   @MockBean NetworkModelAssembler networkModelAssembler;
+  @MockBean private OrganizationModelAssembler organizationModelAssembler;
   @Autowired private UserModelAssembler userModelAssembler;
 
   @Test

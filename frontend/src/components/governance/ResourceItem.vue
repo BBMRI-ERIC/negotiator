@@ -9,7 +9,7 @@
     </div>
     <div class="resource-actions">
       <i
-        v-if="hasNoRepresentatives"
+        v-if="props.isAdmin && hasNoRepresentatives"
         class="bi bi-exclamation-triangle-fill warning-icon"
         title="No representatives assigned"
       ></i>
@@ -19,6 +19,7 @@
         :data-bs-target="`#resourceRepresentativesModal-${resource.id}`"
         title="Manage Representatives"
         @click="prepareModal"
+        v-if="props.isAdmin"
       >
         <i class="bi bi-people"></i>
       </button>
@@ -26,6 +27,7 @@
         class="btn btn-sm btn-outline-secondary"
         @click="$emit('editResource', resource)"
         title="Edit Resource"
+        v-if="props.isAdmin"
       >
         <i class="bi bi-pencil"></i>
       </button>
@@ -45,6 +47,10 @@ import { ref, computed } from 'vue'
 import ResourceRepresentativesModal from '../modals/ResourceRepresentativesModal.vue'
 
 const props = defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   resource: {
     type: Object,
     required: true,

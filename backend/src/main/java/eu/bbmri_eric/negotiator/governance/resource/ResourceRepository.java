@@ -50,4 +50,17 @@ order by rs.source_id;
   List<Resource> findAllBySourceIdIn(Set<String> sourceIds);
 
   Page<Resource> findAllByNetworksContains(Network network, Pageable pageable);
+
+  @Query(
+      value =
+          """
+            SELECT r.*
+            FROM resource r
+                INNER JOIN resource_representative_link rrl ON r.id = rrl.resource_id
+                INNER JOIN organization o ON r.organization_id = o.id
+            WHERE rrl.person_id = :representativeId
+                AND o.id = :organizationId;
+          """,
+      nativeQuery = true)
+  Set<Resource> findByRepresentativeAndOrganization(Long representativeId, Long organizationId);
 }

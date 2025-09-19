@@ -50,6 +50,8 @@ public class UserControllerTest {
   private static final String LIST_USERS_ENDPOINT = "/v3/users";
   private static final String RESOURCES_FOR_USER_ENDPOINT = "/v3/users/%s/resources";
   private static final String NETWORKS_FOR_USER_ENDPOINT = "/v3/users/%s/networks";
+  private static final String REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT =
+      "/v3/users/%s/organizations";
   @Autowired private WebApplicationContext context;
   private MockMvc mockMvc;
 
@@ -469,6 +471,59 @@ public class UserControllerTest {
             MockMvcRequestBuilders.delete(
                 NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId()) + "/1"))
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void getRepresentedOrganizations_oneOrganization_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(103)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.organizations").isArray())
+        .andExpect(jsonPath("$._embedded.organizations.length()", is(1)));
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void getRepresentedOrganizations_filterByName_okEmptyWhenNoMatch() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(103))
+                .param("name", "NoSuchOrgNameShouldNotMatch"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.organizations").doesNotExist());
+  }
+
+  @Test
+  @WithUserDetails("TheBiobanker")
+  void getRepresentedOrganizations_withExpandResources_ok() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(109))
+                .param("expand", "resources"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/json"))
+        .andExpect(jsonPath("$._embedded.organizations").isArray())
+        .andExpect(jsonPath("$._embedded.organizations.length()", not(0)))
+        .andExpect(jsonPath("$._embedded.organizations[0].resources").isArray());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  void getRepresentedOrganizations_researcherAccessingBiobankers_forbidden() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(109)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void getRepresentedOrganizations_accessingBiobankers_unauthorized() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(REPRESENTED_ORGANIZATIONS_FOR_USER_ENDPOINT.formatted(109)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
