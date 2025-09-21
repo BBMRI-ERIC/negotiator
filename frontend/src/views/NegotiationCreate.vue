@@ -17,7 +17,7 @@
         v-model:activeNavItemIndex="activeNavItemIndex"
         :validationErrorHighlight="validationErrorHighlight"
       />
-      <div class="d-flex flex-column w-50 align-middle mx-auto">
+      <div class="access-form d-flex flex-column align-middle mx-auto">
         <RequestSummary
           v-if="requestSummary && activeNavItemIndex === 0"
           :requestSummary="requestSummary"
@@ -340,3 +340,15 @@ function openSaveNegotiationModal() {
   openSaveModal.value.click()
 }
 </script>
+
+<style scoped>
+.access-form {
+  width: 50%;
+}
+
+@media screen and (max-width: 480px) {
+  .access-form {
+    width: 100%;
+  }
+}
+</style>

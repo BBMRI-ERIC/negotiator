@@ -1,5 +1,5 @@
 <template>
-  <div class="form-navigation w-25 border-end border-border pe-2">
+  <div class="form-navigation border-end border-border pe-2">
     <div class="sticky-top">
       <h3>
         {{ formNavigationTittle }}
@@ -99,6 +99,18 @@ function changeActiveNavIndex(index) {
 </script>
 
 <style scoped>
+.form-navigation {
+  width: 25%;
+}
+@media screen and (max-width: 480px) {
+  .form-navigation {
+    width: 100%;
+  }
+  .border-end {
+    border-right: none !important;
+  }
+}
+
 .avatar {
   width: 40px;
   height: 40px;
