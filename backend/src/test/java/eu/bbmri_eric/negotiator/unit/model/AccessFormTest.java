@@ -47,7 +47,8 @@ public class AccessFormTest {
     notAllowedSection.setId(1L);
     AccessFormSection allowedSection = new AccessFormSection("test", "test", "test");
     allowedSection.setId(2L);
-    AccessFormElement element = new AccessFormElement("test", "test", "test", FormElementType.TEXT, "test");
+    AccessFormElement element =
+        new AccessFormElement("test", "test", "test", FormElementType.TEXT, "test");
     element.setLinkedSection(allowedSection);
     accessForm.linkSection(notAllowedSection, 0);
     assertThrows(

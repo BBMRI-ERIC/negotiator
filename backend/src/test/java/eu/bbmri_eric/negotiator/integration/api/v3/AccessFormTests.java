@@ -87,7 +87,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void createElement_correctPayload_ok() throws Exception {
     ElementCreateDTO createDTO =
-        new ElementCreateDTO("test", "test", "test", FormElementType.TEXT, null);
+        new ElementCreateDTO("test", "test", "test", "test", FormElementType.TEXT, null);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
@@ -103,7 +103,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void createElement_multiChoiceWithNoValueSet_throwsBadRequest() throws Exception {
     ElementCreateDTO createDTO =
-        new ElementCreateDTO("test", "test", "test", FormElementType.MULTIPLE_CHOICE, null);
+        new ElementCreateDTO("test", "test", "test", "test", FormElementType.MULTIPLE_CHOICE, null);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
@@ -116,7 +116,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void updateElement_elementExists_ok() throws Exception {
     ElementCreateDTO createDTO =
-        new ElementCreateDTO("test", "test", "test", FormElementType.TEXT, null);
+        new ElementCreateDTO("test", "test", "test", "test", FormElementType.TEXT, null);
     MvcResult mvcResult =
         mockMvc
             .perform(
