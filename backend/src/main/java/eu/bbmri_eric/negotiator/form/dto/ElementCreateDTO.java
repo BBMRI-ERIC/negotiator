@@ -22,6 +22,8 @@ public class ElementCreateDTO {
 
   @NotNull private String description;
 
+  @NotNull private String placeholder;
+
   @NotNull private FormElementType type;
   private Long valueSetId;
 }
