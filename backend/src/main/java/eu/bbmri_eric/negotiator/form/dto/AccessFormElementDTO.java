@@ -31,7 +31,7 @@ public class AccessFormElementDTO extends RepresentationModel<AccessFormElementD
 
   @NotNull private String description;
 
-  @NotNull private String placeholder;
+  private String placeholder;
 
   @NotNull private FormElementType type;
 

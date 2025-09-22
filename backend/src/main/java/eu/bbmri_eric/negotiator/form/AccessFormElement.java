@@ -43,7 +43,7 @@ public class AccessFormElement extends AuditEntity {
 
   @NotNull private String description;
 
-  @NotNull private String placeholder;
+  private String placeholder;
 
   @Enumerated(EnumType.STRING)
   @NotNull
