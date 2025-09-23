@@ -117,6 +117,32 @@ export const useResourcesStore = defineStore('resources', () => {
       })
   }
 
+  function getRepresentedResources(userId, silent = false, filters = {}) {
+    let url = `${apiPaths.BASE_API_PATH}/users/${userId}/organizations?expand=resources`
+
+    if (filters.name && filters.name.trim()) {
+      url += `&name=${encodeURIComponent(filters.name.trim())}`
+    }
+
+    if (typeof filters.withdrawn === 'boolean') {
+      url += `&withdrawn=${filters.withdrawn}`
+    }
+
+    return axios
+      .get(url, {
+        headers: getBearerHeaders(),
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        if (!silent) {
+          notifications.setNotification('Error retrieving represented resources')
+        }
+        throw error
+      })
+  }
+
   return {
     getResourceById,
     getResourceWithRepresentatives,
@@ -125,5 +151,6 @@ export const useResourcesStore = defineStore('resources', () => {
     updateResource,
     addRepresentativeToResource,
     removeRepresentativeFromResource,
+    getRepresentedResources
   }
 })

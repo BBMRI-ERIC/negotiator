@@ -4,8 +4,11 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.governance.network.NetworkDTO;
 import eu.bbmri_eric.negotiator.governance.network.NetworkModelAssembler;
 import eu.bbmri_eric.negotiator.governance.network.NetworkService;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationDTO;
+import eu.bbmri_eric.negotiator.governance.organization.OrganizationModelAssembler;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,6 +49,7 @@ public class UserController {
 
   @Autowired NetworkService networkService;
   @Autowired NetworkModelAssembler networkModelAssembler;
+  @Autowired OrganizationModelAssembler organizationModelAssembler;
 
   @GetMapping(value = "/users")
   @ResponseStatus(HttpStatus.OK)
@@ -167,5 +171,21 @@ public class UserController {
   public void removeAPersonAsAManagerForNetwork(
       @PathVariable Long id, @PathVariable Long networkId) {
     personService.removeAsManagerForNetwork(id, networkId);
+  }
+
+  @GetMapping(value = "/users/{id}/organizations", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "List all organizations that include a resource represented by a user")
+  @ResponseStatus(HttpStatus.OK)
+  public CollectionModel<EntityModel<OrganizationDTO>> findRepresentedOrganizations(
+      @PathVariable Long id,
+      @RequestParam(required = false)
+          @Schema(description = "resource expansion", example = "resources")
+          String expand,
+      @RequestParam(required = false) @Schema(description = "organization name") String name,
+      @RequestParam(required = false) @Schema(description = "organization status", example = "true")
+          Boolean withdrawn) {
+    return organizationModelAssembler.toCollectionModel(
+        personService.getOrganizationsContainingResourceRepresentedByUser(
+            id, expand, name, withdrawn));
   }
 }

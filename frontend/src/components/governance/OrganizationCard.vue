@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="organization-actions">
+      <div class="organization-actions" v-if="isAdmin">
         <button
           class="btn btn-sm btn-outline-secondary"
           @click.stop="$emit('editOrganization')"
@@ -51,6 +51,7 @@
       :id="`resources-${organization.id}`"
       :resources="resources"
       :loading="resourcesLoading"
+      :is-admin="isAdmin"
       @edit-resource="$emit('editResource', $event)"
       @add-resources="$emit('addResources')"
       @representatives-updated="$emit('representativesUpdated', $event)"
@@ -62,6 +63,10 @@
 import ResourcesList from './ResourcesList.vue'
 
 defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   organization: {
     type: Object,
     required: true,

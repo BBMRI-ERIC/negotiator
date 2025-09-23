@@ -4,6 +4,8 @@ import eu.bbmri_eric.negotiator.common.AuthenticatedUserContext;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.ForbiddenRequestException;
 import eu.bbmri_eric.negotiator.governance.organization.dto.OrganizationFilterDTO;
+import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceWithRepsDTO;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,12 @@ public class OrganizationServiceImpl implements OrganizationService {
       if (!AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
         throw new ForbiddenRequestException("Only Administrators can view this attribute");
       }
-      return modelMapper.map(organization, OrganizationWithResourcesDTO.class);
+      OrganizationWithResourcesDTO org =
+          modelMapper.map(organization, OrganizationWithResourcesDTO.class);
+      for (Resource resource : organization.getResources()) {
+        org.addResource(modelMapper.map(resource, ResourceWithRepsDTO.class));
+      }
+      return org;
     }
     return modelMapper.map(organization, OrganizationDTO.class);
   }

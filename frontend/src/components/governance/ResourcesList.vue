@@ -15,18 +15,19 @@
           v-for="resource in resources"
           :key="resource.id"
           :resource="resource"
+          :is-admin="isAdmin"
           @edit-resource="$emit('editResource', $event)"
           @representatives-updated="$emit('representativesUpdated', $event)"
         />
         <!-- Add Resources Button at bottom -->
-        <div class="add-resources-container">
+        <div class="add-resources-container" v-if="isAdmin">
           <button
             class="btn btn-outline-primary add-resources-btn"
             @click="$emit('addResources')"
             title="Add more resources to this organization"
           >
             <i class="bi bi-plus-circle me-2"></i>
-            Add Resources
+            Add {{ $t('governancePage.resources') }}
           </button>
         </div>
       </div>
@@ -37,14 +38,14 @@
       <div class="no-resources-content">
         <i class="bi bi-database text-muted"></i>
         <p class="text-muted mb-2">No resources found for this organization</p>
-        <div class="add-resources-container">
+        <div class="add-resources-container" v-if="isAdmin">
           <button
             class="btn btn-outline-primary add-resources-btn"
             @click="$emit('addResources')"
             title="Add resources to this organization"
           >
             <i class="bi bi-plus-circle me-2"></i>
-            Add Resources
+            Add {{ $t('governancePage.organizations') }}
           </button>
         </div>
       </div>
@@ -56,6 +57,10 @@
 import ResourceItem from './ResourceItem.vue'
 
 defineProps({
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   resources: {
     type: Array,
     required: true,

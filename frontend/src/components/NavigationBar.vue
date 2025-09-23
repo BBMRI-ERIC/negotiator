@@ -56,6 +56,21 @@
               {{ $t('navbar.biobanker') }}
             </router-link>
           </li>
+          <li v-if="isRepresentative || isAdmin" class="nav-item">
+            <router-link
+              :style="{
+                color:
+                  $route.path === '/governance' || $route.params.userRole === 'ROLE_REPRESENTATIVE' || $route.params.userRole === 'ROLE_ADMIN'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
+              class="nav-link active nav-option"
+              to="/governance"
+            >
+              <i class="bi bi-archive" />
+              Governance
+            </router-link>
+          </li>
           <!-- Dropdown for multiple networks -->
           <li
             v-if="showNetworksTab && networks.length > 1"
