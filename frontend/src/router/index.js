@@ -27,6 +27,8 @@ async function isAllowedToAccess(role) {
     notifications.criticalError = true
     notifications.setNotification('You are not allowed to access this page.')
     return false
+  } else {
+    return true
   }
 }
 
@@ -85,6 +87,9 @@ const router = createRouter({
       name: 'governance',
       component: GovernancePage,
       meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: async () => {
+        return await isAllowedToAccess(ROLES.REPRESENTATIVE) || await isAllowedToAccess(ROLES.ADMINISTRATOR)
+      },
     },
     {
       path: '/admin',

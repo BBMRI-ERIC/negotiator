@@ -56,7 +56,7 @@
               {{ $t('navbar.biobanker') }}
             </router-link>
           </li>
-          <li v-if="isRepresentative" class="nav-item">
+          <li v-if="isRepresentative || isAdmin" class="nav-item">
             <router-link
               :style="{
                 color:

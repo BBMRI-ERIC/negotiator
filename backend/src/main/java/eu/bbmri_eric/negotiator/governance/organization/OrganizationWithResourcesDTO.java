@@ -22,6 +22,7 @@ public class OrganizationWithResourcesDTO extends OrganizationDTO {
   Set<ResourceResponseModel> resources = new HashSet<>();
 
   public void addResource(ResourceResponseModel resource) {
+    // Replace existing resource if incoming one has the same ID and more details
     if (resource instanceof ResourceWithRepsDTO) {
       resources.removeIf(r -> Objects.equals(r.getId(), resource.getId()));
     }

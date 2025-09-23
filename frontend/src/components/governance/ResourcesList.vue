@@ -27,7 +27,7 @@
             title="Add more resources to this organization"
           >
             <i class="bi bi-plus-circle me-2"></i>
-            Add Resources
+            Add {{ $t('governancePage.resources') }}
           </button>
         </div>
       </div>
@@ -45,7 +45,7 @@
             title="Add resources to this organization"
           >
             <i class="bi bi-plus-circle me-2"></i>
-            Add Resources
+            Add {{ $t('governancePage.organizations') }}
           </button>
         </div>
       </div>

@@ -128,7 +128,7 @@ export function useOrganizations() {
       }
 
       let response = null
-      if (isAdmin.value){
+      if (isAdmin.value) {
         response = await adminStore.retrieveOrganizationsPaginated(
           pageNumber.value,
           pageSize.value,
