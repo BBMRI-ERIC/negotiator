@@ -282,11 +282,13 @@ async function createNegotiation() {
           `Negotiation saved correctly as draft with id ${negotiationId}`,
           'light',
         )
-        if (activeNavItemIndex.value)
+        if (activeNavItemIndex.value) {
           router.push(`/edit/requests1/${negotiationId}?step=${activeNavItemIndex.value}`, {
             query: { step: activeNavItemIndex.value },
           })
-        router.push(`/edit/requests1/${negotiationId}`)
+        } else {
+          router.push(`/edit/requests1/${negotiationId}`)
+        }
       }
     })
     .catch(() => {
