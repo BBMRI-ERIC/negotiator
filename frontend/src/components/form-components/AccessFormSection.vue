@@ -253,9 +253,9 @@ function handleFileUpload(event, indexOfElement) {
     ) &&
     !isAttachmentPresentInNegotiation(event.target.files[0])
   ) {
-    negotiationReplacedAttachmentsID.value.push(
-      accessFormWithPayloadSection.value.elements[indexOfElement].value.id || null,
-    )
+      negotiationReplacedAttachmentsID.value.push(
+        accessFormWithPayloadSection.value.elements[indexOfElement].value?.id || null,
+      )
     accessFormWithPayloadSection.value.elements[indexOfElement].value = event.target.files[0]
   } else {
     accessFormWithPayloadSection.value.elements[indexOfElement].value = null
