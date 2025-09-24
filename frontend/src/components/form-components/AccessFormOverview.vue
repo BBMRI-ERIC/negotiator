@@ -10,13 +10,28 @@
       </p>
     </div>
 
-    <div class="section mb-5" v-for="section in accessFormWithPayload?.sections" :key="section">
+    <div
+      class="section mb-5"
+      v-for="(section, sectionIndex) in accessFormWithPayload?.sections"
+      :key="section"
+    >
       <h2>
         {{ section.label.toUpperCase() }}
       </h2>
 
-      <div class="element mt-2" v-for="element in section?.elements" :key="element.id">
-        <p class="mb-0">
+      <div
+        class="element mt-2"
+        v-for="(element, elementIndex) in section?.elements"
+        :key="element.id"
+        @click="
+          $emit('emitErrorElementIndex', {
+            elementId: element?.id,
+            elementIndex: elementIndex,
+            sectionIndex: sectionIndex,
+          })
+        "
+      >
+        <p class="element-text mb-0">
           <span class="fw-bold">{{ element.label }}: </span>
 
           <span
@@ -28,7 +43,7 @@
             "
             class="invalid-text"
           >
-            this field is required
+            this field is required <i class="bi bi-exclamation-circle"></i>
           </span>
           <span v-else-if="isAttachment(element.value)" class="text-truncate">
             <span v-if="element.value.name" :title="element.name">{{ element.value.name }}</span>
@@ -75,5 +90,9 @@ function translateTrueFalse(value) {
 .invalid-text {
   font-size: 0.875em;
   color: var(--bs-form-invalid-color);
+}
+
+.element-text {
+  cursor: pointer;
 }
 </style>

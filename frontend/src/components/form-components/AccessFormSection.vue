@@ -11,6 +11,15 @@
       class="access-form-section-elements mb-3"
       v-for="(element, index) in accessFormWithPayloadSection.elements"
       :key="element.name"
+      :class="
+        element.required === true &&
+        focusElementId === element.id &&
+        validationErrorHighlight.includes(element.id)
+          ? 'border border-danger rounded p-3'
+          : focusElementId === element.id
+            ? 'border border-border-color rounded p-3'
+            : ''
+      "
     >
       <label class="form-label" :class="{ required: element.required }">
         {{ element.label }}
@@ -226,6 +235,11 @@ const props = defineProps({
     required: false,
     default: null,
   },
+  focusElementId: {
+    type: Number,
+    required: false,
+    default: null,
+  },
 })
 
 onMounted(() => {
@@ -253,9 +267,9 @@ function handleFileUpload(event, indexOfElement) {
     ) &&
     !isAttachmentPresentInNegotiation(event.target.files[0])
   ) {
-      negotiationReplacedAttachmentsID.value.push(
-        accessFormWithPayloadSection.value.elements[indexOfElement].value?.id || null,
-      )
+    negotiationReplacedAttachmentsID.value.push(
+      accessFormWithPayloadSection.value.elements[indexOfElement].value?.id || null,
+    )
     accessFormWithPayloadSection.value.elements[indexOfElement].value = event.target.files[0]
   } else {
     accessFormWithPayloadSection.value.elements[indexOfElement].value = null
