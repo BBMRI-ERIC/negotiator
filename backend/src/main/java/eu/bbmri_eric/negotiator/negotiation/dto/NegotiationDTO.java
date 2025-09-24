@@ -51,6 +51,11 @@ public class NegotiationDTO {
       example = "Negotiation between parties X and Y")
   private String humanReadable;
 
+  @Schema(
+      description = "Display id for the negotiation (user-friendly name)",
+      example = "NEG-2024-001")
+  private String displayId;
+
   @NotNull
   @Schema(
       description = "Indicates if public posts are enabled for this negotiation",
