@@ -168,6 +168,14 @@ public class NegotiationServiceImpl implements NegotiationService {
     negotiation.setResources(new HashSet<>(request.getResources()));
     negotiation.setHumanReadable(request.getHumanReadable());
     negotiation.setDiscoveryService(request.getDiscoveryService());
+
+    // Set default displayId if none provided
+    if (Objects.isNull(negotiation.getDisplayId()) || negotiation.getDisplayId().trim().isEmpty()) {
+      // Set default ID using pattern
+      String defaultId = "NEG-" + System.currentTimeMillis();
+      negotiation.setDisplayId(defaultId);
+    }
+
     return negotiation;
   }
 
@@ -183,6 +191,9 @@ public class NegotiationServiceImpl implements NegotiationService {
     verifyWriteAccessToNegotiation(negotiationEntity);
     if (Objects.nonNull(updateDTO.getPayload())) {
       negotiationEntity.setPayload(updateDTO.getPayload().toString());
+    }
+    if (Objects.nonNull(updateDTO.getDisplayId())) {
+      negotiationEntity.setDisplayId(updateDTO.getDisplayId());
     }
     if (Objects.nonNull(updateDTO.getAuthorSubjectId())) {
       log.info("Transferring Negotiation");
