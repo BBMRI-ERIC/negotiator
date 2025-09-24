@@ -27,18 +27,12 @@
         class="form-navigation-items d-flex flex-row align-items-center py-2 my-3 rounded-2"
       >
         <div class="form-navigation-item form-navigation-item-avatar mx-3">
-          <div
-            class="avatar"
-            :class="
-              validationErrorHighlight[item.name]?.length > 0
-                ? 'bg-danger text-white'
-                : 'avatar-background text-info'
-            "
-          >
+          <div class="avatar" :class="returnAvatarColor(validationErrorHighlight[item.name])">
             <i
               v-if="validationErrorHighlight[item.name]?.length > 0"
               class="fs-5 bi bi-exclamation-circle"
             />
+            <i v-else-if="validationErrorHighlight[item.name]" class="fs-5 bi bi-check" />
             <p v-else class="fs-5 mb-0 tw-2">{{ index + 1 }}</p>
           </div>
         </div>
@@ -96,6 +90,17 @@ const isLastItemActive = computed(() => {
 function changeActiveNavIndex(index) {
   activeNavItemIndex.value = index
 }
+
+function returnAvatarColor(validationErrorHighlightItem) {
+  if (validationErrorHighlightItem) {
+    if (validationErrorHighlightItem?.length > 0) {
+      return 'bg-danger text-white'
+    } else {
+      return 'avatar-background-success text-white'
+    }
+  }
+  return 'avatar-background'
+}
 </script>
 
 <style scoped>
@@ -123,6 +128,10 @@ function changeActiveNavIndex(index) {
 
 .avatar-background {
   background-color: #e1e4e8;
+}
+
+.avatar-background-success {
+  background-color: #28a745;
 }
 
 .avatar-icon {
