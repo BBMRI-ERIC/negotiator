@@ -25,6 +25,7 @@
         <AccessFormOverview
           v-else-if="activeNavItemIndex == returnNavItems?.length + 1"
           :accessFormWithPayload="accessFormWithPayload"
+          @emitErrorElementIndex="showSectionAndScrollToElement"
         />
         <div v-else>
           <AccessFormSection
@@ -39,6 +40,7 @@
             v-model:accessFormWithPayloadSection="
               accessFormWithPayload.sections[activeNavItemIndex - 1]
             "
+            :focusElementId="focusElementId"
             v-model:negotiationReplacedAttachmentsID="negotiationReplacedAttachmentsID"
             @element-focus-out-event="updateSaveNegotiation(true)"
             @element-focus-out-event-validation="validateInput"
@@ -342,6 +344,19 @@ function openSaveNegotiationModal() {
     return
   }
   openSaveModal.value.click()
+}
+
+const focusElementId = ref(null)
+
+function showSectionAndScrollToElement(item) {
+  focusElementId.value = item.elementId
+  activeNavItemIndex.value = item.sectionIndex + 1
+  const calcYOffset = item.elementIndex * 70 + 200
+  validateInput()
+  if (calcYOffset) {
+    window.scroll(0, calcYOffset)
+    return
+  }
 }
 </script>
 
