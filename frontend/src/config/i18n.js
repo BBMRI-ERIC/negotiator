@@ -14,6 +14,10 @@ export default {
         resources: 'RESOURCE | RESOURCES',
         organisations: 'ORGANIZATION | ORGANIZATIONS',
       },
+      governancePage: {
+        resources: 'Resource | Resources',
+        organisations: 'Organization | Organizations',
+      },
     },
     'en-canSERV': {
       navbar: {

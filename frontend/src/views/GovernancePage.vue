@@ -4,7 +4,7 @@
       <h1 class="mb-5 text-center">Governance Management</h1>
 
       <!-- Navigation Tabs -->
-      <ul class="nav nav-tabs mb-4" id="governanceTab" role="tablist">
+      <ul class="nav nav-tabs mb-4" id="governanceTab" role="tablist" v-if="isAdmin">
         <li class="nav-item" role="presentation">
           <button
             class="nav-link"
@@ -47,7 +47,7 @@
           role="tabpanel"
           aria-labelledby="organizations-tab"
         >
-          <OrganizationsSection />
+          <OrganizationsSection :is-admin="isAdmin" />
         </div>
 
         <!-- Networks Tab -->
@@ -78,14 +78,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import {computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user.js'
 import OrganizationsSection from '@/components/governance/OrganizationsSection.vue'
+import {ROLES} from "@/config/consts.js";
 
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
+
+const isAdmin = computed(() => {
+  return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
+})
 
 const activeTab = ref('organizations')
 
