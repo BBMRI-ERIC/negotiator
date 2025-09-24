@@ -87,7 +87,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void createElement_correctPayload_ok() throws Exception {
     ElementCreateDTO createDTO =
-        new ElementCreateDTO("test", "test", "test", FormElementType.TEXT, null);
+        new ElementCreateDTO("test", "test", "test", "test", FormElementType.TEXT, null);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
@@ -103,7 +103,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void createElement_multiChoiceWithNoValueSet_throwsBadRequest() throws Exception {
     ElementCreateDTO createDTO =
-        new ElementCreateDTO("test", "test", "test", FormElementType.MULTIPLE_CHOICE, null);
+        new ElementCreateDTO("test", "test", "test", "test", FormElementType.MULTIPLE_CHOICE, null);
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(ELEMENTS_ENDPOINT)
@@ -116,7 +116,7 @@ public class AccessFormTests {
   @WithMockUser(roles = "ADMIN")
   void updateElement_elementExists_ok() throws Exception {
     ElementCreateDTO createDTO =
-        new ElementCreateDTO("test", "test", "test", FormElementType.TEXT, null);
+        new ElementCreateDTO("test", "test", "test", null, FormElementType.TEXT, null);
     MvcResult mvcResult =
         mockMvc
             .perform(
@@ -131,6 +131,7 @@ public class AccessFormTests {
             .get("id")
             .asLong();
     createDTO.setName("updatedTest");
+    createDTO.setPlaceholder("updatedPlaceholder");
     mockMvc
         .perform(
             MockMvcRequestBuilders.put(ELEMENTS_ENDPOINT + "/%s".formatted(id))
@@ -138,7 +139,8 @@ public class AccessFormTests {
                 .content(new ObjectMapper().writeValueAsString(createDTO)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", equalTo(id.intValue())))
-        .andExpect(jsonPath("$.name", is(createDTO.getName())));
+        .andExpect(jsonPath("$.name", is(createDTO.getName())))
+        .andExpect(jsonPath("$.placeholder", is(createDTO.getPlaceholder())));
   }
 
   @Test

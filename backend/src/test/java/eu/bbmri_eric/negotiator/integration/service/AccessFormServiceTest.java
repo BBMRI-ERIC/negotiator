@@ -161,7 +161,7 @@ public class AccessFormServiceTest {
             .anyMatch(res -> res.getId().equals(resource.getSourceId())));
     AccessForm accessForm = resource.getAccessForm();
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT, "test");
     newElement = accessFormElementRepository.save(newElement);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection =
@@ -218,8 +218,11 @@ public class AccessFormServiceTest {
             .get();
     Resource resource = resourceRepository.findAll().get(1);
     AccessFormElement newElement =
-        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT);
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT, "test");
+    AccessFormElement newElement1 =
+        new AccessFormElement("different_element", "test", "test", FormElementType.TEXT, null);
     newElement = accessFormElementRepository.save(newElement);
+    newElement1 = accessFormElementRepository.save(newElement1);
     AccessForm newAccessForm = new AccessForm("different_form");
     AccessFormSection sameSection = accessFormSectionRepository.findById(1L).get();
     assertEquals("project", sameSection.getName());
@@ -227,6 +230,7 @@ public class AccessFormServiceTest {
     newAccessForm = accessFormRepository.save(newAccessForm);
     assertFalse(newAccessForm.getLinkedSections().isEmpty());
     newAccessForm.linkElementToSection(sameSection, newElement, 0, true);
+    newAccessForm.linkElementToSection(sameSection, newElement1, 1, true);
     assertFalse(newAccessForm.getLinkedSections().isEmpty());
     assertTrue(
         newAccessForm.getLinkedSections().stream()
@@ -241,7 +245,7 @@ public class AccessFormServiceTest {
     resource.setAccessForm(newAccessForm);
     resource = resourceRepository.save(resource);
     assertEquals(
-        1,
+        2,
         resource.getAccessForm().getLinkedSections().stream()
             .filter(accessFormSection -> accessFormSection.getName().equals(sameSection.getName()))
             .findFirst()
