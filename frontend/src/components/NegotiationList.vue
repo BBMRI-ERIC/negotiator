@@ -2,7 +2,29 @@
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
-      <div class="row row-cols-2 d-grid-row mt-5 pt-3">
+      <!-- Search Input -->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input
+              v-model="searchTerm"
+              type="text"
+              class="form-control"
+              placeholder="Search negotiations by ID..."
+              @input="onSearchInput"
+            />
+            <button 
+              v-if="searchTerm" 
+              class="btn btn-outline-secondary" 
+              type="button" 
+              @click="clearSearch"
+            >
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row row-cols-2 d-grid-row mt-3 pt-3">
         <p>
           <span
             class="negotiations-search-results"
@@ -80,7 +102,7 @@
           v-for="fn in negotiations"
           :id="fn.id"
           :key="fn.id"
-          :title="fn.payload.project.title"
+          :title="fn.displayId"
           :status="fn.status"
           :submitter="fn.author.name"
           :creation-date="formatDate(fn.creationDate)"
@@ -94,6 +116,25 @@
           <table class="table table-hover">
             <thead class="text-nowrap">
               <tr class="text-table-header-text">
+                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
+                  ID
+                  <button
+                    class="btn btn-sm py-0"
+                    :style="{ color: uiConfiguration?.tableTextColor }"
+                    type="button"
+                    @click="(changeSortDirection('displayId'), emitFilterSortData())"
+                  >
+                    <i
+                      :class="
+                        filtersSortData.sortDirection === 'ASC' &&
+                        filtersSortData.sortBy === 'displayId'
+                          ? 'bi bi-sort-alpha-up-alt'
+                          : 'bi-sort-alpha-down'
+                      "
+                    />
+                    <i v-if="filtersSortData.sortBy !== 'displayId'" class="bi bi-sort-alpha-up-alt" />
+                  </button>
+                </th>
                 <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
                   Title
                   <button
@@ -110,12 +151,10 @@
                           : 'bi-sort-alpha-down'
                       "
                     />
-                    <i v-if="filtersSortData.sortBy !== 'title'" class="bi bi-sort-alpha-up-alt" />
+                    <i v-if="filtersSortData.sortBy !== 'displayId'" class="bi bi-sort-alpha-up-alt" />
                   </button>
                 </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Negotiation ID
-                </th>
+
                 <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
                   Created on
                   <button
@@ -171,12 +210,12 @@
               >
                 <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
                   <span>
-                    {{ fn.payload?.project?.title }}
+                    {{ fn.displayId }}
                   </span>
                 </th>
                 <td>
                   <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.id }}
+                    {{ fn.payload?.project?.title }}
                   </span>
                 </td>
                 <td>
@@ -237,7 +276,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
@@ -288,6 +327,25 @@ const savedNegotiationsView = computed(() => {
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.negotiationList
 })
+
+// Search functionality
+const searchTerm = ref('')
+let searchTimeout = null
+
+function onSearchInput() {
+  // Debounce search to avoid too many requests
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    filtersSortData.value.search = searchTerm.value.trim()
+    emitFilterSortData()
+  }, 300)
+}
+
+function clearSearch() {
+  searchTerm.value = ''
+  filtersSortData.value.search = ''
+  emitFilterSortData()
+}
 
 onBeforeMount(() => {
   if (negotiationsViewStore.savedNegotiationsView === '') {
