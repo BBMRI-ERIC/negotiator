@@ -224,7 +224,7 @@ watch(
   () => activeNavItemIndex.value,
   (newValue, oldValue) => {
     if (Number.isInteger(newValue)) {
-      router.replace({ ...router.currentRoute, query: { step: newValue } })
+      router.replace({ query: { step: newValue } })
     }
 
     if (oldValue > 0 && oldValue <= returnNavItems.value?.length) {
@@ -285,7 +285,8 @@ async function createNegotiation() {
           'light',
         )
         if (activeNavItemIndex.value) {
-          router.push(`/edit/requests1/${negotiationId}?step=${activeNavItemIndex.value}`, {
+          router.push({
+            path: `/edit/requests1/${negotiationId}`,
             query: { step: activeNavItemIndex.value },
           })
         } else {
