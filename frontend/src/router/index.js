@@ -24,24 +24,16 @@ async function isAllowedToAccess(role) {
     await userStore.retrieveUser()
   }
 
-  if (Array.isArray(role)) {
-    const hasRole = role.some((r) => userStore.userInfo.roles.includes(r))
-    if (!hasRole) {
-      notifications.criticalError = true
-      notifications.setNotification('You are not allowed to access this page.')
-      return false
-    } else {
-      return true
-    }
+  if (!Array.isArray(role)) {
+    role = [role]
   }
 
-  if (!userStore.userInfo.roles.includes(role)) {
+  if (!role.some((r) => userStore.userInfo.roles.includes(r))) {
     notifications.criticalError = true
     notifications.setNotification('You are not allowed to access this page.')
     return false
-  } else {
-    return true
   }
+  return true
 }
 
 const router = createRouter({
