@@ -17,6 +17,25 @@ import hasUser from '@/middlewares/hasUser.js'
 import middlewarePipeline from '@/middlewares/middleware-pipeline.js'
 import { useNotificationsStore } from '@/store/notifications'
 
+async function isAllowedToAccessCombinded(roles) {
+  const userStore = useUserStore()
+  const notifications = useNotificationsStore()
+
+  if (Object.keys(userStore.userInfo).length === 0) {
+    await userStore.retrieveUser()
+  }
+
+  for (const role of roles) {
+    if (userStore.userInfo.roles.includes(role)) {
+      return true
+    }
+  }
+
+  notifications.criticalError = true
+  notifications.setNotification('You are not allowed to access this page.')
+  return false
+}
+
 async function isAllowedToAccess(role) {
   const userStore = useUserStore()
   const notifications = useNotificationsStore()
@@ -88,7 +107,7 @@ const router = createRouter({
       component: GovernancePage,
       meta: { isPublic: false, middleware: [hasUser] },
       beforeEnter: async () => {
-        return await isAllowedToAccess(ROLES.REPRESENTATIVE) || await isAllowedToAccess(ROLES.ADMINISTRATOR)
+        return await isAllowedToAccessCombinded([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR])
       },
     },
     {
