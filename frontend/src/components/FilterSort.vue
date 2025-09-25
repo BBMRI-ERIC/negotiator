@@ -180,7 +180,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
@@ -189,7 +189,7 @@ const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
 const router = useRouter()
 
-defineProps({
+const props = defineProps({
   filtersStatus: {
     type: Array,
     default: () => [],
@@ -245,6 +245,7 @@ const returnClearButtonColor = computed(() => {
 })
 
 function emitFilterSortData() {
+
   emit('filtersSortData', filtersSortData.value)
 }
 
@@ -272,6 +273,23 @@ function clearAllFilters() {
 function isChecked(value) {
   return filtersSortData.value.sortBy === value
 }
+
+function initializeRepresentativeDefaults() {
+  if (props.userRole === ROLES.REPRESENTATIVE) {
+    const defaultStatusValues = ['IN_PROGRESS', 'ABANDONED', 'CONCLUDED']
+    const availableDefaults = defaultStatusValues.filter(statusValue =>
+      props.filtersStatus.some(status => status.value === statusValue)
+    )
+    if (availableDefaults.length > 0 && filtersSortData.value.status.length === 0) {
+      filtersSortData.value.status = availableDefaults
+      emit('filtersSortData', filtersSortData.value)
+    }
+  }
+}
+
+onMounted(() => {
+  initializeRepresentativeDefaults()
+})
 </script>
 
 <style scoped>
