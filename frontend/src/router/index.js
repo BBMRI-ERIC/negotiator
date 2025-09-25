@@ -81,7 +81,7 @@ const router = createRouter({
       component: UserPage,
       props: { userRole: ROLES.REPRESENTATIVE },
       meta: { isPublic: false },
-      beforeEnter: async () => {
+      beforeEnter: async (to, from, next) => {
         const isAllowed = await isAllowedToAccess(ROLES.REPRESENTATIVE)
         if (isAllowed) {
           next() // Allow access
@@ -110,7 +110,7 @@ const router = createRouter({
       component: UserPage,
       props: { userRole: ROLES.ADMINISTRATOR },
       meta: { isPublic: false },
-      beforeEnter: async () => {
+      beforeEnter: async (to, from, next) => {
         const isAllowed = await isAllowedToAccess(ROLES.ADMINISTRATOR)
         if (isAllowed) {
           next() // Allow access
@@ -130,7 +130,7 @@ const router = createRouter({
       name: 'settings',
       component: AdminSettingsPage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: async () => {
+      beforeEnter: async (to, from, next) => {
         const isAllowed = await isAllowedToAccess(ROLES.ADMINISTRATOR)
         if (isAllowed) {
           next() // Allow access
@@ -144,7 +144,7 @@ const router = createRouter({
       name: 'ui-configuration',
       component: AdminUiConfigurationPage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: async () => {
+      beforeEnter: async (to, from, next) => {
         const isAllowed = await isAllowedToAccess(ROLES.ADMINISTRATOR)
         if (isAllowed) {
           next() // Allow access
