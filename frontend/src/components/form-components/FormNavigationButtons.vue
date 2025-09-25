@@ -50,16 +50,6 @@ defineProps({
     required: true,
     default: 0,
   },
-  requestId: {
-    type: String,
-    required: true,
-    default: null,
-  },
-  validationErrorHighlight: {
-    type: Object,
-    required: false,
-    default: () => {},
-  },
   saveDraftDisabled: {
     type: Boolean,
     required: false,

@@ -51,7 +51,7 @@
         <div v-else-if="element.type === 'BOOLEAN'">
           <div class="form-check form-check-inline">
             <input
-              id="inlineRadio1"
+              :id="`boolean-${element.name}-yes`"
               v-model="element.value"
               value="Yes"
               :required="element.required"
@@ -59,11 +59,11 @@
               :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
               type="radio"
             />
-            <label class="form-check-label" for="inlineRadio1"> Yes </label>
+            <label class="form-check-label" :for="`boolean-${element.name}-yes`"> Yes </label>
           </div>
           <div class="form-check form-check-inline">
             <input
-              id="inlineRadio2"
+              :id="`boolean-${element.id}-no`"
               v-model="element.value"
               value="No"
               :required="element.required"
@@ -71,7 +71,7 @@
               :class="validationErrorHighlight?.includes(element.id) ? 'is-invalid' : ''"
               type="radio"
             />
-            <label class="form-check-label" for="inlineRadio2"> No </label>
+            <label class="form-check-label" :for="`boolean-${element.id}-no`"> No </label>
           </div>
         </div>
 
@@ -82,7 +82,7 @@
           >
             <div class="form-check form-check-inline">
               <input
-                id="inlineCheckbox1"
+                :id="`inlineCheckbox-${element.id}-${index}`"
                 v-model="element.value"
                 :value="value"
                 :required="element.required"
@@ -111,7 +111,7 @@
           >
             <div class="form-check form-check-inline">
               <input
-                id="inlineRadio1"
+                :id="`inlineRadio-${element.id}-${index}`"
                 v-model="element.value"
                 :value="value"
                 :required="element.required"
