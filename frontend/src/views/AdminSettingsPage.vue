@@ -31,6 +31,7 @@
       @update="handleWebhookUpdate"
       @create="handleNewWebhook"
     />
+    <access-forms-section />
     <confirmation-modal
       id="delete-webhookmodal"
       title="Delete Webhook"
