@@ -245,7 +245,6 @@ const returnClearButtonColor = computed(() => {
 })
 
 function emitFilterSortData() {
-
   emit('filtersSortData', filtersSortData.value)
 }
 
