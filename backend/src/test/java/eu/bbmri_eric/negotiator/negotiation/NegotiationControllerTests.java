@@ -5,6 +5,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -68,6 +69,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @IntegrationTest(loadTestData = true)
 @AutoConfigureMockMvc
 public class NegotiationControllerTests {
+
+  // ...existing static fields and setup...
 
   private static final String REQUEST_1_ID = "request-1";
   private static final String REQUEST_2_ID = "request-2";
@@ -1169,6 +1172,42 @@ public class NegotiationControllerTests {
                     .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)));
+  }
+
+  @Test
+  public void testGetOrganizations_returnsCorrectOrganizations() {
+    // Arrange: create organizations
+    Organization org1 = new Organization();
+    org1.setId(1L);
+    org1.setName("Org1");
+    Organization org2 = new Organization();
+    org2.setId(2L);
+    org2.setName("Org2");
+
+    // Create resources linked to organizations
+    Resource res1 = new Resource();
+    res1.setId(1L);
+    res1.setOrganization(org1);
+    res1.setSourceId("res1");
+    Resource res2 = new Resource();
+    res2.setId(2L);
+    res2.setOrganization(org2);
+    res2.setSourceId("res2");
+
+    // Create negotiation and link resources
+    Negotiation negotiation = new Negotiation();
+    negotiation.setResources(Set.of(res1, res2));
+
+    // Act
+    Set<Organization> organizations = negotiation.getOrganizations();
+
+    // Assert
+    assertNotNull(organizations);
+    assertEquals(2, organizations.size());
+    Set<String> orgNames =
+        organizations.stream().map(Organization::getName).collect(Collectors.toSet());
+    assertTrue(orgNames.contains("Org1"));
+    assertTrue(orgNames.contains("Org2"));
   }
 
   @Test
