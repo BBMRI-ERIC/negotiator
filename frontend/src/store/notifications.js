@@ -93,7 +93,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   let activeInterval = null // Variable to store the active interval ID
 
   watch(currentNotifications, () => {
-    if (currentNotifications.value.length > 1) {
+    if (currentNotifications.value.length > MAX_QUEUE_SIZE_NOTIFICATIONS) {
       currentNotifications.value = currentNotifications.value.slice(0, MAX_QUEUE_SIZE_NOTIFICATIONS)
     }
     // Clear any existing interval before creating a new one
