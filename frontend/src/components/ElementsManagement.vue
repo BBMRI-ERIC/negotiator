@@ -137,147 +137,6 @@
               </option>
             </select>
           </div>
-          <div class="mb-3" v-if="needsValueSet">
-            <label class="form-label">Value Set</label>
-
-            <!-- Value Set Selection and Management -->
-            <div class="border rounded p-3 bg-light">
-              <!-- Existing Value Set Selection -->
-              <div class="mb-3">
-                <label class="form-label small">Select Existing Value Set (Optional)</label>
-                <select
-                  class="form-select form-select-sm"
-                  v-model="currentElement.valueSetId"
-                >
-                  <option value="">No value set selected</option>
-                  <option v-for="valueSet in valueSets" :key="valueSet.id" :value="valueSet.id">
-                    {{ valueSet.name }} ({{ valueSet.availableValues?.length || 0 }} values)
-                  </option>
-                </select>
-              </div>
-
-              <!-- Or Create New Value Set -->
-              <div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="form-label small mb-0">Or Create/Edit Value Set</label>
-                  <button
-                    type="button"
-                    class="btn btn-outline-success btn-sm"
-                    @click="toggleValueSetForm"
-                    v-if="!showValueSetForm"
-                  >
-                    <i class="bi bi-plus-circle"></i> Add New
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary btn-sm"
-                    @click="cancelValueSetForm"
-                    v-if="showValueSetForm"
-                  >
-                    <i class="bi bi-x"></i> Cancel
-                  </button>
-                </div>
-
-                <!-- Existing Value Sets List -->
-                <div v-if="!showValueSetForm && valueSets.length > 0" class="mb-3">
-                  <div class="list-group list-group-flush">
-                    <div
-                      v-for="valueSet in valueSets"
-                      :key="valueSet.id"
-                      class="list-group-item d-flex justify-content-between align-items-center p-2 bg-white border-1"
-                    >
-                      <div class="flex-grow-1">
-                        <small class="fw-bold">{{ valueSet.name }}</small>
-                        <div class="text-muted" style="font-size: 0.75rem;">
-                          {{ (valueSet.availableValues || []).slice(0, 3).join(', ') }}
-                          <span v-if="(valueSet.availableValues?.length || 0) > 3">...</span>
-                        </div>
-                      </div>
-                      <div>
-                        <button
-                          class="btn btn-sm btn-outline-primary me-1"
-                          @click="editValueSet(valueSet)"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          class="btn btn-sm btn-outline-danger"
-                          @click="deleteValueSet(valueSet.id)"
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Value Set Form -->
-                <div v-if="showValueSetForm" class="border rounded p-3 bg-white">
-                  <h6 class="mb-3">{{ editingValueSet ? 'Edit' : 'Create' }} Value Set</h6>
-
-                  <div class="mb-3">
-                    <label for="valueSetName" class="form-label small">Name *</label>
-                    <input
-                      type="text"
-                      class="form-control form-control-sm"
-                      id="valueSetName"
-                      v-model="currentValueSet.name"
-                      required
-                      placeholder="Enter value set name"
-                    >
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="valueSetDocs" class="form-label small">External Documentation</label>
-                    <input
-                      type="text"
-                      class="form-control form-control-sm"
-                      id="valueSetDocs"
-                      v-model="currentValueSet.externalDocumentation"
-                      placeholder="Enter external documentation URL (optional)"
-                    >
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="valueSetValues" class="form-label small">Available Values *</label>
-                    <textarea
-                      class="form-control form-control-sm"
-                      id="valueSetValues"
-                      v-model="valueSetValuesText"
-                      required
-                      rows="3"
-                      placeholder="Enter values separated by semicolons (e.g., Option 1;Option 2;Option 3)"
-                    ></textarea>
-                    <div class="form-text">
-                      Separate multiple values with semicolons (;)
-                    </div>
-                  </div>
-
-                  <div class="d-flex gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-success btn-sm"
-                      @click="saveValueSet"
-                      :disabled="!isValueSetFormValid"
-                    >
-                      <i class="bi bi-check"></i> {{ editingValueSet ? 'Update' : 'Save' }}
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-secondary btn-sm"
-                      @click="cancelValueSetForm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-text mt-2">
-              Choice elements can use value sets to define available options for users to select from.
-            </div>
-          </div>
         </form>
       </template>
       <template #footer>
@@ -301,9 +160,6 @@ const formsStore = useFormsStore()
 const elements = ref([])
 const loading = ref(false)
 const isEditing = ref(false)
-const valueSets = ref([])
-const showValueSetForm = ref(false)
-const editingValueSet = ref(false)
 
 // Pagination
 const currentPage = ref(1)
@@ -331,13 +187,6 @@ const currentElement = ref({
   valueSetId: null
 })
 
-// Current value set being edited/created
-const currentValueSet = ref({
-  name: '',
-  externalDocumentation: '',
-  availableValues: []
-})
-
 // Computed properties
 const totalPages = computed(() => {
   return Math.ceil(elements.value.length / pageSize.value)
@@ -349,31 +198,11 @@ const paginatedElements = computed(() => {
   return elements.value.slice(start, end)
 })
 
-const needsValueSet = computed(() => {
-  return currentElement.value.type === 'SINGLE_CHOICE' || currentElement.value.type === 'MULTIPLE_CHOICE'
-})
-
 const isFormValid = computed(() => {
   return currentElement.value.name &&
          currentElement.value.label &&
          currentElement.value.description &&
          currentElement.value.type
-})
-
-const isValueSetFormValid = computed(() => {
-  return currentValueSet.value.name && valueSetValuesText.value.trim().length > 0
-})
-
-const valueSetValuesText = computed({
-  get() {
-    if (Array.isArray(currentValueSet.value.availableValues)) {
-      return currentValueSet.value.availableValues.join(';')
-    }
-    return currentValueSet.value.availableValues || ''
-  },
-  set(value) {
-    currentValueSet.value.availableValues = value
-  }
 })
 
 // Pagination methods
@@ -409,16 +238,6 @@ function resetForm() {
   isEditing.value = false
 }
 
-function resetValueSetForm() {
-  currentValueSet.value = {
-    name: '',
-    externalDocumentation: '',
-    availableValues: []
-  }
-  editingValueSet.value = false
-  showValueSetForm.value = false
-}
-
 function openCreateModal() {
   resetForm()
 }
@@ -435,25 +254,7 @@ function openEditModal(element) {
   }
 }
 
-function toggleValueSetForm() {
-  showValueSetForm.value = !showValueSetForm.value
-}
-
-function cancelValueSetForm() {
-  showValueSetForm.value = false
-  resetValueSetForm()
-}
-
-function editValueSet(valueSet) {
-  editingValueSet.value = true
-  currentValueSet.value = { ...valueSet }
-  showValueSetForm.value = true
-}
-
-function openValueSetManager() {
-  // This function can be used to open the value set manager if needed
-}
-
+// Methods
 async function saveElement() {
   try {
     const elementData = {
@@ -480,30 +281,6 @@ async function saveElement() {
   }
 }
 
-async function saveValueSet() {
-  try {
-    const valueSetData = {
-      name: currentValueSet.value.name,
-      externalDocumentation: currentValueSet.value.externalDocumentation,
-      availableValues: currentValueSet.value.availableValues.split(';').map(v => v.trim())
-    }
-
-    if (editingValueSet.value) {
-      await formsStore.updateValueSet(currentValueSet.value.id, valueSetData)
-    } else {
-      await formsStore.createValueSet(valueSetData)
-    }
-
-    // Refresh value sets list
-    await loadValueSets()
-    resetValueSetForm()
-
-    // Modal closes automatically due to data-bs-dismiss on the button
-  } catch (error) {
-    console.error('Error saving value set:', error)
-  }
-}
-
 async function loadElements() {
   loading.value = true
   try {
@@ -516,38 +293,10 @@ async function loadElements() {
     loading.value = false
   }
 }
-async function deleteValueSet(valueSetId) {
-  if (confirm('Are you sure you want to delete this value set? This action cannot be undone.')) {
-    try {
-      await formsStore.deleteValueSet(valueSetId)
-      await loadValueSets()
-      // If the deleted value set was selected, clear the selection
-      if (currentElement.value.valueSetId === valueSetId) {
-        currentElement.value.valueSetId = null
-      }
-    } catch (error) {
-      console.error('Error deleting value set:', error)
-    }
-  }
-}
-
-
-async function loadValueSets() {
-  try {
-    const response = await formsStore.retrieveAllValueSets()
-    console.log('Value sets response:', response) // Debug log
-    valueSets.value = response || []
-    console.log('Loaded value sets:', valueSets.value.length) // Debug log
-  } catch (error) {
-    console.error('Error loading value sets:', error)
-    valueSets.value = []
-  }
-}
 
 // Lifecycle
 onMounted(() => {
   loadElements()
-  loadValueSets()
 })
 </script>
 
@@ -602,14 +351,6 @@ onMounted(() => {
 }
 
 .clickable-row:hover {
-  background-color: #f1f1f1;
-}
-
-.list-group-item {
-  cursor: pointer;
-}
-
-.list-group-item:hover {
   background-color: #f1f1f1;
 }
 </style>

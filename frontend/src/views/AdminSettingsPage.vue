@@ -44,7 +44,6 @@
     <hr />
     <email-template-section />
     <hr />
-    <AccessFormsSection />
     <ElementsManagement />
   </div>
 </template>

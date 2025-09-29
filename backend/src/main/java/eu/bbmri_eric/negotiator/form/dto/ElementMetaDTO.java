@@ -26,5 +26,4 @@ public class ElementMetaDTO {
 
   @NotNull private String type;
 
-  private ValueSetDTO valueSet;
 }
