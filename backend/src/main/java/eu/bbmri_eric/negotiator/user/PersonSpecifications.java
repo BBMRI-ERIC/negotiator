@@ -59,7 +59,9 @@ public class PersonSpecifications {
   public static Specification<Person> propertyContains(String property, String substring) {
     return (root, query, criteriaBuilder) ->
         criteriaBuilder.like(
-            criteriaBuilder.lower(root.get(property)), "%" + substring.toLowerCase() + "%");
+            criteriaBuilder.lower(
+                criteriaBuilder.function("unaccent", String.class, root.get(property))),
+            "%" + substring.toLowerCase() + "%");
   }
 
   /**
