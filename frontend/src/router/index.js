@@ -17,6 +17,17 @@ import hasUser from '@/middlewares/hasUser.js'
 import middlewarePipeline from '@/middlewares/middleware-pipeline.js'
 import { useNotificationsStore } from '@/store/notifications'
 
+const checkAccess = (allowedRoles) => {
+  return async (to, from, next) => {
+    const isAllowed = await isAllowedToAccess(allowedRoles)
+    if (isAllowed) {
+      next() // Allow access
+    } else {
+      next('/error-page') // Redirect to the error page
+    }
+  }
+}
+
 async function isAllowedToAccess(role) {
   const userStore = useUserStore()
   const notifications = useNotificationsStore()
@@ -81,28 +92,14 @@ const router = createRouter({
       component: UserPage,
       props: { userRole: ROLES.REPRESENTATIVE },
       meta: { isPublic: false },
-      beforeEnter: async (to, from, next) => {
-        const isAllowed = await isAllowedToAccess(ROLES.REPRESENTATIVE)
-        if (isAllowed) {
-          next() // Allow access
-        } else {
-          next('/error-page') // Redirect to the home page or another route
-        }
-      },
+      beforeEnter: checkAccess(ROLES.REPRESENTATIVE),
     },
     {
       path: '/governance',
       name: 'governance',
       component: GovernancePage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: async (to, from, next) => {
-        const isAllowed = await isAllowedToAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR])
-        if (isAllowed) {
-          next() // Allow access
-        } else {
-          next('/error-page') // Redirect to the home page or another route
-        }
-      },
+      beforeEnter: checkAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR]),
     },
     {
       path: '/admin',
@@ -110,14 +107,7 @@ const router = createRouter({
       component: UserPage,
       props: { userRole: ROLES.ADMINISTRATOR },
       meta: { isPublic: false },
-      beforeEnter: async (to, from, next) => {
-        const isAllowed = await isAllowedToAccess(ROLES.ADMINISTRATOR)
-        if (isAllowed) {
-          next() // Allow access
-        } else {
-          next('/error-page') // Redirect to the home page or another route
-        }
-      },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
     {
       path: '/FAQ',
@@ -130,28 +120,14 @@ const router = createRouter({
       name: 'settings',
       component: AdminSettingsPage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: async (to, from, next) => {
-        const isAllowed = await isAllowedToAccess(ROLES.ADMINISTRATOR)
-        if (isAllowed) {
-          next() // Allow access
-        } else {
-          next('/error-page') // Redirect to the home page or another route
-        }
-      },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
     {
       path: '/ui-configuration',
       name: 'ui-configuration',
       component: AdminUiConfigurationPage,
       meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: async (to, from, next) => {
-        const isAllowed = await isAllowedToAccess(ROLES.ADMINISTRATOR)
-        if (isAllowed) {
-          next() // Allow access
-        } else {
-          next('/error-page') // Redirect to the home page or another route
-        }
-      },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
     },
     {
       path: '/negotiations/:negotiationId/:userRole?',
