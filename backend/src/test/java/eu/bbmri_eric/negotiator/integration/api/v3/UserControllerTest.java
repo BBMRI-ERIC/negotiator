@@ -213,6 +213,19 @@ public class UserControllerTest {
 
   @Test
   @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void findUsers_byAccentName_authorized_ok() throws Exception {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "JohnBiobanker"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
+        .andExpect(jsonPath("$._embedded.users[0].id", is("110")))
+        .andExpect(jsonPath("$._embedded.users[0].name", is("JohnBióbanker")))
+        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1002@bbmri.eu")))
+        .andExpect(jsonPath("$._embedded.users[0].email", is("john.bióbanker@gmail.com")));
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void findUsers_byEmail_authorized_ok() throws Exception {
     mockMvc
         .perform(
