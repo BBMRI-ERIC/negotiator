@@ -163,3 +163,26 @@ INSERT INTO ui_parameter (id,category,"name","type",value) VALUES (1001, 'theme'
                                                                   (1002, 'theme', 'activeLogosFiles', 'STRING',
                                                                    'default'),
                                                                   (1004, 'footer', 'footerHeight', 'INT', '50');
+
+insert into access_form (id, name)
+values (201, 'Test Template');
+
+insert into access_form_section (id, name, label, description)
+VALUES (201, 'test-section', 'Test Section', 'This is fr testing');
+
+
+INSERT INTO access_form_element (id, name, label, description, type)
+VALUES (201, 'test-element', 'Test Element', 'Test Element', 'text');
+
+INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
+VALUES (201, 201, 1, 0),
+       (202, 201, 2, 1),
+       (203, 201, 3, 2);
+
+INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
+                                              ELEMENT_ORDER)
+VALUES (201, 201, 1, true, 1),
+       (202, 201, 2, true, 2),
+       (203, 202, 3, true, 1),
+       (204, 203, 4, true, 1),
+       (205, 203, 5, false, 2);

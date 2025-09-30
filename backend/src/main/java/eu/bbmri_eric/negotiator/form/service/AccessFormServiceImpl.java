@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.form.service;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
@@ -118,6 +119,44 @@ public class AccessFormServiceImpl implements AccessFormService {
   public AccessFormDTO createAccessForm(AccessFormCreateDTO createDTO) {
     AccessForm accessForm = modelMapper.map(createDTO, AccessForm.class);
     return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+  }
+
+  @Override
+  public AccessFormDTO updateAccessForm(Long formId, AccessFormDTO accessFormDTO) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+
+    accessFormDTO
+        .getSections()
+        .forEach(
+            (sectionDTO -> {
+              if (!accessFormSectionRepository.existsById(sectionDTO.getId())) {
+                throw new EntityNotFoundException(sectionDTO.getId());
+              }
+              if (!accessFormRepository.isSectionPartOfAccessForm(formId, sectionDTO.getId())) {
+                throw new WrongRequestException(
+                    "Section with id %s is not part of the access form with id %s"
+                        .formatted(sectionDTO.getId(), formId));
+              }
+              sectionDTO
+                  .getElements()
+                  .forEach(
+                      elementDTO -> {
+                        if (!accessFormElementRepository.existsById(elementDTO.getId())) {
+                          throw new EntityNotFoundException(elementDTO.getId());
+                        }
+                        if (!accessFormRepository.isElementPartOfSectionOfAccessForm(
+                            formId, sectionDTO.getId(), elementDTO.getId())) {
+                          throw new WrongRequestException(
+                              "Element with id %s is not part of the section with id %s in the access form with id %s"
+                                  .formatted(elementDTO.getId(), sectionDTO.getId(), formId));
+                        }
+                      });
+            }));
+
+    return modelMapper.map(accessForm, AccessFormDTO.class);
   }
 
   @Override
