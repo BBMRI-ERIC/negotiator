@@ -47,6 +47,15 @@ public interface AccessFormService {
   AccessFormDTO createAccessForm(AccessFormCreateDTO createDTO);
 
   /**
+   * Update an access form by id.
+   *
+   * @param id The access form id.
+   * @param accessFormDTO The updated access form data
+   * @return The access form.
+   */
+  AccessFormDTO updateAccessForm(Long id, AccessFormDTO accessFormDTO);
+
+  /**
    * Add a section to a specific Access-form.
    *
    * @param linkDTO object specifying additional linking parameters

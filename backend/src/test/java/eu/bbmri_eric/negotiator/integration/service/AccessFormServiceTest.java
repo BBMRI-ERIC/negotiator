@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
+import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryService;
 import eu.bbmri_eric.negotiator.discovery.DiscoveryServiceRepository;
 import eu.bbmri_eric.negotiator.form.AccessForm;
@@ -13,6 +14,7 @@ import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormElementDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormSectionDTO;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
@@ -31,6 +33,7 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -190,7 +193,7 @@ public class AccessFormServiceTest {
     Request request = requestRepository.findById(requestDTO.getId()).get();
     request.getResources().add(resource);
     request = requestRepository.save(request);
-    assertEquals(4, accessFormRepository.findAll().size());
+    assertEquals(5, accessFormRepository.findAll().size());
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     Optional<AccessFormSectionDTO> section =
         accessFormDTO.getSections().stream()
@@ -263,7 +266,7 @@ public class AccessFormServiceTest {
     Request request = requestRepository.findById(requestDTO.getId()).get();
     request.getResources().add(resource);
     request = requestRepository.save(request);
-    assertEquals(4, accessFormRepository.findAll().size());
+    assertEquals(5, accessFormRepository.findAll().size());
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     Optional<AccessFormSectionDTO> section =
         accessFormDTO.getSections().stream()
@@ -357,6 +360,97 @@ public class AccessFormServiceTest {
   @Test
   void getAllAccessForms_okPagedRequest_ok() {
     assertTrue(accessFormService.getAllAccessForms(PageRequest.of(0, 10)).iterator().hasNext());
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenDoesNotExist() {
+    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(1L);
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> accessFormService.updateAccessForm(102L, accessFormDTO));
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenSectionDoesNotExists() {
+    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
+
+    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
+    AccessFormSectionDTO sectionDTO =
+        AccessFormSectionDTO.builder()
+            .id(202L)
+            .name("No")
+            .label("Does not exist")
+            .description("Test section")
+            .build();
+    sections.add(sectionDTO);
+
+    accessFormDTO.setSections(sections);
+
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenElementNotPartOfSection() {
+    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
+
+    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
+    AccessFormSectionDTO section = sections.getFirst();
+    List<AccessFormElementDTO> elements = section.getElements();
+    AccessFormElementDTO elementDTO =
+        AccessFormElementDTO.builder()
+            .id(201L)
+            .name("Test Element")
+            .label("Test Element")
+            .description("Test Element")
+            .build();
+    elements.add(elementDTO);
+    section.setElements(elements);
+
+    assertThrows(
+        WrongRequestException.class, () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenElementDoesNotExists() {
+    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
+
+    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
+    AccessFormSectionDTO sectionDTO =
+        AccessFormSectionDTO.builder()
+            .id(202L)
+            .name("No")
+            .label("Does not exist")
+            .description("Test section")
+            .build();
+    sections.add(sectionDTO);
+
+    accessFormDTO.setSections(sections);
+
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenSectionNotPartOfAccessForm() {
+    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
+
+    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
+    AccessFormSectionDTO sectionDTO =
+        AccessFormSectionDTO.builder()
+            .id(201L)
+            .name("Test section")
+            .label("Test section")
+            .description("Test section")
+            .build();
+    sections.add(sectionDTO);
+
+    accessFormDTO.setSections(sections);
+
+    assertThrows(
+        WrongRequestException.class, () -> accessFormService.updateAccessForm(201L, accessFormDTO));
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
