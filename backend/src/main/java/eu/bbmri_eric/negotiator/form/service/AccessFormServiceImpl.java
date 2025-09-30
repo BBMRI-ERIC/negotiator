@@ -67,7 +67,7 @@ public class AccessFormServiceImpl implements AccessFormService {
     int counter = 0;
     for (Resource resource : resources) {
       for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
-        if (formDoesntContainSection(accessFormSection, accessForm)) {
+        if (formDoesntContainSection(accessForm.getId(), accessFormSection.getId())) {
           accessForm.linkSection(accessFormSection, counter);
           counter++;
         }
@@ -135,7 +135,7 @@ public class AccessFormServiceImpl implements AccessFormService {
               if (!accessFormSectionRepository.existsById(sectionDTO.getId())) {
                 throw new EntityNotFoundException(sectionDTO.getId());
               }
-              if (!accessFormRepository.isSectionPartOfAccessForm(formId, sectionDTO.getId())) {
+              if (formDoesntContainSection(formId, sectionDTO.getId())) {
                 throw new WrongRequestException(
                     "Section with id %s is not part of the access form with id %s"
                         .formatted(sectionDTO.getId(), formId));
@@ -236,10 +236,10 @@ public class AccessFormServiceImpl implements AccessFormService {
         .allMatch(resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()));
   }
 
-  private static boolean formDoesntContainSection(
-      AccessFormSection accessFormSection, AccessForm accessForm) {
-    return accessForm.getLinkedSections().stream()
-        .noneMatch(section -> section.equals(accessFormSection));
+  private boolean formDoesntContainSection(Long accessFormId, Long accessFormSectionId) {
+    return !accessFormRepository.isSectionPartOfAccessForm(accessFormId, accessFormSectionId);
+    //    return accessForm.getLinkedSections().stream()
+    //        .noneMatch(section -> section.equals(accessFormSection));
   }
 
   private AccessFormDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
