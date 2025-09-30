@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.form.service;
 
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import org.springframework.data.domain.Pageable;
@@ -50,10 +51,10 @@ public interface AccessFormService {
    * Update an access form by id.
    *
    * @param id The access form id.
-   * @param accessFormDTO The updated access form data
+   * @param accessFormUpdateDTO The updated access form data
    * @return The access form.
    */
-  AccessFormDTO updateAccessForm(Long id, AccessFormDTO accessFormDTO);
+  AccessFormDTO updateAccessForm(Long id, AccessFormUpdateDTO accessFormUpdateDTO);
 
   /**
    * Add a section to a specific Access-form.

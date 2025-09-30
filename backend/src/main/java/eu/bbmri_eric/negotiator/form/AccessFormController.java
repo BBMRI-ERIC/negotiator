@@ -5,6 +5,7 @@ import eu.bbmri_eric.negotiator.form.assembler.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.form.assembler.AccessFormSectionAssembler;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementMetaDTO;
@@ -103,7 +104,7 @@ public class AccessFormController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
   public EntityModel<AccessFormDTO> updateAccessForm(
-      @PathVariable Long formId, AccessFormDTO accessFormDTO) {
+      @PathVariable Long formId, AccessFormUpdateDTO accessFormDTO) {
     return accessFormModelAssembler.toModel(
         accessFormService.updateAccessForm(formId, accessFormDTO));
   }
