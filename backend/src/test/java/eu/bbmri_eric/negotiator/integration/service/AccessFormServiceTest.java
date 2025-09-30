@@ -14,8 +14,10 @@ import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
-import eu.bbmri_eric.negotiator.form.dto.AccessFormElementDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormSectionDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateElementDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateSectionDTO;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormSectionRepository;
@@ -363,94 +365,85 @@ public class AccessFormServiceTest {
   }
 
   @Test
-  void updateAccessForm_badRequest_whenDoesNotExist() {
-    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(1L);
+  void updateAccessForm_badRequest_whenFormDoesNotExist() {
+    AccessFormUpdateDTO accessFormUpdateDTO = AccessFormUpdateDTO.builder().build();
     assertThrows(
         EntityNotFoundException.class,
-        () -> accessFormService.updateAccessForm(102L, accessFormDTO));
+        () -> accessFormService.updateAccessForm(102L, accessFormUpdateDTO));
   }
 
   @Test
   void updateAccessForm_badRequest_whenSectionDoesNotExists() {
-    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
-
-    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
-    AccessFormSectionDTO sectionDTO =
-        AccessFormSectionDTO.builder()
-            .id(202L)
-            .name("No")
-            .label("Does not exist")
-            .description("Test section")
-            .build();
-    sections.add(sectionDTO);
-
-    accessFormDTO.setSections(sections);
+    AccessFormUpdateSectionDTO updateSectionDTO =
+        AccessFormUpdateSectionDTO.builder().id(202L).build();
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("New Name").sections(List.of(updateSectionDTO)).build();
 
     assertThrows(
         EntityNotFoundException.class,
-        () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+        () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
   }
 
   @Test
   void updateAccessForm_badRequest_whenElementNotPartOfSection() {
-    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
-
-    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
-    AccessFormSectionDTO section = sections.getFirst();
-    List<AccessFormElementDTO> elements = section.getElements();
-    AccessFormElementDTO elementDTO =
-        AccessFormElementDTO.builder()
-            .id(201L)
-            .name("Test Element")
-            .label("Test Element")
-            .description("Test Element")
+    AccessFormUpdateElementDTO updateElementDTO =
+        AccessFormUpdateElementDTO.builder().id(201L).required(true).build();
+    AccessFormUpdateSectionDTO updateSectionDTO =
+        AccessFormUpdateSectionDTO.builder().id(1L).elements(List.of(updateElementDTO)).build();
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder()
+            .name("Test Template")
+            .sections(List.of(updateSectionDTO))
             .build();
-    elements.add(elementDTO);
-    section.setElements(elements);
 
-    assertThrows(
-        WrongRequestException.class, () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+    WrongRequestException ex =
+        assertThrows(
+            WrongRequestException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals(
+        "Element with id 201 is not part of the section with id 1 in the access form with id 201",
+        ex.getMessage());
   }
 
   @Test
   void updateAccessForm_badRequest_whenElementDoesNotExists() {
-    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
+    AccessFormUpdateElementDTO updateElementDTO =
+        AccessFormUpdateElementDTO.builder().id(202L).required(true).build();
 
-    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
-    AccessFormSectionDTO sectionDTO =
-        AccessFormSectionDTO.builder()
-            .id(202L)
-            .name("No")
-            .label("Does not exist")
-            .description("Test section")
+    AccessFormUpdateSectionDTO updateSectionDTO =
+        AccessFormUpdateSectionDTO.builder().id(1L).elements(List.of(updateElementDTO)).build();
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder()
+            .name("Test Template")
+            .sections(List.of(updateSectionDTO))
             .build();
-    sections.add(sectionDTO);
-
-    accessFormDTO.setSections(sections);
 
     assertThrows(
         EntityNotFoundException.class,
-        () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+        () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
   }
 
   @Test
   void updateAccessForm_badRequest_whenSectionNotPartOfAccessForm() {
-    AccessFormDTO accessFormDTO = accessFormService.getAccessForm(201L);
+    AccessFormUpdateElementDTO updateElementDTO =
+        AccessFormUpdateElementDTO.builder().id(1L).required(true).build();
 
-    List<AccessFormSectionDTO> sections = accessFormDTO.getSections();
-    AccessFormSectionDTO sectionDTO =
-        AccessFormSectionDTO.builder()
-            .id(201L)
-            .name("Test section")
-            .label("Test section")
-            .description("Test section")
+    AccessFormUpdateSectionDTO updateSectionDTO =
+        AccessFormUpdateSectionDTO.builder().id(201L).elements(List.of(updateElementDTO)).build();
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder()
+            .name("Test Template")
+            .sections(List.of(updateSectionDTO))
             .build();
-    sections.add(sectionDTO);
 
-    accessFormDTO.setSections(sections);
+    WrongRequestException ex =
+        assertThrows(
+            WrongRequestException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
 
-    assertThrows(
-        WrongRequestException.class, () -> accessFormService.updateAccessForm(201L, accessFormDTO));
+    assertEquals("Section with id 201 is not part of the access form with id 201", ex.getMessage());
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
