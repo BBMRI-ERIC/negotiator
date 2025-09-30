@@ -4,7 +4,7 @@ COPY . .
 RUN yarn install
 RUN yarn build
 
-FROM bitnami/nginx:1.24 AS production-stage
+FROM bitnamilegacy/nginx:1.24 AS production-stage
 WORKDIR /app
 COPY nginx.conf /opt/bitnami/nginx/conf/server_blocks/my_server_block.conf
 COPY src/assets/scss /app/assets
