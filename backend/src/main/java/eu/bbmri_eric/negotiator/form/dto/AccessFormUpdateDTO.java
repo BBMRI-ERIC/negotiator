@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.form.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -14,7 +16,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class AccessFormUpdateDTO {
+
   private String name;
 
-  List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
+  @NotNull @NotEmpty List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
 }

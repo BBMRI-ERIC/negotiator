@@ -133,21 +133,17 @@ public class AccessFormServiceImpl implements AccessFormService {
             .findById(formId)
             .orElseThrow(() -> new EntityNotFoundException(formId));
 
-    verifyUpdateDto(formId, formUpdateDTO);
-    resetForm(accessForm);
+    List<AccessFormUpdateSectionDTO> sectionsUpdateDTO = formUpdateDTO.getSections();
+    for (int i = 0; i < sectionsUpdateDTO.size(); i++) {
+      AccessFormUpdateSectionDTO sectionUpdateDTO = sectionsUpdateDTO.get(i);
+      AccessFormSection section = verifySection(formId, sectionUpdateDTO);
+      accessForm.updateSectionLink(section, i);
 
-    List<AccessFormUpdateSectionDTO> sectionsDTO = formUpdateDTO.getSections();
-    for (int i = 0; i < sectionsDTO.size(); i++) {
-      AccessFormUpdateSectionDTO sectionDTO = sectionsDTO.get(i);
-      AccessFormSection section = accessFormSectionRepository.getReferenceById(sectionDTO.getId());
-      accessForm.linkSection(section, i);
-
-      List<AccessFormUpdateElementDTO> elementsDTO = sectionDTO.getElements();
-      for (int j = 0; j < elementsDTO.size(); j++) {
-        AccessFormUpdateElementDTO elementDTO = elementsDTO.get(j);
-        AccessFormElement element =
-            accessFormElementRepository.getReferenceById(elementDTO.getId());
-        accessForm.linkElementToSection(section, element, j, elementDTO.getRequired());
+      List<AccessFormUpdateElementDTO> elementsUpdateDTO = sectionUpdateDTO.getElements();
+      for (int j = 0; j < elementsUpdateDTO.size(); j++) {
+        AccessFormUpdateElementDTO elementDTO = elementsUpdateDTO.get(j);
+        AccessFormElement element = verifyElement(formId, sectionUpdateDTO, elementDTO);
+        accessForm.updateElementSectionLink(section, element, j, elementDTO.getRequired());
       }
     }
 
@@ -248,22 +244,8 @@ public class AccessFormServiceImpl implements AccessFormService {
         .orElseThrow(() -> new EntityNotFoundException(requestId));
   }
 
-  private void verifyUpdateDto(Long formId, AccessFormUpdateDTO formUpdateDTO) {
-    formUpdateDTO
-        .getSections()
-        .forEach(
-            (sectionsUpdateDTO -> {
-              verifySection(formId, sectionsUpdateDTO);
-              sectionsUpdateDTO
-                  .getElements()
-                  .forEach(
-                      elementDTO -> {
-                        verifyElement(formId, sectionsUpdateDTO, elementDTO);
-                      });
-            }));
-  }
-
-  private void verifySection(Long formId, AccessFormUpdateSectionDTO updateSectionDTO) {
+  private AccessFormSection verifySection(
+      Long formId, AccessFormUpdateSectionDTO updateSectionDTO) {
     if (!accessFormSectionRepository.existsById(updateSectionDTO.getId())) {
       throw new EntityNotFoundException(updateSectionDTO.getId());
     }
@@ -272,31 +254,24 @@ public class AccessFormServiceImpl implements AccessFormService {
           "Section with id %s is not part of the access form with id %s"
               .formatted(updateSectionDTO.getId(), formId));
     }
+    return accessFormSectionRepository.getReferenceById(updateSectionDTO.getId());
   }
 
-  private void verifyElement(
-      Long formId, AccessFormUpdateSectionDTO sectionDTO, AccessFormUpdateElementDTO elementDTO) {
-    if (!accessFormElementRepository.existsById(elementDTO.getId())) {
-      throw new EntityNotFoundException(elementDTO.getId());
-    }
+  private AccessFormElement verifyElement(
+      Long formId,
+      AccessFormUpdateSectionDTO updateSectionDTO,
+      AccessFormUpdateElementDTO updateElementDTO) {
+    AccessFormElement element =
+        accessFormElementRepository
+            .findById(updateElementDTO.getId())
+            .orElseThrow(() -> new EntityNotFoundException(updateElementDTO.getId()));
+
     if (!accessFormRepository.isElementPartOfSectionOfAccessForm(
-        formId, sectionDTO.getId(), elementDTO.getId())) {
+        formId, updateSectionDTO.getId(), updateElementDTO.getId())) {
       throw new WrongRequestException(
           "Element with id %s is not part of the section with id %s in the access form with id %s"
-              .formatted(elementDTO.getId(), sectionDTO.getId(), formId));
+              .formatted(updateElementDTO.getId(), updateSectionDTO.getId(), formId));
     }
-  }
-
-  private void resetForm(AccessForm accessForm) {
-    Set<AccessFormSection> sections = accessForm.getLinkedSections();
-    sections.forEach(
-        section -> {
-          Set<AccessFormElement> elements = section.getAccessFormElements();
-          elements.forEach(
-              element -> {
-                removeElement(accessForm.getId(), section.getId(), element.getId());
-              });
-          removeSection(accessForm.getId(), section.getId());
-        });
+    return element;
   }
 }

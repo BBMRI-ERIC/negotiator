@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.form.repository;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccessFormRepository extends JpaRepository<AccessForm, Long> {
 
+  @NotNull
   Optional<AccessForm> findById(Long id);
 
   @Query(

@@ -388,8 +388,10 @@ public class AccessFormServiceTest {
   void updateAccessForm_badRequest_whenElementNotPartOfSection() {
     AccessFormUpdateElementDTO updateElementDTO =
         AccessFormUpdateElementDTO.builder().id(201L).required(true).build();
+
     AccessFormUpdateSectionDTO updateSectionDTO =
         AccessFormUpdateSectionDTO.builder().id(1L).elements(List.of(updateElementDTO)).build();
+
     AccessFormUpdateDTO accessFormUpdateDTO =
         AccessFormUpdateDTO.builder()
             .name("Test Template")
@@ -400,6 +402,7 @@ public class AccessFormServiceTest {
         assertThrows(
             WrongRequestException.class,
             () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+
     assertEquals(
         "Element with id 201 is not part of the section with id 1 in the access form with id 201",
         ex.getMessage());
