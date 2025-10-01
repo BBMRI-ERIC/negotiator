@@ -12,6 +12,10 @@
       </button>
     </div>
 
+    <p class="text-muted mb-4">
+      Manage form elements that can be used to build dynamic access forms. Each element represents a specific input type (text, choice, file upload, etc.) that can be added to forms for data collection.
+    </p>
+
     <div v-if="loading" class="text-center">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -23,11 +27,11 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
+              <th scope="col">ID</th>
               <th scope="col">Label</th>
-              <th scope="col">Type</th>
               <th scope="col">Description</th>
+              <th scope="col">Identifier</th>
+              <th scope="col">Type</th>
             </tr>
           </thead>
           <tbody>
@@ -35,16 +39,15 @@
                 class="clickable-row"
                 data-bs-toggle="modal"
                 data-bs-target="#elementModal"
-                @click="openEditModal(element)"
-                :title="`Click to edit ${element.label}`">
+                @click="openEditModal(element)">
               <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
-              <td>{{ element.name }}</td>
               <td>{{ element.label }}</td>
-              <td>
-                <span class="badge bg-secondary">{{ formatElementType(element.type) }}</span>
-              </td>
               <td class="text-truncate" style="max-width: 200px;" :title="element.description">
                 {{ element.description }}
+              </td>
+              <td>{{ element.name }}</td>
+              <td>
+                {{ element.type }}
               </td>
             </tr>
           </tbody>
