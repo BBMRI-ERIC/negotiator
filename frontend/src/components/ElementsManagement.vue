@@ -1,7 +1,7 @@
 <template>
   <div class="elements-management">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="text-left">Form Elements</h2>
+      <h2>Form Elements</h2>
       <button
         class="btn btn-success"
         data-bs-toggle="modal"
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div v-else-if="elements && elements.length > 0">
+    <div v-else-if="elements.length > 0">
       <div class="table-container">
         <table class="table table-hover">
           <thead>
@@ -35,20 +35,21 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(element, index) in paginatedElements" :key="element.id"
-                class="clickable-row"
-                data-bs-toggle="modal"
-                data-bs-target="#elementModal"
-                @click="openEditModal(element)">
+            <tr
+              v-for="(element, index) in paginatedElements"
+              :key="element.id"
+              class="clickable-row"
+              data-bs-toggle="modal"
+              data-bs-target="#elementModal"
+              @click="openEditModal(element)"
+            >
               <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
               <td>{{ element.label }}</td>
               <td class="text-truncate" style="max-width: 200px;" :title="element.description">
                 {{ element.description }}
               </td>
               <td>{{ element.name }}</td>
-              <td>
-                {{ element.type }}
-              </td>
+              <td>{{ formatElementType(element.type) }}</td>
             </tr>
           </tbody>
         </table>
@@ -86,7 +87,6 @@
       No elements available. Click "Add Element" to create your first form element.
     </div>
 
-    <!-- Element Modal -->
     <NegotiatorModal
       id="elementModal"
       :title="isEditing ? 'Edit Element' : 'Create New Element'"
@@ -104,6 +104,7 @@
               placeholder="Enter element name"
             >
           </div>
+
           <div class="mb-3">
             <label for="elementLabel" class="form-label">Label *</label>
             <input
@@ -115,6 +116,7 @@
               placeholder="Enter element label"
             >
           </div>
+
           <div class="mb-3">
             <label for="elementDescription" class="form-label">Description *</label>
             <textarea
@@ -126,6 +128,7 @@
               placeholder="Enter element description"
             ></textarea>
           </div>
+
           <div class="mb-3">
             <label for="elementType" class="form-label">Type *</label>
             <select
@@ -141,60 +144,67 @@
             </select>
           </div>
 
-          <!-- Value Set dropdown - only show for choice types -->
-          <div v-if="isChoiceType" class="mb-3">
-            <label for="elementValueSet" class="form-label">Value Set *</label>
-            <select
-              class="form-select"
-              id="elementValueSet"
-              v-model="currentElement.valueSetId"
-              @change="onValueSetChange"
-              required
-            >
-              <option value="CREATE_NEW">Create new value set</option>
-              <option v-for="valueSet in valueSets" :key="valueSet.id" :value="valueSet.id">
-                {{ valueSet.name }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Value Set Name - only show when creating new value set -->
-          <div v-if="isChoiceType && currentElement.valueSetId === 'CREATE_NEW'" class="mb-3">
-            <label for="valueSetName" class="form-label">Value Set Name *</label>
-            <input
-              type="text"
-              class="form-control"
-              id="valueSetName"
-              v-model="valueSetName"
-              required
-              placeholder="Enter value set name"
-            >
-          </div>
-
-          <!-- Values field - show for both new and existing value sets -->
-          <div v-if="isChoiceType" class="mb-3">
-            <label for="valueSetValues" class="form-label">
-              Values *
-              <small class="text-muted">(separate with semicolons)</small>
-            </label>
-            <textarea
-              class="form-control"
-              id="valueSetValues"
-              v-model="valueSetValues"
-              :readonly="currentElement.valueSetId !== 'CREATE_NEW'"
-              required
-              rows="3"
-              :placeholder="currentElement.valueSetId === 'CREATE_NEW' ? 'Enter values separated by semicolons (e.g., Option 1;Option 2;Option 3)' : 'Values from selected value set'"
-            ></textarea>
-            <div v-if="currentElement.valueSetId !== 'CREATE_NEW'" class="form-text">
-              These are the existing values from the selected value set (read-only).
+          <template v-if="isChoiceType">
+            <div class="mb-3">
+              <label for="elementValueSet" class="form-label">Value Set *</label>
+              <select
+                class="form-select"
+                id="elementValueSet"
+                v-model="currentElement.valueSetId"
+                @change="onValueSetChange"
+                required
+              >
+                <option value="CREATE_NEW">Create new value set</option>
+                <option v-for="valueSet in valueSets" :key="valueSet.id" :value="valueSet.id">
+                  {{ valueSet.name }}
+                </option>
+              </select>
             </div>
-          </div>
+
+            <div v-if="isCreatingNewValueSet" class="mb-3">
+              <label for="valueSetName" class="form-label">Value Set Name *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="valueSetName"
+                v-model="valueSetName"
+                required
+                placeholder="Enter value set name"
+              >
+            </div>
+
+            <div class="mb-3">
+              <label for="valueSetValues" class="form-label">
+                Values *
+                <small class="text-muted">(separate with semicolons)</small>
+              </label>
+              <textarea
+                class="form-control"
+                id="valueSetValues"
+                v-model="valueSetValues"
+                required
+                rows="3"
+                :placeholder="isCreatingNewValueSet ? 'Enter values separated by semicolons (e.g., Option 1;Option 2;Option 3)' : 'Edit values separated by semicolons'"
+              ></textarea>
+              <div v-if="!isCreatingNewValueSet" class="form-text">
+                You can edit the values for the selected value set.
+              </div>
+            </div>
+          </template>
         </form>
       </template>
+
       <template #footer>
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="saveElement" :disabled="!isFormValid">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-dismiss="modal"
+          @click="saveElement"
+          :disabled="!isFormValid"
+        >
           {{ isEditing ? 'Update' : 'Create' }}
         </button>
       </template>
@@ -209,17 +219,13 @@ import NegotiatorModal from '@/components/modals/NegotiatorModal.vue'
 
 const formsStore = useFormsStore()
 
-// Reactive data
 const elements = ref([])
 const valueSets = ref([])
 const loading = ref(false)
 const isEditing = ref(false)
-
-// Pagination
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-// Element types based on the Java enum
 const elementTypes = [
   'SINGLE_CHOICE',
   'MULTIPLE_CHOICE',
@@ -232,7 +238,6 @@ const elementTypes = [
   'INFORMATION'
 ]
 
-// Current element being edited/created
 const currentElement = ref({
   name: '',
   label: '',
@@ -241,14 +246,10 @@ const currentElement = ref({
   valueSetId: 'CREATE_NEW'
 })
 
-// Additional fields for value set management
 const valueSetName = ref('')
 const valueSetValues = ref('')
 
-// Computed properties
-const totalPages = computed(() => {
-  return Math.ceil(elements.value.length / pageSize.value)
-})
+const totalPages = computed(() => Math.ceil(elements.value.length / pageSize.value))
 
 const paginatedElements = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -256,47 +257,30 @@ const paginatedElements = computed(() => {
   return elements.value.slice(start, end)
 })
 
+const isChoiceType = computed(() =>
+  ['SINGLE_CHOICE', 'MULTIPLE_CHOICE'].includes(currentElement.value.type)
+)
+
+const isCreatingNewValueSet = computed(() =>
+  currentElement.value.valueSetId === 'CREATE_NEW'
+)
+
 const isFormValid = computed(() => {
   const basicFieldsValid = currentElement.value.name &&
          currentElement.value.label &&
          currentElement.value.description &&
          currentElement.value.type
 
-  // If it's a choice type, also require valueSetId and additional fields
-  if (isChoiceType.value) {
-    const valueSetValid = currentElement.value.valueSetId
-    const additionalFieldsValid = currentElement.value.valueSetId === 'CREATE_NEW'
-      ? (valueSetName.value && valueSetValues.value)
-      : valueSetValues.value
+  if (!isChoiceType.value) return basicFieldsValid
 
-    return basicFieldsValid && valueSetValid && additionalFieldsValid
-  }
+  const valueSetValid = currentElement.value.valueSetId
+  const additionalFieldsValid = isCreatingNewValueSet.value
+    ? (valueSetName.value && valueSetValues.value)
+    : valueSetValues.value
 
-  return basicFieldsValid
+  return basicFieldsValid && valueSetValid && additionalFieldsValid
 })
 
-const isChoiceType = computed(() => {
-  return currentElement.value.type === 'SINGLE_CHOICE' || currentElement.value.type === 'MULTIPLE_CHOICE'
-})
-
-// Pagination methods
-function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-  }
-}
-
-function previousPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
-}
-
-function resetPage() {
-  currentPage.value = 1
-}
-
-// Methods
 function formatElementType(type) {
   return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
 }
@@ -320,9 +304,7 @@ function openCreateModal() {
 
 function openEditModal(element) {
   isEditing.value = true
-
-  // Extract valueSetId from linkedValueSet if it exists
-  const valueSetId = element.linkedValueSet ? element.linkedValueSet.id : 'CREATE_NEW'
+  const valueSetId = element.linkedValueSet?.id || 'CREATE_NEW'
 
   currentElement.value = {
     id: element.id,
@@ -330,64 +312,56 @@ function openEditModal(element) {
     label: element.label,
     description: element.description,
     type: element.type,
-    valueSetId: valueSetId
+    valueSetId
   }
 
-  // Reset value set fields
   valueSetName.value = ''
   valueSetValues.value = ''
 
-  // If editing an element with existing value set, load its values
-  if (element.linkedValueSet && element.linkedValueSet.availableValues) {
-    // Use the values directly from the linkedValueSet in the element
+  if (element.linkedValueSet?.availableValues) {
     valueSetValues.value = element.linkedValueSet.availableValues.join(';')
   }
 
-  // Also trigger the value set change to ensure proper loading
-  // This handles cases where the element has a value set but we need to populate from the dropdown list
   if (valueSetId !== 'CREATE_NEW') {
-    // Use nextTick to ensure the valueSetId is set before calling onValueSetChange
-    nextTick(() => {
-      onValueSetChange()
-    })
+    nextTick(() => onValueSetChange())
   }
 }
 
-// Handle value set selection change
 function onValueSetChange() {
-  if (currentElement.value.valueSetId === 'CREATE_NEW') {
+  if (isCreatingNewValueSet.value) {
     valueSetName.value = ''
     valueSetValues.value = ''
   } else {
-    // Load values from selected value set
-    // Convert to number for comparison since IDs from API are numbers
-    const selectedId = Number(currentElement.value.valueSetId)
-    const selectedValueSet = valueSets.value.find(vs => vs.id === selectedId)
-    if (selectedValueSet && selectedValueSet.availableValues) {
-      valueSetValues.value = selectedValueSet.availableValues.join(';')
-    } else {
-      valueSetValues.value = ''
-    }
+    const selectedValueSet = valueSets.value.find(vs => vs.id === Number(currentElement.value.valueSetId))
+    valueSetValues.value = selectedValueSet?.availableValues?.join(';') || ''
   }
 }
 
-// Methods
 async function saveElement() {
   try {
     let finalValueSetId = currentElement.value.valueSetId
 
-    // If creating a new value set, create it first
-    if (currentElement.value.valueSetId === 'CREATE_NEW' && isChoiceType.value) {
-      const valueSetData = {
-        name: valueSetName.value,
-        availableValues: valueSetValues.value.split(';').map(v => v.trim()).filter(v => v)
+    if (isChoiceType.value) {
+      if (isCreatingNewValueSet.value) {
+        // Create new value set
+        const valueSetData = {
+          name: valueSetName.value,
+          availableValues: valueSetValues.value.split(';').map(v => v.trim()).filter(Boolean)
+        }
+
+        const createdValueSet = await formsStore.createValueSet(valueSetData)
+        finalValueSetId = createdValueSet.id
+        await loadValueSets()
+      } else {
+        // Update existing value set
+        const valueSetData = {
+          name: valueSetName.value || valueSets.value.find(vs => vs.id === Number(currentElement.value.valueSetId))?.name,
+          availableValues: valueSetValues.value.split(';').map(v => v.trim()).filter(Boolean)
+        }
+
+        await formsStore.updateValueSet(Number(currentElement.value.valueSetId), valueSetData)
+        await loadValueSets()
       }
-
-      const createdValueSet = await formsStore.createValueSet(valueSetData)
-      finalValueSetId = createdValueSet.id
-
-      // Refresh value sets list
-      await loadValueSets()
     }
 
     const elementData = {
@@ -404,11 +378,8 @@ async function saveElement() {
       await formsStore.createElement(elementData)
     }
 
-    // Refresh elements list
     await loadElements()
     resetForm()
-
-    // Modal closes automatically due to data-bs-dismiss on the button
   } catch (error) {
     console.error('Error saving element:', error)
   }
@@ -437,7 +408,22 @@ async function loadValueSets() {
   }
 }
 
-// Lifecycle
+function nextPage() {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
+}
+
+function previousPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
+}
+
+function resetPage() {
+  currentPage.value = 1
+}
+
 onMounted(() => {
   loadElements()
   loadValueSets()
