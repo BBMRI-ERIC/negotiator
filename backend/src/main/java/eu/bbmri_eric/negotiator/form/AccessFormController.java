@@ -104,7 +104,7 @@ public class AccessFormController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
   public EntityModel<AccessFormDTO> updateAccessForm(
-      @PathVariable Long formId, AccessFormUpdateDTO accessFormDTO) {
+      @PathVariable Long formId, @Valid @RequestBody AccessFormUpdateDTO accessFormDTO) {
     return accessFormModelAssembler.toModel(
         accessFormService.updateAccessForm(formId, accessFormDTO));
   }

@@ -172,7 +172,7 @@ VALUES (201, 'test-section', 'Test Section', 'This is fr testing');
 
 
 INSERT INTO access_form_element (id, name, label, description, type)
-VALUES (201, 'test-element', 'Test Element', 'Test Element', 'text');
+VALUES (201, 'test-element', 'Test Element', 'Test Element', 'TEXT');
 
 INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
 VALUES (201, 201, 1, 0),
