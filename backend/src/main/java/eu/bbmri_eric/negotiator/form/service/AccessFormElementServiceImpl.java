@@ -82,7 +82,8 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   @Transactional
   public ElementMetaDTO updateElement(ElementCreateDTO elementCreateDTO, Long id) {
     verifyTypeAndValueSetCombination(elementCreateDTO);
-    AccessFormElement element = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    AccessFormElement element =
+        repository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     element = mapper.map(elementCreateDTO, AccessFormElement.class);
     element.setId(id);
     if (Objects.nonNull(elementCreateDTO.getValueSetId())) {
