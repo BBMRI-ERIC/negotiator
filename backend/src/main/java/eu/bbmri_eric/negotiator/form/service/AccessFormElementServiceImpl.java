@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.form.dto.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSet;
 import eu.bbmri_eric.negotiator.form.value_set.ValueSetRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.apachecommons.CommonsLog;
@@ -42,6 +43,7 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   }
 
   @Override
+  @Transactional
   public List<ElementMetaDTO> getAllElements() {
     return repository.findAll(Sort.by("id").ascending()).stream()
         .map((element) -> mapper.map(element, ElementMetaDTO.class))
@@ -56,17 +58,24 @@ public class AccessFormElementServiceImpl implements AccessFormElementService {
   }
 
   @Override
+  @Transactional
   public ElementMetaDTO createElement(ElementCreateDTO elementCreateDTO) {
     verifyTypeAndValueSetCombination(elementCreateDTO);
-    AccessFormElement element = mapper.map(elementCreateDTO, AccessFormElement.class);
+    AccessFormElement element =
+        new AccessFormElement(
+            elementCreateDTO.getName(),
+            elementCreateDTO.getLabel(),
+            elementCreateDTO.getDescription(),
+            elementCreateDTO.getType());
+    AccessFormElement savedElement = repository.save(element);
     if (Objects.nonNull(elementCreateDTO.getValueSetId())) {
       ValueSet valueSet =
           valueSetRepository
               .findById(elementCreateDTO.getValueSetId())
               .orElseThrow(() -> new EntityNotFoundException(elementCreateDTO.getValueSetId()));
-      element.setLinkedValueSet(valueSet);
+      savedElement.setLinkedValueSet(valueSet);
     }
-    return mapper.map(repository.save(element), ElementMetaDTO.class);
+    return mapper.map(savedElement, ElementMetaDTO.class);
   }
 
   @Override

@@ -30,7 +30,7 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
-@SequenceGenerator(name = "access_form_element_id_seq", initialValue = 100)
+@SequenceGenerator(name = "access_form_element_id_seq", initialValue = 1000, allocationSize = 1)
 public class AccessFormElement extends AuditEntity {
 
   @Id

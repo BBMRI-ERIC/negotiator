@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@SequenceGenerator(name = "value_set_id_seq", initialValue = 100)
+@SequenceGenerator(name = "value_set_id_seq", initialValue = 1000, allocationSize = 1)
 public class ValueSet {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "value_set_id_seq")
