@@ -52,7 +52,7 @@ jdbc:postgresql://localhost:5432/negotiator
 
 Pull requests are welcome, please go through the [Pull Request template](.github/pull_request_template.md) before asking
 for review.
-For contributing, please read our [contribution guidelines](docs/contributing).
+For contributing, please read our [contribution guidelines](docs/contributing.md).
 
 ## Documentation
 
