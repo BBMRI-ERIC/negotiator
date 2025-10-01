@@ -31,7 +31,6 @@
       @update="handleWebhookUpdate"
       @create="handleNewWebhook"
     />
-    <access-forms-section />
     <confirmation-modal
       id="delete-webhookmodal"
       title="Delete Webhook"
@@ -44,6 +43,7 @@
     <hr />
     <email-template-section />
     <hr />
+    <access-forms-section />
     <ElementsManagement />
   </div>
 </template>
@@ -65,7 +65,6 @@ import WebhookModal from '@/components/modals/WebhookModal.vue'
 import EmailDetailModal from '@/components/modals/EmailDetailModal.vue'
 import EmailTemplateSection from '@/components/TemplateSection.vue'
 import AccessFormsSection from '@/components/AccessFormsSection.vue'
-import allFeatureFlags from '@/config/featureFlags.js'
 
 import ElementsManagement from '@/components/ElementsManagement.vue'
 const userStore = useUserStore()

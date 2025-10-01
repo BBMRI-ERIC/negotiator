@@ -3,12 +3,12 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-left">Form Elements</h2>
       <button
-        class="btn btn-primary btn-sm"
+        class="btn btn-success"
         data-bs-toggle="modal"
         data-bs-target="#elementModal"
         @click="openCreateModal"
       >
-        <i class="bi bi-plus-circle"></i> Add Element
+        Add Element
       </button>
     </div>
 
