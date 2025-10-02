@@ -9,7 +9,12 @@ import eu.bbmri_eric.negotiator.governance.organization.*;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.governance.resource.ResourceRepository;
 import eu.bbmri_eric.negotiator.governance.resource.dto.ResourceResponseModel;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
+import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
+import eu.bbmri_eric.negotiator.notification.NotificationService;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -36,22 +41,30 @@ public class PersonServiceImpl implements PersonService {
   private final ResourceRepository resourceRepository;
   private final OrganizationRepository organizationRepository;
 
+  private final NegotiationRepository negotiationRepository;
+
   private final ModelMapper modelMapper;
   private final ApplicationEventPublisher eventPublisher;
+
+  private final NotificationService notificationService;
 
   public PersonServiceImpl(
       NetworkRepository networkRepository,
       PersonRepository personRepository,
       ResourceRepository resourceRepository,
       OrganizationRepository organizationRepository,
+      NegotiationRepository negotiationRepository,
       ModelMapper modelMapper,
-      ApplicationEventPublisher eventPublisher) {
+      ApplicationEventPublisher eventPublisher,
+      NotificationService notificationService) {
     this.networkRepository = networkRepository;
     this.personRepository = personRepository;
     this.resourceRepository = resourceRepository;
     this.organizationRepository = organizationRepository;
+    this.negotiationRepository = negotiationRepository;
     this.modelMapper = modelMapper;
     this.eventPublisher = eventPublisher;
+    this.notificationService = notificationService;
   }
 
   public UserResponseModel findById(Long id) {
@@ -145,6 +158,21 @@ public class PersonServiceImpl implements PersonService {
     }
     representative.addResource(resource);
     personRepository.save(representative);
+    log.warn("Getting all negotiations where the representative might be involved...");
+    List<String> negotiationIds = negotiationRepository.getNegotiationsByResource(resourceId);
+    for (String negotiationId : negotiationIds) {
+      log.warn("Notifying user " + representativeId + " for negotiation " + negotiationId);
+      String title = "New Negotiation Request";
+      String body =
+          "A new negotiation request requires your attention. Please review the details and respond accordingly.";
+      NotificationCreateDTO notification =
+          new NotificationCreateDTO(
+              new ArrayList<>(Collections.singletonList(representativeId)),
+              title,
+              body,
+              negotiationId);
+      notificationService.createNotifications(notification);
+    }
   }
 
   @Override

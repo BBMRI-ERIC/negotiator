@@ -8,6 +8,9 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
+import eu.bbmri_eric.negotiator.notification.NotificationDTO;
+import eu.bbmri_eric.negotiator.notification.NotificationService;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
@@ -17,9 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 @IntegrationTest(loadTestData = true)
 public class ResourcesHandlerTest {
   @Autowired NegotiationRepository negotiationRepository;
+  @Autowired PersonRepository personRepository;
   @Autowired NonRepresentedResourcesHandler handler;
   @Autowired PersonService personService;
   @Autowired TestEventListener testEventListener;
+  @Autowired NotificationService notificationService;
 
   @Test
   @Transactional
@@ -56,5 +61,13 @@ public class ResourcesHandlerTest {
     personService.assignAsRepresentativeForResource(103L, 10L);
     Thread.sleep(100L);
     assertEquals(1, testEventListener.events.size());
+  }
+
+  @Test
+  void addRepresentative_afterNegotiationCreation_eventPublished() throws InterruptedException {
+    personService.assignAsRepresentativeForResource(110L, 5L);
+    Thread.sleep(100L);
+    NotificationDTO notification = notificationService.findById(10000L);
+    assertEquals(110L, notification.getRecipientId());
   }
 }
