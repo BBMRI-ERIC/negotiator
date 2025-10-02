@@ -333,7 +333,11 @@ function backToNegotiation(id) {
 function deleteAllReplacedAttachments() {
   negotiationReplacedAttachmentsID.value.forEach((id) => {
     if (id === null) return
-    negotiationFormStore.deleteAttachment(id)
+    negotiationFormStore.deleteAttachment(id).then(() => {
+      negotiationReplacedAttachmentsID.value = negotiationReplacedAttachmentsID.value.filter(
+        (attachmentId) => attachmentId !== id,
+      )
+    })
   })
 }
 
