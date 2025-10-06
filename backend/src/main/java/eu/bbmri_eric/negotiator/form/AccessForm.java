@@ -10,7 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -63,8 +64,8 @@ public class AccessForm extends AuditEntity {
    *
    * @return an unmodifiable set of linked sections.
    */
-  public Set<AccessFormSection> getLinkedSections() {
-    Set<AccessFormSection> linkedSections = new LinkedHashSet<>();
+  public List<AccessFormSection> getLinkedSections() {
+    List<AccessFormSection> linkedSections = new ArrayList<>();
     for (AccessFormSectionLink link : formLinks) {
       link.getAccessFormSection().setAccessForm(this);
       linkedSections.add(link.getAccessFormSection());
@@ -142,7 +143,9 @@ public class AccessForm extends AuditEntity {
   public void updateSectionLink(AccessFormSection section, int sectionOrder) {
     AccessFormSectionLink link = findSectionLink(section);
     if (link.getSectionOrder() != sectionOrder) {
+      formLinks.remove(link);
       link.setSectionOrder(sectionOrder);
+      formLinks.add(link);
     }
   }
 
@@ -164,11 +167,13 @@ public class AccessForm extends AuditEntity {
                     new IllegalArgumentException(
                         "Element with id %s not found in section with id %s in the access form with id %s"
                             .formatted(element.getId(), section.getId(), getId())));
-    if (elementLink.isRequired() != isRequired) {
-      elementLink.setRequired(isRequired);
-    }
-    if (elementLink.getElementOrder() != elementOrder) {
-      elementLink.setElementOrder(elementOrder);
+    if (elementLink.isRequired() != isRequired || elementLink.getElementOrder() != elementOrder) {
+      if (elementLink.isRequired() != isRequired) {
+        elementLink.setRequired(isRequired);
+      }
+      if (elementLink.getElementOrder() != elementOrder) {
+        elementLink.setElementOrder(elementOrder);
+      }
     }
   }
 
