@@ -365,19 +365,23 @@ public class UserControllerTest {
       mockMvc
           .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "françois"))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
       mockMvc
           .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "francois"))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
       mockMvc
           .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "müller"))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
       mockMvc
           .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "muller"))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
     } finally {
       personRepository.delete(accentedPerson);
     }
