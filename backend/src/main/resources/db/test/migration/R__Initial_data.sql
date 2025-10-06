@@ -12,8 +12,7 @@ values (101, 'admin@negotiator.dev', 'admin', '1', '$2a$10$Kk29y.f7WeQeyym0X7Ynv
         '$2a$10$6Rc4eC5vo2IMGP0KUgrxIObq2SQoHTBKx8/o/Eyq1PpmzdBtTKj0u', 'BBMRI', false, '2023-02-15'),
        (105, 'sarah.representative@gmail.com', 'SarahRepr', '5', null, 'Test Biobank', false, '2025-03-30'),
        (108, 'adam.researcher@gmail.com', 'TheResearcher', '1000@bbmri.eu', null, 'BBMRI', false, '2025-04-20'),
-       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false, '2025-02-10'),
-       (110, 'john.bióbanker@gmail.com', 'JohnBióbanker', '1002@bbmri.eu', null, 'BBMRI', false, '2025-02-10');
+       (109, 'taylor.biobanker@gmail.com', 'TheBiobanker', '1001@bbmri.eu', null, 'BBMRI', false, '2025-02-10');
 
 insert into authorities (person_id, authority)
 values (101, 'ADMIN'),  -- still needed for data sources tests
