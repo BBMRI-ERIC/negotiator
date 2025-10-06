@@ -27,7 +27,7 @@ import org.hibernate.annotations.NaturalId;
 @AllArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @SequenceGenerator(name = "access_form_section_link_id_seq", initialValue = 100)
 @CommonsLog
-class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
+public class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
   @Id
   @GeneratedValue(generator = "access_form_section_link_id_seq", strategy = GenerationType.SEQUENCE)
   private Long id;
@@ -65,12 +65,7 @@ class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
 
   @Override
   public int compareTo(AccessFormSectionLink o) {
-    int orderCompare = Integer.compare(this.sectionOrder, o.sectionOrder);
-    if (orderCompare != 0) {
-      return orderCompare;
-    } else {
-      return this.id.compareTo(o.id); // or use an id
-    }
+    return Integer.compare(this.sectionOrder, o.sectionOrder);
   }
 
   @Override
