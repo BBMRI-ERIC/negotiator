@@ -154,6 +154,8 @@ public class AccessFormServiceTest {
     request.getResources().add(resource);
     request = requestRepository.save(request);
     assertEquals(2, request.getResources().size());
+    List<AccessFormSectionDTO> d =
+        accessFormService.getAccessFormForRequest(request.getId()).getSections();
     assertEquals(
         5, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
   }
@@ -450,6 +452,38 @@ public class AccessFormServiceTest {
             AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
             AccessFormUpdateSectionDTO.builder().id(1L).elements(updateElementsDTOSection1).build(),
             AccessFormUpdateSectionDTO.builder()
+                .id(201L)
+                .elements(updateElementsDTOSection2)
+                .build());
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionsDTO).build();
+
+    assertThrows(
+        WrongRequestException.class,
+        () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+  }
+
+  @Test
+  void updateAccessForm_ok() {
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection1 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(1L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection2 =
+        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection3 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(5L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(4L).required(false).build());
+
+    List<AccessFormUpdateSectionDTO> updateSectionsDTO =
+        List.of(
+            AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
+            AccessFormUpdateSectionDTO.builder().id(1L).elements(updateElementsDTOSection1).build(),
+            AccessFormUpdateSectionDTO.builder()
                 .id(2L)
                 .elements(updateElementsDTOSection2)
                 .build());
@@ -457,27 +491,13 @@ public class AccessFormServiceTest {
     AccessFormUpdateDTO accessFormUpdateDTO =
         AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionsDTO).build();
 
-    AccessFormDTO formDTO = accessFormService.updateAccessForm(201L, accessFormUpdateDTO);
-  }
-
-  @Test
-  void updateAccessForm_ok() {
-    AccessFormUpdateElementDTO updateElementDTO =
-        AccessFormUpdateElementDTO.builder().id(1L).required(true).build();
-
-    AccessFormUpdateSectionDTO updateSectionDTO =
-        AccessFormUpdateSectionDTO.builder().id(201L).elements(List.of(updateElementDTO)).build();
-
-    AccessFormUpdateDTO accessFormUpdateDTO =
-        AccessFormUpdateDTO.builder()
-            .name("Test Template")
-            .sections(List.of(updateSectionDTO))
-            .build();
-
-    WrongRequestException ex =
-        assertThrows(
-            WrongRequestException.class,
-            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    AccessFormDTO accessForm = accessFormService.updateAccessForm(201L, accessFormUpdateDTO);
+//    AccessFormSectionDTO section3 = accessForm.getSections().get(0);
+//    assertEquals(accessForm.getSections().get(0).getId(), 3);
+//    assertEquals(accessForm.getSections().get(1).getId(), 1);
+//    assertEquals(accessForm.getSections().get(2).getId(), 2);
+//    assertEquals(section3.getElements().get(0).getId(), 5L);
+//    assertEquals(section3.getElements().get(0).getRequired(), true);
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {

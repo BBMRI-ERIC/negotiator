@@ -10,14 +10,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -64,8 +62,8 @@ public class AccessForm extends AuditEntity {
    *
    * @return an unmodifiable set of linked sections.
    */
-  public List<AccessFormSection> getLinkedSections() {
-    List<AccessFormSection> linkedSections = new ArrayList<>();
+  public Set<AccessFormSection> getLinkedSections() {
+    Set<AccessFormSection> linkedSections = new LinkedHashSet<>();
     for (AccessFormSectionLink link : formLinks) {
       link.getAccessFormSection().setAccessForm(this);
       linkedSections.add(link.getAccessFormSection());
@@ -138,43 +136,6 @@ public class AccessForm extends AuditEntity {
 
   public void unlinkSection(AccessFormSection section) {
     formLinks.remove(findSectionLink(section));
-  }
-
-  public void updateSectionLink(AccessFormSection section, int sectionOrder) {
-    AccessFormSectionLink link = findSectionLink(section);
-    if (link.getSectionOrder() != sectionOrder) {
-      formLinks.remove(link);
-      link.setSectionOrder(sectionOrder);
-      formLinks.add(link);
-    }
-  }
-
-  public void updateElementSectionLink(
-      AccessFormSection section, AccessFormElement element, int elementOrder, boolean isRequired) {
-    AccessFormSectionLink accessFormSectionLink = findSectionLink(section);
-
-    Set<AccessFormSectionElementLink> elementLinks =
-        accessFormSectionLink.getAccessFormSectionElementLinks().stream()
-            .filter(link -> link.getAccessFormElement().equals(element))
-            .collect(Collectors.toSet());
-
-    AccessFormSectionElementLink elementLink =
-        elementLinks.stream()
-            .filter(link -> link.getAccessFormElement().equals(element))
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Element with id %s not found in section with id %s in the access form with id %s"
-                            .formatted(element.getId(), section.getId(), getId())));
-    if (elementLink.isRequired() != isRequired || elementLink.getElementOrder() != elementOrder) {
-      if (elementLink.isRequired() != isRequired) {
-        elementLink.setRequired(isRequired);
-      }
-      if (elementLink.getElementOrder() != elementOrder) {
-        elementLink.setElementOrder(elementOrder);
-      }
-    }
   }
 
   @Override
