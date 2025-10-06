@@ -65,7 +65,12 @@ class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
 
   @Override
   public int compareTo(AccessFormSectionLink o) {
-    return Integer.compare(this.sectionOrder, o.sectionOrder);
+    int orderCompare = Integer.compare(this.sectionOrder, o.sectionOrder);
+    if (orderCompare != 0) {
+      return orderCompare;
+    } else {
+      return this.id.compareTo(o.id); // or use an id
+    }
   }
 
   @Override

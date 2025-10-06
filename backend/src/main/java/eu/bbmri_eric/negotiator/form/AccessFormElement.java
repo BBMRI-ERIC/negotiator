@@ -92,8 +92,6 @@ public class AccessFormElement extends AuditEntity {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    Class k1 = getClass();
-    Class k2 = o.getClass();
     if (o == null || getClass() != o.getClass()) return false;
     AccessFormElement that = (AccessFormElement) o;
     return Objects.equals(id, that.id);

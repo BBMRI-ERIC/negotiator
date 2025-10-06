@@ -25,5 +25,18 @@ public class AccessFormMapper {
         modelMapper.createTypeMap(AccessFormSection.class, AccessFormSectionDTO.class);
     TypeMap<AccessForm, AccessFormDTO> formTypeMap =
         modelMapper.createTypeMap(AccessForm.class, AccessFormDTO.class);
+
+    formTypeMap.addMappings(
+        mapping -> mapping.map(AccessForm::getLinkedSections, AccessFormDTO::setSections));
   }
+
+  //  private List<AccessFormSectionDTO> sectionsConverter(Set<AccessFormSectionLink> sections) {
+  //    List<AccessFormSectionDTO> newSections = new ArrayList<>();
+  //    for (AccessFormSectionLink section : sections) {
+  //      newSections.add(
+  //          section.getSectionOrder(),
+  //          modelMapper.map(section.getAccessFormSection(), AccessFormSectionDTO.class));
+  //    }
+  //    return newSections;
+  //  }
 }
