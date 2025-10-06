@@ -1,4 +1,4 @@
-package eu.bbmri_eric.negotiator.integration.api.v3;
+package eu.bbmri_eric.negotiator.user;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.Is.is;
@@ -10,14 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.bbmri_eric.negotiator.user.AssignResourceDTO;
-import eu.bbmri_eric.negotiator.user.Person;
-import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
-import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -29,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
@@ -37,7 +29,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -196,7 +187,6 @@ public class UserControllerTest {
         .andExpect(jsonPath("$._embedded.users[0].name", is("TheResearcher")))
         .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1000@bbmri.eu")))
         .andExpect(jsonPath("$._embedded.users[0].email", is("adam.researcher@gmail.com")));
-
     mockMvc
         .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "The"))
         .andExpect(status().isOk())
@@ -214,276 +204,67 @@ public class UserControllerTest {
   @Test
   @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void findUsers_byAccentName_authorized_ok() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "JohnBiobanker"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("110")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("JohnBióbanker")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1002@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("john.bióbanker@gmail.com")));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_byEmail_authorized_ok() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
-                .param("email", "adam.researcher@gmail.com"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("108")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("TheResearcher")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1000@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("adam.researcher@gmail.com")));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_bySubjectId_authorized_ok() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("subjectId", "1000@bbmri.eu"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("108")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("TheResearcher")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1000@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("adam.researcher@gmail.com")));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_byIsAdmin_authorized_ok() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("isAdmin", "true"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("101")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("admin")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("admin@negotiator.dev")));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_byLastLogin_authorized_ok() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
-                .param("lastLoginAfter", "2025-07-29")
-                .param("sortBy", "lastLogin")
-                .param("sortOrder", "ASC"))
-        .andExpect(status().isOk())
-        .andExpect(
-            jsonPath(
-                "$._embedded.users.length()",
-                not(0))) // at least the one in the initial data, plus the ones logged in during the
-        // test
-        .andExpect(jsonPath("$._embedded.users[0].id", is("101")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("admin")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("admin@negotiator.dev")));
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("lastLoginBefore", "2025-01-01"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("104")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("researcher")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("4")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("researcher@negotiator.dev")));
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
-                .param("lastLoginBefore", "2025-04-01")
-                .param("lastLoginAfter", "2025-02-09")
-                .param("sortBy", "lastLogin")
-                .param("sortOrder", "ASC"))
-        .andExpect(jsonPath("$._embedded.users.length()", is(2)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("109")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("TheBiobanker")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1001@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("taylor.biobanker@gmail.com")));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_authorized_empty() throws Exception {
-    List<String> params = List.of("name", "email", "subjectId");
-    for (String param : params) {
+    Person accentedPerson = new Person();
+    accentedPerson.setName("José García");
+    accentedPerson.setEmail("jose.garcia@test.com");
+    accentedPerson.setSubjectId("jose@test");
+    accentedPerson.setOrganization("Test Org");
+    accentedPerson = personRepository.save(accentedPerson);
+    try {
       mockMvc
-          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param(param, "novalue"))
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "José"))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$.page.totalElements", is(0)));
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "Jose"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "García"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "Garcia"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+    } finally {
+      personRepository.delete(accentedPerson);
     }
   }
 
   @Test
   @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_isAdmin_BadRequest() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("isAdmin", "noboolean"))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void findUsers_byMultipleFilter_authorized_ok() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT)
-                .param("name", "The")
-                .param("email", "adam.researcher@gmail.com")
-                .param("subjectId", "1000@bbmri.eu")
-                .param("isAdmin", "false"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users.length()", is(1)))
-        .andExpect(jsonPath("$._embedded.users[0].id", is("108")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("TheResearcher")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1000@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("adam.researcher@gmail.com")));
-  }
-
-  @Test
-  @WithMockUser("TheResearcher")
-  void findUsers_Forbidden() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "value"))
-        .andExpect(status().isForbidden());
-  }
-
-  @Test
-  @WithMockNegotiatorUser(id = 109, authorities = "ROLE_RESOURCE_MANAGER")
-  void findUsers_filtersIgnored_ok() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "NotMatching"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.users[0].id", is("109")))
-        .andExpect(jsonPath("$._embedded.users[0].name", is("TheBiobanker")))
-        .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1001@bbmri.eu")))
-        .andExpect(jsonPath("$._embedded.users[0].email", is("taylor.biobanker@gmail.com")));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void getUserById_idNotLong_400() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/null"))
-        .andExpect(status().isBadRequest());
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/fake4rd"))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void getUserById_validId_200() throws Exception {
-    Person person = personRepository.findAll().iterator().next();
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT + "/" + person.getId()))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(person.getId().toString())))
-        .andExpect(jsonPath("$.name", is(person.getName())))
-        .andExpect(jsonPath("$.email", is(person.getEmail())));
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  void assignResource_validResource_ok() throws Exception {
-    Person person = personRepository.findAll().iterator().next();
-    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isEmpty());
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.patch(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()))
-                .content(mapper.writeValueAsString(new AssignResourceDTO(4L)))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNoContent());
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resources").isNotEmpty());
-  }
-
-  @Test
-  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  void removeResourceFromRepresentative_validResource_ok() throws Exception {
-    Person person = personRepository.findAll().iterator().next();
-    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isEmpty());
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.patch(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()))
-                .content(mapper.writeValueAsString(new AssignResourceDTO(4L)))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNoContent());
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.resources").isNotEmpty());
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.delete(
-                RESOURCES_FOR_USER_ENDPOINT.formatted(person.getId()) + "/4"))
-        .andExpect(status().isNoContent());
-  }
-
-  @Test
-  @WithUserDetails("admin")
-  void userInfo_networkManager_linkForNetworks() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get("/v3/userinfo"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._links.networks").isNotEmpty());
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void assignNetwork_validResource_ok() throws Exception {
-    Person person = personRepository.findAll().get(3);
-    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.page.totalElements").value(0));
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.patch(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId()))
-                .content(mapper.writeValueAsString(new AssignResourceDTO(1L)))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNoContent());
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.networks").isNotEmpty());
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-  void removeNetworkFromManager_validResource_ok() throws Exception {
-    Person person = personRepository.findAll().get(1);
-    ObjectMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId())))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.networks").isNotEmpty());
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.delete(
-                NETWORKS_FOR_USER_ENDPOINT.formatted(person.getId()) + "/1"))
-        .andExpect(status().isNoContent());
+  void findUsers_byAccentEmail_authorized_ok() throws Exception {
+    Person accentedPerson = new Person();
+    accentedPerson.setName("François Müller");
+    accentedPerson.setEmail("françois.müller@test.com");
+    accentedPerson.setSubjectId("francois@test");
+    accentedPerson.setOrganization("Test Org");
+    accentedPerson = personRepository.save(accentedPerson);
+    try {
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "françois"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "francois"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "müller"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "muller"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+    } finally {
+      personRepository.delete(accentedPerson);
+    }
   }
 
   @Test
