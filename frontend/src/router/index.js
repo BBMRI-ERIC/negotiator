@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import OidcCallback from '@/components/OidcCallback.vue'
 import HomePage from '../views/HomePage.vue'
 import NegotiationCreatePage from '../views/NegotiationCreatePage.vue'
+import NegotiationCreate from '../views/NegotiationCreate.vue'
 import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
 import NetworksPage from '../views/NetworksPage.vue'
@@ -78,6 +79,18 @@ const router = createRouter({
       name: 'edit',
       props: { isEditForm: true },
       component: NegotiationCreatePage,
+    },
+    {
+      path: '/requests1/:requestId',
+      name: 'request1',
+      props: { isEditForm: false },
+      component: NegotiationCreate,
+    },
+    {
+      path: '/edit/requests1/:requestId',
+      name: 'editWithStep1',
+      props: { isEditForm: true },
+      component: NegotiationCreate,
     },
     {
       path: '/researcher',
