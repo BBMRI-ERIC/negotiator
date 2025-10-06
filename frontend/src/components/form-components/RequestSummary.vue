@@ -1,7 +1,7 @@
 <template>
   <div class="request-summary form d-flex flex-column">
     <h2 class="fw-bold mb-3">SEARCH PARAMETERS</h2>
-    <div v-if="queryParameters">
+    <div v-if="queryParameters" class="query-parameters">
       <div v-for="parameter in queryParameters" :key="parameter">
         <p class="my-0">{{ parameter }}</p>
       </div>
@@ -29,3 +29,10 @@ const queryParameters = computed(() => {
   return props.requestSummary?.humanReadable.split('\r\n')
 })
 </script>
+
+<style scoped>
+.query-parameters {
+  max-height: 40%;
+  overflow-y: scroll;
+}
+</style>

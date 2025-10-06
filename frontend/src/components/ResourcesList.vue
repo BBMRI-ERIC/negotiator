@@ -4,7 +4,7 @@
       <i class="bi bi-card-list" />
       {{ $t('negotiationPage.resources') }} ({{ numberOfResources }})
     </span>
-    <div>
+    <div class="resource-cards">
       <div v-for="[orgId, org] in Object.entries(organizationsById)" :key="orgId" class="card my-2">
         <div
           class="card-header cursor-pointer fw-bold"
@@ -74,3 +74,10 @@ function getElementIdFromResourceId(resourceId) {
   }
 }
 </script>
+
+<style scoped>
+.resource-cards {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+</style>
