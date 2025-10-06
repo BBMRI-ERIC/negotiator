@@ -217,37 +217,6 @@ onMounted(() => {
   margin-top: 1rem;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table thead th {
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #6c757d;
-  padding: 1rem;
-  border-bottom: 2px solid #e8ecef;
-  cursor: pointer;
-}
-
-.table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.table tbody td {
-  font-size: 0.95rem;
-  color: #6c757d;
-  padding: 1rem;
-  vertical-align: middle;
-  border-bottom: 1px solid #e8ecef;
-}
-
-.table tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
 .pagination {
   display: flex;
   justify-content: flex-end;
@@ -281,26 +250,5 @@ onMounted(() => {
   width: 60px;
   border: 1px solid #e8ecef;
   text-align: center;
-}
-
-@media (max-width: 768px) {
-  .table thead th,
-  .table tbody td {
-    font-size: 0.85rem;
-    padding: 0.75rem;
-  }
-
-  .user-list-section {
-    padding: 1rem;
-  }
-}
-
-.table tbody td,
-.table thead th {
-  /* Prevent overflowing text from breaking the layout */
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  max-width: 200px; /* Adjust as needed for your layout */
-  white-space: normal;
 }
 </style>

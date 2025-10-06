@@ -24,30 +24,29 @@
       @close-modal="closeModal"
     />
 
-    <div class="container mt-4">
-      <div v-if="!infoRequirements?.['info-requirements']?.length" class="text-muted text-center">
-        No information requirements configured.
-      </div>
-      <div v-else class="table-container">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Access Form</th>
-              <th>Lifecycle Event</th>
-              <th>Admin Only</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="requirement in paginatedRequirements" :key="requirement.id">
-              <td>{{ requirement.id }}</td>
-              <td>{{ requirement.requiredAccessForm.name }}</td>
-              <td>{{ getEventLabel(requirement.forResourceEvent) }}</td>
-              <td>{{ requirement.viewableOnlyByAdmin ? 'Yes' : 'No' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div v-if="!infoRequirements?.['info-requirements']?.length" class="alert alert-light my-3">
+      No information requirements configured.
+    </div>
+
+    <div v-else class="table-container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Access Form</th>
+            <th scope="col">Lifecycle Event</th>
+            <th scope="col">Admin Only</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="requirement in paginatedRequirements" :key="requirement.id">
+            <td>{{ requirement.id }}</td>
+            <td>{{ requirement.requiredAccessForm.name }}</td>
+            <td>{{ getEventLabel(requirement.forResourceEvent) }}</td>
+            <td>{{ requirement.viewableOnlyByAdmin ? 'Yes' : 'No' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -124,48 +123,5 @@ function closeModal() {
 
 .table-container {
   margin-top: 1rem;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table thead th {
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #6c757d;
-  padding: 1rem;
-  border-bottom: 2px solid #e8ecef;
-  cursor: pointer;
-}
-
-.table tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.table tbody td {
-  font-size: 0.95rem;
-  color: #6c757d;
-  padding: 1rem;
-  vertical-align: middle;
-  border-bottom: 1px solid #e8ecef;
-}
-
-.table tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
-@media (max-width: 768px) {
-  .table thead th,
-  .table tbody td {
-    font-size: 0.85rem;
-    padding: 0.75rem;
-  }
-
-  .specific-area {
-    padding: 1rem;
-  }
 }
 </style>

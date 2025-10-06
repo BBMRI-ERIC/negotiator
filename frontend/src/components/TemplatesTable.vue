@@ -16,7 +16,7 @@
     <table v-if="otherTemplates.length" class="table table-sm mt-3">
       <thead>
         <tr>
-          <th scope="col">#</th>
+          <th scope="col">ID</th>
           <th scope="col">Name</th>
           <th scope="col"></th>
           <th scope="col"></th>
