@@ -84,7 +84,7 @@ public interface NegotiationRepository
               + "FROM negotiation n "
               + "    JOIN negotiation_resource_link rrl ON rrl.negotiation_id = n.id "
               + "    JOIN resource rs ON rrl.resource_id = rs.id "
-              + "WHERE rrl.resource_id = :resourceId",
+              + "WHERE rrl.resource_id = :resourceId and n.current_state = 'IN_PROGRESS'",
       nativeQuery = true)
   List<String> getNegotiationsByResource(Long resourceId);
 }
