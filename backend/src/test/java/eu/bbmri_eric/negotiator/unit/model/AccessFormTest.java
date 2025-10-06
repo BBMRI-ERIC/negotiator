@@ -20,7 +20,17 @@ public class AccessFormTest {
 
   @Test
   void initAccessFormElement_noPlaceholderOK() {
+    new AccessFormElement("test", "test", "test", FormElementType.TEXT);
+  }
+
+  @Test
+  void initAccessFormElement_nullPlaceholderOK() {
     new AccessFormElement("test", "test", "test", FormElementType.TEXT, null);
+  }
+
+  @Test
+  void initAccessFormElement_withPlaceholderOK() {
+    new AccessFormElement("test", "test", "test", FormElementType.TEXT, "test");
   }
 
   @Test
