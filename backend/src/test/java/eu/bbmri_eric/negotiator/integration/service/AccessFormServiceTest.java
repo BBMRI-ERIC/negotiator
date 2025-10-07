@@ -384,9 +384,11 @@ public class AccessFormServiceTest {
     AccessFormUpdateDTO accessFormUpdateDTO =
         AccessFormUpdateDTO.builder().name("New Name").sections(List.of(updateSectionDTO)).build();
 
-    assertThrows(
-        EntityNotFoundException.class,
-        () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    EntityNotFoundException exception =
+        assertThrows(
+            EntityNotFoundException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals("Resource with id 202 not found", exception.getMessage());
   }
 
   @Test
@@ -427,9 +429,11 @@ public class AccessFormServiceTest {
             .sections(List.of(updateSectionDTO))
             .build();
 
-    assertThrows(
-        EntityNotFoundException.class,
-        () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    EntityNotFoundException ex =
+        assertThrows(
+            EntityNotFoundException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals("Resource with id 202 not found", ex.getMessage());
   }
 
   @Test
@@ -459,9 +463,72 @@ public class AccessFormServiceTest {
     AccessFormUpdateDTO accessFormUpdateDTO =
         AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionsDTO).build();
 
-    assertThrows(
-        WrongRequestException.class,
-        () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    WrongRequestException exception =
+        assertThrows(
+            WrongRequestException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals(
+        "Section with id 201 is not part of the access form with id 201", exception.getMessage());
+  }
+
+  @Test
+  void updateAccessForm_badRequest_NotAllSectionsArePresent() {
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection2 =
+        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection3 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(5L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(4L).required(false).build());
+
+    List<AccessFormUpdateSectionDTO> updateSectionsDTO =
+        List.of(
+            AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(2L)
+                .elements(updateElementsDTOSection2)
+                .build());
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionsDTO).build();
+
+    WrongRequestException exception =
+        assertThrows(
+            WrongRequestException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals("Missing one or more sections", exception.getMessage());
+  }
+
+  @Test
+  void updateAccessForm_badRequest_NotAllElementsArePresent() {
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection1 =
+        List.of(AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection2 =
+        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection3 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(5L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(4L).required(false).build());
+
+    List<AccessFormUpdateSectionDTO> updateSectionsDTO =
+        List.of(
+            AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
+            AccessFormUpdateSectionDTO.builder().id(1L).elements(updateElementsDTOSection1).build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(2L)
+                .elements(updateElementsDTOSection2)
+                .build());
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionsDTO).build();
+
+    WrongRequestException exception =
+        assertThrows(
+            WrongRequestException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals("Missing some elements in section with id 1", exception.getMessage());
   }
 
   @Test
