@@ -447,28 +447,34 @@ public class AccessFormTests {
   @Test
   @WithMockUser(roles = "ADMIN")
   void updateAccessForm_ok() throws Exception {
-    // Section 1: changed element order
-    List<AccessFormUpdateElementDTO> section1Elements =
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection201 =
         List.of(
-            AccessFormUpdateElementDTO.builder().id(2L).required(true).build(),
-            AccessFormUpdateElementDTO.builder().id(1L).required(true).build());
-    // Section 2 changed element required
-    List<AccessFormUpdateElementDTO> section2Elements =
-        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(false).build());
-    List<AccessFormUpdateElementDTO> section3Elements =
-        List.of(
-            AccessFormUpdateElementDTO.builder().id(4L).required(true).build(),
-            AccessFormUpdateElementDTO.builder().id(5L).required(true).build());
+            AccessFormUpdateElementDTO.builder().id(201L).required(false).build(),
+            AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
 
-    // Changed order section
-    List<AccessFormUpdateSectionDTO> updateSectionDTO =
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection2 =
+        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(false).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection3 =
         List.of(
-            AccessFormUpdateSectionDTO.builder().id(1L).elements(section1Elements).build(),
-            AccessFormUpdateSectionDTO.builder().id(3L).elements(section3Elements).build(),
-            AccessFormUpdateSectionDTO.builder().id(2L).elements(section2Elements).build());
+            AccessFormUpdateElementDTO.builder().id(5L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(4L).required(false).build(),
+            AccessFormUpdateElementDTO.builder().id(1L).required(true).build());
+
+    List<AccessFormUpdateSectionDTO> updateSectionsDTO =
+        List.of(
+            AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(201L)
+                .elements(updateElementsDTOSection201)
+                .build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(2L)
+                .elements(updateElementsDTOSection2)
+                .build());
 
     AccessFormUpdateDTO accessFormUpdateDTO =
-        AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionDTO).build();
+        AccessFormUpdateDTO.builder().name("New name").sections(updateSectionsDTO).build();
 
     mockMvc
         .perform(
@@ -484,7 +490,7 @@ public class AccessFormTests {
                 .content(new ObjectMapper().writeValueAsString(accessFormUpdateDTO)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").isNumber())
-        .andExpect(jsonPath("$.name", is("Test Template")))
+        .andExpect(jsonPath("$.name", is("New name")))
         .andExpect(jsonPath("$.sections", hasSize(3)))
         .andExpect(jsonPath("$.sections[0].id", is(1)))
         .andExpect(jsonPath("$.sections[1].id", is(3)))
@@ -499,67 +505,5 @@ public class AccessFormTests {
         .andExpect(jsonPath("$.sections[2].elements[0].id", is(3)))
         .andExpect(jsonPath("$.sections[2].elements[0].required", is(false)))
         .andExpect(jsonPath("$._links").isNotEmpty());
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void updateAccessForm_badRequest_whenSectionNotPartOfAccessForm() throws Exception {
-    List<AccessFormUpdateElementDTO> section1Elements =
-        List.of(
-            AccessFormUpdateElementDTO.builder().id(1L).required(true).build(),
-            AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
-    List<AccessFormUpdateElementDTO> section2Elements =
-        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(true).build());
-    List<AccessFormUpdateElementDTO> section3Elements =
-        List.of(
-            AccessFormUpdateElementDTO.builder().id(4L).required(true).build(),
-            AccessFormUpdateElementDTO.builder().id(5L).required(true).build());
-
-    List<AccessFormUpdateSectionDTO> updateSectionDTO =
-        List.of(
-            AccessFormUpdateSectionDTO.builder().id(201L).elements(section2Elements).build(),
-            AccessFormUpdateSectionDTO.builder().id(3L).elements(section3Elements).build(),
-            AccessFormUpdateSectionDTO.builder().id(1L).elements(section1Elements).build());
-
-    AccessFormUpdateDTO accessFormUpdateDTO =
-        AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionDTO).build();
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put("%s/201".formatted(ACCESS_FORMS_ENDPOINT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(accessFormUpdateDTO)))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  @WithMockUser(roles = "ADMIN")
-  void updateAccessForm_badRequest_whenElementNotPartOfSection() throws Exception {
-    List<AccessFormUpdateElementDTO> section1Elements =
-        List.of(
-            AccessFormUpdateElementDTO.builder().id(201L).required(true).build(),
-            AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
-    List<AccessFormUpdateElementDTO> section2Elements =
-        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(true).build());
-    List<AccessFormUpdateElementDTO> section3Elements =
-        List.of(
-            AccessFormUpdateElementDTO.builder().id(4L).required(true).build(),
-            AccessFormUpdateElementDTO.builder().id(5L).required(true).build());
-
-    List<AccessFormUpdateSectionDTO> updateSectionDTO =
-        List.of(
-            AccessFormUpdateSectionDTO.builder().id(1L).elements(section2Elements).build(),
-            AccessFormUpdateSectionDTO.builder().id(3L).elements(section3Elements).build(),
-            AccessFormUpdateSectionDTO.builder().id(1L).elements(section1Elements).build());
-
-    AccessFormUpdateDTO accessFormUpdateDTO =
-        AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionDTO).build();
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put("%s/201".formatted(ACCESS_FORMS_ENDPOINT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(accessFormUpdateDTO)))
-        .andExpect(status().isBadRequest());
   }
 }

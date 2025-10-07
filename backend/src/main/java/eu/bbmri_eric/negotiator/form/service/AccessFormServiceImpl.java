@@ -1,10 +1,7 @@
 package eu.bbmri_eric.negotiator.form.service;
 
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toSet;
 
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
-import eu.bbmri_eric.negotiator.common.exceptions.WrongRequestException;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
@@ -135,21 +132,24 @@ public class AccessFormServiceImpl implements AccessFormService {
         accessFormRepository
             .findById(formId)
             .orElseThrow(() -> new EntityNotFoundException(formId));
-
-    verifyUpdateDto(accessForm, formUpdateDTO);
     resetForm(accessForm);
-
+    accessForm.setName(formUpdateDTO.getName());
     List<AccessFormUpdateSectionDTO> sectionsDTO = formUpdateDTO.getSections();
     for (int i = 0; i < sectionsDTO.size(); i++) {
       AccessFormUpdateSectionDTO sectionDTO = sectionsDTO.get(i);
-      AccessFormSection section = accessFormSectionRepository.getReferenceById(sectionDTO.getId());
+      AccessFormSection section =
+          accessFormSectionRepository
+              .findById(sectionDTO.getId())
+              .orElseThrow(() -> new EntityNotFoundException(sectionDTO.getId()));
       accessForm.linkSection(section, i);
 
       List<AccessFormUpdateElementDTO> elementsDTO = sectionDTO.getElements();
       for (int j = 0; j < elementsDTO.size(); j++) {
         AccessFormUpdateElementDTO elementDTO = elementsDTO.get(j);
         AccessFormElement element =
-            accessFormElementRepository.getReferenceById(elementDTO.getId());
+            accessFormElementRepository
+                .findById(elementDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException(elementDTO.getId()));
         accessForm.linkElementToSection(section, element, j, elementDTO.getRequired());
       }
     }
@@ -257,91 +257,6 @@ public class AccessFormServiceImpl implements AccessFormService {
     return requestRepository
         .findById(requestId)
         .orElseThrow(() -> new EntityNotFoundException(requestId));
-  }
-
-  private void verifyUpdateDto(AccessForm accessForm, AccessFormUpdateDTO formUpdateDTO) {
-    Long formId = accessForm.getId();
-    formUpdateDTO
-        .getSections()
-        .forEach(
-            (sectionsUpdateDTO -> {
-              verifySection(formId, sectionsUpdateDTO);
-              sectionsUpdateDTO
-                  .getElements()
-                  .forEach(
-                      elementDTO -> {
-                        verifyElement(formId, sectionsUpdateDTO, elementDTO);
-                      });
-            }));
-
-    verifyAllSectionsArePresentInDTO(accessForm, formUpdateDTO);
-    verifyAllElementsArePresentInDTO(accessForm, formUpdateDTO);
-  }
-
-  private void verifyAllElementsArePresentInDTO(
-      AccessForm accessForm, AccessFormUpdateDTO formUpdateDTO) {
-    for (AccessFormSection entitySection : accessForm.getLinkedSections()) {
-      Long sectionId = entitySection.getId();
-      Set<Long> entityElementIds =
-          entitySection.getAccessFormElements().stream()
-              .map(AccessFormElement::getId)
-              .collect(toSet());
-      Set<Long> dtoElementIds =
-          formUpdateDTO.getSections().stream()
-              .filter(s -> s.getId().equals(sectionId))
-              .findFirst()
-              .map(
-                  s ->
-                      s.getElements().stream()
-                          .map(AccessFormUpdateElementDTO::getId)
-                          .collect(toSet()))
-              .orElse(emptySet());
-      if (!entityElementIds.equals(dtoElementIds)) {
-        throw new WrongRequestException(
-            "Missing some elements in section with id %s".formatted(sectionId));
-      }
-    }
-  }
-
-  private void verifyAllSectionsArePresentInDTO(
-      AccessForm accessForm, AccessFormUpdateDTO formUpdateDTO) {
-    Set<Long> entitySectionIds =
-        accessForm.getLinkedSections().stream().map(AccessFormSection::getId).collect(toSet());
-    Set<Long> dtoSectionIds =
-        formUpdateDTO.getSections().stream()
-            .map(AccessFormUpdateSectionDTO::getId)
-            .collect(toSet());
-    if (!entitySectionIds.equals(dtoSectionIds)) {
-      throw new WrongRequestException("Missing one or more sections");
-    }
-  }
-
-  private void verifySection(Long formId, AccessFormUpdateSectionDTO updateSectionDTO) {
-    if (!accessFormSectionRepository.existsById(updateSectionDTO.getId())) {
-      throw new EntityNotFoundException(updateSectionDTO.getId());
-    }
-    if (formDoesntContainSection(formId, updateSectionDTO.getId())) {
-      throw new WrongRequestException(
-          "Section with id %s is not part of the access form with id %s"
-              .formatted(updateSectionDTO.getId(), formId));
-    }
-  }
-
-  private void verifyElement(
-      Long formId,
-      AccessFormUpdateSectionDTO updateSectionDTO,
-      AccessFormUpdateElementDTO updateElementDTO) {
-
-    if (!accessFormElementRepository.existsById(updateElementDTO.getId())) {
-      throw new EntityNotFoundException(updateElementDTO.getId());
-    }
-
-    if (!accessFormRepository.isElementPartOfSectionOfAccessForm(
-        formId, updateSectionDTO.getId(), updateElementDTO.getId())) {
-      throw new WrongRequestException(
-          "Element with id %s is not part of the section with id %s in the access form with id %s"
-              .formatted(updateElementDTO.getId(), updateSectionDTO.getId(), formId));
-    }
   }
 
   private void resetForm(AccessForm accessForm) {

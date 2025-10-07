@@ -104,9 +104,7 @@ public class AccessFormController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
       summary = "Update the access for with the specified id",
-      description =
-          "It is possible to change the order of the sections in the access form, the order of the elements "
-              + "within a sections and whether an element is required or not")
+      description = "Update the access form sending new sections and elements.")
   public void updateAccessForm(
       @PathVariable Long formId, @Valid @RequestBody AccessFormUpdateDTO accessFormDTO) {
     accessFormService.updateAccessForm(formId, accessFormDTO);
