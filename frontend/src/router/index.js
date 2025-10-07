@@ -65,11 +65,19 @@ const router = createRouter({
       path: '/requests/:requestId',
       name: 'request1',
       props: { isEditForm: false },
+<<<<<<< HEAD
       component: NegotiationCreatePage,
     },
     {
       path: '/edit/requests/:requestId',
       name: 'editWithStep1',
+=======
+      component: NegotiationCreate,
+    },
+    {
+      path: '/edit/requests/:requestId',
+      name: 'editWithStep',
+>>>>>>> a32521ea (fix: replace router path)
       props: { isEditForm: true },
       component: NegotiationCreatePage,
     },
