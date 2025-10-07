@@ -96,7 +96,7 @@ public class AccessForm extends AuditEntity {
         formLinks.stream()
             .filter(link -> link.getAccessFormSection().equals(section))
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Section not found"));
+            .orElseThrow(() -> new IllegalArgumentException("Section %s not found".formatted(section.getId())));
     Optional<AccessFormSectionElementLink> sameLink =
         accessFormSectionLink.getAccessFormSectionElementLinks().stream()
             .filter(link -> link.getAccessFormElement().equals(element))
