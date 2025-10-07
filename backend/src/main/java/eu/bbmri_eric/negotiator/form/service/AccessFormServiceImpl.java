@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.form.service;
 
-
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.form.AccessForm;
 import eu.bbmri_eric.negotiator.form.AccessFormElement;
