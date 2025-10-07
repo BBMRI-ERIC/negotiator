@@ -53,8 +53,8 @@ public class NegotiationSpecification {
       specs = initOrAnd(specs, byOrganization(filtersDTO.getOrganizationId()));
     }
 
-    if (filtersDTO.getSearch() != null && !filtersDTO.getSearch().trim().isEmpty()) {
-      specs = initOrAnd(specs, searchByDisplayID(filtersDTO.getSearch()));
+    if (filtersDTO.getDisplayId() != null && !filtersDTO.getDisplayId().trim().isEmpty()) {
+      specs = initOrAnd(specs, searchByDisplayID(filtersDTO.getDisplayId()));
     }
 
     return specs;

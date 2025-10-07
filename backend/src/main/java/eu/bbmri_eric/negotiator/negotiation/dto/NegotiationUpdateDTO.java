@@ -15,9 +15,7 @@ public class NegotiationUpdateDTO {
   @Schema(description = "Payload with the details of the Negotiation")
   private JsonNode payload;
 
-  @Schema(
-      description = "Display id for the negotiation (user-friendly name)",
-      example = "NEG-2024-001")
+  @Schema(description = "Display id for the negotiation (user-friendly name)", example = "2024-001")
   private String displayId;
 
   @Schema(
