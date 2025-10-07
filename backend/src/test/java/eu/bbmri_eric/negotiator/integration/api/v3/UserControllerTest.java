@@ -319,6 +319,76 @@ public class UserControllerTest {
 
   @Test
   @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void findUsers_byAccentName_authorized_ok() throws Exception {
+    Person accentedPerson = new Person();
+    accentedPerson.setName("José García");
+    accentedPerson.setEmail("jose.garcia@test.com");
+    accentedPerson.setSubjectId("jose@test");
+    accentedPerson.setOrganization("Test Org");
+    accentedPerson = personRepository.save(accentedPerson);
+
+    try {
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "José"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "Jose"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "García"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("name", "Garcia"))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$._embedded.users[?(@.name == 'José García')]").exists());
+    } finally {
+      personRepository.delete(accentedPerson);
+    }
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
+  void findUsers_byAccentEmail_authorized_ok() throws Exception {
+    Person accentedPerson = new Person();
+    accentedPerson.setName("François Müller");
+    accentedPerson.setEmail("françois.müller@test.com");
+    accentedPerson.setSubjectId("francois@test");
+    accentedPerson.setOrganization("Test Org");
+    accentedPerson = personRepository.save(accentedPerson);
+    try {
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "françois"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "francois"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "müller"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+      mockMvc
+          .perform(MockMvcRequestBuilders.get(LIST_USERS_ENDPOINT).param("email", "muller"))
+          .andExpect(status().isOk())
+          .andExpect(
+              jsonPath("$._embedded.users[?(@.email == 'françois.müller@test.com')]").exists());
+    } finally {
+      personRepository.delete(accentedPerson);
+    }
+  }
+
+  @Test
+  @WithMockUser(roles = "AUTHORIZATION_MANAGER")
   void findUsers_byMultipleFilter_authorized_ok() throws Exception {
     mockMvc
         .perform(

@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.user;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -59,7 +60,20 @@ public class PersonSpecifications {
   public static Specification<Person> propertyContains(String property, String substring) {
     return (root, query, criteriaBuilder) ->
         criteriaBuilder.like(
-            criteriaBuilder.lower(root.get(property)), "%" + substring.toLowerCase() + "%");
+            criteriaBuilder.lower(
+                criteriaBuilder.function("unaccent", String.class, root.get(property))),
+            "%" + unaccent(substring.toLowerCase()) + "%");
+  }
+
+  /**
+   * Remove accents from a string to match PostgreSQL unaccent function behavior.
+   *
+   * @param input the string to unaccent
+   * @return the unaccented string
+   */
+  private static String unaccent(String input) {
+    String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+    return normalized.replaceAll("\\p{M}", "");
   }
 
   /**
