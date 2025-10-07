@@ -8,10 +8,10 @@
         '--hoverColor': uiConfigurationTheme?.secondaryTextColor,
       }"
       ><i class="bi bi-file-earmark-pdf" />
-        {{ text }}
-        <span v-if="badgeText" class="badge rounded-pill" :class="badgeClass"> {{ badgeText }} </span>
+      {{ text }}
+      <span v-if="badgeText" class="badge rounded-pill" :class="badgeClass"> {{ badgeText }} </span>
     </a>
-    
+
     <DownloadingSpinner ref="downloadingSpinner" />
   </div>
 </template>
@@ -38,12 +38,12 @@ const props = defineProps({
   badgeText: {
     type: String,
     required: false,
-    default: null
+    default: null,
   },
   badgeType: {
     type: String,
     required: false,
-    default: null
+    default: null,
   },
   includeAttachments: {
     type: Boolean,

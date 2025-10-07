@@ -58,7 +58,9 @@ export const useFormsStore = defineStore('forms', () => {
 
   function updateElement(elementId, elementData) {
     return axios
-      .put(`${apiPaths.BASE_API_PATH}/elements/${elementId}`, elementData, { headers: getBearerHeaders() })
+      .put(`${apiPaths.BASE_API_PATH}/elements/${elementId}`, elementData, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         notifications.setNotification('Element updated successfully', 'success')
         return response.data
@@ -117,7 +119,9 @@ export const useFormsStore = defineStore('forms', () => {
 
   function updateValueSet(valueSetId, valueSetData) {
     return axios
-      .put(`${apiPaths.BASE_API_PATH}/value-sets/${valueSetId}`, valueSetData, { headers: getBearerHeaders() })
+      .put(`${apiPaths.BASE_API_PATH}/value-sets/${valueSetId}`, valueSetData, {
+        headers: getBearerHeaders(),
+      })
       .then((response) => {
         notifications.setNotification('Value set updated successfully', 'success')
         return response.data

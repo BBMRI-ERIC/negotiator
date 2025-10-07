@@ -60,7 +60,9 @@
             <router-link
               :style="{
                 color:
-                  $route.path === '/governance' || $route.params.userRole === 'ROLE_REPRESENTATIVE' || $route.params.userRole === 'ROLE_ADMIN'
+                  $route.path === '/governance' ||
+                  $route.params.userRole === 'ROLE_REPRESENTATIVE' ||
+                  $route.params.userRole === 'ROLE_ADMIN'
                     ? uiConfiguration?.navbarActiveTextColor
                     : uiConfiguration?.navbarTextColor,
               }"

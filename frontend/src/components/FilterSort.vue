@@ -276,8 +276,8 @@ function isChecked(value) {
 function initializeRepresentativeDefaults() {
   if (props.userRole === ROLES.REPRESENTATIVE) {
     const defaultStatusValues = ['IN_PROGRESS', 'ABANDONED', 'CONCLUDED']
-    const availableDefaults = defaultStatusValues.filter(statusValue =>
-      props.filtersStatus.some(status => status.value === statusValue)
+    const availableDefaults = defaultStatusValues.filter((statusValue) =>
+      props.filtersStatus.some((status) => status.value === statusValue),
     )
     if (availableDefaults.length > 0 && filtersSortData.value.status.length === 0) {
       filtersSortData.value.status = availableDefaults

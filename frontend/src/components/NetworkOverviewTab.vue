@@ -29,31 +29,47 @@
             @input="handleDateChange('end', $event.target.value)"
           />
         </div>
-     
+
         <button
           type="button"
-          :class="['btn', 'me-2', activeRange === 'sinceCurrentYear' ? 'btn-primary' : 'btn-outline-primary']"
+          :class="[
+            'btn',
+            'me-2',
+            activeRange === 'sinceCurrentYear' ? 'btn-primary' : 'btn-outline-primary',
+          ]"
           @click="setDateRange('sinceCurrentYear')"
         >
           YTD
         </button>
         <button
           type="button"
-          :class="['btn', 'me-2', activeRange === 'sinceOneMonthAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          :class="[
+            'btn',
+            'me-2',
+            activeRange === 'sinceOneMonthAgo' ? 'btn-primary' : 'btn-outline-primary',
+          ]"
           @click="setDateRange('sinceOneMonthAgo')"
         >
           1M
         </button>
         <button
           type="button"
-          :class="['btn', 'me-2', activeRange === 'sinceSixMonthsAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          :class="[
+            'btn',
+            'me-2',
+            activeRange === 'sinceSixMonthsAgo' ? 'btn-primary' : 'btn-outline-primary',
+          ]"
           @click="setDateRange('sinceSixMonthsAgo')"
         >
           6M
         </button>
         <button
           type="button"
-          :class="['btn', 'me-2', activeRange === 'sinceOneYearAgo' ? 'btn-primary' : 'btn-outline-primary']"
+          :class="[
+            'btn',
+            'me-2',
+            activeRange === 'sinceOneYearAgo' ? 'btn-primary' : 'btn-outline-primary',
+          ]"
           @click="setDateRange('sinceOneYearAgo')"
         >
           1Y

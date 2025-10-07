@@ -13,8 +13,12 @@ export const compareByFields = (a, b, fields) => {
 
 export const sortActiveWithdrawn = (items, { isWithdrawn, idFields }) => {
   if (!Array.isArray(items) || items.length === 0) return []
-  const active = items.filter((x) => !isWithdrawn(x)).sort((a, b) => compareByFields(a, b, idFields))
-  const withdrawn = items.filter((x) => isWithdrawn(x)).sort((a, b) => compareByFields(a, b, idFields))
+  const active = items
+    .filter((x) => !isWithdrawn(x))
+    .sort((a, b) => compareByFields(a, b, idFields))
+  const withdrawn = items
+    .filter((x) => isWithdrawn(x))
+    .sort((a, b) => compareByFields(a, b, idFields))
   return [...active, ...withdrawn]
 }
 
