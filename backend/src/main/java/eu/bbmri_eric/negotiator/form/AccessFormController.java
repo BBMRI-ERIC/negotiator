@@ -102,7 +102,11 @@ public class AccessFormController {
 
   @PutMapping(value = "/access-forms/{formId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
+  @Operation(
+      summary = "Update the access for with the specified id",
+      description =
+          "It is possible to change the order of the sections in the access form, the order of the elements "
+              + "within a sections and whether an element is required or not")
   public void updateAccessForm(
       @PathVariable Long formId, @Valid @RequestBody AccessFormUpdateDTO accessFormDTO) {
     accessFormService.updateAccessForm(formId, accessFormDTO);
