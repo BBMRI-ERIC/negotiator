@@ -15,7 +15,7 @@
             </div>
           </div>
           <div class="form-navigation-item-text d-flex flex-column">
-            <p class="fw-bold mb-0">Request summary</p>
+            <p class="fw-bold mb-0">Request Parameters</p>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
               v-if="validationErrorHighlight[item.name]?.length > 0"
               class="fs-5 bi bi-exclamation-circle"
             />
-            <i v-else-if="validationErrorHighlight[item.name]" class="fs-5 bi bi-check" />
+            <i v-else-if="validationErrorHighlight[item.name]" class="fs-5 bi bi-check-circle" />
             <p v-else class="fs-5 mb-0 tw-2">{{ index + 1 }}</p>
           </div>
         </div>
@@ -48,7 +48,7 @@
         >
           <div class="form-navigation-item-number mx-3">
             <div class="avatar --bs-secondary-bg text-info avatar-background">
-              <i class="fs-5 bi bi-file-text" />
+              <i class="fs-5 bi bi-info-circle" />
             </div>
           </div>
           <div class="form-navigation-item-text d-flex flex-column">
@@ -117,41 +117,75 @@ function returnAvatarColor(validationErrorHighlightItem) {
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 100%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .avatar i {
-  transform: translateY(1px);
+  font-size: 1.125rem;
+  line-height: 1;
 }
 
 .avatar p {
   line-height: 1;
   margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .avatar-background {
   background-color: #e1e4e8;
+  color: #6c757d;
 }
 
 .avatar-background-success {
   background-color: #28a745;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
 }
 
-.avatar-icon {
-  width: 20px;
-  height: 20px;
+.form-navigation-item:hover .avatar {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-navigation-item-active .avatar {
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.bg-danger {
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
 .form-navigation-item-active {
   background-color: #eff6ff;
+  border-left: 3px solid #0d6efd;
+  padding-left: calc(0.5rem - 3px);
 }
 
 .form-navigation-item {
   cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.form-navigation-item:hover {
+  background-color: #f8f9fa;
+}
+
+.form-navigation-item-text p:first-child {
+  font-size: 0.9375rem;
+  color: #212529;
+}
+
+.form-navigation-item-text p:last-child {
+  font-size: 0.8125rem;
+  color: #6c757d;
+  margin-top: 2px;
 }
 </style>
