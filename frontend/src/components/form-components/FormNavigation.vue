@@ -24,9 +24,9 @@
         v-on:click="changeActiveNavIndex(index + 1)"
         :key="item.id"
         :class="activeNavItemIndex === index + 1 ? 'form-navigation-item-active' : ''"
-        class="form-navigation-items d-flex flex-row align-items-center py-2 my-3 rounded-2"
+        class="form-navigation-item d-flex flex-row align-items-center py-2 my-3 rounded-2"
       >
-        <div class="form-navigation-item form-navigation-item-avatar mx-3">
+        <div class="form-navigation-item-avatar mx-3">
           <div class="avatar" :class="returnAvatarColor(validationErrorHighlight[item.name])">
             <i
               v-if="validationErrorHighlight[item.name]?.length > 0"
@@ -36,7 +36,7 @@
             <p v-else class="fs-5 mb-0 tw-2">{{ index + 1 }}</p>
           </div>
         </div>
-        <div class="form-navigation-item form-navigation-item-text d-flex flex-column pe-3">
+        <div class="form-navigation-item-text d-flex flex-column pe-3">
           <p class="fw-bold mb-0">{{ item.label }}</p>
           <p class="mb-0">{{ item.description }}</p>
         </div>
