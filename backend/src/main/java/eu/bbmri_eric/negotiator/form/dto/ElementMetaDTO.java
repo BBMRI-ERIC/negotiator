@@ -23,6 +23,8 @@ public class ElementMetaDTO {
 
   @NotNull private String description;
 
+  private String placeholder;
+
   @NotNull private String type;
 
   private ValueSetDTO linkedValueSet;

@@ -31,6 +31,8 @@ public class AccessFormElementDTO extends RepresentationModel<AccessFormElementD
 
   @NotNull private String description;
 
+  private String placeholder;
+
   @NotNull private FormElementType type;
 
   @NotNull private Boolean required;
@@ -46,6 +48,7 @@ public class AccessFormElementDTO extends RepresentationModel<AccessFormElementD
         && Objects.equals(label, that.label)
         && Objects.equals(description, that.description)
         && Objects.equals(type, that.type)
+        && Objects.equals(placeholder, that.placeholder)
         && Objects.equals(required, that.required);
   }
 

@@ -43,6 +43,8 @@ public class AccessFormElement extends AuditEntity {
 
   @NotNull private String description;
 
+  private String placeholder;
+
   @Enumerated(EnumType.STRING)
   @NotNull
   private FormElementType type;
@@ -68,6 +70,15 @@ public class AccessFormElement extends AuditEntity {
     this.label = label;
     this.description = description;
     this.type = type;
+  }
+
+  public AccessFormElement(
+      String name, String label, String description, FormElementType type, String placeholder) {
+    this.name = name;
+    this.label = label;
+    this.description = description;
+    this.type = type;
+    this.placeholder = placeholder;
   }
 
   public boolean isRequired() {

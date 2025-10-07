@@ -19,6 +19,21 @@ public class AccessFormTest {
   }
 
   @Test
+  void initAccessFormElement_noPlaceholderOK() {
+    new AccessFormElement("test", "test", "test", FormElementType.TEXT);
+  }
+
+  @Test
+  void initAccessFormElement_nullPlaceholderOK() {
+    new AccessFormElement("test", "test", "test", FormElementType.TEXT, null);
+  }
+
+  @Test
+  void initAccessFormElement_withPlaceholderOK() {
+    new AccessFormElement("test", "test", "test", FormElementType.TEXT, "test");
+  }
+
+  @Test
   void linkElementToSection_sectionNotInForm_throwsIllegalArg() {
     AccessForm accessForm = new AccessForm("test");
     assertThrows(
@@ -26,7 +41,7 @@ public class AccessFormTest {
         () ->
             accessForm.linkElementToSection(
                 new AccessFormSection("test", "test", "test"),
-                new AccessFormElement("test", "test", "test", FormElementType.TEXT),
+                new AccessFormElement("test", "test", "test", FormElementType.TEXT, null),
                 0,
                 true));
   }
@@ -47,7 +62,8 @@ public class AccessFormTest {
     notAllowedSection.setId(1L);
     AccessFormSection allowedSection = new AccessFormSection("test", "test", "test");
     allowedSection.setId(2L);
-    AccessFormElement element = new AccessFormElement("test", "test", "test", FormElementType.TEXT);
+    AccessFormElement element =
+        new AccessFormElement("test", "test", "test", FormElementType.TEXT, null);
     element.setLinkedSection(allowedSection);
     accessForm.linkSection(notAllowedSection, 0);
     assertThrows(

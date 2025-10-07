@@ -1,0 +1,1 @@
+ALTER TABLE access_form_element add column placeholder VARCHAR(255);
