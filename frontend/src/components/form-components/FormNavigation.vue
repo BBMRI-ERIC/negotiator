@@ -123,7 +123,15 @@ function returnAvatarColor(validationErrorHighlightItem) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 50px;
+}
+
+.avatar i {
+  transform: translateY(1px);
+}
+
+.avatar p {
+  line-height: 1;
+  margin: 0;
 }
 
 .avatar-background {
@@ -137,14 +145,6 @@ function returnAvatarColor(validationErrorHighlightItem) {
 .avatar-icon {
   width: 20px;
   height: 20px;
-}
-
-.avatar > p {
-  margin-top: 5px;
-}
-
-.avatar > i {
-  margin-top: 5px;
 }
 
 .form-navigation-item-active {
