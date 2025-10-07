@@ -67,7 +67,7 @@ const props = defineProps({
   formNavigationTittle: {
     type: String,
     required: false,
-    default: 'Form Sections',
+    default: 'Sections',
   },
   navItems: {
     type: Array,
