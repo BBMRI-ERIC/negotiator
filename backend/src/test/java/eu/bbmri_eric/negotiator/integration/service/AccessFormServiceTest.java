@@ -491,13 +491,14 @@ public class AccessFormServiceTest {
     AccessFormUpdateDTO accessFormUpdateDTO =
         AccessFormUpdateDTO.builder().name("Test Template").sections(updateSectionsDTO).build();
 
-    AccessFormDTO accessForm = accessFormService.updateAccessForm(201L, accessFormUpdateDTO);
-//    AccessFormSectionDTO section3 = accessForm.getSections().get(0);
-//    assertEquals(accessForm.getSections().get(0).getId(), 3);
-//    assertEquals(accessForm.getSections().get(1).getId(), 1);
-//    assertEquals(accessForm.getSections().get(2).getId(), 2);
-//    assertEquals(section3.getElements().get(0).getId(), 5L);
-//    assertEquals(section3.getElements().get(0).getRequired(), true);
+    accessFormService.updateAccessForm(201L, accessFormUpdateDTO);
+    AccessFormDTO accessForm = accessFormService.getAccessForm(201L);
+    AccessFormSectionDTO section3 = accessForm.getSections().get(0);
+    assertEquals(accessForm.getSections().get(0).getId(), 3);
+    assertEquals(accessForm.getSections().get(1).getId(), 1);
+    assertEquals(accessForm.getSections().get(2).getId(), 2);
+    assertEquals(section3.getElements().get(0).getId(), 5L);
+    assertEquals(section3.getElements().get(0).getRequired(), true);
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {

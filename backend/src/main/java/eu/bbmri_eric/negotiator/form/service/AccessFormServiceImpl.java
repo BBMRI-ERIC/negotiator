@@ -106,9 +106,9 @@ public class AccessFormServiceImpl implements AccessFormService {
   @Override
   @Transactional
   public AccessFormDTO getAccessForm(Long id) {
-    return modelMapper.map(
-        accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        AccessFormDTO.class);
+    AccessForm form =
+        accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return modelMapper.map(form, AccessFormDTO.class);
   }
 
   @Override
@@ -127,7 +127,7 @@ public class AccessFormServiceImpl implements AccessFormService {
 
   @Override
   @Transactional
-  public AccessFormDTO updateAccessForm(Long formId, AccessFormUpdateDTO formUpdateDTO) {
+  public void updateAccessForm(Long formId, AccessFormUpdateDTO formUpdateDTO) {
     AccessForm accessForm =
         accessFormRepository
             .findById(formId)
@@ -149,8 +149,6 @@ public class AccessFormServiceImpl implements AccessFormService {
         accessForm.linkElementToSection(section, element, j, elementDTO.getRequired());
       }
     }
-
-    return modelMapper.map(accessForm, AccessFormDTO.class);
   }
 
   @Override
@@ -185,7 +183,6 @@ public class AccessFormServiceImpl implements AccessFormService {
   private AccessForm removeSection(AccessForm accessForm, AccessFormSection section) {
     accessForm.unlinkSection(section);
     return accessForm;
-    //    return accessFormRepository.saveAndFlush(accessForm);
   }
 
   @Override
@@ -208,16 +205,6 @@ public class AccessFormServiceImpl implements AccessFormService {
         accessFormSection, elementToBeLinked, linkDTO.getElementOrder(), linkDTO.isRequired());
     return modelMapper.map(accessForm, AccessFormDTO.class);
   }
-
-  //  private AccessForm addElementToSection(
-  //      AccessForm accessForm,
-  //      AccessFormSection section,
-  //      AccessFormElement element,
-  //      int elementOrder,
-  //      boolean required) {
-  //    accessForm.linkElementToSection(section, element, elementOrder, required);
-  //    return accessFormRepository.save(accessForm);
-  //  }
 
   @Override
   @Transactional
