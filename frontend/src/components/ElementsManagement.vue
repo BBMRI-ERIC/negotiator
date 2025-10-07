@@ -13,7 +13,9 @@
     </div>
 
     <p class="text-muted mb-4">
-      Manage form elements that can be used to build dynamic access forms. Each element represents a specific input type (text, choice, file upload, etc.) that can be added to forms for data collection.
+      Manage form elements that can be used to build dynamic access forms. Each element represents a
+      specific input type (text, choice, file upload, etc.) that can be added to forms for data
+      collection.
     </p>
 
     <div v-if="loading" class="text-center">
@@ -45,7 +47,7 @@
             >
               <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
               <td>{{ element.label }}</td>
-              <td class="text-truncate" style="max-width: 200px;" :title="element.description">
+              <td class="text-truncate" style="max-width: 200px" :title="element.description">
                 {{ element.description }}
               </td>
               <td>{{ element.name }}</td>
@@ -55,19 +57,11 @@
         </table>
 
         <div class="pagination">
-          <button
-            @click="previousPage"
-            :disabled="currentPage === 1"
-            class="page-button"
-          >
+          <button @click="previousPage" :disabled="currentPage === 1" class="page-button">
             Prev
           </button>
           <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-          <button
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="page-button"
-          >
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="page-button">
             Next ›
           </button>
           <input
@@ -87,10 +81,7 @@
       No elements available. Click "Add Element" to create your first form element.
     </div>
 
-    <NegotiatorModal
-      id="elementModal"
-      :title="isEditing ? 'Edit Element' : 'Create New Element'"
-    >
+    <NegotiatorModal id="elementModal" :title="isEditing ? 'Edit Element' : 'Create New Element'">
       <template #body>
         <form @submit.prevent="saveElement">
           <div class="mb-3">
@@ -102,7 +93,7 @@
               v-model="currentElement.name"
               required
               placeholder="Enter element name"
-            >
+            />
           </div>
 
           <div class="mb-3">
@@ -114,7 +105,7 @@
               v-model="currentElement.label"
               required
               placeholder="Enter element label"
-            >
+            />
           </div>
 
           <div class="mb-3">
@@ -131,12 +122,7 @@
 
           <div class="mb-3">
             <label for="elementType" class="form-label">Type *</label>
-            <select
-              class="form-select"
-              id="elementType"
-              v-model="currentElement.type"
-              required
-            >
+            <select class="form-select" id="elementType" v-model="currentElement.type" required>
               <option value="">Select element type</option>
               <option v-for="type in elementTypes" :key="type" :value="type">
                 {{ formatElementType(type) }}
@@ -170,7 +156,7 @@
                 v-model="valueSetName"
                 required
                 placeholder="Enter value set name"
-              >
+              />
             </div>
 
             <div class="mb-3">
@@ -184,7 +170,11 @@
                 v-model="valueSetValues"
                 required
                 rows="3"
-                :placeholder="isCreatingNewValueSet ? 'Enter values separated by semicolons (e.g., Option 1;Option 2;Option 3)' : 'Edit values separated by semicolons'"
+                :placeholder="
+                  isCreatingNewValueSet
+                    ? 'Enter values separated by semicolons (e.g., Option 1;Option 2;Option 3)'
+                    : 'Edit values separated by semicolons'
+                "
               ></textarea>
               <div v-if="!isCreatingNewValueSet" class="form-text">
                 You can edit the values for the selected value set.
@@ -235,7 +225,7 @@ const elementTypes = [
   'BOOLEAN',
   'DATE',
   'NUMBER',
-  'INFORMATION'
+  'INFORMATION',
 ]
 
 const currentElement = ref({
@@ -243,7 +233,7 @@ const currentElement = ref({
   label: '',
   description: '',
   type: '',
-  valueSetId: 'CREATE_NEW'
+  valueSetId: 'CREATE_NEW',
 })
 
 const valueSetName = ref('')
@@ -258,31 +248,33 @@ const paginatedElements = computed(() => {
 })
 
 const isChoiceType = computed(() =>
-  ['SINGLE_CHOICE', 'MULTIPLE_CHOICE'].includes(currentElement.value.type)
+  ['SINGLE_CHOICE', 'MULTIPLE_CHOICE'].includes(currentElement.value.type),
 )
 
-const isCreatingNewValueSet = computed(() =>
-  currentElement.value.valueSetId === 'CREATE_NEW'
-)
+const isCreatingNewValueSet = computed(() => currentElement.value.valueSetId === 'CREATE_NEW')
 
 const isFormValid = computed(() => {
-  const basicFieldsValid = currentElement.value.name &&
-         currentElement.value.label &&
-         currentElement.value.description &&
-         currentElement.value.type
+  const basicFieldsValid =
+    currentElement.value.name &&
+    currentElement.value.label &&
+    currentElement.value.description &&
+    currentElement.value.type
 
   if (!isChoiceType.value) return basicFieldsValid
 
   const valueSetValid = currentElement.value.valueSetId
   const additionalFieldsValid = isCreatingNewValueSet.value
-    ? (valueSetName.value && valueSetValues.value)
+    ? valueSetName.value && valueSetValues.value
     : valueSetValues.value
 
   return basicFieldsValid && valueSetValid && additionalFieldsValid
 })
 
 function formatElementType(type) {
-  return type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())
+  return type
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 function resetForm() {
@@ -291,7 +283,7 @@ function resetForm() {
     label: '',
     description: '',
     type: '',
-    valueSetId: 'CREATE_NEW'
+    valueSetId: 'CREATE_NEW',
   }
   valueSetName.value = ''
   valueSetValues.value = ''
@@ -312,7 +304,7 @@ function openEditModal(element) {
     label: element.label,
     description: element.description,
     type: element.type,
-    valueSetId
+    valueSetId,
   }
 
   valueSetName.value = ''
@@ -332,7 +324,9 @@ function onValueSetChange() {
     valueSetName.value = ''
     valueSetValues.value = ''
   } else {
-    const selectedValueSet = valueSets.value.find(vs => vs.id === Number(currentElement.value.valueSetId))
+    const selectedValueSet = valueSets.value.find(
+      (vs) => vs.id === Number(currentElement.value.valueSetId),
+    )
     valueSetValues.value = selectedValueSet?.availableValues?.join(';') || ''
   }
 }
@@ -346,7 +340,10 @@ async function saveElement() {
         // Create new value set
         const valueSetData = {
           name: valueSetName.value,
-          availableValues: valueSetValues.value.split(';').map(v => v.trim()).filter(Boolean)
+          availableValues: valueSetValues.value
+            .split(';')
+            .map((v) => v.trim())
+            .filter(Boolean),
         }
 
         const createdValueSet = await formsStore.createValueSet(valueSetData)
@@ -355,8 +352,13 @@ async function saveElement() {
       } else {
         // Update existing value set
         const valueSetData = {
-          name: valueSetName.value || valueSets.value.find(vs => vs.id === Number(currentElement.value.valueSetId))?.name,
-          availableValues: valueSetValues.value.split(';').map(v => v.trim()).filter(Boolean)
+          name:
+            valueSetName.value ||
+            valueSets.value.find((vs) => vs.id === Number(currentElement.value.valueSetId))?.name,
+          availableValues: valueSetValues.value
+            .split(';')
+            .map((v) => v.trim())
+            .filter(Boolean),
         }
 
         await formsStore.updateValueSet(Number(currentElement.value.valueSetId), valueSetData)
@@ -369,7 +371,7 @@ async function saveElement() {
       label: currentElement.value.label,
       description: currentElement.value.description,
       type: currentElement.value.type,
-      valueSetId: finalValueSetId !== 'CREATE_NEW' ? finalValueSetId : null
+      valueSetId: finalValueSetId !== 'CREATE_NEW' ? finalValueSetId : null,
     }
 
     if (isEditing.value) {

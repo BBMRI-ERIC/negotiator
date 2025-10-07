@@ -5,7 +5,11 @@
       Organizations & Resources
     </h2>
     <div class="actions-group" v-if="props.isAdmin">
-      <button class="btn btn-primary" @click="$emit('createOrganization')" :disabled="props.loading">
+      <button
+        class="btn btn-primary"
+        @click="$emit('createOrganization')"
+        :disabled="props.loading"
+      >
         <i class="bi bi-plus-circle me-2"></i>
         Create {{ $t('governancePage.organisations') }}
       </button>

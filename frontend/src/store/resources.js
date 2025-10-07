@@ -151,6 +151,6 @@ export const useResourcesStore = defineStore('resources', () => {
     updateResource,
     addRepresentativeToResource,
     removeRepresentativeFromResource,
-    getRepresentedResources
+    getRepresentedResources,
   }
 })

@@ -75,7 +75,8 @@ function returnToTemplateTable() {
 }
 
 function updateTemplate() {
-  templateStore.updateTemplate(templateName.value, templateData.value)
+  templateStore
+    .updateTemplate(templateName.value, templateData.value)
     .then(() => {
       returnToTemplateTable()
       return templateStore.retrieveTemplates()

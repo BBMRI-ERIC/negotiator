@@ -78,11 +78,11 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user.js'
 import OrganizationsSection from '@/components/governance/OrganizationsSection.vue'
-import {ROLES} from "@/config/consts.js";
+import { ROLES } from '@/config/consts.js'
 
 const userStore = useUserStore()
 const route = useRoute()

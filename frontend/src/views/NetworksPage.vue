@@ -278,7 +278,7 @@ async function loadStats(networkId) {
 
 function setPieData(labelsData, datasetsData) {
   pieData.value = {
-    labels: labelsData.map(label=>transformStatus(label)),
+    labels: labelsData.map((label) => transformStatus(label)),
     datasets: [
       {
         data: datasetsData,

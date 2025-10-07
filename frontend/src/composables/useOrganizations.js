@@ -96,7 +96,6 @@ export function useOrganizations() {
           organizationWithResources._embedded?.resources ||
           []
       } else {
-
         organizationResources.value[organizationId] =
           organizations.value.find((org) => org.id === organizationId)?.resources || []
       }
@@ -138,7 +137,7 @@ export function useOrganizations() {
         response = await resourceStore.getRepresentedResources(
           userStore.userInfo?.id,
           false,
-          apiFilters
+          apiFilters,
         )
       }
       organizations.value = response?._embedded?.organizations ?? []
