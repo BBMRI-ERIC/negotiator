@@ -169,13 +169,6 @@ public class NegotiationServiceImpl implements NegotiationService {
     negotiation.setHumanReadable(request.getHumanReadable());
     negotiation.setDiscoveryService(request.getDiscoveryService());
 
-    // Set default displayId if none provided
-    if (Objects.isNull(negotiation.getDisplayId()) || negotiation.getDisplayId().trim().isEmpty()) {
-      // Set default ID using pattern
-      String defaultId = "NEG-" + System.currentTimeMillis();
-      negotiation.setDisplayId(defaultId);
-    }
-
     return negotiation;
   }
 

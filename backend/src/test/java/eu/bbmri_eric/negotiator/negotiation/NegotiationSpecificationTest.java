@@ -203,10 +203,10 @@ public class NegotiationSpecificationTest {
   }
 
   @Test
-  void testFromNegotiationFilters_withSearchTerm_appliesSearchSpec() {
+  void testFromNegotiationFilters_withDisplayId_appliesDisplayIdSpec() {
     // Arrange
-    String searchTerm = "TEST-NEG";
-    NegotiationFilterDTO filterDTO = NegotiationFilterDTO.builder().search(searchTerm).build();
+    String displayId = "TEST-NEG";
+    NegotiationFilterDTO filterDTO = NegotiationFilterDTO.builder().displayId(displayId).build();
 
     // Act
     Specification<Negotiation> result =
@@ -217,9 +217,9 @@ public class NegotiationSpecificationTest {
   }
 
   @Test
-  void testFromNegotiationFilters_withEmptySearchTerm_ignoresSearch() {
+  void testFromNegotiationFilters_withEmptyDisplayId_ignoresDisplayId() {
     // Arrange
-    NegotiationFilterDTO filterDTO = NegotiationFilterDTO.builder().search("").build();
+    NegotiationFilterDTO filterDTO = NegotiationFilterDTO.builder().displayId("").build();
 
     // Act
     Specification<Negotiation> result =
@@ -230,9 +230,9 @@ public class NegotiationSpecificationTest {
   }
 
   @Test
-  void testFromNegotiationFilters_withWhitespaceSearchTerm_ignoresSearch() {
+  void testFromNegotiationFilters_withWhitespaceDisplayId_ignoresDisplayId() {
     // Arrange
-    NegotiationFilterDTO filterDTO = NegotiationFilterDTO.builder().search("   ").build();
+    NegotiationFilterDTO filterDTO = NegotiationFilterDTO.builder().displayId("   ").build();
 
     // Act
     Specification<Negotiation> result =
@@ -248,7 +248,7 @@ public class NegotiationSpecificationTest {
     List<NegotiationState> statuses = Arrays.asList(NegotiationState.SUBMITTED);
     List<Long> organizationIds = Arrays.asList(1L);
     LocalDate createdAfter = LocalDate.of(2024, 1, 1);
-    String searchTerm = "TEST";
+    String displayId = "TEST";
 
     NegotiationFilterDTO filterDTO =
         NegotiationFilterDTO.builder()
@@ -256,7 +256,7 @@ public class NegotiationSpecificationTest {
             .status(statuses)
             .organizationId(organizationIds)
             .createdAfter(createdAfter)
-            .search(searchTerm)
+            .displayId(displayId)
             .build();
 
     // Act

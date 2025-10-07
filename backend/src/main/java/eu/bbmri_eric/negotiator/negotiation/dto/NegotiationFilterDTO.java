@@ -34,8 +34,8 @@ public class NegotiationFilterDTO implements FilterDTO {
   @Schema(description = "List of IDs of Organizations for which Negotiations should be fetched")
   List<Long> organizationId;
 
-  @Schema(description = "Search term to filter negotiations by display id", example = "NEG-2024-00")
-  String search;
+  @Schema(description = "Search term to filter negotiations by display id", example = "2024-00")
+  String displayId;
 
   @Schema(
       description = "The date after which the negotiations were created",

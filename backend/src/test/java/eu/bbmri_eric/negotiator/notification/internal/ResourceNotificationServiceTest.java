@@ -41,7 +41,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenNegotiationNotFound_ThrowsEntityNotFoundException() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
 
     assertThrows(
@@ -52,7 +52,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenNegotiationNotInProgress_DoesNotProcessResources() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
     when(negotiation.getCurrentState()).thenReturn(NegotiationState.SUBMITTED);
 
@@ -64,7 +64,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenResourcesHaveExistingStates_SkipsThoseResources() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
@@ -99,7 +99,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenResourcesHaveNoRepresentatives_SetsUnreachableState() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
     when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);
@@ -127,7 +127,7 @@ class ResourceNotificationServiceTest {
   @Test
   void
       notifyResourceRepresentatives_WhenResourcesHaveRepresentatives_SetsContactedStateAndNotifies() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     Person rep1 = createPerson(1L);
     Person rep2 = createPerson(2L);
 
@@ -165,7 +165,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenMixedResourceStates_ProcessesOnlyResourcesWithoutStates() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
@@ -207,7 +207,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenRepresentativesContainNulls_FiltersOutNulls() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
@@ -240,7 +240,7 @@ class ResourceNotificationServiceTest {
   @Test
   void
       notifyResourceRepresentatives_WhenMultipleResourcesWithSameRepresentative_DoesNotDuplicateNotifications() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     Person rep1 = createPerson(1L);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
@@ -274,7 +274,7 @@ class ResourceNotificationServiceTest {
 
   @Test
   void notifyResourceRepresentatives_WhenNoResourcesNeedProcessing_DoesNotCreateNotifications() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
     when(negotiation.getCurrentState()).thenReturn(NegotiationState.IN_PROGRESS);

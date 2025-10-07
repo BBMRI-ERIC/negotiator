@@ -1,13 +1,13 @@
--- Add display_name column to negotiation table
+-- Add display_id column to negotiation table
 ALTER TABLE negotiation
 ADD COLUMN display_id VARCHAR(255);
 
--- Set initial display_id from title for existing records
-UPDATE negotiation
-SET display_id = JSON_EXTRACT_PATH_TEXT(payload, 'project', 'display_id')
-WHERE display_id IS NULL AND payload IS NOT NULL;
+-- Create a sequence for generating unique display_id values
+create sequence negotiation_display_id_seq
+    start with 1
+    increment by 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
--- For negotiations without a title in payload, set display_id to a default value
-UPDATE negotiation
-SET display_id = 'NEG-' || SUBSTRING(id FROM 1 FOR 8)
-WHERE display_id IS NULL OR display_id = '';
+-- TODO: Update existing negotiation records to have a display_id and adjust the sequence accordingly
