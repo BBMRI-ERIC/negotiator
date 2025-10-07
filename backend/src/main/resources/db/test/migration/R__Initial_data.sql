@@ -174,13 +174,13 @@ VALUES (201, 'test-section', 'Test Section', 'This is fr testing');
 INSERT INTO access_form_element (id, name, label, description, type)
 VALUES (201, 'test-element', 'Test Element', 'Test Element', 'TEXT');
 
-INSERT INTO ACCESS_FORM_SECTION_LINK (ID, ACCESS_FORM_ID, ACCESS_FORM_SECTION_ID, SECTION_ORDER)
+INSERT INTO access_form_section_link (id, access_form_id, access_form_section_id, section_order)
 VALUES (201, 201, 1, 0),
        (202, 201, 2, 1),
        (203, 201, 3, 2);
 
-INSERT INTO ACCESS_FORM_SECTION_ELEMENT_LINK (ID, ACCESS_FORM_SECTION_LINK_ID, ACCESS_FORM_ELEMENT_ID, IS_REQUIRED,
-                                              ELEMENT_ORDER)
+INSERT INTO access_form_section_element_link (id, access_form_section_link_id, access_form_element_id, is_required,
+                                              element_order)
 VALUES (201, 201, 1, true, 1),
        (202, 201, 2, true, 2),
        (203, 202, 3, true, 1),

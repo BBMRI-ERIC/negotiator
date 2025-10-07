@@ -101,12 +101,11 @@ public class AccessFormController {
   }
 
   @PutMapping(value = "/access-forms/{formId}")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
-  public EntityModel<AccessFormDTO> updateAccessForm(
+  public void updateAccessForm(
       @PathVariable Long formId, @Valid @RequestBody AccessFormUpdateDTO accessFormDTO) {
-    return accessFormModelAssembler.toModel(
-        accessFormService.updateAccessForm(formId, accessFormDTO));
+    accessFormService.updateAccessForm(formId, accessFormDTO);
   }
 
   @PutMapping(value = "/access-forms/{formId}/sections")
