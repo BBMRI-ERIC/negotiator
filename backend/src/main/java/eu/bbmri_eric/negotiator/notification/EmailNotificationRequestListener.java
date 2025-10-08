@@ -42,7 +42,10 @@ class EmailNotificationRequestListener {
       log.error("Failed to send email for notification %s".formatted(event.getNotificationId()));
       return;
     }
-    sendOutEmail(notification, event.getEmailTemplateName());
+    if (notification.getNegotiationId() != null) {
+      sendOutEmail(notification, event.getEmailTemplateName());
+    }
+    sendOutAddedReprEmail(notification, event.getEmailTemplateName());
   }
 
   private void sendOutEmail(NotificationDTO notification, String emailTemplateName) {
@@ -61,6 +64,19 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getId() : null,
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
+
+    emailService.sendEmail(person, notification.getTitle(), emailContent);
+  }
+
+  private void sendOutAddedReprEmail(NotificationDTO notification, String emailTemplateName) {
+    Person person =
+        personRepository
+            .findById(notification.getRecipientId())
+            .orElseThrow(() -> new EntityNotFoundException(notification.getRecipientId()));
+
+    String emailContent =
+        emailContextBuilder.buildEmailContent(
+            person.getName(), notification.getMessage(), null, null, null);
 
     emailService.sendEmail(person, notification.getTitle(), emailContent);
   }
