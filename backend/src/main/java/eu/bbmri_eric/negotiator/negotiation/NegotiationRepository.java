@@ -77,14 +77,4 @@ public interface NegotiationRepository
 
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);
-
-  @Query(
-      value =
-          "SELECT distinct(n.id) "
-              + "FROM negotiation n "
-              + "    JOIN negotiation_resource_link rrl ON rrl.negotiation_id = n.id "
-              + "    JOIN resource rs ON rrl.resource_id = rs.id "
-              + "WHERE rrl.resource_id = :resourceId and n.current_state = 'IN_PROGRESS'",
-      nativeQuery = true)
-  List<String> getNegotiationsByResource(Long resourceId);
 }

@@ -159,20 +159,22 @@ public class PersonServiceImpl implements PersonService {
     representative.addResource(resource);
     personRepository.save(representative);
     log.warn("Getting all negotiations where the representative might be involved...");
-    List<String> negotiationIds = negotiationRepository.getNegotiationsByResource(resourceId);
-    for (String negotiationId : negotiationIds) {
-      log.warn("Notifying user " + representativeId + " for negotiation " + negotiationId);
-      String title = "New Negotiation Request";
-      String body =
-          "A new negotiation request requires your attention. Please review the details and respond accordingly.";
-      NotificationCreateDTO notification =
-          new NotificationCreateDTO(
-              new ArrayList<>(Collections.singletonList(representativeId)),
-              title,
-              body,
-              negotiationId);
-      notificationService.createNotifications(notification);
-    }
+
+    log.warn(
+        "Notifying user "
+            + representativeId
+            + " for negotiations involving resource "
+            + resourceId);
+    String title = "You have been added as a representative for a resource";
+    String body =
+        "You have been added as a representative for the resource:"
+            + resource.getSourceId()
+            + ".\n"
+            + "Please log in to the BBMRI Negotiator to review all the ongoing negotiations involving this resource.";
+    NotificationCreateDTO notification =
+        new NotificationCreateDTO(
+            new ArrayList<>(Collections.singletonList(representativeId)), title, body);
+    notificationService.createNotifications(notification);
   }
 
   @Override
