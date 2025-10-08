@@ -63,13 +63,13 @@ const router = createRouter({
     },
     {
       path: '/requests/:requestId',
-      name: 'request1',
+      name: 'request',
       props: { isEditForm: false },
       component: NegotiationCreatePage,
     },
     {
       path: '/edit/requests/:requestId',
-      name: 'editWithStep1',
+      name: 'editWithStep',
       props: { isEditForm: true },
       component: NegotiationCreatePage,
     },

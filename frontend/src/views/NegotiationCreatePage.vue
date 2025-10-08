@@ -145,6 +145,7 @@ onMounted(async () => {
   }
 
   accessFormWithPayload.value = createAccessFormWithPayload()
+  validateAllInputs()
 })
 
 const existingAttachments = ref({})
