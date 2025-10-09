@@ -167,9 +167,13 @@ public class PersonServiceImpl implements PersonService {
             + resourceId);
     String title = "You have been added as a representative for a resource";
     String body =
-        "You have been added as a representative for the resource:"
+        "You have been added as a representative for the resource:<br/><br/>"
+            + " - Resource Name: "
+            + resource.getName()
+            + ".<br/><br/>"
+            + " - Resource ID: "
             + resource.getSourceId()
-            + ".\n"
+            + ".<br/>"
             + "Please log in to the BBMRI Negotiator to review all the ongoing negotiations involving this resource.";
     NotificationCreateDTO notification =
         new NotificationCreateDTO(
