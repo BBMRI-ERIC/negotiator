@@ -51,7 +51,7 @@
         <div v-else-if="element.type === 'BOOLEAN'">
           <div class="form-check form-check-inline">
             <input
-              :id="`boolean-${element.name}-yes`"
+              :id="`boolean-${element.id}-yes`"
               v-model="element.value"
               value="Yes"
               :required="element.required"
@@ -324,6 +324,13 @@ function handleFocusOutEvent() {
   emit('elementFocusOutEvent')
   if (props.validationErrorHighlight?.length > 0) {
     emit('elementFocusOutEventValidation')
+  }
+}
+
+function isNumber(evt) {
+  const charCode = evt.which ? evt.which : evt.keyCode
+  if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46) {
+    evt.preventDefault()
   }
 }
 </script>
