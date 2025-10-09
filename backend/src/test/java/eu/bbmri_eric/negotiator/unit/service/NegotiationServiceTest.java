@@ -20,6 +20,7 @@ import eu.bbmri_eric.negotiator.governance.organization.Organization;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
 import eu.bbmri_eric.negotiator.integration.api.v3.TestUtils;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
+import eu.bbmri_eric.negotiator.negotiation.NegotiationDisplayIdGeneratorService;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationServiceImpl;
 import eu.bbmri_eric.negotiator.negotiation.dto.NegotiationCreateDTO;
@@ -58,6 +59,7 @@ public class NegotiationServiceTest {
 
   @Mock RequestRepository requestRepository;
   @Mock ModelMapper modelMapper;
+  @Mock NegotiationDisplayIdGeneratorService displayIdGeneratorService;
   @InjectMocks NegotiationServiceImpl negotiationService;
   private AutoCloseable closeable;
 
@@ -135,6 +137,7 @@ public class NegotiationServiceTest {
     negotiation.setCurrentState(NegotiationState.SUBMITTED);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    when(displayIdGeneratorService.generateDisplayId(any())).thenReturn("DISP-001");
     NegotiationDTO savedDTO = new NegotiationDTO();
     savedDTO.setId("saved");
     when(negotiationRepository.save(negotiation)).thenReturn(negotiation);
@@ -155,6 +158,7 @@ public class NegotiationServiceTest {
     negotiation.setCurrentState(NegotiationState.DRAFT);
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    when(displayIdGeneratorService.generateDisplayId(any())).thenReturn("DISP-001");
     NegotiationDTO savedDTO = new NegotiationDTO();
     savedDTO.setId("saved");
     when(negotiationRepository.save(negotiation)).thenReturn(negotiation);
@@ -180,6 +184,7 @@ public class NegotiationServiceTest {
     when(attachmentRepository.findAllById(List.of("attachment-1"))).thenReturn(List.of(attachment));
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    when(displayIdGeneratorService.generateDisplayId(any())).thenReturn("DISP-001");
 
     NegotiationDTO savedDTO = new NegotiationDTO();
     savedDTO.setId("saved");
@@ -198,6 +203,7 @@ public class NegotiationServiceTest {
     negotiation.setResources(request.getResources());
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    when(displayIdGeneratorService.generateDisplayId(any())).thenReturn("DISP-001");
     when(negotiationRepository.save(any())).thenThrow(DataException.class);
     assertThrows(
         EntityNotStorableException.class,
@@ -213,6 +219,7 @@ public class NegotiationServiceTest {
     negotiation.setResources(request.getResources());
     when(requestRepository.findById("requestID")).thenReturn(Optional.of(request));
     when(modelMapper.map(negotiationCreateDTO, Negotiation.class)).thenReturn(negotiation);
+    when(displayIdGeneratorService.generateDisplayId(any())).thenReturn("DISP-001");
     when(negotiationRepository.save(negotiation)).thenThrow(DataIntegrityViolationException.class);
     assertThrows(
         EntityNotStorableException.class,
