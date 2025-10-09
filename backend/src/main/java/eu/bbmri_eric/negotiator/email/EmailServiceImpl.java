@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,12 +42,12 @@ public class EmailServiceImpl implements EmailService {
   }
 
   @Override
-  public void sendEmail(Person recipient, String subject, String content) {
+  public void sendEmail(Person recipient, String subject, String content, String negotiationId) {
     Objects.requireNonNull(recipient, "Recipient must not be null");
     validateEmailParameters(recipient.getEmail(), subject, content);
     var recipientEmail = recipient.getEmail();
     try {
-      deliverEmail(recipientEmail, subject, content);
+      deliverEmail(recipientEmail, subject, content, negotiationId);
     } catch (Exception e) {
       log.error("Failed to send email to person " + recipient.getId() + ": " + e.getMessage());
     }
@@ -55,14 +56,26 @@ public class EmailServiceImpl implements EmailService {
   @Override
   public void sendEmail(String emailAddress, String subject, String content) {
     validateEmailParameters(emailAddress, subject, content);
-    deliverEmail(emailAddress, subject, content);
+    deliverEmail(emailAddress, subject, content,null);
   }
 
-  private void deliverEmail(String recipientAddress, String subject, String content) {
+  private void deliverEmail(String recipientAddress, String subject, String content, String negotiationId) {
     var mimeMessage = buildMimeMessage(recipientAddress, subject, content);
+    String domain = fromAddress.split("@")[1];
+    String messageId = null;
     try {
+      if (Objects.equals(subject, "Negotiation Submission Confirmed")){
+        messageId = "<"+negotiationId+"@" + domain;
+      }
+      messageId = UUID.randomUUID().toString();
+
+      if (negotiationId != null) {
+
+        mimeMessage.setHeader("Message-ID", "<"+messageId+"@" + domain);
+        mimeMessage.setHeader("References", "<"+negotiationId+"@" + domain);
+      }
       javaMailSender.send(mimeMessage);
-    } catch (MailSendException e) {
+    } catch (MailSendException | MessagingException e) {
       log.error(
           "Failed to send email to "
               + recipientAddress
