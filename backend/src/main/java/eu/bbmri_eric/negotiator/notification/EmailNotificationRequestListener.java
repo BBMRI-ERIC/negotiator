@@ -62,6 +62,6 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    emailService.sendEmail(person, notification.getTitle(), emailContent);
+    emailService.sendEmail(person, notification.getTitle(), emailContent, negotiation.getId());
   }
 }
