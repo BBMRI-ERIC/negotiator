@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.processing.Generated;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -88,10 +87,7 @@ public class Negotiation extends AuditEntity {
   @Formula(value = "JSON_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;
 
-  @Column(name = "display_id", columnDefinition = "serial")
-  @Generated(
-      value = "eu.bbmri_eric.negotiator.negotiation.NegotiationDisplayIdGenerator",
-      comments = "Generates a unique display ID for the negotiation")
+  @Column(name = "display_id")
   private String displayId;
 
   @Type(JsonType.class)

@@ -2,22 +2,22 @@
   <div v-if="!loading" class="container">
     <NewRequestButton v-if="!networkActivated" />
     <div class="pt-1">
-      <!-- Search Input -->
+      <!-- Display Id Input -->
       <div class="row mt-3">
         <div class="col-md-6">
           <div class="input-group">
             <input
-              v-model="searchTerm"
+              v-model="searchDisplayId"
               type="text"
               class="form-control"
               placeholder="Search negotiations by ID..."
-              @input="onSearchInput"
+              @input="onDisplayIdInput"
             />
             <button 
-              v-if="searchTerm" 
+              v-if="searchDisplayId" 
               class="btn btn-outline-secondary" 
               type="button" 
-              @click="clearSearch"
+              @click="clearSearchDisplayId"
             >
               <i class="bi bi-x"></i>
             </button>
@@ -151,7 +151,7 @@
                           : 'bi-sort-alpha-down'
                       "
                     />
-                    <i v-if="filtersSortData.sortBy !== 'displayId'" class="bi bi-sort-alpha-up-alt" />
+                    <i v-if="filtersSortData.sortBy !== 'title'" class="bi bi-sort-alpha-up-alt" />
                   </button>
                 </th>
 
@@ -329,21 +329,21 @@ const uiConfiguration = computed(() => {
 })
 
 // Search functionality
-const searchTerm = ref('')
+const searchDisplayId = ref('')
 let searchTimeout = null
 
-function onSearchInput() {
+function onDisplayIdInput() {
   // Debounce search to avoid too many requests
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
-    filtersSortData.value.search = searchTerm.value.trim()
+    filtersSortData.value.displayId = searchDisplayId.value.trim()
     emitFilterSortData()
   }, 300)
 }
 
-function clearSearch() {
-  searchTerm.value = ''
-  filtersSortData.value.search = ''
+function clearSearchDisplayId() {
+  searchDisplayId.value = ''
+  filtersSortData.value.displayId = ''
   emitFilterSortData()
 }
 
