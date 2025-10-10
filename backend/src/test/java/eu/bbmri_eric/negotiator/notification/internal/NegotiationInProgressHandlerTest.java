@@ -32,7 +32,7 @@ class NegotiationInProgressHandlerTest {
 
   @Test
   void notify_WhenNegotiationMovesToInProgress_CallsResourceNotificationService() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this,
@@ -48,7 +48,7 @@ class NegotiationInProgressHandlerTest {
 
   @Test
   void notify_WhenNegotiationMovesToOtherState_DoesNotCallService() {
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
@@ -60,7 +60,7 @@ class NegotiationInProgressHandlerTest {
 
   @Test
   void notify_WithDifferentNegotiationId_CallsServiceWithCorrectId() {
-    String negotiationId = "NEG-456";
+    String negotiationId = "456";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this,
