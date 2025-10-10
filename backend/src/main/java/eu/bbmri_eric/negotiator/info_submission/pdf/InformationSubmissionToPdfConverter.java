@@ -104,7 +104,8 @@ public class InformationSubmissionToPdfConverter {
     StringBuilder currentValue = new StringBuilder();
     boolean inQuotes = false;
 
-    for (int i = 0; i < line.length(); i++) {
+    int i = 0;
+    while (i < line.length()) {
       char c = line.charAt(i);
 
       if (c == '"') {
@@ -123,6 +124,7 @@ public class InformationSubmissionToPdfConverter {
       } else {
         currentValue.append(c);
       }
+      i++;
     }
 
     // Add last value
@@ -141,8 +143,6 @@ public class InformationSubmissionToPdfConverter {
   private byte[] generatePdfFromTemplate(Map<String, Object> variables) throws IOException {
     Context context = new Context();
     context.setVariables(variables);
-
-    // String htmlContent = templateEngine.process("INFORMATION_SUBMISSION_SUMMARY.html", context);
 
     String htmlContent =
         templateEngine

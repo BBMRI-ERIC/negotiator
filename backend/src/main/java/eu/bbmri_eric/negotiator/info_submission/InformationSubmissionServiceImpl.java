@@ -50,7 +50,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   private final ModelMapper modelMapper;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final PersonRepository personRepository;
-  private final InformationSubmissionToPdfConverter InformationSubmissionToPdfConverter;
+  private final InformationSubmissionToPdfConverter informationSubmissionToPdfConverter;
 
   public InformationSubmissionServiceImpl(
       InformationSubmissionRepository informationSubmissionRepository,
@@ -60,7 +60,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       ModelMapper modelMapper,
       ApplicationEventPublisher applicationEventPublisher,
       PersonRepository personRepository,
-      InformationSubmissionToPdfConverter InformationSubmissionToPdfConverter) {
+      InformationSubmissionToPdfConverter informationSubmissionToPdfConverter) {
     this.informationSubmissionRepository = informationSubmissionRepository;
     this.informationRequirementRepository = informationRequirementRepository;
     this.resourceRepository = resourceRepository;
@@ -68,7 +68,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     this.modelMapper = modelMapper;
     this.applicationEventPublisher = applicationEventPublisher;
     this.personRepository = personRepository;
-    this.InformationSubmissionToPdfConverter = InformationSubmissionToPdfConverter;
+    this.informationSubmissionToPdfConverter = informationSubmissionToPdfConverter;
   }
 
   @Override
@@ -174,7 +174,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       // Convert CSV to PDF
       try {
         String requirementName = requirement.getRequiredAccessForm().getName();
-        return InformationSubmissionToPdfConverter.convertCsvToPdf(
+        return informationSubmissionToPdfConverter.convertCsvToPdf(
             csvFile, negotiationId, requirementName);
       } catch (IOException e) {
         log.error("Failed to convert CSV to PDF", e);
@@ -212,7 +212,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         if (csvFile.getSize() > 0) {
           String requirementName = requirement.getRequiredAccessForm().getName();
           byte[] pdfBytes =
-              InformationSubmissionToPdfConverter.convertCsvToPdf(
+              informationSubmissionToPdfConverter.convertCsvToPdf(
                   csvFile, negotiationId, requirementName);
           pdfList.add(pdfBytes);
         }
