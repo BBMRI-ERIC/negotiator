@@ -549,6 +549,82 @@ public class InformationRequirementControllerTest {
   }
 
   @Test
+  @WithUserDetails("admin")
+  @Transactional
+  void getSummaryInformationPdf_asAdmin_returnsOk() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+
+    // Submit some test data
+    String payload =
+        """
+                    {
+                   "sample-type": "DNA",
+                   "num-of-subjects": 10
+                }
+                """;
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonPayload = mapper.readTree(payload);
+    Resource resource = negotiation.getResources().iterator().next();
+    InformationSubmissionDTO submissionDTO =
+        new InformationSubmissionDTO(resource.getId(), jsonPayload);
+
+    mockMvc
+        .perform(
+            post(INFO_SUBMISSION_ENDPOINT.formatted(
+                    negotiation.getId(), informationRequirementDTO.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(submissionDTO)))
+        .andExpect(status().isOk());
+
+    // Get PDF summary
+    mockMvc
+        .perform(
+            get(
+                INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId())
+                    + "/pdf"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+        .andExpect(
+            header()
+                .string(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    Matchers.containsString("info-submission-summary-")));
+  }
+
+  @Test
+  @WithUserDetails("researcher")
+  @Transactional
+  void getSummaryInformationPdf_notAuthorized_403() throws Exception {
+    Negotiation negotiation = negotiationRepository.findAll().iterator().next();
+    InformationRequirementDTO informationRequirementDTO =
+        informationRequirementServiceImpl.createInformationRequirement(
+            new InformationRequirementCreateDTO(1L, NegotiationResourceEvent.CONTACT));
+
+    mockMvc
+        .perform(
+            get(
+                INFO_SUBMISSION_ENDPOINT.formatted(
+                        negotiation.getId(), informationRequirementDTO.getId())
+                    + "/pdf"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void getSummaryInformationPdf_nonExistentRequirement_404() throws Exception {
+    Negotiation negotiation = negotiationRepository.findById("negotiation-1").get();
+
+    mockMvc
+        .perform(get(INFO_SUBMISSION_ENDPOINT.formatted(negotiation.getId(), 999L) + "/pdf"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   @WithUserDetails("TheBiobanker")
   @Transactional
   void update_tryAfterSubmission_400() throws Exception {
