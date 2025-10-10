@@ -8,6 +8,7 @@ import eu.bbmri_eric.negotiator.attachment.AttachmentConversionService;
 import eu.bbmri_eric.negotiator.common.exceptions.EntityNotFoundException;
 import eu.bbmri_eric.negotiator.common.exceptions.PdfGenerationException;
 import eu.bbmri_eric.negotiator.governance.resource.Resource;
+import eu.bbmri_eric.negotiator.info_submission.InformationSubmissionService;
 import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import jakarta.transaction.Transactional;
@@ -48,6 +49,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private static final String DEFAULT_PDF_TEMPLATE_NAME = "PDF_NEGOTIATION_SUMMARY";
   private final NegotiationRepository negotiationRepository;
   private final AttachmentConversionService conversionService;
+  private final InformationSubmissionService informationSubmissionService;
   private final TemplateEngine templateEngine;
   private final ObjectMapper objectMapper;
 
@@ -61,11 +63,13 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
       NegotiationRepository negotiationRepository,
       TemplateEngine templateEngine,
       ObjectMapper objectMapper,
-      AttachmentConversionService conversionService) {
+      AttachmentConversionService conversionService,
+      InformationSubmissionService informationSubmissionService) {
     this.negotiationRepository = negotiationRepository;
     this.templateEngine = templateEngine;
     this.objectMapper = objectMapper;
     this.conversionService = conversionService;
+    this.informationSubmissionService = informationSubmissionService;
   }
 
   public byte[] generatePdf(String negotiationId, boolean includeAttachments)
@@ -86,7 +90,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     List<byte[]> pdfsToMerge =
         Stream.concat(
                 Stream.of(pdfBytes),
-                conversionService.listByNegotiationIdToPdf(negotiationId).stream())
+                Stream.concat(
+                    conversionService.listByNegotiationIdToPdf(negotiationId).stream(),
+                    informationSubmissionService.createAllPdfSummaries(negotiationId).stream()))
             .toList();
 
     try {
