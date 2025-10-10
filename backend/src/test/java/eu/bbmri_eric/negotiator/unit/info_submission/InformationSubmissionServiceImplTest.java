@@ -81,7 +81,8 @@ class InformationSubmissionServiceImplTest {
         new MockMultipartFile("test.csv", "test.csv", "text/csv", "data".getBytes());
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile).when(spyService).createSummary(requirementId, negotiationId);
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile, negotiationId, "Test Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile, negotiationId, "Test Requirement"))
         .thenReturn(expectedPdfBytes);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -97,7 +98,8 @@ class InformationSubmissionServiceImplTest {
 
       assertNotNull(result);
       assertArrayEquals(expectedPdfBytes, result);
-      verify(InformationSubmissionToPdfConverter).convertCsvToPdf(mockCsvFile, negotiationId, "Test Requirement");
+      verify(InformationSubmissionToPdfConverter)
+          .convertCsvToPdf(mockCsvFile, negotiationId, "Test Requirement");
     }
   }
 
@@ -123,7 +125,8 @@ class InformationSubmissionServiceImplTest {
         new MockMultipartFile("test.csv", "test.csv", "text/csv", "data".getBytes());
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile).when(spyService).createSummary(requirementId, negotiationId);
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile, negotiationId, "Test Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile, negotiationId, "Test Requirement"))
         .thenReturn(expectedPdfBytes);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -238,7 +241,8 @@ class InformationSubmissionServiceImplTest {
         new MockMultipartFile("test.csv", "test.csv", "text/csv", "data".getBytes());
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile).when(spyService).createSummary(requirementId, negotiationId);
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile, negotiationId, "Test Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile, negotiationId, "Test Requirement"))
         .thenThrow(new IOException("Conversion failed"));
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -293,9 +297,11 @@ class InformationSubmissionServiceImplTest {
     doReturn(mockCsvFile1).when(spyService).createSummary(1L, negotiationId);
     doReturn(mockCsvFile2).when(spyService).createSummary(2L, negotiationId);
 
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile1, negotiationId, "Requirement 1"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile1, negotiationId, "Requirement 1"))
         .thenReturn(pdfBytes1);
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile2, negotiationId, "Requirement 2"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile2, negotiationId, "Requirement 2"))
         .thenReturn(pdfBytes2);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -354,9 +360,11 @@ class InformationSubmissionServiceImplTest {
     doReturn(mockCsvFile1).when(spyService).createSummary(1L, negotiationId);
     doReturn(mockCsvFile2).when(spyService).createSummary(2L, negotiationId);
 
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile1, negotiationId, "Public Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile1, negotiationId, "Public Requirement"))
         .thenReturn(pdfBytes1);
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile2, negotiationId, "Admin Only Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile2, negotiationId, "Admin Only Requirement"))
         .thenReturn(pdfBytes2);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -406,7 +414,8 @@ class InformationSubmissionServiceImplTest {
     InformationSubmissionServiceImpl spyService = spy(service);
     doReturn(mockCsvFile1).when(spyService).createSummary(1L, negotiationId);
 
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile1, negotiationId, "Public Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile1, negotiationId, "Public Requirement"))
         .thenReturn(pdfBytes1);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -506,7 +515,8 @@ class InformationSubmissionServiceImplTest {
     doReturn(mockCsvFile1).when(spyService).createSummary(1L, negotiationId);
     doReturn(mockCsvFile2).when(spyService).createSummary(2L, negotiationId);
 
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile2, negotiationId, "Valid Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile2, negotiationId, "Valid Requirement"))
         .thenReturn(pdfBytes2);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -564,9 +574,11 @@ class InformationSubmissionServiceImplTest {
     doReturn(mockCsvFile1).when(spyService).createSummary(1L, negotiationId);
     doReturn(mockCsvFile2).when(spyService).createSummary(2L, negotiationId);
 
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile1, negotiationId, "Failing Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile1, negotiationId, "Failing Requirement"))
         .thenThrow(new IOException("PDF conversion failed"));
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile2, negotiationId, "Success Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile2, negotiationId, "Success Requirement"))
         .thenReturn(pdfBytes2);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =
@@ -619,7 +631,8 @@ class InformationSubmissionServiceImplTest {
         .createSummary(1L, negotiationId);
     doReturn(mockCsvFile2).when(spyService).createSummary(2L, negotiationId);
 
-    when(InformationSubmissionToPdfConverter.convertCsvToPdf(mockCsvFile2, negotiationId, "Success Requirement"))
+    when(InformationSubmissionToPdfConverter.convertCsvToPdf(
+            mockCsvFile2, negotiationId, "Success Requirement"))
         .thenReturn(pdfBytes2);
 
     try (MockedStatic<AuthenticatedUserContext> mockedContext =

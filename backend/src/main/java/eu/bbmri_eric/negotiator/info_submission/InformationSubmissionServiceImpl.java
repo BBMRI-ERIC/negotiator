@@ -174,7 +174,8 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
       // Convert CSV to PDF
       try {
         String requirementName = requirement.getRequiredAccessForm().getName();
-        return InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, negotiationId, requirementName);
+        return InformationSubmissionToPdfConverter.convertCsvToPdf(
+            csvFile, negotiationId, requirementName);
       } catch (IOException e) {
         log.error("Failed to convert CSV to PDF", e);
         throw new InternalError("Could not generate the PDF file. Please try again later");
@@ -211,7 +212,8 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
         if (csvFile.getSize() > 0) {
           String requirementName = requirement.getRequiredAccessForm().getName();
           byte[] pdfBytes =
-              InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, negotiationId, requirementName);
+              InformationSubmissionToPdfConverter.convertCsvToPdf(
+                  csvFile, negotiationId, requirementName);
           pdfList.add(pdfBytes);
         }
       } catch (IOException e) {
