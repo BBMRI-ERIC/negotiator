@@ -24,6 +24,9 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @CommonsLog
 public class InformationSubmissionToPdfConverter {
 
+  private static final String DEFAULT_INFORMATION_SUBMISSION_PDF_TEMPLATE_NAME =
+      "INFORMATION_SUBMISSION_SUMMARY";
+
   private final TemplateEngine templateEngine;
 
   public InformationSubmissionToPdfConverter(TemplateEngine templateEngine) {
@@ -139,7 +142,12 @@ public class InformationSubmissionToPdfConverter {
     Context context = new Context();
     context.setVariables(variables);
 
-    String htmlContent = templateEngine.process("INFORMATION_SUBMISSION_SUMMARY.html", context);
+    // String htmlContent = templateEngine.process("INFORMATION_SUBMISSION_SUMMARY.html", context);
+
+    String htmlContent =
+        templateEngine
+            .process(DEFAULT_INFORMATION_SUBMISSION_PDF_TEMPLATE_NAME, context)
+            .replaceAll("(<br />)+$", "");
 
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       ITextRenderer renderer = new ITextRenderer();
