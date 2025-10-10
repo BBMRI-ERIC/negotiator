@@ -2,6 +2,7 @@ package eu.bbmri_eric.negotiator.unit.info_submission;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import eu.bbmri_eric.negotiator.info_submission.pdf.InformationSubmissionToPdfConverter;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
-
-import eu.bbmri_eric.negotiator.info_submission.pdf.InformationSubmissionToPdfConverter;
 
 class InformationSubmissionToPdfConverterTest {
 
@@ -42,7 +41,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -59,7 +59,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -72,7 +73,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -85,7 +87,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -97,7 +100,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -113,7 +117,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.toString().getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -125,7 +130,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
@@ -137,7 +143,8 @@ class InformationSubmissionToPdfConverterTest {
     MultipartFile csvFile =
         new MockMultipartFile("test.csv", "test.csv", "text/csv", csvContent.getBytes());
 
-    byte[] pdfBytes = InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
+    byte[] pdfBytes =
+        InformationSubmissionToPdfConverter.convertCsvToPdf(csvFile, "neg-001", "Test Requirement");
 
     assertNotNull(pdfBytes);
     assertTrue(pdfBytes.length > 0);
