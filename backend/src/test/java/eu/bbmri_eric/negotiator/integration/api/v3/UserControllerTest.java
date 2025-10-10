@@ -290,7 +290,7 @@ public class UserControllerTest {
                 .param("lastLoginAfter", "2025-02-09")
                 .param("sortBy", "lastLogin")
                 .param("sortOrder", "ASC"))
-        .andExpect(jsonPath("$._embedded.users.length()", is(2)))
+        .andExpect(jsonPath("$._embedded.users.length()", is(3)))
         .andExpect(jsonPath("$._embedded.users[0].id", is("109")))
         .andExpect(jsonPath("$._embedded.users[0].name", is("TheBiobanker")))
         .andExpect(jsonPath("$._embedded.users[0].subjectId", is("1001@bbmri.eu")))
