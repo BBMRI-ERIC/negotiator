@@ -5,7 +5,6 @@ import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -19,11 +18,8 @@ public class AccessFormMapper {
 
   @PostConstruct
   public void addMappings() {
-    TypeMap<AccessFormElement, AccessFormElementDTO> elementTypeMap =
-        modelMapper.createTypeMap(AccessFormElement.class, AccessFormElementDTO.class);
-    TypeMap<AccessFormSection, AccessFormSectionDTO> sectionTypeMap =
-        modelMapper.createTypeMap(AccessFormSection.class, AccessFormSectionDTO.class);
-    TypeMap<AccessForm, AccessFormDTO> formTypeMap =
-        modelMapper.createTypeMap(AccessForm.class, AccessFormDTO.class);
+    modelMapper.createTypeMap(AccessFormElement.class, AccessFormElementDTO.class);
+    modelMapper.createTypeMap(AccessFormSection.class, AccessFormSectionDTO.class);
+    modelMapper.createTypeMap(AccessForm.class, AccessFormDTO.class);
   }
 }

@@ -6,6 +6,9 @@ import eu.bbmri_eric.negotiator.form.AccessFormElement;
 import eu.bbmri_eric.negotiator.form.AccessFormSection;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateElementDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateSectionDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
@@ -17,6 +20,7 @@ import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.Request;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.apachecommons.CommonsLog;
@@ -66,7 +70,7 @@ public class AccessFormServiceImpl implements AccessFormService {
     int counter = 0;
     for (Resource resource : resources) {
       for (AccessFormSection accessFormSection : resource.getAccessForm().getLinkedSections()) {
-        if (formDoesntContainSection(accessFormSection, accessForm)) {
+        if (formDoesntContainSection(accessForm.getId(), accessFormSection.getId())) {
           accessForm.linkSection(accessFormSection, counter);
           counter++;
         }
@@ -101,9 +105,9 @@ public class AccessFormServiceImpl implements AccessFormService {
   @Override
   @Transactional
   public AccessFormDTO getAccessForm(Long id) {
-    return modelMapper.map(
-        accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id)),
-        AccessFormDTO.class);
+    AccessForm form =
+        accessFormRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return modelMapper.map(form, AccessFormDTO.class);
   }
 
   @Override
@@ -118,6 +122,36 @@ public class AccessFormServiceImpl implements AccessFormService {
   public AccessFormDTO createAccessForm(AccessFormCreateDTO createDTO) {
     AccessForm accessForm = modelMapper.map(createDTO, AccessForm.class);
     return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+  }
+
+  @Override
+  @Transactional
+  public void updateAccessForm(Long formId, AccessFormUpdateDTO formUpdateDTO) {
+    AccessForm accessForm =
+        accessFormRepository
+            .findById(formId)
+            .orElseThrow(() -> new EntityNotFoundException(formId));
+    resetForm(accessForm);
+    accessForm.setName(formUpdateDTO.getName());
+    List<AccessFormUpdateSectionDTO> sectionsDTO = formUpdateDTO.getSections();
+    for (int i = 0; i < sectionsDTO.size(); i++) {
+      AccessFormUpdateSectionDTO sectionDTO = sectionsDTO.get(i);
+      AccessFormSection section =
+          accessFormSectionRepository
+              .findById(sectionDTO.getId())
+              .orElseThrow(() -> new EntityNotFoundException(sectionDTO.getId()));
+      accessForm.linkSection(section, i);
+
+      List<AccessFormUpdateElementDTO> elementsDTO = sectionDTO.getElements();
+      for (int j = 0; j < elementsDTO.size(); j++) {
+        AccessFormUpdateElementDTO elementDTO = elementsDTO.get(j);
+        AccessFormElement element =
+            accessFormElementRepository
+                .findById(elementDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException(elementDTO.getId()));
+        accessForm.linkElementToSection(section, element, j, elementDTO.getRequired());
+      }
+    }
   }
 
   @Override
@@ -146,8 +180,12 @@ public class AccessFormServiceImpl implements AccessFormService {
         accessFormSectionRepository
             .findById(sectionId)
             .orElseThrow(() -> new EntityNotFoundException(sectionId));
-    accessForm.unlinkSection(sectionToBeRemoved);
-    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+    return modelMapper.map(removeSection(accessForm, sectionToBeRemoved), AccessFormDTO.class);
+  }
+
+  private AccessForm removeSection(AccessForm accessForm, AccessFormSection section) {
+    accessForm.unlinkSection(section);
+    return accessForm;
   }
 
   @Override
@@ -187,8 +225,14 @@ public class AccessFormServiceImpl implements AccessFormService {
             .filter(section -> section.getId().equals(sectionId))
             .findFirst()
             .orElseThrow(() -> new EntityNotFoundException(sectionId));
-    accessForm.unlinkElementFromSection(accessFormSection, elementToBeLinked);
-    return modelMapper.map(accessFormRepository.save(accessForm), AccessFormDTO.class);
+    return modelMapper.map(
+        removeElement(accessForm, accessFormSection, elementToBeLinked), AccessFormDTO.class);
+  }
+
+  private AccessForm removeElement(
+      AccessForm accessForm, AccessFormSection section, AccessFormElement element) {
+    accessForm.unlinkElementFromSection(section, element);
+    return accessForm;
   }
 
   private static boolean allResourcesHaveTheSameForm(
@@ -197,24 +241,8 @@ public class AccessFormServiceImpl implements AccessFormService {
         .allMatch(resource -> resource.getAccessForm().getName().equals(finalAccessForm.getName()));
   }
 
-  private static boolean formDoesntContainSection(
-      AccessFormSection accessFormSection, AccessForm accessForm) {
-    return accessForm.getLinkedSections().stream()
-        .noneMatch(section -> section.equals(accessFormSection));
-  }
-
-  private AccessFormDTO getCombinedAccessForm(Request request, AccessForm accessForm) {
-    AccessForm combinedAccessForm = combineAccessForms(request, accessForm);
-    return modelMapper.map(combinedAccessForm, AccessFormDTO.class);
-  }
-
-  private static AccessForm combineAccessForms(Request request, AccessForm accessForm) {
-    for (Resource resource : request.getResources()) {
-      if (!resource.getAccessForm().equals(accessForm)) {
-        accessForm.getLinkedSections().addAll(resource.getAccessForm().getLinkedSections());
-      }
-    }
-    return accessForm;
+  private boolean formDoesntContainSection(Long accessFormId, Long accessFormSectionId) {
+    return !accessFormRepository.isSectionPartOfAccessForm(accessFormId, accessFormSectionId);
   }
 
   private static void verifyArguments(String requestId) {
@@ -228,5 +256,19 @@ public class AccessFormServiceImpl implements AccessFormService {
     return requestRepository
         .findById(requestId)
         .orElseThrow(() -> new EntityNotFoundException(requestId));
+  }
+
+  private void resetForm(AccessForm accessForm) {
+    Set<AccessFormSection> sections = accessForm.getLinkedSections();
+    sections.forEach(
+        section -> {
+          Set<AccessFormElement> elements = section.getAccessFormElements();
+          elements.forEach(
+              element -> {
+                removeElement(accessForm, section, element);
+              });
+          removeSection(accessForm, section);
+        });
+    accessFormRepository.saveAndFlush(accessForm);
   }
 }

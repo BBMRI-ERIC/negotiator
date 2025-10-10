@@ -27,7 +27,7 @@ import org.hibernate.annotations.NaturalId;
 @AllArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @SequenceGenerator(name = "access_form_section_link_id_seq", initialValue = 100)
 @CommonsLog
-class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
+public class AccessFormSectionLink implements Comparable<AccessFormSectionLink> {
   @Id
   @GeneratedValue(generator = "access_form_section_link_id_seq", strategy = GenerationType.SEQUENCE)
   private Long id;
