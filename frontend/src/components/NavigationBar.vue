@@ -145,9 +145,24 @@
               target="_blank"
               rel="noopener"
             >
-              <i class="bi bi-book" />
+              <i class="bi bi-doc" />
               {{ $t('navbar.doc') }}
             </a>
+          </li>
+          <li v-if="isRepresentative || isAdmin" class="nav-item">
+            <router-link
+              :style="{
+                color:
+                  $route.path === '/guide'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
+              }"
+              class="nav-link active nav-option"
+              to="/guide"
+            >
+              <i class="bi bi-book" />
+              Guide
+            </router-link>
           </li>
         </ul>
         <div
