@@ -88,7 +88,8 @@ class EmailServiceImplTest {
     when(notificationEmailRepository.save(any(NotificationEmail.class)))
         .thenReturn(notificationEmail);
 
-    assertDoesNotThrow(() -> emailService.sendEmail(person, VALID_SUBJECT, VALID_MAIL_BODY));
+    assertDoesNotThrow(
+        () -> emailService.sendEmail(person, VALID_SUBJECT, VALID_MAIL_BODY, null, null));
 
     verify(javaMailSender).createMimeMessage();
     verify(javaMailSender).send(mimeMessage);
@@ -179,7 +180,7 @@ class EmailServiceImplTest {
   void sendEmail_WithNullPerson_ThrowsNullPointerException() {
     assertThrows(
         NullPointerException.class,
-        () -> emailService.sendEmail((Person) null, VALID_SUBJECT, VALID_MAIL_BODY));
+        () -> emailService.sendEmail((Person) null, VALID_SUBJECT, VALID_MAIL_BODY, null, null));
   }
 
   @Test
@@ -188,7 +189,7 @@ class EmailServiceImplTest {
 
     assertThrows(
         IllegalArgumentException.class,
-        () -> emailService.sendEmail(person, VALID_SUBJECT, VALID_MAIL_BODY));
+        () -> emailService.sendEmail(person, VALID_SUBJECT, VALID_MAIL_BODY, null, null));
 
     verifyNoInteractions(javaMailSender);
   }
