@@ -14,4 +14,6 @@ interface NotificationRepository
   List<Notification> findAllByRecipientId(Long personId);
 
   Page<Notification> findAllByRecipientId(Long personId, Pageable pageable);
+
+  boolean existsByRecipientIdAndNegotiationId(Long recipientId, String negotiationId);
 }
