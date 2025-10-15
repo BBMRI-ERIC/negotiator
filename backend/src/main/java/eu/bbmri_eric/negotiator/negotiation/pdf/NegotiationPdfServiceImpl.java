@@ -152,7 +152,9 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   private Context createContext(Negotiation negotiation, boolean includeAttachments) {
     Map<String, Object> payload = new LinkedHashMap<>();
     try {
-      payload = this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
+      payload =
+          this.objectMapper.readValue(
+              negotiation.getPayload(), new TypeReference<LinkedHashMap<String, Object>>() {});
     } catch (JsonProcessingException e) {
       log.error("Error processing negotiation payload: " + e.getMessage());
     }
