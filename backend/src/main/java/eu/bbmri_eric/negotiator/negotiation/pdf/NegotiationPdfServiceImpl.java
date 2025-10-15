@@ -20,8 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,7 +107,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
     return escapedText.replace("\n", "<br />");
   }
 
-  private Map<String, Object> processPayload(Map<String, Object> payload) {
+  private Map<String, Object> processPayload(TypeReference<LinkedHashMap<String, Object>> payload) {
     Map<String, Object> processedPayload = new LinkedHashMap<>();
     try {
       payload.forEach(
@@ -150,7 +150,8 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   }
 
   private Context createContext(Negotiation negotiation, boolean includeAttachments) {
-    Map<String, Object> payload = new LinkedHashMap<>();
+    TypeReference<LinkedHashMap<String, Object>> payload =
+        new TypeReference<LinkedHashMap<String, Object>>() {};
     try {
       payload = this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
     } catch (JsonProcessingException e) {
