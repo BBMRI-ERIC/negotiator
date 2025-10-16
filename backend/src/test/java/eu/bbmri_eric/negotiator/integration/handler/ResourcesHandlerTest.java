@@ -8,7 +8,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationState;
 import eu.bbmri_eric.negotiator.negotiation.state_machine.resource.NegotiationResourceState;
-import eu.bbmri_eric.negotiator.notification.NotificationDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
 import eu.bbmri_eric.negotiator.user.PersonService;
@@ -24,6 +23,7 @@ public class ResourcesHandlerTest {
   @Autowired NonRepresentedResourcesHandler handler;
   @Autowired PersonService personService;
   @Autowired TestEventListener testEventListener;
+  @Autowired AddedRepresentativeTestEventListener addedRepresentativeTestEventListener;
   @Autowired NotificationService notificationService;
 
   @Test
@@ -61,13 +61,13 @@ public class ResourcesHandlerTest {
     personService.assignAsRepresentativeForResource(103L, 10L);
     Thread.sleep(100L);
     assertEquals(1, testEventListener.events.size());
+    assertEquals(1, addedRepresentativeTestEventListener.events.size());
   }
 
   @Test
-  void addRepresentative_afterNegotiationCreation_eventPublished() throws InterruptedException {
-    personService.assignAsRepresentativeForResource(110L, 5L);
+  void addRepresentative_emailNotificationEventPublished() throws InterruptedException {
+    personService.assignAsRepresentativeForResource(104L, 10L);
     Thread.sleep(100L);
-    NotificationDTO notification = notificationService.findById(10000L);
-    assertEquals(110L, notification.getRecipientId());
+    assertEquals(2, addedRepresentativeTestEventListener.events.size());
   }
 }

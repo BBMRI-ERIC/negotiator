@@ -36,7 +36,7 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
     this.notificationService = notificationService;
   }
 
-  @Scheduled(fixedRate = 120000)
+  @Scheduled(fixedRate = 30000)
   public void flushEventBuffer() {
     if (eventsBuffer.isEmpty()) return;
 
