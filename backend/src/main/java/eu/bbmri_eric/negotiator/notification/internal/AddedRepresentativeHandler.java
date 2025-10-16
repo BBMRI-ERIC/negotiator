@@ -1,5 +1,8 @@
-package eu.bbmri_eric.negotiator.user;
+package eu.bbmri_eric.negotiator.notification.internal;
 
+import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
+import eu.bbmri_eric.negotiator.notification.NotificationService;
+import eu.bbmri_eric.negotiator.user.AddedRepresentativeEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +20,20 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @CommonsLog
-public class AddedRepresentativesListener implements ApplicationListener<AddedRepresentativeEvent> {
+public class AddedRepresentativeHandler implements ApplicationListener<AddedRepresentativeEvent> {
 
-  private final AddedRepresentativesHandler handler;
+  private final String TITLE = "You have been added as a representative for one or more resources";
+  private final String TEXT =
+      """
+      You have been added as a representative for the following resources.
+
+      Please log in to the BBMRI Negotiator to review all the ongoing negotiations involving these resources.""";
+
   private final Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
+  private final NotificationService notificationService;
 
-  public AddedRepresentativesListener(AddedRepresentativesHandler handler) {
-    this.handler = handler;
+  public AddedRepresentativeHandler(NotificationService notificationService) {
+    this.notificationService = notificationService;
   }
 
   @Scheduled(fixedRate = 120000)
@@ -44,6 +54,12 @@ public class AddedRepresentativesListener implements ApplicationListener<AddedRe
   }
 
   public void handleEvents(Map<Long, List<AddedRepresentativeEvent>> events) {
-    handler.notifyAddedRepresentatives((events));
+
+    events.forEach(
+        (representativeId, addedRepresentativeEvents) -> {
+          NotificationCreateDTO notification =
+              new NotificationCreateDTO(List.of(representativeId), TITLE, TEXT, null);
+          notificationService.createNotifications(notification);
+        });
   }
 }
