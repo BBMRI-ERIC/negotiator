@@ -481,7 +481,7 @@ public class AccessFormTests {
             MockMvcRequestBuilders.put("%s/201".formatted(ACCESS_FORMS_ENDPOINT))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(accessFormUpdateDTO)))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(

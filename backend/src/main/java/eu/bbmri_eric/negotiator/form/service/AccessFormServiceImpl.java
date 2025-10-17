@@ -126,12 +126,12 @@ public class AccessFormServiceImpl implements AccessFormService {
 
   @Override
   @Transactional
-  public void updateAccessForm(Long formId, AccessFormUpdateDTO formUpdateDTO) {
+  public AccessFormDTO updateAccessForm(Long formId, AccessFormUpdateDTO formUpdateDTO) {
     AccessForm accessForm =
         accessFormRepository
             .findById(formId)
             .orElseThrow(() -> new EntityNotFoundException(formId));
-    resetForm(accessForm);
+    accessForm = resetForm(accessForm);
     accessForm.setName(formUpdateDTO.getName());
     List<AccessFormUpdateSectionDTO> sectionsDTO = formUpdateDTO.getSections();
     for (int i = 0; i < sectionsDTO.size(); i++) {
@@ -152,6 +152,7 @@ public class AccessFormServiceImpl implements AccessFormService {
         accessForm.linkElementToSection(section, element, j, elementDTO.getRequired());
       }
     }
+    return modelMapper.map(accessFormRepository.saveAndFlush(accessForm), AccessFormDTO.class);
   }
 
   @Override
@@ -258,17 +259,15 @@ public class AccessFormServiceImpl implements AccessFormService {
         .orElseThrow(() -> new EntityNotFoundException(requestId));
   }
 
-  private void resetForm(AccessForm accessForm) {
-    Set<AccessFormSection> sections = accessForm.getLinkedSections();
-    sections.forEach(
-        section -> {
-          Set<AccessFormElement> elements = section.getAccessFormElements();
-          elements.forEach(
-              element -> {
-                removeElement(accessForm, section, element);
-              });
-          removeSection(accessForm, section);
-        });
-    accessFormRepository.saveAndFlush(accessForm);
+  private AccessForm resetForm(AccessForm accessForm) {
+    List<AccessFormSection> sections = List.copyOf(accessForm.getLinkedSections());
+    for (AccessFormSection section : sections) {
+      List<AccessFormElement> elements = List.copyOf(section.getAccessFormElements());
+      for (AccessFormElement element : elements) {
+        removeElement(accessForm, section, element);
+      }
+      removeSection(accessForm, section);
+    }
+    return accessFormRepository.saveAndFlush(accessForm);
   }
 }

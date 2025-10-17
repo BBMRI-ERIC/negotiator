@@ -45,7 +45,7 @@ public class AccessFormSectionLink implements Comparable<AccessFormSectionLink> 
 
   @OneToMany(
       mappedBy = "accessFormSectionLink",
-      cascade = {CascadeType.PERSIST},
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
       orphanRemoval = true)
   private SortedSet<AccessFormSectionElementLink> accessFormSectionElementLinks = new TreeSet<>();
 

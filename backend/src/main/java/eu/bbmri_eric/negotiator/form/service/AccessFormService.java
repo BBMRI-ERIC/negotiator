@@ -52,8 +52,9 @@ public interface AccessFormService {
    *
    * @param id The access form id.
    * @param accessFormUpdateDTO The updated access form data
+   * @return
    */
-  void updateAccessForm(Long id, AccessFormUpdateDTO accessFormUpdateDTO);
+  AccessFormDTO updateAccessForm(Long id, AccessFormUpdateDTO accessFormUpdateDTO);
 
   /**
    * Add a section to a specific Access-form.

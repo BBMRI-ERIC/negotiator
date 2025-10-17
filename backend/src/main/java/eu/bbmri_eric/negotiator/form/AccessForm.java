@@ -46,7 +46,7 @@ public class AccessForm extends AuditEntity {
   @OneToMany(
       mappedBy = "accessForm",
       fetch = FetchType.EAGER,
-      cascade = CascadeType.PERSIST,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
       orphanRemoval = true)
   @Getter(AccessLevel.PRIVATE)
   @Setter(AccessLevel.PRIVATE)
