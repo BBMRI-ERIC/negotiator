@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Listens for requests to send an email notification to a user, when he is added to one or more
- * resources. The listener buffers one or more new representative added events and collects them
- * into a unique email, sent after a certain amount of time.
+ * resources. The handler buffers one or more new representative added events and collects them into
+ * a unique notification, sent to the Notification Service on a fixed time rate.
  */
 @Component
 @CommonsLog
@@ -36,7 +36,7 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
     this.notificationService = notificationService;
   }
 
-  @Scheduled(fixedRate = 30000)
+  @Scheduled(fixedRate = 300000)
   public void flushEventBuffer() {
     if (eventsBuffer.isEmpty()) return;
 
@@ -60,6 +60,12 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
           NotificationCreateDTO notification =
               new NotificationCreateDTO(List.of(representativeId), TITLE, TEXT, null);
           notificationService.createNotifications(notification);
+          log.info(
+              "Sent notification to representative:"
+                  + representativeId
+                  + "to notify him about"
+                  + addedRepresentativeEvents.size()
+                  + " added resources.");
         });
   }
 }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationEvent;
 
-/** Event for the addition of a new representative to a resource. */
+/** Event for the assignment of one or more resources to a Person as representative */
 @Setter
 @Getter
 public class AddedRepresentativeEvent extends ApplicationEvent {
