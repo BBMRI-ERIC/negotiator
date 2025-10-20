@@ -25,7 +25,7 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
   private final String TITLE = "You have been added as a representative for one or more resources";
   private final String TEXT =
       """
-      You have been added as a representative for the following resources.
+      You have been added as a representative for one or more resources.
 
       Please log in to the BBMRI Negotiator to review all the ongoing negotiations involving these resources.""";
 
