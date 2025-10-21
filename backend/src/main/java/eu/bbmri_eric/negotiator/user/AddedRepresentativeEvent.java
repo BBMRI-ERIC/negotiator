@@ -19,14 +19,14 @@ public class AddedRepresentativeEvent extends ApplicationEvent {
       Object source,
       Long representativeId,
       String representativeName,
+      String representativeEmail,
       Long resourceId,
-      String sourceId,
-      String representativeEmail) {
+      String sourceId) {
     super(source);
     this.representativeId = representativeId;
     this.representativeName = representativeName;
+    this.representativeEmail = representativeEmail;
     this.resourceId = resourceId;
     this.sourceId = sourceId;
-    this.representativeEmail = representativeEmail;
   }
 }

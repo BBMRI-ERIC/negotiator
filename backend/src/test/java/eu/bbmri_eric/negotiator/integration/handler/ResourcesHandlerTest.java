@@ -23,7 +23,7 @@ public class ResourcesHandlerTest {
   @Autowired NonRepresentedResourcesHandler handler;
   @Autowired PersonService personService;
   @Autowired TestEventListener testEventListener;
-  @Autowired AddedRepresentativeTestEventListener addedRepresentativeTestEventListener;
+  @Autowired AddedRepresentativeTestEventHandler addedRepresentativeTestEventHandler;
   @Autowired NotificationService notificationService;
 
   @Test
@@ -61,13 +61,13 @@ public class ResourcesHandlerTest {
     personService.assignAsRepresentativeForResource(103L, 10L);
     Thread.sleep(100L);
     assertEquals(1, testEventListener.events.size());
-    assertEquals(1, addedRepresentativeTestEventListener.events.size());
+    assertEquals(1, addedRepresentativeTestEventHandler.events.size());
   }
 
   @Test
   void addRepresentative_emailNotificationEventPublished() throws InterruptedException {
     personService.assignAsRepresentativeForResource(104L, 10L);
     Thread.sleep(100L);
-    assertEquals(2, addedRepresentativeTestEventListener.events.size());
+    assertEquals(2, addedRepresentativeTestEventHandler.events.size());
   }
 }
