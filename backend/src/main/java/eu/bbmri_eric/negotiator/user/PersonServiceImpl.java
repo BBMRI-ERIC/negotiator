@@ -158,9 +158,9 @@ public class PersonServiceImpl implements PersonService {
             this,
             representative.getId(),
             representative.getName(),
+            representative.getEmail(),
             resource.getId(),
-            resource.getSourceId(),
-            representative.getEmail()));
+            resource.getSourceId()));
 
     representative.addResource(resource);
     personRepository.save(representative);
