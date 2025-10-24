@@ -1,34 +1,28 @@
 <template>
   <div class="guide-page">
-    <h1>Welcome to the App Guide</h1>
+    <h1>Welcome to the Negotiator Guide</h1>
     <p>This guide will walk you through how to use the app effectively from a user perspective.</p>
-
-    <section>
-      <h2>Getting Started</h2>
-      <p>
-        To begin, log in to your account using your credentials. If you're new, you can sign up by
-        clicking the "Sign Up" button on the login page.
-      </p>
-    </section>
 
     <section>
       <h2>Key Features</h2>
       <ul>
-        <li><strong>Dashboard:</strong> View an overview of your activities and progress.</li>
+        <li><strong>Menu:</strong> Navigating the BBMRI-ERIC Negotiator</li>
+
+        <p class="mb-0">
+          The navigation bar at the top of the screen is your primary tool for getting around the
+          platform.
+        </p>
+        <button class="btn btn-sm btn-outline-dark my-3">
+          Take the Tour
+          <i class="bi bi-person-raised-hand"></i>
+        </button>
+
         <li>
           <strong>Search:</strong> Use the search bar to quickly find what you're looking for.
         </li>
         <li><strong>Notifications:</strong> Stay updated with real-time alerts and updates.</li>
         <li><strong>Settings:</strong> Customize your preferences and manage your account.</li>
       </ul>
-    </section>
-
-    <section>
-      <h2>How to Navigate</h2>
-      <p>
-        Use the navigation bar at the top of the screen to access different sections of the app.
-        Each section is designed to help you accomplish specific tasks efficiently.
-      </p>
     </section>
 
     <section>

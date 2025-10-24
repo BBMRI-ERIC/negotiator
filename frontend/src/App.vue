@@ -1,7 +1,7 @@
 <template>
   <div :style="{ 'background-color': uiConfiguration?.appBackgroundColor }">
     <VueTour v-if="isVueTourVisible" />
-
+    <!-- <AllVueTours /> -->
     <header>
       <navigation-bar />
     </header>
@@ -31,6 +31,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
 import allFeatureFlags from '@/config/featureFlags.js'
 import VueTour from './components/VueTour.vue'
+import AllVueTours from './components/vue-tours/AllVueTours.vue'
 import NavigationBar from './components/NavigationBar.vue'
 import AlertNotification from './components/AlertNotification.vue'
 import Footer from './components/FooterComp.vue'

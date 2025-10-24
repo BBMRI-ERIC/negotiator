@@ -163,7 +163,7 @@ const router = createRouter({
       path: '/guide',
       name: 'guide',
       component: GuidePage,
-      meta: { isPublic: true },
+      meta: { isPublic: false },
     },
     {
       path: '/:pathMatch(.*)*',
