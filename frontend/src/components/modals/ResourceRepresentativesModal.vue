@@ -51,25 +51,28 @@
 
           <div class="mb-4" :class="{ 'opacity-50 pe-none': isSaving }">
             <h6>Add Representatives</h6>
+            <div class="col d-flex flex-row">
             <div class="input-group mb-3">
-              <input
-                v-model="searchQuery"
+              <TextFilter
+                name="name"
+                label="Name"
                 type="text"
-                class="form-control"
-                placeholder="Search users by name or email..."
-                :disabled="isSaving"
+                placeholder="Enter representative's name"
+                v-model:value="representativesFilterData.name"
                 @input="handleSearchInput"
               />
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                :disabled="isLoading || isSaving"
-                @click="searchUsers"
-              >
-                <i class="bi bi-search"></i>
-              </button>
             </div>
-
+            <div class="input-group ms-3 mb-3">
+              <TextFilter
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="Enter representative's email address"
+                v-model:value="representativesFilterData.email"
+                @input="handleSearchInput"
+              />
+            </div>
+            </div>
             <div v-if="isLoading" class="text-center py-3">
               <div class="spinner-border spinner-border-sm" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -194,6 +197,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useAdminStore } from '@/store/admin'
 import { useResourcesStore } from '@/store/resources'
 import { useNotificationsStore } from '@/store/notifications'
+import TextFilter from '../filters/TextFilter.vue'
 
 const props = defineProps({
   modalId: {
@@ -212,7 +216,10 @@ const adminStore = useAdminStore()
 const resourcesStore = useResourcesStore()
 const notifications = useNotificationsStore()
 
-const searchQuery = ref('')
+const representativesFilterData = ref({
+  'name': '',
+  'email': ''
+})
 const searchResults = ref([])
 const isLoading = ref(false)
 const hasSearched = ref(false)
@@ -234,22 +241,22 @@ const hasChanges = computed(
 const handleSearchInput = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
-    if (searchQuery.value.trim()) {
+    if (representativesFilterData.value.name.trim() || representativesFilterData.value.email.trim()) {
       searchUsers()
     }
   }, 300)
 }
 
 const searchUsers = async () => {
-  if (!searchQuery.value.trim()) return
+  if (!representativesFilterData.value.name.trim() && !representativesFilterData.value.email.trim()) return
 
   isLoading.value = true
   hasSearched.value = true
 
   try {
     const filtersSortData = {
-      name: searchQuery.value,
-      email: searchQuery.value,
+      name: representativesFilterData.value.name,
+      email: representativesFilterData.value.email,
     }
 
     const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
@@ -378,7 +385,8 @@ const resetState = () => {
   currentRepresentatives.value = [...originalRepresentatives.value]
   representativesToAdd.value = []
   representativesToRemove.value = []
-  searchQuery.value = ''
+  representativesFilterData.value.name = ''
+  representativesFilterData.value.email = ''
   searchResults.value = []
   hasSearched.value = false
 }
@@ -406,7 +414,8 @@ watch(
 const resetSearchState = () => {
   representativesToAdd.value = []
   representativesToRemove.value = []
-  searchQuery.value = ''
+  representativesFilterData.value.name = ''
+  representativesFilterData.value.email = ''
   searchResults.value = []
   hasSearched.value = false
 }
