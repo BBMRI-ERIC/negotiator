@@ -21,8 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +114,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   }
 
   private Map<String, Object> processPayload(Map<String, Object> payload) {
-    Map<String, Object> processedPayload = new HashMap<>();
+    Map<String, Object> processedPayload = new LinkedHashMap<>();
     try {
       payload.forEach(
           (key, value) -> {
@@ -145,7 +145,7 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   }
 
   private Map<String, Set<String>> getResourcesByOrganization(Set<Resource> resources) {
-    Map<String, Set<String>> resourcesByOrganization = new HashMap<>();
+    Map<String, Set<String>> resourcesByOrganization = new LinkedHashMap<>();
     for (var resource : resources) {
       var orgName = resource.getOrganization().getName();
       resourcesByOrganization
@@ -156,9 +156,11 @@ public class NegotiationPdfServiceImpl implements NegotiationPdfService {
   }
 
   private Context createContext(Negotiation negotiation, boolean includeAttachments) {
-    Map<String, Object> payload = new HashMap<>();
+    Map<String, Object> payload = new LinkedHashMap<>();
     try {
-      payload = this.objectMapper.readValue(negotiation.getPayload(), new TypeReference<>() {});
+      payload =
+          this.objectMapper.readValue(
+              negotiation.getPayload(), new TypeReference<LinkedHashMap<String, Object>>() {});
     } catch (JsonProcessingException e) {
       log.error("Error processing negotiation payload: " + e.getMessage());
     }
