@@ -52,26 +52,26 @@
           <div class="mb-4" :class="{ 'opacity-50 pe-none': isSaving }">
             <h6>Add Representatives</h6>
             <div class="col d-flex flex-row">
-            <div class="input-group mb-3">
-              <TextFilter
-                name="name"
-                label="Name"
-                type="text"
-                placeholder="Enter representative's name"
-                v-model:value="representativesFilterData.name"
-                @input="handleSearchInput"
-              />
-            </div>
-            <div class="input-group ms-3 mb-3">
-              <TextFilter
-                name="email"
-                label="Email"
-                type="email"
-                placeholder="Enter representative's email address"
-                v-model:value="representativesFilterData.email"
-                @input="handleSearchInput"
-              />
-            </div>
+              <div class="input-group mb-3">
+                <TextFilter
+                  name="name"
+                  label="Name"
+                  type="text"
+                  placeholder="Enter representative's name"
+                  v-model:value="representativesFilterData.name"
+                  @input="handleSearchInput"
+                />
+              </div>
+              <div class="input-group ms-3 mb-3">
+                <TextFilter
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="Enter representative's email address"
+                  v-model:value="representativesFilterData.email"
+                  @input="handleSearchInput"
+                />
+              </div>
             </div>
             <div v-if="isLoading" class="text-center py-3">
               <div class="spinner-border spinner-border-sm" role="status">
@@ -241,32 +241,33 @@ const hasChanges = computed(
 const handleSearchInput = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
-    if (representativesFilterData.value.name.trim() || representativesFilterData.value.email.trim()) {
-      searchUsers()
-    }
+    searchUsers()
   }, 300)
 }
 
 const searchUsers = async () => {
-  if (!representativesFilterData.value.name.trim() && !representativesFilterData.value.email.trim()) return
-
-  isLoading.value = true
-  hasSearched.value = true
-
-  try {
-    const filtersSortData = {
-      name: representativesFilterData.value.name,
-      email: representativesFilterData.value.email,
-    }
-
-    const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
-    searchResults.value = result.users || []
-  } catch {
-    notifications.setNotification('Error searching users')
+  if (!representativesFilterData.value.name.trim() && !representativesFilterData.value.email.trim()) {
     searchResults.value = []
-  } finally {
-    isLoading.value = false
+  } else {
+    isLoading.value = true
+    hasSearched.value = true
+  
+    try {
+      const filtersSortData = {
+        name: representativesFilterData.value.name,
+        email: representativesFilterData.value.email,
+      }
+  
+      const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
+      searchResults.value = result.users || []
+    } catch {
+      notifications.setNotification('Error searching users')
+      searchResults.value = []
+    } finally {
+      isLoading.value = false
+    }
   }
+
 }
 
 const isCurrentRepresentative = (userId) => {
