@@ -28,7 +28,10 @@
     />
     <div class="row mt-4">
       <div class="row-col-2">
-        <h1 class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
+        <h1
+          class="fw-bold v-step-negotiation-0"
+          :style="{ color: uiConfiguration.primaryTextColor }"
+        >
           {{ negotiation ? negotiation.payload?.project?.title?.toUpperCase() : '' }}
         </h1>
         <p
@@ -47,7 +50,7 @@
         </UiBadge>
       </div>
       <div class="col-12 col-md-8 order-2 order-md-1">
-        <ul class="list-group list-group-flush rounded border px-3 my-3">
+        <ul class="list-group list-group-flush rounded border px-3 my-3 v-step-negotiation-1">
           <li
             v-for="(element, key) in negotiation.payload"
             :key="element"
@@ -264,7 +267,7 @@
           :external-posts="posts"
           :timeline-events="timelineEvents"
           @new_attachment="retrieveAttachments()"
-          class="col-11 ms-2"
+          class="col-11 ms-2 v-step-negotiation-9"
         />
       </div>
       <NegotiationSidebar
@@ -302,6 +305,7 @@ import AddResourcesButton from '@/components/AddResourcesButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
 import { useUserStore } from '../store/user.js'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
+import { useVueTourStore } from '@/store/vueTour'
 import { useRouter } from 'vue-router'
 import NegotiationSidebar from '@/components/NegotiationSidebar.vue'
 import { ROLES } from '@/config/consts.js'
@@ -326,6 +330,7 @@ const isAddResourcesButtonVisible = ref(false)
 const resourceStates = ref([])
 const userStore = useUserStore()
 const negotiationPageStore = useNegotiationPageStore()
+const vueTourStore = useVueTourStore()
 const router = useRouter()
 const negotiationPosts = ref(null)
 const timelineEvents = ref([])
@@ -467,6 +472,8 @@ onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
   }
+
+  vueTourStore.isNegotiationVisible = true
 })
 
 async function retrieveAttachments() {
