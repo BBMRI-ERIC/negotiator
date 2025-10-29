@@ -1,7 +1,7 @@
 <template>
   <VueTour
     v-if="isAdmin || isResearcher || isRepresentative"
-    :tourName="'menuTour'"
+    :tourName="'navTour'"
     :steps="steps"
     :isStoreToLocalStorage="false"
   />
