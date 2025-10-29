@@ -1,7 +1,7 @@
 <template>
   <div :style="{ 'background-color': uiConfiguration?.appBackgroundColor }">
     <VueTour v-if="isVueTourVisible" />
-    <!-- <AllVueTours /> -->
+    <AllVueTours />
     <header>
       <navigation-bar />
     </header>

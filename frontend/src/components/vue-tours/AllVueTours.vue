@@ -1,21 +1,25 @@
 <template>
   <!-- <VueTourDefault /> -->
-  <MenuTour
+  <NavTour
+    v-if="vueTourStore.isNavTourActive"
     :isAdmin="isAdmin"
     :isResearcher="isResearcher"
     :isRepresentative="isRepresentative"
     :isNetworksTabDisplayed="isNetworksTabDisplayed"
   />
+  <FilterSortTour v-if="vueTourStore.isFilterSortTourActive && vueTourStore.isFilterSortVisible" />
 </template>
-
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import VueTourDefault from '../vue-tours/VueTourDefault.vue'
-import MenuTour from '../vue-tours/MenuTour.vue'
+import NavTour from './NavTour.vue'
+import FilterSortTour from './FilterSortTour.vue'
 import { useUserStore } from '../../store/user'
+import { useVueTourStore } from '../../store/vueTour'
 import { ROLES } from '@/config/consts.js'
 
 const userStore = useUserStore()
+const vueTourStore = useVueTourStore()
 const roles = ref([])
 
 const userInfo = computed(() => {

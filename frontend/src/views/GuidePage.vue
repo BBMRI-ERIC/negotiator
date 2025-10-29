@@ -6,19 +6,24 @@
     <section>
       <h2>Key Features</h2>
       <ul>
-        <li><strong>Menu:</strong> Navigating the BBMRI-ERIC Negotiator</li>
-
-        <p class="mb-0">
-          The navigation bar at the top of the screen is your primary tool for getting around the
-          platform.
-        </p>
-        <button class="btn btn-sm btn-outline-dark my-3">
-          Take the Tour
-          <i class="bi bi-person-raised-hand"></i>
-        </button>
-
         <li>
-          <strong>Search:</strong> Use the search bar to quickly find what you're looking for.
+          <strong>Menu:</strong> Navigating the BBMRI-ERIC Negotiator
+
+          <p class="mb-0">
+            The navigation bar at the top of the screen is your primary tool for getting around the
+            platform.
+          </p>
+          <button @click="startNavTour()" class="btn btn-sm btn-outline-dark my-3">
+            Take the Tour
+            <i class="bi bi-person-raised-hand"></i>
+          </button>
+        </li>
+        <li>
+          <strong>Filter:</strong> Use the filter bar to quickly find what you're looking for.
+          <button @click="startFilterTour()" class="btn btn-sm btn-outline-dark my-3">
+            Take the Tour
+            <i class="bi bi-person-raised-hand"></i>
+          </button>
         </li>
         <li><strong>Notifications:</strong> Stay updated with real-time alerts and updates.</li>
         <li><strong>Settings:</strong> Customize your preferences and manage your account.</li>
@@ -38,6 +43,23 @@
     </section>
   </div>
 </template>
+
+<script setup>
+import { useVueTourStore } from '../store/vueTour'
+import { useRouter } from 'vue-router'
+
+const vueTourStore = useVueTourStore()
+const router = useRouter()
+
+function startNavTour() {
+  vueTourStore.isNavTourActive = true
+}
+function startFilterTour() {
+  vueTourStore.isFilterSortTourActive = true
+  vueTourStore.isFilterSortVisible = false
+  router.push('/')
+}
+</script>
 
 <style scoped>
 .guide-page {
