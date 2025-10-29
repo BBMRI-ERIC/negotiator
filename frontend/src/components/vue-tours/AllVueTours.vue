@@ -11,7 +11,7 @@
   <NegotiationTour v-if="vueTourStore.isNegotiationTourActive" />
 </template>
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useUserStore } from '../../store/user'
