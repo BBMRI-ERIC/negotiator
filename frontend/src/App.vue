@@ -1,6 +1,5 @@
 <template>
   <div :style="{ 'background-color': uiConfiguration?.appBackgroundColor }">
-    <VueTour v-if="isVueTourVisible" />
     <AnalyticsNotice :privacy-link="privacyPolicyLink" />
 
     <AllVueTours />
@@ -32,7 +31,6 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
 import allFeatureFlags from '@/config/featureFlags.js'
-import VueTour from './components/VueTour.vue'
 import AllVueTours from './components/vue-tours/AllVueTours.vue'
 import NavigationBar from './components/NavigationBar.vue'
 import AlertNotification from './components/AlertNotification.vue'
@@ -63,15 +61,6 @@ watch(
     }
   },
 )
-
-const isVueTourVisible = computed(() => {
-  return (
-    (route.fullPath === '/researcher' ||
-      route.fullPath === '/admin' ||
-      route.fullPath === '/biobanker') &&
-    vueTourFeatureFlag
-  )
-})
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
