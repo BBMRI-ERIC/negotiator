@@ -28,7 +28,7 @@ const steps = ref([
     },
     content:
       'This is the title of the negotiation you have selected. It provides a brief overview of the negotiation topic.',
-    before: (type) =>
+    before: () =>
       new Promise((resolve) => {
         if (vueTourStore.isNegotiationVisible) {
           resolve('foo')
