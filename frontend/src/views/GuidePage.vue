@@ -12,21 +12,24 @@
           <p class="mb-0">
             The navigation bar at the top of the screen is your primary tool for getting around the
             platform.
+            <button @click="startNavTour()" class="btn btn-sm btn-outline-dark">
+              Take the Tour
+            </button>
           </p>
-          <button @click="startNavTour()" class="btn btn-sm btn-outline-dark my-3">
-            Take the Tour
-            <i class="bi bi-person-raised-hand"></i>
-          </button>
         </li>
         <li>
           <strong>Filter:</strong> Use the filter bar to quickly find what you're looking for.
-          <button @click="startFilterTour()" class="btn btn-sm btn-outline-dark my-3">
+          <button @click="startFilterSortTour()" class="btn btn-sm btn-outline-dark my-3">
             Take the Tour
-            <i class="bi bi-person-raised-hand"></i>
           </button>
         </li>
-        <li><strong>Notifications:</strong> Stay updated with real-time alerts and updates.</li>
-        <li><strong>Settings:</strong> Customize your preferences and manage your account.</li>
+        <li>
+          <strong>Negotiation Page:</strong> It allows users to manage and track the progress of
+          negotiations efficiently   
+          <button @click="startNegotiationTour()" class="btn btn-sm btn-outline-dark my-3">
+              Take the Tour
+            </button>
+        </li>
       </ul>
     </section>
 
@@ -47,17 +50,43 @@
 <script setup>
 import { useVueTourStore } from '../store/vueTour'
 import { useRouter } from 'vue-router'
+import { useNotificationsStore } from '../store/notifications.js'
 
+const notificationsStore = useNotificationsStore()
 const vueTourStore = useVueTourStore()
 const router = useRouter()
 
 function startNavTour() {
+  showNotification(
+    'Starting the Navigation Tour! Follow the prompts to learn about the navigation features.',
+    'info',
+  )
   vueTourStore.isNavTourActive = true
 }
-function startFilterTour() {
+function startFilterSortTour() {
+  showNotification(
+    'Starting the Filter and Sort Tour! Follow the prompts to learn about filtering and sorting features.',
+    'info',
+  )
   vueTourStore.isFilterSortTourActive = true
   vueTourStore.isFilterSortVisible = false
   router.push('/')
+}
+
+function startNegotiationTour() {
+  showNotification(
+    'Starting the Negotiation Tour! Please select a negotiation from the list to begin the tour.',
+    'info',
+  )
+
+  vueTourStore.isNegotiationTourActive = true
+  vueTourStore.isNegotiationVisible = false
+
+  router.push('/')
+}
+
+function showNotification(message, type) {
+  notificationsStore.setNotification(message, type)
 }
 </script>
 

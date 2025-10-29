@@ -1,5 +1,5 @@
 <template>
-  <VueTour :tourName="'defoultTour'" :steps="steps" :isStoreToLocalStorage="true" />
+  <VueTour :tourName="'vue-tour-default-1'" :steps="steps" :isStoreToLocalStorage="true" />
 </template>
 
 <script setup>
