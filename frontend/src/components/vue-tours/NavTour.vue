@@ -124,7 +124,7 @@ const steps = ref([
     },
     content:
       'The navigation bar at the top of the screen is your primary tool for getting around the platform. Its divided into two main sections: the Main Menu on the left and your User and System Information on the right.',
-    before: (type) =>
+    before: () =>
       new Promise((resolve) => {
         initializeSteps()
         resolve('foo')

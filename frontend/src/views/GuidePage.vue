@@ -25,10 +25,10 @@
         </li>
         <li>
           <strong>Negotiation Page:</strong> It allows users to manage and track the progress of
-          negotiations efficiently   
+          negotiations efficiently
           <button @click="startNegotiationTour()" class="btn btn-sm btn-outline-dark my-3">
-              Take the Tour
-            </button>
+            Take the Tour
+          </button>
         </li>
       </ul>
     </section>
