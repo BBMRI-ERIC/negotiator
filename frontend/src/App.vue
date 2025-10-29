@@ -3,6 +3,7 @@
     <VueTour v-if="isVueTourVisible" />
     <AnalyticsNotice :privacy-link="privacyPolicyLink" />
 
+    <AllVueTours />
     <header>
       <navigation-bar />
     </header>

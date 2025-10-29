@@ -1,7 +1,7 @@
 <template>
   <div class="container d-flex flex-row flex-wrap justify-content-between">
-    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
-      <div class="sort-by">
+    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0 v-step-20">
+      <div class="sort-by v-step-21">
         <FilterButton
           :customStyle="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
           customClass="dropdown-toggle custom-button-hover"
@@ -36,19 +36,21 @@
         </ul>
       </div>
 
-      <FilterButton
-        :customStyle="returnButtonColor"
-        customClass="custom-button-hover"
-        size="sm"
-        @click="changeSortDirection"
-      >
-        <template #icon>
-          <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
-          <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
-        </template>
-      </FilterButton>
+      <div class="v-step-22">
+        <FilterButton
+          :customStyle="returnButtonColor"
+          customClass="custom-button-hover"
+          size="sm"
+          @click="changeSortDirection"
+        >
+          <template #icon>
+            <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
+            <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
+          </template>
+        </FilterButton>
+      </div>
 
-      <div id="v-step-3" class="filter-by-status">
+      <div id="v-step-3 v-step-23" class="filter-by-status">
         <FilterButton
           :customStyle="
             filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor
@@ -120,7 +122,7 @@
         </ul>
       </div>
 
-      <div class="filter-by-date">
+      <div class="filter-by-date v-step-24">
         <FilterButton
           :customStyle="
             filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
@@ -167,7 +169,7 @@
       </div>
     </div>
 
-    <div class="my-2 ms-auto">
+    <div class="my-2 ms-auto v-step-25">
       <FilterButton
         :customStyle="{
           'border-color': 'var(--bs-sort-filter-clear-button-outline)',
@@ -193,8 +195,11 @@ import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import FilterButton from '@/components/ui/buttons/FilterButton.vue'
+import { useVueTourStore } from '../store/vueTour'
 
 const filtersSortData = defineModel('filtersSortData')
+const vueTourStore = useVueTourStore()
+
 const router = useRouter()
 
 const props = defineProps({
@@ -283,6 +288,7 @@ function initializeRepresentativeDefaults() {
 
 onMounted(() => {
   initializeRepresentativeDefaults()
+  vueTourStore.isFilterSortVisible = true
 })
 </script>
 
