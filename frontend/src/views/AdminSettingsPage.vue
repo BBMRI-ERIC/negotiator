@@ -1,9 +1,10 @@
 <template>
   <div class="admin-settings-page">
     <div v-if="!isLoading">
-      <h1 class="mb-5 text-center">Administrator Console</h1>
+      <h1 class="mb-5 text-center v-step-settings-0">Administrator Console</h1>
       <hr />
       <InformationRequirementsSection
+        class="v-step-settings-1"
         :resource-all-events="resourceAllEvents"
         :info-requirements="infoRequirements"
         :access-forms="accessForms"
@@ -12,6 +13,7 @@
       />
       <hr />
       <WebhooksSection
+        class="v-step-settings-2"
         :webhooks="webhooks"
         @add-webhook="addWebhook"
         @edit-webhook="editWebhook"
@@ -19,9 +21,9 @@
         @test-webhook="testWebhook"
       />
       <hr />
-      <EmailNotificationsSection @view-email="viewEmailDetails" />
+      <EmailNotificationsSection class="v-step-settings-3" @view-email="viewEmailDetails" />
       <hr />
-      <UserListSection />
+      <UserListSection class="v-step-settings-4" />
     </div>
     <LoadingIndicator v-else />
     <WebhookModal
@@ -41,10 +43,12 @@
     />
     <EmailDetailModal id="emailDetailModal" :email-id="selectedEmailId" />
     <hr />
-    <email-template-section />
+    <email-template-section class="v-step-settings-5" />
     <hr />
-    <access-forms-section />
-    <ElementsManagement />
+    <div class="v-step-settings-6">
+      <access-forms-section />
+    </div>
+    <ElementsManagement class="v-step-settings-7" />
   </div>
 </template>
 
@@ -53,6 +57,7 @@ import { onMounted, ref } from 'vue'
 import { useUserStore } from '../store/user.js'
 import { useAdminStore } from '../store/admin.js'
 import { useFormsStore } from '../store/forms.js'
+import { useVueTourStore } from '../store/vueTour'
 import InformationRequirementsSection from '@/components/InformationRequirementsSection.vue'
 import WebhooksSection from '@/components/WebhooksSection.vue'
 import EmailNotificationsSection from '@/components/EmailNotificationsSection.vue'
@@ -70,6 +75,8 @@ import ElementsManagement from '@/components/ElementsManagement.vue'
 const userStore = useUserStore()
 const adminStore = useAdminStore()
 const formsStore = useFormsStore()
+const vueTourStore = useVueTourStore()
+
 const notifications = useNotificationsStore()
 
 const resourceAllEvents = ref({})
@@ -98,6 +105,7 @@ onMounted(async () => {
     console.error('Initialization error:', error)
   } finally {
     isLoading.value = false
+    vueTourStore.isSettingsVisible = true
   }
 })
 
