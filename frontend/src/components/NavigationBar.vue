@@ -136,20 +136,6 @@
             </router-link>
           </li>
           <li class="nav-item">
-            <a
-              :style="{
-                color: uiConfiguration?.navbarTextColor,
-              }"
-              class="nav-link active nav-option"
-              href="https://bbmri-eric.github.io/negotiator/requester"
-              target="_blank"
-              rel="noopener"
-            >
-              <i class="bi bi-doc" />
-              {{ $t('navbar.doc') }}
-            </a>
-          </li>
-          <li class="nav-item">
             <router-link
               :style="{
                 color:
@@ -161,7 +147,7 @@
               to="/guide"
             >
               <i class="bi bi-book" />
-              Guide
+              {{ $t('navbar.guide') }}
             </router-link>
           </li>
         </ul>
