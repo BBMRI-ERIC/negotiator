@@ -10,7 +10,7 @@
         @click="$emit('createOrganization')"
         :disabled="props.loading"
       >
-        <i class="bi bi-plus-circle me-2"></i>
+        <i class="bi bi-plus-circle me-2 v-step-governance-3"></i>
         Create {{ $t('governancePage.organisations') }}
       </button>
     </div>
