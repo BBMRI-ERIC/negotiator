@@ -4,38 +4,30 @@
     <p>This guide will walk you through how to use the app effectively from a user perspective.</p>
 
     <section>
-      <h2>Key Features</h2>
+      <h3>Key Features</h3>
       <ul>
         <li>
           <strong>Menu:</strong> Navigating the BBMRI-ERIC Negotiator
-
-          <p class="mb-0">
-            The navigation bar at the top of the screen is your primary tool for getting around the
-            platform.
-            <button @click="startNavTour()" class="btn btn-sm btn-outline-dark">
-              Take the Tour
-            </button>
-          </p>
+          <button @click="startNavTour()" class="btn btn-sm btn-outline-dark">Take the Tour</button>
         </li>
         <li>
           <strong>Filter:</strong> Use the filter bar to quickly find what you're looking for.
-          <button @click="startFilterSortTour()" class="btn btn-sm btn-outline-dark my-3">
+          <button @click="startFilterSortTour()" class="btn btn-sm btn-outline-dark">
             Take the Tour
           </button>
         </li>
         <li>
           <strong>Negotiation Page:</strong> It allows users to manage and track the progress of
           negotiations efficiently
-          <button @click="startNegotiationTour()" class="btn btn-sm btn-outline-dark my-3">
+          <button @click="startNegotiationTour()" class="btn btn-sm btn-outline-dark">
             Take the Tour
           </button>
         </li>
         <li v-if="isRepresentative || isAdmin">
           <strong>Governance:</strong> The Negotiator operates on a hierarchical governance
           structure designed to mirror real-world organizational relationships and resource
-          management. Understanding this structure is crucial for proper system administration and
-          ensuring smooth negotiation workflows
-          <button @click="startGovernanceTour()" class="btn btn-sm btn-outline-dark my-3">
+          management.
+          <button @click="startGovernanceTour()" class="btn btn-sm btn-outline-dark">
             Take the Tour
           </button>
         </li>
@@ -79,17 +71,19 @@ const notificationsStore = useNotificationsStore()
 const vueTourStore = useVueTourStore()
 
 onMounted(async () => {
+  console.log('GuidePage mounted', userStore.userInfo)
+
   if (Object.keys(userStore.userInfo).length === 0) {
     await userStore.retrieveUser()
   }
 })
 
 const isRepresentative = computed(() => {
-  return userStore.userInfo.roles.includes(ROLES.REPRESENTATIVE)
+  return userStore.userInfo.roles?.includes(ROLES.REPRESENTATIVE)
 })
 
 const isAdmin = computed(() => {
-  return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
+  return userStore.userInfo.roles?.includes(ROLES.ADMINISTRATOR)
 })
 
 function startNavTour() {
