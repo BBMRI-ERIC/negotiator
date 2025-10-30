@@ -7,6 +7,7 @@ export const useVueTourStore = defineStore('vueTour', () => {
   const isFilterSortVisible = ref(false)
   const isNegotiationTourActive = ref(false)
   const isNegotiationVisible = ref(false)
+  const isGovernanceTourActive = ref(false)
 
   return {
     isNavTourActive,
@@ -14,5 +15,6 @@ export const useVueTourStore = defineStore('vueTour', () => {
     isFilterSortVisible,
     isNegotiationTourActive,
     isNegotiationVisible,
+    isGovernanceTourActive,
   }
 })

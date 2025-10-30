@@ -5,7 +5,7 @@
 
       <!-- Navigation Tabs -->
       <ul class="nav nav-tabs mb-4" id="governanceTab" role="tablist" v-if="isAdmin">
-        <li class="nav-item" role="presentation">
+        <li class="nav-item v-step-governance-0" role="presentation">
           <button
             class="nav-link"
             :class="{ active: activeTab === 'organizations' }"
@@ -20,7 +20,7 @@
             Organizations
           </button>
         </li>
-        <li class="nav-item" role="presentation">
+        <li class="nav-item v-step-governance-1" role="presentation">
           <button
             class="nav-link"
             :class="{ active: activeTab === 'networks' }"

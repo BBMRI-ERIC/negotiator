@@ -30,31 +30,58 @@
             Take the Tour
           </button>
         </li>
+        <li v-if="isGovernanceVisible">
+          <strong>Governance:</strong> The Negotiator operates on a hierarchical governance
+          structure designed to mirror real-world organizational relationships and resource
+          management. Understanding this structure is crucial for proper system administration and
+          ensuring smooth negotiation workflows
+          <button @click="startGovernanceTour()" class="btn btn-sm btn-outline-dark my-3">
+            Take the Tour
+          </button>
+        </li>
       </ul>
     </section>
 
     <section>
-      <h2>Access Documentation</h2>
-      <p>Learn more about the Negotiator by visiting the official documentation.</p>
-      <a
-        href="https://bbmri-eric.github.io/negotiator/what-is-negotiator"
-        target="_blank"
-        class="doc-link"
-      >
-        <i class="bi bi-book"></i> Documentation
-      </a>
+      <h2>Documentation</h2>
+      <p>
+        Learn more about the Negotiator by visiting the official<a
+          href="https://bbmri-eric.github.io/negotiator/what-is-negotiator"
+          target="_blank"
+          class="doc-link"
+        >
+          Documentation
+        </a>
+      </p>
     </section>
   </div>
 </template>
 
 <script setup>
-import { useVueTourStore } from '../store/vueTour'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../store/user.js'
+import { useVueTourStore } from '../store/vueTour'
 import { useNotificationsStore } from '../store/notifications.js'
+import { ROLES } from '@/config/consts'
 
+const router = useRouter()
+const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 const vueTourStore = useVueTourStore()
-const router = useRouter()
+
+onMounted(async () => {
+  if (Object.keys(userStore.userInfo).length === 0) {
+    await userStore.retrieveUser()
+  }
+})
+
+const isGovernanceVisible = computed(() => {
+  return (
+    userStore.userInfo.roles.includes(ROLES.REPRESENTATIVE) ||
+    userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
+  )
+})
 
 function startNavTour() {
   showNotification(
@@ -83,6 +110,13 @@ function startNegotiationTour() {
   vueTourStore.isNegotiationVisible = false
 
   router.push('/')
+}
+
+function startGovernanceTour() {
+  showNotification('Starting the Governance Tour!', 'info')
+
+  vueTourStore.isGovernanceTourActive = true
+  router.push('/governance')
 }
 
 function showNotification(message, type) {
