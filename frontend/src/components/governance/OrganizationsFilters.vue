@@ -1,6 +1,6 @@
 <template>
   <div class="filters-container mb-4">
-    <div class="row g-3">
+    <div class="row g-3 v-step-governance-2">
       <!-- Status Filter (FilterButton with dropdown) -->
       <div class="col-md-3 d-flex flex-column">
         <label class="form-label">Status</label>
