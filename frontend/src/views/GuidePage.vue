@@ -30,12 +30,20 @@
             Take the Tour
           </button>
         </li>
-        <li v-if="isGovernanceVisible">
+        <li v-if="isRepresentative || isAdmin">
           <strong>Governance:</strong> The Negotiator operates on a hierarchical governance
           structure designed to mirror real-world organizational relationships and resource
           management. Understanding this structure is crucial for proper system administration and
           ensuring smooth negotiation workflows
           <button @click="startGovernanceTour()" class="btn btn-sm btn-outline-dark my-3">
+            Take the Tour
+          </button>
+        </li>
+        <li v-if="isAdmin">
+          <strong>Admin Settings:</strong> Manage Information Requirements, Webhooks, Emails, Users,
+          Templates, Access Forms and Form Elements.
+
+          <button @click="startAdminSettingsTour()" class="btn btn-sm btn-outline-dark my-3">
             Take the Tour
           </button>
         </li>
@@ -76,11 +84,12 @@ onMounted(async () => {
   }
 })
 
-const isGovernanceVisible = computed(() => {
-  return (
-    userStore.userInfo.roles.includes(ROLES.REPRESENTATIVE) ||
-    userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
-  )
+const isRepresentative = computed(() => {
+  return userStore.userInfo.roles.includes(ROLES.REPRESENTATIVE)
+})
+
+const isAdmin = computed(() => {
+  return userStore.userInfo.roles.includes(ROLES.ADMINISTRATOR)
 })
 
 function startNavTour() {
@@ -117,6 +126,14 @@ function startGovernanceTour() {
 
   vueTourStore.isGovernanceTourActive = true
   router.push('/governance')
+}
+
+function startAdminSettingsTour() {
+  showNotification('Starting the Settings Tour!', 'info')
+
+  vueTourStore.isAdminSettingsTourActive = true
+  vueTourStore.isSettingsVisible = false
+  router.push('/settings')
 }
 
 function showNotification(message, type) {

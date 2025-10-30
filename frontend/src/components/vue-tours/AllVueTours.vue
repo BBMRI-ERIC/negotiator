@@ -10,6 +10,9 @@
   <FilterSortTour v-if="vueTourStore.isFilterSortTourActive && vueTourStore.isFilterSortVisible" />
   <NegotiationTour v-if="vueTourStore.isNegotiationTourActive" />
   <GovernanceTour v-if="vueTourStore.isGovernanceTourActive" />
+  <AdminSettingsTour
+    v-if="vueTourStore.isAdminSettingsTourActive && vueTourStore.isSettingsVisible"
+  />
 </template>
 <script setup>
 import { ref, computed, watch } from 'vue'
@@ -23,6 +26,7 @@ import NavTour from './NavTour.vue'
 import FilterSortTour from './FilterSortTour.vue'
 import NegotiationTour from './NegotiationTour.vue'
 import GovernanceTour from './GovernanceTour.vue'
+import AdminSettingsTour from './AdminSettingsTour.vue'
 
 const userStore = useUserStore()
 const vueTourStore = useVueTourStore()
