@@ -410,9 +410,9 @@ public class AccessFormServiceTest {
   }
 
   /**
-   * Test updating an access form * Removes section 1 * Adds section 201 * Add element 1 to section
-   * 3 * Change the order of sections to 3, 201, 2 * Change the order of elements in section 3 to 5,
-   * 4, 1 * Change element 3 to be required in section 2
+   * Test updating an access form - Removes section 1 - Adds section 201 - Add element 1 to section
+   * 3 - Change the order of sections to 3, 201, 2 - Change the order of elements in section 3 to 5,
+   * 4, 1 - Change element 3 to be required in section 2
    */
   @Test
   void updateAccessForm_ok() {
