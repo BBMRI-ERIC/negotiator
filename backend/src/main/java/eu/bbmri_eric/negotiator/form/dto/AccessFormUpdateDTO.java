@@ -1,5 +1,6 @@
 package eu.bbmri_eric.negotiator.form.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -16,8 +17,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class AccessFormUpdateDTO {
+  @Schema(
+      description =
+          "The list of sections that will be part of the updated access form, in the order they should appear")
+  @NotNull
+  @NotEmpty
+  List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
 
+  @Schema(description = "The new name of the access form", example = "Changed name")
+  @NotNull
   private String name;
-
-  @NotNull @NotEmpty List<AccessFormUpdateSectionDTO> sections = new ArrayList<>();
 }
