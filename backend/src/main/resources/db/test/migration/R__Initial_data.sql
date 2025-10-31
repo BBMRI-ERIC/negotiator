@@ -168,7 +168,7 @@ insert into access_form (id, name)
 values (201, 'Test Template');
 
 insert into access_form_section (id, name, label, description)
-VALUES (201, 'test-section', 'Test Section', 'This is fr testing');
+VALUES (201, 'test-section', 'Test Section', 'This is for testing');
 
 
 INSERT INTO access_form_element (id, name, label, description, type)
