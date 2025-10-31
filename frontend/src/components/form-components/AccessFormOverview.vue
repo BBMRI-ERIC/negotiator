@@ -4,9 +4,9 @@
       <h2 class="mb-3">Overview</h2>
       <p class="mb-0 mb-5">
         Upon confirmation, your request will undergo content review. Our reviewers may contact you
-        via email for further details. Upon approval, the respective organizations you wish to contact
-        will be notified of your request. Please click 'Submit request' and then 'Confirm' to
-        proceed.
+        via email for further details. Upon approval, the respective organizations you wish to
+        contact will be notified of your request. Please click 'Submit request' and then 'Confirm'
+        to proceed.
       </p>
     </div>
 

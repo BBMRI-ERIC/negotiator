@@ -218,7 +218,7 @@ const notifications = useNotificationsStore()
 
 const representativesFilterData = ref({
   name: '',
-  email: ''
+  email: '',
 })
 const searchResults = ref([])
 const isLoading = ref(false)
@@ -246,19 +246,22 @@ const handleSearchInput = () => {
 }
 
 const searchUsers = async () => {
-  if (!representativesFilterData.value.name.trim() && !representativesFilterData.value.email.trim()) {
+  if (
+    !representativesFilterData.value.name.trim() &&
+    !representativesFilterData.value.email.trim()
+  ) {
     searchResults.value = []
     hasSearched.value = false
   } else {
     isLoading.value = true
     hasSearched.value = true
-  
+
     try {
       const filtersSortData = {
         name: representativesFilterData.value.name,
         email: representativesFilterData.value.email,
       }
-  
+
       const result = await adminStore.retrieveUsers(0, 20, filtersSortData)
       searchResults.value = result.users || []
     } catch {
@@ -268,7 +271,6 @@ const searchUsers = async () => {
       isLoading.value = false
     }
   }
-
 }
 
 const isCurrentRepresentative = (userId) => {
