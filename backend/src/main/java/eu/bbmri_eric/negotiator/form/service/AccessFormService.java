@@ -52,7 +52,7 @@ public interface AccessFormService {
    *
    * @param id The access form id.
    * @param accessFormUpdateDTO The updated access form data
-   * @return
+   * @return the modified Access-form
    */
   AccessFormDTO updateAccessForm(Long id, AccessFormUpdateDTO accessFormUpdateDTO);
 

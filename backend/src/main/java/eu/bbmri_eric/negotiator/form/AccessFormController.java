@@ -103,7 +103,7 @@ public class AccessFormController {
   @PutMapping(value = "/access-forms/{formId}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
-      summary = "Update the access for with the specified id",
+      summary = "Update the access form with the specified id",
       description = "Update the access form sending new sections and elements.")
   public EntityModel<AccessFormDTO> updateAccessForm(
       @PathVariable Long formId, @Valid @RequestBody AccessFormUpdateDTO accessFormDTO) {

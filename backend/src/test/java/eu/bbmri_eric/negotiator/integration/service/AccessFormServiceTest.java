@@ -153,8 +153,6 @@ public class AccessFormServiceTest {
     request.getResources().add(resource);
     request = requestRepository.save(request);
     assertEquals(2, request.getResources().size());
-    List<AccessFormSectionDTO> d =
-        accessFormService.getAccessFormForRequest(request.getId()).getSections();
     assertEquals(
         5, accessFormService.getAccessFormForRequest(request.getId()).getSections().size());
   }
@@ -457,21 +455,21 @@ public class AccessFormServiceTest {
 
     assertEquals(section3.getId(), 3);
     assertEquals(section3.getElements().get(0).getId(), 5L);
-    assertEquals(section3.getElements().get(0).getRequired(), true);
+    assertTrue(section3.getElements().get(0).getRequired());
     assertEquals(section3.getElements().get(1).getId(), 4L);
-    assertEquals(section3.getElements().get(1).getRequired(), false);
+    assertFalse(section3.getElements().get(1).getRequired());
     assertEquals(section3.getElements().get(2).getId(), 1L);
-    assertEquals(section3.getElements().get(2).getRequired(), true);
+    assertTrue(section3.getElements().get(2).getRequired());
 
     assertEquals(section201.getId(), 201);
     assertEquals(section201.getElements().get(0).getId(), 201L);
-    assertEquals(section201.getElements().get(0).getRequired(), false);
+    assertFalse(section201.getElements().get(0).getRequired());
     assertEquals(section201.getElements().get(1).getId(), 2L);
-    assertEquals(section201.getElements().get(1).getRequired(), true);
+    assertTrue(section201.getElements().get(1).getRequired());
 
     assertEquals(section2.getId(), 2);
     assertEquals(section2.getElements().get(0).getId(), 3L);
-    assertEquals(section2.getElements().get(0).getRequired(), false);
+    assertFalse(section2.getElements().get(0).getRequired());
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
