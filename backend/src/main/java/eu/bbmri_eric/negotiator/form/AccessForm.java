@@ -130,7 +130,7 @@ public class AccessForm extends AuditEntity {
     formLinks.add(accessFormSectionLink);
   }
 
-  private AccessFormSectionLink findSectionLink(AccessFormSection section) {
+  public AccessFormSectionLink findSectionLink(AccessFormSection section) {
     return formLinks.stream()
         .filter(link -> link.getAccessFormSection().equals(section))
         .findFirst()
