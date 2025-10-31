@@ -217,8 +217,8 @@ const resourcesStore = useResourcesStore()
 const notifications = useNotificationsStore()
 
 const representativesFilterData = ref({
-  'name': '',
-  'email': ''
+  name: '',
+  email: ''
 })
 const searchResults = ref([])
 const isLoading = ref(false)
@@ -248,6 +248,7 @@ const handleSearchInput = () => {
 const searchUsers = async () => {
   if (!representativesFilterData.value.name.trim() && !representativesFilterData.value.email.trim()) {
     searchResults.value = []
+    hasSearched.value = false
   } else {
     isLoading.value = true
     hasSearched.value = true
