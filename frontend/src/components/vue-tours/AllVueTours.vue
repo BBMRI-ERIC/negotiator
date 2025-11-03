@@ -1,5 +1,5 @@
 <template>
-  <VueTourDefault v-if="isVueTourDefaultVisible" />
+  <VueTourDefault v-if="isVueTourDefaultVisible && vueTourStore.isDefaultTourActive" />
   <NavTour
     v-if="vueTourStore.isNavTourActive"
     :isAdmin="isAdmin"

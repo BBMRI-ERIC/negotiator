@@ -91,6 +91,7 @@ function startNavTour() {
     'Starting the Navigation Tour! Follow the prompts to learn about the navigation features.',
     'info',
   )
+  disableOtherTours()
   vueTourStore.isNavTourActive = true
 }
 function startFilterSortTour() {
@@ -98,6 +99,7 @@ function startFilterSortTour() {
     'Starting the Filter and Sort Tour! Follow the prompts to learn about filtering and sorting features.',
     'info',
   )
+  disableOtherTours()
   vueTourStore.isFilterSortTourActive = true
   vueTourStore.isFilterSortVisible = false
   router.push('/')
@@ -108,7 +110,7 @@ function startNegotiationTour() {
     'Starting the Negotiation Tour! Please select a negotiation from the list to begin the tour.',
     'info',
   )
-
+  disableOtherTours()
   vueTourStore.isNegotiationTourActive = true
   vueTourStore.isNegotiationVisible = false
 
@@ -117,14 +119,14 @@ function startNegotiationTour() {
 
 function startGovernanceTour() {
   showNotification('Starting the Governance Tour!', 'info')
-
+  disableOtherTours()
   vueTourStore.isGovernanceTourActive = true
   router.push('/governance')
 }
 
 function startAdminSettingsTour() {
   showNotification('Starting the Settings Tour!', 'info')
-
+  disableOtherTours()
   vueTourStore.isAdminSettingsTourActive = true
   vueTourStore.isSettingsVisible = false
   router.push('/settings')
@@ -132,6 +134,15 @@ function startAdminSettingsTour() {
 
 function showNotification(message, type) {
   notificationsStore.setNotification(message, type)
+}
+
+function disableOtherTours() {
+  vueTourStore.isDefaultTourActive = false
+  vueTourStore.isNavTourActive = false
+  vueTourStore.isFilterSortTourActive = false
+  vueTourStore.isNegotiationTourActive = false
+  vueTourStore.isGovernanceTourActive = false
+  vueTourStore.isAdminSettingsTourActive = false
 }
 </script>
 
