@@ -78,7 +78,6 @@
 
           <button
             v-if="negotiations.length > 0"
-            id="v-step-1"
             type="button"
             class="btn btn-sm"
             :class="savedNegotiationsView === 'Table' ? '' : 'bg-body'"
