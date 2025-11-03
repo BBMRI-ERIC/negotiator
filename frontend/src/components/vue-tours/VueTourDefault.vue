@@ -16,13 +16,6 @@ const steps = ref([
       'In the <strong>Negotiator</strong>, you can view the status of your negotiations and stay in contact with the providers of the desired resources.',
   },
   {
-    target: '#v-step-1',
-    header: {
-      title: 'Selection of the view.',
-    },
-    content: 'You can present your enquiries in a compact table or an informative card layout.',
-  },
-  {
     target: '#v-step-2',
     header: {
       title: 'Status',
