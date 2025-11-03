@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useVueTourStore = defineStore('vueTour', () => {
+  const isDefaultTourActive = ref(true)
   const isNavTourActive = ref(false)
   const isFilterSortTourActive = ref(false)
   const isFilterSortVisible = ref(false)
@@ -12,6 +13,7 @@ export const useVueTourStore = defineStore('vueTour', () => {
   const isSettingsVisible = ref(false)
 
   return {
+    isDefaultTourActive,
     isNavTourActive,
     isFilterSortTourActive,
     isFilterSortVisible,
