@@ -160,12 +160,16 @@
               <!-- Representatives -->
               <div class="representatives">
                 <small class="text-muted">
-                  <strong>Representatives:</strong>
+                  <strong>Representatives: </strong>
                   <span v-if="resource.representatives.length === 0" class="text-warning">
                     None assigned
                   </span>
                   <span v-else>
-                    {{ resource.representatives.join(', ') }}
+                    {{
+                      resource.representatives
+                        ?.map((rep) => `${rep.name} (${rep.email})`)
+                        .join(', ')
+                    }}
                   </span>
                 </small>
               </div>
