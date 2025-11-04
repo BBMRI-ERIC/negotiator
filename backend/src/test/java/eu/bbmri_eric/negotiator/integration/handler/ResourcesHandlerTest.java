@@ -1,5 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.handler;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.bbmri_eric.negotiator.governance.resource.NonRepresentedResourcesHandler;
@@ -59,15 +61,20 @@ public class ResourcesHandlerTest {
   @Test
   void addRepresentative_firstRepresentative_eventPublished() throws InterruptedException {
     personService.assignAsRepresentativeForResource(103L, 10L);
-    Thread.sleep(100L);
-    assertEquals(1, testEventListener.events.size());
-    assertEquals(1, addedRepresentativeTestEventHandler.events.size());
+    await()
+        .atMost(200, MILLISECONDS)
+        .untilAsserted(
+            () -> {
+              assertEquals(1, testEventListener.events.size());
+              assertEquals(1, addedRepresentativeTestEventHandler.events.size());
+            });
   }
 
   @Test
   void addRepresentative_emailNotificationEventPublished() throws InterruptedException {
     personService.assignAsRepresentativeForResource(104L, 10L);
-    Thread.sleep(100L);
-    assertEquals(2, addedRepresentativeTestEventHandler.events.size());
+    await()
+        .atMost(200, MILLISECONDS)
+        .untilAsserted(() -> assertEquals(2, addedRepresentativeTestEventHandler.events.size()));
   }
 }

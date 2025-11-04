@@ -25,6 +25,8 @@ public class AddedRepresentativeHandlerTest {
 
   @Autowired private AddedRepresentativeHandler addedRepresentativeHandler;
 
+  private static final String USER_NOTIFICATIONS_ENDPOINT = "/v3/users/%s/notifications";
+
   @Test
   @WithMockNegotiatorUser(id = 104L)
   public void handleRepresentativeAddedEvents_whenSingleRepresentative_ok() throws Exception {
@@ -32,7 +34,7 @@ public class AddedRepresentativeHandlerTest {
     personService.assignAsRepresentativeForResource(104L, 10L);
     addedRepresentativeHandler.flushEventBuffer();
     mockMvc
-        .perform(get("/v3/users/104/notifications"))
+        .perform(get(String.format(USER_NOTIFICATIONS_ENDPOINT, 104L)))
         .andExpect(status().isOk())
         .andDo(print())
         .andExpect(jsonPath("$._embedded.notifications.length()").value(1));
@@ -46,7 +48,7 @@ public class AddedRepresentativeHandlerTest {
     personService.assignAsRepresentativeForResource(109L, 10L);
     addedRepresentativeHandler.flushEventBuffer();
     mockMvc
-        .perform(get("/v3/users/105/notifications"))
+        .perform(get(String.format(USER_NOTIFICATIONS_ENDPOINT, 105L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.notifications.length()").value(1));
   }
@@ -57,7 +59,7 @@ public class AddedRepresentativeHandlerTest {
       throws Exception {
     addedRepresentativeHandler.flushEventBuffer();
     mockMvc
-        .perform(get("/v3/users/109/notifications"))
+        .perform(get(String.format(USER_NOTIFICATIONS_ENDPOINT, 109L)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.notifications.length()").value(1));
   }
