@@ -167,7 +167,10 @@
                   <span v-else>
                     {{
                       resource.representatives
-                        ?.map((rep) => `${rep.name} (${rep.email})`)
+                        ?.map(
+                          (rep) =>
+                            `${rep.name || 'name not provided'} (${rep.email || 'email not provided'})`,
+                        )
                         .join(', ')
                     }}
                   </span>
