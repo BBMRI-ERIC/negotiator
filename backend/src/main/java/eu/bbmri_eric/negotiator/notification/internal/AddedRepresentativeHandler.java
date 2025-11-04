@@ -33,11 +33,11 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
   private final Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
   private final NotificationService notificationService;
 
-  public AddedRepresentativeHandler(NotificationService notificationService) {
+  private AddedRepresentativeHandler(NotificationService notificationService) {
     this.notificationService = notificationService;
   }
 
-  @Scheduled(fixedRate = 300000)
+  @Scheduled(fixedRate = 300000) // Polling every 5 minutes
   public void flushEventBuffer() {
     if (eventsBuffer.isEmpty()) return;
 
