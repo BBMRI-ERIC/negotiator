@@ -66,13 +66,16 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    assert negotiation != null;
-    String messageId =
-        notificationRepository.existsByRecipientIdAndNegotiationId(
-                person.getId(), negotiation.getId())
-            ? UUID.randomUUID().toString()
-            : negotiation.getId();
-    emailService.sendEmail(
-        person, notification.getTitle(), emailContent, negotiation.getId(), messageId);
+    String messageId = null;
+    String negotiationId = null;
+    if (negotiation != null) {
+      negotiationId = negotiation.getId();
+      messageId =
+          notificationRepository.existsByRecipientIdAndNegotiationId(
+                  person.getId(), negotiation.getId())
+              ? UUID.randomUUID().toString()
+              : negotiation.getId();
+    }
+    emailService.sendEmail(person, notification.getTitle(), emailContent, negotiationId, messageId);
   }
 }
