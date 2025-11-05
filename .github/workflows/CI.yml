@@ -46,7 +46,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4
         with:
-          node-version: '20.12.2'
+          node-version: '24.11.0'
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
@@ -65,7 +65,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4
         with:
-          node-version: '20.12.2'
+          node-version: '24.11.0'
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
@@ -106,7 +106,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4
         with:
-          node-version: '22.11.0'
+          node-version: '24.11.0'
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
@@ -199,7 +199,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4
         with:
-          node-version: '20.12.2'
+          node-version: '24.11.0'
           cache: 'yarn'
           cache-dependency-path: 'frontend/yarn.lock'
 
@@ -643,7 +643,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4
         with:
-          node-version: 21
+          node-version: 24
           cache: npm
           cache-dependency-path: 'docs/package-lock.json'
 
