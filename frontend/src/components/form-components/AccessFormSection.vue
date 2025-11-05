@@ -8,7 +8,7 @@
     </div>
 
     <div
-      class="access-form-section-elements mb-3"
+      class="access-form-section-elements"
       v-for="(element, index) in accessFormWithPayloadSection.elements"
       :key="element.name"
       :class="
@@ -200,6 +200,7 @@
         >
           {{ transformMessage(element.type) }}
         </div>
+        <div v-else class="invalid-text">&#8203;</div>
       </div>
     </div>
   </div>
