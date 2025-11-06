@@ -28,7 +28,7 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
       You have been added as a representative for one or more resources.
 
 
-      Please log in to the BBMRI Negotiator to review all the ongoing negotiations involving these resources.""";
+      Please log in to the Negotiator.""";
 
   private final Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
   private final NotificationService notificationService;
