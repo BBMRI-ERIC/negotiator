@@ -57,7 +57,7 @@ const steps = ref([
       title: 'Users',
     },
     params: {
-      enableScrolling: false,
+      enableScrolling: true,
     },
     content:
       'Search user accounts, roles, and permissions within the Negotiator system to ensure proper access control and security.',
@@ -68,7 +68,7 @@ const steps = ref([
       title: 'Templates',
     },
     params: {
-      enableScrolling: false,
+      enableScrolling: true,
     },
     content:
       'The Negotiator provides a set of customizable templates used for generating PDFs, emails, and more',
@@ -79,7 +79,7 @@ const steps = ref([
       title: 'Access Forms',
     },
     params: {
-      enableScrolling: false,
+      enableScrolling: true,
     },
     content:
       'Adding and managing access forms that users must complete to request access to resources within the Negotiator platform.',
@@ -90,7 +90,7 @@ const steps = ref([
       title: 'Form Elements',
     },
     params: {
-      enableScrolling: false,
+      enableScrolling: true,
     },
     content:
       'Create and customize form elements that can be used in access forms throughout the Negotiator system.',
