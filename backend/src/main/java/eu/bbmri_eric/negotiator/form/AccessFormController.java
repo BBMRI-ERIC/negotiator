@@ -5,13 +5,13 @@ import eu.bbmri_eric.negotiator.form.assembler.AccessFormModelAssembler;
 import eu.bbmri_eric.negotiator.form.assembler.AccessFormSectionAssembler;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementMetaDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionMetaDTO;
-import eu.bbmri_eric.negotiator.form.service.AccessCriteriaSetService;
 import eu.bbmri_eric.negotiator.form.service.AccessFormElementService;
 import eu.bbmri_eric.negotiator.form.service.AccessFormService;
 import eu.bbmri_eric.negotiator.form.service.AccessFormsSectionService;
@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "security_auth")
 public class AccessFormController {
 
-  private final AccessCriteriaSetService accessCriteriaSetService;
   private final AccessFormElementService elementService;
   private final AccessFormsSectionService sectionService;
   private final AccessFormService accessFormService;
@@ -58,7 +57,6 @@ public class AccessFormController {
   private final ValueSetAssembler valueSetAssembler;
 
   public AccessFormController(
-      AccessCriteriaSetService accessCriteriaSetService,
       AccessFormElementService elementService,
       AccessFormsSectionService sectionService,
       AccessFormService accessFormService,
@@ -67,7 +65,6 @@ public class AccessFormController {
       AccessFormSectionAssembler accessFormSectionAssembler,
       ValueSetService valueSetService,
       ValueSetAssembler valueSetAssembler) {
-    this.accessCriteriaSetService = accessCriteriaSetService;
     this.elementService = elementService;
     this.sectionService = sectionService;
     this.accessFormService = accessFormService;
@@ -101,6 +98,17 @@ public class AccessFormController {
   @Operation(summary = "Get an access form by id", description = "Returns an access form by id")
   public EntityModel<AccessFormDTO> getAccessFormById(@PathVariable Long formId) {
     return accessFormModelAssembler.toModel(accessFormService.getAccessForm(formId));
+  }
+
+  @PutMapping(value = "/access-forms/{formId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+      summary = "Update the access form with the specified id",
+      description = "Update the access form sending new sections and elements")
+  public EntityModel<AccessFormDTO> updateAccessForm(
+      @PathVariable Long formId, @Valid @RequestBody AccessFormUpdateDTO accessFormDTO) {
+    return accessFormModelAssembler.toModel(
+        accessFormService.updateAccessForm(formId, accessFormDTO));
   }
 
   @PutMapping(value = "/access-forms/{formId}/sections")
