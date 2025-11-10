@@ -67,15 +67,17 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getCreationDate() : null);
 
     String messageId = null;
-    String negotiationId = null;
+    String negotiationId = "";
+    String subject = notification.getTitle();
     if (negotiation != null) {
       negotiationId = negotiation.getId();
+      subject += " - Negotiation Id: " + negotiationId;
       messageId =
           notificationRepository.existsByRecipientIdAndNegotiationId(
                   person.getId(), negotiation.getId())
               ? UUID.randomUUID().toString()
               : negotiation.getId();
     }
-    emailService.sendEmail(person, notification.getTitle(), emailContent, negotiationId, messageId);
+    emailService.sendEmail(person, subject, emailContent, negotiationId, messageId);
   }
 }
