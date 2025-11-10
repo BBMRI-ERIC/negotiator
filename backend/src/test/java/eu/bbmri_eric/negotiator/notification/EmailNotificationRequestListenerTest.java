@@ -72,7 +72,7 @@ public class EmailNotificationRequestListenerTest {
 
     NewNotificationEvent event = new NewNotificationEvent(1L, 1L);
     emailNotificationRequestListener.onNewNotification(event);
-    verify(emailService).sendEmail(person, "Test Notification", "Email Content", null, null);
+    verify(emailService).sendEmail(person, "Test Notification", "Email Content", "", null);
   }
 
   @Test
@@ -118,7 +118,7 @@ public class EmailNotificationRequestListenerTest {
     verify(emailService)
         .sendEmail(
             eq(person),
-            eq("Test Notification"),
+            eq("Test Notification - Negotiation Id: test-negotiation"),
             eq("Email Content"),
             eq("test-negotiation"),
             any());
@@ -167,7 +167,7 @@ public class EmailNotificationRequestListenerTest {
     verify(emailService)
         .sendEmail(
             eq(person),
-            eq("Test Notification"),
+            eq("Test Notification - Negotiation Id: test-negotiation"),
             eq("Email Content"),
             eq("test-negotiation"),
             eq("test-negotiation"));
