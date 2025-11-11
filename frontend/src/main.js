@@ -55,5 +55,7 @@ app.component('FontAwesomeIcon', FontAwesomeIcon)
 app.mount('#app')
 
 if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
-  window._paq.push(['trackPageView']) // To track a page view
+  if (window._paq) {
+    window._paq.push(['trackPageView']) // To track a page view
+  }
 }
