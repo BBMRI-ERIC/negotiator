@@ -151,6 +151,7 @@ values (1, 'bbmri-eric:ID:SE_890:network:bbmri-eric', 'network-1', 'https://netw
 
 insert into network_resources_link (network_id, resource_id)
 values (1, 4),
+       (1, 5),
        (1, 6);
 
 insert into network_person_link (network_id, person_id)
