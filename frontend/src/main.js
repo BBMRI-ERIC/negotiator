@@ -12,10 +12,12 @@ import matomo from './config/matomo.js'
 import Vue3Tour from 'vue3-tour'
 import 'vue3-tour/dist/vue3-tour.css'
 import { useOidcStore } from './store/oidc'
+import { useUserStore } from './store/user'
 import { piniaOidcCreateRouterMiddleware } from 'pinia-oidc'
 import VueDOMPurifyHTML from 'vue-dompurify-html'
 import { createI18n } from 'vue-i18n'
 import i18nConfig from './config/i18n.js'
+import { useMatomo } from '@/composables/useMatomo.js'
 import('./assets/scss/theme.scss')
 
 library.add(faSpinner)
@@ -30,6 +32,30 @@ if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
   app.use(VueMatomo, {
     host: matomo.matomoHost,
     siteId: matomo.matomoId,
+    trackerUrl: `${matomo.matomoHost}/matomo.php`,
+    enableLinkTracking: true,
+    requireCookieConsent: false,
+    disableCookies: true,
+    trackInitialPageView: true,
+    trackPageViewOnMount: true,
+    router: router,
+    debug: import.meta.env.DEV,
+  })
+
+  router.beforeEach(async (to, from, next) => {
+    const userStore = useUserStore()
+    const { setCustomVariable } = useMatomo()
+
+    if (Object.keys(userStore.userInfo).length === 0) {
+      await userStore.retrieveUser()
+    }
+
+    if (userStore.userInfo?.roles?.length > 0) {
+      const userRole = userStore.userInfo.roles[0]
+      setCustomVariable(1, 'UserRole', userRole, 'visit')
+    }
+
+    next()
   })
 }
 if (import.meta.env.DEV) {
@@ -54,8 +80,3 @@ app.component('FontAwesomeIcon', FontAwesomeIcon)
 
 app.mount('#app')
 
-if (matomo.matomoHost !== 'MATOMO_HOST_PLACEHOLDER') {
-  if (window._paq) {
-    window._paq.push(['trackPageView']) // To track a page view
-  }
-}
