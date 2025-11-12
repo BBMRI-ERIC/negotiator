@@ -79,4 +79,3 @@ router.beforeEach(piniaOidcCreateRouterMiddleware(useOidcStore()))
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 
 app.mount('#app')
-

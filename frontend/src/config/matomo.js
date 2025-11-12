@@ -1,6 +1,6 @@
 const matomo = {
-  matomoHost: 'https://matomo.bbmri-eric.eu',
-  matomoId: '4',
+  matomoHost: 'MATOMO_HOST_PLACEHOLDER',
+  matomoId: 'MATOMO_SITE_ID_PLACEHOLDER',
 }
 
 export default matomo
