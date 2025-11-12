@@ -78,6 +78,7 @@ public class NegotiationControllerTests {
   private static final String NEGOTIATION_3_ID = "negotiation-3";
   private static final String NEGOTIATION_4_ID = "negotiation-4";
   private static final String NEGOTIATION_5_ID = "negotiation-5";
+  private static final String NEGOTIATION_6_ID = "negotiation-6";
   private static final String NEGOTIATION_1_CREATION_DATE = "2024-10-12T00:00:00";
   private static final String NEGOTIATIONS_URL = "/v3/negotiations";
   private static final String SELF_LINK_TPL = "http://localhost/v3/negotiations/%s";
@@ -623,7 +624,7 @@ public class NegotiationControllerTests {
                     .formatted(AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(3)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.length()", is(3)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is(NEGOTIATION_1_ID)))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is(NEGOTIATION_2_ID)));
