@@ -6,13 +6,17 @@
     >
       <div class="analytics-notice-container">
         <div class="analytics-notice-content">
-          <i class="bi bi-info-circle"></i>
-          <span>
+          <i
+            class="bi bi-info-circle"
+            :style="{ color: uiConfiguration?.theme?.primaryColor }"
+          ></i>
+          <span :style="{ color: uiConfiguration?.theme?.primaryTextColor }">
             We use cookies and browser storage to analyse traffic on our websites and to maintain your login session. All personal data is anonymized and not shared with third parties!
             <a
               v-if="privacyLink"
               href="#"
-              class="analytics-link"
+              class="link"
+              :style="{ color: uiConfiguration?.theme?.linksColor }"
               @click.prevent="openPrivacyPolicy"
             >
               Click here for more information.
@@ -20,19 +24,19 @@
           </span>
         </div>
         <button
-          class="btn-close-notice"
+          type="button"
+          class="btn-close"
+          aria-label="Close"
           @click="dismissNotice"
-          aria-label="Close notice"
-        >
-          <i class="bi bi-x-lg"></i>
-        </button>
+        />
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useUiConfiguration } from '@/store/uiConfiguration.js'
 
 const props = defineProps({
   privacyLink: {
@@ -46,6 +50,9 @@ const NOTICE_KEY = 'negotiator_analytics_notice_dismissed'
 // Check localStorage immediately to prevent flash of banner
 const dismissed = localStorage.getItem(NOTICE_KEY)
 const noticeDismissed = ref(dismissed === 'true')
+
+const uiConfigurationStore = useUiConfiguration()
+const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration)
 
 const openPrivacyPolicy = () => {
   if (props.privacyLink) {
@@ -65,13 +72,11 @@ const dismissNotice = () => {
   bottom: 20px;
   right: 20px;
   background: rgba(255, 255, 255, 0.98);
-  color: #333;
   padding: 16px 20px;
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   max-width: 500px;
-  border-left: 4px solid #667eea;
 }
 
 .analytics-notice-container {
@@ -91,36 +96,18 @@ const dismissNotice = () => {
 
 .analytics-notice-content i.bi-info-circle {
   font-size: 1.2rem;
-  color: #667eea;
   flex-shrink: 0;
   margin-top: 2px;
 }
 
-.analytics-link {
-  color: #667eea;
+.link {
   text-decoration: underline;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.analytics-link:hover {
-  color: #5568d3;
-}
-
-.btn-close-notice {
-  background: transparent;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  padding: 0;
-  font-size: 1rem;
-  line-height: 1;
-  flex-shrink: 0;
-  transition: color 0.2s;
-}
-
-.btn-close-notice:hover {
-  color: #333;
+.link:hover {
+  opacity: 0.8;
 }
 
 /* Slide up animation */
