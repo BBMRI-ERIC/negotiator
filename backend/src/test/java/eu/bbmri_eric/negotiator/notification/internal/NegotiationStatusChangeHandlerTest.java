@@ -56,7 +56,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_WhenNegotiationSubmitted_SendsConfirmationNotification() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
@@ -83,7 +83,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_WhenNegotiationApproved_SendsStatusChangeNotification() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this,
@@ -113,7 +113,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_WhenNegotiationDeclined_SendsStatusChangeNotification() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.DECLINED, NegotiationEvent.DECLINE, "Test post");
@@ -139,7 +139,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_WhenNegotiationAbandoned_SendsStatusChangeNotification() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.ABANDONED, NegotiationEvent.ABANDON, "Test post");
@@ -165,7 +165,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_WhenNegotiationNotFound_DoesNotCreateNotifications() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
@@ -182,7 +182,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_WhenUnhandledState_DoesNotCreateNotifications() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.DRAFT, NegotiationEvent.SUBMIT, "Test post");
@@ -197,7 +197,7 @@ class NegotiationStatusChangeHandlerTest {
   @Test
   void notify_MessageContentValidation() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
 
     // Test IN_PROGRESS message content

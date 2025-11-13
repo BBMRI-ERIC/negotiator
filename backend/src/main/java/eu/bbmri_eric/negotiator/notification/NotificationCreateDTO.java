@@ -33,9 +33,7 @@ public class NotificationCreateDTO {
   @Nonnull
   private String body;
 
-  @Schema(
-      description = "Optional identifier of the associated negotiation",
-      example = "NEG-2024-001")
+  @Schema(description = "Optional identifier of the associated negotiation", example = "2024-001")
   private String negotiationId;
 
   public NotificationCreateDTO(
