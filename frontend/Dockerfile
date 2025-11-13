@@ -1,4 +1,4 @@
-FROM node:lts-bookworm AS  build-stage
+FROM node:lts-krypton AS  build-stage
 WORKDIR /app
 COPY . .
 RUN yarn install

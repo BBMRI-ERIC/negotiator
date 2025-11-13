@@ -1,6 +1,7 @@
 package eu.bbmri_eric.negotiator.integration.api.v3;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -11,6 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormCreateDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateElementDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateSectionDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementCreateDTO;
 import eu.bbmri_eric.negotiator.form.dto.ElementLinkDTO;
 import eu.bbmri_eric.negotiator.form.dto.SectionCreateDTO;
@@ -438,5 +442,69 @@ public class AccessFormTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", equalTo(id.intValue())))
         .andExpect(jsonPath("$.name", is(createDTO.getName())));
+  }
+
+  @Test
+  @WithMockUser(roles = "ADMIN")
+  void updateAccessForm_ok() throws Exception {
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection201 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(201L).required(false).build(),
+            AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection2 =
+        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(false).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection3 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(5L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(4L).required(false).build(),
+            AccessFormUpdateElementDTO.builder().id(1L).required(true).build());
+
+    List<AccessFormUpdateSectionDTO> updateSectionsDTO =
+        List.of(
+            AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(201L)
+                .elements(updateElementsDTOSection201)
+                .build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(2L)
+                .elements(updateElementsDTOSection2)
+                .build());
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("New name").sections(updateSectionsDTO).build();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("%s/201".formatted(ACCESS_FORMS_ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(accessFormUpdateDTO)))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("%s/201".formatted(ACCESS_FORMS_ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(accessFormUpdateDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").isNumber())
+        .andExpect(jsonPath("$.name", is("New name")))
+        .andExpect(jsonPath("$.sections", hasSize(3)))
+        .andExpect(jsonPath("$.sections[0].id", is(3)))
+        .andExpect(jsonPath("$.sections[1].id", is(201)))
+        .andExpect(jsonPath("$.sections[2].id", is(2)))
+        .andExpect(jsonPath("$.sections[0].elements", hasSize(3)))
+        .andExpect(jsonPath("$.sections[1].elements", hasSize(2)))
+        .andExpect(jsonPath("$.sections[2].elements", hasSize(1)))
+        .andExpect(jsonPath("$.sections[0].elements[0].id", is(5)))
+        .andExpect(jsonPath("$.sections[0].elements[1].id", is(4)))
+        .andExpect(jsonPath("$.sections[0].elements[2].id", is(1)))
+        .andExpect(jsonPath("$.sections[1].elements[0].id", is(201)))
+        .andExpect(jsonPath("$.sections[1].elements[1].id", is(2)))
+        .andExpect(jsonPath("$.sections[2].elements[0].id", is(3)))
+        .andExpect(jsonPath("$.sections[2].elements[0].required", is(false)))
+        .andExpect(jsonPath("$._links").isNotEmpty());
   }
 }

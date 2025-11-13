@@ -101,11 +101,7 @@ public class AccessFormSection extends AuditEntity {
 
   @Nullable
   private AccessFormSectionLink getAccessFormLink() {
-    return linkedForms.stream()
-        .filter(
-            accessFormSectionLink -> accessFormSectionLink.getAccessForm().equals(this.accessForm))
-        .findFirst()
-        .orElse(null);
+    return accessForm.findSectionLink(this);
   }
 
   public Long getId() {
