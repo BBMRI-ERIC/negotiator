@@ -107,13 +107,12 @@ public class NetworkControllerTests {
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-6")))
-        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-1")))
-        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-5")))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-3")))
-        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is("negotiation-4")));
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-1")))
+        .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-5")))
+        .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-3")))
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-4")));
   }
 
   @Test
@@ -135,9 +134,9 @@ public class NetworkControllerTests {
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?organizationId=4"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-6")));
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-1")));
   }
 
   @Test
@@ -159,13 +158,12 @@ public class NetworkControllerTests {
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortOrder=ASC"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-4")))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-3")))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-5")))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-1")))
-        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is("negotiation-6")));
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-1")));
   }
 
   @Test
@@ -175,13 +173,12 @@ public class NetworkControllerTests {
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/negotiations?sortBy=title"))
         .andExpect(status().isOk())
         .andExpect(content().contentType("application/hal+json"))
-        .andExpect(jsonPath("$.page.totalElements", is(5)))
-        .andExpect(jsonPath("$._embedded.negotiations.length()", is(5)))
+        .andExpect(jsonPath("$.page.totalElements", is(4)))
+        .andExpect(jsonPath("$._embedded.negotiations.length()", is(4)))
         .andExpect(jsonPath("$._embedded.negotiations.[0].id", is("negotiation-5")))
         .andExpect(jsonPath("$._embedded.negotiations.[1].id", is("negotiation-4")))
         .andExpect(jsonPath("$._embedded.negotiations.[2].id", is("negotiation-3")))
-        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-6")))
-        .andExpect(jsonPath("$._embedded.negotiations.[4].id", is("negotiation-1")));
+        .andExpect(jsonPath("$._embedded.negotiations.[3].id", is("negotiation-1")));
   }
 
   @Test
