@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Information Submission Summary</title>
+    <style type="text/css">
+        @page {
+            size: A4 landscape;
+            margin: 2cm 1.5cm;
+            @bottom-right {
+                content: "Page " counter(page);
+                font-family: Arial, sans-serif;
+                font-size: 10px;
+                color: #666;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            line-height: 1.4;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5em;
+            padding-bottom: 1em;
+            border-bottom: 3px solid #003366;
+        }
+
+        .header h1 {
+            color: #003366;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 0.5em 0;
+        }
+
+        .header .subtitle {
+            color: #6c757d;
+            font-size: 11px;
+            margin: 0.5em 0;
+        }
+
+        .metadata {
+            background-color: #f8f9fa;
+            padding: 1em;
+            margin-bottom: 1.5em;
+            border: 1px solid #dee2e6;
+            display: table;
+            width: 100%;
+        }
+
+        .metadata-item {
+            display: table-cell;
+            padding: 0.5em 1em;
+            border-right: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+
+        .metadata-item:last-child {
+            border-right: none;
+        }
+
+        .metadata-label {
+            font-weight: bold;
+            color: #003366;
+            display: block;
+            font-size: 9px;
+            text-transform: uppercase;
+            margin-bottom: 0.3em;
+        }
+
+        .metadata-value {
+            color: #2c3e50;
+            font-size: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1em;
+            font-size: 9px;
+        }
+
+        .data-table thead {
+            background-color: #003366;
+            color: white;
+        }
+
+        .data-table th {
+            padding: 0.6em 0.4em;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #002244;
+            font-size: 9px;
+            word-wrap: break-word;
+        }
+
+        .data-table td {
+            padding: 0.5em 0.4em;
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+            word-wrap: break-word;
+            max-width: 150px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .resource-id {
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .empty-cell {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .footer {
+            margin-top: 2em;
+            padding-top: 1em;
+            border-top: 2px solid #003366;
+            font-size: 8px;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3em;
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Information Submission Summary</h1>
+    <div class="subtitle">Negotiation ID: <span th:text="${negotiationId}">N/A</span></div>
+    <div class="subtitle">Requirement: <span th:text="${requirementName}">N/A</span></div>
+</div>
+
+<div class="metadata">
+    <div class="metadata-item">
+        <span class="metadata-label">Negotiation ID</span>
+        <span class="metadata-value" th:text="${negotiationId}">N/A</span>
+    </div>
+    <div class="metadata-item">
+        <span class="metadata-label">Requirement</span>
+        <span class="metadata-value" th:text="${requirementName}">N/A</span>
+    </div>
+    <div class="metadata-item">
+        <span class="metadata-label">Total Submissions</span>
+        <span class="metadata-value" th:text="${totalSubmissions}">0</span>
+    </div>
+    <div class="metadata-item">
+        <span class="metadata-label">Generated</span>
+        <span class="metadata-value" th:text="${generatedDate}">N/A</span>
+    </div>
+</div>
+
+<div th:if="${headers != null and !headers.empty}">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th th:each="header : ${headers}" th:text="${header}">Header</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row : ${rows}">
+                <td th:each="cell, iterStat : ${row}"
+                    th:class="${iterStat.index == 0} ? 'resource-id' : ''">
+                    <span th:if="${cell != null and !cell.empty}" th:text="${cell}">Value</span>
+                    <span th:if="${cell == null or cell.empty}" class="empty-cell">—</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${headers == null or headers.empty}" class="no-data">
+    <p><strong>No data available</strong></p>
+    <p>There are no information submissions for this requirement in the negotiation.</p>
+</div>
+
+<div class="footer">
+    <p>Generated on <span th:text="${generatedDate}">N/A</span> | BBMRI-ERIC Negotiator Platform</p>
+    <p>This document contains confidential information intended for authorized recipients only.</p>
+</div>
+
+</body>
+</html>
