@@ -6,6 +6,7 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
+import java.util.UUID;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ class EmailNotificationRequestListener {
   private final NotificationService notificationService;
   private final PersonRepository personRepository;
   private final NegotiationRepository negotiationRepository;
+  private final NotificationRepository notificationRepository;
   private final EmailContextBuilder emailContextBuilder;
 
   EmailNotificationRequestListener(
@@ -26,11 +28,13 @@ class EmailNotificationRequestListener {
       NotificationService notificationService,
       PersonRepository personRepository,
       NegotiationRepository negotiationRepository,
+      NotificationRepository notificationRepository,
       EmailContextBuilder emailContextBuilder) {
     this.emailService = emailService;
     this.notificationService = notificationService;
     this.personRepository = personRepository;
     this.negotiationRepository = negotiationRepository;
+    this.notificationRepository = notificationRepository;
     this.emailContextBuilder = emailContextBuilder;
   }
 
@@ -62,6 +66,18 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    emailService.sendEmail(person, notification.getTitle(), emailContent);
+    String messageId = null;
+    String negotiationId = "";
+    String subject = notification.getTitle();
+    if (negotiation != null) {
+      negotiationId = negotiation.getId();
+      subject += " - Negotiation Id: " + negotiationId;
+      messageId =
+          notificationRepository.existsByRecipientIdAndNegotiationId(
+                  person.getId(), negotiation.getId())
+              ? UUID.randomUUID().toString()
+              : negotiation.getId();
+    }
+    emailService.sendEmail(person, subject, emailContent, negotiationId, messageId);
   }
 }
