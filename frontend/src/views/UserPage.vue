@@ -119,7 +119,7 @@ function retrieveNegotiationsByPage(currentPageNumber) {
 function retrieveNegotiationsBySortAndFilter(filtersSortData) {
   filtersSortData.value = filtersSortData
 
-  incriseDateEndIfSame()
+  increaseDateEndIfSame()
   retrieveNegotiationsByUserRole(0)
 
   updateRoutingParams(1)
@@ -160,7 +160,7 @@ function loadActivefiltersSortDataFromURL() {
   }
 }
 
-function incriseDateEndIfSame() {
+function increaseDateEndIfSame() {
   if (
     filtersSortData.value.dateStart &&
     filtersSortData.value.dateStart === filtersSortData.value.dateEnd

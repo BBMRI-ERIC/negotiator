@@ -97,7 +97,28 @@ const currentTab = ref(route.query.tab || 'overview')
 
 const stats = ref(undefined)
 const pagination = ref(undefined)
-const states = ref(undefined)
+const states = ref([{
+  value: 'CONCLUDED',
+  label: 'Concluded'
+}, {
+  value: 'SUBMITTED',
+  label: 'Under review'
+}, {
+  value: 'DECLINED',
+  label: 'Declined'
+}, {
+  value: 'ABANDONED',
+  label: 'Abandoned'
+}, {
+  value: 'IN_PROGRESS',
+  label: 'In progress'
+}, {
+  value: 'PAUSED',
+  label: 'Paused'
+}, {
+  value: 'APPROVED',
+  label: 'Approved'  
+}])
 const filtersSortData = ref({
   status: [],
   organizations: [],
@@ -304,7 +325,7 @@ async function retrieveLatestNegotiations(currentPageNumber) {
   }
 }
 
-function incriseDateEndIfSame() {
+function increaseDateEndIfSame() {
   if (
     filtersSortData.value.dateStart &&
     filtersSortData.value.dateStart === filtersSortData.value.dateEnd
@@ -316,7 +337,7 @@ function incriseDateEndIfSame() {
 }
 
 function retrieveNegotiationsBySortAndFilter() {
-  incriseDateEndIfSame()
+  increaseDateEndIfSame()
   retrieveLatestNegotiations(0)
 }
 
