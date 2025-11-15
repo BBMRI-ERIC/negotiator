@@ -11,7 +11,7 @@
       </router-link>
       <div id="menu-navbar" class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
-          <li v-if="isAdmin" class="nav-item">
+          <li v-if="isAdmin" class="nav-item v-step-10">
             <router-link
               :style="{
                 color:
@@ -26,7 +26,7 @@
               {{ $t('navbar.admin') }}
             </router-link>
           </li>
-          <li v-if="isResearcher" class="nav-item">
+          <li v-if="isResearcher" class="nav-item v-step-11">
             <router-link
               :style="{
                 color:
@@ -41,7 +41,7 @@
               {{ $t('navbar.researcher') }}
             </router-link>
           </li>
-          <li v-if="isRepresentative" class="nav-item">
+          <li v-if="isRepresentative" class="nav-item v-step-12">
             <router-link
               :style="{
                 color:
@@ -56,7 +56,7 @@
               {{ $t('navbar.biobanker') }}
             </router-link>
           </li>
-          <li v-if="isRepresentative || isAdmin" class="nav-item">
+          <li v-if="isRepresentative || isAdmin" class="nav-item v-step-13">
             <router-link
               :style="{
                 color:
@@ -77,7 +77,7 @@
           <li
             v-if="showNetworksTab && networks.length > 1"
             :class="{ show: dropdownVisible }"
-            class="nav-item dropdown"
+            class="nav-item dropdown v-step-14"
           >
             <a
               id="networksDropdown"
@@ -104,7 +104,7 @@
           </li>
 
           <!-- Single network display as clickable -->
-          <li v-else-if="showNetworksTab && networks.length === 1" class="nav-item">
+          <li v-else-if="showNetworksTab && networks.length === 1" class="nav-item v-step-14">
             <a
               :style="{
                 color: $route.path.startsWith('/networks')
@@ -120,7 +120,7 @@
             </a>
           </li>
 
-          <li v-if="featureFlagsFAQ" class="nav-item">
+          <li v-if="featureFlagsFAQ" class="nav-item v-step-15">
             <router-link
               :style="{
                 color:
@@ -136,18 +136,19 @@
             </router-link>
           </li>
           <li class="nav-item">
-            <a
+            <router-link
               :style="{
-                color: uiConfiguration?.navbarTextColor,
+                color:
+                  $route.path === '/guide'
+                    ? uiConfiguration?.navbarActiveTextColor
+                    : uiConfiguration?.navbarTextColor,
               }"
               class="nav-link active nav-option"
-              href="https://bbmri-eric.github.io/negotiator/requester"
-              target="_blank"
-              rel="noopener"
+              to="/guide"
             >
               <i class="bi bi-book" />
-              {{ $t('navbar.doc') }}
-            </a>
+              {{ $t('navbar.guide') }}
+            </router-link>
           </li>
         </ul>
         <div
@@ -158,7 +159,7 @@
           <div class="spinner-grow spinner-grow-sm" role="status" />
           {{ returnCurrentMode }}
         </div>
-        <NotificationsButton class="me-3" />
+        <NotificationsButton class="me-3 v-step-16" />
         <span
           v-if="oidcIsAuthenticated"
           :style="{ color: uiConfiguration?.navbarWelcomeTextColor }"
@@ -172,7 +173,7 @@
           :is-admin="isAdmin"
           :is-representative="isRepresentative"
           :user="oidcUser"
-          class="me-3"
+          class="me-3 v-step-17"
         />
         <button
           aria-controls="menu-navbar"

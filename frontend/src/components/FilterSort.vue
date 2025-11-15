@@ -1,9 +1,9 @@
 <template>
   <div class="container d-flex flex-row flex-wrap justify-content-between">
-    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
+    <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0 v-step-20">
       <div class="sort-by">
         <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
+          class="btn btn-sm dropdown-toggle custom-button-hover v-step-21"
           :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
           :class="filtersSortData.sortBy !== '' ? 'show' : ''"
           type="button"
@@ -36,7 +36,7 @@
       </div>
 
       <button
-        class="btn btn-sm custom-button-hover"
+        class="btn btn-sm custom-button-hover v-step-22"
         :style="returnButtonColor"
         type="button"
         @click="changeSortDirection()"
@@ -47,7 +47,7 @@
 
       <div id="v-step-3" class="filter-by-status">
         <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
+          class="btn btn-sm dropdown-toggle custom-button-hover v-step-23"
           :style="filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor"
           :class="filtersSortData.status.length > 0 ? 'show' : ''"
           type="button"
@@ -115,7 +115,7 @@
 
       <div class="filter-by-date">
         <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
+          class="btn btn-sm dropdown-toggle custom-button-hover v-step-24"
           :style="
             filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
               ? returnButtonActiveColor
@@ -169,7 +169,7 @@
       <button
         type="button"
         :style="returnClearButtonColor"
-        class="btn btn-sm custom-button-hover"
+        class="btn btn-sm custom-button-hover v-step-25"
         @click="clearAllFilters()"
       >
         <i class="bi bi-x-circle" />
@@ -184,9 +184,11 @@ import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import { useVueTourStore } from '../store/vueTour'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
+const vueTourStore = useVueTourStore()
 const router = useRouter()
 
 const props = defineProps({
@@ -288,6 +290,7 @@ function initializeRepresentativeDefaults() {
 
 onMounted(() => {
   initializeRepresentativeDefaults()
+  vueTourStore.isFilterSortVisible = true
 })
 </script>
 

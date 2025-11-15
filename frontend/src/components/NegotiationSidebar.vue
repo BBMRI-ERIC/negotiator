@@ -7,11 +7,11 @@
           {{ author.name }}
         </div>
       </li>
-      <li class="list-group-item p-2">
+      <li class="list-group-item p-2 v-step-negotiation-3">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Email:</div>
         <span :style="{ color: uiConfiguration.secondaryTextColor }">{{ author.email }}</span>
       </li>
-      <li class="list-group-item p-2">
+      <li class="list-group-item p-2 v-step-negotiation-4">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Negotiation ID:
         </div>
@@ -19,7 +19,7 @@
           {{ negotiation ? negotiation.id : '' }}</span
         >
       </li>
-      <li class="list-group-item p-2">
+      <li class="list-group-item p-2 v-step-negotiation-5">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
@@ -27,7 +27,7 @@
           {{ negotiation ? printDate(negotiation.creationDate) : '' }}</span
         >
       </li>
-      <li class="list-group-item p-2 d-flex justify-content-between">
+      <li class="list-group-item p-2 d-flex justify-content-between v-step-negotiation-6">
         <div>
           <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Status:</div>
           <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
@@ -68,10 +68,10 @@
           </li>
         </ul>
       </li>
-      <li class="list-group-item p-2 btn-sm border-bottom-0">
+      <li class="list-group-item p-2 btn-sm border-bottom-0 v-step-negotiation-7">
         <PDFButton
           id="pdf-button"
-          class="mt-2"
+          class="mt-2 v-step-negotiation-8"
           :negotiation-pdf-data="negotiation"
           data-cy="pdf-button"
           text="Download PDF"

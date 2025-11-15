@@ -1,6 +1,6 @@
 <template>
   <div class="filters-container mb-4">
-    <div class="row g-3">
+    <div class="row g-3 v-step-governance-2">
       <!-- Status Filter -->
       <div class="col-md-3">
         <label for="statusFilter" class="form-label">Status</label>
