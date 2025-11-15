@@ -9,6 +9,6 @@
     "docs:preview": "vitepress preview"
   },
   "dependencies": {
-    "swagger-ui": "^5.20.1"
+    "swagger-ui": "^5.30.2"
   }
 }
