@@ -71,8 +71,9 @@ public interface NegotiationRepository
               + "JOIN n.resourcesLink rl "
               + "JOIN rl.id.resource rs "
               + "JOIN rs.networks net "
-              + "WHERE net.id = :networkId and DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until")
-  Integer countAllForNetwork(LocalDate since, LocalDate until, Long networkId);
+              + "WHERE net.id = :networkId and n.currentState != DRAFT and "
+              + "DATE(n.creationDate) > :since and DATE(n.creationDate) <= :until")
+  Integer countAllNotDraftForNetwork(LocalDate since, LocalDate until, Long networkId);
 
   @Query(value = "SELECT n FROM Negotiation n WHERE FUNCTION('DATE', n.creationDate) = :targetDate")
   Set<Negotiation> findAllCreatedOn(LocalDateTime targetDate);

@@ -4,7 +4,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,9 +19,9 @@ import eu.bbmri_eric.negotiator.util.WithMockNegotiatorUser;
 import jakarta.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -30,24 +29,16 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @IntegrationTest(loadTestData = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@AutoConfigureMockMvc
 public class NetworkControllerTests {
 
   private static final String NETWORKS_URL = "/v3/networks";
 
-  @Autowired private WebApplicationContext context;
-
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
   @Autowired private NetworkRepository networkRepository;
-
-  @BeforeEach
-  public void before() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-  }
 
   @Test
   @WithMockUser("researcher")
@@ -601,6 +592,14 @@ public class NetworkControllerTests {
         .perform(MockMvcRequestBuilders.get(NETWORKS_URL + "/1/organizations"))
         .andExpect(status().isOk())
         .andDo(print())
-        .andExpect(jsonPath("$._embedded.organizations.size()", is(2)));
+        .andExpect(jsonPath("$._embedded.organizations.size()", is(2)))
+        // Verify that all resources in organization 0 have representatives
+        .andExpect(jsonPath("$._embedded.organizations[0].resources[0].representatives").isArray())
+        .andExpect(
+            jsonPath("$._embedded.organizations[0].resources[0].representatives[*]").isNotEmpty())
+        // Verify that all resources in organization 1 have representatives
+        .andExpect(jsonPath("$._embedded.organizations[1].resources[0].representatives").isArray())
+        .andExpect(
+            jsonPath("$._embedded.organizations[1].resources[0].representatives[*]").isNotEmpty());
   }
 }

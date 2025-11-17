@@ -26,7 +26,8 @@ public class NetworkStatisticsServiceImpl implements NetworkStatisticsService {
   @Override
   public NetworkStatistics getBasicNetworkStats(Long networkId, NetworkStatsFilter filter) {
     Integer count =
-        negotiationRepository.countAllForNetwork(filter.getSince(), filter.getUntil(), networkId);
+        negotiationRepository.countAllNotDraftForNetwork(
+            filter.getSince(), filter.getUntil(), networkId);
     Double median =
         negotiationRepository.getMedianResponseForNetwork(
             filter.getSince(), filter.getUntil(), networkId);

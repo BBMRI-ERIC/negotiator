@@ -46,6 +46,7 @@ public class NegotiationSpecification {
 
     if (network != null) {
       specs = initOrAnd(specs, byNetwork(network));
+      specs = initOrAnd(specs, hasState(List.of(NegotiationState.DRAFT), true));
     }
 
     if (filtersDTO.getOrganizationId() != null) {

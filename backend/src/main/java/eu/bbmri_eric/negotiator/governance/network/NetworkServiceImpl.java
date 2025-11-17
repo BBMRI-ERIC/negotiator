@@ -102,6 +102,7 @@ public class NetworkServiceImpl implements NetworkService {
           organizations.add(
               modelMapper.map(resource.getOrganization(), OrganizationWithResourcesDTO.class));
         });
+    organizations.forEach(organization -> organization.setResources(new HashSet<>()));
     organizations.forEach(
         organization -> {
           resources.forEach(

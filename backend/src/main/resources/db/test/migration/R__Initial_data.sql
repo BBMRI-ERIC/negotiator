@@ -76,6 +76,9 @@ values ('negotiation-1', '2024-10-12', 'IN_PROGRESS', '2024-10-12', 108, 108, '#
         false, false, 1),
        ('negotiation-5', '2024-03-11', 'SUBMITTED', '2024-04-12', 108, 108, '#1 Quality: ISO',
         '{"project":{"title":"Yet another important project","description":"desc with special characters: !§$%&/()=?<>|¹²³¼½¬{[]} \n","checklist":["one","two"]},"samples":{"sample-type":"Plasma","num-of-subjects": 10,"num-of-sample": "100","volume":3},"ethics-vote":{"ethics-vote":"My ethics","ethics-vote-attachment":{}}}',
+        false, true, 1),
+       ('negotiation-6', '2024-11-12', 'DRAFT', '2024-04-12', 108, 108, '#1 Material Type: RNA',
+        '{"project":{"title":"Not yet completed","description":"This is a draft negotiation"}}',
         false, true, 1);
 
 insert into negotiation_resource_lifecycle_record (created_by, creation_date, modified_by, modified_date, changed_to, negotiation_id, resource_id)
@@ -90,7 +93,8 @@ values ('request-1', 'http://discoveryservice.dev', '#1: No filters used', 1),
        ('request-v2', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
        ('request-3', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
        ('request-4', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
-       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1);
+       ('request-unassigned', 'http://discoveryservice.dev', '#1: Blood Samples', 1),
+       ('request-6', 'http://discoveryservice.dev', '#1: Blood Samples', 1);;
 
 insert into request_resources_link (request_id, resource_id)
 values ('request-1', 4),
@@ -101,7 +105,8 @@ values ('request-1', 4),
        ('request-4', 5),
        ('request-4', 7),
        ('request-5', 5),
-       ('request-5', 7);
+       ('request-5', 7),
+       ('request-6', 4);
 
 insert into negotiation_resource_link (negotiation_id, resource_id, current_state)
 values ('negotiation-1', 4, 'SUBMITTED'),
@@ -110,7 +115,8 @@ values ('negotiation-1', 4, 'SUBMITTED'),
        ('negotiation-4', 5, null),
        ('negotiation-4', 7, null),
        ('negotiation-5', 5, null),
-       ('negotiation-5', 7, null);
+       ('negotiation-5', 7, null),
+       ('negotiation-6', 4, null);
 
 insert into post (id, creation_date, modified_date, text, created_by, modified_by, negotiation_id, organization_id,
                   type)
