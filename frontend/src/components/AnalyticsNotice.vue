@@ -1,17 +1,12 @@
 <template>
   <Transition name="slide-up">
-    <div
-      v-if="!noticeDismissed"
-      class="analytics-notice"
-    >
+    <div v-if="!noticeDismissed" class="analytics-notice">
       <div class="analytics-notice-container">
         <div class="analytics-notice-content">
-          <i
-            class="bi bi-info-circle"
-            :style="{ color: uiConfiguration?.theme?.primaryColor }"
-          ></i>
+          <i class="bi bi-info-circle" :style="{ color: uiConfiguration?.theme?.primaryColor }"></i>
           <span :style="{ color: uiConfiguration?.theme?.primaryTextColor }">
-            We use cookies and browser storage to analyse traffic on our websites and to maintain your login session. All personal data is anonymized and not shared with third parties!
+            We use cookies and browser storage to analyse traffic on our websites and to maintain
+            your login session. All personal data is anonymized and not shared with third parties!
             <a
               v-if="privacyLink"
               href="#"
@@ -23,12 +18,7 @@
             </a>
           </span>
         </div>
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Close"
-          @click="dismissNotice"
-        />
+        <button type="button" class="btn-close" aria-label="Close" @click="dismissNotice" />
       </div>
     </div>
   </Transition>
@@ -46,10 +36,6 @@ const props = defineProps({
 })
 
 const NOTICE_KEY = 'negotiator_analytics_notice_dismissed'
-
-// Check localStorage immediately to prevent flash of banner
-const noticeDismissed = ref(getNoticeDismissed())
-
 const uiConfigurationStore = useUiConfiguration()
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration)
 
@@ -69,6 +55,8 @@ const setNoticeDismissed = () => {
   }
 }
 
+// Check localStorage immediately to prevent flash of banner
+const noticeDismissed = ref(getNoticeDismissed())
 
 const openPrivacyPolicy = () => {
   if (props.privacyLink) {
@@ -156,4 +144,3 @@ const dismissNotice = () => {
   }
 }
 </style>
-
