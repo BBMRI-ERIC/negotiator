@@ -48,11 +48,27 @@ const props = defineProps({
 const NOTICE_KEY = 'negotiator_analytics_notice_dismissed'
 
 // Check localStorage immediately to prevent flash of banner
-const dismissed = localStorage.getItem(NOTICE_KEY)
-const noticeDismissed = ref(dismissed === 'true')
+const noticeDismissed = ref(getNoticeDismissed())
 
 const uiConfigurationStore = useUiConfiguration()
 const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration)
+
+const getNoticeDismissed = () => {
+  try {
+    return localStorage.getItem(NOTICE_KEY) === 'true'
+  } catch (e) {
+    return false
+  }
+}
+
+const setNoticeDismissed = () => {
+  try {
+    localStorage.setItem(NOTICE_KEY, 'true')
+  } catch (e) {
+    // Fail silently
+  }
+}
+
 
 const openPrivacyPolicy = () => {
   if (props.privacyLink) {
@@ -62,7 +78,7 @@ const openPrivacyPolicy = () => {
 
 const dismissNotice = () => {
   noticeDismissed.value = true
-  localStorage.setItem(NOTICE_KEY, 'true')
+  setNoticeDismissed()
 }
 </script>
 
