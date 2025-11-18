@@ -42,7 +42,7 @@ const uiConfiguration = computed(() => uiConfigurationStore.uiConfiguration)
 const getNoticeDismissed = () => {
   try {
     return localStorage.getItem(NOTICE_KEY) === 'true'
-  } catch (e) {
+  } catch {
     return false
   }
 }
@@ -50,7 +50,7 @@ const getNoticeDismissed = () => {
 const setNoticeDismissed = () => {
   try {
     localStorage.setItem(NOTICE_KEY, 'true')
-  } catch (e) {
+  } catch {
     // Fail silently
   }
 }
