@@ -46,7 +46,7 @@ class NegotiationSubmissionHandlerTest {
   @Test
   void notify_WhenNegotiationSubmitted_NotifiesAllAdmins() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
@@ -75,7 +75,7 @@ class NegotiationSubmissionHandlerTest {
   @Test
   void notify_WhenNoAdmins_DoesNotCreateNotifications() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this, negotiationId, NegotiationState.SUBMITTED, NegotiationEvent.SUBMIT, "Test post");
@@ -92,7 +92,7 @@ class NegotiationSubmissionHandlerTest {
   @Test
   void notify_WhenNotSubmittedState_DoesNotCreateNotifications() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NegotiationStateChangeEvent event =
         new NegotiationStateChangeEvent(
             this,
@@ -112,7 +112,7 @@ class NegotiationSubmissionHandlerTest {
   @Test
   void notify_WhenMultipleStateChanges_OnlyNotifiesForSubmitted() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     Person admin = createPerson(1L, "admin@test.com");
     when(personRepository.findAllByAdminIsTrue()).thenReturn(List.of(admin));
 

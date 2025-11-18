@@ -27,5 +27,7 @@ public class NegotiationCreateDTO {
 
   @NotNull private JsonNode payload;
 
+  private String displayId;
+
   private Set<AttachmentMetadataDTO> attachments;
 }
