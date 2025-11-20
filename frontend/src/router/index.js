@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import OidcCallback from '@/components/OidcCallback.vue'
-import HomePage from '../views/HomePage.vue'
+import LoginPage from '../views/LoginPage.vue'
 import NegotiationCreatePage from '../views/NegotiationCreatePage.vue'
 import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
@@ -9,6 +9,7 @@ import AdminSettingsPage from '../views/AdminSettingsPage.vue'
 import AdminUiConfigurationPage from '../views/AdminUiConfigurationPage.vue'
 import GovernancePage from '../views/GovernancePage.vue'
 import UserPage from '@/views/UserPage.vue'
+import HomePage from '@/views/HomePage.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
 import CustomizeForm from '@/views/CustomizeForm.vue'
 import { ROLES } from '@/config/consts'
@@ -51,8 +52,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomePage,
+      name: 'login',
+      component: LoginPage,
       meta: { isPublic: true },
     },
     {
@@ -89,19 +90,26 @@ const router = createRouter({
       beforeEnter: checkAccess(ROLES.REPRESENTATIVE),
     },
     {
-      path: '/governance',
-      name: 'governance',
-      component: GovernancePage,
-      meta: { isPublic: false, middleware: [hasUser] },
-      beforeEnter: checkAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR]),
-    },
-    {
       path: '/admin',
       name: 'admin',
       component: UserPage,
       props: { userRole: ROLES.ADMINISTRATOR },
       meta: { isPublic: false },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomePage,
+      meta: { isPublic: false },
+      beforeEnter: checkAccess(ROLES.ADMINISTRATOR, ROLES.RESEARCHER, ROLES.REPRESENTATIVE),
+    },
+    {
+      path: '/governance',
+      name: 'governance',
+      component: GovernancePage,
+      meta: { isPublic: false, middleware: [hasUser] },
+      beforeEnter: checkAccess([ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR]),
     },
     {
       path: '/FAQ',

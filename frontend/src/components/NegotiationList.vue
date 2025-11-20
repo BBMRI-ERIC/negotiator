@@ -1,8 +1,8 @@
 <template>
   <div v-if="!loading" class="container">
-    <NewRequestButton v-if="!networkActivated" />
+    <NewRequestButton v-if="!networkActivated && !HomePage" />
     <div class="pt-1">
-      <div class="row row-cols-2 d-grid-row mt-5 pt-3">
+      <div class="row row-cols-2 d-grid-row" :class="HomePage ? '' : 'mt-5 pt-3'">
         <p>
           <span
             class="negotiations-search-results"
@@ -206,7 +206,6 @@
           </table>
         </div>
       </div>
-
       <h2 v-if="negotiations.length === 0" class="text-center">No Negotiations found</h2>
     </div>
 
@@ -250,6 +249,7 @@ import {
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import HomePage from '@/views/HomePage.vue'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
@@ -273,6 +273,11 @@ const props = defineProps({
   },
   networkActivated: {
     type: Boolean,
+    default: false,
+  },
+  isHomePage: {
+    type: Boolean,
+    required: false,
     default: false,
   },
 })

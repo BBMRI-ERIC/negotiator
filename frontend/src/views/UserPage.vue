@@ -7,6 +7,7 @@
     @filters-sort-data="retrieveNegotiationsBySortAndFilter"
   />
   <NegotiationList
+    :isHomePage="isHomePage"
     :negotiations="negotiations"
     :pagination="pagination"
     :user-role="userRole"
@@ -42,6 +43,11 @@ const props = defineProps({
     required: true,
     validator: (prop) =>
       [ROLES.RESEARCHER, ROLES.REPRESENTATIVE, ROLES.ADMINISTRATOR].includes(prop),
+  },
+  isHomePage: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 })
 
