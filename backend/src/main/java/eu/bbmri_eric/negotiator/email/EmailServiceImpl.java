@@ -73,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
       if (negotiationId != null) {
 
         mimeMessage.setHeader("Message-ID", "<" + messageId + "@" + domain);
-        mimeMessage.setHeader("References", "<" + negotiationId + "@" + domain);
+        mimeMessage.setHeader("In-Reply-To", "<" + negotiationId + "@" + domain);
       }
       javaMailSender.send(mimeMessage);
     } catch (MailSendException | MessagingException e) {

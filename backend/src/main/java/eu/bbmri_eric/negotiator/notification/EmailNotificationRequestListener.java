@@ -67,11 +67,13 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getCreationDate() : null);
 
     String messageId = null;
-    String negotiationId = "";
+    String negotiationId = null;
+    String title = "";
     String subject = notification.getTitle();
     if (negotiation != null) {
+      title = negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30));
       negotiationId = negotiation.getId();
-      subject += " - Negotiation Id: " + negotiationId;
+      subject += " - " + title;
       messageId =
           notificationRepository.existsByRecipientIdAndNegotiationId(
                   person.getId(), negotiation.getId())
