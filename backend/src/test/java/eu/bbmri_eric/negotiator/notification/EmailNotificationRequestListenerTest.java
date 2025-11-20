@@ -72,7 +72,7 @@ public class EmailNotificationRequestListenerTest {
 
     NewNotificationEvent event = new NewNotificationEvent(1L, 1L);
     emailNotificationRequestListener.onNewNotification(event);
-    verify(emailService).sendEmail(person, "Test Notification", "Email Content", "", null);
+    verify(emailService).sendEmail(person, "Test Notification", "Email Content", null, null);
   }
 
   @Test
@@ -98,7 +98,10 @@ public class EmailNotificationRequestListenerTest {
     Person person = Person.builder().id(100L).email("test@example.com").name("test").build();
 
     Negotiation negotiation =
-        Negotiation.builder().id("test-negotiation").title("Test Negotiation").build();
+        Negotiation.builder()
+            .id("test-negotiation")
+            .title("Test Negotiation request example")
+            .build();
     when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
     when(notificationRepository.existsByRecipientIdAndNegotiationId(100L, "test-negotiation"))
         .thenReturn(true);
@@ -110,7 +113,7 @@ public class EmailNotificationRequestListenerTest {
             "test",
             "This is a test notification message",
             "test-negotiation",
-            "Test Negotiation",
+            "Test Negotiation request example",
             null))
         .thenReturn("Email Content");
     NewNotificationEvent event = new NewNotificationEvent(1L, 1L);
@@ -118,7 +121,7 @@ public class EmailNotificationRequestListenerTest {
     verify(emailService)
         .sendEmail(
             eq(person),
-            eq("Test Notification - Negotiation Id: test-negotiation"),
+            eq("Test Notification - Test Negotiation request examp"),
             eq("Email Content"),
             eq("test-negotiation"),
             any());
@@ -147,7 +150,10 @@ public class EmailNotificationRequestListenerTest {
     Person person = Person.builder().id(100L).email("test@example.com").name("test").build();
 
     Negotiation negotiation =
-        Negotiation.builder().id("test-negotiation").title("Test Negotiation").build();
+        Negotiation.builder()
+            .id("test-negotiation")
+            .title("Test Negotiation request example")
+            .build();
     when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
     when(notificationRepository.existsByRecipientIdAndNegotiationId(100L, "test-negotiation"))
         .thenReturn(false);
@@ -159,7 +165,7 @@ public class EmailNotificationRequestListenerTest {
             "test",
             "This is a test notification message",
             "test-negotiation",
-            "Test Negotiation",
+            "Test Negotiation request example",
             null))
         .thenReturn("Email Content");
     NewNotificationEvent event = new NewNotificationEvent(1L, 1L);
@@ -167,7 +173,7 @@ public class EmailNotificationRequestListenerTest {
     verify(emailService)
         .sendEmail(
             eq(person),
-            eq("Test Notification - Negotiation Id: test-negotiation"),
+            eq("Test Notification - Test Negotiation request examp"),
             eq("Email Content"),
             eq("test-negotiation"),
             eq("test-negotiation"));
