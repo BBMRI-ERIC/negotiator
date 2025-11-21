@@ -6,7 +6,6 @@ import eu.bbmri_eric.negotiator.negotiation.Negotiation;
 import eu.bbmri_eric.negotiator.negotiation.NegotiationRepository;
 import eu.bbmri_eric.negotiator.user.Person;
 import eu.bbmri_eric.negotiator.user.PersonRepository;
-import java.util.UUID;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -66,20 +65,14 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    String messageId = null;
-    String negotiationId = null;
-    String title = "";
-    String subject = notification.getTitle();
-    if (negotiation != null) {
-      title = negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30));
-      negotiationId = negotiation.getId();
-      subject += " - " + title;
-      messageId =
-          notificationRepository.existsByRecipientIdAndNegotiationId(
-                  person.getId(), negotiation.getId())
-              ? UUID.randomUUID().toString()
-              : negotiation.getId();
-    }
-    emailService.sendEmail(person, subject, emailContent, negotiationId, messageId);
+    String negotiationId = negotiation != null ? negotiation.getId() : null;
+    String subject =
+        negotiation != null
+            ? notification.getTitle()
+                + " - "
+                + negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30))
+            : notification.getTitle();
+
+    emailService.sendEmail(person, subject, emailContent, negotiationId);
   }
 }

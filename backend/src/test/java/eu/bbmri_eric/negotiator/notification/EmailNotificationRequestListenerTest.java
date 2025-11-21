@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,7 +71,7 @@ public class EmailNotificationRequestListenerTest {
 
     NewNotificationEvent event = new NewNotificationEvent(1L, 1L);
     emailNotificationRequestListener.onNewNotification(event);
-    verify(emailService).sendEmail(person, "Test Notification", "Email Content", null, null);
+    verify(emailService).sendEmail(person, "Test Notification", "Email Content", null);
   }
 
   @Test
@@ -103,8 +102,8 @@ public class EmailNotificationRequestListenerTest {
             .title("Test Negotiation request example")
             .build();
     when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
-    when(notificationRepository.existsByRecipientIdAndNegotiationId(100L, "test-negotiation"))
-        .thenReturn(true);
+    when(notificationRepository.countByRecipientIdAndNegotiationId(100L, "test-negotiation"))
+        .thenReturn(2);
     when(notificationService.findById(1L)).thenReturn(notificationDTO);
     when(personRepository.findById(100L)).thenReturn(Optional.ofNullable(person));
     when(negotiationRepository.findById(notificationDTO.getNegotiationId()))
@@ -123,8 +122,7 @@ public class EmailNotificationRequestListenerTest {
             eq(person),
             eq("Test Notification - Test Negotiation request examp"),
             eq("Email Content"),
-            eq("test-negotiation"),
-            any());
+            eq("test-negotiation"));
   }
 
   @Test
@@ -155,8 +153,8 @@ public class EmailNotificationRequestListenerTest {
             .title("Test Negotiation request example")
             .build();
     when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification));
-    when(notificationRepository.existsByRecipientIdAndNegotiationId(100L, "test-negotiation"))
-        .thenReturn(false);
+    when(notificationRepository.countByRecipientIdAndNegotiationId(100L, "test-negotiation"))
+        .thenReturn(1);
     when(notificationService.findById(1L)).thenReturn(notificationDTO);
     when(personRepository.findById(100L)).thenReturn(Optional.ofNullable(person));
     when(negotiationRepository.findById(notificationDTO.getNegotiationId()))
@@ -175,7 +173,6 @@ public class EmailNotificationRequestListenerTest {
             eq(person),
             eq("Test Notification - Test Negotiation request examp"),
             eq("Email Content"),
-            eq("test-negotiation"),
             eq("test-negotiation"));
   }
 }
