@@ -29,13 +29,10 @@ public interface EmailService {
    * @param mailBody the body content of the email in plain text or HTML format; must not be null
    * @param negotiationId if present, all the emails related to the same negotiationId will be
    *     grouped in the same thread
-   * @param messageId unique identifier of the email message, useful to set thread header id. It is
-   *     equal to the negotiationId for the first email in the thread.
    * @throws IllegalArgumentException if any parameter is null or if subject/mailBody is empty
    * @throws RuntimeException if the email cannot be sent due to delivery issues
    */
-  void sendEmail(
-      Person recipient, String subject, String mailBody, String negotiationId, String messageId);
+  void sendEmail(Person recipient, String subject, String mailBody, String negotiationId);
 
   /**
    * Sends an email to the specified email address.
