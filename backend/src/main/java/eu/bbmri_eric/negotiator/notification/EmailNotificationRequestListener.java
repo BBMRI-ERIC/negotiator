@@ -19,6 +19,7 @@ class EmailNotificationRequestListener {
   private final NotificationService notificationService;
   private final PersonRepository personRepository;
   private final NegotiationRepository negotiationRepository;
+  private final NotificationRepository notificationRepository;
   private final EmailContextBuilder emailContextBuilder;
 
   EmailNotificationRequestListener(
@@ -26,11 +27,13 @@ class EmailNotificationRequestListener {
       NotificationService notificationService,
       PersonRepository personRepository,
       NegotiationRepository negotiationRepository,
+      NotificationRepository notificationRepository,
       EmailContextBuilder emailContextBuilder) {
     this.emailService = emailService;
     this.notificationService = notificationService;
     this.personRepository = personRepository;
     this.negotiationRepository = negotiationRepository;
+    this.notificationRepository = notificationRepository;
     this.emailContextBuilder = emailContextBuilder;
   }
 
@@ -62,6 +65,14 @@ class EmailNotificationRequestListener {
             negotiation != null ? negotiation.getTitle() : null,
             negotiation != null ? negotiation.getCreationDate() : null);
 
-    emailService.sendEmail(person, notification.getTitle(), emailContent);
+    String negotiationId = negotiation != null ? negotiation.getId() : null;
+    String subject =
+        negotiation != null
+            ? notification.getTitle()
+                + " - "
+                + negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30))
+            : notification.getTitle();
+
+    emailService.sendEmail(person, subject, emailContent, negotiationId);
   }
 }
