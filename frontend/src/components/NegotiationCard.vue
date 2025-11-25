@@ -1,10 +1,14 @@
 <template>
   <div>
-    <div class="card mb-2">
-      <div class="card-header bg-body" :style="{ color: uiConfiguration?.cardTextColor }">
+    <div class="card mb-2" :class="isHomePage ? 'card-home-page border-0 rounded-top-4' : ''">
+      <div
+        class="card-header bg-body mt-1 pb-1"
+        :class="isHomePage ? 'rounded-top-4' : ''"
+        :style="{ color: uiConfiguration?.cardTextColor }"
+      >
         <span class="h5">{{ title }}</span>
         <h6 class="float-end">
-          <span :class="getBadgeColor(status)" class="badge" style="width: 125px">
+          <span :class="getBadgeColor(status)" class="badge rounded-3" style="width: 125px">
             <i :class="getBadgeIcon(status)" class="px-1" />
             {{ transformStatus(status) }}
           </span>
@@ -25,6 +29,11 @@ import { transformStatus, getBadgeColor, getBadgeIcon } from '../composables/uti
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 
 defineProps({
+  isHomePage: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   id: {
     type: String,
     default: '',
@@ -53,3 +62,10 @@ const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.negotiationList
 })
 </script>
+
+<style scoped>
+.card-home-page {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+}
+</style>

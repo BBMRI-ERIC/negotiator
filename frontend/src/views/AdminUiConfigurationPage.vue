@@ -64,7 +64,7 @@
       </div>
       <div id="collapse3" class="login-config row collapse">
         <UiConfigurationSetting v-model="uiConfiguration.login" />
-        <HomePage :is-ui-config-active="true" />
+        <LoginPage :is-ui-config-active="true" />
       </div>
     </div>
     <div class="filter mb-2">
@@ -176,7 +176,7 @@
 import { computed, ref } from 'vue'
 import UiConfigurationSetting from '../components/UiConfigurationSetting.vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
-import HomePage from '../views/HomePage.vue'
+import LoginPage from './LoginPage.vue'
 import FilterSort from '@/components/FilterSort.vue'
 import NegotiationList from '@/components/NegotiationList.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
