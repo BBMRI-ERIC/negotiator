@@ -69,11 +69,11 @@ onMounted(async () => {
 })
 
 function openDocumentation() {
-  window.open('https://bbmri-eric.github.io/negotiator/requester', '_blank')
+  window.open('https://bbmri-eric.github.io/negotiator/requester', '_blank', 'noopener')
 }
 
 function openService(service) {
-  window.open(service, '_blank')
+  window.open(service, '_blank', 'noopener')
 }
 </script>
 
