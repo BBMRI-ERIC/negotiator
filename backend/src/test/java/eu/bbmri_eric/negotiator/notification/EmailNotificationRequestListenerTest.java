@@ -1,6 +1,5 @@
 package eu.bbmri_eric.negotiator.notification;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +22,7 @@ import org.springframework.test.context.TestPropertySource;
 @EnableAsync
 @TestPropertySource(properties = "spring.task.execution.pool.core-size=1")
 @IntegrationTest(loadTestData = true)
-public class EmailNotificationRequestListenerTest {
+class EmailNotificationRequestListenerTest {
 
   @Mock private NotificationRepository notificationRepository;
 
@@ -119,10 +118,10 @@ public class EmailNotificationRequestListenerTest {
     emailNotificationRequestListener.onNewNotification(event);
     verify(emailService)
         .sendEmail(
-            eq(person),
-            eq("Test Notification - Test Negotiation request examp"),
-            eq("Email Content"),
-            eq("test-negotiation"));
+            person,
+            "Test Notification - Test Negotiation request examp",
+            "Email Content",
+            "test-negotiation");
   }
 
   @Test
@@ -170,9 +169,9 @@ public class EmailNotificationRequestListenerTest {
     emailNotificationRequestListener.onNewNotification(event);
     verify(emailService)
         .sendEmail(
-            eq(person),
-            eq("Test Notification - Test Negotiation request examp"),
-            eq("Email Content"),
-            eq("test-negotiation"));
+            person,
+            "Test Notification - Test Negotiation request examp",
+            "Email Content",
+            "test-negotiation");
   }
 }

@@ -19,7 +19,6 @@ class EmailNotificationRequestListener {
   private final NotificationService notificationService;
   private final PersonRepository personRepository;
   private final NegotiationRepository negotiationRepository;
-  private final NotificationRepository notificationRepository;
   private final EmailContextBuilder emailContextBuilder;
 
   EmailNotificationRequestListener(
@@ -33,7 +32,6 @@ class EmailNotificationRequestListener {
     this.notificationService = notificationService;
     this.personRepository = personRepository;
     this.negotiationRepository = negotiationRepository;
-    this.notificationRepository = notificationRepository;
     this.emailContextBuilder = emailContextBuilder;
   }
 
