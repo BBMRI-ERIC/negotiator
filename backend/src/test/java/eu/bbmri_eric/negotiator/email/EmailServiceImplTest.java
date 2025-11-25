@@ -340,7 +340,4 @@ class EmailServiceImplTest {
     inOrder.verify(javaMailSender).send(mimeMessage);
     inOrder.verify(notificationEmailRepository).save(any(NotificationEmail.class));
   }
-
-  @Test
-  void sendEmmails_withSameNegotiationId_AsPartOfThread() {}
 }
