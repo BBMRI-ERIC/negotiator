@@ -52,8 +52,6 @@ public class EmailServiceImpl implements EmailService {
     validateEmailParameters(recipient.getEmail(), subject, content);
     var recipientEmail = recipient.getEmail();
     try {
-      int test =
-          notificationService.countByRecipientIdAndNegotiationId(recipient.getId(), negotiationId);
       String messageId =
           notificationService.countByRecipientIdAndNegotiationId(recipient.getId(), negotiationId)
                   > 1
