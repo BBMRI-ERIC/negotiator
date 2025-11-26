@@ -21,13 +21,6 @@
         :buttonText="'Take a Tour'"
         @click="$router.push('/guide')"
       />
-      <div class="discovery-services" v-for="(service, index) in allDiscoveryServices" :key="index">
-        <BigHomeButton
-          :buttonIcon="'bi-database'"
-          :buttonText="`${service.name}`"
-          @click="openService(service.url)"
-        />
-      </div>
     </div>
   </div>
   <div class="d-flex">
@@ -43,6 +36,18 @@
     <div v-if="userRoles.includes(ROLES.ADMINISTRATOR)" class="mb-5">
       <h2 class="my-0 fw-bold mb-3">REVIEW REQUESTS</h2>
       <UserPage :userRole="'ROLE_ADMIN'" :isHomePage="true" />
+    </div>
+  </div>
+  <div class="discovery-services">
+    <h2 class="my-0 fw-bold mb-3">Discovery Services</h2>
+    <div class="d-flex flex-row flex-wrap">
+      <div v-for="(service, index) in allDiscoveryServices" :key="index">
+        <BigHomeButton
+          :buttonIcon="'bi-database'"
+          :buttonText="`${service.name}`"
+          @click="openService(service.url)"
+        />
+      </div>
     </div>
   </div>
 </template>
