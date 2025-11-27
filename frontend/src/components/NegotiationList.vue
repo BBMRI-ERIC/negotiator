@@ -1,8 +1,12 @@
 <template>
   <div v-if="!loading" class="container">
-    <NewRequestButton v-if="!networkActivated" />
+    <NewRequestButton v-if="!networkActivated && !isHomePage" />
     <div class="pt-1">
-      <div class="row row-cols-2 d-grid-row mt-5 pt-3">
+      <div
+        v-if="!isHomePage"
+        class="row row-cols-2 d-grid-row"
+        :class="isHomePage ? '' : 'mt-5 pt-3'"
+      >
         <p>
           <span
             class="negotiations-search-results"
@@ -80,6 +84,7 @@
           v-for="fn in negotiations"
           :id="fn.id"
           :key="fn.id"
+          :isHomePage="isHomePage"
           :title="fn.payload.project.title"
           :status="fn.status"
           :submitter="fn.author.name"
@@ -257,6 +262,11 @@ const router = useRouter()
 const negotiationsViewStore = useNegotiationsViewStore()
 
 const props = defineProps({
+  isHomePage: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   negotiations: {
     type: Array,
     default: undefined,
@@ -282,6 +292,9 @@ const loading = computed(() => {
 })
 
 const savedNegotiationsView = computed(() => {
+  if (props.isHomePage) {
+    return 'Card-one-column'
+  }
   return negotiationsViewStore.savedNegotiationsView
 })
 
