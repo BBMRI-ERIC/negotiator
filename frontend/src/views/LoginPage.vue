@@ -170,7 +170,7 @@ const returnLogoSrc = computed(() => {
 
 onBeforeMount(() => {
   if (oidcIsAuthenticated.value && !props.isUiConfigActive) {
-    router.push('/researcher')
+    router.push('/home')
   }
   actuatorInfoStore.retrieveBackendActuatorInfo().then(() => {
     backendVersion.value = actuatorInfoStore.actuatorInfoBuildVersion
