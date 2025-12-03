@@ -61,7 +61,6 @@ export const useApiCallsStore = defineStore('apiCalls', () => {
         return response.data
       })
       .catch((error) => {
-        notifications.setNotification('Failed to fetch notifications', 'danger')
         console.error('Error fetching notifications:', error)
         console.error('Request URL:', `${apiPaths.USER_NOTIFICATIONS_PATH}/${userId}/notifications`)
         console.error('Request params:', { page, size })

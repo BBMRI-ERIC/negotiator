@@ -1,6 +1,7 @@
 <template>
   <div :style="{ 'background-color': uiConfiguration?.appBackgroundColor }">
     <VueTour v-if="isVueTourVisible" />
+    <AnalyticsNotice :privacy-link="privacyPolicyLink" />
 
     <header>
       <navigation-bar />
@@ -33,6 +34,7 @@ import allFeatureFlags from '@/config/featureFlags.js'
 import VueTour from './components/VueTour.vue'
 import NavigationBar from './components/NavigationBar.vue'
 import AlertNotification from './components/AlertNotification.vue'
+import AnalyticsNotice from './components/AnalyticsNotice.vue'
 import Footer from './components/FooterComp.vue'
 import errorPage from '@/views/ErrorPage.vue'
 import { useUiConfiguration } from '@/store/uiConfiguration.js'
@@ -66,6 +68,10 @@ const isVueTourVisible = computed(() => {
 
 const uiConfiguration = computed(() => {
   return uiConfigurationStore.uiConfiguration?.theme
+})
+
+const privacyPolicyLink = computed(() => {
+  return uiConfigurationStore.uiConfiguration?.footer?.footerPrivacyPolicyLink
 })
 </script>
 

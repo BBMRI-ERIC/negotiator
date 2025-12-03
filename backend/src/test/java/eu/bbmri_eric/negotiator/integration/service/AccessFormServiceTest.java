@@ -14,6 +14,9 @@ import eu.bbmri_eric.negotiator.form.AccessFormSection;
 import eu.bbmri_eric.negotiator.form.FormElementType;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormDTO;
 import eu.bbmri_eric.negotiator.form.dto.AccessFormSectionDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateElementDTO;
+import eu.bbmri_eric.negotiator.form.dto.AccessFormUpdateSectionDTO;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormElementRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormRepository;
 import eu.bbmri_eric.negotiator.form.repository.AccessFormSectionRepository;
@@ -31,8 +34,10 @@ import eu.bbmri_eric.negotiator.negotiation.request.RequestRepository;
 import eu.bbmri_eric.negotiator.negotiation.request.RequestService;
 import eu.bbmri_eric.negotiator.util.IntegrationTest;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
@@ -56,6 +61,8 @@ public class AccessFormServiceTest {
   @Autowired DiscoveryServiceRepository discoveryServiceRepository;
 
   @Autowired OrganizationRepository organizationRepository;
+
+  @Autowired ModelMapper modelMapper;
 
   @Test
   void getAccessFormForRequest_nullId_throwsEntityNotFound() {
@@ -190,7 +197,7 @@ public class AccessFormServiceTest {
     Request request = requestRepository.findById(requestDTO.getId()).get();
     request.getResources().add(resource);
     request = requestRepository.save(request);
-    assertEquals(4, accessFormRepository.findAll().size());
+    assertEquals(5, accessFormRepository.findAll().size());
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     Optional<AccessFormSectionDTO> section =
         accessFormDTO.getSections().stream()
@@ -263,7 +270,7 @@ public class AccessFormServiceTest {
     Request request = requestRepository.findById(requestDTO.getId()).get();
     request.getResources().add(resource);
     request = requestRepository.save(request);
-    assertEquals(4, accessFormRepository.findAll().size());
+    assertEquals(5, accessFormRepository.findAll().size());
     AccessFormDTO accessFormDTO = accessFormService.getAccessFormForRequest(request.getId());
     Optional<AccessFormSectionDTO> section =
         accessFormDTO.getSections().stream()
@@ -357,6 +364,112 @@ public class AccessFormServiceTest {
   @Test
   void getAllAccessForms_okPagedRequest_ok() {
     assertTrue(accessFormService.getAllAccessForms(PageRequest.of(0, 10)).iterator().hasNext());
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenFormDoesNotExist() {
+    AccessFormUpdateDTO accessFormUpdateDTO = AccessFormUpdateDTO.builder().build();
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> accessFormService.updateAccessForm(102L, accessFormUpdateDTO));
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenSectionDoesNotExists() {
+    AccessFormUpdateSectionDTO updateSectionDTO =
+        AccessFormUpdateSectionDTO.builder().id(202L).build();
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("New Name").sections(List.of(updateSectionDTO)).build();
+
+    EntityNotFoundException exception =
+        assertThrows(
+            EntityNotFoundException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals("Resource with id 202 not found", exception.getMessage());
+  }
+
+  @Test
+  void updateAccessForm_badRequest_whenElementDoesNotExists() {
+    AccessFormUpdateElementDTO updateElementDTO =
+        AccessFormUpdateElementDTO.builder().id(202L).required(true).build();
+
+    AccessFormUpdateSectionDTO updateSectionDTO =
+        AccessFormUpdateSectionDTO.builder().id(1L).elements(List.of(updateElementDTO)).build();
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder()
+            .name("Test Template")
+            .sections(List.of(updateSectionDTO))
+            .build();
+
+    EntityNotFoundException ex =
+        assertThrows(
+            EntityNotFoundException.class,
+            () -> accessFormService.updateAccessForm(201L, accessFormUpdateDTO));
+    assertEquals("Resource with id 202 not found", ex.getMessage());
+  }
+
+  /**
+   * Test updating an access form - Removes section 1 - Adds section 201 - Add element 1 to section
+   * 3 - Change the order of sections to 3, 201, 2 - Change the order of elements in section 3 to 5,
+   * 4, 1 - Change element 3 to be required in section 2
+   */
+  @Test
+  void updateAccessForm_ok() {
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection201 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(201L).required(false).build(),
+            AccessFormUpdateElementDTO.builder().id(2L).required(true).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection2 =
+        List.of(AccessFormUpdateElementDTO.builder().id(3L).required(false).build());
+
+    List<AccessFormUpdateElementDTO> updateElementsDTOSection3 =
+        List.of(
+            AccessFormUpdateElementDTO.builder().id(5L).required(true).build(),
+            AccessFormUpdateElementDTO.builder().id(4L).required(false).build(),
+            AccessFormUpdateElementDTO.builder().id(1L).required(true).build());
+
+    List<AccessFormUpdateSectionDTO> updateSectionsDTO =
+        List.of(
+            AccessFormUpdateSectionDTO.builder().id(3L).elements(updateElementsDTOSection3).build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(201L)
+                .elements(updateElementsDTOSection201)
+                .build(),
+            AccessFormUpdateSectionDTO.builder()
+                .id(2L)
+                .elements(updateElementsDTOSection2)
+                .build());
+
+    AccessFormUpdateDTO accessFormUpdateDTO =
+        AccessFormUpdateDTO.builder().name("New name").sections(updateSectionsDTO).build();
+
+    accessFormService.updateAccessForm(201L, accessFormUpdateDTO);
+    AccessFormDTO accessForm = accessFormService.getAccessForm(201L);
+    assertEquals("New name", accessForm.getName());
+
+    AccessFormSectionDTO section3 = accessForm.getSections().get(0);
+    AccessFormSectionDTO section201 = accessForm.getSections().get(1);
+    AccessFormSectionDTO section2 = accessForm.getSections().get(2);
+
+    assertEquals(section3.getId(), 3);
+    assertEquals(section3.getElements().get(0).getId(), 5L);
+    assertTrue(section3.getElements().get(0).getRequired());
+    assertEquals(section3.getElements().get(1).getId(), 4L);
+    assertFalse(section3.getElements().get(1).getRequired());
+    assertEquals(section3.getElements().get(2).getId(), 1L);
+    assertTrue(section3.getElements().get(2).getRequired());
+
+    assertEquals(section201.getId(), 201);
+    assertEquals(section201.getElements().get(0).getId(), 201L);
+    assertFalse(section201.getElements().get(0).getRequired());
+    assertEquals(section201.getElements().get(1).getId(), 2L);
+    assertTrue(section201.getElements().get(1).getRequired());
+
+    assertEquals(section2.getId(), 2);
+    assertEquals(section2.getElements().get(0).getId(), 3L);
+    assertFalse(section2.getElements().get(0).getRequired());
   }
 
   private Request addResourcesToRequest(AccessForm accessForm, Request request) {
