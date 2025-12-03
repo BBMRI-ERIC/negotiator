@@ -5,12 +5,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.StringUtils;
 import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 
 @CommonsLog
 class DocxConverter implements FileTypeConverter {
+  private static final String CONTENT_TYPE_DOCX =
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  private static final String CONTENT_TYPE_TIKA_OOXML = "application/x-tika-ooxml";
+
   @Override
   public byte[] convertToPdf(byte[] docBytes) throws IOException, PdfGenerationException {
     if (docBytes == null || docBytes.length == 0) {
@@ -32,5 +37,10 @@ class DocxConverter implements FileTypeConverter {
     } catch (Docx4JException e) {
       throw new PdfGenerationException();
     }
+  }
+
+  @Override
+  public boolean supports(String contentType) {
+    return StringUtils.equalsAny(contentType, CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML);
   }
 }
