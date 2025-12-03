@@ -12,17 +12,15 @@ import org.springframework.stereotype.Service;
 @Service(value = "DefaultAttachmentConversionService")
 @CommonsLog
 public class AttachmentConversionServiceImpl implements AttachmentConversionService {
-  private static final String CONTENT_TYPE_PDF = "application/pdf";
-  private static final String CONTENT_TYPE_DOCX =
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  private static final String CONTENT_TYPE_TIKA_OOXML = "application/x-tika-ooxml";
-  private static final String CONTENT_TYPE_DOC = "application/msword";
-  private static final String CONTENT_TYPE_TIKA_MSOFFICE = "application/x-tika-msoffice";
 
   private final AttachmentService attachmentService;
 
-  public AttachmentConversionServiceImpl(AttachmentService attachmentService) {
+  private final List<FileTypeConverter> converters;
+
+  public AttachmentConversionServiceImpl(
+      AttachmentService attachmentService, List<FileTypeConverter> converters) {
     this.attachmentService = attachmentService;
+    this.converters = converters;
   }
 
   public List<byte[]> listByNegotiationIdToPdf(String negotiationId) {
@@ -110,16 +108,10 @@ public class AttachmentConversionServiceImpl implements AttachmentConversionServ
   }
 
   private FileTypeConverter getConverter(String contentType) {
-    return switch (contentType) {
-      case CONTENT_TYPE_PDF -> {
-        log.debug("Attachment is already PDF, returning as-is");
-        yield new PDFConverter();
-      }
-      case CONTENT_TYPE_DOCX, CONTENT_TYPE_TIKA_OOXML -> new DocxConverter();
-      case CONTENT_TYPE_DOC, CONTENT_TYPE_TIKA_MSOFFICE -> new DocConverter();
-      default -> {
-        throw new IllegalArgumentException("Unsupported content type");
-      }
-    };
+    return converters.stream()
+        .filter(c -> c.supports(contentType))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalArgumentException("No converter for content type: " + contentType));
   }
 }
