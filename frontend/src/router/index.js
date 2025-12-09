@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import OidcCallback from '@/components/OidcCallback.vue'
-import HomePage from '../views/HomePage.vue'
+import LoginPage from '../views/LoginPage.vue'
+import HomePage from '@/views/HomePage.vue'
 import NegotiationCreatePage from '../views/NegotiationCreatePage.vue'
 import NegotiationPage from '../views/NegotiationPage.vue'
 import FaqPage from '../views/FaqPage.vue'
@@ -51,8 +52,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomePage,
+      name: 'login',
+      component: LoginPage,
       meta: { isPublic: true },
     },
     {
@@ -102,6 +103,13 @@ const router = createRouter({
       props: { userRole: ROLES.ADMINISTRATOR },
       meta: { isPublic: false },
       beforeEnter: checkAccess(ROLES.ADMINISTRATOR),
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomePage,
+      meta: { isPublic: false },
+      beforeEnter: checkAccess([ROLES.ADMINISTRATOR, ROLES.RESEARCHER, ROLES.REPRESENTATIVE]),
     },
     {
       path: '/FAQ',
