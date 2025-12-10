@@ -60,6 +60,21 @@ public class InformationSubmissionController {
   }
 
   @ResponseStatus(HttpStatus.OK)
+  @GetMapping(
+      value = "/negotiations/{negotiationId}/info-requirements/{requirementId}/pdf",
+      produces = MediaType.APPLICATION_PDF_VALUE)
+  public ResponseEntity<byte[]> getSummaryInformationPdf(
+      @PathVariable String negotiationId, @PathVariable Long requirementId) {
+    byte[] pdfBytes = submissionService.createPdfSummary(requirementId, negotiationId);
+    return ResponseEntity.ok()
+        .header(
+            "Content-Disposition",
+            "attachment; filename=\"info-submission-summary-%s.pdf\"".formatted(negotiationId))
+        .contentType(MediaType.APPLICATION_PDF)
+        .body(pdfBytes);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
   @PostMapping(
       value = "/negotiations/{negotiationId}/info-requirements/{requirementId}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
