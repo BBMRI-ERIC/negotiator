@@ -13,6 +13,14 @@
       </li>
       <li class="list-group-item p-2">
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
+          ID:
+        </div>
+        <span :style="{ color: uiConfiguration.secondaryTextColor }">
+          {{ negotiation ? negotiation.displayId : '' }}</span
+        >
+      </li>
+      <li class="list-group-item p-2">
+        <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Negotiation ID:
         </div>
         <span :style="{ color: uiConfiguration.secondaryTextColor }">
