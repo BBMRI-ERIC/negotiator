@@ -26,7 +26,7 @@
     <div class="row mt-4">
       <div class="row-col-2">
         <h1 class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
-          {{ negotiation ? negotiation.displayId : '' }}
+          {{ negotiation ? negotiation.payload?.project?.title?.toUpperCase() : '' }}
         </h1>
         <p
           v-if="negotiation.status === 'DRAFT'"
