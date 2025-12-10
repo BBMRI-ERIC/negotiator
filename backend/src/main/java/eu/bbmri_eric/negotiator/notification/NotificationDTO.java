@@ -26,7 +26,7 @@ public class NotificationDTO {
   @Schema(description = "Unique identifier of the notification recipient", example = "67890")
   private Long recipientId;
 
-  @Schema(description = "Identifier of the associated negotiation", example = "NEG-2024-001")
+  @Schema(description = "Identifier of the associated negotiation", example = "2024-001")
   private String negotiationId;
 
   @Schema(
