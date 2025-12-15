@@ -11,7 +11,9 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
+import eu.bbmri_eric.negotiator.settings.AdminSettingsRepository;
 import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +34,17 @@ class NegotiationStatusChangeHandlerTest {
 
   @Mock private Person researcher;
 
+  @Mock private AdminSettingsRepository adminSettingsRepository;
+
+  @Mock private PersonRepository personRepository;
+
   private NegotiationStatusChangeHandler handler;
 
   @BeforeEach
   void setUp() {
-    handler = new NegotiationStatusChangeHandler(notificationService, negotiationRepository);
+    handler =
+        new NegotiationStatusChangeHandler(
+            notificationService, negotiationRepository, adminSettingsRepository, personRepository);
 
     // Setup common mock behavior - only when needed, using lenient stubs
     lenient().when(researcher.getId()).thenReturn(123L);

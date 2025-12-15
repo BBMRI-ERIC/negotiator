@@ -6,6 +6,9 @@ import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.Negotiatio
 import eu.bbmri_eric.negotiator.negotiation.state_machine.negotiation.NegotiationStateChangeEvent;
 import eu.bbmri_eric.negotiator.notification.NotificationCreateDTO;
 import eu.bbmri_eric.negotiator.notification.NotificationService;
+import eu.bbmri_eric.negotiator.settings.AdminSettingsRepository;
+import eu.bbmri_eric.negotiator.user.Person;
+import eu.bbmri_eric.negotiator.user.PersonRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.apachecommons.CommonsLog;
@@ -21,11 +24,18 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       "Your negotiation request has been successfully submitted and is now under review. You will be notified of any updates.";
   private final NotificationService notificationService;
   private final NegotiationRepository negotiationRepository;
+  private final AdminSettingsRepository adminSettingsRepository;
+  private final PersonRepository personRepository;
 
   NegotiationStatusChangeHandler(
-      NotificationService notificationService, NegotiationRepository negotiationRepository) {
+      NotificationService notificationService,
+      NegotiationRepository negotiationRepository,
+      AdminSettingsRepository adminSettingsRepository,
+      PersonRepository personRepository) {
     this.notificationService = notificationService;
     this.negotiationRepository = negotiationRepository;
+    this.adminSettingsRepository = adminSettingsRepository;
+    this.personRepository = personRepository;
   }
 
   @Override
@@ -76,6 +86,23 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
             + event.getNegotiationId()
             + " - new status: "
             + event.getChangedTo());
+
+    if (adminSettingsRepository.getSendNegotiationUpdatesNotifications()) {
+      List<Person> administrators = personRepository.findAllByAdminIsTrue();
+      String adminNotificationTitle =
+          "Admin notification update for negotiation: " + negotiation.getId();
+      String body =
+          "There are updates on negotiation "
+              + negotiation.getId()
+              + ".\n"
+              + "Please log into the Negotiator for more details.";
+      notificationService.createNotifications(
+          new NotificationCreateDTO(
+              administrators.stream().map(Person::getId).toList(),
+              adminNotificationTitle,
+              body,
+              event.getNegotiationId()));
+    }
   }
 
   private String createStatusChangeMessage(NegotiationState newState, String negotiationTitle) {
