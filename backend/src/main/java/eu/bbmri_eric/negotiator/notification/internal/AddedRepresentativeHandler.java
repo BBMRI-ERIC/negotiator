@@ -33,7 +33,7 @@ public class AddedRepresentativeHandler implements ApplicationListener<AddedRepr
   private final Map<Long, List<AddedRepresentativeEvent>> eventsBuffer = new ConcurrentHashMap<>();
   private final NotificationService notificationService;
 
-  private AddedRepresentativeHandler(NotificationService notificationService) {
+  public AddedRepresentativeHandler(NotificationService notificationService) {
     this.notificationService = notificationService;
   }
 
