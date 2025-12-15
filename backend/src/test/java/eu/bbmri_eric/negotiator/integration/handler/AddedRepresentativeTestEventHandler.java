@@ -11,7 +11,7 @@ public class AddedRepresentativeTestEventHandler {
   final List<AddedRepresentativeEvent> events = new ArrayList<>();
 
   @EventListener
-  private void onEvent(AddedRepresentativeEvent event) {
+  void onEvent(AddedRepresentativeEvent event) {
     events.add(event);
   }
 }
