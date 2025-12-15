@@ -87,6 +87,9 @@ public class Negotiation extends AuditEntity {
   @Formula(value = "JSON_EXTRACT_PATH_TEXT(payload, 'project', 'title')")
   private String title;
 
+  @Column(name = "display_id")
+  private String displayId;
+
   @Type(JsonType.class)
   @Column(columnDefinition = "json")
   @ColumnTransformer(read = "payload::text", write = "?::json")

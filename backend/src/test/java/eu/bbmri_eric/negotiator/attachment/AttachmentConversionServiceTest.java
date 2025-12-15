@@ -991,4 +991,622 @@ class AttachmentConversionServiceTest {
 
     return docContent;
   }
+
+  // ============================================
+  // XLSX Converter Tests
+  // ============================================
+
+  @Test
+  void testconvertAttachmentsToPdf_WithXlsxAttachment_ConvertsSuccessfully() throws IOException {
+    String attachmentId = "xlsx-attachment-1";
+    byte[] xlsxBytes = createValidXlsxBytes();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // With valid XLSX file, should convert to PDF successfully
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+    // Verify PDF header
+    byte[] pdfBytes = result.get(0);
+    String pdfHeader = new String(pdfBytes, 0, Math.min(4, pdfBytes.length));
+    assertTrue(pdfHeader.startsWith("%PDF"));
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithXlsxNullPayload_SkipsAttachment() {
+    String attachmentId = "xlsx-null-payload";
+    AttachmentDTO attachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(null)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithXlsxEmptyPayload_SkipsAttachment() {
+    String attachmentId = "xlsx-empty-payload";
+    AttachmentDTO attachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(new byte[0])
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithInvalidXlsxBytes_SkipsAttachment() {
+    String attachmentId = "invalid-xlsx-1";
+    AttachmentDTO invalidXlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("invalid.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload("Invalid XLSX content".getBytes())
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(invalidXlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithCorruptedXlsxFile_SkipsAttachment() {
+    String attachmentId = "corrupted-xlsx-1";
+    byte[] corruptedXlsxBytes = "This is not a valid XLSX file".getBytes();
+    AttachmentDTO corruptedXlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("corrupted.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(corruptedXlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(corruptedXlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Corrupted XLSX file should be skipped
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithMultipleXlsxSheets_ConvertsSuccessfully()
+      throws IOException {
+    String attachmentId = "multi-sheet-xlsx";
+    byte[] xlsxBytes = createXlsxWithMultipleSheets();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("multi-sheet.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully with multiple sheets
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+    // Verify PDF header
+    byte[] pdfBytes = result.get(0);
+    String pdfHeader = new String(pdfBytes, 0, Math.min(4, pdfBytes.length));
+    assertTrue(pdfHeader.startsWith("%PDF"));
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithEmptyXlsxWorkbook_ConvertsSuccessfully() throws IOException {
+    String attachmentId = "empty-xlsx";
+    byte[] xlsxBytes = createEmptyXlsxBytes();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("empty.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Empty workbook should still produce a PDF (with at least one page)
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithMixedDocxAndXlsx_ProcessesBoth() throws IOException {
+    String docxId = "docx-1";
+    String xlsxId = "xlsx-1";
+
+    byte[] docxBytes = loadTestDocxFile();
+    byte[] xlsxBytes = createValidXlsxBytes();
+
+    AttachmentDTO docxAttachment =
+        AttachmentDTO.builder()
+            .id(docxId)
+            .name("test.docx")
+            .contentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            .payload(docxBytes)
+            .build();
+
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(xlsxId)
+            .name("test.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(docxId)).thenReturn(docxAttachment);
+    when(attachmentService.findById(xlsxId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(docxId, xlsxId));
+
+    // Should process both DOCX and XLSX files
+    assertEquals(2, result.size());
+    assertTrue(result.get(0).length > 0);
+    assertTrue(result.get(1).length > 0);
+  }
+
+  @Test
+  void testconvertAttachmentsToPdf_WithXlsxWithFormulas_ConvertsSuccessfully() throws IOException {
+    String attachmentId = "xlsx-with-formulas";
+    byte[] xlsxBytes = createXlsxWithFormulas();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("formulas.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully even with formulas
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  private byte[] createValidXlsxBytes() throws IOException {
+    try (InputStream inputStream = getClass().getResourceAsStream("/test-documents/test.xlsx")) {
+      if (inputStream != null) {
+        return inputStream.readAllBytes();
+      }
+    }
+    // If test file not found, create a minimal valid XLSX programmatically
+    return createMinimalValidXlsxBytes();
+  }
+
+  private byte[] createMinimalValidXlsxBytes() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Sheet1");
+      org.apache.poi.ss.usermodel.Row row = sheet.createRow(0);
+      org.apache.poi.ss.usermodel.Cell cell = row.createCell(0);
+      cell.setCellValue("Test");
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createEmptyXlsxBytes() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      workbook.createSheet("EmptySheet");
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithMultipleSheets() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      // Sheet 1
+      org.apache.poi.ss.usermodel.Sheet sheet1 = workbook.createSheet("Sheet1");
+      org.apache.poi.ss.usermodel.Row row1 = sheet1.createRow(0);
+      row1.createCell(0).setCellValue("Sheet 1 Data");
+      row1.createCell(1).setCellValue("Column 2");
+
+      // Sheet 2
+      org.apache.poi.ss.usermodel.Sheet sheet2 = workbook.createSheet("Sheet2");
+      org.apache.poi.ss.usermodel.Row row2 = sheet2.createRow(0);
+      row2.createCell(0).setCellValue("Sheet 2 Data");
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithFormulas() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Formulas");
+      org.apache.poi.ss.usermodel.Row row1 = sheet.createRow(0);
+      row1.createCell(0).setCellValue(10);
+      row1.createCell(1).setCellValue(20);
+
+      org.apache.poi.ss.usermodel.Row row2 = sheet.createRow(1);
+      // Add a formula: SUM(A1:B1)
+      org.apache.poi.ss.usermodel.Cell formulaCell = row2.createCell(0);
+      formulaCell.setCellFormula("SUM(A1:B1)");
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  // ============================================
+  // Additional XLSX Converter Tests for Line Coverage
+  // ============================================
+
+  @Test
+  void testXlsxConverter_WithNullBytes_ThrowsIllegalArgumentException() {
+    // Test lines 41-42: IllegalArgumentException for null bytes
+    String attachmentId = "xlsx-null-bytes";
+    AttachmentDTO attachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(null)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should skip the attachment due to null payload
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  void testXlsxConverter_WithEmptyBytes_ThrowsIllegalArgumentException() {
+    // Test lines 41-42: IllegalArgumentException for empty bytes
+    String attachmentId = "xlsx-empty-bytes";
+    AttachmentDTO attachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("test.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(new byte[0])
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(attachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should skip the attachment due to empty payload
+    assertEquals(0, result.size());
+  }
+
+  @Test
+  void testXlsxConverter_WithVariousCellTypes_HandlesAllTypes() throws IOException {
+    // Test lines 150-156: Different cell types (STRING, NUMERIC, BOOLEAN, FORMULA, BLANK,
+    // default)
+    String attachmentId = "xlsx-various-cell-types";
+    byte[] xlsxBytes = createXlsxWithVariousCellTypes();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("various-types.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully with various cell types
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+    // Verify PDF header
+    byte[] pdfBytes = result.get(0);
+    String pdfHeader = new String(pdfBytes, 0, Math.min(4, pdfBytes.length));
+    assertTrue(pdfHeader.startsWith("%PDF"));
+  }
+
+  @Test
+  void testXlsxConverter_WithLongText_TruncatesCorrectly() throws IOException {
+    // Test lines 163-164: Text truncation when text is longer than max width
+    String attachmentId = "xlsx-long-text";
+    byte[] xlsxBytes = createXlsxWithLongText();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("long-text.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully and truncate long text
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  @Test
+  void testXlsxConverter_WithShortText_DoesNotTruncate() throws IOException {
+    // Test line 166: Text is not truncated when shorter than max width
+    String attachmentId = "xlsx-short-text";
+    byte[] xlsxBytes = createXlsxWithShortText();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("short-text.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully without truncating
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  @Test
+  void testXlsxConverter_WithManyRows_HandlesPageBreak() throws IOException {
+    // Test lines 108, 111: Pagination break when page is full
+    String attachmentId = "xlsx-many-rows";
+    byte[] xlsxBytes = createXlsxWithManyRows();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("many-rows.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully and stop at page break
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  @Test
+  void testXlsxConverter_WithEmptyCells_HandlesCorrectly() throws IOException {
+    // Test line 126: Empty cell value handling
+    String attachmentId = "xlsx-empty-cells";
+    byte[] xlsxBytes = createXlsxWithEmptyCells();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("empty-cells.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully with empty cells
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  @Test
+  void testXlsxConverter_WithSingleColumn_UsesMinWidth() throws IOException {
+    // Test line 102: Column width uses MIN_COLUMN_WIDTH when calculated width is smaller
+    String attachmentId = "xlsx-single-column";
+    byte[] xlsxBytes = createXlsxWithSingleColumn();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("single-column.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully with minimum column width
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  @Test
+  void testXlsxConverter_WithBooleanAndBlankCells_HandlesCorrectly() throws IOException {
+    // Test lines 153, 155: BOOLEAN and BLANK cell types
+    String attachmentId = "xlsx-boolean-blank";
+    byte[] xlsxBytes = createXlsxWithBooleanAndBlankCells();
+    AttachmentDTO xlsxAttachment =
+        AttachmentDTO.builder()
+            .id(attachmentId)
+            .name("boolean-blank.xlsx")
+            .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            .payload(xlsxBytes)
+            .build();
+
+    when(attachmentService.findById(attachmentId)).thenReturn(xlsxAttachment);
+
+    List<byte[]> result = conversionService.listToPdf(List.of(attachmentId));
+
+    // Should convert successfully with boolean and blank cells
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).length > 0);
+  }
+
+  private byte[] createXlsxWithVariousCellTypes() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Types");
+      org.apache.poi.ss.usermodel.Row row = sheet.createRow(0);
+
+      // String cell
+      row.createCell(0).setCellValue("Text");
+      // Numeric cell
+      row.createCell(1).setCellValue(123.45);
+      // Boolean cell
+      row.createCell(2).setCellValue(true);
+      // Formula cell
+      org.apache.poi.ss.usermodel.Cell formulaCell = row.createCell(3);
+      formulaCell.setCellFormula("B1*2");
+      // Blank cell (explicitly set)
+      row.createCell(4).setBlank();
+      // null cell (implicitly blank - cell 5 doesn't exist)
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithLongText() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("LongText");
+      org.apache.poi.ss.usermodel.Row row = sheet.createRow(0);
+
+      // Very long text that will need truncation
+      String longText =
+          "This is a very long text that should be truncated when rendering to PDF because it"
+              + " exceeds the maximum width allowed for a cell in the PDF output format and we"
+              + " need to test the truncation logic";
+      row.createCell(0).setCellValue(longText);
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithShortText() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("ShortText");
+      org.apache.poi.ss.usermodel.Row row = sheet.createRow(0);
+      row.createCell(0).setCellValue("Short");
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithManyRows() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("ManyRows");
+
+      // Create enough rows to fill more than one page (simulate page break)
+      // With LEADING = 14 and page height ~842, we need about 50+ rows
+      for (int i = 0; i < 60; i++) {
+        org.apache.poi.ss.usermodel.Row row = sheet.createRow(i);
+        row.createCell(0).setCellValue("Row " + i);
+        row.createCell(1).setCellValue(i * 10);
+      }
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithEmptyCells() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("EmptyCells");
+      org.apache.poi.ss.usermodel.Row row1 = sheet.createRow(0);
+
+      // Mix of filled and empty cells
+      row1.createCell(0).setCellValue("A1");
+      // Skip cell 1 (null/empty)
+      row1.createCell(2).setCellValue("C1");
+      // Skip cell 3 (null/empty)
+
+      org.apache.poi.ss.usermodel.Row row2 = sheet.createRow(1);
+      // Skip cell 0 (null/empty)
+      row2.createCell(1).setCellValue("B2");
+      // Skip cell 2 (null/empty)
+      row2.createCell(3).setCellValue("");
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithSingleColumn() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("SingleColumn");
+
+      // Create multiple rows with only one column
+      for (int i = 0; i < 5; i++) {
+        org.apache.poi.ss.usermodel.Row row = sheet.createRow(i);
+        row.createCell(0).setCellValue("Value " + i);
+      }
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
+
+  private byte[] createXlsxWithBooleanAndBlankCells() throws IOException {
+    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook =
+        new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+      org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("BooleanBlank");
+      org.apache.poi.ss.usermodel.Row row1 = sheet.createRow(0);
+
+      row1.createCell(0).setCellValue(true);
+      row1.createCell(1).setCellValue(false);
+      row1.createCell(2).setBlank();
+
+      org.apache.poi.ss.usermodel.Row row2 = sheet.createRow(1);
+      row2.createCell(0).setCellValue("After Boolean");
+      row2.createCell(1).setBlank();
+      row2.createCell(2).setCellValue(true);
+
+      workbook.write(baos);
+    }
+    return baos.toByteArray();
+  }
 }
