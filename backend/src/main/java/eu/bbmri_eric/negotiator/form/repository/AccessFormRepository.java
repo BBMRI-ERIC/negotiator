@@ -1,8 +1,8 @@
 package eu.bbmri_eric.negotiator.form.repository;
 
 import eu.bbmri_eric.negotiator.form.AccessForm;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
