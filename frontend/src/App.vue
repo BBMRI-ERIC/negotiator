@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
 import allFeatureFlags from '@/config/featureFlags.js'
@@ -47,6 +47,10 @@ const router = useRouter()
 const vueTourFeatureFlag = !!(
   allFeatureFlags.vueTour === 'true' || allFeatureFlags.vueTour === true
 )
+
+onMounted(() => {
+  changeFaviconUrl()
+})
 
 watch(
   () => router.currentRoute.value.fullPath,
@@ -73,6 +77,34 @@ const uiConfiguration = computed(() => {
 const privacyPolicyLink = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer?.footerPrivacyPolicyLink
 })
+
+const faviconUrl = computed(async() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    await uiConfigurationStore.retrieveUiConfiguration().then(() => {
+        if (uiConfiguration.value?.faviconUrlDark && uiConfiguration.value?.faviconUrlLight) {
+          return isDark
+            ? uiConfiguration.value.faviconUrlDark
+            : uiConfiguration.value.faviconUrlLight
+        } else {
+          return '../public/favicon.ico'
+        }
+    }).catch(() => {
+        return '../public/favicon.ico'
+    })
+  
+})
+
+function changeFaviconUrl() {
+  const link = document.querySelector("link[rel~='icon']")
+  if (!link) {
+    const newLink = document.createElement('link')
+    newLink.rel = 'icon'
+    newLink.href = faviconUrl.value
+    document.head.appendChild(newLink)
+  } else {
+    link.href = faviconUrl.value
+  }
+}
 </script>
 
 <style scoped>
