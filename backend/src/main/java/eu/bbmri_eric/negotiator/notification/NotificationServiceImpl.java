@@ -48,4 +48,10 @@ class NotificationServiceImpl implements NotificationService {
         .orElseThrow(
             () -> new EntityNotFoundException("Notification with id " + id + " not found"));
   }
+
+  @Override
+  public int countByRecipientIdAndNegotiationId(
+      @NotNull Long recipientId, @NotNull String negotiationId) {
+    return notificationRepository.countByRecipientIdAndNegotiationId(recipientId, negotiationId);
+  }
 }
