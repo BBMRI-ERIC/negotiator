@@ -59,7 +59,7 @@ class NewPostHandlerTest {
 
   @Test
   void notify_WithPublicPost_ShouldNotifyAllParticipantsExceptAuthor() {
-    String negotiationId = "neg-123";
+    String negotiationId = "123";
     Long postAuthorId = 400L;
     NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, postAuthorId, null);
 
@@ -89,7 +89,7 @@ class NewPostHandlerTest {
   @Test
   void
       notify_WithPublicPost_WhenPostAuthorIsNegotiationAuthor_ShouldExcludeAuthorFromNotifications() {
-    String negotiationId = "neg-123";
+    String negotiationId = "123";
     Long negotiationAuthorId = 100L;
     NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, negotiationAuthorId, null);
 
@@ -112,7 +112,7 @@ class NewPostHandlerTest {
 
   @Test
   void notify_WithPublicPost_WhenPostAuthorIsRepresentative_ShouldExcludeAuthorFromNotifications() {
-    String negotiationId = "neg-123";
+    String negotiationId = "123";
     Long representativeId = 200L;
     NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, representativeId, null);
 
@@ -135,7 +135,7 @@ class NewPostHandlerTest {
 
   @Test
   void notify_WithPublicPost_WhenOnlyAuthorExists_ShouldNotSendNotifications() {
-    String negotiationId = "neg-123";
+    String negotiationId = "123";
     Long negotiationAuthorId = 100L;
     NewPostEvent event = new NewPostEvent(this, "post-1", negotiationId, negotiationAuthorId, null);
 
@@ -149,7 +149,7 @@ class NewPostHandlerTest {
 
   @Test
   void notify_WithPrivatePost_ShouldNotifyOrganizationMembersExceptAuthor() {
-    String negotiationId = "neg-123";
+    String negotiationId = "123";
     Long postAuthorId = 400L;
     Long organizationId = 500L;
     NewPostEvent event =
@@ -185,7 +185,7 @@ class NewPostHandlerTest {
 
   @Test
   void notify_WithPrivatePost_WhenNegotiationNotFound_ShouldThrowException() {
-    String negotiationId = "neg-123";
+    String negotiationId = "123";
     Long postAuthorId = 400L;
     Long organizationId = 500L;
     NewPostEvent event =

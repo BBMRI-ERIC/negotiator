@@ -60,7 +60,7 @@ class PendingNegotiationReminderHandlerTest {
     Person rep2 = createPerson(2L, "rep2@test.com");
 
     // Setup negotiation1 with contacted representatives
-    when(negotiation1.getId()).thenReturn("NEG-123");
+    when(negotiation1.getId()).thenReturn("123");
     when(negotiation1.getTitle()).thenReturn("Negotiation 1");
     when(negotiation1.getResources()).thenReturn(Set.of(resource1));
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -90,7 +90,7 @@ class PendingNegotiationReminderHandlerTest {
     assertEquals("Pending Negotiation Reminder", notification.getTitle());
     assertTrue(notification.getBody().contains("pending negotiation request"));
     assertTrue(notification.getBody().contains("Negotiation 1"));
-    assertEquals("NEG-123", notification.getNegotiationId());
+    assertEquals("123", notification.getNegotiationId());
   }
 
   @Test
@@ -154,7 +154,7 @@ class PendingNegotiationReminderHandlerTest {
 
     Person contactedRep = createPerson(1L, "contacted@test.com");
 
-    when(negotiation1.getId()).thenReturn("NEG-123");
+    when(negotiation1.getId()).thenReturn("123");
     when(negotiation1.getTitle()).thenReturn("Test Negotiation");
     when(negotiation1.getResources()).thenReturn(Set.of(resource1, resource2));
 
@@ -199,7 +199,7 @@ class PendingNegotiationReminderHandlerTest {
     when(resource3.getRepresentatives()).thenReturn(Set.of(rep3));
 
     // Setup first negotiation
-    when(negotiation1.getId()).thenReturn("NEG-123");
+    when(negotiation1.getId()).thenReturn("123");
     when(negotiation1.getTitle()).thenReturn("Negotiation 1");
     when(negotiation1.getResources()).thenReturn(Set.of(resource1));
     when(resource1.getSourceId()).thenReturn("resource-1");
@@ -208,7 +208,7 @@ class PendingNegotiationReminderHandlerTest {
         .thenReturn(NegotiationResourceState.REPRESENTATIVE_CONTACTED);
 
     // Setup second negotiation with different resource
-    when(negotiation2.getId()).thenReturn("NEG-456");
+    when(negotiation2.getId()).thenReturn("456");
     when(negotiation2.getTitle()).thenReturn("Negotiation 2");
     when(negotiation2.getResources()).thenReturn(Set.of(resource3));
     when(negotiation2.getCurrentStateForResource("resource-3"))
@@ -231,23 +231,23 @@ class PendingNegotiationReminderHandlerTest {
     // Find notifications by negotiation ID since order is not guaranteed
     NotificationCreateDTO notification1 =
         notifications.stream()
-            .filter(n -> "NEG-123".equals(n.getNegotiationId()))
+            .filter(n -> "123".equals(n.getNegotiationId()))
             .findFirst()
-            .orElseThrow(() -> new AssertionError("Notification for NEG-123 not found"));
+            .orElseThrow(() -> new AssertionError("Notification for 123 not found"));
 
     NotificationCreateDTO notification2 =
         notifications.stream()
-            .filter(n -> "NEG-456".equals(n.getNegotiationId()))
+            .filter(n -> "456".equals(n.getNegotiationId()))
             .findFirst()
-            .orElseThrow(() -> new AssertionError("Notification for NEG-456 not found"));
+            .orElseThrow(() -> new AssertionError("Notification for 456 not found"));
 
-    // Verify first notification (NEG-123)
+    // Verify first notification (123)
     assertTrue(notification1.getUserIds().containsAll(List.of(1L, 2L)));
-    assertEquals("NEG-123", notification1.getNegotiationId());
+    assertEquals("123", notification1.getNegotiationId());
 
-    // Verify second notification (NEG-456)
+    // Verify second notification (456)
     assertEquals(List.of(3L), notification2.getUserIds());
-    assertEquals("NEG-456", notification2.getNegotiationId());
+    assertEquals("456", notification2.getNegotiationId());
   }
 
   private Person createPerson(Long id, String email) {

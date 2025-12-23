@@ -58,7 +58,7 @@ class NewNegotiationHandlerTest {
   @Test
   void notify_WhenNewNegotiation_SendsBothResearcherAndAdminNotifications() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId);
 
     Person admin1 = createPerson(1L, "admin1@test.com");
@@ -96,7 +96,7 @@ class NewNegotiationHandlerTest {
   @Test
   void notify_WhenNegotiationNotFound_OnlyNotifiesAdmins() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId);
 
     Person admin = createPerson(1L, "admin@test.com");
@@ -119,7 +119,7 @@ class NewNegotiationHandlerTest {
   @Test
   void notify_WhenNoAdmins_OnlyNotifiesResearcher() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
@@ -141,7 +141,7 @@ class NewNegotiationHandlerTest {
   @Test
   void notify_WhenNeitherNegotiationNorAdminsExist_DoesNotCreateNotifications() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.empty());
@@ -157,7 +157,7 @@ class NewNegotiationHandlerTest {
   @Test
   void createResearcherConfirmationNotification_CreatesCorrectNotification() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId);
 
     when(negotiationRepository.findById(negotiationId)).thenReturn(Optional.of(negotiation));
@@ -182,7 +182,7 @@ class NewNegotiationHandlerTest {
   @Test
   void notifyAdminsAboutNewNegotiation_CreatesCorrectNotification() {
     // Given
-    String negotiationId = "NEG-123";
+    String negotiationId = "123";
     NewNegotiationEvent event = new NewNegotiationEvent(this, negotiationId);
 
     Person admin1 = createPerson(1L, "admin1@test.com");
