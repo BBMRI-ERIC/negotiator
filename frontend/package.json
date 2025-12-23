@@ -26,7 +26,7 @@
     "@vue/test-utils": "^2.2.7",
     "axios": "^1.12.0",
     "bootstrap": "^5.3.8",
-    "bootstrap-icons": "^1.11.1",
+    "bootstrap-icons": "^1.13.1",
     "chart.js": "^4.4.7",
     "chartjs-plugin-datalabels": "^2.2.0",
     "codemirror": "^6.0.2",
