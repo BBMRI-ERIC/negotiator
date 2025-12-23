@@ -12,6 +12,7 @@ const apiPaths = {
   ATTACHMENTS_PATH: `${BASE_API_PATH}/attachments`,
   BACKEND_ACTUATOR_INFO_PATH: '/api/actuator/info',
   VALUE_SETS: `${BASE_API_PATH}/value-sets`,
+  DISCOVERY_SERVICES: `${BASE_API_PATH}/discovery-services`,
 }
 
 function getBearerHeaders() {
