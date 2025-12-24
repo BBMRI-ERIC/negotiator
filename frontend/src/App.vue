@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useNotificationsStore } from '@/store/notifications.js'
 import allFeatureFlags from '@/config/featureFlags.js'
@@ -48,7 +48,8 @@ const vueTourFeatureFlag = !!(
   allFeatureFlags.vueTour === 'true' || allFeatureFlags.vueTour === true
 )
 
-onMounted(() => {
+onMounted(async () => {
+  await updateFaviconUrl()
   changeFaviconUrl()
 })
 
@@ -77,22 +78,23 @@ const uiConfiguration = computed(() => {
 const privacyPolicyLink = computed(() => {
   return uiConfigurationStore.uiConfiguration?.footer?.footerPrivacyPolicyLink
 })
+const faviconUrl = ref('../public/favicon.ico')
 
-const faviconUrl = computed(async() => {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    await uiConfigurationStore.retrieveUiConfiguration().then(() => {
-        if (uiConfiguration.value?.faviconUrlDark && uiConfiguration.value?.faviconUrlLight) {
-          return isDark
-            ? uiConfiguration.value.faviconUrlDark
-            : uiConfiguration.value.faviconUrlLight
-        } else {
-          return '../public/favicon.ico'
-        }
-    }).catch(() => {
-        return '../public/favicon.ico'
-    })
-  
-})
+async function updateFaviconUrl() {
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  try {
+    await uiConfigurationStore.retrieveUiConfiguration()
+    if (uiConfiguration.value?.faviconUrlDark && uiConfiguration.value?.faviconUrlLight) {
+      faviconUrl.value = isDark
+        ? uiConfiguration.value.faviconUrlDark
+        : uiConfiguration.value.faviconUrlLight
+    } else {
+      faviconUrl.value = '../public/favicon.ico'
+    }
+  } catch {
+    faviconUrl.value = '../public/favicon.ico'
+  }
+}
 
 function changeFaviconUrl() {
   const link = document.querySelector("link[rel~='icon']")
