@@ -83,9 +83,9 @@
               </td>
               <td>{{ resource.contactEmail || 'N/A' }}</td>
               <td>
-                <span :class="resource.withdrawn ? 'badge bg-danger' : 'badge bg-success'">
+                <UiBadge :color="resource.withdrawn ? 'bg-danger' : 'bg-success'">
                   {{ resource.withdrawn ? 'Withdrawn' : 'Active' }}
-                </span>
+                </UiBadge>
               </td>
               <td>
                 <button
@@ -142,6 +142,7 @@ import { onMounted, ref } from 'vue'
 import { Modal } from 'bootstrap'
 import { useAdminStore } from '@/store/admin'
 import EditResourceModal from '@/components/governance/EditResourceModal.vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const adminStore = useAdminStore()
 

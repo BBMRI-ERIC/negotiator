@@ -133,12 +133,12 @@
                   <strong>{{ representative.name }}</strong>
                   <br />
                   <small class="text-muted">{{ representative.email }}</small>
-                  <span v-if="isMarkedForAddition(representative.id)" class="badge bg-success ms-2">
+                  <UiBadge v-if="isMarkedForAddition(representative.id)" color="bg-success ms-2">
                     New
-                  </span>
-                  <span v-if="isMarkedForRemoval(representative.id)" class="badge bg-danger ms-2">
+                  </UiBadge>
+                  <UiBadge v-if="isMarkedForRemoval(representative.id)" color="bg-danger ms-2">
                     To Remove
-                  </span>
+                  </UiBadge>
                 </div>
                 <button
                   v-if="!isMarkedForRemoval(representative.id)"
@@ -198,6 +198,7 @@ import { useAdminStore } from '@/store/admin'
 import { useResourcesStore } from '@/store/resources'
 import { useNotificationsStore } from '@/store/notifications'
 import TextFilter from '../filters/TextFilter.vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   modalId: {

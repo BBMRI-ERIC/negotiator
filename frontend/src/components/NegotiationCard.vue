@@ -4,10 +4,9 @@
       <div class="card-header bg-body" :style="{ color: uiConfiguration?.cardTextColor }">
         <span class="h5">{{ title }}</span>
         <h6 class="float-end">
-          <span :class="getBadgeColor(status)" class="badge" style="width: 125px">
-            <i :class="getBadgeIcon(status)" class="px-1" />
+          <UiBadge :color="getBadgeColor(status)" :icon="getBadgeIcon(status)" width="125px">
             {{ transformStatus(status) }}
-          </span>
+          </UiBadge>
         </h6>
       </div>
       <div class="card-body" :style="{ color: uiConfiguration?.cardTextColor, opacity: 0.7 }">
@@ -23,6 +22,7 @@
 import { computed } from 'vue'
 import { transformStatus, getBadgeColor, getBadgeIcon } from '../composables/utils.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 defineProps({
   id: {

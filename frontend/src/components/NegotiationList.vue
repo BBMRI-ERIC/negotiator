@@ -214,10 +214,13 @@
                   </span>
                 </td>
                 <td>
-                  <span class="badge" :class="getBadgeColor(fn.status)" style="width: 120px">
-                    <i :class="getBadgeIcon(fn.status)" class="px-1" />
+                  <UiBadge
+                    :color="getBadgeColor(fn.status)"
+                    :icon="getBadgeIcon(fn.status)"
+                    width="120px"
+                  >
                     {{ transformStatus(fn.status) }}
-                  </span>
+                  </UiBadge>
                 </td>
                 <td>
                   <i
@@ -263,6 +266,7 @@
 <script setup>
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import {

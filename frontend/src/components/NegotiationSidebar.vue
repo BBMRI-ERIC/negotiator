@@ -73,10 +73,12 @@
       <li class="list-group-item p-2 d-flex justify-content-between">
         <div>
           <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Status:</div>
-          <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-            ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-            {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
+          <UiBadge
+            :color="getBadgeColor(negotiation.status) + ' py-2 rounded-pill bg'"
+            :icon="getBadgeIcon(negotiation.status)"
           >
+            {{ negotiation ? transformStatus(negotiation.status) : '' }}
+          </UiBadge>
         </div>
       </li>
       <li
@@ -156,6 +158,7 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
