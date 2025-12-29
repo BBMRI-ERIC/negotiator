@@ -12,9 +12,7 @@
             <i class="bi bi-box-seam" />
             {{ resource.name }}
           </label>
-          <span class="badge rounded-pill bg-status-badge ms-2">
-            {{ getStatusForResource() }}
-          </span>
+          <UiBadge color="bg-status-badge rounded-pill ms-2">{{ getStatusForResource() }}</UiBadge>
         </div>
         <!-- Resource URI if available -->
         <div v-if="resource.uri" class="me-3 mb-2">
@@ -76,6 +74,7 @@ import { onMounted, computed, ref } from 'vue'
 import { transformStatus } from '../composables/utils.js'
 import CopyTextButton from '@/components/CopyTextButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   resource: { type: Object, required: true },

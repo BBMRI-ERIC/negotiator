@@ -7,10 +7,12 @@
           <h5 class="mb-1" :class="{ 'text-muted': organization.withdrawn }">
             {{ organization.name }}
             <small class="text-muted">({{ organization.externalId }})</small>
-            <span v-if="organization.withdrawn" class="badge bg-warning text-dark ms-2">
-              <i class="bi bi-x-octagon-fill me-1"></i>
-              WITHDRAWN
-            </span>
+            <UiBadge
+              v-if="organization.withdrawn"
+              color="bg-warning text-dark ms-2"
+              icon="bi bi-x-octagon-fill me-1"
+              >WITHDRAWN</UiBadge
+            >
           </h5>
           <p class="mb-0 text-muted small">{{ organization.description }}</p>
         </div>
@@ -107,25 +109,27 @@
                 <small class="text-muted">({{ resource.sourceId }})</small>
 
                 <!-- Resource Status Badges -->
-                <span v-if="resource.withdrawn" class="badge bg-warning text-dark ms-2">
-                  <i class="bi bi-x-octagon-fill me-1"></i>
-                  WITHDRAWN
-                </span>
-                <span v-else-if="organization.withdrawn" class="badge bg-secondary ms-2">
-                  <i class="bi bi-x-octagon-fill me-1"></i>
-                  ORG WITHDRAWN
-                </span>
-                <span
-                  v-else-if="resource.representatives.length === 0"
-                  class="badge bg-danger ms-2"
+                <UiBadge
+                  v-if="resource.withdrawn"
+                  color="bg-warning text-dark ms-2"
+                  icon="bi bi-x-octagon-fill me-1"
+                  >WITHDRAWN</UiBadge
                 >
-                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                  NO REPRESENTATIVES
-                </span>
-                <span v-else class="badge bg-success ms-2">
-                  <i class="bi bi-check-circle-fill me-1"></i>
-                  ACTIVE
-                </span>
+                <UiBadge
+                  v-else-if="organization.withdrawn"
+                  color="bg-secondary ms-2"
+                  icon="bi bi-x-octagon-fill me-1"
+                  >ORG WITHDRAWN</UiBadge
+                >
+                <UiBadge
+                  v-else-if="resource.representatives.length === 0"
+                  color="bg-danger ms-2"
+                  icon="bi bi-exclamation-triangle-fill me-1"
+                  >NO REPRESENTATIVES</UiBadge
+                >
+                <UiBadge v-else color="bg-success ms-2" icon="bi bi-check-circle-fill me-1"
+                  >ACTIVE</UiBadge
+                >
               </h6>
 
               <p
@@ -210,6 +214,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   organization: {
