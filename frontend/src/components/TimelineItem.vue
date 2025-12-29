@@ -31,16 +31,16 @@
           <div class="card-header">
             <div class="mb-2">
               <span>
-                <span
+                <UiBadge
                   v-for="badge in getUserBadges(item)"
                   :key="badge"
-                  data-bs-toggle="tooltip"
-                  class="badge rounded-pill"
-                  :style="{ 'background-color': uiConfiguration.primaryTextColor }"
+                  color="rounded-pill"
+                  :style="{ backgroundColor: uiConfiguration.primaryTextColor }"
                   :title="getBadgeTooltip(badge)"
+                  data-bs-toggle="tooltip"
                 >
                   {{ badge }}
-                </span>
+                </UiBadge>
               </span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
@@ -85,6 +85,7 @@
 
 <script setup>
 import { formatTimestampToLocalDateTime } from '@/composables/utils'
+import UiBadge from '@/components/ui/UiBadge.vue'
 
 const props = defineProps({
   item: {
