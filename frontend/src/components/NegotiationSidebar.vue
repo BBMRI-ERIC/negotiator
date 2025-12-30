@@ -23,9 +23,7 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
-        <span :style="{ color: uiConfiguration.secondaryTextColor }">
-          {{ negotiation ? printDate(negotiation.creationDate) : '' }}</span
-        >
+        <UiTimestamp :value="negotiation ? negotiation.creationDate : ''" />
       </li>
       <li class="list-group-item p-2 d-flex justify-content-between">
         <div>
@@ -123,8 +121,8 @@ import {
   getButtonColor,
   getButtonIcon,
   transformStatus,
-  formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
+import UiTimestamp from '@/components/ui/UiTimestamp.vue'
 
 useNegotiationPageStore()
 defineProps({
@@ -136,10 +134,6 @@ defineProps({
 })
 
 const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation'])
-
-function printDate(date) {
-  return formatTimestampToLocalDateTime(date)
-}
 
 function assignStatus(status) {
   emit('assign-status', status)
