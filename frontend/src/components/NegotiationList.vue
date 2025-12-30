@@ -204,9 +204,7 @@
                   </span>
                 </td>
                 <td>
-                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ formatDate(fn.creationDate) }}
-                  </span>
+                  <UiTimestamp :value="fn.creationDate" :muted="true" />
                 </td>
                 <td>
                   <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
@@ -278,6 +276,7 @@ import {
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import UiTimestamp from '@/components/ui/UiTimestamp.vue'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
