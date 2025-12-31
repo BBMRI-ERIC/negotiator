@@ -187,31 +187,44 @@
               </tr>
             </thead>
             <tbody>
-              <tr
+              <a
                 v-for="(fn, index) in negotiations"
                 :key="index"
-                @click="goToNegotiation(fn)"
-                class="cursor-pointer"
+                :href="
+                  $router.resolve({ name: 'negotiation-page', params: { negotiationId: fn.id } })
+                    .href
+                "
+                class="cursor-pointer d-table-row text-decoration-none"
+                role="row"
+                style="color: inherit; user-select: none"
+                tabindex="0"
+                @click.prevent="goToNegotiation(fn)"
               >
-                <th scope="row" :style="{ color: uiConfiguration?.tableTextColor }">
-                  <span>
-                    {{ fn.payload?.project?.title }}
-                  </span>
-                </th>
-                <td>
-                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.displayId }}
-                  </span>
-                </td>
-                <td>
+                <span
+                  role="cell"
+                  class="d-table-cell"
+                  :style="{ color: uiConfiguration?.tableTextColor }"
+                >
+                  {{ fn.payload?.project?.title }}
+                </span>
+                <span
+                  role="cell"
+                  class="d-table-cell"
+                  :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }"
+                >
+                  {{ fn.displayId }}
+                </span>
+                <span role="cell" class="d-table-cell">
                   <UiTimestamp :value="fn.creationDate" :muted="true" />
-                </td>
-                <td>
-                  <span :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }">
-                    {{ fn.author.name }}
-                  </span>
-                </td>
-                <td>
+                </span>
+                <span
+                  role="cell"
+                  class="d-table-cell"
+                  :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }"
+                >
+                  {{ fn.author.name }}
+                </span>
+                <span role="cell" class="d-table-cell">
                   <UiBadge
                     :color="getBadgeColor(fn.status)"
                     :icon="getBadgeIcon(fn.status)"
@@ -219,14 +232,14 @@
                   >
                     {{ transformStatus(fn.status) }}
                   </UiBadge>
-                </td>
-                <td>
+                </span>
+                <span role="cell" class="d-table-cell">
                   <i
                     class="bi bi-chevron-right float-end"
                     :style="{ color: uiConfiguration?.tableTextColor }"
                   />
-                </td>
-              </tr>
+                </span>
+              </a>
             </tbody>
           </table>
         </div>
@@ -379,3 +392,16 @@ watch(() => filtersSortData.value?.search, (newSearch) => {
   }
 }, { immediate: true })
 </script>
+
+<style scoped>
+tbody a.d-table-row > .d-table-cell {
+  vertical-align: middle;
+  align-items: center;
+  display: table-cell;
+}
+
+tbody a.d-table-row {
+  border-bottom: 1px solid #dee2e6; /* Bootstrap table border color */
+  box-sizing: border-box;
+}
+</style>
