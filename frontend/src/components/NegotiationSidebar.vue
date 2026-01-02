@@ -23,17 +23,17 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
-        <span :style="{ color: uiConfiguration.secondaryTextColor }">
-          {{ negotiation ? printDate(negotiation.creationDate) : '' }}</span
-        >
+        <UiTimestamp :value="negotiation ? negotiation.creationDate : ''" />
       </li>
       <li class="list-group-item p-2 d-flex justify-content-between">
         <div>
           <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Status:</div>
-          <span :class="getBadgeColor(negotiation.status)" class="badge py-2 rounded-pill bg"
-            ><i :class="getBadgeIcon(negotiation.status)" class="px-1" />
-            {{ negotiation ? transformStatus(negotiation.status) : '' }}</span
+          <UiBadge
+            :color="getBadgeColor(negotiation.status) + ' py-2 rounded-pill bg'"
+            :icon="getBadgeIcon(negotiation.status)"
           >
+            {{ negotiation ? transformStatus(negotiation.status) : '' }}
+          </UiBadge>
         </div>
       </li>
       <li
@@ -111,6 +111,7 @@
 </template>
 
 <script setup>
+import UiBadge from '@/components/ui/UiBadge.vue'
 import PDFButton from '@/components/PDFButton.vue'
 import TransferButton from '@/components/TransferButton.vue'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
@@ -120,8 +121,8 @@ import {
   getButtonColor,
   getButtonIcon,
   transformStatus,
-  formatTimestampToLocalDateTime,
 } from '../composables/utils.js'
+import UiTimestamp from '@/components/ui/UiTimestamp.vue'
 
 useNegotiationPageStore()
 defineProps({
@@ -133,10 +134,6 @@ defineProps({
 })
 
 const emit = defineEmits(['assign-status', 'download-attachment-from-link', 'transfer-negotiation'])
-
-function printDate(date) {
-  return formatTimestampToLocalDateTime(date)
-}
 
 function assignStatus(status) {
   emit('assign-status', status)
