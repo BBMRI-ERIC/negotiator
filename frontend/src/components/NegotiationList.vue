@@ -114,135 +114,76 @@
       </div>
 
       <div v-if="savedNegotiationsView === 'Table'">
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="text-nowrap">
-              <tr class="text-table-header-text">
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Title
-                  <button
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('title'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'title'
-                          ? 'bi bi-sort-alpha-up-alt'
-                          : 'bi-sort-alpha-down'
-                      "
-                    />
-                    <i v-if="filtersSortData.sortBy !== 'title'" class="bi bi-sort-alpha-up-alt" />
-                  </button>
-                </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  {{ $t('negotiationPage.displayId') }}
-                </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Created on
-                  <button
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('creationDate'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'creationDate'
-                          ? 'bi bi-sort-numeric-up-alt'
-                          : 'bi-sort-numeric-down'
-                      "
-                    />
-                    <i
-                      v-if="filtersSortData.sortBy !== 'creationDate'"
-                      class="bi bi-sort-numeric-up-alt"
-                    />
-                  </button>
-                </th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">Author</th>
-                <th scope="col" :style="{ color: uiConfiguration?.tableTextColor }">
-                  Status
-                  <button
-                    id="v-step-2"
-                    class="btn btn-sm py-0"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                    type="button"
-                    @click="(changeSortDirection('currentState'), emitFilterSortData())"
-                  >
-                    <i
-                      :class="
-                        filtersSortData.sortDirection === 'ASC' &&
-                        filtersSortData.sortBy === 'currentState'
-                          ? 'bi bi-sort-up-alt'
-                          : 'bi-sort-down'
-                      "
-                    />
-                    <i v-if="filtersSortData.sortBy !== 'currentState'" class="bi bi-sort-up-alt" />
-                  </button>
-                </th>
-                <th scope="col" />
-              </tr>
-            </thead>
-            <tbody>
-              <a
-                v-for="(fn, index) in negotiations"
-                :key="index"
-                :href="
-                  $router.resolve({ name: 'negotiation-page', params: { negotiationId: fn.id } })
-                    .href
-                "
-                class="cursor-pointer d-table-row text-decoration-none"
-                role="row"
-                style="color: inherit; user-select: none"
-                tabindex="0"
-                @click.prevent="goToNegotiation(fn)"
-              >
-                <span
-                  role="cell"
-                  class="d-table-cell"
-                  :style="{ color: uiConfiguration?.tableTextColor }"
-                >
-                  {{ fn.payload?.project?.title }}
-                </span>
-                <span
-                  role="cell"
-                  class="d-table-cell"
-                  :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }"
-                >
-                  {{ fn.displayId }}
-                </span>
-                <span role="cell" class="d-table-cell">
-                  <UiTimestamp :value="fn.creationDate" :muted="true" />
-                </span>
-                <span
-                  role="cell"
-                  class="d-table-cell"
-                  :style="{ color: uiConfiguration?.tableTextColor, opacity: 0.7 }"
-                >
-                  {{ fn.author.name }}
-                </span>
-                <span role="cell" class="d-table-cell">
-                  <UiBadge
-                    :color="getBadgeColor(fn.status)"
-                    :icon="getBadgeIcon(fn.status)"
-                    width="120px"
-                  >
-                    {{ transformStatus(fn.status) }}
-                  </UiBadge>
-                </span>
-                <span role="cell" class="d-table-cell">
-                  <i
-                    class="bi bi-chevron-right float-end"
-                    :style="{ color: uiConfiguration?.tableTextColor }"
-                  />
-                </span>
-              </a>
-            </tbody>
-          </table>
-        </div>
+        <UiTable :headers="tableHeaders" :data="tableData">
+          <template #header-title>
+            <span>Title</span>
+            <SortButton
+              :sortKey="'title'"
+              :filtersSortData="filtersSortData"
+              :color="uiConfiguration?.tableTextColor"
+              iconAsc="bi bi-sort-alpha-up-alt"
+              iconDesc="bi bi-sort-alpha-down"
+              defaultIcon="bi bi-sort-alpha-up-alt"
+              @sort="
+                (key) => {
+                  changeSortDirection(key)
+                  emitFilterSortData()
+                }
+              "
+            />
+          </template>
+
+          <template #header-creationDate>
+            <span>Created on</span>
+            <SortButton
+              :sortKey="'creationDate'"
+              :filtersSortData="filtersSortData"
+              :color="uiConfiguration?.tableTextColor"
+              iconAsc="bi bi-sort-numeric-up-alt"
+              iconDesc="bi bi-sort-numeric-down"
+              defaultIcon="bi bi-sort-numeric-up-alt"
+              @sort="
+                (key) => {
+                  changeSortDirection(key)
+                  emitFilterSortData()
+                }
+              "
+            />
+          </template>
+
+          <template #header-status>
+            <span>Status</span>
+            <SortButton
+              id="v-step-2"
+              :sortKey="'currentState'"
+              :filtersSortData="filtersSortData"
+              :color="uiConfiguration?.tableTextColor"
+              iconAsc="bi bi-sort-up-alt"
+              iconDesc="bi bi-sort-down"
+              defaultIcon="bi bi-sort-up-alt"
+              @sort="
+                (key) => {
+                  changeSortDirection(key)
+                  emitFilterSortData()
+                }
+              "
+            />
+          </template>
+          <template #creationDate="{ value }">
+            <UiTimestamp :value="value" :muted="true" />
+          </template>
+          <template #status="{ value }">
+            <UiBadge :color="getBadgeColor(value)" :icon="getBadgeIcon(value)" width="120px">
+              {{ transformStatus(value) }}
+            </UiBadge>
+          </template>
+          <template #chevron>
+            <i
+              class="bi bi-chevron-right float-end"
+              :style="{ color: uiConfiguration?.tableTextColor }"
+            />
+          </template>
+        </UiTable>
       </div>
 
       <h2 v-if="negotiations.length === 0" class="text-center">No Negotiations found</h2>
@@ -278,6 +219,7 @@
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import UiBadge from '@/components/ui/UiBadge.vue'
+import UiTable from '@/components/ui/UiTable.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import {
@@ -290,6 +232,7 @@ import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import UiTimestamp from '@/components/ui/UiTimestamp.vue'
+import SortButton from '@/components/ui/SortButton.vue'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
@@ -318,6 +261,58 @@ const props = defineProps({
     default: false,
   },
 })
+
+const tableHeaders = [
+  {
+    key: 'title',
+    label: 'Title',
+    slot: undefined,
+    style: { color: '#3c3c3d' },
+  },
+  {
+    key: 'id',
+    label: 'Negotiation ID',
+    slot: undefined,
+    style: { color: '#3c3c3d' },
+  },
+  {
+    key: 'creationDate',
+    label: 'Created on',
+    slot: 'creationDate',
+    style: {},
+  },
+  {
+    key: 'author',
+    label: 'Author',
+    slot: undefined,
+    style: { color: '#3c3c3d' },
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    slot: 'status',
+    style: {},
+  },
+  {
+    key: 'chevron',
+    label: '',
+    slot: 'chevron',
+    style: {},
+  },
+]
+
+const tableData = computed(() =>
+  (props.negotiations || []).map((fn) => ({
+    title: fn.payload?.project?.title,
+    id: fn.id,
+    creationDate: fn.creationDate,
+    author: fn.author.name,
+    status: fn.status,
+    chevron: '',
+    href: router.resolve({ name: 'negotiation-page', params: { negotiationId: fn.id } }).href,
+    _raw: fn,
+  })),
+)
 
 const loading = computed(() => {
   return props.negotiations === undefined
