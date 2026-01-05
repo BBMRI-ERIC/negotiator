@@ -1,3 +1,3 @@
-INSERT INTO ui_parameter (category, name, type, value)
-VALUES  ('theme', 'faviconUrlDark', 'STRING', ''),
-        ('theme', 'faviconUrlLight', 'STRING', '');
+INSERT INTO ui_parameter (id, category, name, type, value)
+VALUES  (68, 'theme', 'faviconUrlDark', 'STRING', ''),
+        (69, 'theme', 'faviconUrlLight', 'STRING', '');
