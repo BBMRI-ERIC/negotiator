@@ -302,16 +302,18 @@ const tableHeaders = [
 ]
 
 const tableData = computed(() =>
-  (props.negotiations || []).map((fn) => ({
-    title: fn.payload?.project?.title,
-    id: fn.id,
-    creationDate: fn.creationDate,
-    author: fn.author.name,
-    status: fn.status,
-    chevron: '',
-    href: router.resolve({ name: 'negotiation-page', params: { negotiationId: fn.id } }).href,
-    _raw: fn,
-  })),
+  Array.isArray(props.negotiations)
+    ? props.negotiations.map((fn) => ({
+        title: fn.payload?.project?.title,
+        id: fn.id,
+        creationDate: fn.creationDate,
+        author: fn.author.name,
+        status: fn.status,
+        chevron: '',
+        href: router.resolve({ name: 'negotiation-page', params: { negotiationId: fn.id } }).href,
+        _raw: fn,
+      }))
+    : [],
 )
 
 const loading = computed(() => {
