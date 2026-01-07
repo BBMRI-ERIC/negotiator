@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResourceStateChangeHandler implements NotificationStrategy<ResourceStateChangeEvent> {
 
-  public static final String TITLE = "Request Status update";
+  public static final String TITLE = "New notification for Negotiation:";
   public static final String BODY =
       "Resource %s had a change of status in your request %s, from %s to %s";
   private final NegotiationRepository negotiationRepository;

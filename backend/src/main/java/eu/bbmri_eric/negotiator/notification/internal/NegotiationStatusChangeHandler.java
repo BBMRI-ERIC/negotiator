@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @CommonsLog
 class NegotiationStatusChangeHandler implements NotificationStrategy<NegotiationStateChangeEvent> {
 
-  public static final String TITLE = "Negotiation Submission Confirmed";
+  public static final String TITLE = "New notification for Negotiation:";
   public static final String BODY =
       "Your negotiation request has been successfully submitted and is now under review. You will be notified of any updates.";
   private final NotificationService notificationService;
@@ -63,7 +63,7 @@ class NegotiationStatusChangeHandler implements NotificationStrategy<Negotiation
       log.warn("Could not find negotiation with ID: " + event.getNegotiationId());
       return;
     }
-    String title = "Request Status Update";
+    String title = "New notification for Negotiation:";
     String message = createStatusChangeMessage(event.getChangedTo(), negotiation.getTitle());
 
     NotificationCreateDTO notification =

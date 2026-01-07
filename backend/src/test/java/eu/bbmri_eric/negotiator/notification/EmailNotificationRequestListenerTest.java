@@ -119,7 +119,7 @@ class EmailNotificationRequestListenerTest {
     verify(emailService)
         .sendEmail(
             person,
-            "Test Notification - Test Negotiation request examp",
+            "Test Notification Test Negotiation request examp",
             "Email Content",
             "test-negotiation");
   }
@@ -170,7 +170,7 @@ class EmailNotificationRequestListenerTest {
     verify(emailService)
         .sendEmail(
             person,
-            "Test Notification - Test Negotiation request examp",
+            "Test Notification Test Negotiation request examp",
             "Email Content",
             "test-negotiation");
   }

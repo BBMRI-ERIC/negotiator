@@ -67,7 +67,7 @@ class EmailNotificationRequestListener {
     String subject =
         negotiation != null
             ? notification.getTitle()
-                + " - "
+                + " "
                 + negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30))
             : notification.getTitle();
 
