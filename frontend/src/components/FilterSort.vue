@@ -2,17 +2,21 @@
   <div class="container d-flex flex-row flex-wrap justify-content-between">
     <div class="d-flex flex-row gap-2 my-2 mx-auto mx-md-0">
       <div class="sort-by">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
-          :class="filtersSortData.sortBy !== '' ? 'show' : ''"
+        <FilterButton
+          :customStyle="filtersSortData.sortBy !== '' ? returnButtonActiveColor : returnButtonColor"
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.sortBy !== ''"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Sort by
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
           <div v-for="(sort, index) in sortBy" :key="index" class="form-check mx-2 my-2">
             <input
@@ -35,28 +39,36 @@
         </ul>
       </div>
 
-      <button
-        class="btn btn-sm custom-button-hover"
-        :style="returnButtonColor"
-        type="button"
-        @click="changeSortDirection()"
+      <FilterButton
+        :customStyle="returnButtonColor"
+        customClass="custom-button-hover"
+        size="sm"
+        @click="changeSortDirection"
       >
-        <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
-        <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
-      </button>
+        <template #icon>
+          <i v-if="filtersSortData.sortDirection === 'DESC'" class="bi bi-sort-down" />
+          <i v-if="filtersSortData.sortDirection === 'ASC'" class="bi bi-sort-up" />
+        </template>
+      </FilterButton>
 
       <div id="v-step-3" class="filter-by-status">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor"
-          :class="filtersSortData.status.length > 0 ? 'show' : ''"
+        <FilterButton
+          :customStyle="
+            filtersSortData.status.length > 0 ? returnButtonActiveColor : returnButtonColor
+          "
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.status.length > 0"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Filter by status
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
           <div v-for="(status, index) in filtersStatus" :key="index" class="form-check mx-2 my-2">
             <input
@@ -77,19 +89,23 @@
       </div>
 
       <div id="v-step-4" class="filter-by-org" v-if="filterOrganizations.length > 0">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="
+        <FilterButton
+          :customStyle="
             filtersSortData.organizations.length > 0 ? returnButtonActiveColor : returnButtonColor
           "
-          :class="filtersSortData.organizations.length > 0 ? 'show' : ''"
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.organizations.length > 0"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Filter by Organization
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownSortingButton" role="menu">
           <div
             v-for="(org, index) in filterOrganizations"
@@ -114,25 +130,25 @@
       </div>
 
       <div class="filter-by-date">
-        <button
-          class="btn btn-sm dropdown-toggle custom-button-hover"
-          :style="
+        <FilterButton
+          :customStyle="
             filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
               ? returnButtonActiveColor
               : returnButtonColor
           "
-          :class="
-            filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''
-              ? 'btn-primary show'
-              : ''
-          "
+          customClass="dropdown-toggle custom-button-hover"
+          :active="filtersSortData.dateStart !== '' || filtersSortData.dateEnd !== ''"
+          size="sm"
+          dropdown
           type="button"
-          data-bs-toggle="dropdown"
-          data-bs-auto-close="outside"
-          aria-expanded="false"
+          v-bind="{
+            'data-bs-toggle': 'dropdown',
+            'data-bs-auto-close': 'outside',
+            'aria-expanded': 'false',
+          }"
         >
           Filter by date
-        </button>
+        </FilterButton>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
           <div
             class="mx-2 my-2 dropdown-contents"
@@ -166,15 +182,17 @@
     </div>
 
     <div class="my-2 ms-auto">
-      <button
-        type="button"
-        :style="returnClearButtonColor"
-        class="btn btn-sm custom-button-hover"
-        @click="clearAllFilters()"
+      <FilterButton
+        :customStyle="returnClearButtonColor"
+        customClass="custom-button-hover"
+        size="sm"
+        @click="clearAllFilters"
       >
-        <i class="bi bi-x-circle" />
+        <template #icon>
+          <i class="bi bi-x-circle" />
+        </template>
         Clear all filters
-      </button>
+      </FilterButton>
     </div>
   </div>
 </template>
@@ -184,6 +202,7 @@ import { computed, onMounted } from 'vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
+import FilterButton from '@/components/ui/buttons/FilterButton.vue'
 
 const filtersSortData = defineModel('filtersSortData')
 const uiConfigurationStore = useUiConfiguration()
