@@ -5,7 +5,11 @@ describe("Test negotiation pdf download", () => {
     cy.visit("http://localhost:8080")
     cy.login("Admin", "admin")
     // Go to negotiation.
-    cy.get("tbody > tr > td ").contains("UNDER REVIEW").parent().parent().find(":nth-child(6)").click()
+    cy.get('a.ui-table-row.d-table-row.text-decoration-none')
+      .contains('UNDER REVIEW')
+      .parents('a.ui-table-row.d-table-row.text-decoration-none')
+      .find(':nth-child(6)')
+      .click()
   })
 
   // Download of merged pdf
