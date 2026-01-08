@@ -114,7 +114,7 @@
       </div>
 
       <div v-if="savedNegotiationsView === 'Table'">
-        <UiTable :headers="tableHeaders" :data="tableData">
+        <PrimaryTable :headers="tableHeaders" :data="tableData">
           <template #header-title>
             <span>Title</span>
             <SortButton
@@ -170,7 +170,7 @@
             />
           </template>
           <template #creationDate="{ value }">
-            <UiTimestamp :value="value" :muted="true" />
+            <TimeStamp :value="value" :muted="true" />
           </template>
           <template #status="{ value }">
             <UiBadge :class="getBadgeColor(value)" :icon="getBadgeIcon(value)" width="120px">
@@ -183,7 +183,7 @@
               :style="{ color: uiConfiguration?.tableTextColor }"
             />
           </template>
-        </UiTable>
+        </PrimaryTable>
       </div>
 
       <h2 v-if="negotiations.length === 0" class="text-center">No Negotiations found</h2>
@@ -219,7 +219,7 @@
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import NegotiationCard from '@/components/NegotiationCard.vue'
 import UiBadge from '@/components/ui/UiBadge.vue'
-import UiTable from '@/components/ui/UiTable.vue'
+import PrimaryTable from '@/components/ui/table/PrimaryTable.vue'
 import { ROLES } from '@/config/consts'
 import { useRouter } from 'vue-router'
 import {
@@ -231,7 +231,7 @@ import {
 import NewRequestButton from '../components/NewRequestButton.vue'
 import { useNegotiationsViewStore } from '../store/negotiationsView.js'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
-import UiTimestamp from '@/components/ui/UiTimestamp.vue'
+import TimeStamp from '@/components/ui/TimeStamp.vue'
 import SortButton from '@/components/ui/SortButton.vue'
 
 const filtersSortData = defineModel('filtersSortData')

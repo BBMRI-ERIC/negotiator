@@ -53,7 +53,7 @@
                   <strong>{{ getAuthorName(item) }}</strong>
                 </span>
                 <span class="ms-1 ui-timestamp-text">
-                  posted on <UiTimestamp :value="item.creationDate" :muted="true" />
+                  posted on <TimeStamp :value="item.creationDate" :muted="true" />
                 </span>
               </div>
 
@@ -76,14 +76,14 @@
       class="text-muted small text-end"
       style="min-width: 140px; flex-shrink: 0"
     >
-      <UiTimestamp :value="item.timestamp" />
+      <TimeStamp :value="item.timestamp" />
     </div>
   </div>
 </template>
 
 <script setup>
 import UiBadge from '@/components/ui/UiBadge.vue'
-import UiTimestamp from '@/components/ui/UiTimestamp.vue'
+import TimeStamp from '@/components/ui/TimeStamp.vue'
 
 const props = defineProps({
   item: {
