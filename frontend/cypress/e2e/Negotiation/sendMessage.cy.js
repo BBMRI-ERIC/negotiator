@@ -5,11 +5,7 @@ describe("Test negotiation message", () => {
         cy.visit("http://localhost:8080")
         cy.login("Admin", "admin")
         // Go to negotiation.
-        cy.get('a.ui-table-row.d-table-row.text-decoration-none')
-            .contains('UNDER REVIEW')
-            .parents('a.ui-table-row.d-table-row.text-decoration-none')
-            .find(':nth-child(6)')
-            .click()
+        cy.get(".primary-table-row").contains("UNDER REVIEW").parent().parent().click()
     })
 
     context("check if message part in negotiation is visible", () => {

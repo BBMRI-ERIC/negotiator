@@ -16,12 +16,12 @@ describe("Test access negotiations", () => {
             })
 
             // Negotiation is visible in table view
-            cy.get("a.ui-table-row.d-table-row").should("be.visible")
-            cy.get("a.ui-table-row.d-table-row > :nth-child(2)").should("be.visible")
-            cy.get("a.ui-table-row.d-table-row > :nth-child(3)").should("be.visible")
-            cy.get("a.ui-table-row.d-table-row > :nth-child(4)").should("be.visible")
-            cy.get("a.ui-table-row.d-table-row > :nth-child(5)").should("be.visible")
-            cy.get("a.ui-table-row.d-table-row > :nth-child(6)").should("be.visible")
+            cy.get("tbody > :nth-child(2) > a >").should("be.visible")
+            cy.get("tbody > :nth-child(2) > a  > :nth-child(2)").should("be.visible")
+            cy.get("tbody > :nth-child(2) > a  > :nth-child(3)").should("be.visible")
+            cy.get("tbody > :nth-child(2) > a  > :nth-child(4)").should("be.visible")
+            cy.get("tbody > :nth-child(2) > a  > :nth-child(5)").should("be.visible")
+            cy.get("tbody > :nth-child(2) > a  > :nth-child(6)").should("be.visible")
         })
 
         it("test if card contains negotiation", () => {
@@ -46,11 +46,7 @@ describe("Test access negotiations", () => {
         })
 
         it("test if negotiation page contains all fields", () => {
-              cy.get('a.ui-table-row.d-table-row.text-decoration-none')
-                .contains('UNDER REVIEW')
-                .parents('a.ui-table-row.d-table-row.text-decoration-none')
-                .find(':nth-child(6)')
-                .click()
+            cy.get(".primary-table-row").contains("UNDER REVIEW").parent().parent().click()
 
             cy.url().should("contain", "/negotiations")
             //  Title
