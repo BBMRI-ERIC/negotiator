@@ -1,13 +1,14 @@
 <template>
   <div class="ui-table-responsive">
-    <table class="ui-table">
-      <thead>
-        <tr>
+    <table class="ui-table" role="table">
+      <thead role="rowgroup">
+        <tr role="row">
           <th
             v-for="(header, idx) in headers"
             :key="idx"
             :style="header.style"
             class="ui-table-header"
+            role="columnheader"
           >
             <template v-if="$slots[`header-${header.key}`]">
               <slot :name="`header-${header.key}`" :header="header" :idx="idx" />
@@ -18,34 +19,36 @@
           </th>
         </tr>
       </thead>
-      <tbody>
-        <a
+      <tbody role="rowgroup">
+        <tr
           v-for="(row, rowIdx) in data"
           :key="rowIdx"
           class="ui-table-row d-table-row text-decoration-none"
-          :href="row.href || undefined"
-          style="color: inherit; user-select: none; display: table-row"
-          tabindex="0"
+          :tabindex="0"
           @click="rowClick(row, rowIdx)"
+          style="cursor: pointer; user-select: none"
+          role="row"
         >
-          <span
-            v-for="(header, colIdx) in headers"
-            :key="colIdx"
-            :style="header.style"
-            class="ui-table-cell d-table-cell"
-            style="display: table-cell"
-          >
-            <slot
-              :name="header.slot"
-              :row="row"
-              :value="row[header.key]"
-              :rowIdx="rowIdx"
-              :colIdx="colIdx"
+          <a :href="row.href || undefined">
+            <td
+              v-for="(header, colIdx) in headers"
+              :key="colIdx"
+              :style="header.style"
+              class="ui-table-cell d-table-cell"
+              role="cell"
             >
-              {{ row[header.key] }}
-            </slot>
-          </span>
-        </a>
+              <slot
+                :name="header.slot"
+                :row="row"
+                :value="row[header.key]"
+                :rowIdx="rowIdx"
+                :colIdx="colIdx"
+              >
+                {{ row[header.key] }}
+              </slot>
+            </td>
+          </a>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -98,5 +101,8 @@ defineProps({
   padding: 0.75rem 0.5rem;
   border-bottom: 1px solid #dee2e6;
   vertical-align: middle;
+}
+tr a {
+  display: contents;
 }
 </style>
