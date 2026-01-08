@@ -96,7 +96,7 @@ public class HTTPRegistryConfigurer {
         .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/resources/**"))
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/v3/negotiations/*/resources/**"))
-        .hasRole("ADMIN")
+        .authenticated()
         .requestMatchers(mvc.pattern("/v3/users/*/negotiations"))
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/sections"))

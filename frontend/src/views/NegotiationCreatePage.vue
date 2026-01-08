@@ -11,6 +11,11 @@
     />
   </div>
   <div class="negotiation-create-page">
+    <DraftNegotiationMergeBanner
+      :draftNegotiation="recentDraftNegotiation"
+      @merge="handleMergeWithDraft"
+      @dismiss="handleDismissBanner"
+    />
     <div class="d-flex flex-column flex-md-row mt-5">
       <FormNavigation
         :navItems="returnNavItems"
@@ -62,15 +67,17 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '../store/user.js'
 import FormNavigation from '../components/form-components/FormNavigation.vue'
 import RequestSummary from '../components/form-components/RequestSummary.vue'
 import AccessFormSection from '../components/form-components/AccessFormSection.vue'
 import AccessFormOverview from '../components/form-components/AccessFormOverview.vue'
 import FormNavigationButtons from '../components/form-components/FormNavigationButtons.vue'
+import DraftNegotiationMergeBanner from '../components/DraftNegotiationMergeBanner.vue'
 import { useNegotiationFormStore } from '../store/negotiationForm.js'
 import { useNegotiationPageStore } from '../store/negotiationPage.js'
+import { useNegotiationsStore } from '../store/negotiations.js'
 import { useNotificationsStore } from '../store/notifications.js'
 import ConfirmationModal from '../components/modals/ConfirmationModal.vue'
 
@@ -88,6 +95,7 @@ const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 const negotiationFormStore = useNegotiationFormStore()
 const negotiationPageStore = useNegotiationPageStore()
+const negotiationsStore = useNegotiationsStore()
 
 const route = useRoute()
 const requestId = ref(route.params.requestId)
@@ -102,6 +110,7 @@ const negotiationAttachments = ref([])
 const openSaveModal = ref(null)
 const negotiationReplacedAttachmentsID = ref([])
 const saveDraftDisabled = ref(true)
+const recentDraftNegotiation = ref(null)
 
 onMounted(async () => {
   if (Object.keys(userStore.userInfo).length === 0) {
@@ -111,6 +120,7 @@ onMounted(async () => {
   activeNavItemIndex.value = Number.isInteger(parseInt(route.query.step))
     ? parseInt(route.query.step)
     : 0
+  await fetchRecentDraftNegotiation()
 
   if (props.isEditForm) {
     requestSummary.value = await negotiationPageStore.retrieveNegotiationById(requestId.value)
@@ -146,6 +156,10 @@ onMounted(async () => {
 
   accessFormWithPayload.value = createAccessFormWithPayload()
   validateAllInputs()
+
+  if (!props.isEditForm) {
+    await createNegotiation()
+  }
 })
 
 const existingAttachments = ref({})
@@ -231,15 +245,6 @@ watch(
     if (oldValue > 0 && oldValue <= returnNavItems.value?.length) {
       validateInput(oldValue)
     }
-
-    if (
-      !props.isEditForm &&
-      newValue !== oldValue &&
-      newValue > 0 &&
-      newValue <= returnNavItems.value?.length
-    ) {
-      createNegotiation()
-    }
   },
   { deep: true },
 )
@@ -281,10 +286,6 @@ async function createNegotiation() {
     .createNegotiation(data)
     .then((negotiationId) => {
       if (negotiationId) {
-        notificationsStore.setNotification(
-          `Negotiation saved correctly as draft with id ${negotiationId}`,
-          'light',
-        )
         if (activeNavItemIndex.value) {
           router.push({
             path: `/edit/requests/${negotiationId}`,
@@ -363,6 +364,71 @@ function showSectionAndScrollToElement(item) {
     window.scroll(0, calcYOffset)
     return
   }
+}
+
+async function fetchRecentDraftNegotiation() {
+  try {
+    const filtersSortData = {
+      status: ['DRAFT'],
+    }
+
+    const response = await negotiationsStore.retrieveNegotiationsByUserId(
+      'author',
+      filtersSortData,
+      userStore.userInfo.id,
+      0,
+    )
+
+    if (response?._embedded?.negotiations?.length > 0) {
+      // Get the most recent draft (first in the sorted list)
+      const mostRecentDraft = response._embedded.negotiations[1]
+      recentDraftNegotiation.value = mostRecentDraft
+    }
+  } catch (error) {
+    console.error('Error fetching recent draft negotiations:', error)
+  }
+}
+
+async function handleMergeWithDraft(draftNegotiation) {
+  try {
+    // Get resource IDs from the current request
+    const resourceIds = requestSummary.value.resources?.map((resource) => resource.id) || []
+
+    if (resourceIds.length === 0) {
+      notificationsStore.setNotification(
+        'No resources found to merge',
+        'warning'
+      )
+      return
+    }
+
+    // Call the API to add resources to the draft negotiation
+    const result = await negotiationPageStore.addResources(
+      { resourceIds },
+      draftNegotiation.id
+    )
+
+    // Check if the API call was successful (returned data)
+    if (result) {
+        await negotiationPageStore.deleteNegotiation(requestId.value)
+      router.push(`/edit/requests/${draftNegotiation.id}`)
+      notificationsStore.setNotification(
+        'Resources successfully merged with your draft negotiation',
+        'success'
+      )
+    }
+  } catch (error) {
+    console.error('Error merging with draft negotiation:', error)
+    notificationsStore.setNotification(
+      'Failed to merge resources with draft negotiation',
+      'danger'
+    )
+  }
+}
+
+function handleDismissBanner() {
+  // Simply hide the banner by clearing the reference
+  recentDraftNegotiation.value = null
 }
 </script>
 

@@ -1564,6 +1564,50 @@ public class NegotiationControllerTests {
   }
 
   @Test
+  @WithUserDetails("TheResearcher")
+  @Transactional
+  void addResources_draftStatus_userCanAddResources() throws Exception {
+    // Get a negotiation created by TheResearcher and set it to DRAFT status
+    Negotiation negotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
+    negotiation.setCurrentState(NegotiationState.DRAFT);
+    negotiationRepository.saveAndFlush(negotiation);
+
+    // Get the initial count of resources
+    int initialResourceCount = negotiation.getResources().size();
+
+    // Find resources that are not yet part of this negotiation
+    List<Resource> newResources =
+        resourceRepository.findAll().stream()
+            .filter(resource -> !negotiation.getResources().contains(resource))
+            .limit(2) // Add 2 new resources
+            .toList();
+
+    Assertions.assertFalse(newResources.isEmpty(), "Should have resources to add");
+
+    // Add new resources to the negotiation
+    UpdateResourcesDTO updateResourcesDTO =
+        new UpdateResourcesDTO(newResources.stream().map(Resource::getId).toList());
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch(
+                    "%s/%s/resources".formatted(NEGOTIATIONS_URL, negotiation.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateResourcesDTO)))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath(
+                "$._embedded.resources.length()", is(initialResourceCount + newResources.size())));
+
+    // Verify the resources were actually added
+    Negotiation updatedNegotiation = negotiationRepository.findById(NEGOTIATION_1_ID).get();
+    assertEquals(
+        initialResourceCount + newResources.size(),
+        updatedNegotiation.getResources().size(),
+        "Resources should be added to the negotiation");
+  }
+
+  @Test
   @WithUserDetails("admin")
   void getLifecycleEvents() throws Exception {
     // negotiation-1 status is IN_PROGRESS
