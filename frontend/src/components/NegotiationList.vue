@@ -173,7 +173,7 @@
             <UiTimestamp :value="value" :muted="true" />
           </template>
           <template #status="{ value }">
-            <UiBadge :color="getBadgeColor(value)" :icon="getBadgeIcon(value)" width="120px">
+            <UiBadge :class="getBadgeColor(value)" :icon="getBadgeIcon(value)" width="120px">
               {{ transformStatus(value) }}
             </UiBadge>
           </template>

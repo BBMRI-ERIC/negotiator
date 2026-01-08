@@ -83,7 +83,7 @@
               </td>
               <td>{{ resource.contactEmail || 'N/A' }}</td>
               <td>
-                <UiBadge :color="resource.withdrawn ? 'bg-danger' : 'bg-success'">
+                <UiBadge :class="resource.withdrawn ? 'bg-danger' : 'bg-success'">
                   {{ resource.withdrawn ? 'Withdrawn' : 'Active' }}
                 </UiBadge>
               </td>

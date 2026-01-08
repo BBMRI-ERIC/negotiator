@@ -9,8 +9,8 @@
             <small class="text-muted">({{ organization.externalId }})</small>
             <UiBadge
               v-if="organization.withdrawn"
-              color="bg-warning text-dark ms-2"
-              icon="bi bi-x-octagon-fill me-1"
+              :class="'bg-warning text-dark ms-2'"
+              :icon="'bi bi-x-octagon-fill me-1'"
               >WITHDRAWN</UiBadge
             >
           </h5>
@@ -111,23 +111,23 @@
                 <!-- Resource Status Badges -->
                 <UiBadge
                   v-if="resource.withdrawn"
-                  color="bg-warning text-dark ms-2"
-                  icon="bi bi-x-octagon-fill me-1"
+                  :class="'bg-warning text-dark ms-2'"
+                  :icon="'bi bi-x-octagon-fill me-1'"
                   >WITHDRAWN</UiBadge
                 >
                 <UiBadge
                   v-else-if="organization.withdrawn"
-                  color="bg-secondary ms-2"
-                  icon="bi bi-x-octagon-fill me-1"
+                  :class="'bg-secondary ms-2'"
+                  :icon="'bi bi-x-octagon-fill me-1'"
                   >ORG WITHDRAWN</UiBadge
                 >
                 <UiBadge
                   v-else-if="resource.representatives.length === 0"
-                  color="bg-danger ms-2"
-                  icon="bi bi-exclamation-triangle-fill me-1"
+                  :class="'bg-danger ms-2'"
+                  :icon="'bi bi-exclamation-triangle-fill me-1'"
                   >NO REPRESENTATIVES</UiBadge
                 >
-                <UiBadge v-else color="bg-success ms-2" icon="bi bi-check-circle-fill me-1"
+                <UiBadge v-else :class="'bg-success ms-2'" :icon="'bi bi-check-circle-fill me-1'"
                   >ACTIVE</UiBadge
                 >
               </h6>

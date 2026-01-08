@@ -9,7 +9,7 @@
       }"
       ><i class="bi bi-file-earmark-pdf" />
       {{ text }}
-      <UiBadge v-if="badgeText" :color="`bg-${badgeType} rounded-pill`">{{ badgeText }}</UiBadge>
+      <UiBadge v-if="badgeText" :class="`bg-${badgeType} rounded-pill`">{{ badgeText }}</UiBadge>
     </a>
 
     <DownloadingSpinner ref="downloadingSpinner" />

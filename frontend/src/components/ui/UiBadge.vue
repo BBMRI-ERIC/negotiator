@@ -9,7 +9,7 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  color: {
+  class: {
     type: String,
     default: '', // e.g. 'bg-success', 'bg-danger', or custom
   },
@@ -28,7 +28,7 @@ const props = defineProps({
 })
 
 const badgeClass = computed(() => {
-  return [props.color]
+  return [props.class]
 })
 
 const badgeStyle = computed(() => {

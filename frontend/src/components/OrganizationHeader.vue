@@ -26,7 +26,7 @@
           @click.stop="onToggleDropdown"
         >
           <UiBadge
-            :color="'text-wrap ' + getStatusColor(org.status)"
+            :class="'text-wrap ' + getStatusColor(org.status)"
             :icon="getStatusIcon(org.status)"
           >
             {{ org.status?.replace(/_/g, ' ') || '' }}
