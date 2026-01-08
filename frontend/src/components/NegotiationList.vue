@@ -354,10 +354,14 @@ function emitFilterSortData() {
 }
 
 function goToNegotiation(negotiation) {
-  router.push({
-    name: 'negotiation-page',
-    params: { negotiationId: negotiation.id },
-  })
+  if (negotiation.status === 'DRAFT') {
+    router.push(`/edit/requests/${negotiation.id}`)
+  } else {
+    router.push({
+      name: 'negotiation-page',
+      params: { negotiationId: negotiation.id },
+    })
+  }
 }
 
 function handleSearchInput() {
