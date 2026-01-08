@@ -1,7 +1,6 @@
 package eu.bbmri_eric.negotiator.info_submission;
 
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface InformationSubmissionService {
   /**
@@ -48,22 +47,5 @@ public interface InformationSubmissionService {
    *
    * @return a summary file
    */
-  MultipartFile createSummary(Long requirementId, String negotiationId);
-
-  /**
-   * Generate a PDF summary of all submissions for a given requirement.
-   *
-   * @param requirementId the ID of the requirement
-   * @param negotiationId the ID of the negotiation
-   * @return a PDF file containing the summary
-   */
-  byte[] createPdfSummary(Long requirementId, String negotiationId);
-
-  /**
-   * Generate PDF summaries for all information requirements in a negotiation.
-   *
-   * @param negotiationId the ID of the negotiation
-   * @return a list of PDF byte arrays, one for each requirement
-   */
-  List<byte[]> createAllPdfSummaries(String negotiationId);
+  InformationSubmissionSummaryDTO createSummary(Long requirementId, String negotiationId);
 }

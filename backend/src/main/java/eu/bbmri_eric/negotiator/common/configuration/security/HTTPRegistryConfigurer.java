@@ -41,6 +41,8 @@ public class HTTPRegistryConfigurer {
         .permitAll()
         .requestMatchers(mvc.pattern(HttpMethod.POST, "/v3/requests"))
         .permitAll()
+        .requestMatchers(mvc.pattern(HttpMethod.OPTIONS, "/v3/requests"))
+        .permitAll()
         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/v3/requests/**"))
         .authenticated()
         .requestMatchers(mvc.pattern(HttpMethod.GET, "/v3/requests/**"))

@@ -34,9 +34,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -133,7 +131,7 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
   }
 
   @Override
-  public MultipartFile createSummary(Long requirementId, String negotiationId) {
+  public InformationSubmissionSummaryDTO createSummary(Long requirementId, String negotiationId) {
     if (negotiationRepository.existsByIdAndCreatedBy_Id(
             negotiationId, AuthenticatedUserContext.getCurrentlyAuthenticatedUserInternalId())
         || AuthenticatedUserContext.isCurrentlyAuthenticatedUserAdmin()) {
@@ -240,7 +238,8 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     return modelMapper.map(submission, SubmittedInformationDTO.class);
   }
 
-  private MultipartFile generateCSVFile(List<InformationSubmission> submissions, String fileName) {
+  private InformationSubmissionSummaryDTO generateCSVFile(
+      List<InformationSubmission> submissions, String fileName) {
     ObjectMapper objectMapper = new ObjectMapper();
     Set<String> jsonKeys = generatedHeadersFromResponses(submissions, objectMapper);
     List<String> headers = setHeaders(jsonKeys);
@@ -249,8 +248,8 @@ public class InformationSubmissionServiceImpl implements InformationSubmissionSe
     }
     ByteArrayOutputStream byteArrayOutputStream =
         createCSVAsByteArray(submissions, headers, objectMapper, jsonKeys);
-    return new MockMultipartFile(
-        fileName, fileName, "text/csv", byteArrayOutputStream.toByteArray());
+    return new InformationSubmissionSummaryDTO(
+        fileName, byteArrayOutputStream.toByteArray(), "text/csv");
   }
 
   private static @NonNull List<String> setHeaders(Set<String> jsonKeys) {
