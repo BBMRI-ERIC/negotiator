@@ -106,7 +106,7 @@
                 <span v-else class="text-muted">-</span>
               </td>
               <td class="py-2">
-                <UiBadge :color="getStatusBadgeClass(resource)">
+                <UiBadge :class="getStatusBadgeClass(resource)">
                   {{ getStatusText(resource) }}
                 </UiBadge>
               </td>

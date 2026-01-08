@@ -34,7 +34,7 @@
                 <UiBadge
                   v-for="badge in getUserBadges(item)"
                   :key="badge"
-                  color="rounded-pill"
+                  :class="'rounded-pill'"
                   :style="{ backgroundColor: uiConfiguration.primaryTextColor }"
                   :title="getBadgeTooltip(badge)"
                   data-bs-toggle="tooltip"

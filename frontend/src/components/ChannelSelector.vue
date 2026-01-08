@@ -2,7 +2,7 @@
   <div>
     <div v-if="selectedChannelName" class="mt-2">
       <UiBadge
-        :color="channelId === 'public' ? 'bg-warning rounded-pill' : 'bg-primary rounded-pill'"
+        :class="channelId === 'public' ? 'bg-warning rounded-pill' : 'bg-primary rounded-pill'"
         :icon="channelId === 'public' ? 'bi bi-globe' : 'bi bi-lock-fill'"
       >
         Channel: {{ selectedChannelName }}

@@ -133,10 +133,10 @@
                   <strong>{{ representative.name }}</strong>
                   <br />
                   <small class="text-muted">{{ representative.email }}</small>
-                  <UiBadge v-if="isMarkedForAddition(representative.id)" color="bg-success ms-2">
+                  <UiBadge v-if="isMarkedForAddition(representative.id)" :class="'bg-success ms-2'">
                     New
                   </UiBadge>
-                  <UiBadge v-if="isMarkedForRemoval(representative.id)" color="bg-danger ms-2">
+                  <UiBadge v-if="isMarkedForRemoval(representative.id)" :class="'bg-danger ms-2'">
                     To Remove
                   </UiBadge>
                 </div>

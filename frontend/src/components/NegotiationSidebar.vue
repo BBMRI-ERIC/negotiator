@@ -72,7 +72,7 @@
         <div>
           <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">Status:</div>
           <UiBadge
-            :color="getBadgeColor(negotiation.status) + ' py-2 rounded-pill bg'"
+            :class="getBadgeColor(negotiation.status) + ' py-2 rounded-pill bg'"
             :icon="getBadgeIcon(negotiation.status)"
           >
             {{ negotiation ? transformStatus(negotiation.status) : '' }}

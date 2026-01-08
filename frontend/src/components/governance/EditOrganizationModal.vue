@@ -58,7 +58,7 @@
               >
                 <i class="bi bi-database me-2"></i>
                 Resources
-                <UiBadge v-if="resourcesCount > 0" color="bg-secondary ms-2">{{
+                <UiBadge v-if="resourcesCount > 0" :class="'bg-secondary ms-2'">{{
                   resourcesCount
                 }}</UiBadge>
               </button>

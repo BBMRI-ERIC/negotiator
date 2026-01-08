@@ -4,7 +4,7 @@
       <div class="card-header bg-body" :style="{ color: uiConfiguration?.cardTextColor }">
         <span class="h5">{{ title }}</span>
         <h6 class="float-end">
-          <UiBadge :color="getBadgeColor(status)" :icon="getBadgeIcon(status)" width="125px">
+          <UiBadge :class="getBadgeColor(status)" :icon="getBadgeIcon(status)" width="125px">
             {{ transformStatus(status) }}
           </UiBadge>
         </h6>

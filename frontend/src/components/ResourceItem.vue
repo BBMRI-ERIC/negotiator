@@ -12,7 +12,9 @@
             <i class="bi bi-box-seam" />
             {{ resource.name }}
           </label>
-          <UiBadge color="bg-status-badge rounded-pill ms-2">{{ getStatusForResource() }}</UiBadge>
+          <UiBadge :class="'bg-status-badge rounded-pill ms-2'">{{
+            getStatusForResource()
+          }}</UiBadge>
         </div>
         <!-- Resource URI if available -->
         <div v-if="resource.uri" class="me-3 mb-2">
