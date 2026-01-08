@@ -162,7 +162,6 @@ function returnAvatarColor(validationErrorHighlightItem) {
   flex-shrink: 0;
   outline: none !important;
   box-shadow: none !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   background: transparent;
 }
 
@@ -178,7 +177,7 @@ function returnAvatarColor(validationErrorHighlightItem) {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
   background: transparent !important;
 }
 
@@ -192,7 +191,6 @@ function returnAvatarColor(validationErrorHighlightItem) {
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 2rem;
   background: transparent !important;
 }
