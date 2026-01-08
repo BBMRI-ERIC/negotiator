@@ -47,7 +47,7 @@ const computedStyle = computed(() => {
   }
 })
 
-function onClick(event: MouseEvent) {
+function onClick(event) {
   if (!props.disabled) emit('click', event)
 }
 </script>
