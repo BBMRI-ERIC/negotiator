@@ -3,7 +3,6 @@
     <button
       :class="['btn', sizeClass, 'btn-outline-info', 'me-3', { disabled: isDisabled }]"
       :style="buttonStyle"
-      @click="nextTab"
       @mouseover="handleMouseOver"
       @mouseout="handleMouseOut"
     >
