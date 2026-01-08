@@ -66,7 +66,7 @@
         <div class="fw-bold" :style="{ color: uiConfiguration.primaryTextColor }">
           Submitted at:
         </div>
-        <UiTimestamp :value="negotiation ? negotiation.creationDate : ''" />
+        <TimeStamp :value="negotiation ? negotiation.creationDate : ''" />
       </li>
       <li class="list-group-item p-2 d-flex justify-content-between">
         <div>
@@ -169,7 +169,7 @@ import {
 } from '../composables/utils.js'
 import { apiPaths, getBearerHeaders } from '../config/apiPaths'
 import { useNotificationsStore } from '../store/notifications'
-import UiTimestamp from '@/components/ui/UiTimestamp.vue'
+import TimeStamp from '@/components/ui/TimeStamp.vue'
 
 useNegotiationPageStore()
 const notifications = useNotificationsStore()
