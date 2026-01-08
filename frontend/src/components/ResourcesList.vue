@@ -250,15 +250,15 @@ function handleRemoveResource(resource) {
   background: none;
   border: 2px solid #dee2e6;
   color: #dc3545;
-  font-size: 1.5rem;
-  padding: 0.625rem;
+  font-size: 1.125rem;
+  padding: 0.5rem;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
 }
 
 .remove-btn:hover {
@@ -336,9 +336,9 @@ function handleRemoveResource(resource) {
   }
 
   .remove-btn {
-    width: 42px;
-    height: 42px;
-    font-size: 1.25rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
   }
 }
 </style>
