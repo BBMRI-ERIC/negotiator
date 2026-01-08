@@ -66,7 +66,7 @@ class EmailNotificationRequestListener {
     String negotiationId = negotiation != null ? negotiation.getId() : null;
     String subject =
         negotiation != null
-            ? notification.getTitle()
+            ? "New notification for Negotiation:"
                 + " "
                 + negotiation.getTitle().substring(0, Math.min(negotiation.getTitle().length(), 30))
             : notification.getTitle();

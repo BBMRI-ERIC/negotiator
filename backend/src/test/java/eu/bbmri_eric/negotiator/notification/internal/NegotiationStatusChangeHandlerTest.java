@@ -73,7 +73,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("New notification for Negotiation:", notification.getTitle());
+    assertEquals("Negotiation Submission Confirmed", notification.getTitle());
     assertEquals(
         "Your negotiation request has been successfully submitted and is now under review. You will be notified of any updates.",
         notification.getBody());
@@ -104,7 +104,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("New notification for Negotiation:", notification.getTitle());
+    assertEquals("Request Status Update", notification.getTitle());
     assertTrue(notification.getBody().contains("Test Negotiation"));
     assertTrue(notification.getBody().contains("has been approved"));
     assertEquals(negotiationId, notification.getNegotiationId());
@@ -130,7 +130,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("New notification for Negotiation:", notification.getTitle());
+    assertEquals("Request Status Update", notification.getTitle());
     assertTrue(notification.getBody().contains("Test Negotiation"));
     assertTrue(notification.getBody().contains("has been rejected"));
     assertEquals(negotiationId, notification.getNegotiationId());
@@ -156,7 +156,7 @@ class NegotiationStatusChangeHandlerTest {
 
     NotificationCreateDTO notification = notificationCaptor.getValue();
     assertEquals(List.of(123L), notification.getUserIds());
-    assertEquals("New notification for Negotiation:", notification.getTitle());
+    assertEquals("Request Status Update", notification.getTitle());
     assertTrue(notification.getBody().contains("Test Negotiation"));
     assertTrue(notification.getBody().contains("has been marked as abandoned"));
     assertEquals(negotiationId, notification.getNegotiationId());
