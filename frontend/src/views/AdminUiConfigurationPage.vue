@@ -67,30 +67,7 @@
         <HomePage :is-ui-config-active="true" />
       </div>
     </div>
-    <div class="filter mb-2">
-      <div class="mb-3 text-left fw-bold h3">
-        Filter Sort Settings
-        <button
-          class="btn btn-sm btn-light"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#collapse4"
-          aria-expanded="false"
-          aria-controls="collapse4"
-        >
-          <i class="bi bi-arrows-angle-expand" /> expand/collapse
-        </button>
-      </div>
-      <div id="collapse4" class="filter-config row collapse mb-5">
-        <UiConfigurationSetting v-model="uiConfiguration.filtersSort" />
-        <FilterSort
-          v-model:filtersSortData="filtersSortData"
-          :user-role="userRole"
-          :filters-status="filtersStatus"
-          @filters-sort-data="retrieveNegotiationsBySortAndFilter"
-        />
-      </div>
-    </div>
+
     <div class="negotiation-list mb-2">
       <div class="mb-3 text-left fw-bold h3">
         Negotiation List Settings
@@ -177,7 +154,6 @@ import { computed, ref } from 'vue'
 import UiConfigurationSetting from '../components/UiConfigurationSetting.vue'
 import { useUiConfiguration } from '../store/uiConfiguration.js'
 import HomePage from '../views/HomePage.vue'
-import FilterSort from '@/components/FilterSort.vue'
 import NegotiationList from '@/components/NegotiationList.vue'
 import ConfirmationModal from '@/components/modals/ConfirmationModal.vue'
 
@@ -203,71 +179,6 @@ const filtersSortData = ref({
   sortDirection: 'DESC',
 })
 const userRole = ref('ROLE_ADMIN')
-const filtersStatus = ref([
-  {
-    value: 'SUBMITTED',
-    label: 'Under review',
-    description: 'The negotiation has been submitted for review',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/SUBMITTED' },
-    },
-  },
-  {
-    value: 'APPROVED',
-    label: 'Approved',
-    description: 'The negotiation has been approved',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/APPROVED' },
-    },
-  },
-  {
-    value: 'DECLINED',
-    label: 'Declined',
-    description: 'The negotiation has been declined',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/DECLINED' },
-    },
-  },
-  {
-    value: 'IN_PROGRESS',
-    label: 'In Progress',
-    description: 'The negotiation is currently in progress',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/IN_PROGRESS' },
-    },
-  },
-  {
-    value: 'ABANDONED',
-    label: 'Abandoned',
-    description: 'The negotiation has been abandoned',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/ABANDONED' },
-    },
-  },
-  {
-    value: 'CONCLUDED',
-    label: 'Concluded',
-    description: 'The negotiation has been concluded',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/CONCLUDED' },
-    },
-  },
-  {
-    value: 'PAUSED',
-    label: 'Paused',
-    description: 'The negotiation is paused',
-    _links: {
-      states: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states' },
-      self: { href: 'http://localhost:8081/api/v3/negotiation-lifecycle/states/PAUSED' },
-    },
-  },
-])
 const pagination = ref({ size: 50, totalElements: 501, totalPages: 10, number: 0 })
 const negotiations = ref([
   {
